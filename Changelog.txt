@@ -1,0 +1,29 @@
+             *   *   *   *   *
+                              
+             *   Pixelaria   *
+                              
+             *   *   *   *   *
+                   v1.0b
+Pixel Art Animation Creation and Exporting Tool
+     Copyright ù© 2013 Luiz Fernando Silva
+
+
+- Changelog
+
+Legend:
+
++ Addition
+* Fix
+. Node
+
+
+-- v1.1b
+
+* Fixed a crash related to the main form tree view double clicking trying to open the currently selected item with none selected.
+* Fixed some gramatical errors on the tooltips for the AnimationSheetView form.
+* Fixed the exported sheet's Frame Count label not displaying the correct value on the AnimationSheetView form
+
+
+-- v1.0b
+
+. Initial release.

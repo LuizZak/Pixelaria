@@ -1,0 +1,1300 @@
+﻿/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
+namespace Pixelaria.Views.ModelViews
+{
+    partial class FrameView
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
+            Pixelaria.Views.Controls.PencilPaintOperation pencilPaintOperation1 = new Pixelaria.Views.Controls.PencilPaintOperation();
+            this.printDialog1 = new System.Windows.Forms.PrintDialog();
+            this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.rb_pencil = new System.Windows.Forms.RadioButton();
+            this.rb_eraser = new System.Windows.Forms.RadioButton();
+            this.rb_picker = new System.Windows.Forms.RadioButton();
+            this.rb_line = new System.Windows.Forms.RadioButton();
+            this.rb_rectangle = new System.Windows.Forms.RadioButton();
+            this.rb_circle = new System.Windows.Forms.RadioButton();
+            this.rb_bucket = new System.Windows.Forms.RadioButton();
+            this.rb_selection = new System.Windows.Forms.RadioButton();
+            this.rb_zoom = new System.Windows.Forms.RadioButton();
+            this.pnl_framePreview = new System.Windows.Forms.Panel();
+            this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.panel4 = new System.Windows.Forms.Panel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorSwatchControl();
+            this.splitter1 = new System.Windows.Forms.Splitter();
+            this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorPicker();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.rb_blendingBlend = new System.Windows.Forms.RadioButton();
+            this.rb_blendingReplace = new System.Windows.Forms.RadioButton();
+            this.gb_sizeGroup = new System.Windows.Forms.GroupBox();
+            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btn_brushSize_1 = new System.Windows.Forms.Button();
+            this.btn_brushSize_2 = new System.Windows.Forms.Button();
+            this.btn_brushSize_3 = new System.Windows.Forms.Button();
+            this.btn_brushSize_4 = new System.Windows.Forms.Button();
+            this.btn_brushSize_5 = new System.Windows.Forms.Button();
+            this.btn_brushSize_6 = new System.Windows.Forms.Button();
+            this.anud_brushSize = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.gb_fillMode = new System.Windows.Forms.GroupBox();
+            this.rb_fillMode_3 = new System.Windows.Forms.RadioButton();
+            this.rb_fillMode_2 = new System.Windows.Forms.RadioButton();
+            this.rb_fillMode_1 = new System.Windows.Forms.RadioButton();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsb_applyChangesAndClose = new System.Windows.Forms.ToolStripButton();
+            this.tsb_applyChanges = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_prevFrame = new System.Windows.Forms.ToolStripButton();
+            this.tsb_nextFrame = new System.Windows.Forms.ToolStripButton();
+            this.tsb_insertNewframe = new System.Windows.Forms.ToolStripButton();
+            this.tsb_addFrameAtEnd = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_clearFrame = new System.Windows.Forms.ToolStripButton();
+            this.tsb_copy = new System.Windows.Forms.ToolStripButton();
+            this.tsb_cut = new System.Windows.Forms.ToolStripButton();
+            this.tsb_paste = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_undo = new System.Windows.Forms.ToolStripButton();
+            this.tsb_redo = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_grid = new System.Windows.Forms.ToolStripButton();
+            this.tsb_previewFrame = new System.Windows.Forms.ToolStripButton();
+            this.tsb_previewAnimation = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_onionSkin = new System.Windows.Forms.ToolStripButton();
+            this.tsb_osPrevFrames = new System.Windows.Forms.ToolStripButton();
+            this.tsb_osNextFrames = new System.Windows.Forms.ToolStripButton();
+            this.tsl_onionSkinDepth = new System.Windows.Forms.ToolStripLabel();
+            this.tscb_osFrameCount = new System.Windows.Forms.ToolStripComboBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_exportFrame = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_importFrame = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_undo = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_redo = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsm_copy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_cut = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_paste = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_selectAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsm_prevFrame = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_nextFrame = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsm_switchBlendingMode = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
+            this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pnl_framePreview.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
+            this.panel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.flowLayoutPanel3.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.gb_sizeGroup.SuspendLayout();
+            this.flowLayoutPanel2.SuspendLayout();
+            this.gb_fillMode.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // printDialog1
+            // 
+            this.printDialog1.UseEXDialog = true;
+            // 
+            // rb_pencil
+            // 
+            this.rb_pencil.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_pencil.AutoSize = true;
+            this.rb_pencil.Checked = true;
+            this.rb_pencil.Image = ((System.Drawing.Image)(resources.GetObject("rb_pencil.Image")));
+            this.rb_pencil.Location = new System.Drawing.Point(3, 3);
+            this.rb_pencil.Name = "rb_pencil";
+            this.rb_pencil.Size = new System.Drawing.Size(22, 22);
+            this.rb_pencil.TabIndex = 9;
+            this.rb_pencil.TabStop = true;
+            this.tt_mainTooltip.SetToolTip(this.rb_pencil, "\"Pencil (D)\"");
+            this.rb_pencil.UseVisualStyleBackColor = true;
+            this.rb_pencil.CheckedChanged += new System.EventHandler(this.rb_pencil_CheckedChanged);
+            // 
+            // rb_eraser
+            // 
+            this.rb_eraser.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_eraser.AutoSize = true;
+            this.rb_eraser.Image = ((System.Drawing.Image)(resources.GetObject("rb_eraser.Image")));
+            this.rb_eraser.Location = new System.Drawing.Point(31, 3);
+            this.rb_eraser.Name = "rb_eraser";
+            this.rb_eraser.Size = new System.Drawing.Size(22, 22);
+            this.rb_eraser.TabIndex = 10;
+            this.tt_mainTooltip.SetToolTip(this.rb_eraser, "Eraser (E)");
+            this.rb_eraser.UseVisualStyleBackColor = true;
+            this.rb_eraser.CheckedChanged += new System.EventHandler(this.rb_eraser_CheckedChanged);
+            // 
+            // rb_picker
+            // 
+            this.rb_picker.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_picker.AutoSize = true;
+            this.rb_picker.Image = ((System.Drawing.Image)(resources.GetObject("rb_picker.Image")));
+            this.rb_picker.Location = new System.Drawing.Point(59, 3);
+            this.rb_picker.Name = "rb_picker";
+            this.rb_picker.Size = new System.Drawing.Size(22, 22);
+            this.rb_picker.TabIndex = 11;
+            this.tt_mainTooltip.SetToolTip(this.rb_picker, "Color Picker (C)");
+            this.rb_picker.UseVisualStyleBackColor = true;
+            this.rb_picker.CheckedChanged += new System.EventHandler(this.rb_picker_CheckedChanged);
+            // 
+            // rb_line
+            // 
+            this.rb_line.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_line.AutoSize = true;
+            this.rb_line.Image = ((System.Drawing.Image)(resources.GetObject("rb_line.Image")));
+            this.rb_line.Location = new System.Drawing.Point(3, 31);
+            this.rb_line.Name = "rb_line";
+            this.rb_line.Size = new System.Drawing.Size(22, 22);
+            this.rb_line.TabIndex = 17;
+            this.rb_line.TabStop = true;
+            this.tt_mainTooltip.SetToolTip(this.rb_line, "Line (V)");
+            this.rb_line.UseVisualStyleBackColor = true;
+            this.rb_line.CheckedChanged += new System.EventHandler(this.rb_line_CheckedChanged);
+            // 
+            // rb_rectangle
+            // 
+            this.rb_rectangle.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_rectangle.AutoSize = true;
+            this.rb_rectangle.Image = ((System.Drawing.Image)(resources.GetObject("rb_rectangle.Image")));
+            this.rb_rectangle.Location = new System.Drawing.Point(31, 31);
+            this.rb_rectangle.Name = "rb_rectangle";
+            this.rb_rectangle.Size = new System.Drawing.Size(22, 22);
+            this.rb_rectangle.TabIndex = 12;
+            this.tt_mainTooltip.SetToolTip(this.rb_rectangle, "Rectangle (R)");
+            this.rb_rectangle.UseVisualStyleBackColor = true;
+            this.rb_rectangle.CheckedChanged += new System.EventHandler(this.rb_rectangle_CheckedChanged);
+            // 
+            // rb_circle
+            // 
+            this.rb_circle.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_circle.AutoSize = true;
+            this.rb_circle.Image = ((System.Drawing.Image)(resources.GetObject("rb_circle.Image")));
+            this.rb_circle.Location = new System.Drawing.Point(59, 31);
+            this.rb_circle.Name = "rb_circle";
+            this.rb_circle.Size = new System.Drawing.Size(22, 22);
+            this.rb_circle.TabIndex = 13;
+            this.tt_mainTooltip.SetToolTip(this.rb_circle, "Ellipse (Q)");
+            this.rb_circle.UseVisualStyleBackColor = true;
+            this.rb_circle.CheckedChanged += new System.EventHandler(this.rb_circle_CheckedChanged);
+            // 
+            // rb_bucket
+            // 
+            this.rb_bucket.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_bucket.AutoSize = true;
+            this.rb_bucket.Image = ((System.Drawing.Image)(resources.GetObject("rb_bucket.Image")));
+            this.rb_bucket.Location = new System.Drawing.Point(3, 59);
+            this.rb_bucket.Name = "rb_bucket";
+            this.rb_bucket.Size = new System.Drawing.Size(22, 22);
+            this.rb_bucket.TabIndex = 14;
+            this.tt_mainTooltip.SetToolTip(this.rb_bucket, "Flood Fill (F)");
+            this.rb_bucket.UseVisualStyleBackColor = true;
+            this.rb_bucket.CheckedChanged += new System.EventHandler(this.rb_bucket_CheckedChanged);
+            // 
+            // rb_selection
+            // 
+            this.rb_selection.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_selection.AutoSize = true;
+            this.rb_selection.Image = ((System.Drawing.Image)(resources.GetObject("rb_selection.Image")));
+            this.rb_selection.Location = new System.Drawing.Point(31, 59);
+            this.rb_selection.Name = "rb_selection";
+            this.rb_selection.Size = new System.Drawing.Size(22, 22);
+            this.rb_selection.TabIndex = 15;
+            this.tt_mainTooltip.SetToolTip(this.rb_selection, "Selection (S)");
+            this.rb_selection.UseVisualStyleBackColor = true;
+            this.rb_selection.CheckedChanged += new System.EventHandler(this.rb_selection_CheckedChanged);
+            // 
+            // rb_zoom
+            // 
+            this.rb_zoom.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_zoom.AutoSize = true;
+            this.rb_zoom.Enabled = false;
+            this.rb_zoom.Image = ((System.Drawing.Image)(resources.GetObject("rb_zoom.Image")));
+            this.rb_zoom.Location = new System.Drawing.Point(59, 59);
+            this.rb_zoom.Name = "rb_zoom";
+            this.rb_zoom.Size = new System.Drawing.Size(22, 22);
+            this.rb_zoom.TabIndex = 16;
+            this.tt_mainTooltip.SetToolTip(this.rb_zoom, "Zoom (Z)");
+            this.rb_zoom.UseVisualStyleBackColor = true;
+            this.rb_zoom.Visible = false;
+            this.rb_zoom.CheckedChanged += new System.EventHandler(this.rb_zoom_CheckedChanged);
+            // 
+            // pnl_framePreview
+            // 
+            this.pnl_framePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnl_framePreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnl_framePreview.Controls.Add(this.zpb_framePreview);
+            this.pnl_framePreview.Location = new System.Drawing.Point(345, 49);
+            this.pnl_framePreview.Name = "pnl_framePreview";
+            this.pnl_framePreview.Size = new System.Drawing.Size(249, 318);
+            this.pnl_framePreview.TabIndex = 7;
+            // 
+            // zpb_framePreview
+            // 
+            this.zpb_framePreview.AllowScrollbars = false;
+            this.zpb_framePreview.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("zpb_framePreview.BackgroundImage")));
+            this.zpb_framePreview.ClipBackgroundToImage = true;
+            this.zpb_framePreview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.zpb_framePreview.Location = new System.Drawing.Point(0, 0);
+            this.zpb_framePreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MaximumZoom")));
+            this.zpb_framePreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MinimumZoom")));
+            this.zpb_framePreview.Name = "zpb_framePreview";
+            this.zpb_framePreview.Size = new System.Drawing.Size(245, 314);
+            this.zpb_framePreview.TabIndex = 0;
+            this.zpb_framePreview.TabStop = false;
+            this.zpb_framePreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.Zoom")));
+            this.zpb_framePreview.ZoomFactor = 1.414214F;
+            // 
+            // panel4
+            // 
+            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel4.Controls.Add(this.pictureBox1);
+            this.panel4.Controls.Add(this.anud_zoom);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel4.Location = new System.Drawing.Point(90, 635);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(504, 43);
+            this.panel4.TabIndex = 5;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(5, 11);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(16, 16);
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            // 
+            // anud_zoom
+            // 
+            this.anud_zoom.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.anud_zoom.AssistBarColor = System.Drawing.Color.CornflowerBlue;
+            this.anud_zoom.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_zoom.DecimalPlaces = 2;
+            this.anud_zoom.Increment = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            this.anud_zoom.Location = new System.Drawing.Point(26, 4);
+            this.anud_zoom.Maximum = new decimal(new int[] {
+            160,
+            0,
+            0,
+            0});
+            this.anud_zoom.Minimum = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            this.anud_zoom.Name = "anud_zoom";
+            this.anud_zoom.Size = new System.Drawing.Size(470, 32);
+            this.anud_zoom.TabIndex = 0;
+            this.anud_zoom.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_zoom.ValueChanged += new System.EventHandler(this.anud_zoom_ValueChanged);
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.panel3);
+            this.panel2.Controls.Add(this.splitter1);
+            this.panel2.Controls.Add(this.cp_mainColorPicker);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel2.Location = new System.Drawing.Point(594, 49);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(224, 629);
+            this.panel2.TabIndex = 4;
+            // 
+            // panel3
+            // 
+            this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.cs_colorSwatch);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel3.Location = new System.Drawing.Point(0, 540);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(224, 284);
+            this.panel3.TabIndex = 5;
+            // 
+            // cs_colorSwatch
+            // 
+            this.cs_colorSwatch.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_colorSwatch.Location = new System.Drawing.Point(0, 0);
+            this.cs_colorSwatch.Name = "cs_colorSwatch";
+            this.cs_colorSwatch.Size = new System.Drawing.Size(223, 283);
+            this.cs_colorSwatch.TabIndex = 4;
+            this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
+            // 
+            // splitter1
+            // 
+            this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitter1.Location = new System.Drawing.Point(0, 537);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(224, 3);
+            this.splitter1.TabIndex = 6;
+            this.splitter1.TabStop = false;
+            // 
+            // cp_mainColorPicker
+            // 
+            this.cp_mainColorPicker.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.cp_mainColorPicker.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cp_mainColorPicker.FirstColor = System.Drawing.Color.Black;
+            this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
+            this.cp_mainColorPicker.Name = "cp_mainColorPicker";
+            this.cp_mainColorPicker.SecondColor = System.Drawing.Color.White;
+            this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorPickerColor.FirstColor;
+            this.cp_mainColorPicker.Size = new System.Drawing.Size(224, 537);
+            this.cp_mainColorPicker.TabIndex = 3;
+            this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.flowLayoutPanel3);
+            this.panel1.Controls.Add(this.flowLayoutPanel1);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panel1.Location = new System.Drawing.Point(0, 49);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(90, 629);
+            this.panel1.TabIndex = 1;
+            // 
+            // flowLayoutPanel3
+            // 
+            this.flowLayoutPanel3.Controls.Add(this.groupBox1);
+            this.flowLayoutPanel3.Controls.Add(this.gb_sizeGroup);
+            this.flowLayoutPanel3.Controls.Add(this.gb_fillMode);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 185);
+            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(90, 444);
+            this.flowLayoutPanel3.TabIndex = 7;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.rb_blendingBlend);
+            this.groupBox1.Controls.Add(this.rb_blendingReplace);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(84, 73);
+            this.groupBox1.TabIndex = 1;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Blending";
+            // 
+            // rb_blendingBlend
+            // 
+            this.rb_blendingBlend.AutoSize = true;
+            this.rb_blendingBlend.Checked = true;
+            this.rb_blendingBlend.Location = new System.Drawing.Point(3, 20);
+            this.rb_blendingBlend.Name = "rb_blendingBlend";
+            this.rb_blendingBlend.Size = new System.Drawing.Size(52, 17);
+            this.rb_blendingBlend.TabIndex = 2;
+            this.rb_blendingBlend.TabStop = true;
+            this.rb_blendingBlend.Text = "Blend";
+            this.rb_blendingBlend.UseVisualStyleBackColor = true;
+            this.rb_blendingBlend.CheckedChanged += new System.EventHandler(this.rb_blendingBlend_CheckedChanged);
+            // 
+            // rb_blendingReplace
+            // 
+            this.rb_blendingReplace.AutoSize = true;
+            this.rb_blendingReplace.Location = new System.Drawing.Point(3, 43);
+            this.rb_blendingReplace.Name = "rb_blendingReplace";
+            this.rb_blendingReplace.Size = new System.Drawing.Size(65, 17);
+            this.rb_blendingReplace.TabIndex = 0;
+            this.rb_blendingReplace.Text = "Replace";
+            this.rb_blendingReplace.UseVisualStyleBackColor = true;
+            this.rb_blendingReplace.CheckedChanged += new System.EventHandler(this.rb_blendingReplace_CheckedChanged);
+            // 
+            // gb_sizeGroup
+            // 
+            this.gb_sizeGroup.Controls.Add(this.flowLayoutPanel2);
+            this.gb_sizeGroup.Controls.Add(this.anud_brushSize);
+            this.gb_sizeGroup.Location = new System.Drawing.Point(3, 82);
+            this.gb_sizeGroup.Name = "gb_sizeGroup";
+            this.gb_sizeGroup.Size = new System.Drawing.Size(84, 112);
+            this.gb_sizeGroup.TabIndex = 3;
+            this.gb_sizeGroup.TabStop = false;
+            this.gb_sizeGroup.Text = "Size";
+            this.gb_sizeGroup.Visible = false;
+            // 
+            // flowLayoutPanel2
+            // 
+            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel2.Controls.Add(this.btn_brushSize_1);
+            this.flowLayoutPanel2.Controls.Add(this.btn_brushSize_2);
+            this.flowLayoutPanel2.Controls.Add(this.btn_brushSize_3);
+            this.flowLayoutPanel2.Controls.Add(this.btn_brushSize_4);
+            this.flowLayoutPanel2.Controls.Add(this.btn_brushSize_5);
+            this.flowLayoutPanel2.Controls.Add(this.btn_brushSize_6);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(2, 57);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(80, 52);
+            this.flowLayoutPanel2.TabIndex = 7;
+            // 
+            // btn_brushSize_1
+            // 
+            this.btn_brushSize_1.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_1.Image")));
+            this.btn_brushSize_1.Location = new System.Drawing.Point(2, 2);
+            this.btn_brushSize_1.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_brushSize_1.Name = "btn_brushSize_1";
+            this.btn_brushSize_1.Size = new System.Drawing.Size(22, 22);
+            this.btn_brushSize_1.TabIndex = 0;
+            this.btn_brushSize_1.UseVisualStyleBackColor = true;
+            this.btn_brushSize_1.Click += new System.EventHandler(this.btn_brushSize_1_Click);
+            // 
+            // btn_brushSize_2
+            // 
+            this.btn_brushSize_2.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_2.Image")));
+            this.btn_brushSize_2.Location = new System.Drawing.Point(28, 2);
+            this.btn_brushSize_2.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_brushSize_2.Name = "btn_brushSize_2";
+            this.btn_brushSize_2.Size = new System.Drawing.Size(22, 22);
+            this.btn_brushSize_2.TabIndex = 1;
+            this.btn_brushSize_2.UseVisualStyleBackColor = true;
+            this.btn_brushSize_2.Click += new System.EventHandler(this.btn_brushSize_2_Click);
+            // 
+            // btn_brushSize_3
+            // 
+            this.btn_brushSize_3.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_3.Image")));
+            this.btn_brushSize_3.Location = new System.Drawing.Point(54, 2);
+            this.btn_brushSize_3.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_brushSize_3.Name = "btn_brushSize_3";
+            this.btn_brushSize_3.Size = new System.Drawing.Size(22, 22);
+            this.btn_brushSize_3.TabIndex = 2;
+            this.btn_brushSize_3.UseVisualStyleBackColor = true;
+            this.btn_brushSize_3.Click += new System.EventHandler(this.btn_brushSize_3_Click);
+            // 
+            // btn_brushSize_4
+            // 
+            this.btn_brushSize_4.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_4.Image")));
+            this.btn_brushSize_4.Location = new System.Drawing.Point(2, 28);
+            this.btn_brushSize_4.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_brushSize_4.Name = "btn_brushSize_4";
+            this.btn_brushSize_4.Size = new System.Drawing.Size(22, 22);
+            this.btn_brushSize_4.TabIndex = 3;
+            this.btn_brushSize_4.UseVisualStyleBackColor = true;
+            this.btn_brushSize_4.Click += new System.EventHandler(this.btn_brushSize_4_Click);
+            // 
+            // btn_brushSize_5
+            // 
+            this.btn_brushSize_5.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_5.Image")));
+            this.btn_brushSize_5.Location = new System.Drawing.Point(28, 28);
+            this.btn_brushSize_5.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_brushSize_5.Name = "btn_brushSize_5";
+            this.btn_brushSize_5.Size = new System.Drawing.Size(22, 22);
+            this.btn_brushSize_5.TabIndex = 4;
+            this.btn_brushSize_5.UseVisualStyleBackColor = true;
+            this.btn_brushSize_5.Click += new System.EventHandler(this.btn_brushSize_5_Click);
+            // 
+            // btn_brushSize_6
+            // 
+            this.btn_brushSize_6.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_6.Image")));
+            this.btn_brushSize_6.Location = new System.Drawing.Point(54, 28);
+            this.btn_brushSize_6.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_brushSize_6.Name = "btn_brushSize_6";
+            this.btn_brushSize_6.Size = new System.Drawing.Size(22, 22);
+            this.btn_brushSize_6.TabIndex = 5;
+            this.btn_brushSize_6.UseVisualStyleBackColor = true;
+            this.btn_brushSize_6.Click += new System.EventHandler(this.btn_brushSize_6_Click);
+            // 
+            // anud_brushSize
+            // 
+            this.anud_brushSize.AssistBarColor = System.Drawing.Color.CornflowerBlue;
+            this.anud_brushSize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_brushSize.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_brushSize.Location = new System.Drawing.Point(6, 19);
+            this.anud_brushSize.Maximum = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
+            this.anud_brushSize.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_brushSize.Name = "anud_brushSize";
+            this.anud_brushSize.Size = new System.Drawing.Size(72, 32);
+            this.anud_brushSize.TabIndex = 0;
+            this.anud_brushSize.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_brushSize.ValueChanged += new System.EventHandler(this.anud_brushSize_ValueChanged);
+            // 
+            // gb_fillMode
+            // 
+            this.gb_fillMode.Controls.Add(this.rb_fillMode_3);
+            this.gb_fillMode.Controls.Add(this.rb_fillMode_2);
+            this.gb_fillMode.Controls.Add(this.rb_fillMode_1);
+            this.gb_fillMode.Location = new System.Drawing.Point(3, 200);
+            this.gb_fillMode.Name = "gb_fillMode";
+            this.gb_fillMode.Size = new System.Drawing.Size(84, 107);
+            this.gb_fillMode.TabIndex = 8;
+            this.gb_fillMode.TabStop = false;
+            this.gb_fillMode.Text = "Fill Mode";
+            this.gb_fillMode.Visible = false;
+            // 
+            // rb_fillMode_3
+            // 
+            this.rb_fillMode_3.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_fillMode_3.Image = ((System.Drawing.Image)(resources.GetObject("rb_fillMode_3.Image")));
+            this.rb_fillMode_3.Location = new System.Drawing.Point(4, 77);
+            this.rb_fillMode_3.Name = "rb_fillMode_3";
+            this.rb_fillMode_3.Size = new System.Drawing.Size(76, 23);
+            this.rb_fillMode_3.TabIndex = 2;
+            this.rb_fillMode_3.TabStop = true;
+            this.rb_fillMode_3.UseVisualStyleBackColor = true;
+            this.rb_fillMode_3.CheckedChanged += new System.EventHandler(this.rb_fillMode_3_CheckedChanged);
+            // 
+            // rb_fillMode_2
+            // 
+            this.rb_fillMode_2.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_fillMode_2.Image = ((System.Drawing.Image)(resources.GetObject("rb_fillMode_2.Image")));
+            this.rb_fillMode_2.Location = new System.Drawing.Point(4, 48);
+            this.rb_fillMode_2.Name = "rb_fillMode_2";
+            this.rb_fillMode_2.Size = new System.Drawing.Size(76, 23);
+            this.rb_fillMode_2.TabIndex = 1;
+            this.rb_fillMode_2.TabStop = true;
+            this.rb_fillMode_2.UseVisualStyleBackColor = true;
+            this.rb_fillMode_2.CheckedChanged += new System.EventHandler(this.rb_fillMode_2_CheckedChanged);
+            // 
+            // rb_fillMode_1
+            // 
+            this.rb_fillMode_1.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_fillMode_1.Image = ((System.Drawing.Image)(resources.GetObject("rb_fillMode_1.Image")));
+            this.rb_fillMode_1.Location = new System.Drawing.Point(4, 19);
+            this.rb_fillMode_1.Name = "rb_fillMode_1";
+            this.rb_fillMode_1.Size = new System.Drawing.Size(76, 23);
+            this.rb_fillMode_1.TabIndex = 0;
+            this.rb_fillMode_1.TabStop = true;
+            this.rb_fillMode_1.UseVisualStyleBackColor = true;
+            this.rb_fillMode_1.CheckedChanged += new System.EventHandler(this.rb_fillMode_1_CheckedChanged);
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.flowLayoutPanel1.Controls.Add(this.rb_pencil);
+            this.flowLayoutPanel1.Controls.Add(this.rb_eraser);
+            this.flowLayoutPanel1.Controls.Add(this.rb_picker);
+            this.flowLayoutPanel1.Controls.Add(this.rb_line);
+            this.flowLayoutPanel1.Controls.Add(this.rb_rectangle);
+            this.flowLayoutPanel1.Controls.Add(this.rb_circle);
+            this.flowLayoutPanel1.Controls.Add(this.rb_bucket);
+            this.flowLayoutPanel1.Controls.Add(this.rb_selection);
+            this.flowLayoutPanel1.Controls.Add(this.rb_zoom);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 13);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(90, 166);
+            this.flowLayoutPanel1.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(45, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Toolbox";
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsb_applyChangesAndClose,
+            this.tsb_applyChanges,
+            this.toolStripSeparator1,
+            this.tsb_prevFrame,
+            this.tsb_nextFrame,
+            this.tsb_insertNewframe,
+            this.tsb_addFrameAtEnd,
+            this.toolStripSeparator2,
+            this.tsb_clearFrame,
+            this.tsb_copy,
+            this.tsb_cut,
+            this.tsb_paste,
+            this.toolStripSeparator4,
+            this.tsb_undo,
+            this.tsb_redo,
+            this.toolStripSeparator3,
+            this.tsb_grid,
+            this.tsb_previewFrame,
+            this.tsb_previewAnimation,
+            this.toolStripSeparator5,
+            this.tsb_onionSkin,
+            this.tsb_osPrevFrames,
+            this.tsb_osNextFrames,
+            this.tsl_onionSkinDepth,
+            this.tscb_osFrameCount});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(818, 25);
+            this.toolStrip1.TabIndex = 2;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsb_applyChangesAndClose
+            // 
+            this.tsb_applyChangesAndClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_applyChangesAndClose.Image = ((System.Drawing.Image)(resources.GetObject("tsb_applyChangesAndClose.Image")));
+            this.tsb_applyChangesAndClose.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_applyChangesAndClose.Name = "tsb_applyChangesAndClose";
+            this.tsb_applyChangesAndClose.Size = new System.Drawing.Size(23, 22);
+            this.tsb_applyChangesAndClose.Text = "Apply changes and close";
+            this.tsb_applyChangesAndClose.Click += new System.EventHandler(this.tsb_applyChangesAndClose_Click);
+            // 
+            // tsb_applyChanges
+            // 
+            this.tsb_applyChanges.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_applyChanges.Image = ((System.Drawing.Image)(resources.GetObject("tsb_applyChanges.Image")));
+            this.tsb_applyChanges.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_applyChanges.Name = "tsb_applyChanges";
+            this.tsb_applyChanges.Size = new System.Drawing.Size(23, 22);
+            this.tsb_applyChanges.Text = "Apply Changes";
+            this.tsb_applyChanges.Click += new System.EventHandler(this.tsb_applyChanges_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsb_prevFrame
+            // 
+            this.tsb_prevFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_prevFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_prevFrame.Image")));
+            this.tsb_prevFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_prevFrame.Name = "tsb_prevFrame";
+            this.tsb_prevFrame.Size = new System.Drawing.Size(23, 22);
+            this.tsb_prevFrame.Text = "Switch to previous frame";
+            this.tsb_prevFrame.Click += new System.EventHandler(this.tsb_prevFrame_Click);
+            // 
+            // tsb_nextFrame
+            // 
+            this.tsb_nextFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_nextFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_nextFrame.Image")));
+            this.tsb_nextFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_nextFrame.Name = "tsb_nextFrame";
+            this.tsb_nextFrame.Size = new System.Drawing.Size(23, 22);
+            this.tsb_nextFrame.Text = "Switch to next frame";
+            this.tsb_nextFrame.Click += new System.EventHandler(this.tsb_nextFrame_Click);
+            // 
+            // tsb_insertNewframe
+            // 
+            this.tsb_insertNewframe.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_insertNewframe.Image = ((System.Drawing.Image)(resources.GetObject("tsb_insertNewframe.Image")));
+            this.tsb_insertNewframe.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_insertNewframe.Name = "tsb_insertNewframe";
+            this.tsb_insertNewframe.Size = new System.Drawing.Size(23, 22);
+            this.tsb_insertNewframe.Text = "Insert new frame after this one";
+            this.tsb_insertNewframe.Click += new System.EventHandler(this.tsb_insertNewframe_Click);
+            // 
+            // tsb_addFrameAtEnd
+            // 
+            this.tsb_addFrameAtEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_addFrameAtEnd.Image = ((System.Drawing.Image)(resources.GetObject("tsb_addFrameAtEnd.Image")));
+            this.tsb_addFrameAtEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_addFrameAtEnd.Name = "tsb_addFrameAtEnd";
+            this.tsb_addFrameAtEnd.Size = new System.Drawing.Size(23, 22);
+            this.tsb_addFrameAtEnd.Text = "Add new frame at the end of the animation and open for edit";
+            this.tsb_addFrameAtEnd.Click += new System.EventHandler(this.tsb_addFrameAtEnd_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsb_clearFrame
+            // 
+            this.tsb_clearFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_clearFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_clearFrame.Image")));
+            this.tsb_clearFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_clearFrame.Name = "tsb_clearFrame";
+            this.tsb_clearFrame.Size = new System.Drawing.Size(23, 22);
+            this.tsb_clearFrame.Text = "Clear Frame";
+            this.tsb_clearFrame.Click += new System.EventHandler(this.tsb_clearFrame_Click);
+            // 
+            // tsb_copy
+            // 
+            this.tsb_copy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_copy.Image = ((System.Drawing.Image)(resources.GetObject("tsb_copy.Image")));
+            this.tsb_copy.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_copy.Name = "tsb_copy";
+            this.tsb_copy.Size = new System.Drawing.Size(23, 22);
+            this.tsb_copy.Text = "Copy";
+            this.tsb_copy.Click += new System.EventHandler(this.tsb_copy_Click);
+            // 
+            // tsb_cut
+            // 
+            this.tsb_cut.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_cut.Image = ((System.Drawing.Image)(resources.GetObject("tsb_cut.Image")));
+            this.tsb_cut.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_cut.Name = "tsb_cut";
+            this.tsb_cut.Size = new System.Drawing.Size(23, 22);
+            this.tsb_cut.Text = "Cut";
+            this.tsb_cut.Click += new System.EventHandler(this.tsb_cut_Click);
+            // 
+            // tsb_paste
+            // 
+            this.tsb_paste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_paste.Image = ((System.Drawing.Image)(resources.GetObject("tsb_paste.Image")));
+            this.tsb_paste.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_paste.Name = "tsb_paste";
+            this.tsb_paste.Size = new System.Drawing.Size(23, 22);
+            this.tsb_paste.Text = "Paste";
+            this.tsb_paste.Click += new System.EventHandler(this.tsb_paste_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsb_undo
+            // 
+            this.tsb_undo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_undo.Image = ((System.Drawing.Image)(resources.GetObject("tsb_undo.Image")));
+            this.tsb_undo.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_undo.Name = "tsb_undo";
+            this.tsb_undo.Size = new System.Drawing.Size(23, 22);
+            this.tsb_undo.Text = "Undo";
+            this.tsb_undo.Click += new System.EventHandler(this.tsb_undo_Click);
+            // 
+            // tsb_redo
+            // 
+            this.tsb_redo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_redo.Image = ((System.Drawing.Image)(resources.GetObject("tsb_redo.Image")));
+            this.tsb_redo.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_redo.Name = "tsb_redo";
+            this.tsb_redo.Size = new System.Drawing.Size(23, 22);
+            this.tsb_redo.Text = "Redo";
+            this.tsb_redo.Click += new System.EventHandler(this.tsb_redo_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsb_grid
+            // 
+            this.tsb_grid.CheckOnClick = true;
+            this.tsb_grid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_grid.Image = ((System.Drawing.Image)(resources.GetObject("tsb_grid.Image")));
+            this.tsb_grid.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_grid.Name = "tsb_grid";
+            this.tsb_grid.Size = new System.Drawing.Size(23, 22);
+            this.tsb_grid.Text = "Enable/disable grid";
+            this.tsb_grid.Click += new System.EventHandler(this.tsb_grid_Click);
+            // 
+            // tsb_previewFrame
+            // 
+            this.tsb_previewFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_previewFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_previewFrame.Image")));
+            this.tsb_previewFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_previewFrame.Name = "tsb_previewFrame";
+            this.tsb_previewFrame.Size = new System.Drawing.Size(23, 22);
+            this.tsb_previewFrame.Text = "Preview Frame";
+            this.tsb_previewFrame.Click += new System.EventHandler(this.tsb_previewFrame_Click);
+            // 
+            // tsb_previewAnimation
+            // 
+            this.tsb_previewAnimation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_previewAnimation.Image = ((System.Drawing.Image)(resources.GetObject("tsb_previewAnimation.Image")));
+            this.tsb_previewAnimation.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_previewAnimation.Name = "tsb_previewAnimation";
+            this.tsb_previewAnimation.Size = new System.Drawing.Size(23, 22);
+            this.tsb_previewAnimation.Text = "Preview Animation";
+            this.tsb_previewAnimation.Visible = false;
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsb_onionSkin
+            // 
+            this.tsb_onionSkin.CheckOnClick = true;
+            this.tsb_onionSkin.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_onionSkin.Image = global::Pixelaria.Properties.Resources.frame_onionskin_icon;
+            this.tsb_onionSkin.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_onionSkin.Name = "tsb_onionSkin";
+            this.tsb_onionSkin.Size = new System.Drawing.Size(23, 22);
+            this.tsb_onionSkin.Text = "Enable/disable onion skin";
+            this.tsb_onionSkin.Click += new System.EventHandler(this.tsb_onionSkin_Click);
+            // 
+            // tsb_osPrevFrames
+            // 
+            this.tsb_osPrevFrames.Checked = true;
+            this.tsb_osPrevFrames.CheckOnClick = true;
+            this.tsb_osPrevFrames.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsb_osPrevFrames.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_osPrevFrames.Image = global::Pixelaria.Properties.Resources.frame_os_prev;
+            this.tsb_osPrevFrames.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_osPrevFrames.Name = "tsb_osPrevFrames";
+            this.tsb_osPrevFrames.Size = new System.Drawing.Size(23, 22);
+            this.tsb_osPrevFrames.Text = "Show previous frames on onion skin";
+            this.tsb_osPrevFrames.Visible = false;
+            this.tsb_osPrevFrames.Click += new System.EventHandler(this.tsb_osPrevFrames_Click);
+            // 
+            // tsb_osNextFrames
+            // 
+            this.tsb_osNextFrames.Checked = true;
+            this.tsb_osNextFrames.CheckOnClick = true;
+            this.tsb_osNextFrames.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsb_osNextFrames.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_osNextFrames.Image = global::Pixelaria.Properties.Resources.frame_os_next;
+            this.tsb_osNextFrames.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_osNextFrames.Name = "tsb_osNextFrames";
+            this.tsb_osNextFrames.Size = new System.Drawing.Size(23, 22);
+            this.tsb_osNextFrames.Text = "Show next frames on onion skin";
+            this.tsb_osNextFrames.Visible = false;
+            this.tsb_osNextFrames.Click += new System.EventHandler(this.tsb_osNextFrames_Click);
+            // 
+            // tsl_onionSkinDepth
+            // 
+            this.tsl_onionSkinDepth.Name = "tsl_onionSkinDepth";
+            this.tsl_onionSkinDepth.Size = new System.Drawing.Size(101, 22);
+            this.tsl_onionSkinDepth.Text = "Onion skin depth:";
+            this.tsl_onionSkinDepth.Visible = false;
+            // 
+            // tscb_osFrameCount
+            // 
+            this.tscb_osFrameCount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.tscb_osFrameCount.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15"});
+            this.tscb_osFrameCount.Name = "tscb_osFrameCount";
+            this.tscb_osFrameCount.Size = new System.Drawing.Size(121, 25);
+            this.tscb_osFrameCount.Visible = false;
+            this.tscb_osFrameCount.SelectedIndexChanged += new System.EventHandler(this.tscb_osFrameCount_SelectedIndexChanged);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem,
+            this.tsm_filters});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(818, 24);
+            this.menuStrip1.TabIndex = 6;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsm_exportFrame,
+            this.tsm_importFrame});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "&File";
+            // 
+            // tsm_exportFrame
+            // 
+            this.tsm_exportFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_exportFrame.Image")));
+            this.tsm_exportFrame.Name = "tsm_exportFrame";
+            this.tsm_exportFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.tsm_exportFrame.Size = new System.Drawing.Size(198, 22);
+            this.tsm_exportFrame.Text = "Export Frame...";
+            this.tsm_exportFrame.Click += new System.EventHandler(this.tsm_exportFrame_Click);
+            // 
+            // tsm_importFrame
+            // 
+            this.tsm_importFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_importFrame.Image")));
+            this.tsm_importFrame.Name = "tsm_importFrame";
+            this.tsm_importFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.tsm_importFrame.Size = new System.Drawing.Size(198, 22);
+            this.tsm_importFrame.Text = "Import Frame...";
+            this.tsm_importFrame.Visible = false;
+            this.tsm_importFrame.Click += new System.EventHandler(this.tsm_importFrame_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsm_undo,
+            this.tsm_redo,
+            this.toolStripMenuItem2,
+            this.tsm_copy,
+            this.tsm_cut,
+            this.tsm_paste,
+            this.tsm_selectAll,
+            this.toolStripMenuItem3,
+            this.tsm_prevFrame,
+            this.tsm_nextFrame,
+            this.toolStripMenuItem1,
+            this.tsm_switchBlendingMode});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "&Edit";
+            // 
+            // tsm_undo
+            // 
+            this.tsm_undo.Image = ((System.Drawing.Image)(resources.GetObject("tsm_undo.Image")));
+            this.tsm_undo.Name = "tsm_undo";
+            this.tsm_undo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.tsm_undo.Size = new System.Drawing.Size(234, 22);
+            this.tsm_undo.Text = "Undo";
+            this.tsm_undo.Click += new System.EventHandler(this.tsm_undo_Click);
+            // 
+            // tsm_redo
+            // 
+            this.tsm_redo.Image = ((System.Drawing.Image)(resources.GetObject("tsm_redo.Image")));
+            this.tsm_redo.Name = "tsm_redo";
+            this.tsm_redo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
+            this.tsm_redo.Size = new System.Drawing.Size(234, 22);
+            this.tsm_redo.Text = "Redo";
+            this.tsm_redo.Click += new System.EventHandler(this.tsm_redo_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(231, 6);
+            // 
+            // tsm_copy
+            // 
+            this.tsm_copy.Image = ((System.Drawing.Image)(resources.GetObject("tsm_copy.Image")));
+            this.tsm_copy.Name = "tsm_copy";
+            this.tsm_copy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.tsm_copy.Size = new System.Drawing.Size(234, 22);
+            this.tsm_copy.Text = "Copy";
+            this.tsm_copy.Click += new System.EventHandler(this.tsm_copy_Click);
+            // 
+            // tsm_cut
+            // 
+            this.tsm_cut.Image = ((System.Drawing.Image)(resources.GetObject("tsm_cut.Image")));
+            this.tsm_cut.Name = "tsm_cut";
+            this.tsm_cut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
+            this.tsm_cut.Size = new System.Drawing.Size(234, 22);
+            this.tsm_cut.Text = "Cut";
+            this.tsm_cut.Click += new System.EventHandler(this.tsm_cut_Click);
+            // 
+            // tsm_paste
+            // 
+            this.tsm_paste.Image = ((System.Drawing.Image)(resources.GetObject("tsm_paste.Image")));
+            this.tsm_paste.Name = "tsm_paste";
+            this.tsm_paste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
+            this.tsm_paste.Size = new System.Drawing.Size(234, 22);
+            this.tsm_paste.Text = "Paste";
+            this.tsm_paste.Click += new System.EventHandler(this.tsm_paste_Click);
+            // 
+            // tsm_selectAll
+            // 
+            this.tsm_selectAll.Image = global::Pixelaria.Properties.Resources.selection_icon;
+            this.tsm_selectAll.Name = "tsm_selectAll";
+            this.tsm_selectAll.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
+            this.tsm_selectAll.Size = new System.Drawing.Size(234, 22);
+            this.tsm_selectAll.Text = "Select All";
+            this.tsm_selectAll.Click += new System.EventHandler(this.tsm_selectAll_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(231, 6);
+            // 
+            // tsm_prevFrame
+            // 
+            this.tsm_prevFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_prevFrame.Image")));
+            this.tsm_prevFrame.Name = "tsm_prevFrame";
+            this.tsm_prevFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
+            this.tsm_prevFrame.Size = new System.Drawing.Size(234, 22);
+            this.tsm_prevFrame.Text = "Previous Frame";
+            this.tsm_prevFrame.Click += new System.EventHandler(this.tsm_prevFrame_Click);
+            // 
+            // tsm_nextFrame
+            // 
+            this.tsm_nextFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_nextFrame.Image")));
+            this.tsm_nextFrame.Name = "tsm_nextFrame";
+            this.tsm_nextFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.tsm_nextFrame.Size = new System.Drawing.Size(234, 22);
+            this.tsm_nextFrame.Text = "Next Frame";
+            this.tsm_nextFrame.Click += new System.EventHandler(this.tsm_nextFrame_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(231, 6);
+            // 
+            // tsm_switchBlendingMode
+            // 
+            this.tsm_switchBlendingMode.Name = "tsm_switchBlendingMode";
+            this.tsm_switchBlendingMode.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
+            this.tsm_switchBlendingMode.Size = new System.Drawing.Size(234, 22);
+            this.tsm_switchBlendingMode.Text = "Switch Blending Mode";
+            this.tsm_switchBlendingMode.Click += new System.EventHandler(this.tsm_switchBlendingMode_Click);
+            // 
+            // tsm_filters
+            // 
+            this.tsm_filters.Name = "tsm_filters";
+            this.tsm_filters.Size = new System.Drawing.Size(50, 20);
+            this.tsm_filters.Text = "Fi&lters";
+            // 
+            // iepb_frame
+            // 
+            pencilPaintOperation1.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            pencilPaintOperation1.FirstColor = System.Drawing.Color.Black;
+            pencilPaintOperation1.PencilPoint = new System.Drawing.Point(0, 0);
+            pencilPaintOperation1.SecondColor = System.Drawing.Color.Black;
+            pencilPaintOperation1.Size = 0;
+            this.iepb_frame.CurrentPaintOperation = pencilPaintOperation1;
+            this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
+            this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.iepb_frame.Location = new System.Drawing.Point(90, 49);
+            this.iepb_frame.Name = "iepb_frame";
+            this.iepb_frame.NotifyTo = null;
+            this.iepb_frame.PictureBoxBackgroundImage = ((System.Drawing.Image)(resources.GetObject("iepb_frame.PictureBoxBackgroundImage")));
+            this.iepb_frame.Size = new System.Drawing.Size(504, 586);
+            this.iepb_frame.TabIndex = 0;
+            this.iepb_frame.Text = "imageEditPictureBox1";
+            this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
+            this.iepb_frame.ClipboardStateChanged += new Pixelaria.Views.Controls.ImageEditPanel.ClipboardStateEventHandler(this.iepb_frame_ClipboardStateChanged);
+            this.iepb_frame.OperationStatusChanged += new Pixelaria.Views.Controls.ImageEditPanel.OperationStatusEventHandler(this.iepb_frame_OperationStatusChanged);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsl_operationLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 678);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(818, 22);
+            this.statusStrip1.TabIndex = 8;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // tsl_operationLabel
+            // 
+            this.tsl_operationLabel.Name = "tsl_operationLabel";
+            this.tsl_operationLabel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // FrameView
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(818, 700);
+            this.Controls.Add(this.pnl_framePreview);
+            this.Controls.Add(this.iepb_frame);
+            this.Controls.Add(this.panel4);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.statusStrip1);
+            this.DoubleBuffered = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
+            this.MainMenuStrip = this.menuStrip1;
+            this.MinimumSize = new System.Drawing.Size(834, 738);
+            this.Name = "FrameView";
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Frame Editor";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrameView_FormClosed);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrameView_KeyDown);
+            this.pnl_framePreview.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).EndInit();
+            this.panel4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.panel2.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.flowLayoutPanel3.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.gb_sizeGroup.ResumeLayout(false);
+            this.flowLayoutPanel2.ResumeLayout(false);
+            this.gb_fillMode.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private Pixelaria.Views.Controls.ImageEditPanel iepb_frame;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.PrintDialog printDialog1;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tsb_applyChangesAndClose;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripButton tsb_prevFrame;
+        private System.Windows.Forms.ToolStripButton tsb_nextFrame;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.RadioButton rb_pencil;
+        private System.Windows.Forms.RadioButton rb_eraser;
+        private System.Windows.Forms.RadioButton rb_picker;
+        private System.Windows.Forms.RadioButton rb_rectangle;
+        private System.Windows.Forms.RadioButton rb_circle;
+        private System.Windows.Forms.RadioButton rb_bucket;
+        private System.Windows.Forms.RadioButton rb_selection;
+        private System.Windows.Forms.ToolStripButton tsb_undo;
+        private System.Windows.Forms.ToolStripButton tsb_redo;
+        private System.Windows.Forms.RadioButton rb_zoom;
+        private Controls.ColorPicker cp_mainColorPicker;
+        private System.Windows.Forms.Panel panel2;
+        private Controls.ColorSwatchControl cs_colorSwatch;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.Panel panel4;
+        private Controls.AssistedNumericUpDown anud_zoom;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ToolStripButton tsb_addFrameAtEnd;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsm_undo;
+        private System.Windows.Forms.ToolStripMenuItem tsm_redo;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton rb_blendingBlend;
+        private System.Windows.Forms.RadioButton rb_blendingReplace;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem tsm_switchBlendingMode;
+        private System.Windows.Forms.GroupBox gb_sizeGroup;
+        private Controls.AssistedNumericUpDown anud_brushSize;
+        private System.Windows.Forms.ToolStripMenuItem tsm_exportFrame;
+        private System.Windows.Forms.ToolStripMenuItem tsm_importFrame;
+        private System.Windows.Forms.ToolStripButton tsb_applyChanges;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem tsm_prevFrame;
+        private System.Windows.Forms.ToolStripMenuItem tsm_nextFrame;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
+        private System.Windows.Forms.Button btn_brushSize_1;
+        private System.Windows.Forms.Button btn_brushSize_2;
+        private System.Windows.Forms.Button btn_brushSize_3;
+        private System.Windows.Forms.Button btn_brushSize_4;
+        private System.Windows.Forms.Button btn_brushSize_5;
+        private System.Windows.Forms.Button btn_brushSize_6;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripButton tsb_grid;
+        private System.Windows.Forms.RadioButton rb_line;
+        private System.Windows.Forms.GroupBox gb_fillMode;
+        private System.Windows.Forms.RadioButton rb_fillMode_1;
+        private System.Windows.Forms.RadioButton rb_fillMode_2;
+        private System.Windows.Forms.RadioButton rb_fillMode_3;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
+        private System.Windows.Forms.ToolStripButton tsb_copy;
+        private System.Windows.Forms.ToolStripButton tsb_cut;
+        private System.Windows.Forms.ToolStripButton tsb_paste;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem tsm_copy;
+        private System.Windows.Forms.ToolStripMenuItem tsm_cut;
+        private System.Windows.Forms.ToolStripMenuItem tsm_paste;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolTip tt_mainTooltip;
+        private System.Windows.Forms.Panel pnl_framePreview;
+        private System.Windows.Forms.ToolStripButton tsb_previewFrame;
+        private System.Windows.Forms.ToolStripButton tsb_previewAnimation;
+        private Controls.ZoomablePictureBox zpb_framePreview;
+        private System.Windows.Forms.ToolStripButton tsb_insertNewframe;
+        private System.Windows.Forms.ToolStripButton tsb_clearFrame;
+        private System.Windows.Forms.ToolStripMenuItem tsm_filters;
+        private System.Windows.Forms.ToolStripMenuItem tsm_selectAll;
+        private System.Windows.Forms.ToolStripButton tsb_onionSkin;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripButton tsb_osPrevFrames;
+        private System.Windows.Forms.ToolStripButton tsb_osNextFrames;
+        private System.Windows.Forms.ToolStripComboBox tscb_osFrameCount;
+        private System.Windows.Forms.ToolStripLabel tsl_onionSkinDepth;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel tsl_operationLabel;
+    }
+}
