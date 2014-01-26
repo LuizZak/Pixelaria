@@ -186,6 +186,9 @@ namespace Pixelaria.Views.ModelViews
 
             UpdateLayout();
 
+            pnl_container.VerticalScroll.Value = pnl_container.VerticalScroll.Maximum;
+            pnl_container.PerformLayout();
+
             if (updateVisualization)
             {
                 UpdateVisualization();
