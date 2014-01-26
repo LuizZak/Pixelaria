@@ -4819,6 +4819,18 @@ namespace Pixelaria.Views.Controls
                 selectedArea.X++;
                 pictureBox.Invalidate(GetSelectionArea(true));
             }
+            else if (e.KeyCode == Keys.Up)
+            {
+                pictureBox.Invalidate(GetSelectionArea(true));
+                selectedArea.Y--;
+                pictureBox.Invalidate(GetSelectionArea(true));
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                pictureBox.Invalidate(GetSelectionArea(true));
+                selectedArea.Y++;
+                pictureBox.Invalidate(GetSelectionArea(true));
+            }
         }
 
         /// <summary>
