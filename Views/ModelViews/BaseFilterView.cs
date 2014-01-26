@@ -68,6 +68,31 @@ namespace Pixelaria.Views.ModelViews
         EventHandler filterItemClick;
 
         /// <summary>
+        /// Event handler for the ContainerDragStart event
+        /// </summary>
+        EventHandler containerDraggedHandler;
+
+        /// <summary>
+        /// Event handler for the ContainerDragEnd event
+        /// </summary>
+        EventHandler containerDroppedHandler;
+
+        /// <summary>
+        /// Event handler for the ContainerDragMove event
+        /// </summary>
+        EventHandler containerDraggingHandler;
+
+        /// <summary>
+        /// Form used to display the current FilterContainer being dragged
+        /// </summary>
+        ContainerDragForm dragForm;
+
+        /// <summary>
+        /// Panel used to temporarely replace the current FilterContainer being dragged
+        /// </summary>
+        Panel containerReplacePanel;
+
+        /// <summary>
         /// Gets the number of filters being applied to the image right now
         /// </summary>
         public int FilterCount { get { return filterContainers.Count; } }
@@ -88,6 +113,9 @@ namespace Pixelaria.Views.ModelViews
 
             this.filterUpdatedHandler = new EventHandler(FilterUpdated);
             this.filterItemClick = new EventHandler(tsm_filterItem_Click);
+            this.containerDraggedHandler = new EventHandler(ContainerDragged);
+            this.containerDroppedHandler = new EventHandler(ContainerDropped);
+            this.containerDraggingHandler = new EventHandler(ContainerDragging);
 
             LoadFilters(filters);
 
@@ -153,6 +181,8 @@ namespace Pixelaria.Views.ModelViews
             this.filterContainers.Add(filterContainer);
 
             filterControl.FilterUpdated += filterUpdatedHandler;
+            filterContainer.ContainerDragStart += containerDraggedHandler;
+            filterContainer.ContainerDragEnd += containerDroppedHandler;
 
             UpdateLayout();
 
@@ -168,6 +198,9 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="filterContainer">The FilterContainer to remove from this BaseFilterView</param>
         public void RemoveFilterControl(FilterContainer filterContainer)
         {
+            filterContainer.ContainerDragStart -= containerDraggedHandler;
+            filterContainer.ContainerDragEnd -= containerDroppedHandler;
+
             filterContainers.Remove(filterContainer);
 
             filterContainer.DisposeThis();
@@ -250,6 +283,95 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
+        // Container Dragged event handler
+        // 
+        private void ContainerDragged(object sender, EventArgs e)
+        {
+            FilterContainer fc = (FilterContainer)sender;
+
+            int scroll = pnl_container.VerticalScroll.Value;
+
+            containerReplacePanel = new Panel();
+            containerReplacePanel.BorderStyle = BorderStyle.FixedSingle;
+            containerReplacePanel.Size = fc.Size;
+            containerReplacePanel.PerformLayout();
+
+            pnl_container.SuspendLayout();
+            pnl_container.Controls.Add(containerReplacePanel);
+            pnl_container.Controls.SetChildIndex(containerReplacePanel, pnl_container.Controls.GetChildIndex(fc));
+            pnl_container.Controls.Remove(fc);
+            pnl_container.ResumeLayout();
+
+            pnl_container.VerticalScroll.Value = scroll;
+            pnl_container.PerformLayout();
+
+            dragForm = new ContainerDragForm(fc);
+            dragForm.ContainerDragging += containerDraggingHandler;
+            dragForm.Show();
+        }
+
+        // 
+        // Container Dragging event handler
+        // 
+        private void ContainerDragging(object sender, EventArgs e)
+        {
+            Point toCont = pnl_container.PointToClient(MousePosition);
+
+            if (toCont.Y < 30)
+            {
+                if (pnl_container.VerticalScroll.Value > 0)
+                {
+                    pnl_container.VerticalScroll.Value = Math.Max(0, pnl_container.VerticalScroll.Value - 15);
+                }
+            }
+            else if (toCont.Y > pnl_container.Height - 30)
+            {
+                if (pnl_container.VerticalScroll.Value < pnl_container.VerticalScroll.Maximum)
+                {
+                    pnl_container.VerticalScroll.Value = Math.Min(pnl_container.VerticalScroll.Maximum, pnl_container.VerticalScroll.Value + 15);
+                }
+            }
+
+            // Replace the container
+            Control control = pnl_container.GetChildAtPoint(toCont);
+
+            if (control is FilterContainer)
+            {
+                int pnlIndex = pnl_container.Controls.GetChildIndex(containerReplacePanel);
+
+                pnl_container.Controls.SetChildIndex(containerReplacePanel, pnl_container.Controls.GetChildIndex(control));
+                pnl_container.Controls.SetChildIndex(control, pnlIndex);
+            }
+        }
+
+        // 
+        // Container Dropped event handler
+        // 
+        private void ContainerDropped(object sender, EventArgs e)
+        {
+            FilterContainer fc = (FilterContainer)sender;
+
+            dragForm.ContainerDragging -= containerDraggingHandler;
+            dragForm.End();
+            dragForm.Dispose();
+
+            int index = pnl_container.Controls.GetChildIndex(containerReplacePanel);
+
+            pnl_container.Controls.Add(fc);
+            pnl_container.Controls.SetChildIndex(fc, index);
+            pnl_container.Controls.Remove(containerReplacePanel);
+
+            // Re-sort the filter's index
+            filterContainers.Remove(fc);
+            filterContainers.Insert(index, fc);
+
+            UpdateVisualization();
+
+            this.Focus();
+            this.BringToFront();
+        }
+
+        // 
         // Form Closed event handler
         // 
         protected override void OnClosed(EventArgs e)
@@ -328,5 +450,104 @@ namespace Pixelaria.Views.ModelViews
         /// Settings this flag to true ignores any zoom event fired by the zoomable picture boxes on the form
         /// </summary>
         bool ignoreZoomEvents;
+
+        /// <summary>
+        /// Form used to illustrate the drag operation
+        /// </summary>
+        private class ContainerDragForm : Form
+        {
+            /// <summary>
+            /// The FilterContainer being displayed on this ContainerDragForm instance
+            /// </summary>
+            FilterContainer container;
+
+            /// <summary>
+            /// Timer used to drag this form
+            /// </summary>
+            Timer dragTimer;
+
+            /// <summary>
+            /// The size the container had when it was fed to this ContainerDragForm object
+            /// </summary>
+            Size containerStartSize;
+
+            /// <summary>
+            /// Occurs during the dragging operation whenever the container has been moved
+            /// </summary>
+            public event EventHandler ContainerDragging;
+
+            /// <summary>
+            /// Initializes a new instance of the ContainerDragForm class
+            /// </summary>
+            /// <param name="container">The container to display on this ContainerDragForm</param>
+            public ContainerDragForm(FilterContainer container)
+            {
+                this.SuspendLayout();
+
+                this.container = container;
+                this.containerStartSize = container.Size;
+                this.ShowInTaskbar = false;
+
+                this.Size = new Size(this.container.Width + 1, this.container.Height + 1);
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.container.Dock = DockStyle.Fill;
+                this.Controls.Add(container);
+
+                this.ResumeLayout();
+
+                this.dragTimer = new Timer();
+                this.dragTimer.Interval = 10;
+                this.dragTimer.Tick += new EventHandler(dragTimer_Tick);
+                this.dragTimer.Start();
+            }
+
+            /// <summary>
+            /// Ends the dragging operation currently being handled by this ContainerDragForm
+            /// </summary>
+            public void End()
+            {
+                this.Controls.Remove(container);
+                this.container.Dock = DockStyle.None;
+                this.container.Size = this.containerStartSize;
+
+                this.dragTimer.Stop();
+            }
+
+            /// <summary>
+            /// Updates the drag position of this ContainerDragForm
+            /// </summary>
+            private void UpdateDrag()
+            {
+                Point newPos = new Point(MousePosition.X - container.MouseDownPoint.X, MousePosition.Y - container.MouseDownPoint.Y);
+
+                //if(this.Location.X != newPos.X || this.Location.Y != newPos.Y)
+                {
+                    this.Location = newPos;
+
+                    if (ContainerDragging != null)
+                    {
+                        ContainerDragging.Invoke(this, new EventArgs());
+                    }
+                }
+            }
+
+            // 
+            // OnShown event handler
+            // 
+            protected override void OnShown(EventArgs e)
+            {
+                base.OnShown(e);
+
+                UpdateDrag();
+            }
+
+            // 
+            // Drag Update timer tick
+            // 
+            private void dragTimer_Tick(object sender, EventArgs e)
+            {
+                UpdateDrag();
+            }
+        }
     }
 }

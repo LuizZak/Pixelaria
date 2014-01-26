@@ -59,19 +59,19 @@ namespace Pixelaria.Views.Controls.Filters
             // 
             this.pnl_container.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnl_container.Location = new System.Drawing.Point(27, 20);
+            this.pnl_container.Location = new System.Drawing.Point(20, 20);
             this.pnl_container.Name = "pnl_container";
-            this.pnl_container.Size = new System.Drawing.Size(769, 143);
+            this.pnl_container.Size = new System.Drawing.Size(776, 143);
             this.pnl_container.TabIndex = 0;
             // 
             // btn_remove
             // 
             this.btn_remove.FlatAppearance.BorderSize = 0;
-            this.btn_remove.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.Control;
-            this.btn_remove.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.btn_remove.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
+            this.btn_remove.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
             this.btn_remove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_remove.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_remove.Location = new System.Drawing.Point(6, 20);
+            this.btn_remove.Location = new System.Drawing.Point(2, 20);
             this.btn_remove.Name = "btn_remove";
             this.btn_remove.Size = new System.Drawing.Size(15, 15);
             this.btn_remove.TabIndex = 0;
@@ -81,7 +81,7 @@ namespace Pixelaria.Views.Controls.Filters
             // lbl_filterName
             // 
             this.lbl_filterName.AutoSize = true;
-            this.lbl_filterName.Location = new System.Drawing.Point(24, 5);
+            this.lbl_filterName.Location = new System.Drawing.Point(17, 4);
             this.lbl_filterName.Name = "lbl_filterName";
             this.lbl_filterName.Size = new System.Drawing.Size(60, 13);
             this.lbl_filterName.TabIndex = 1;

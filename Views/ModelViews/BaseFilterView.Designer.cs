@@ -53,22 +53,22 @@ namespace Pixelaria.Views.ModelViews
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BaseFilterView));
             this.gb_filterControlContainer = new System.Windows.Forms.GroupBox();
+            this.btn_addFilter = new System.Windows.Forms.Button();
             this.pnl_container = new System.Windows.Forms.FlowLayoutPanel();
             this.pnl_errorPanel = new System.Windows.Forms.Panel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lbl_error = new System.Windows.Forms.Label();
             this.pnl_bottom = new System.Windows.Forms.Panel();
-            this.cms_filters = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btn_cancel = new System.Windows.Forms.Button();
             this.btn_ok = new System.Windows.Forms.Button();
-            this.btn_addFilter = new System.Windows.Forms.Button();
+            this.cms_filters = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.zpb_original = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.gb_filterControlContainer.SuspendLayout();
             this.pnl_errorPanel.SuspendLayout();
-            this.pnl_bottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.pnl_bottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_original)).BeginInit();
             this.SuspendLayout();
@@ -86,6 +86,19 @@ namespace Pixelaria.Views.ModelViews
             this.gb_filterControlContainer.TabIndex = 26;
             this.gb_filterControlContainer.TabStop = false;
             this.gb_filterControlContainer.Text = "Filter Options";
+            // 
+            // btn_addFilter
+            // 
+            this.btn_addFilter.FlatAppearance.BorderSize = 0;
+            this.btn_addFilter.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_addFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_addFilter.Image = global::Pixelaria.Properties.Resources.action_add;
+            this.btn_addFilter.Location = new System.Drawing.Point(6, 19);
+            this.btn_addFilter.Name = "btn_addFilter";
+            this.btn_addFilter.Size = new System.Drawing.Size(22, 22);
+            this.btn_addFilter.TabIndex = 1;
+            this.btn_addFilter.UseVisualStyleBackColor = true;
+            this.btn_addFilter.Click += new System.EventHandler(this.btn_addFilter_Click);
             // 
             // pnl_container
             // 
@@ -109,6 +122,15 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_errorPanel.Size = new System.Drawing.Size(456, 29);
             this.pnl_errorPanel.TabIndex = 29;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(5, 4);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(22, 22);
+            this.pictureBox1.TabIndex = 10;
+            this.pictureBox1.TabStop = false;
+            // 
             // lbl_error
             // 
             this.lbl_error.AutoSize = true;
@@ -129,20 +151,6 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_bottom.Name = "pnl_bottom";
             this.pnl_bottom.Size = new System.Drawing.Size(623, 35);
             this.pnl_bottom.TabIndex = 30;
-            // 
-            // cms_filters
-            // 
-            this.cms_filters.Name = "cms_filters";
-            this.cms_filters.Size = new System.Drawing.Size(61, 4);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(5, 4);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(22, 22);
-            this.pictureBox1.TabIndex = 10;
-            this.pictureBox1.TabStop = false;
             // 
             // btn_cancel
             // 
@@ -174,18 +182,10 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok.UseVisualStyleBackColor = true;
             this.btn_ok.Click += new System.EventHandler(this.btn_ok_Click);
             // 
-            // btn_addFilter
+            // cms_filters
             // 
-            this.btn_addFilter.FlatAppearance.BorderSize = 0;
-            this.btn_addFilter.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
-            this.btn_addFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_addFilter.Image = global::Pixelaria.Properties.Resources.action_add;
-            this.btn_addFilter.Location = new System.Drawing.Point(6, 19);
-            this.btn_addFilter.Name = "btn_addFilter";
-            this.btn_addFilter.Size = new System.Drawing.Size(22, 22);
-            this.btn_addFilter.TabIndex = 1;
-            this.btn_addFilter.UseVisualStyleBackColor = true;
-            this.btn_addFilter.Click += new System.EventHandler(this.btn_addFilter_Click);
+            this.cms_filters.Name = "cms_filters";
+            this.cms_filters.Size = new System.Drawing.Size(61, 4);
             // 
             // label1
             // 
@@ -253,8 +253,8 @@ namespace Pixelaria.Views.ModelViews
             this.gb_filterControlContainer.ResumeLayout(false);
             this.pnl_errorPanel.ResumeLayout(false);
             this.pnl_errorPanel.PerformLayout();
-            this.pnl_bottom.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.pnl_bottom.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_original)).EndInit();
             this.ResumeLayout(false);

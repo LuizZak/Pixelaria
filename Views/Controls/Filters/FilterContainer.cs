@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
+using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria.Views.Controls.Filters
@@ -49,9 +50,39 @@ namespace Pixelaria.Views.Controls.Filters
         FilterControl filterControl;
 
         /// <summary>
+        /// Whether the mouse is currently held down on this control's drag area
+        /// </summary>
+        bool mouseDown;
+
+        /// <summary>
+        /// Whether the user is currently dragging this FilterContainer
+        /// </summary>
+        bool dragging;
+
+        /// <summary>
+        /// Where the mouse was held down on this control's drag area
+        /// </summary>
+        Point mouseDownPoint;
+
+        /// <summary>
         /// Gets the FilterControl currently held by this FilterContainer
         /// </summary>
         public FilterControl FilterControl { get { return filterControl; } }
+
+        /// <summary>
+        /// Gets where the mouse was held down on this control's drag area
+        /// </summary>
+        public Point MouseDownPoint { get { return mouseDownPoint; } }
+
+        /// <summary>
+        /// Occurs whenever the user starts dragging the FilterControl
+        /// </summary>
+        public event EventHandler ContainerDragStart;
+
+        /// <summary>
+        /// Occurs whenever the user finishes dragging the FilterControl
+        /// </summary>
+        public event EventHandler ContainerDragEnd;
 
         /// <summary>
         /// Initializes a new instance of the FilterContainer class
@@ -62,6 +93,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             InitializeComponent();
 
+            this.mouseDown = false;
             this.owningView = owningView;
 
             LoadFilter(filter);
@@ -94,6 +126,89 @@ namespace Pixelaria.Views.Controls.Filters
             filterControl.Dispose();
 
             base.Dispose();
+        }
+
+        // 
+        // OnMouseDown event handler
+        // 
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            if (e.Location.X < 17 && e.Location.Y < 17)
+            {
+                mouseDownPoint = e.Location;
+                mouseDown = true;
+            }
+        }
+
+        // 
+        // OnMouseMove event handler
+        // 
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (mouseDown && mouseDownPoint.Distance(e.Location) > 5 && !dragging)
+            {
+                if (ContainerDragStart != null)
+                {
+                    ContainerDragStart.Invoke(this, new EventArgs());
+                }
+
+                dragging = true;
+            }
+        }
+
+        // 
+        // OnMouseUp event handler
+        // 
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            if (dragging)
+            {
+                if (ContainerDragEnd != null)
+                {
+                    ContainerDragEnd.Invoke(this, new EventArgs());
+                }
+            }
+
+            mouseDown = false;
+            dragging = false;
+        }
+
+        // 
+        // OnPaint event handler
+        // 
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            // Draw the dragging region
+            Pen lightPen = Pens.White;
+            Pen darkPen = new Pen(Color.FromArgb(255, 193, 193, 193));
+
+            // Draw the light stripes
+            for (int x = 3; x <= 15; x += 3)
+            {
+                e.Graphics.DrawLine(lightPen, x, 2, 2, x);
+                e.Graphics.DrawLine(lightPen, 16, x + 1, x + 1, 16);
+            }
+
+            // Draw the dark stripes
+            for (int x = 4; x <= 16; x += 3)
+            {
+                e.Graphics.DrawLine(darkPen, x, 2, 2, x);
+
+                if (x <= 14)
+                {
+                    e.Graphics.DrawLine(darkPen, 16, x + 1, x + 1, 16);
+                }
+            }
+
+            darkPen.Dispose();
         }
 
         // 
