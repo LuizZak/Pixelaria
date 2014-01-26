@@ -3,7 +3,9 @@
              *   Pixelaria   *
                               
              *   *   *   *   *
-                   v1.0b
+
+                   v1.2b
+
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
 
@@ -14,14 +16,28 @@ Legend:
 
 + Addition
 * Fix
-. Node
+. Note
 
 
--- v1.1b
+-- v1.2b
 
 * Fixed a crash related to the main form tree view double clicking trying to open the currently selected item with none selected.
-* Fixed some gramatical errors on the tooltips for the AnimationSheetView form.
-* Fixed the exported sheet's Frame Count label not displaying the correct value on the AnimationSheetView form
+* Fixed program not exporting the bundles
+
+- FrameView
+
+  + Added a coordinate status label.
+  + Now the arrow keys move the selection when available.
+
+  - BaseFilterView
+
+    + Now the user can re-arrange the order of the filters by dragging them around
+
+
+- AnimationSheetView
+
+  * Fixed some gramatical errors on the tooltips.
+  * Fixed the exported sheet's Frame Count label not displaying the correct value.
 
 
 -- v1.0b
