@@ -47,6 +47,11 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
+        /// Gets the name of this filter
+        /// </summary>
+        public override string FilterName { get { return "Offset"; } }
+
+        /// <summary>
         /// Initializes this TransparencyControl
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
