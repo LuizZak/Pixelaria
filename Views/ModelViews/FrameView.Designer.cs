@@ -140,8 +140,8 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
             this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.pnl_framePreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
@@ -1124,7 +1124,6 @@ namespace Pixelaria.Views.ModelViews
             pencilPaintOperation1.FirstColor = System.Drawing.Color.Black;
             pencilPaintOperation1.PencilPoint = new System.Drawing.Point(0, 0);
             pencilPaintOperation1.SecondColor = System.Drawing.Color.Black;
-            pencilPaintOperation1.Size = 0;
             this.iepb_frame.CurrentPaintOperation = pencilPaintOperation1;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
@@ -1154,16 +1153,16 @@ namespace Pixelaria.Views.ModelViews
             this.statusStrip1.TabIndex = 8;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // tsl_operationLabel
-            // 
-            this.tsl_operationLabel.Name = "tsl_operationLabel";
-            this.tsl_operationLabel.Size = new System.Drawing.Size(0, 17);
-            // 
             // tsl_coordinates
             // 
             this.tsl_coordinates.Name = "tsl_coordinates";
             this.tsl_coordinates.Size = new System.Drawing.Size(30, 17);
             this.tsl_coordinates.Text = "3 x 4";
+            // 
+            // tsl_operationLabel
+            // 
+            this.tsl_operationLabel.Name = "tsl_operationLabel";
+            this.tsl_operationLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // FrameView
             // 

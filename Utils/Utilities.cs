@@ -423,5 +423,33 @@ namespace Pixelaria.Utils
 
             return Color.FromArgb(Math.Abs(A), Math.Abs(R), Math.Abs(G), Math.Abs(B));
         }
+
+        /// <summary>
+        /// Returns the distance between two points objects
+        /// </summary>
+        /// <param name="point">The first point</param>
+        /// <param name="point2">The second point</param>
+        /// <returns>The distance between the two points</returns>
+        public static float Distance(this PointF point, PointF point2)
+        {
+            float dx = point.X - point2.X;
+            float dy = point.Y - point2.Y;
+
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>
+        /// Returns the distance between two points objects
+        /// </summary>
+        /// <param name="point">The first point</param>
+        /// <param name="point2">The second point</param>
+        /// <returns>The distance between the two points</returns>
+        public static float Distance(this Point point, Point point2)
+        {
+            float dx = point.X - point2.X;
+            float dy = point.Y - point2.Y;
+
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
     }
 }

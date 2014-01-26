@@ -471,7 +471,7 @@ namespace Pixelaria.Views.Controls
                 pe.Graphics.DrawImage(Image, imgArea);
             }
         }
-
+        
         // 
         // OnPaintBackground event handler
         // 
@@ -481,7 +481,7 @@ namespace Pixelaria.Views.Controls
             {
                 if (this.BackgroundImage == null)
                     return;
-
+                
                 pevent.Graphics.Clear(this.BackColor);
 
                 Rectangle rec = new Rectangle(-offsetPoint.X, -offsetPoint.Y, (int)(this.Image.Width * scale.X), (int)(this.Image.Height * scale.Y));
