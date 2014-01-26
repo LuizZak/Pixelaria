@@ -592,32 +592,13 @@ namespace Pixelaria.Controllers
                 }
             }
 
-            // The bundle must be saved to disk before exporting
-            if (false && currentBundle.SaveFile == "" && currentBundle.ExportPath == "")
-            {
-                if (MessageBox.Show("The bundle must be saved to disk before exporting. Do you wish to save the bundle now?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    if (ShowSaveBundle() != DialogResult.OK)
-                    {
-                        return;
-                    }
-
-                    if (currentBundle.SaveFile == "" && currentBundle.ExportPath == "")
-                        return;
-                }
-                else
-                {
-                    return;
-                }
-            }
-
             ExportProgressView progressForm = new ExportProgressView(currentBundle, defaultExporter);
 
             progressForm.ShowDialog(this.mainForm);
 
-            //defaultExporter.ExportBundle(currentBundle);
+            defaultExporter.ExportBundle(currentBundle);
 
-            //MessageBox.Show("Bundle exported successfully!", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Bundle exported successfully!", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
