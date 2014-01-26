@@ -340,6 +340,16 @@ namespace Pixelaria.Views.Controls
             private Bitmap buffer;
 
             /// <summary>
+            /// The coordinate of the mouse, in absolute image pixels
+            /// </summary>
+            private Point mousePoint;
+
+            /// <summary>
+            /// Whether the mouse is currently over the image on the panel
+            /// </summary>
+            private bool mouseOverImage;
+
+            /// <summary>
             /// Whether to display a grid over the image
             /// </summary>
             private bool displayGrid;
@@ -380,6 +390,16 @@ namespace Pixelaria.Views.Controls
             public Image OverImage { get { return overImage; } set { overImage = value; Invalidate(); } }
 
             /// <summary>
+            /// Gets the coordinate of the mouse, in absolute image pixels 
+            /// </summary>
+            public Point MousePoint { get { return mousePoint; } }
+
+            /// <summary>
+            /// Gets whether the mouse is currently over the image on the panel
+            /// </summary>
+            public bool MouseOverImage { get { return mouseOverImage; } }
+
+            /// <summary>
             /// Gets or sets whether to display a grid over the image
             /// </summary>
             public bool DisplayGrid { get { return displayGrid; } set { this.displayGrid = value; Invalidate(); } }
@@ -395,6 +415,8 @@ namespace Pixelaria.Views.Controls
                 this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
                 this.ZoomFactor = 2;
                 this.displayGrid = false;
+                this.mousePoint = new Point();
+                this.mouseOverImage = false;
 
                 SetPaintOperation(new PencilPaintOperation());
             }
@@ -605,7 +627,13 @@ namespace Pixelaria.Views.Controls
                 base.OnMouseMove(e);
 
                 if (this.Image != null)
+                {
                     currentPaintOperation.MouseMove(e);
+
+                    mousePoint = GetAbsolutePoint(e.Location);
+
+                    mouseOverImage = mousePoint.X >= 0 && mousePoint.Y >= 0 && mousePoint.X < Image.Width && mousePoint.Y < Image.Height;
+                }
             }
 
             // 
@@ -625,6 +653,8 @@ namespace Pixelaria.Views.Controls
             protected override void OnMouseLeave(EventArgs e)
             {
                 base.OnMouseLeave(e);
+
+                mouseOverImage = false;
 
                 if (this.Image != null)
                     currentPaintOperation.MouseLeave(e);
@@ -4768,12 +4798,26 @@ namespace Pixelaria.Views.Controls
         {
             base.KeyDown(e);
 
+            // Selection delete
             if (e.KeyCode == Keys.Delete)
             {
                 if (selected)
                 {
                     FinishOperation(false);
                 }
+            }
+            // Selection moving
+            else if (e.KeyCode == Keys.Left)
+            {
+                pictureBox.Invalidate(GetSelectionArea(true));
+                selectedArea.X--;
+                pictureBox.Invalidate(GetSelectionArea(true));
+            }
+            else if (e.KeyCode == Keys.Right)
+            {
+                pictureBox.Invalidate(GetSelectionArea(true));
+                selectedArea.X++;
+                pictureBox.Invalidate(GetSelectionArea(true));
             }
         }
 

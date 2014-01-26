@@ -141,6 +141,7 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
             this.pnl_framePreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
@@ -1138,10 +1139,14 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
             this.iepb_frame.ClipboardStateChanged += new Pixelaria.Views.Controls.ImageEditPanel.ClipboardStateEventHandler(this.iepb_frame_ClipboardStateChanged);
             this.iepb_frame.OperationStatusChanged += new Pixelaria.Views.Controls.ImageEditPanel.OperationStatusEventHandler(this.iepb_frame_OperationStatusChanged);
+            this.iepb_frame.MouseEnter += new System.EventHandler(this.iepb_frame_MouseEnter);
+            this.iepb_frame.MouseLeave += new System.EventHandler(this.iepb_frame_MouseLeave);
+            this.iepb_frame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.iepb_frame_MouseMove);
             // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsl_coordinates,
             this.tsl_operationLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 678);
             this.statusStrip1.Name = "statusStrip1";
@@ -1153,6 +1158,12 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsl_operationLabel.Name = "tsl_operationLabel";
             this.tsl_operationLabel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // tsl_coordinates
+            // 
+            this.tsl_coordinates.Name = "tsl_coordinates";
+            this.tsl_coordinates.Size = new System.Drawing.Size(30, 17);
+            this.tsl_coordinates.Text = "3 x 4";
             // 
             // FrameView
             // 
@@ -1296,5 +1307,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripLabel tsl_onionSkinDepth;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsl_operationLabel;
+        private System.Windows.Forms.ToolStripStatusLabel tsl_coordinates;
     }
 }

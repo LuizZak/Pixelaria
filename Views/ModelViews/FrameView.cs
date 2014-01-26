@@ -158,6 +158,9 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.Init();
             this.iepb_frame.NotifyTo = this;
             this.iepb_frame.PictureBox.ZoomChanged += new ZoomablePictureBox.ZoomChangedEventHandler(PictureBox_ZoomChanged);
+            this.iepb_frame.PictureBox.MouseMove += new MouseEventHandler(iepb_frame_MouseMove);
+            this.iepb_frame.PictureBox.MouseLeave += new EventHandler(iepb_frame_MouseLeave);
+            this.iepb_frame.PictureBox.MouseEnter += new EventHandler(iepb_frame_MouseEnter);
             this.iepb_frame.UndoSystem.UndoRegistered += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoRegistered);
             this.iepb_frame.UndoSystem.UndoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
             this.iepb_frame.UndoSystem.RedoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
@@ -188,6 +191,8 @@ namespace Pixelaria.Views.ModelViews
             {
                 rb_blendingReplace.Checked = true;
             }
+
+            UpdateMouseLocationLabel();
 
             LoadFrame(frameToEdit);
         }
@@ -678,6 +683,25 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
+        /// <summary>
+        /// Update the toolstrip status label that represents the position the mouse is currently at
+        /// </summary>
+        private void UpdateMouseLocationLabel()
+        {
+            if (iepb_frame.PictureBox.MouseOverImage)
+            {
+                if (!tsl_coordinates.Visible)
+                    tsl_coordinates.Visible = true;
+
+                tsl_coordinates.Text = (iepb_frame.PictureBox.MousePoint.X + 1) + " x " + (iepb_frame.PictureBox.MousePoint.Y + 1);
+            }
+            else
+            {
+                if (tsl_coordinates.Visible)
+                    tsl_coordinates.Visible = false;
+            }
+        }
+
         #region Event Handlers
 
         #region Undo System
@@ -1061,6 +1085,30 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
+        // Image Editor Panel mouse move event handler
+        // 
+        private void iepb_frame_MouseMove(object sender, MouseEventArgs e)
+        {
+            UpdateMouseLocationLabel();
+        }
+
+        // 
+        // Image Editor Panel mouse enter event handler
+        // 
+        private void iepb_frame_MouseEnter(object sender, EventArgs e)
+        {
+            UpdateMouseLocationLabel();
+        }
+
+        // 
+        // Image Editor Panel mouse leave event handler
+        // 
+        private void iepb_frame_MouseLeave(object sender, EventArgs e)
+        {
+            UpdateMouseLocationLabel();
+        }
+
+        // 
         // Image Panel zoom change event
         // 
         private void PictureBox_ZoomChanged(object sender, ZoomChangedEventArgs e)
@@ -1377,7 +1425,6 @@ namespace Pixelaria.Views.ModelViews
         private bool ignoreOnionSkinDepthComboboxEvent = false;
 
         #endregion
-
     }
 
     /// <summary>
