@@ -21,12 +21,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
@@ -63,7 +58,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Gets the name of this filter
         /// </summary>
-        public virtual string FilterName { get { return "Filter"; } }
+        public virtual string FilterName { get { return filter.Name; } }
 
         /// <summary>
         /// Gets the filter loaded on this FilterControl
@@ -77,6 +72,27 @@ namespace Pixelaria.Views.Controls.Filters
         public virtual void Initialize(Bitmap bitmap)
         {
             this.originalBitmap = bitmap;
+        }
+
+        /// <summary>
+        /// Swaps the filter currently loaded on this FilterControl with the given filter
+        /// </summary>
+        /// <param name="filter">The new filter to load on this FilterControl</param>
+        public virtual void SetFilter(IFilter filter)
+        {
+            this.filter = filter;
+
+            UpdateFieldsFromFilter(filter);
+        }
+
+        /// <summary>
+        /// Updates the fields from this FilterControl based on the data from the
+        /// given IFilter instance
+        /// </summary>
+        /// <param name="filter">The IFilter instance to update the fields from</param>
+        public virtual void UpdateFieldsFromFilter(IFilter filter)
+        {
+
         }
 
         /// <summary>

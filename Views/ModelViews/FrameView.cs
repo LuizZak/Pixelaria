@@ -21,14 +21,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
@@ -74,6 +69,11 @@ namespace Pixelaria.Views.ModelViews
         /// Event handler for a filter item click
         /// </summary>
         private EventHandler filterClickEventHandler;
+
+        /// <summary>
+        /// Event handler for a filter preset item click
+        /// </summary>
+        private EventHandler presetClickEventHandler;
 
         /// <summary>
         /// The first edit color
@@ -151,8 +151,10 @@ namespace Pixelaria.Views.ModelViews
             InitializeComponent();
 
             this.filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
+            this.presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
 
             this.UpdateFilterList();
+            this.UpdateFilterPresetList();
 
             // Image editor panel
             this.iepb_frame.Init();
@@ -622,13 +624,17 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void UpdateFilterList()
         {
-            tsm_filters.DropDownItems.Clear();
+            // Remove old filter items
+            while (tsm_filters.DropDownItems.Count > 3)
+            {
+                tsm_filters.DropDownItems.RemoveAt(3);
+            }
 
             // Fetch the list of filters
             string[] filterNames = FilterStore.Instance.FiltersList;
             Image[] iconList = FilterStore.Instance.FilterIconList;
 
-            //foreach (string filter in filterNames)
+            // Create and add all the new filter items
             for (int i = 0; i < iconList.Length; i++)
             {
                 ToolStripMenuItem tsm_filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
@@ -641,9 +647,41 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Updates the list of available filter presets
+        /// </summary>
+        private void UpdateFilterPresetList()
+        {
+            // Remove old filter items
+            tsm_filterPresets.DropDownItems.Clear();
+
+            // Fetch the list of filters
+            FilterPreset[] presets = FilterStore.Instance.FilterPrests;
+
+            if (presets.Length == 0)
+            {
+                ToolStripMenuItem tsm_emptyItem = new ToolStripMenuItem("Empty");
+
+                tsm_emptyItem.Enabled = false;
+
+                tsm_filterPresets.DropDownItems.Add(tsm_emptyItem);
+            }
+
+            // Create and add all the new filter items
+            for (int i = 0; i < presets.Length; i++)
+            {
+                ToolStripMenuItem tsm_presetItem = new ToolStripMenuItem(presets[i].Name, tsm_filterPresets.Image);
+
+                tsm_presetItem.Tag = presets[i].Name;
+                tsm_presetItem.Click += presetClickEventHandler;
+
+                tsm_filterPresets.DropDownItems.Add(tsm_presetItem);
+            }
+        }
+
+        /// <summary>
         /// Displays a BaseFilterView with the given FilterControls attached
         /// </summary>
-        /// <param name="filterControl">The FilterControls to display on the BaseFilterView</param>
+        /// <param name="filterControl">The filter controls to display on the BaseFilterView</param>
         private void DisplayFilterControls(FilterControl[] filterControls)
         {
             Bitmap target = null;
@@ -652,14 +690,8 @@ namespace Pixelaria.Views.ModelViews
 
             if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
             {
-                //target = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap;
-                //(iepb_frame.CurrentPaintOperation as SelectionPaintOperation).ForceApplyChanges = true;
                 (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).CancelOperation(true);
             }
-            /*else
-            {
-                target = viewFrame.GetComposedBitmap();
-            }*/
 
             BitmapUndoTask but = new BitmapUndoTask(this.iepb_frame.PictureBox, target, "Filter");
 
@@ -681,6 +713,47 @@ namespace Pixelaria.Views.ModelViews
             {
                 but.Clear();
             }
+
+            UpdateFilterPresetList();
+        }
+
+        /// <summary>
+        /// Displays a BaseFilterView with the given FilterPreset loaded
+        /// </summary>
+        /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
+        private void DisplayFilterPreset(FilterPreset filterPreset)
+        {
+            Bitmap target = null;
+
+            target = viewFrame.GetComposedBitmap();
+
+            if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
+            {
+                (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).CancelOperation(true);
+            }
+
+            BitmapUndoTask but = new BitmapUndoTask(this.iepb_frame.PictureBox, target, "Filter");
+
+            BaseFilterView bfv = new BaseFilterView(filterPreset, target);
+
+            if (bfv.ShowDialog(this) == DialogResult.OK)
+            {
+                if (bfv.FilterCount > 0)
+                {
+                    iepb_frame.PictureBox.Invalidate();
+                    MarkModified();
+
+                    but.RegisterNewBitmap(target);
+
+                    iepb_frame.UndoSystem.RegisterUndo(but);
+                }
+            }
+            else
+            {
+                but.Clear();
+            }
+
+            UpdateFilterPresetList();
         }
 
         /// <summary>
@@ -923,11 +996,27 @@ namespace Pixelaria.Views.ModelViews
         #region Filters Menu
 
         // 
+        // Empty Filter menu item click
+        // 
+        private void tsm_emptyFilter_Click(object sender, EventArgs e)
+        {
+            DisplayFilterControls(new FilterControl[] { });
+        }
+
+        // 
         // Filter menu item click
         // 
         private void tsm_filterItem_Click(object sender, EventArgs e)
         {
             DisplayFilterControls(new FilterControl[] { FilterStore.Instance.CreateFilterControl(((ToolStripMenuItem)sender).Tag as string) });
+        }
+
+        // 
+        // Preset menu item click
+        // 
+        private void tsm_presetItem_Click(object sender, EventArgs e)
+        {
+            DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName(((ToolStripMenuItem)sender).Tag as string));
         }
 
         #endregion

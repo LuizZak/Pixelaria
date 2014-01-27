@@ -21,13 +21,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -47,11 +41,6 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Gets the name of this filter
-        /// </summary>
-        public override string FilterName { get { return "Offset"; } }
-
-        /// <summary>
         /// Initializes this TransparencyControl
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
@@ -59,9 +48,12 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            this.filter = new OffsetFilter();
-            (filter as OffsetFilter).OffsetX = 1;
-            (filter as OffsetFilter).OffsetY = 1;
+            if (this.filter == null)
+            {
+                this.filter = new OffsetFilter();
+                (filter as OffsetFilter).OffsetX = 1;
+                (filter as OffsetFilter).OffsetY = 1;
+            }
 
             this.anud_offsetX.Minimum = -bitmap.Width;
             this.anud_offsetY.Minimum = -bitmap.Height;
@@ -70,6 +62,20 @@ namespace Pixelaria.Views.Controls.Filters
             this.anud_offsetY.Maximum = bitmap.Height;
 
             this.updateRequired = true;
+        }
+
+        /// <summary>
+        /// Updates the fields from this FilterControl based on the data from the
+        /// given IFilter instance
+        /// </summary>
+        /// <param name="filter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter filter)
+        {
+            if (!(filter is OffsetFilter))
+                return;
+
+            anud_offsetX.Value = (decimal)(filter as OffsetFilter).OffsetX;
+            anud_offsetY.Value = (decimal)(filter as OffsetFilter).OffsetY;
         }
 
         // 

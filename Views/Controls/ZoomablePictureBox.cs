@@ -21,12 +21,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Pixelaria.Views.Controls
@@ -169,6 +166,7 @@ namespace Pixelaria.Views.Controls
 
                 this.ClipTransform();
 
+                // Zoom around the mouse
                 pivot = this.PointToClient(MousePosition);
 
                 if (!this.ClientRectangle.Contains(pivot))
@@ -188,9 +186,9 @@ namespace Pixelaria.Views.Controls
                 offsetPoint = currentOffset;
 
                 this.ClipTransform();
-
                 this.Invalidate();
 
+                // Fire the zoom changed event
                 if (ZoomChanged != null)
                 {
                     ZoomChanged.Invoke(this, new ZoomChangedEventArgs(oldZoom, scale.X));
@@ -534,9 +532,7 @@ namespace Pixelaria.Views.Controls
             if (e.Button == MouseButtons.Middle)
             {
                 offsetPoint = new Point();
-                scale = new PointF(1, 1);
-                Invalidate();
-                UpdateScrollbars();
+                Zoom = new PointF(1, 1);
             }
         }
 

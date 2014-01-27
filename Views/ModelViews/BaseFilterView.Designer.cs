@@ -63,6 +63,11 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok = new System.Windows.Forms.Button();
             this.cms_filters = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cb_filterPresets = new System.Windows.Forms.ComboBox();
+            this.btn_savePreset = new System.Windows.Forms.Button();
+            this.btn_deletePreset = new System.Windows.Forms.Button();
+            this.btn_loadPreset = new System.Windows.Forms.Button();
             this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.zpb_original = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.gb_filterControlContainer.SuspendLayout();
@@ -80,9 +85,9 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gb_filterControlContainer.Controls.Add(this.btn_addFilter);
             this.gb_filterControlContainer.Controls.Add(this.pnl_container);
-            this.gb_filterControlContainer.Location = new System.Drawing.Point(12, 301);
+            this.gb_filterControlContainer.Location = new System.Drawing.Point(12, 328);
             this.gb_filterControlContainer.Name = "gb_filterControlContainer";
-            this.gb_filterControlContainer.Size = new System.Drawing.Size(623, 160);
+            this.gb_filterControlContainer.Size = new System.Drawing.Size(623, 287);
             this.gb_filterControlContainer.TabIndex = 26;
             this.gb_filterControlContainer.TabStop = false;
             this.gb_filterControlContainer.Text = "Filter Options";
@@ -108,7 +113,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_container.AutoScroll = true;
             this.pnl_container.Location = new System.Drawing.Point(3, 47);
             this.pnl_container.Name = "pnl_container";
-            this.pnl_container.Size = new System.Drawing.Size(617, 107);
+            this.pnl_container.Size = new System.Drawing.Size(617, 234);
             this.pnl_container.TabIndex = 0;
             // 
             // pnl_errorPanel
@@ -142,12 +147,12 @@ namespace Pixelaria.Views.ModelViews
             // 
             // pnl_bottom
             // 
-            this.pnl_bottom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.pnl_bottom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_bottom.Controls.Add(this.pnl_errorPanel);
             this.pnl_bottom.Controls.Add(this.btn_cancel);
             this.pnl_bottom.Controls.Add(this.btn_ok);
-            this.pnl_bottom.Location = new System.Drawing.Point(12, 467);
+            this.pnl_bottom.Location = new System.Drawing.Point(12, 621);
             this.pnl_bottom.Name = "pnl_bottom";
             this.pnl_bottom.Size = new System.Drawing.Size(623, 35);
             this.pnl_bottom.TabIndex = 30;
@@ -198,6 +203,65 @@ namespace Pixelaria.Views.ModelViews
             this.label1.Text = "Preview";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 304);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(40, 13);
+            this.label2.TabIndex = 31;
+            this.label2.Text = "Preset:";
+            // 
+            // cb_filterPresets
+            // 
+            this.cb_filterPresets.FormattingEnabled = true;
+            this.cb_filterPresets.Location = new System.Drawing.Point(55, 301);
+            this.cb_filterPresets.Name = "cb_filterPresets";
+            this.cb_filterPresets.Size = new System.Drawing.Size(335, 21);
+            this.cb_filterPresets.TabIndex = 32;
+            this.cb_filterPresets.Text = "New Preset";
+            this.cb_filterPresets.TextChanged += new System.EventHandler(this.cb_filterPresets_TextChanged);
+            // 
+            // btn_savePreset
+            // 
+            this.btn_savePreset.Image = global::Pixelaria.Properties.Resources.save_icon;
+            this.btn_savePreset.Location = new System.Drawing.Point(477, 301);
+            this.btn_savePreset.Name = "btn_savePreset";
+            this.btn_savePreset.Size = new System.Drawing.Size(75, 21);
+            this.btn_savePreset.TabIndex = 33;
+            this.btn_savePreset.Text = "Save";
+            this.btn_savePreset.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btn_savePreset.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btn_savePreset.UseVisualStyleBackColor = true;
+            this.btn_savePreset.Click += new System.EventHandler(this.btn_savePreset_Click);
+            // 
+            // btn_deletePreset
+            // 
+            this.btn_deletePreset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_deletePreset.Image = global::Pixelaria.Properties.Resources.action_delete;
+            this.btn_deletePreset.Location = new System.Drawing.Point(558, 301);
+            this.btn_deletePreset.Name = "btn_deletePreset";
+            this.btn_deletePreset.Size = new System.Drawing.Size(77, 21);
+            this.btn_deletePreset.TabIndex = 34;
+            this.btn_deletePreset.Text = "Delete";
+            this.btn_deletePreset.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btn_deletePreset.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btn_deletePreset.UseVisualStyleBackColor = true;
+            this.btn_deletePreset.Click += new System.EventHandler(this.btn_deletePreset_Click);
+            // 
+            // btn_loadPreset
+            // 
+            this.btn_loadPreset.Image = global::Pixelaria.Properties.Resources.folder_open;
+            this.btn_loadPreset.Location = new System.Drawing.Point(396, 301);
+            this.btn_loadPreset.Name = "btn_loadPreset";
+            this.btn_loadPreset.Size = new System.Drawing.Size(75, 21);
+            this.btn_loadPreset.TabIndex = 35;
+            this.btn_loadPreset.Text = "Load";
+            this.btn_loadPreset.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btn_loadPreset.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btn_loadPreset.UseVisualStyleBackColor = true;
+            this.btn_loadPreset.Click += new System.EventHandler(this.btn_loadPreset_Click);
+            // 
             // zpb_preview
             // 
             this.zpb_preview.AllowScrollbars = false;
@@ -238,7 +302,12 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(647, 514);
+            this.ClientSize = new System.Drawing.Size(647, 668);
+            this.Controls.Add(this.btn_loadPreset);
+            this.Controls.Add(this.btn_deletePreset);
+            this.Controls.Add(this.btn_savePreset);
+            this.Controls.Add(this.cb_filterPresets);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.pnl_bottom);
             this.Controls.Add(this.gb_filterControlContainer);
             this.Controls.Add(this.zpb_preview);
@@ -258,6 +327,7 @@ namespace Pixelaria.Views.ModelViews
             ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_original)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -276,5 +346,10 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.FlowLayoutPanel pnl_container;
         private System.Windows.Forms.Button btn_addFilter;
         private System.Windows.Forms.ContextMenuStrip cms_filters;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cb_filterPresets;
+        private System.Windows.Forms.Button btn_savePreset;
+        private System.Windows.Forms.Button btn_deletePreset;
+        private System.Windows.Forms.Button btn_loadPreset;
     }
 }

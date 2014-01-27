@@ -22,11 +22,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
@@ -100,9 +96,8 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Initializes a new instance of the BaseFilterView class
         /// </summary>
-        /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
         /// <param name="bitmap">A bitmap to apply the filter to</param>
-        public BaseFilterView(FilterControl[] filters, Bitmap bitmap)
+        private BaseFilterView(Bitmap bitmap)
         {
             InitializeComponent();
 
@@ -116,8 +111,6 @@ namespace Pixelaria.Views.ModelViews
             this.containerDraggedHandler = new EventHandler(ContainerDragged);
             this.containerDroppedHandler = new EventHandler(ContainerDropped);
             this.containerDraggingHandler = new EventHandler(ContainerDragging);
-
-            LoadFilters(filters);
 
             this.pnl_errorPanel.Visible = false;
 
@@ -137,9 +130,31 @@ namespace Pixelaria.Views.ModelViews
 
             this.ignoreZoomEvents = false;
 
-            UpdateVisualization();
-
             UpdateFilterList();
+            UpdateFilterPresetList();
+            UpdateFilterPresetButtons();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BaseFilterView class
+        /// </summary>
+        /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
+        /// <param name="bitmap">A bitmap to apply the filter to</param>
+        public BaseFilterView(FilterControl[] filters, Bitmap bitmap)
+            : this(bitmap)
+        {
+            LoadFilters(filters);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BaseFilterView class
+        /// </summary>
+        /// <param name="preset">A FilterPreset that contains data about filters to load on this BaseFilterView</param>
+        /// <param name="bitmap">A bitmap to apply the filter to</param>
+        public BaseFilterView(FilterPreset preset, Bitmap bitmap)
+            : this(bitmap)
+        {
+            LoadFilterPreset(preset);
         }
 
         /// <summary>
@@ -156,7 +171,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Loads the given FilterControl array on this BaseFilterView
         /// </summary>
-        /// <param name="filters"></param>
+        /// <param name="filters">The array of filter controls to load into this BaseFilterView</param>
         public void LoadFilters(FilterControl[] filters)
         {
             foreach (FilterControl filter in filters)
@@ -168,10 +183,23 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Loads the given FilterPreset on this BaseFilterView
+        /// </summary>
+        /// <param name="preset">A filter preset that contains data about filters to load on this BaseFilterView<</param>
+        public void LoadFilterPreset(FilterPreset preset)
+        {
+            RemoveAllFilterControls(false);
+
+            this.cb_filterPresets.Text = preset.Name;
+
+            LoadFilters(preset.MakeFilterControls());
+        }
+
+        /// <summary>
         /// Loads the given FilterControl on this BaseFilterView
         /// </summary>
         /// <param name="filterControl">The filter control to load on this BaseFilterView</param>
-        /// <param name="updateVisualization">Whether to update the 5+</param>
+        /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
         public void LoadFilterControl(FilterControl filterControl, bool updateVisualization = true)
         {
             filterControl.Initialize(this.bitmapOriginal);
@@ -185,6 +213,7 @@ namespace Pixelaria.Views.ModelViews
             filterContainer.ContainerDragEnd += containerDroppedHandler;
 
             UpdateLayout();
+            UpdateFilterPresetButtons();
 
             pnl_container.VerticalScroll.Value = pnl_container.VerticalScroll.Maximum;
             pnl_container.PerformLayout();
@@ -201,6 +230,16 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="filterContainer">The FilterContainer to remove from this BaseFilterView</param>
         public void RemoveFilterControl(FilterContainer filterContainer)
         {
+            RemoveFilterControl(filterContainer, true);
+        }
+
+        /// <summary>
+        /// Removes the given FilterContainer from this BaseFilterView
+        /// </summary>
+        /// <param name="filterContainer">The FilterContainer to remove from this BaseFilterView</param>
+        /// <param name="updateAfterRemoval">Whether to update the layout after this method call</param>
+        private void RemoveFilterControl(FilterContainer filterContainer, bool updateAfterRemoval)
+        {
             filterContainer.ContainerDragStart -= containerDraggedHandler;
             filterContainer.ContainerDragEnd -= containerDroppedHandler;
 
@@ -210,9 +249,76 @@ namespace Pixelaria.Views.ModelViews
 
             pnl_container.Controls.Remove(filterContainer);
 
-            UpdateLayout();
+            if (updateAfterRemoval)
+            {
+                UpdateLayout();
+                UpdateVisualization();
+                UpdateFilterPresetButtons();
+            }
+        }
 
-            UpdateVisualization();
+        /// <summary>
+        /// Removes all the filter controls from this BaseFilterView
+        /// </summary>
+        /// <param name="updateAfterRemoval">Whether to update the layout after this method call</param>
+        public void RemoveAllFilterControls(bool updateAfterRemoval)
+        {
+            while (filterContainers.Count > 0)
+            {
+                RemoveFilterControl(filterContainers[0], false);
+            }
+
+            if (updateAfterRemoval)
+            {
+                UpdateLayout();
+                UpdateVisualization();
+                UpdateFilterPresetButtons();
+            }
+        }
+
+        /// <summary>
+        /// Loads the filter preset currently selected on the presets combo box
+        /// </summary>
+        private void LoadSelectedFilterPreset()
+        {
+            if (cb_filterPresets.Text.Trim() == "")
+                return;
+
+            FilterPreset preset = FilterStore.Instance.GetFilterPresetByName(cb_filterPresets.Text);
+
+            if (preset == null)
+                return;
+
+            LoadFilterPreset(preset);
+        }
+
+        /// <summary>
+        /// Save the filter preset currently selected on the presets combo box
+        /// </summary>
+        private void SaveSelectedFilterPreset()
+        {
+            if (cb_filterPresets.Text.Trim() == "")
+                return;
+
+            if (filterContainers.Count == 0)
+                return;
+
+            FilterStore.Instance.RecordFilterPreset(cb_filterPresets.Text, GetFilterArray());
+
+            UpdateFilterPresetList();
+        }
+
+        /// <summary>
+        /// Deletes the filter preset currently selected on the presets combo box
+        /// </summary>
+        private void DeleteSelectedFilterPreset()
+        {
+            if (cb_filterPresets.Text.Trim() == "")
+                return;
+
+            FilterStore.Instance.RemoveFilterPresetByName(cb_filterPresets.Text);
+
+            UpdateFilterPresetList();
         }
 
         /// <summary>
@@ -220,23 +326,14 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void UpdateLayout()
         {
-            int controlsHeight = 350;
-
             foreach (FilterContainer filterContainer in filterContainers)
             {
-                pnl_container.Controls.Add(filterContainer);
+                if (!pnl_container.Controls.Contains(filterContainer))
+                    pnl_container.Controls.Add(filterContainer);
 
                 filterContainer.Width = this.pnl_container.Width - 23;
                 filterContainer.Anchor = AnchorStyles.Right | AnchorStyles.Left;
-
-                //controlsHeight += filterContainer.Height + 25;
             }
-
-            this.gb_filterControlContainer.Height = controlsHeight;
-
-            this.pnl_bottom.Location = new Point(this.pnl_bottom.Location.X, this.gb_filterControlContainer.Bounds.Bottom + 3);
-
-            this.ClientSize = new Size(this.ClientSize.Width, this.pnl_bottom.Bounds.Bottom + 13);
         }
 
         /// <summary>
@@ -275,6 +372,57 @@ namespace Pixelaria.Views.ModelViews
 
                 cms_filters.Items.Add(tsm_filterItem);
             }
+        }
+
+        /// <summary>
+        /// Updates the list of available filter presets
+        /// </summary>
+        private void UpdateFilterPresetList()
+        {
+            cb_filterPresets.Items.Clear();
+
+            foreach (FilterPreset preset in FilterStore.Instance.FilterPrests)
+            {
+                cb_filterPresets.Items.Add(preset.Name);
+            }
+        }
+
+        /// <summary>
+        /// Updates the state of the filter presets buttons
+        /// </summary>
+        private void UpdateFilterPresetButtons()
+        {
+            if (cb_filterPresets.Text.Trim() == "")
+            {
+                btn_loadPreset.Enabled = btn_savePreset.Enabled = btn_deletePreset.Enabled = false;
+                return;
+            }
+
+            if (filterContainers.Count == 0)
+            {
+                btn_loadPreset.Enabled = true;
+                btn_savePreset.Enabled = false;
+                btn_deletePreset.Enabled = true;
+                return;
+            }
+
+            btn_loadPreset.Enabled = btn_savePreset.Enabled = btn_deletePreset.Enabled = true;
+        }
+
+        /// <summary>
+        /// Returns an array of IFilter objects that represent the filters currently loaded on this BaseFilterView
+        /// </summary>
+        /// <returns>An array of IFilter objects that represent the filters currently loaded on this BaseFilterView</returns>
+        private IFilter[] GetFilterArray()
+        {
+            IFilter[] filters = new IFilter[filterContainers.Count];
+
+            for(int i = 0; i < filters.Length; i++)
+            {
+                filters[i] = filterContainers[i].FilterControl.Filter;
+            }
+
+            return filters;
         }
 
         // 
@@ -354,15 +502,23 @@ namespace Pixelaria.Views.ModelViews
         {
             FilterContainer fc = (FilterContainer)sender;
 
+            // Close the dragging form
             dragForm.ContainerDragging -= containerDraggingHandler;
             dragForm.End();
             dragForm.Dispose();
 
+            // Re-add the filter container to the panel
             int index = pnl_container.Controls.GetChildIndex(containerReplacePanel);
 
+            int scroll = pnl_container.VerticalScroll.Value;
+
+            pnl_container.SuspendLayout();
             pnl_container.Controls.Add(fc);
             pnl_container.Controls.SetChildIndex(fc, index);
             pnl_container.Controls.Remove(containerReplacePanel);
+
+            pnl_container.VerticalScroll.Value = scroll;
+            pnl_container.ResumeLayout(true);
 
             // Re-sort the filter's index
             filterContainers.Remove(fc);
@@ -447,6 +603,36 @@ namespace Pixelaria.Views.ModelViews
             ignoreZoomEvents = true;
             zpb_original.Zoom = new PointF(e.NewZoom, e.NewZoom);
             ignoreZoomEvents = false;
+        }
+
+        // 
+        // Load Preset button click
+        // 
+        private void btn_loadPreset_Click(object sender, EventArgs e)
+        {
+            LoadSelectedFilterPreset();
+        }
+        // 
+        // Save Preset button click
+        // 
+        private void btn_savePreset_Click(object sender, EventArgs e)
+        {
+            SaveSelectedFilterPreset();
+        }
+        // 
+        // Delete Preset button click
+        // 
+        private void btn_deletePreset_Click(object sender, EventArgs e)
+        {
+            DeleteSelectedFilterPreset();
+        }
+
+        // 
+        // Combobox text changed
+        // 
+        private void cb_filterPresets_TextChanged(object sender, EventArgs e)
+        {
+            UpdateFilterPresetButtons();
         }
 
         /// <summary>
@@ -551,6 +737,6 @@ namespace Pixelaria.Views.ModelViews
             {
                 UpdateDrag();
             }
-        }
+        }        
     }
 }

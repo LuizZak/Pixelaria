@@ -138,10 +138,13 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsm_switchBlendingMode = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_emptyFilter = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_filterPresets = new System.Windows.Forms.ToolStripMenuItem();
             this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.pnl_framePreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
@@ -1114,9 +1117,28 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_filters
             // 
+            this.tsm_filters.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsm_emptyFilter,
+            this.tsm_filterPresets,
+            this.toolStripMenuItem4});
             this.tsm_filters.Name = "tsm_filters";
             this.tsm_filters.Size = new System.Drawing.Size(50, 20);
             this.tsm_filters.Text = "Fi&lters";
+            // 
+            // tsm_emptyFilter
+            // 
+            this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
+            this.tsm_emptyFilter.Name = "tsm_emptyFilter";
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
+            this.tsm_emptyFilter.Text = "Empty";
+            this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
+            // 
+            // tsm_filterPresets
+            // 
+            this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
+            this.tsm_filterPresets.Name = "tsm_filterPresets";
+            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
+            this.tsm_filterPresets.Text = "Presets";
             // 
             // iepb_frame
             // 
@@ -1163,6 +1185,11 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsl_operationLabel.Name = "tsl_operationLabel";
             this.tsl_operationLabel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
             // 
             // FrameView
             // 
@@ -1307,5 +1334,8 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsl_operationLabel;
         private System.Windows.Forms.ToolStripStatusLabel tsl_coordinates;
+        private System.Windows.Forms.ToolStripMenuItem tsm_emptyFilter;
+        private System.Windows.Forms.ToolStripMenuItem tsm_filterPresets;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
     }
 }

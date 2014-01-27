@@ -444,6 +444,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\preset_icon.png" />
+    <None Include="Resources\save_icon.png" />
     <None Include="Resources\filter_fade_icon.png" />
     <None Include="Resources\filter_offset_icon.png" />
     <None Include="Resources\frame_os_next.png" />

@@ -733,6 +733,16 @@ namespace Pixelaria.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap preset_icon {
+            get {
+                object obj = ResourceManager.GetObject("preset_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap process_stop {
             get {
                 object obj = ResourceManager.GetObject("process-stop", resourceCulture);
@@ -766,6 +776,16 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap rectangle_icon {
             get {
                 object obj = ResourceManager.GetObject("rectangle_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap save_icon {
+            get {
+                object obj = ResourceManager.GetObject("save_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

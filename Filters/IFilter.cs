@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -41,9 +42,26 @@ namespace Pixelaria.Filters
         bool Modifying { get; }
 
         /// <summary>
+        /// Gets the unique display name of this filter
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Applies this filter to an image
         /// </summary>
         /// <param name="target">The image to apply the filter to</param>
         void ApplyToBitmap(Bitmap target);
+
+        /// <summary>
+        /// Saves the properties of this filter to the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to save the data to</param>
+        void SaveToStream(Stream stream);
+
+        /// <summary>
+        /// Loads the properties of this filter from the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to load the data from</param>
+        void LoadFromStream(Stream stream);
     }
 }

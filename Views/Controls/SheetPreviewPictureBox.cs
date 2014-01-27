@@ -20,19 +20,10 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
-using Pixelaria.Data;
-using Pixelaria.Data.Exports;
-
 using Pixelaria.Importers;
-using Pixelaria.Exporters;
 
 namespace Pixelaria.Views.Controls
 {

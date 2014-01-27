@@ -20,12 +20,8 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
+using System.IO;
 
 using Pixelaria.Utils;
 
@@ -41,6 +37,11 @@ namespace Pixelaria.Filters
         /// of the bitmap it is applied on with the current settings
         /// </summary>
         public bool Modifying { get { return Transparency != 1; } }
+
+        /// <summary>
+        /// Gets the unique display name of this filter
+        /// </summary>
+        public string Name { get { return "Transparency"; } }
 
         /// <summary>
         /// Gets or sets the Transparency component as a floating point value ranging from [0 - 1]
@@ -77,6 +78,28 @@ namespace Pixelaria.Filters
             }
 
             fastBitmap.Unlock();
+        }
+
+        /// <summary>
+        /// Saves the properties of this filter to the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to save the data to</param>
+        public void SaveToStream(Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            writer.Write(Transparency);
+        }
+
+        /// <summary>
+        /// Loads the properties of this filter from the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to load the data from</param>
+        public void LoadFromStream(Stream stream)
+        {
+            BinaryReader reader = new BinaryReader(stream);
+
+            Transparency = reader.ReadSingle();
         }
     }
 }

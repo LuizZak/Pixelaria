@@ -20,14 +20,9 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-
-using Pixelaria.Utils;
+using System.IO;
 
 namespace Pixelaria.Filters
 {
@@ -41,6 +36,11 @@ namespace Pixelaria.Filters
         /// of the bitmap it is applied on with the current settings
         /// </summary>
         public bool Modifying { get { return ScaleX != 1 || ScaleY != 1; } }
+
+        /// <summary>
+        /// Gets the unique display name of this filter
+        /// </summary>
+        public string Name { get { return "Scale"; } }
 
         /// <summary>
         /// Gets or sets the X scale component as a floating point value
@@ -101,6 +101,36 @@ namespace Pixelaria.Filters
 
             g.Dispose();
             bit.Dispose();
+        }
+
+        /// <summary>
+        /// Saves the properties of this filter to the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to save the data to</param>
+        public void SaveToStream(Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            writer.Write(ScaleX);
+            writer.Write(ScaleY);
+
+            writer.Write(Centered);
+            writer.Write(PixelQuality);
+        }
+
+        /// <summary>
+        /// Loads the properties of this filter from the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to load the data from</param>
+        public void LoadFromStream(Stream stream)
+        {
+            BinaryReader reader = new BinaryReader(stream);
+
+            ScaleX = reader.ReadSingle();
+            ScaleY = reader.ReadSingle();
+
+            Centered = reader.ReadBoolean();
+            PixelQuality = reader.ReadBoolean();
         }
     }
 }

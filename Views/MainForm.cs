@@ -22,21 +22,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
 
 using Pixelaria.Data;
-using Pixelaria.Data.Exports;
-using Pixelaria.Exporters;
-using Pixelaria.Importers;
 
 using Pixelaria.Views.ModelViews;
 using Pixelaria.Views.SettingsViews;

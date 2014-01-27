@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -43,6 +44,11 @@ namespace Pixelaria.Filters
         /// of the bitmap it is applied on with the current settings
         /// </summary>
         public bool Modifying { get { return FadeFactor > 0; } }
+
+        /// <summary>
+        /// Gets the unique display name of this filter
+        /// </summary>
+        public string Name { get { return "Fade Color"; } }
 
         /// <summary>
         /// Gets or sets the color to fade the image with
@@ -90,6 +96,32 @@ namespace Pixelaria.Filters
             }
 
             fb.Unlock();
+        }
+
+        /// <summary>
+        /// Saves the properties of this filter to the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to save the data to</param>
+        public void SaveToStream(Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            writer.Write(FadeColor.ToArgb());
+            writer.Write(FadeFactor);
+            writer.Write(FadeAlpha);
+        }
+
+        /// <summary>
+        /// Loads the properties of this filter from the given stream
+        /// </summary>
+        /// <param name="stream">A Stream to load the data from</param>
+        public void LoadFromStream(Stream stream)
+        {
+            BinaryReader reader = new BinaryReader(stream);
+
+            FadeColor = Color.FromArgb(reader.ReadInt32());
+            FadeFactor = reader.ReadSingle();
+            FadeAlpha = reader.ReadBoolean();
         }
     }
 }

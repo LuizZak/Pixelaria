@@ -21,13 +21,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -39,14 +33,9 @@ namespace Pixelaria.Views.Controls.Filters
     public partial class ScaleControl : FilterControl
     {
         /// <summary>
-        /// Whether to ignore the next ANUD event
+        /// Whether to ignore the next field updated event
         /// </summary>
         private bool ignoreEvent;
-
-        /// <summary>
-        /// Gets the name of this filter
-        /// </summary>
-        public override string FilterName { get { return "Scale"; } }
 
         /// <summary>
         /// Initializes a new class of the ScaleControl class
@@ -64,13 +53,37 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            this.filter = new ScaleFilter();
-            (filter as ScaleFilter).ScaleX = 1;
-            (filter as ScaleFilter).ScaleY = 1;
+            if (this.filter == null)
+            {
+                this.filter = new ScaleFilter();
+                (filter as ScaleFilter).ScaleX = 1;
+                (filter as ScaleFilter).ScaleY = 1;
+            }
 
             this.updateRequired = true;
 
             this.ignoreEvent = false;
+        }
+
+        /// <summary>
+        /// Updates the fields from this FilterControl based on the data from the
+        /// given IFilter instance
+        /// </summary>
+        /// <param name="filter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter filter)
+        {
+            if (!(filter is ScaleFilter))
+                return;
+
+            ignoreEvent = true;
+
+            anud_scaleX.Value = (decimal)(filter as ScaleFilter).ScaleX;
+            anud_scaleY.Value = (decimal)(filter as ScaleFilter).ScaleY;
+
+            cb_centered.Checked = (filter as ScaleFilter).Centered;
+            cb_pixelQuality.Checked = (filter as ScaleFilter).PixelQuality;
+
+            ignoreEvent = false;
         }
 
         // 
@@ -124,6 +137,9 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_centered_CheckedChanged(object sender, EventArgs e)
         {
+            if (ignoreEvent)
+                return;
+
             updateRequired = true;
 
             (filter as ScaleFilter).Centered = cb_centered.Checked;
@@ -156,6 +172,9 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_pixelQuality_CheckedChanged(object sender, EventArgs e)
         {
+            if (ignoreEvent)
+                return;
+
             updateRequired = true;
 
             (filter as ScaleFilter).PixelQuality = cb_pixelQuality.Checked;

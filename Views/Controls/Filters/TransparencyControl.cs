@@ -21,17 +21,11 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
-
-using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -40,11 +34,6 @@ namespace Pixelaria.Views.Controls.Filters
     /// </summary>
     public class TransparencyControl : FilterControl
     {
-        /// <summary>
-        /// Gets the name of this filter
-        /// </summary>
-        public override string FilterName { get { return "Transparency"; } }
-
         /// <summary>
         /// Initializes a new class of the TransparencyControl class
         /// </summary>
@@ -61,10 +50,26 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            this.filter = new TransparencyFilter();
-            (filter as TransparencyFilter).Transparency = 1;
+            if (this.filter == null)
+            {
+                this.filter = new TransparencyFilter();
+                (filter as TransparencyFilter).Transparency = 1;
+            }
 
             this.updateRequired = true;
+        }
+
+        /// <summary>
+        /// Updates the fields from this FilterControl based on the data from the
+        /// given IFilter instance
+        /// </summary>
+        /// <param name="filter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter filter)
+        {
+            if (!(filter is TransparencyFilter))
+                return;
+
+            anud_transparency.Value = (decimal)(filter as TransparencyFilter).Transparency * 255;
         }
 
         // 

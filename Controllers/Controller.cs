@@ -20,12 +20,8 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -39,7 +35,6 @@ using Pixelaria.Exporters;
 using Pixelaria.Views;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews;
-using Pixelaria.Views.SettingsViews;
 
 using Pixelaria.Utils;
 
@@ -150,40 +145,6 @@ namespace Pixelaria.Controllers
             recentFileList = new RecentFileList(10);
 
             mainForm.UpdateRecentFilesList();
-            
-            /*List<Animation> anims = new List<Animation>();
-
-            anims.Add(defaultImporter.ImportAnimationFromPath("PlayerDie_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\spr_player2_body_die_b.png", new SheetSettings(true, 24, 23)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("PlayerNWStand_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\spr_player2_body_nw_stand_b.png", new SheetSettings(true, 24, 20)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Zombie1_Die", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Enemies\Zombie 1\spr_zombie1_die.png", new SheetSettings(true, 24, 23)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Player_ShotgunFire_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\Guns\Shotgun\spr_player2_body_shotgun_b.png", new SheetSettings(true, 40, 17)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Player_ShotgunIdle_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\Guns\Shotgun\spr_player2_body_shotgun_idle_b.png", new SheetSettings(true, 40, 17)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Player_ShotgunWalk_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\Guns\Shotgun\spr_player2_body_shotgun_walk_b.png", new SheetSettings(true, 40, 17)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Player_ShotgunReload1_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\Guns\Shotgun\spr_player2_body_shotgunr1_b.png", new SheetSettings(true, 35, 17)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Player_ShotgunReload2_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\Guns\Shotgun\spr_player2_body_shotgunr2_b.png", new SheetSettings(true, 35, 20)));
-            anims.Add(defaultImporter.ImportAnimationFromPath("Player_ShotgunReload3_B", @"D:\Backup\Meus documentos\Jogos\Zombie House\Project\Graphics\Player2BP\Guns\Shotgun\spr_player2_body_shotgunr3_b.png", new SheetSettings(true, 35, 17)));
-
-            foreach (Animation anim in anims)
-            {
-                AddAnimation(anim, false);
-            }
-
-            AnimationSheet sheet = CreateAnimationSheet("PlayerWeapon_Shotgun_b", false);
-
-            AddAnimationToAnimationSheet(anims[3], sheet);
-            AddAnimationToAnimationSheet(anims[4], sheet);
-            AddAnimationToAnimationSheet(anims[5], sheet);
-            AddAnimationToAnimationSheet(anims[6], sheet);
-            AddAnimationToAnimationSheet(anims[7], sheet);
-            AddAnimationToAnimationSheet(anims[8], sheet);
-
-            sheet = CreateAnimationSheet("Misc", false);
-
-            AddAnimationToAnimationSheet(anims[0], sheet);
-            AddAnimationToAnimationSheet(anims[1], sheet);
-            AddAnimationToAnimationSheet(anims[2], sheet);
-
-            mainForm.LoadBundle(currentBundle);*/
         }
 
         ////////////////////////////////////////////////////////////////////////////////

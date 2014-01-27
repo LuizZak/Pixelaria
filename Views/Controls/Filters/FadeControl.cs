@@ -21,12 +21,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
@@ -38,11 +33,6 @@ namespace Pixelaria.Views.Controls.Filters
     /// </summary>
     public partial class FadeControl : FilterControl
     {
-        /// <summary>
-        /// Gets the name of this filter
-        /// </summary>
-        public override string FilterName { get { return "Fade Color"; } }
-
         /// <summary>
         /// Initializes a new instance of the FadeControl class
         /// </summary>
@@ -59,12 +49,29 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            this.filter = new FadeFilter();
-            (filter as FadeFilter).FadeFactor = 0.5f;
-            (filter as FadeFilter).FadeColor = Color.White;
-            (filter as FadeFilter).FadeAlpha = false;
+            if (this.filter == null)
+            {
+                this.filter = new FadeFilter();
+                (filter as FadeFilter).FadeFactor = 0.5f;
+                (filter as FadeFilter).FadeColor = Color.White;
+                (filter as FadeFilter).FadeAlpha = false;
+            }
 
             this.updateRequired = true;
+        }
+
+        /// <summary>
+        /// Updates the fields from this FilterControl based on the data from the
+        /// given IFilter instance
+        /// </summary>
+        /// <param name="filter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter filter)
+        {
+            if (!(filter is FadeFilter))
+                return;
+
+            cp_color.BackColor = (filter as FadeFilter).FadeColor;
+            anud_factor.Value = (decimal)(filter as FadeFilter).FadeFactor * 100;
         }
 
         // 
