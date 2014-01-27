@@ -21,27 +21,33 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles an OffsetFilter
+    /// Represents a FilterControl that handles a RotationFilter
     /// </summary>
-    public partial class OffsetControl : FilterControl
+    public partial class RotationControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new instance of the OffsetControl class
+        /// Initializes a new class of the RotationControl class
         /// </summary>
-        public OffsetControl()
+        public RotationControl()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this RotationControl
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -50,16 +56,11 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (this.filter == null)
             {
-                this.filter = new OffsetFilter();
-                (filter as OffsetFilter).OffsetX = 0;
-                (filter as OffsetFilter).OffsetY = 0;
+                this.filter = new RotationFilter();
+                (filter as RotationFilter).Rotation = 0;
+                (filter as RotationFilter).RotateAroundCenter = false;
+                (filter as RotationFilter).PixelQuality = false;
             }
-
-            this.anud_offsetX.Minimum = -bitmap.Width;
-            this.anud_offsetY.Minimum = -bitmap.Height;
-
-            this.anud_offsetX.Maximum = bitmap.Width;
-            this.anud_offsetY.Maximum = bitmap.Height;
 
             this.updateRequired = true;
         }
@@ -71,29 +72,47 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="filter">The IFilter instance to update the fields from</param>
         public override void UpdateFieldsFromFilter(IFilter filter)
         {
-            if (!(filter is OffsetFilter))
+            if (!(filter is RotationFilter))
                 return;
 
-            anud_offsetX.Value = (decimal)(filter as OffsetFilter).OffsetX;
-            anud_offsetY.Value = (decimal)(filter as OffsetFilter).OffsetY;
+            anud_angle.Value = (decimal)(filter as RotationFilter).Rotation;
+
+            cb_rotateAroundCenter.Checked = (filter as RotationFilter).RotateAroundCenter;
+            cb_pixelQuality.Checked = (filter as RotationFilter).PixelQuality;
         }
 
         // 
-        // X offset nud
+        // Angle anud value changed
         // 
-        private void anud_offsetX_ValueChanged(object sender, EventArgs e)
+        private void anud_angle_ValueChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).OffsetX = (float)anud_offsetX.Value;
+            updateRequired = true;
+
+            (filter as RotationFilter).Rotation = (float)anud_angle.Value;
 
             FireFilterUpdated();
         }
 
         // 
-        // Y offset nud
+        // Rotate Around Center checkbox check
         // 
-        private void anud_offsetY_ValueChanged(object sender, EventArgs e)
+        private void cb_rotateAroundCenter_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).OffsetY = (float)anud_offsetY.Value;
+            updateRequired = true;
+
+            (filter as RotationFilter).RotateAroundCenter = cb_rotateAroundCenter.Checked;
+
+            FireFilterUpdated();
+        }
+
+        // 
+        // Pixel Quality checkbox check
+        // 
+        private void cb_pixelQuality_CheckedChanged(object sender, EventArgs e)
+        {
+            updateRequired = true;
+
+            (filter as RotationFilter).PixelQuality = cb_pixelQuality.Checked;
 
             FireFilterUpdated();
         }

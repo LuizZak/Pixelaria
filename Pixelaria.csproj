@@ -25,7 +25,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationVersion>1.4.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -109,6 +109,7 @@
     <Compile Include="Filters\FilterStore.cs" />
     <Compile Include="Filters\IFilter.cs" />
     <Compile Include="Filters\OffsetFilter.cs" />
+    <Compile Include="Filters\RotationFilter.cs" />
     <Compile Include="Filters\ScaleFilter.cs" />
     <Compile Include="Filters\TransparencyFilter.cs" />
     <Compile Include="Importers\DefaultPngImporter.cs" />
@@ -163,6 +164,12 @@
     </Compile>
     <Compile Include="Views\Controls\Filters\OffsetControl.Designer.cs">
       <DependentUpon>OffsetControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\RotationControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\RotationControl.Designer.cs">
+      <DependentUpon>RotationControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\Filters\ScaleControl.cs">
       <SubType>UserControl</SubType>
@@ -291,6 +298,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\Filters\OffsetControl.resx">
       <DependentUpon>OffsetControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\Filters\RotationControl.resx">
+      <DependentUpon>RotationControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\Filters\ScaleControl.resx">
       <DependentUpon>ScaleControl.cs</DependentUpon>
@@ -444,6 +454,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\filter_rotation.png" />
+    <None Include="Resources\filter_disable_icon.png" />
+    <None Include="Resources\filter_enable_icon.png" />
     <None Include="Resources\preset_icon.png" />
     <None Include="Resources\save_icon.png" />
     <None Include="Resources\filter_fade_icon.png" />

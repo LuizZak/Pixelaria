@@ -198,12 +198,12 @@ namespace Pixelaria.Views.Controls
 
             if (!AllowDecimalOnMouse)
             {
-                value = Math.Floor(value);
+                value = Math.Round(value);
             }
             else
             {
                 // Clamp the mouse value to the increments
-                value = Math.Floor(value / Increment) * Increment;
+                value = Math.Round(value / Increment) * Increment;
             }
 
             value = Math.Min(Maximum, Math.Max(Minimum, value));
@@ -237,12 +237,12 @@ namespace Pixelaria.Views.Controls
 
                 if (!AllowDecimalOnMouse)
                 {
-                    value = Math.Floor(value);
+                    value = Math.Round(value);
                 }
                 else
                 {
                     // Clamp the mouse value to the increments
-                    value = Math.Floor(value / Increment) * Increment;
+                    value = Math.Round(value / Increment) * Increment;
                 }
 
                 value = Math.Min(Maximum, Math.Max(Minimum, value));

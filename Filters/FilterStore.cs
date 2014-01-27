@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -35,14 +36,9 @@ namespace Pixelaria.Filters
     public class FilterStore
     {
         /// <summary>
-        /// The list of filters of the program
+        /// The list of filter items of the program
         /// </summary>
-        List<string> filterList;
-
-        /// <summary>
-        /// The list of icons for the filters
-        /// </summary>
-        List<Image> filterIconList;
+        List<FilterItem> filterItems;
 
         /// <summary>
         /// The list of filter presets of the program
@@ -52,12 +48,12 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets the list of filters of the program
         /// </summary>
-        public string[] FiltersList { get { return filterList.ToArray(); } }
+        public string[] FiltersList { get { return GetFilterList(); } }
 
         /// <summary>
         /// Gets the list of icons for the filters
         /// </summary>
-        public Image[] FilterIconList { get { return filterIconList.ToArray(); } }
+        public Image[] FilterIconList { get { return GetFilterIconList(); } }
 
         /// <summary>
         /// Gets the list of filter presets of the program
@@ -94,20 +90,26 @@ namespace Pixelaria.Filters
         /// </summary>
         private void InitList()
         {
-            filterList = new List<string>();
-            filterIconList = new List<Image>();
+            filterItems = new List<FilterItem>();
 
-            filterList.Add("Transparency");
-            filterIconList.Add(Pixelaria.Properties.Resources.filter_transparency_icon);
+            RegisterFilter("Transparency", Pixelaria.Properties.Resources.filter_transparency_icon, typeof(TransparencyFilter), typeof(TransparencyControl));
+            RegisterFilter("Scale", Pixelaria.Properties.Resources.filter_scale_icon, typeof(ScaleFilter), typeof(ScaleControl));
+            RegisterFilter("Offset", Pixelaria.Properties.Resources.filter_offset_icon, typeof(OffsetFilter), typeof(OffsetControl));
+            RegisterFilter("Fade Color", Pixelaria.Properties.Resources.filter_fade_icon, typeof(FadeFilter), typeof(FadeControl));
+            RegisterFilter("Rotation", Pixelaria.Properties.Resources.filter_rotation_icon, typeof(RotationFilter), typeof(RotationControl));
+        }
 
-            filterList.Add("Scale");
-            filterIconList.Add(Pixelaria.Properties.Resources.filter_scale_icon);
-
-            filterList.Add("Offset");
-            filterIconList.Add(Pixelaria.Properties.Resources.filter_offset_icon);
-
-            filterList.Add("Fade Color");
-            filterIconList.Add(Pixelaria.Properties.Resources.filter_fade_icon);
+        /// <summary>
+        /// Register a filter on this FilterStore
+        /// </summary>
+        /// <param name="filterName">The display name of the filter item</param>
+        /// <param name="filterIcon">The icon for the filter</param>
+        /// <param name="filterType">The type to use when creating an instance of the filter</param>
+        /// <param name="filterControlType">The type to use when creating an instance of the filter's control</param>
+        public void RegisterFilter(string filterName, Image filterIcon, Type filterType, Type filterControlType)
+        {
+            FilterItem item = new FilterItem() { FilterName = filterName, FilterIcon = filterIcon, FilterType = filterType, FilterControlType = filterControlType };
+            filterItems.Add(item);
         }
 
         /// <summary>
@@ -119,19 +121,13 @@ namespace Pixelaria.Filters
         {
             IFilter filter = null;
 
-            switch (filterName)
+            foreach (FilterItem item in filterItems)
             {
-                case "Transparency":
-                    return new TransparencyFilter();
-
-                case "Scale":
-                    return new ScaleFilter();
-
-                case "Offset":
-                    return new OffsetFilter();
-
-                case "Fade Color":
-                    return new FadeFilter();
+                if (item.FilterName == filterName)
+                {
+                    filter = item.FilterType.GetConstructor(Type.EmptyTypes).Invoke(null) as IFilter;
+                    break;
+                }
             }
 
             return filter;
@@ -146,20 +142,13 @@ namespace Pixelaria.Filters
         {
             FilterControl filterControl = null;
 
-            switch (filterName)
+            foreach (FilterItem item in filterItems)
             {
-                case "Transparency":
-                    filterControl = new TransparencyControl();
+                if (item.FilterName == filterName)
+                {
+                    filterControl = item.FilterControlType.GetConstructor(Type.EmptyTypes).Invoke(null) as FilterControl;
                     break;
-                case "Scale":
-                    filterControl = new ScaleControl();
-                    break;
-                case "Offset":
-                    filterControl = new OffsetControl();
-                    break;
-                case "Fade Color":
-                    filterControl = new FadeControl();
-                    break;
+                }
             }
 
             return filterControl;
@@ -227,6 +216,38 @@ namespace Pixelaria.Filters
         }
 
         /// <summary>
+        /// Gets an array of all the filter display names of the program
+        /// </summary>
+        /// <returns>An array of all the filter display names of the program</returns>
+        private string[] GetFilterList()
+        {
+            string[] filterNames = new string[filterItems.Count];
+
+            for (int i = 0; i < filterItems.Count; i++)
+            {
+                filterNames[i] = filterItems[i].FilterName;
+            }
+
+            return filterNames;
+        }
+
+        /// <summary>
+        /// Gets an array of all the filter icons of the program
+        /// </summary>
+        /// <returns>An array of all the filter icons of the program</returns>
+        private Image[] GetFilterIconList()
+        {
+            Image[] filterIcons = new Image[filterItems.Count];
+
+            for (int i = 0; i < filterItems.Count; i++)
+            {
+                filterIcons[i] = filterItems[i].FilterIcon;
+            }
+
+            return filterIcons;
+        }
+
+        /// <summary>
         /// Saves all the filter presets of the program to the disk
         /// </summary>
         private void SaveFilterPresets()
@@ -276,6 +297,32 @@ namespace Pixelaria.Filters
         /// The singleton instance for the main FilterStore
         /// </summary>
         static FilterStore instance;
+
+        /// <summary>
+        /// Provides a unified structure to store information about a filter
+        /// </summary>
+        private struct FilterItem
+        {
+            /// <summary>
+            /// The display name of the filter item
+            /// </summary>
+            public string FilterName;
+
+            /// <summary>
+            /// The icon for the filter
+            /// </summary>
+            public Image FilterIcon;
+
+            /// <summary>
+            /// The type to use when creating an instance of the filter
+            /// </summary>
+            public Type FilterType;
+
+            /// <summary>
+            /// The type to use when creating an instance of the filter's control
+            /// </summary>
+            public Type FilterControlType;
+        }
     }
 
     /// <summary>

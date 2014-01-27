@@ -515,8 +515,7 @@ namespace Pixelaria.Controllers
             // The bundle needs at least one valid animation sheet with one animation in it before exporting
             if (currentBundle.AnimationSheets.Length == 0)
             {
-                MessageBox.Show("There are no animation sheets to export! Create a sheet with at least one animation in it before exporting.");
-
+                MessageBox.Show("There are no animation sheets to export! Create a sheet with at least one animation in it before exporting.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             else
@@ -533,7 +532,8 @@ namespace Pixelaria.Controllers
 
                 if (!validSheet)
                 {
-                    MessageBox.Show("There are no animations in any of the animation sheets! Create a sheet with at least one animation in it before exporting.");
+                    MessageBox.Show("There are no animations in any of the animation sheets! Create a sheet with at least one animation in it before exporting.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
                 }
             }
 
@@ -556,10 +556,6 @@ namespace Pixelaria.Controllers
             ExportProgressView progressForm = new ExportProgressView(currentBundle, defaultExporter);
 
             progressForm.ShowDialog(this.mainForm);
-
-            defaultExporter.ExportBundle(currentBundle);
-
-            MessageBox.Show("Bundle exported successfully!", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>

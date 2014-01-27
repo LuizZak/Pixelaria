@@ -45,6 +45,11 @@ namespace Pixelaria.Views.Controls.Filters
         FilterControl filterControl;
 
         /// <summary>
+        /// Whether the filter currently contained on this FilterContainer is enabled
+        /// </summary>
+        bool filterEnabled;
+
+        /// <summary>
         /// Whether the mouse is currently held down on this control's drag area
         /// </summary>
         bool mouseDown;
@@ -63,6 +68,62 @@ namespace Pixelaria.Views.Controls.Filters
         /// Gets the FilterControl currently held by this FilterContainer
         /// </summary>
         public FilterControl FilterControl { get { return filterControl; } }
+
+        /// <summary>
+        /// Gets or sets the background color for the control.
+        /// </summary>
+        public override Color BackColor
+        {
+            get
+            {
+                return base.BackColor;
+            }
+            set
+            {
+                // Adjust the buttons' colors
+                AHSL lightColor = value.ToAHSL();
+                AHSL darkColor = value.ToAHSL();
+
+                lightColor.L += 6;
+                darkColor.L -= 19;
+
+                btn_remove.FlatAppearance.MouseOverBackColor = btn_enable.FlatAppearance.MouseOverBackColor = lightColor.ToColor();
+                btn_remove.FlatAppearance.MouseDownBackColor = btn_enable.FlatAppearance.MouseDownBackColor = darkColor.ToColor();
+
+                base.BackColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the filter currently contained on this FilterContainer is enabled
+        /// </summary>
+        public bool FilterEnabled
+        {
+            get { return filterEnabled; }
+            set
+            {
+                filterEnabled = value;
+
+                if (filterEnabled)
+                {
+                    btn_enable.Image = Properties.Resources.filter_enable_icon;
+                    this.BackColor = Color.FromKnownColor(KnownColor.Control);
+                }
+                else
+                {
+                    btn_enable.Image = Properties.Resources.filter_disable_icon;
+
+                    AHSL newColor = Color.FromKnownColor(KnownColor.Control).ToAHSL();
+
+                    newColor.L -= 10;
+
+                    this.BackColor = newColor.ToColor();
+                }
+
+                
+                filterControl.FireFilterUpdated();
+            }
+        }
 
         /// <summary>
         /// Gets where the mouse was held down on this control's drag area
@@ -90,6 +151,7 @@ namespace Pixelaria.Views.Controls.Filters
 
             this.mouseDown = false;
             this.owningView = owningView;
+            this.filterEnabled = true;
 
             LoadFilter(filter);
         }
@@ -111,6 +173,16 @@ namespace Pixelaria.Views.Controls.Filters
             filter.Dock = DockStyle.Top;
 
             this.ClientSize = new Size(this.Width, this.pnl_container.Bounds.Bottom);
+        }
+
+        /// <summary>
+        /// Applies the filter settings to the given Bitmap
+        /// </summary>
+        /// <param name="bitmap">The bitmap to apply the filter to</param>
+        public void ApplyFilter(Bitmap bitmap)
+        {
+            if (filterEnabled)
+                filterControl.ApplyFilter(bitmap);
         }
 
         /// <summary>
@@ -182,8 +254,14 @@ namespace Pixelaria.Views.Controls.Filters
             base.OnPaint(e);
 
             // Draw the dragging region
-            Pen lightPen = Pens.White;
-            Pen darkPen = new Pen(Color.FromArgb(255, 193, 193, 193));
+            AHSL lightColor = this.BackColor.ToAHSL();
+            AHSL darkColor = this.BackColor.ToAHSL();
+
+            lightColor.L += 6;
+            darkColor.L -= 19;
+
+            Pen lightPen = new Pen(lightColor.ToColor());
+            Pen darkPen = new Pen(darkColor.ToColor());
 
             // Draw the light stripes
             for (int x = 3; x <= 15; x += 3)
@@ -203,6 +281,7 @@ namespace Pixelaria.Views.Controls.Filters
                 }
             }
 
+            lightPen.Dispose();
             darkPen.Dispose();
         }
 
@@ -212,6 +291,14 @@ namespace Pixelaria.Views.Controls.Filters
         private void btn_remove_Click(object sender, EventArgs e)
         {
             owningView.RemoveFilterControl(this);
+        }
+
+        // 
+        // Enable/Disable Button click
+        // 
+        private void btn_enable_Click(object sender, EventArgs e)
+        {
+            FilterEnabled = !FilterEnabled;
         }
     }
 }

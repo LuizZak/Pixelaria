@@ -164,8 +164,27 @@ namespace Pixelaria.Views.ModelViews
         {
             foreach (FilterContainer container in filterContainers)
             {
-                container.FilterControl.ApplyFilter(bitmapOriginal);
+                container.ApplyFilter(bitmapOriginal);
             }
+        }
+
+        /// <summary>
+        /// Returns whether the current filter configuration can make any significant changes to the bitmap loaded
+        /// </summary>
+        /// <returns>Whether the current filter configuration can make any significant changes to the bitmap loaded</returns>
+        public bool ChangesDetected()
+        {
+            bool changes = false;
+
+            foreach (FilterContainer container in filterContainers)
+            {
+                if (container.FilterEnabled && container.FilterControl.Filter.Modifying)
+                {
+                    changes = true;
+                }
+            }
+
+            return changes;
         }
 
         /// <summary>
@@ -318,6 +337,8 @@ namespace Pixelaria.Views.ModelViews
 
             FilterStore.Instance.RemoveFilterPresetByName(cb_filterPresets.Text);
 
+            cb_filterPresets.Text = "New Preset";
+
             UpdateFilterPresetList();
         }
 
@@ -345,7 +366,7 @@ namespace Pixelaria.Views.ModelViews
 
             foreach (FilterContainer container in filterContainers)
             {
-                container.FilterControl.ApplyFilter(bitmapPreview);
+                container.ApplyFilter(bitmapPreview);
             }
 
             this.zpb_preview.Invalidate();

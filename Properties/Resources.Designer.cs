@@ -433,6 +433,26 @@ namespace Pixelaria.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap filter_disable_icon {
+            get {
+                object obj = ResourceManager.GetObject("filter_disable_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap filter_enable_icon {
+            get {
+                object obj = ResourceManager.GetObject("filter_enable_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap filter_fade_icon {
             get {
                 object obj = ResourceManager.GetObject("filter_fade_icon", resourceCulture);
@@ -446,6 +466,16 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap filter_offset_icon {
             get {
                 object obj = ResourceManager.GetObject("filter_offset_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap filter_rotation_icon {
+            get {
+                object obj = ResourceManager.GetObject("filter_rotation_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

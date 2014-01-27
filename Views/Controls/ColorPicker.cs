@@ -239,7 +239,7 @@ namespace Pixelaria.Views.Controls
             if (updateSliders != -1)
                 return;
 
-            Color c = new AHSL((int)anud_transparency.Value, (int)anud_h.Value, (int)anud_s.Value, (int)anud_l.Value).ToARGB();
+            Color c = new AHSL((int)anud_transparency.Value, (int)anud_h.Value, (int)anud_s.Value, (int)anud_l.Value).ToColor();
 
             updateSliders = 1;
             SetCurrentColor(c);

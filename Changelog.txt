@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.3b
+                   v1.4b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,24 +18,38 @@ Legend:
 * Fix
 . Note
 
--- v1.3b
+-- v1.4b
 
 + Added a Filter Preset feature. You can now store filters into presets that can be loaded and applied to different images through the program. The presets are stored in the disk in the 'filterpresets.bin' file at the executable's directory.
++ Added Rotation filter
+
+* Fixed program exporting bundles twice in a row.
+* Fixed crash related to the program still trying to export a bundle even when none of the bundle's sheets have animations on them.
+* Now the assisted step controls (numeric inputs with a mouse input bar under) round the mouse values instead of flooring them (will produce a better feedback for mouse inputs).
+
+. FilterStore
+  * Filters are now stored in an unified structure for easy maintenance
 
 . BaseFilterView
   + Now the filters scroll panel scrolls to the bottom when a new filter is added.
 
+  . FilterContainer
+     + Added a button to toggle whether the filter is enabled.
+
+. OffsetControl
+  * Fixed the default offset values starting at 1 instead of 0.
+
 -- v1.2b
 
 * Fixed a crash related to the main form tree view double clicking trying to open the currently selected item with none selected.
-* Fixed program not exporting the bundles
+* Fixed program not exporting the bundles.
 
 . FrameView
   + Added a coordinate status label.
   + Now the arrow keys move the selection when available.
 
   . BaseFilterView
-    + Now the user can re-arrange the order of the filters by dragging them around
+    + Now the user can re-arrange the order of the filters by dragging them around.
 
 
 . AnimationSheetView

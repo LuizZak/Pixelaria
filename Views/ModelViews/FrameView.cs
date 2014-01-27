@@ -699,7 +699,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (bfv.ShowDialog(this) == DialogResult.OK)
             {
-                if (bfv.FilterCount > 0)
+                if (bfv.ChangesDetected())
                 {
                     iepb_frame.PictureBox.Invalidate();
                     MarkModified();
@@ -738,7 +738,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (bfv.ShowDialog(this) == DialogResult.OK)
             {
-                if (bfv.FilterCount > 0)
+                if (bfv.ChangesDetected())
                 {
                     iepb_frame.PictureBox.Invalidate();
                     MarkModified();

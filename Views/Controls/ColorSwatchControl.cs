@@ -461,7 +461,7 @@ namespace Pixelaria.Views.Controls
         /// Converts this AHSL color to a ARGB color
         /// </summary>
         /// <returns>The ARGB color that represents this AHSL color</returns>
-        public Color ToARGB()
+        public Color ToColor()
         {
             return ColorSwatch.FromHSL(this.h, this.s, this.l, (this.a / 255.0f));
         }

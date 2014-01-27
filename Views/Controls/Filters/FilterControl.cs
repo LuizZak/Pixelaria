@@ -75,6 +75,19 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
+        /// Disposes of this FilterControl
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (preview != null)
+            {
+                preview.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Swaps the filter currently loaded on this FilterControl with the given filter
         /// </summary>
         /// <param name="filter">The new filter to load on this FilterControl</param>
@@ -93,19 +106,6 @@ namespace Pixelaria.Views.Controls.Filters
         public virtual void UpdateFieldsFromFilter(IFilter filter)
         {
 
-        }
-
-        /// <summary>
-        /// Disposes of this FilterControl
-        /// </summary>
-        protected override void Dispose(bool disposing)
-        {
-            if (preview != null)
-            {
-                preview.Dispose();
-            }
-
-            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -129,6 +129,17 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
+        /// Fires the FilterUpdated event
+        /// </summary>
+        public void FireFilterUpdated()
+        {
+            if (FilterUpdated != null)
+            {
+                FilterUpdated.Invoke(this, new EventArgs());
+            }
+        }
+
+        /// <summary>
         /// Updates the internal visualization of the FilterControl
         /// </summary>
         protected void UpdateVisualization()
@@ -146,17 +157,6 @@ namespace Pixelaria.Views.Controls.Filters
             filter.ApplyToBitmap(preview);
 
             updateRequired = false;
-        }
-
-        /// <summary>
-        /// Fires the FilterUpdated event
-        /// </summary>
-        protected void FireFilterUpdated()
-        {
-            if (FilterUpdated != null)
-            {
-                FilterUpdated.Invoke(this, new EventArgs());
-            }
         }
 
         /// <summary>
