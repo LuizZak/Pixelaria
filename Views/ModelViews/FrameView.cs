@@ -111,6 +111,11 @@ namespace Pixelaria.Views.ModelViews
         public static float OnionSkinTransparency;
 
         /// <summary>
+        /// Whether to show the current frame on onion skin mode
+        /// </summary>
+        public static bool OnionSkinShowCurrentFrame;
+
+        /// <summary>
         /// The mode to use on the onion skin
         /// </summary>
         public static OnionSkinMode OnionSkinMode;
@@ -137,6 +142,7 @@ namespace Pixelaria.Views.ModelViews
 
             OnionSkinEnabled = false;
             OnionSkinDepth = 3;
+            OnionSkinShowCurrentFrame = true;
             OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
             OnionSkinTransparency = 0.25f;
         }
@@ -183,6 +189,7 @@ namespace Pixelaria.Views.ModelViews
 
             this.tsb_onionSkin.Checked = OnionSkinEnabled;
             this.tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            this.tsb_osShowCurrentFrame.Checked = OnionSkinShowCurrentFrame;
             this.tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
 
             if (CurrentCompositingMode == CompositingMode.SourceOver)
@@ -440,6 +447,16 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Toggles the enabled/disables state of the current frame on onion skin mode
+        /// </summary>
+        private void ToggleCurrentFrameOnOnionSkin()
+        {
+            OnionSkinShowCurrentFrame = !OnionSkinShowCurrentFrame;
+
+            iepb_frame.PictureBox.DisplayImage = OnionSkinShowCurrentFrame;
+        }
+
+        /// <summary>
         /// Shows the onion skin for the current frame
         /// </summary>
         private void ShowOnionSkin()
@@ -458,7 +475,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             if (!tsl_onionSkinDepth.Visible)
-                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osNextFrames.Visible = true;
+                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = true;
 
             if (onionSkin != null && (onionSkin.Width != frameToEdit.Width || onionSkin.Height != frameToEdit.Height))
             {
@@ -523,6 +540,8 @@ namespace Pixelaria.Views.ModelViews
             og.Flush();
             og.Dispose();
 
+            iepb_frame.PictureBox.DisplayImage = OnionSkinShowCurrentFrame;
+
             iepb_frame.PictureBox.UnderImage = onionSkin;
         }
 
@@ -534,7 +553,9 @@ namespace Pixelaria.Views.ModelViews
             OnionSkinEnabled = false;
 
             if (tsl_onionSkinDepth.Visible)
-                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osNextFrames.Visible = false;
+                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = false;
+
+            iepb_frame.PictureBox.DisplayImage = true;
 
             DestroyOnionSkin();
         }
@@ -1026,6 +1047,12 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void FrameView_FormClosed(object sender, FormClosedEventArgs e)
         {
+            // Toggle the display of the image back before closing the form
+            if (!OnionSkinShowCurrentFrame)
+            {
+                ToggleCurrentFrameOnOnionSkin();
+            }
+
             // Dispose of the image edit panel
             iepb_frame.Dispose();
 
@@ -1462,6 +1489,14 @@ namespace Pixelaria.Views.ModelViews
             }
 
             ShowOnionSkin();
+        }
+
+        // 
+        // Show Current Frame On Onion Skin toolbar button click
+        // 
+        private void tsb_hideCurrentFrame_Click(object sender, EventArgs e)
+        {
+            ToggleCurrentFrameOnOnionSkin();
         }
 
         // 

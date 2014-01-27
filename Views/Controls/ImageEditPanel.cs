@@ -323,6 +323,11 @@ namespace Pixelaria.Views.Controls
             private PaintOperation currentPaintOperation;
 
             /// <summary>
+            /// The buffer bitmap that the paint operations will use in order to buffer screen previews
+            /// </summary>
+            private Bitmap buffer;
+
+            /// <summary>
             /// The image to display under the current image
             /// </summary>
             private Image underImage;
@@ -333,9 +338,9 @@ namespace Pixelaria.Views.Controls
             private Image overImage;
 
             /// <summary>
-            /// The buffer bitmap that the paint operations will use in order to buffer screen previews
+            /// Whether to display the current image
             /// </summary>
-            private Bitmap buffer;
+            private bool displayImage;
 
             /// <summary>
             /// The coordinate of the mouse, in absolute image pixels
@@ -388,6 +393,11 @@ namespace Pixelaria.Views.Controls
             public Image OverImage { get { return overImage; } set { overImage = value; Invalidate(); } }
 
             /// <summary>
+            /// Gets or sets whether to display the current image
+            /// </summary>
+            public bool DisplayImage { get { return displayImage; } set { if (displayImage != value) { displayImage = value; Invalidate(); } } }
+
+            /// <summary>
             /// Gets the coordinate of the mouse, in absolute image pixels 
             /// </summary>
             public Point MousePoint { get { return mousePoint; } }
@@ -412,6 +422,7 @@ namespace Pixelaria.Views.Controls
 
                 this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
                 this.ZoomFactor = 2;
+                this.displayImage = true;
                 this.displayGrid = false;
                 this.mousePoint = new Point();
                 this.mouseOverImage = false;
@@ -546,8 +557,11 @@ namespace Pixelaria.Views.Controls
 
                     currentPaintOperation.Paint(pe);
 
-                    // Draw the buffer now
-                    pe.Graphics.DrawImage(buffer, 0, 0);
+                    if (displayImage)
+                    {
+                        // Draw the buffer now
+                        pe.Graphics.DrawImage(buffer, 0, 0);
+                    }
 
                     // Draw the over image
                     if (overImage != null)

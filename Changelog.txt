@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.4b
+                   v1.5b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -17,6 +17,11 @@ Legend:
 + Addition
 * Fix
 . Note
+
+-- v1.5b
+
+. FrameView
+  + Added an option to toggle the visibility of the current frame on onion skin mode
 
 -- v1.4b
 

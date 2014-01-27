@@ -593,6 +593,16 @@ namespace Pixelaria.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap frame_os_current {
+            get {
+                object obj = ResourceManager.GetObject("frame_os_current", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap frame_os_next {
             get {
                 object obj = ResourceManager.GetObject("frame_os_next", resourceCulture);

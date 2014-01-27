@@ -117,6 +117,7 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.tsb_onionSkin = new System.Windows.Forms.ToolStripButton();
             this.tsb_osPrevFrames = new System.Windows.Forms.ToolStripButton();
+            this.tsb_osShowCurrentFrame = new System.Windows.Forms.ToolStripButton();
             this.tsb_osNextFrames = new System.Windows.Forms.ToolStripButton();
             this.tsl_onionSkinDepth = new System.Windows.Forms.ToolStripLabel();
             this.tscb_osFrameCount = new System.Windows.Forms.ToolStripComboBox();
@@ -706,6 +707,7 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripSeparator5,
             this.tsb_onionSkin,
             this.tsb_osPrevFrames,
+            this.tsb_osShowCurrentFrame,
             this.tsb_osNextFrames,
             this.tsl_onionSkinDepth,
             this.tscb_osFrameCount});
@@ -915,6 +917,20 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_osPrevFrames.Text = "Show previous frames on onion skin";
             this.tsb_osPrevFrames.Visible = false;
             this.tsb_osPrevFrames.Click += new System.EventHandler(this.tsb_osPrevFrames_Click);
+            // 
+            // tsb_osShowCurrentFrame
+            // 
+            this.tsb_osShowCurrentFrame.Checked = true;
+            this.tsb_osShowCurrentFrame.CheckOnClick = true;
+            this.tsb_osShowCurrentFrame.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsb_osShowCurrentFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_osShowCurrentFrame.Image = global::Pixelaria.Properties.Resources.frame_os_current;
+            this.tsb_osShowCurrentFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_osShowCurrentFrame.Name = "tsb_osShowCurrentFrame";
+            this.tsb_osShowCurrentFrame.Size = new System.Drawing.Size(23, 22);
+            this.tsb_osShowCurrentFrame.Text = "Show current frame";
+            this.tsb_osShowCurrentFrame.Visible = false;
+            this.tsb_osShowCurrentFrame.Click += new System.EventHandler(this.tsb_hideCurrentFrame_Click);
             // 
             // tsb_osNextFrames
             // 
@@ -1338,5 +1354,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_emptyFilter;
         private System.Windows.Forms.ToolStripMenuItem tsm_filterPresets;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripButton tsb_osShowCurrentFrame;
     }
 }

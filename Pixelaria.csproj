@@ -454,6 +454,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\frame_os_current.png" />
+    <None Include="Resources\frame_os_hideframe.png" />
     <None Include="Resources\filter_rotation.png" />
     <None Include="Resources\filter_disable_icon.png" />
     <None Include="Resources\filter_enable_icon.png" />
