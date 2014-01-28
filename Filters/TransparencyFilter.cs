@@ -21,6 +21,8 @@
 */
 
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 
 using Pixelaria.Utils;
@@ -52,32 +54,39 @@ namespace Pixelaria.Filters
         /// Applies this TransparencyFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
-        public void ApplyToBitmap(Bitmap bitmap)
+        public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             if (Transparency == 1)
                 return;
 
-            FastBitmap fastBitmap = new FastBitmap(bitmap);
+            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+                return;
 
-            fastBitmap.Lock();
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
-            // Multiply all the alpha pixels
-            for (int y = 0; y < fastBitmap.Height; y++)
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+
+            int bpp = 4;
+
+            byte* scan0b = (byte*)data.Scan0;
+            byte* endPixel = scan0b + bpp * width * height;
+
+            scan0b += 3;
+
+            while(scan0b < endPixel)
             {
-                for (int x = 0; x < fastBitmap.Width; x++)
-                {
-                    // Get the Alpha component of the current pixel
-                    int color = fastBitmap.GetPixelInt(x, y);
-                    int a = (color >> 24) & 0xFF;
+                *scan0b = (byte)(*scan0b * Transparency);
+                /*byte a = *scan0b;
 
-                    a = (int)(a * Transparency);
+                a = (byte)(a * Transparency);
 
-                    // Re-apply the pixel back
-                    fastBitmap.SetPixel(x, y, (a << 24) | (color & 0xFFFFFF));
-                }
+                *scan0b = a;*/
+
+                scan0b += 4;
             }
 
-            fastBitmap.Unlock();
+            bitmap.UnlockBits(data);
         }
 
         /// <summary>
