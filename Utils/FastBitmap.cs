@@ -30,7 +30,7 @@ namespace Pixelaria.Utils
     /// <summary>
     /// Encapsulates a Bitmap for fast bitmap pixel operations using 32bpp images
     /// </summary>
-    public class FastBitmap
+    public unsafe class FastBitmap
     {
         /// <summary>
         /// The Bitmap object encapsulated on this FastBitmap
@@ -48,9 +48,9 @@ namespace Pixelaria.Utils
         private int strideWidth;
 
         /// <summary>
-        /// Array of ARGB values resulted from a Lock operation
+        /// The first pixel of the bitmap
         /// </summary>
-        private int[] argbValues;
+        private int *scan0;
 
         /// <summary>
         /// Whether the current bitmap is locked
@@ -76,6 +76,36 @@ namespace Pixelaria.Utils
         /// Gets the height of this FastBitmap object
         /// </summary>
         public int Height { get { return height; } }
+
+        /// <summary>
+        /// Gets the pointer to the first pixel of the bitmap
+        /// </summary>
+        public IntPtr Scan0 { get { return bitmapData.Scan0; } }
+
+        /// <summary>
+        /// Gets the stride width of the bitmap
+        /// </summary>
+        public int Stride { get { return strideWidth; } }
+
+        /// <summary>
+        /// Gets the array of 32-bit ARGB values of this FastBitmap
+        /// </summary>
+        public int[] DataArray
+        {
+            get
+            {
+                // Declare an array to hold the bytes of the bitmap
+                int bytes = Math.Abs(bitmapData.Stride) * bitmap.Height;
+                int[] argbValues = new int[bytes / 4];
+
+                strideWidth = bitmapData.Stride / 4;
+
+                // Copy the RGB values into the array
+                Marshal.Copy(bitmapData.Scan0, argbValues, 0, bytes / 4);
+
+                return argbValues;
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of the FastBitmap class
@@ -124,14 +154,8 @@ namespace Pixelaria.Utils
             // Lock the bitmap's bits
             bitmapData = bitmap.LockBits(rect, lockMode, bitmap.PixelFormat);
 
-            // Declare an array to hold the bytes of the bitmap
-            int bytes = Math.Abs(bitmapData.Stride) * bitmap.Height;
-            argbValues = new int[bytes / 4];
-
+            scan0 = (int*)bitmapData.Scan0;
             strideWidth = bitmapData.Stride / 4;
-
-            // Copy the RGB values into the array
-            Marshal.Copy(bitmapData.Scan0, argbValues, 0, bytes / 4);
 
             locked = true;
         }
@@ -145,11 +169,6 @@ namespace Pixelaria.Utils
         /// <param name="color">The new color of the pixel to set</param>
         public void SetPixel(int x, int y, Color color)
         {
-            if (!locked)
-            {
-                throw new Exception("The FastBitmap must be locked before any pixel operations are made");
-            }
-
             SetPixel(x, y, color.ToArgb());
         }
 
@@ -167,7 +186,16 @@ namespace Pixelaria.Utils
                 throw new Exception("The FastBitmap must be locked before any pixel operations are made");
             }
 
-            argbValues[x + y * strideWidth] = color;
+            if (x < 0 || x >= width)
+            {
+                throw new Exception("The X component must be >= 0 and < width");
+            }
+            if (y < 0 || y >= height)
+            {
+                throw new Exception("The Y component must be >= 0 and < width");
+            }
+
+            *(scan0 + x + y * strideWidth) = color;
         }
 
         /// <summary>
@@ -178,11 +206,6 @@ namespace Pixelaria.Utils
         /// <param name="y">The Y coordinate of the pixel to get</param>
         public Color GetPixel(int x, int y)
         {
-            if (!locked)
-            {
-                throw new Exception("The FastBitmap must be locked before any pixel operations are made");
-            }
-
             return Color.FromArgb(GetPixelInt(x, y));
         }
 
@@ -199,7 +222,16 @@ namespace Pixelaria.Utils
                 throw new Exception("The FastBitmap must be locked before any pixel operations are made");
             }
 
-            return argbValues[x + y * strideWidth];
+            if (x < 0 || x >= width)
+            {
+                throw new Exception("The X component must be >= 0 and < width");
+            }
+            if (y < 0 || y >= height)
+            {
+                throw new Exception("The Y component must be >= 0 and < width");
+            }
+
+            return *(scan0 + x + y * strideWidth);
         }
 
         /// <summary>
@@ -208,9 +240,7 @@ namespace Pixelaria.Utils
         /// <param name="color">The color to clear the bitmap with</param>
         public void Clear(Color color)
         {
-            int c = color.ToArgb();
-
-            Clear(c);
+            Clear(color.ToArgb());
         }
 
         /// <summary>
@@ -219,18 +249,13 @@ namespace Pixelaria.Utils
         /// <param name="color">The color to clear the bitmap with</param>
         public void Clear(int color)
         {
-            // Use the framework clear method if the color equals to 0
-            if (color == 0)
-            {
-                Array.Clear(argbValues, 0, argbValues.Length);
-                return;
-            }
+            // Clear all the pixels
+            int count = width * height;
+            int* curScan = scan0;
 
-            // Clear the array
-            int l = argbValues.Length;
-            for (int i = 0; i < l; i++)
+            while (count-- > 0)
             {
-                argbValues[i] = color;
+                *(curScan++) = color;
             }
         }
 
@@ -245,12 +270,7 @@ namespace Pixelaria.Utils
                 throw new Exception("Lock must be called before an Unlock operation");
             }
 
-            // Copy the RGB values back to the bitmap
-            Marshal.Copy(argbValues, 0, bitmapData.Scan0, argbValues.Length);
-
             bitmap.UnlockBits(bitmapData);
-
-            argbValues = null;
 
             locked = false;
         }
@@ -274,7 +294,17 @@ namespace Pixelaria.Utils
             fastTarget.Lock();
 
             // Simply copy the argb values array
-            fastTarget.argbValues = fastSource.argbValues;
+            int *s0s = fastSource.scan0;
+            int *s0t = fastTarget.scan0;
+
+            int bpp = 1; // Bytes per pixel
+
+            int count = fastSource.width * fastSource.height * bpp;
+
+            while (count-- > 0)
+            {
+                *(s0t++) = *(s0s++);
+            }
 
             fastSource.Unlock();
             fastTarget.Unlock();

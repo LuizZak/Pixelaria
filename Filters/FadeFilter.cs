@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -53,17 +54,17 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets or sets the color to fade the image with
         /// </summary>
-        public Color FadeColor { get; set; }
+        public Color FadeColor;
 
         /// <summary>
         /// The factor to use when fade the two colors together
         /// </summary>
-        public float FadeFactor { get; set; }
+        public float FadeFactor;
 
         /// <summary>
         /// Whether to fade the alpha as well
         /// </summary>
-        public bool FadeAlpha { get; set; }
+        public bool FadeAlpha;
 
         /// <summary>
         /// Initializes a new instance of the BlendFilter class
@@ -79,23 +80,51 @@ namespace Pixelaria.Filters
         /// Applies this FadeFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
-        public void ApplyToBitmap(Bitmap bitmap)
+        public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
-            FastBitmap fb = new FastBitmap(bitmap);
+            // 
+            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
+            // 
 
-            fb.Lock();
+            if (FadeFactor <= 0)
+                return;
 
-            for (int y = 0; y < fb.Height; y++)
+            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+                return;
+
+            // Lock the bitmap
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+
+            int bpp = 4;
+            byte* scan0b = (byte*)data.Scan0;
+            //byte* endPixel = scan0b + bpp * bitmap.Width * bitmap.Height;
+            int count = bitmap.Width * bitmap.Height;
+
+            // Pre-multiply the fade color
+            float factor = (FadeFactor > 1 ? 1 : FadeFactor);
+            float from = 1 - factor;
+
+            int fa = (int)(FadeColor.A * factor);
+            int fr = (int)(FadeColor.R * factor);
+            int fg = (int)(FadeColor.G * factor);
+            int fb = (int)(FadeColor.B * factor);
+
+            // Apply the fade
+            while (count-- > 0)
             {
-                for (int x = 0; x < fb.Width; x++)
-                {
-                    Color pix = fb.GetPixel(x, y);
+                byte *b = (scan0b++);
+                byte *g = (scan0b++);
+                byte *r = (scan0b++);
+                byte *a = (scan0b++);
 
-                    fb.SetPixel(x, y, pix.Fade(FadeColor, FadeFactor, FadeAlpha));
-                }
+                *a = (byte)(FadeAlpha ? (*a * from + fa) : *a);
+                *r = (byte)(*r * from + fr);
+                *g = (byte)(*g * from + fg);
+                *b = (byte)(*b * from + fb);
             }
 
-            fb.Unlock();
+            bitmap.UnlockBits(data);
         }
 
         /// <summary>

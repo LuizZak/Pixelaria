@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.5b
+                   v1.6b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -19,6 +19,8 @@ Legend:
 . Note
 
 -- v1.5b
+
++ Increased speed of rendering of filters by up to 16x
 
 . FrameView
   + Added an option to toggle the visibility of the current frame on onion skin mode

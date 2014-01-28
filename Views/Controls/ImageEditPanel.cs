@@ -1272,6 +1272,16 @@ namespace Pixelaria.Views.Controls
             private List<PixelUndo> pixelList;
 
             /// <summary>
+            /// The width of the bitmap being affected
+            /// </summary>
+            private int width;
+
+            /// <summary>
+            /// The height of the bitmap being affected
+            /// </summary>
+            private int height;
+
+            /// <summary>
             /// The target InternalPictureBox to perform the undo operation on
             /// </summary>
             private ImageEditPanel.InternalPictureBox pictureBox;
@@ -1291,6 +1301,8 @@ namespace Pixelaria.Views.Controls
                 this.pixelList = new List<PixelUndo>();
                 this.pictureBox = targetPictureBox;
                 this.description = description;
+                this.width = targetPictureBox.Bitmap.Width;
+                this.height = targetPictureBox.Bitmap.Height;
             }
 
             /// <summary>
@@ -1326,7 +1338,7 @@ namespace Pixelaria.Views.Controls
                     }
                 }
 
-                pixelList.Add(new PixelUndo(x, y, oldColor, newColor));
+                pixelList.Add(new PixelUndo() { PixelX = x, PixelY = y, UndoColor = oldColor, RedoColor = newColor });
             }
 
             /// <summary>
@@ -1885,6 +1897,12 @@ namespace Pixelaria.Views.Controls
         /// <param name="newBtmap">The new bitmap being edited</param>
         public override void ChangeBitmap(Bitmap newBtmap)
         {
+            if (mouseDown)
+            {
+                FinishOperation();
+                mouseDown = false;
+            }
+
             if (graphics != null)
                 graphics.Dispose();
 
@@ -4228,7 +4246,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="color">The color of the fill operation</param>
         /// <param name="point">The point to start the fill operation at</param>
         /// <param name="compositingMode">The CompositingMode of the bucket fill operation</param>
-        protected void PerformBucketOperaiton(Color color, Point point, CompositingMode compositingMode)
+        protected unsafe void PerformBucketOperaiton(Color color, Point point, CompositingMode compositingMode)
         {
             // Start the fill operation by getting the color under the user's mouse
             Color pColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
@@ -4250,7 +4268,7 @@ namespace Pixelaria.Views.Controls
             // Initialize the undo task
             PerPixelUndoTask undoTask = new PerPixelUndoTask(pictureBox, "Flood fill");
 
-            Stack<ulong> stack = new Stack<ulong>();
+            Stack<int> stack = new Stack<int>();
 
             int y1;
             bool spanLeft, spanRight;
@@ -4258,14 +4276,14 @@ namespace Pixelaria.Views.Controls
             int width = fastBitmap.Width;
             int height = fastBitmap.Height;
 
-            stack.Push((((ulong)point.X << 32) | (ulong)point.Y));
+            stack.Push((((int)point.X << 16) | (int)point.Y));
 
             // Do a floodfill using a vertical scanline algorithm
             while(stack.Count > 0)
             {
-                ulong v = stack.Pop();
-                int x = (int)(v >> 32);
-                int y = (int)(v);
+                int v = stack.Pop();
+                int x = (int)(v >> 16);
+                int y = (int)(v & 0xFFFF);
 
                 y1 = y;
 
@@ -4287,7 +4305,7 @@ namespace Pixelaria.Views.Controls
 
                         if (!spanLeft && pixel == pColorI)
                         {
-                            stack.Push((((ulong)(x - 1) << 32) | (ulong)y1));
+                            stack.Push((((int)(x - 1) << 16) | (int)y1));
 
                             spanLeft = true;
                         }
@@ -4303,7 +4321,7 @@ namespace Pixelaria.Views.Controls
 
                         if (!spanRight && pixel == pColorI)
                         {
-                            stack.Push((((ulong)(x + 1) << 32) | (ulong)y1));
+                            stack.Push((((int)(x + 1) << 16) | (int)y1));
                             spanRight = true;
                         }
                         else if (spanRight && pixel != pColorI)

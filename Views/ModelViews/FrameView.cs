@@ -219,7 +219,7 @@ namespace Pixelaria.Views.ModelViews
                 this.zpb_framePreview.Image = viewFrame.GetComposedBitmap();
             }
 
-            this.Text = "Frame Editor [" + (frameToEdit.Index + 1) + "/" + frameToEdit.Animation.FrameCount + "]*";
+            RefreshTitleBar();
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace Pixelaria.Views.ModelViews
                 // Apply changes made to the frame
                 frameToEdit.CopyFrom(viewFrame);
 
-                this.Text = "Frame Editor [" + (frameToEdit.Index + 1) + "/" + frameToEdit.Animation.FrameCount + "]";
+                RefreshTitleBar();
             }
 
             base.ApplyChanges();
@@ -290,6 +290,14 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Refreshes the form's title bar
+        /// </summary>
+        private void RefreshTitleBar()
+        {
+            this.Text = "Frame Editor [" + (frameToEdit.Index + 1) + "/" + frameToEdit.Animation.FrameCount + "] - [" + frameToEdit.Animation.Name + "]" + (modified ? "*" : "");
+        }
+
+        /// <summary>
         /// Changes the paint operation with the given one
         /// </summary>
         /// <param name="paintOperation">The new paint operation to replace the current one</param>
@@ -321,7 +329,7 @@ namespace Pixelaria.Views.ModelViews
             frameToEdit = frame;
             viewFrame = frameToEdit.Clone();
 
-            Text = "Frame Editor [" + (frameToEdit.Index + 1) + "/" + frameToEdit.Animation.FrameCount + "]";
+            RefreshTitleBar();
 
             iepb_frame.LoadBitmap(viewFrame.GetComposedBitmap());
 
@@ -782,7 +790,9 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void UpdateMouseLocationLabel()
         {
-            if (iepb_frame.PictureBox.MouseOverImage)
+            Point mouseP = iepb_frame.PictureBox.PointToClient(MousePosition);
+
+            if (iepb_frame.PictureBox.MouseOverImage && iepb_frame.PictureBox.ClientRectangle.Contains(mouseP))
             {
                 if (!tsl_coordinates.Visible)
                     tsl_coordinates.Visible = true;

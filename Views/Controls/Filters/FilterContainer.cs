@@ -119,7 +119,6 @@ namespace Pixelaria.Views.Controls.Filters
 
                     this.BackColor = newColor.ToColor();
                 }
-
                 
                 filterControl.FireFilterUpdated();
             }

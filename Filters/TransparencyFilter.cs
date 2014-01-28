@@ -48,7 +48,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets or sets the Transparency component as a floating point value ranging from [0 - 1]
         /// </summary>
-        public float Transparency { get; set; }
+        public float Transparency;
 
         /// <summary>
         /// Applies this TransparencyFilter to a Bitmap
@@ -56,32 +56,31 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
-            if (Transparency == 1)
+            // 
+            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
+            // 
+
+            if (Transparency >= 1)
                 return;
 
             if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
+            if (Transparency <= 0)
+                Transparency = 0;
+
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
-            int width = bitmap.Width;
-            int height = bitmap.Height;
-
-            int bpp = 4;
-
             byte* scan0b = (byte*)data.Scan0;
-            byte* endPixel = scan0b + bpp * width * height;
+            int count = bitmap.Width * bitmap.Height;
 
+            // Pre-align to the alpha offset
             scan0b += 3;
 
-            while(scan0b < endPixel)
+            while (count-- > 0)
             {
                 *scan0b = (byte)(*scan0b * Transparency);
-                /*byte a = *scan0b;
-
-                a = (byte)(a * Transparency);
-
-                *scan0b = a;*/
 
                 scan0b += 4;
             }

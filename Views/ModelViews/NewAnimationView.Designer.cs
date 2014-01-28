@@ -52,36 +52,36 @@ namespace Pixelaria.Views.ModelViews
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewAnimationView));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.cb_frameskip = new System.Windows.Forms.CheckBox();
+            this.nud_fps = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.nud_height = new System.Windows.Forms.NumericUpDown();
+            this.nud_width = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txt_animationName = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.pnl_alertPanel = new System.Windows.Forms.Panel();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.lbl_alertLabel = new System.Windows.Forms.Label();
             this.pnl_errorPanel = new System.Windows.Forms.Panel();
-            this.lbl_error = new System.Windows.Forms.Label();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.lbl_error = new System.Windows.Forms.Label();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txt_animationName = new System.Windows.Forms.TextBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.nud_fps = new System.Windows.Forms.NumericUpDown();
-            this.cb_frameskip = new System.Windows.Forms.CheckBox();
-            this.nud_width = new System.Windows.Forms.NumericUpDown();
-            this.nud_height = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
-            this.pnl_alertPanel.SuspendLayout();
-            this.pnl_errorPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_fps)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_width)).BeginInit();
+            this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_height)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_width)).BeginInit();
+            this.pnl_alertPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.pnl_errorPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -97,6 +97,161 @@ namespace Pixelaria.Views.ModelViews
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Animation Properties";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.cb_frameskip);
+            this.groupBox3.Controls.Add(this.nud_fps);
+            this.groupBox3.Controls.Add(this.label5);
+            this.groupBox3.Location = new System.Drawing.Point(149, 45);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(128, 84);
+            this.groupBox3.TabIndex = 4;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Playback Settings";
+            // 
+            // cb_frameskip
+            // 
+            this.cb_frameskip.AutoSize = true;
+            this.cb_frameskip.Location = new System.Drawing.Point(10, 51);
+            this.cb_frameskip.Name = "cb_frameskip";
+            this.cb_frameskip.Size = new System.Drawing.Size(110, 17);
+            this.cb_frameskip.TabIndex = 5;
+            this.cb_frameskip.Text = "Enable Frameskip";
+            this.cb_frameskip.UseVisualStyleBackColor = true;
+            // 
+            // nud_fps
+            // 
+            this.nud_fps.Location = new System.Drawing.Point(42, 18);
+            this.nud_fps.Maximum = new decimal(new int[] {
+            480,
+            0,
+            0,
+            0});
+            this.nud_fps.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
+            this.nud_fps.Name = "nud_fps";
+            this.nud_fps.Size = new System.Drawing.Size(74, 20);
+            this.nud_fps.TabIndex = 4;
+            this.nud_fps.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 21);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(30, 13);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "FPS:";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.nud_height);
+            this.groupBox2.Controls.Add(this.nud_width);
+            this.groupBox2.Controls.Add(this.label4);
+            this.groupBox2.Controls.Add(this.label3);
+            this.groupBox2.Controls.Add(this.label2);
+            this.groupBox2.Location = new System.Drawing.Point(9, 45);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(134, 84);
+            this.groupBox2.TabIndex = 2;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Dimensions";
+            // 
+            // nud_height
+            // 
+            this.nud_height.Location = new System.Drawing.Point(50, 56);
+            this.nud_height.Maximum = new decimal(new int[] {
+            4096,
+            0,
+            0,
+            0});
+            this.nud_height.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nud_height.Name = "nud_height";
+            this.nud_height.Size = new System.Drawing.Size(74, 20);
+            this.nud_height.TabIndex = 3;
+            this.nud_height.Value = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            // 
+            // nud_width
+            // 
+            this.nud_width.Location = new System.Drawing.Point(50, 19);
+            this.nud_width.Maximum = new decimal(new int[] {
+            4096,
+            0,
+            0,
+            0});
+            this.nud_width.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nud_width.Name = "nud_width";
+            this.nud_width.Size = new System.Drawing.Size(74, 20);
+            this.nud_width.TabIndex = 2;
+            this.nud_width.Value = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(82, 40);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(12, 13);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "x";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 59);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 13);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Height:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 22);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(38, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Width:";
+            // 
+            // txt_animationName
+            // 
+            this.txt_animationName.Location = new System.Drawing.Point(50, 19);
+            this.txt_animationName.Name = "txt_animationName";
+            this.txt_animationName.Size = new System.Drawing.Size(464, 20);
+            this.txt_animationName.TabIndex = 0;
+            this.txt_animationName.TextChanged += new System.EventHandler(this.txt_animationName_TextChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(38, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Name:";
+            // 
             // pnl_alertPanel
             // 
             this.pnl_alertPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -107,6 +262,15 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_alertPanel.Name = "pnl_alertPanel";
             this.pnl_alertPanel.Size = new System.Drawing.Size(358, 29);
             this.pnl_alertPanel.TabIndex = 22;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+            this.pictureBox2.Location = new System.Drawing.Point(5, 4);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(22, 22);
+            this.pictureBox2.TabIndex = 10;
+            this.pictureBox2.TabStop = false;
             // 
             // lbl_alertLabel
             // 
@@ -128,24 +292,6 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_errorPanel.Size = new System.Drawing.Size(358, 29);
             this.pnl_errorPanel.TabIndex = 21;
             // 
-            // lbl_error
-            // 
-            this.lbl_error.AutoSize = true;
-            this.lbl_error.Location = new System.Drawing.Point(29, 8);
-            this.lbl_error.Name = "lbl_error";
-            this.lbl_error.Size = new System.Drawing.Size(242, 13);
-            this.lbl_error.TabIndex = 9;
-            this.lbl_error.Text = "The project folder path is invalid or does not exists";
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(5, 4);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(22, 22);
-            this.pictureBox2.TabIndex = 10;
-            this.pictureBox2.TabStop = false;
-            // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
@@ -154,6 +300,15 @@ namespace Pixelaria.Views.ModelViews
             this.pictureBox1.Size = new System.Drawing.Size(22, 22);
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
+            // 
+            // lbl_error
+            // 
+            this.lbl_error.AutoSize = true;
+            this.lbl_error.Location = new System.Drawing.Point(29, 8);
+            this.lbl_error.Name = "lbl_error";
+            this.lbl_error.Size = new System.Drawing.Size(242, 13);
+            this.lbl_error.TabIndex = 9;
+            this.lbl_error.Text = "The project folder path is invalid or does not exists";
             // 
             // btn_ok
             // 
@@ -164,7 +319,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok.Location = new System.Drawing.Point(376, 153);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
-            this.btn_ok.TabIndex = 20;
+            this.btn_ok.TabIndex = 6;
             this.btn_ok.Text = "&OK";
             this.btn_ok.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btn_ok.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -179,166 +334,11 @@ namespace Pixelaria.Views.ModelViews
             this.btn_cancel.Location = new System.Drawing.Point(457, 153);
             this.btn_cancel.Name = "btn_cancel";
             this.btn_cancel.Size = new System.Drawing.Size(75, 29);
-            this.btn_cancel.TabIndex = 19;
+            this.btn_cancel.TabIndex = 7;
             this.btn_cancel.Text = "Cancel";
             this.btn_cancel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btn_cancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btn_cancel.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(38, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Name:";
-            // 
-            // txt_animationName
-            // 
-            this.txt_animationName.Location = new System.Drawing.Point(50, 19);
-            this.txt_animationName.Name = "txt_animationName";
-            this.txt_animationName.Size = new System.Drawing.Size(464, 20);
-            this.txt_animationName.TabIndex = 1;
-            this.txt_animationName.TextChanged += new System.EventHandler(this.txt_animationName_TextChanged);
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.nud_height);
-            this.groupBox2.Controls.Add(this.nud_width);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Location = new System.Drawing.Point(9, 45);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(134, 84);
-            this.groupBox2.TabIndex = 2;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Dimensions";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 22);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(38, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Width:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 59);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(41, 13);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Height:";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(82, 40);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(12, 13);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "x";
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.cb_frameskip);
-            this.groupBox3.Controls.Add(this.nud_fps);
-            this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Location = new System.Drawing.Point(149, 45);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(128, 84);
-            this.groupBox3.TabIndex = 4;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Playback Settings";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 21);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(30, 13);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "FPS:";
-            // 
-            // nud_fps
-            // 
-            this.nud_fps.Location = new System.Drawing.Point(42, 18);
-            this.nud_fps.Maximum = new decimal(new int[] {
-            480,
-            0,
-            0,
-            0});
-            this.nud_fps.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            -2147483648});
-            this.nud_fps.Name = "nud_fps";
-            this.nud_fps.Size = new System.Drawing.Size(74, 20);
-            this.nud_fps.TabIndex = 1;
-            this.nud_fps.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
-            // 
-            // cb_frameskip
-            // 
-            this.cb_frameskip.AutoSize = true;
-            this.cb_frameskip.Location = new System.Drawing.Point(10, 51);
-            this.cb_frameskip.Name = "cb_frameskip";
-            this.cb_frameskip.Size = new System.Drawing.Size(110, 17);
-            this.cb_frameskip.TabIndex = 2;
-            this.cb_frameskip.Text = "Enable Frameskip";
-            this.cb_frameskip.UseVisualStyleBackColor = true;
-            // 
-            // nud_width
-            // 
-            this.nud_width.Location = new System.Drawing.Point(50, 19);
-            this.nud_width.Maximum = new decimal(new int[] {
-            4096,
-            0,
-            0,
-            0});
-            this.nud_width.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nud_width.Name = "nud_width";
-            this.nud_width.Size = new System.Drawing.Size(74, 20);
-            this.nud_width.TabIndex = 5;
-            this.nud_width.Value = new decimal(new int[] {
-            32,
-            0,
-            0,
-            0});
-            // 
-            // nud_height
-            // 
-            this.nud_height.Location = new System.Drawing.Point(50, 56);
-            this.nud_height.Maximum = new decimal(new int[] {
-            4096,
-            0,
-            0,
-            0});
-            this.nud_height.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nud_height.Name = "nud_height";
-            this.nud_height.Size = new System.Drawing.Size(74, 20);
-            this.nud_height.TabIndex = 6;
-            this.nud_height.Value = new decimal(new int[] {
-            32,
-            0,
-            0,
-            0});
             // 
             // NewAnimationView
             // 
@@ -360,19 +360,19 @@ namespace Pixelaria.Views.ModelViews
             this.Text = "Create New Animation";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.pnl_alertPanel.ResumeLayout(false);
-            this.pnl_alertPanel.PerformLayout();
-            this.pnl_errorPanel.ResumeLayout(false);
-            this.pnl_errorPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_fps)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nud_width)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_height)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_width)).EndInit();
+            this.pnl_alertPanel.ResumeLayout(false);
+            this.pnl_alertPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            this.pnl_errorPanel.ResumeLayout(false);
+            this.pnl_errorPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
