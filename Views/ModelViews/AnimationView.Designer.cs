@@ -117,7 +117,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // il_framesThumbs
             // 
-            this.il_framesThumbs.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.il_framesThumbs.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
             this.il_framesThumbs.ImageSize = new System.Drawing.Size(48, 48);
             this.il_framesThumbs.TransparentColor = System.Drawing.Color.Transparent;
             // 

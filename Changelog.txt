@@ -20,11 +20,16 @@ Legend:
 
 -- v1.6b
 
-+ Increased speed of rendering of filters by up to 16x
-+ Added Hue, Saturation and Lightness filters
++ Increased speed of rendering of filters by up to 16x.
++ Added Hue, Saturation and Lightness filters.
+
+* Fixed crash related to the Import Animation functionality trying to make use of a selected bundle tree node with none selected.
 
 . FrameView
-  + Added an option to toggle the visibility of the current frame on onion skin mode
+  + Added an option to toggle the visibility of the current frame on onion skin mode.
+
+. AnimationView
+  * Fixed frame images being displayed with lowered quality.
 
 -- v1.4b
 
@@ -36,7 +41,7 @@ Legend:
 * Now the assisted step controls (numeric inputs with a mouse input bar under) round the mouse values instead of flooring them (will produce a better feedback for mouse inputs).
 
 . FilterStore
-  * Filters are now stored in an unified structure for easy maintenance
+  * Filters are now stored in an unified structure for easy maintenance.
 
 . BaseFilterView
   + Now the filters scroll panel scrolls to the bottom when a new filter is added.

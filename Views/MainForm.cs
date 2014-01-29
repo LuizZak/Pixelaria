@@ -981,7 +981,7 @@ namespace Pixelaria.Views
             // Get the currently selected AnimationSheet node
             AnimationSheet sheet = (tv_bundleAnimations.SelectedNode == null || !(tv_bundleAnimations.SelectedNode.Tag is AnimationSheet) ? null : (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag);
 
-            if (sheet == null && tv_bundleAnimations.SelectedNode.Tag is Animation)
+            if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
                 sheet = controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
             }

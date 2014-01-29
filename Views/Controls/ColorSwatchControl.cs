@@ -107,7 +107,6 @@ namespace Pixelaria.Views.Controls
             {
                 Rectangle region = new Rectangle(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
 
-
                 if (e.ClipRectangle.IntersectsWith(region))
                 {
                     SolidBrush brush = new SolidBrush(color);
@@ -145,7 +144,7 @@ namespace Pixelaria.Views.Controls
             // Gets the color the user clicked on
             if (ColorSelect != null)
             {
-                ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorOverMouse()));
+                ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
             }
         }
 
@@ -218,10 +217,10 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Gets the color currently over the mouse cursor
+        /// Gets the color currently under the mouse cursor
         /// </summary>
-        /// <returns>The color currently over the mouse cursor</returns>
-        private Color GetColorOverMouse()
+        /// <returns>The color currently under the mouse cursor</returns>
+        private Color GetColorUnderMouse()
         {
             int index = mouseCellX % 13 + 13 * (mouseCellY);
 
