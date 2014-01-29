@@ -1272,6 +1272,11 @@ namespace Pixelaria.Views.Controls
             private List<PixelUndo> pixelList;
 
             /// <summary>
+            /// Whether to index the pixels being added so they appear sequentially on the pixels list
+            /// </summary>
+            private bool indexPixels;
+
+            /// <summary>
             /// The width of the bitmap being affected
             /// </summary>
             private int width;
@@ -1296,11 +1301,13 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             /// <param name="targetPictureBox">The target for the undo operation</param>
             /// <param name="description">A description to use for this UndoTask</param>
-            public PerPixelUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, string description)
+            /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
+            public PerPixelUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, string description, bool indexPixels = false)
             {
                 this.pixelList = new List<PixelUndo>();
                 this.pictureBox = targetPictureBox;
                 this.description = description;
+                this.indexPixels = indexPixels;
                 this.width = targetPictureBox.Bitmap.Width;
                 this.height = targetPictureBox.Bitmap.Height;
             }
@@ -1311,7 +1318,7 @@ namespace Pixelaria.Views.Controls
             /// <param name="x">The X coordinate of the pixel to store</param>
             /// <param name="y">The Y coordinate of the pixel to store</param>
             /// <param name="oldColor">The old color of the pixel</param>
-            /// <param name="penColor">The new color of the pixel</param>
+            /// <param name="newColor">The new color of the pixel</param>
             /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
             public void RegisterPixel(int x, int y, Color oldColor, Color newColor, bool checkExisting = true)
             {
@@ -1324,21 +1331,170 @@ namespace Pixelaria.Views.Controls
             /// <param name="x">The X coordinate of the pixel to store</param>
             /// <param name="y">The Y coordinate of the pixel to store</param>
             /// <param name="oldColor">The old color of the pixel</param>
-            /// <param name="penColor">The new color of the pixel</param>
+            /// <param name="newColor">The new color of the pixel</param>
             /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
             public void RegisterPixel(int x, int y, int oldColor, int newColor, bool checkExisting = true)
             {
                 if (checkExisting)
                 {
                     // Early out: don't register duplicated pixels
-                    foreach (PixelUndo pu in pixelList)
+                    if (indexPixels)
                     {
-                        if (pu.PixelX == x && pu.PixelY == y)
+                        if (ContainsPixel(x, y))
                             return;
+                    }
+                    else
+                    {
+                        foreach (PixelUndo pu in pixelList)
+                        {
+                            if (pu.PixelX == x && pu.PixelY == y)
+                                return;
+                        }
                     }
                 }
 
-                pixelList.Add(new PixelUndo() { PixelX = x, PixelY = y, UndoColor = oldColor, RedoColor = newColor });
+                InternalRegisterPixel(x, y, oldColor, newColor);
+            }
+
+            /// <summary>
+            /// Registers a pixel on this PixelUndoTask 
+            /// </summary>
+            /// <param name="x">The X coordinate of the pixel to store</param>
+            /// <param name="y">The Y coordinate of the pixel to store</param>
+            /// <param name="oldColor">The old color of the pixel</param>
+            /// <param name="newColor">The new color of the pixel</param>
+            private void InternalRegisterPixel(int x, int y, int oldColor, int newColor)
+            {
+                int pixelIndex = x + y * width;
+
+                PixelUndo item = new PixelUndo() { PixelX = x, PixelY = y, PixelIndex = pixelIndex, UndoColor = oldColor, RedoColor = newColor };
+
+                if (!indexPixels)
+                {
+                    pixelList.Add(item);
+                    return;
+                }
+
+                int l = pixelList.Count;
+
+                // Empty list: Add item directly
+                if (l == 0)
+                {
+                    pixelList.Add(item);
+                    return;
+                }
+
+                int c = 0;
+                int f = l - 1;
+                while (true)
+                {
+                    int idC, idM, idF;
+
+                    idF = pixelList[f].PixelIndex;
+
+                    // Pixel index of the item at the end of the interval is smaller than the current pixel index: Add
+                    // item after the interval
+                    if (idF < pixelIndex)
+                    {
+                        pixelList.Insert(f + 1, item);
+                        return;
+                    }
+                    // Pixel index of the item at the end of the interval is equals to the item being added: Replace the pixel
+                    else if (idF == pixelIndex)
+                    {
+                        pixelList[f] = item;
+                    }
+
+                    idC = pixelList[c].PixelIndex;
+
+                    // Pixel index of the item at the start of the interval is larger than the current pixel index: Add
+                    // item before the interval
+                    if (idC > pixelIndex)
+                    {
+                        pixelList.Insert(c, item);
+                        return;
+                    }
+                    // Pixel index of the item at the start of the interval is equals to the item being added: Replace the pixel
+                    else if (idC == pixelIndex)
+                    {
+                        pixelList[c] = item;
+                    }
+
+                    int mid = (c + f) / 2;
+                    idM = pixelList[mid].PixelIndex;
+
+                    if (idM > pixelIndex)
+                    {
+                        c++;
+                        f = mid - 1;
+                    }
+                    else if (idM < pixelIndex)
+                    {
+                        c = mid + 1;
+                        f--;
+                    }
+                    else if (idM == pixelIndex)
+                    {
+                        pixelList[mid] = item;
+                        return;
+                    }
+
+                    // End of search: Add item at the current index
+                    if (c > f)
+                    {
+                        pixelList.Insert(c, item);
+                        return;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Returns whether this PerPixelUndoTask contains information about undoing the given pixel
+            /// </summary>
+            /// <param name="x">The X coordinate of the pixel to search</param>
+            /// <param name="y">The Y coordinate of the pixel to search</param>
+            /// <returns>Whether this PerPixelUndoTask contains information about undoing the given pixel</returns>
+            private bool ContainsPixel(int x, int y)
+            {
+                return IndexOfPixel(x, y) > -1;
+            }
+
+            /// <summary>
+            /// Returns the index of a pixel in the pixel list. If no pixel is found, -1 is returned instead
+            /// </summary>
+            /// <param name="x">The X coordinate of the pixel to search</param>
+            /// <param name="y">The Y coordinate of the pixel to search</param>
+            /// <returns>The index of a pixel in the pixel list</returns>
+            private int IndexOfPixel(int x, int y)
+            {
+                if (pixelList.Count == 0)
+                    return -1;
+
+                int id = x + y * width;
+
+                int c = 0;
+                int f = pixelList.Count;
+
+                while (c < f)
+                {
+                    int mid = (c + f) / 2;
+                    int idMid = pixelList[mid].PixelIndex;
+
+                    if (idMid == id)
+                    {
+                        return mid;
+                    }
+                    else if (idMid > id)
+                    {
+                        f = mid - 1;
+                    }
+                    else if (idMid < id)
+                    {
+                        c = mid + 1;
+                    }
+                }
+
+                return -1;
             }
 
             /// <summary>
@@ -1414,6 +1570,11 @@ namespace Pixelaria.Views.Controls
                 public int PixelY;
 
                 /// <summary>
+                /// The absolute index of the pixel
+                /// </summary>
+                public int PixelIndex;
+
+                /// <summary>
                 /// The color to apply on a undo operation
                 /// </summary>
                 public int UndoColor;
@@ -1428,12 +1589,14 @@ namespace Pixelaria.Views.Controls
                 /// </summary>
                 /// <param name="x">The X position of the pixel to draw</param>
                 /// <param name="y">The Y position of the pixel to draw</param>
+                /// <param name="pixelIndex">The absolute index of the pixel</param>
                 /// <param name="oldColor">The color to apply on a undo operation</param>
-                /// <param name="penColor">The color to apply on a redo operation</param>
-                public PixelUndo(int x, int y, Color oldColor, Color newColor)
+                /// <param name="newColor">The color to apply on a redo operation</param>
+                public PixelUndo(int x, int y, int pixelIndex, Color oldColor, Color newColor)
                 {
                     this.PixelX = x;
                     this.PixelY = y;
+                    this.PixelIndex = pixelIndex;
                     this.UndoColor = oldColor.ToArgb();
                     this.RedoColor = newColor.ToArgb();
                 }
@@ -1443,12 +1606,14 @@ namespace Pixelaria.Views.Controls
                 /// </summary>
                 /// <param name="x">The X position of the pixel to draw</param>
                 /// <param name="y">The Y position of the pixel to draw</param>
+                /// <param name="pixelIndex">The absolute index of the pixel</param>
                 /// <param name="oldColor">The color to apply on a undo operation</param>
-                /// <param name="penColor">The color to apply on a redo operation</param>
-                public PixelUndo(int x, int y, int oldColor, int newColor)
+                /// <param name="newColor">The color to apply on a redo operation</param>
+                public PixelUndo(int x, int y, int pixelIndex, int oldColor, int newColor)
                 {
                     this.PixelX = x;
                     this.PixelY = y;
+                    this.PixelIndex = pixelIndex;
                     this.UndoColor = oldColor;
                     this.RedoColor = newColor;
                 }
@@ -1836,6 +2001,7 @@ namespace Pixelaria.Views.Controls
         /// Gets or sets the pencil radius
         /// </summary>
         [DefaultValue(1)]
+        [Browsable(false)]
         public virtual int Size { get { return size; } set { size = Math.Max(1, value); RegeneratePenBitmap(); } }
 
         /// <summary>
@@ -1998,7 +2164,7 @@ namespace Pixelaria.Views.Controls
 
             if (!mouseDown)
             {
-                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription);
+                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription, true);
 
                 // Mouse down
                 if (e.Button == MouseButtons.Left)
@@ -2310,6 +2476,9 @@ namespace Pixelaria.Views.Controls
                 {
                     invPoint.Offset((int)(-size * pictureBox.Zoom.X / 2 - 1), (int)(-size * pictureBox.Zoom.Y / 2 - 1));
                 }
+
+                invPoint.X -= (int)(pictureBox.Zoom.X);
+                invPoint.Y -= (int)(pictureBox.Zoom.Y);
 
                 InvalidateRect(invPoint, firstPenBitmap.Width + 2, firstPenBitmap.Height + 2);
             }

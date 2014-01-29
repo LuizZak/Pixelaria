@@ -88,7 +88,7 @@ namespace Pixelaria.Utils
         public int Stride { get { return strideWidth; } }
 
         /// <summary>
-        /// Gets the array of 32-bit ARGB values of this FastBitmap
+        /// Gets an array of 32-bit ARGB values that represent this FastBitmap
         /// </summary>
         public int[] DataArray
         {
@@ -97,8 +97,6 @@ namespace Pixelaria.Utils
                 // Declare an array to hold the bytes of the bitmap
                 int bytes = Math.Abs(bitmapData.Stride) * bitmap.Height;
                 int[] argbValues = new int[bytes / 4];
-
-                strideWidth = bitmapData.Stride / 4;
 
                 // Copy the RGB values into the array
                 Marshal.Copy(bitmapData.Scan0, argbValues, 0, bytes / 4);
