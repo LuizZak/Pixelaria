@@ -97,6 +97,10 @@ namespace Pixelaria.Filters
             RegisterFilter("Offset", Pixelaria.Properties.Resources.filter_offset_icon, typeof(OffsetFilter), typeof(OffsetControl));
             RegisterFilter("Fade Color", Pixelaria.Properties.Resources.filter_fade_icon, typeof(FadeFilter), typeof(FadeControl));
             RegisterFilter("Rotation", Pixelaria.Properties.Resources.filter_rotation_icon, typeof(RotationFilter), typeof(RotationControl));
+
+            RegisterFilter("Hue", Pixelaria.Properties.Resources.filter_hue, typeof(HueFilter), typeof(HueControl));
+            RegisterFilter("Saturation", Pixelaria.Properties.Resources.filter_saturation, typeof(SaturationFilter), typeof(SaturationControl));
+            RegisterFilter("Lightness", Pixelaria.Properties.Resources.filter_lightness, typeof(LightnessFilter), typeof(LightnessControl));
         }
 
         /// <summary>

@@ -79,7 +79,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Applies this FadeFilter to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this FadeFilter to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
@@ -96,9 +96,7 @@ namespace Pixelaria.Filters
             // Lock the bitmap
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
-            int bpp = 4;
             byte* scan0b = (byte*)data.Scan0;
-            //byte* endPixel = scan0b + bpp * bitmap.Width * bitmap.Height;
             int count = bitmap.Width * bitmap.Height;
 
             // Pre-multiply the fade color
@@ -118,10 +116,20 @@ namespace Pixelaria.Filters
                 byte *r = (scan0b++);
                 byte *a = (scan0b++);
 
-                *a = (byte)(FadeAlpha ? (*a * from + fa) : *a);
-                *r = (byte)(*r * from + fr);
-                *g = (byte)(*g * from + fg);
-                *b = (byte)(*b * from + fb);
+                if (factor == 1)
+                {
+                    *a = (byte)(FadeAlpha ? fa : *a);
+                    *r = (byte)(fr);
+                    *g = (byte)(fg);
+                    *b = (byte)(fb);
+                }
+                else
+                {
+                    *a = (byte)(FadeAlpha ? (*a * from + fa) : *a);
+                    *r = (byte)(*r * from + fr);
+                    *g = (byte)(*g * from + fg);
+                    *b = (byte)(*b * from + fb);
+                }
             }
 
             bitmap.UnlockBits(data);

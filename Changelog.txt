@@ -18,9 +18,10 @@ Legend:
 * Fix
 . Note
 
--- v1.5b
+-- v1.6b
 
 + Increased speed of rendering of filters by up to 16x
++ Added Hue, Saturation and Lightness filters
 
 . FrameView
   + Added an option to toggle the visibility of the current frame on onion skin mode

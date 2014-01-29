@@ -463,6 +463,26 @@ namespace Pixelaria.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap filter_hue {
+            get {
+                object obj = ResourceManager.GetObject("filter_hue", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap filter_lightness {
+            get {
+                object obj = ResourceManager.GetObject("filter_lightness", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap filter_offset_icon {
             get {
                 object obj = ResourceManager.GetObject("filter_offset_icon", resourceCulture);
@@ -476,6 +496,16 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap filter_rotation_icon {
             get {
                 object obj = ResourceManager.GetObject("filter_rotation_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap filter_saturation {
+            get {
+                object obj = ResourceManager.GetObject("filter_saturation", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

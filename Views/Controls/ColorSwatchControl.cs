@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Pixelaria.Utils;
+
 namespace Pixelaria.Views.Controls
 {
     /// <summary>
@@ -334,8 +336,9 @@ namespace Pixelaria.Views.Controls
         /// <param name="s">The saturation</param>
         /// <param name="l">The lightness</param>
         /// <param name="alpha">An optional alpha component</param>
+        /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
         /// <returns>An ARGB color from the given HSL color components</returns>
-        public static Color FromHSL(float h, float s, float l, float alpha = 1)
+        public static int ARGBFromHSL(float h, float s, float l, float alpha = 1, bool revertByteOrder = false)
         {
             if (h < 0) h = 0;
             if (s < 0) s = 0;
@@ -391,7 +394,27 @@ namespace Pixelaria.Views.Controls
             g *= 255;
             b *= 255;
 
-            return Color.FromArgb((int)(alpha * 255), (int)r, (int)g, (int)b);
+            if (revertByteOrder)
+            {
+                return (int)(((int)(alpha * 255)) | ((int)r << 8) | ((int)g << 16) | ((int)b << 24));
+            }
+            else
+            {
+                return (int)(((int)(alpha * 255) << 24) | ((int)r << 16) | ((int)g << 8) | (int)b);
+            }
+        }
+
+        /// <summary>
+        /// Creates an ARGB color form the given HSL color components
+        /// </summary>
+        /// <param name="h">The hue</param>
+        /// <param name="s">The saturation</param>
+        /// <param name="l">The lightness</param>
+        /// <param name="alpha">An optional alpha component</param>
+        /// <returns>An ARGB color from the given HSL color components</returns>
+        public static Color ColorFromHSL(float h, float s, float l, float alpha = 1)
+        {
+            return Color.FromArgb(ARGBFromHSL(h, s, l, alpha));
         }
 
         #endregion
@@ -423,22 +446,22 @@ namespace Pixelaria.Views.Controls
         int l;
 
         /// <summary>
-        /// Gets or sets the alpha component
+        /// Gets or sets the alpha component as a value ranging from 0 - 255
         /// </summary>
         public int A { get { return a; } set { this.a = value; } }
 
         /// <summary>
-        /// Gets or sets the hue component
+        /// Gets or sets the hue component as a value ranging from 0 - 360
         /// </summary>
         public int H { get { return h; } set { this.h = value; } }
 
         /// <summary>
-        /// Gets or sets the saturation component
+        /// Gets or sets the saturation component as a value ranging from 0 - 100
         /// </summary>
         public int S { get { return s; } set { this.s = value; } }
 
         /// <summary>
-        /// Gets or sets the lightness component
+        /// Gets or sets the lightness component as a value ranging from 0 - 100
         /// </summary>
         public int L { get { return l; } set { this.l = value; } }
 
@@ -458,12 +481,45 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Converts this AHSL color to a ARGB color
+        /// Converts this AHSL color to a Color object
         /// </summary>
-        /// <returns>The ARGB color that represents this AHSL color</returns>
+        /// <returns>The Color object that represents this AHSL color</returns>
         public Color ToColor()
         {
-            return ColorSwatch.FromHSL(this.h, this.s, this.l, (this.a / 255.0f));
+            return ColorSwatch.ColorFromHSL(this.h, this.s, this.l, (this.a / 255.0f));
+        }
+
+        /// <summary>
+        /// Converts this AHSL color to a ARGB color
+        /// </summary>
+        /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
+        /// <returns>The ARGB color that represents this AHSL color</returns>
+        public int ToARGB(bool revertByteOrder = false)
+        {
+            return ColorSwatch.ARGBFromHSL(this.h, this.s, this.l, (this.a / 255.0f), revertByteOrder);
+        }
+
+        /// <summary>
+        /// Creates an AHSL object from the given ARGB color
+        /// </summary>
+        /// <param name="a">The Alpha component</param>
+        /// <param name="r">The Red component</param>
+        /// <param name="g">The Green component</param>
+        /// <param name="b">The Blue component</param>
+        /// <returns>The AHSL color representing the given ARGB value</returns>
+        public static AHSL FromARGB(int a, int r, int g, int b)
+        {
+            return Utilities.ToAHSL((a << 24) | (r << 16) | (g << 8) | b);
+        }
+
+        /// <summary>
+        /// Creates an AHSL object from the given ARGB color
+        /// </summary>
+        /// <param name="argb">The ARGB color to convert to AHSL</param>
+        /// <returns>The AHSL color representing the given ARGB value</returns>
+        public static AHSL FromARGB(int argb)
+        {
+            return Utilities.ToAHSL(argb);
         }
     }
 }

@@ -192,7 +192,7 @@ namespace Pixelaria.Utils
             }
             if (y < 0 || y >= height)
             {
-                throw new Exception("The Y component must be >= 0 and < width");
+                throw new Exception("The Y component must be >= 0 and < height");
             }
 
             *(scan0 + x + y * strideWidth) = color;
@@ -228,7 +228,7 @@ namespace Pixelaria.Utils
             }
             if (y < 0 || y >= height)
             {
-                throw new Exception("The Y component must be >= 0 and < width");
+                throw new Exception("The Y component must be >= 0 and < height");
             }
 
             return *(scan0 + x + y * strideWidth);

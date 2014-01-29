@@ -4833,7 +4833,9 @@ namespace Pixelaria.Views.Controls
             {
                 if (selected)
                 {
+                    operationMode = SelectionOperationType.Cut;
                     FinishOperation(false);
+                    pictureBox.MarkModified();
                 }
             }
             // Selection moving

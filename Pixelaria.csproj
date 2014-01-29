@@ -109,6 +109,7 @@
     <Compile Include="Exporters\IDefaultExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
+    <Compile Include="Filters\HSLFilter.cs" />
     <Compile Include="Filters\IFilter.cs" />
     <Compile Include="Filters\OffsetFilter.cs" />
     <Compile Include="Filters\RotationFilter.cs" />
@@ -161,6 +162,18 @@
     <Compile Include="Views\Controls\Filters\FilterContainer.Designer.cs">
       <DependentUpon>FilterContainer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\Filters\HueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\HueControl.Designer.cs">
+      <DependentUpon>HueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\LightnessControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\LightnessControl.Designer.cs">
+      <DependentUpon>LightnessControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\Filters\OffsetControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -172,6 +185,12 @@
     </Compile>
     <Compile Include="Views\Controls\Filters\RotationControl.Designer.cs">
       <DependentUpon>RotationControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\SaturationControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\SaturationControl.Designer.cs">
+      <DependentUpon>SaturationControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\Filters\ScaleControl.cs">
       <SubType>UserControl</SubType>
@@ -298,11 +317,20 @@
     <EmbeddedResource Include="Views\Controls\Filters\FilterContainer.resx">
       <DependentUpon>FilterContainer.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\Filters\HueControl.resx">
+      <DependentUpon>HueControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\Filters\LightnessControl.resx">
+      <DependentUpon>LightnessControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\Filters\OffsetControl.resx">
       <DependentUpon>OffsetControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\Filters\RotationControl.resx">
       <DependentUpon>RotationControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\Filters\SaturationControl.resx">
+      <DependentUpon>SaturationControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\Filters\ScaleControl.resx">
       <DependentUpon>ScaleControl.cs</DependentUpon>
@@ -456,6 +484,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\filter_saturation.png" />
+    <None Include="Resources\filter_lightness.png" />
+    <None Include="Resources\filter_hue.png" />
     <None Include="Resources\frame_os_current.png" />
     <None Include="Resources\frame_os_hideframe.png" />
     <None Include="Resources\filter_rotation.png" />

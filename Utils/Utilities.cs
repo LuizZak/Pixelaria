@@ -203,9 +203,7 @@ namespace Pixelaria.Utils
                 bit1 = (image1 is Bitmap ? (Bitmap)image1 : new Bitmap(image1));
                 bit2 = (image2 is Bitmap ? (Bitmap)image2 : new Bitmap(image2));
 
-                bool result = CompareMemCmp(bit1, bit2);
-
-                return result;
+                return CompareMemCmp(bit1, bit2);
             }
             finally
             {
@@ -252,10 +250,10 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Compares the memory portions of the two Bitmaps 
         /// </summary>
-        /// <param name="b1"></param>
-        /// <param name="b2"></param>
-        /// <returns></returns>
-        private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
+        /// <param name="b1">The first bitmap to compare</param>
+        /// <param name="b2">The second bitmap to compare</param>
+        /// <returns>Whether the two bitmaps are identical</returns>
+        private unsafe static bool CompareMemCmp(Bitmap b1, Bitmap b2)
         {
             if ((b1 == null) != (b2 == null)) return false;
 
@@ -264,13 +262,20 @@ namespace Pixelaria.Utils
 
             try
             {
-                IntPtr bd1scan0 = bd1.Scan0;
-                IntPtr bd2scan0 = bd2.Scan0;
+                int* bd1scan0 = (int*)bd1.Scan0;
+                int* bd2scan0 = (int*)bd2.Scan0;
 
-                int stride = bd1.Stride;
-                int len = stride * b1.Height;
+                int len = b1.Width * b1.Height;
 
-                return memcmp(bd1scan0, bd2scan0, len) == 0;
+                while (len-- > 0)
+                {
+                    if (*bd1scan0++ != *bd2scan0++)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             }
             finally
             {
@@ -280,15 +285,16 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Converts a Color instance into an AHSL color
+        /// Converts the given ARGB color to an AHSL color
         /// </summary>
-        /// <param name="color">The Color to convert to AHSL</param>
+        /// <param name="argb">The color to convert to AHSL</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        public static AHSL ToAHSL(this Color color)
+        public static AHSL ToAHSL(int argb)
         {
-            float r = color.R;
-            float g = color.G;
-            float b = color.B;
+            int a = argb >> 24;
+            float r = (argb >> 16) & 0xFF;
+            float g = (argb >> 8) & 0xFF;
+            float b = argb & 0xFF;
 
             if (r < 0) r = 0;
             if (g < 0) g = 0;
@@ -346,7 +352,17 @@ namespace Pixelaria.Utils
 
             s *= 100;
 
-            return new AHSL(color.A, (int)h, (int)s, (int)(l * 100));
+            return new AHSL(a, (int)h, (int)s, (int)(l * 100));
+        }
+
+        /// <summary>
+        /// Converts a Color instance into an AHSL color
+        /// </summary>
+        /// <param name="color">The Color to convert to AHSL</param>
+        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        public static AHSL ToAHSL(this Color color)
+        {
+            return ToAHSL(color.ToArgb());
         }
 
         /// <summary>
