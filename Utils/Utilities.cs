@@ -138,49 +138,7 @@ namespace Pixelaria.Utils
         /// <returns>The total bits per pixel used by the given PixelFormat type</returns>
         public static int BitsPerPixelForFormat(PixelFormat pixelFormat)
         {
-            // Fetch the bits per pixel for the texture
-            switch (pixelFormat)
-            {
-                // 1 bit (monochrome black and white)
-                case PixelFormat.Format1bppIndexed:
-                    return 1;
-
-                // 4 bits
-                case PixelFormat.Format4bppIndexed:
-                    return 4;
-
-                // 8 bits
-                case PixelFormat.Format8bppIndexed:
-                    return 16;
-
-                // 16 bits
-                case PixelFormat.Format16bppArgb1555:
-                case PixelFormat.Format16bppGrayScale:
-                case PixelFormat.Format16bppRgb555:
-                case PixelFormat.Format16bppRgb565:
-                    return 16;
-
-                // 24 bits
-                case PixelFormat.Format24bppRgb:
-                    return 24;
-
-                // 32 bits
-                case PixelFormat.Format32bppArgb:
-                case PixelFormat.Format32bppPArgb:
-                case PixelFormat.Format32bppRgb:
-                    return 32;
-
-                // 48 bits
-                case PixelFormat.Format48bppRgb:
-                    return 48;
-
-                // 64 bits
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    return 64;
-            }
-
-            return 1;
+            return Image.GetPixelFormatSize(pixelFormat);
         }
 
         /// <summary>
