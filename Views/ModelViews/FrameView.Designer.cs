@@ -1167,7 +1167,6 @@ namespace Pixelaria.Views.ModelViews
             pencilPaintOperation1.FirstColor = System.Drawing.Color.Black;
             pencilPaintOperation1.PencilPoint = new System.Drawing.Point(0, 0);
             pencilPaintOperation1.SecondColor = System.Drawing.Color.Black;
-            pencilPaintOperation1.Size = 0;
             this.iepb_frame.CurrentPaintOperation = pencilPaintOperation1;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;

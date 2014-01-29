@@ -254,7 +254,9 @@ namespace Pixelaria.Views
             // Create the tree node now
             il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.Transparent));
 
-            TreeNode animNode = parentNode.Nodes.Add(animation.Name);
+            int addIndex = controller.GetAnimationIndex(animation);
+
+            TreeNode animNode = parentNode.Nodes.Insert(addIndex, animation.Name);
 
             animNode.Tag = animation;
 

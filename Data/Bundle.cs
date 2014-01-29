@@ -183,6 +183,10 @@ namespace Pixelaria.Data
 
             AddAnimation(dup, sheet);
 
+            int index = GetAnimationIndex(anim);
+
+            RearrangeAnimationsPosition(dup, index + 1);
+
             // Find a new name for the animation
             int n = 2;
 

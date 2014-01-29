@@ -31,6 +31,10 @@ Legend:
 . AnimationView
   * Fixed frame images being displayed with lowered quality.
 
+. Now when duplicating an animation, the new duplicated animation is added right below the original on the tree view
+
+
+
 -- v1.4b
 
 + Added a Filter Preset feature. You can now store filters into presets that can be loaded and applied to different images through the program. The presets are stored in the disk in the 'filterpresets.bin' file at the executable's directory.
@@ -52,6 +56,8 @@ Legend:
 . OffsetControl
   * Fixed the default offset values starting at 1 instead of 0.
 
+
+
 -- v1.2b
 
 * Fixed a crash related to the main form tree view double clicking trying to open the currently selected item with none selected.
@@ -68,6 +74,7 @@ Legend:
 . AnimationSheetView
   * Fixed some gramatical errors on the tooltips.
   * Fixed the exported sheet's Frame Count label not displaying the correct value.
+
 
 
 -- v1.0b
