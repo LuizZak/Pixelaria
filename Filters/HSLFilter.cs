@@ -144,6 +144,11 @@ namespace Pixelaria.Filters
         public bool KeepGrays;
 
         /// <summary>
+        /// Gets or sets whether to multiply the current values instead of adding to them
+        /// </summary>
+        public bool Multiply;
+
+        /// <summary>
         /// Applies this SaturationFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this SaturationFilter to</param>
@@ -165,7 +170,16 @@ namespace Pixelaria.Filters
                 AHSL ahsl = AHSL.FromARGB(c);
 
                 if (!KeepGrays || ahsl.S > 0)
-                    ahsl.S = (Relative ? Math.Min(100, (ahsl.S + Saturation)) % 101 : Saturation);
+                {
+                    if (Multiply)
+                    {
+                        ahsl.S = (int)(ahsl.S * (float)Math.Max(0, Saturation) / 100);
+                    }
+                    else
+                    {
+                        ahsl.S = (Relative ? Math.Min(100, (ahsl.S + Saturation)) % 101 : Saturation);
+                    }
+                }
 
                 *scan0 = ahsl.ToARGB();
 
@@ -185,6 +199,7 @@ namespace Pixelaria.Filters
 
             writer.Write(Saturation);
             writer.Write(Relative);
+            writer.Write(Multiply);
         }
 
         /// <summary>
@@ -197,6 +212,7 @@ namespace Pixelaria.Filters
 
             Saturation = reader.ReadInt32();
             Relative = reader.ReadBoolean();
+            Multiply = reader.ReadBoolean();
         }
     }
 
@@ -227,6 +243,11 @@ namespace Pixelaria.Filters
         public bool Relative;
 
         /// <summary>
+        /// Gets or sets whether to multiply the current values instead of adding to them
+        /// </summary>
+        public bool Multiply;
+
+        /// <summary>
         /// Applies this LightnessFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this LightnessFilter to</param>
@@ -247,7 +268,14 @@ namespace Pixelaria.Filters
 
                 AHSL ahsl = AHSL.FromARGB(c);
 
-                ahsl.L = (Relative ? Math.Min(100, (ahsl.L + Lightness)) % 101 : Lightness);
+                if (Multiply)
+                {
+                    ahsl.L = (int)(ahsl.L * (float)Math.Max(0, Lightness) / 100);
+                }
+                else
+                {
+                    ahsl.L = (Relative ? Math.Min(100, (ahsl.L + Lightness)) % 101 : Lightness);
+                }
 
                 *scan0 = ahsl.ToARGB();
 
@@ -267,6 +295,7 @@ namespace Pixelaria.Filters
 
             writer.Write(Lightness);
             writer.Write(Relative);
+            writer.Write(Multiply);
         }
 
         /// <summary>
@@ -279,6 +308,7 @@ namespace Pixelaria.Filters
 
             Lightness = reader.ReadInt32();
             Relative = reader.ReadBoolean();
+            Multiply = reader.ReadBoolean();
         }
     }
 }

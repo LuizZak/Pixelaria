@@ -73,6 +73,7 @@ namespace Pixelaria.Views.Controls.Filters
             anud_saturation.Value = (decimal)(filter as SaturationFilter).Saturation * 100;
             cb_relative.Checked = (filter as SaturationFilter).Relative;
             cb_keepGrays.Checked = (filter as SaturationFilter).KeepGrays;
+            cb_multiply.Checked = (filter as SaturationFilter).Multiply;
         }
 
         // 
@@ -103,6 +104,19 @@ namespace Pixelaria.Views.Controls.Filters
         private void cb_keepGrays_CheckedChanged(object sender, EventArgs e)
         {
             (filter as SaturationFilter).KeepGrays = cb_keepGrays.Checked;
+
+            updateRequired = true;
+            FireFilterUpdated();
+        }
+
+        // 
+        // Multiply checkbox checked
+        // 
+        private void cb_multiply_CheckedChanged(object sender, EventArgs e)
+        {
+            cb_keepGrays.Enabled = cb_relative.Enabled = !cb_multiply.Checked;
+
+            (filter as SaturationFilter).Multiply = cb_multiply.Checked;
 
             updateRequired = true;
             FireFilterUpdated();

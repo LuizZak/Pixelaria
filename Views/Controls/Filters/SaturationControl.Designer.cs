@@ -32,6 +32,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.anud_saturation = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.cb_keepGrays = new System.Windows.Forms.CheckBox();
+            this.cb_multiply = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // cb_relative
@@ -99,10 +100,22 @@
             this.cb_keepGrays.UseVisualStyleBackColor = true;
             this.cb_keepGrays.CheckedChanged += new System.EventHandler(this.cb_keepGrays_CheckedChanged);
             // 
+            // cb_multiply
+            // 
+            this.cb_multiply.AutoSize = true;
+            this.cb_multiply.Location = new System.Drawing.Point(219, 41);
+            this.cb_multiply.Name = "cb_multiply";
+            this.cb_multiply.Size = new System.Drawing.Size(61, 17);
+            this.cb_multiply.TabIndex = 7;
+            this.cb_multiply.Text = "Multiply";
+            this.cb_multiply.UseVisualStyleBackColor = true;
+            this.cb_multiply.CheckedChanged += new System.EventHandler(this.cb_multiply_CheckedChanged);
+            // 
             // SaturationControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cb_multiply);
             this.Controls.Add(this.cb_keepGrays);
             this.Controls.Add(this.cb_relative);
             this.Controls.Add(this.label1);
@@ -120,5 +133,6 @@
         private System.Windows.Forms.Label label1;
         private AssistedNumericUpDown anud_saturation;
         private System.Windows.Forms.CheckBox cb_keepGrays;
+        private System.Windows.Forms.CheckBox cb_multiply;
     }
 }

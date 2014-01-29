@@ -71,6 +71,7 @@ namespace Pixelaria.Views.Controls.Filters
 
             anud_lightness.Value = (decimal)(filter as LightnessFilter).Lightness * 100;
             cb_relative.Checked = (filter as LightnessFilter).Relative;
+            cb_multiply.Checked = (filter as LightnessFilter).Multiply;
         }
 
         // 
@@ -90,6 +91,19 @@ namespace Pixelaria.Views.Controls.Filters
         private void cb_relative_CheckedChanged(object sender, EventArgs e)
         {
             (filter as LightnessFilter).Relative = cb_relative.Checked;
+
+            updateRequired = true;
+            FireFilterUpdated();
+        }
+
+        // 
+        // Multiply checkbox checked
+        // 
+        private void cb_multiply_CheckedChanged(object sender, EventArgs e)
+        {
+            cb_relative.Enabled = !cb_multiply.Checked;
+
+            (filter as LightnessFilter).Multiply = cb_multiply.Checked;
 
             updateRequired = true;
             FireFilterUpdated();

@@ -31,6 +31,7 @@
             this.cb_relative = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.anud_lightness = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.cb_multiply = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // cb_relative
@@ -85,10 +86,22 @@
             0});
             this.anud_lightness.ValueChanged += new System.EventHandler(this.anud_lightness_ValueChanged);
             // 
+            // cb_multiply
+            // 
+            this.cb_multiply.AutoSize = true;
+            this.cb_multiply.Location = new System.Drawing.Point(132, 41);
+            this.cb_multiply.Name = "cb_multiply";
+            this.cb_multiply.Size = new System.Drawing.Size(61, 17);
+            this.cb_multiply.TabIndex = 9;
+            this.cb_multiply.Text = "Multiply";
+            this.cb_multiply.UseVisualStyleBackColor = true;
+            this.cb_multiply.CheckedChanged += new System.EventHandler(this.cb_multiply_CheckedChanged);
+            // 
             // LightnessControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cb_multiply);
             this.Controls.Add(this.cb_relative);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.anud_lightness);
@@ -104,5 +117,6 @@
         private System.Windows.Forms.CheckBox cb_relative;
         private System.Windows.Forms.Label label1;
         private AssistedNumericUpDown anud_lightness;
+        private System.Windows.Forms.CheckBox cb_multiply;
     }
 }
