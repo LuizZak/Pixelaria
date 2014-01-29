@@ -121,7 +121,7 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return !(Saturation == 0 && Relative); } }
+        public bool Modifying { get { return !(Saturation == 0 && Relative) && !(Saturation == 100 && Multiply); } }
 
         /// <summary>
         /// Gets the unique display name of this filter
@@ -225,7 +225,7 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return !(Lightness == 0 && Relative); } }
+        public bool Modifying { get { return !(Lightness == 0 && Relative) && !(Lightness == 100 && Multiply); } }
 
         /// <summary>
         /// Gets the unique display name of this filter

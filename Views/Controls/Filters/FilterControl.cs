@@ -125,7 +125,10 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="bitmap">The bitmap to apply the filter to</param>
         public void ApplyFilter(Bitmap bitmap)
         {
-            filter.ApplyToBitmap(bitmap);
+            if (filter.Modifying)
+            {
+                filter.ApplyToBitmap(bitmap);
+            }
         }
 
         /// <summary>
