@@ -62,6 +62,11 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this HueFilter to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
+            // 
+            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
+            // 
+
             if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
@@ -154,6 +159,11 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this SaturationFilter to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
+            // 
+            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
+            // 
+
             if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
@@ -253,6 +263,11 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this LightnessFilter to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
+            // 
+            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
+            // 
+
             if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
