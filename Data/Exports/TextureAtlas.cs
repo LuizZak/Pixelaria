@@ -290,6 +290,7 @@ namespace Pixelaria.Data.Exports
                     x = exportSettings.XPadding;
                 }
 
+                y = 0;
 
                 // Do a little trickery to find the minimum Y for this frame
                 if (x - exportSettings.XPadding < atlasWidth)

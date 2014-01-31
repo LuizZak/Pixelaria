@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.6b
+                   v1.7b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -17,6 +17,10 @@ Legend:
 + Addition
 * Fix
 . Note
+
+-- v1.7b
+
+* Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the Y axis
 
 -- v1.6b
 
