@@ -32,6 +32,7 @@ using Pixelaria.Controllers;
 
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
+using Pixelaria.Data.Undo;
 
 using Pixelaria.Utils;
 
@@ -66,6 +67,11 @@ namespace Pixelaria.Views.ModelViews
         private Controller controller;
 
         /// <summary>
+        /// The undo system for this AnimationView
+        /// </summary>
+        private UndoSystem undoSystem;
+
+        /// <summary>
         /// Event handler for the ClipboardChanged event
         /// </summary>
         private DataClipboard.ClipboardEventHandler clipboardHandler;
@@ -93,15 +99,18 @@ namespace Pixelaria.Views.ModelViews
             InitializeComponent();
 
             this.controller = controller;
+            this.undoSystem = new UndoSystem();
             this.currentAnimation = animation;
             this.viewAnimation = currentAnimation.Clone();
 
             clipboardHandler = new DataClipboard.ClipboardEventHandler(clipboard_ClipboardChanged);
             Clipboard.ClipboardChanged += clipboardHandler;
 
+            this.undoSystem.UndoRegistered += new UndoSystem.UndoEventHandler(undoSystem_UndoRegistered);
+
             RefreshView();
 
-            this.MarkUnmodified();
+            MarkUnmodified();
         }
 
         #region Interface Related Methods
@@ -116,7 +125,7 @@ namespace Pixelaria.Views.ModelViews
             RefreshPlaybackInfo();
             RefreshAnimationInfo();
             RefreshClipboardControls();
-            RefreshToolbar();
+            RefreshUndoControls();
             animationPreviewPanel.LoadAnimation(viewAnimation);
         }
 
@@ -217,11 +226,12 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Refreshes the state of the toolbar
+        /// Refreshes the undo/redo toolbar buttons/menu items
         /// </summary>
-        private void RefreshToolbar()
+        private void RefreshUndoControls()
         {
-            
+            tsm_undo.Enabled = tsb_undo.Enabled = undoSystem.CanUndo;
+            tsm_redo.Enabled = tsb_redo.Enabled = undoSystem.CanRedo;
         }
 
         /// <summary>
@@ -327,6 +337,32 @@ namespace Pixelaria.Views.ModelViews
             return null;
         }
 
+        /// <summary>
+        /// Undoes the last done task recorded by the form's undo system
+        /// </summary>
+        private void Undo()
+        {
+            if (undoSystem.CanUndo)
+            {
+                undoSystem.Undo();
+
+                RefreshView();
+            }
+        }
+
+        /// <summary>
+        /// Redoes the last undone task recorded by the form's undo system
+        /// </summary>
+        private void Redo()
+        {
+            if (undoSystem.CanRedo)
+            {
+                undoSystem.Redo();
+
+                RefreshView();
+            }
+        }
+
         #endregion
 
         #region Animation Related Methods
@@ -357,24 +393,25 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Deletes the currently selected frames
         /// </summary>
-        /// <param name="confirm">Whether to display a confirmation interface before deleting the frames</param>
-        private void DeleteSelectedFrames(bool confirm = true)
+        private void DeleteSelectedFrames()
         {
             if (lv_frames.SelectedItems.Count > 0)
             {
-                if (!confirm || MessageBox.Show("Delete selected frames?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Delete);
+
+                // Delete selected frames
+                foreach (ListViewItem item in lv_frames.SelectedItems)
                 {
-                    // Delete selected frames
-                    foreach (ListViewItem item in lv_frames.SelectedItems)
-                    {
-                        viewAnimation.RemoveFrame(item.Tag as Frame);
-                        (item.Tag as Frame).Dispose();
-                    }
+                    undoTask.RegisterFrame(item.Tag as Frame);
 
-                    MarkModified();
-
-                    RefreshView();
+                    viewAnimation.RemoveFrame(item.Tag as Frame);
                 }
+
+                undoSystem.RegisterUndo(undoTask);
+
+                MarkModified();
+
+                RefreshView();
             }
         }
 
@@ -428,7 +465,7 @@ namespace Pixelaria.Views.ModelViews
             Clipboard.SetObject(frameListClip);
 
             // Remove the selected frames
-            DeleteSelectedFrames(false);
+            DeleteSelectedFrames();
 
             MarkModified();
         }
@@ -472,23 +509,32 @@ namespace Pixelaria.Views.ModelViews
 
                 // Gets the index to position the frames
                 int index = -1;
+                int undoAddIndex = -1;
 
                 for (int i = 0; i < lv_frames.SelectedIndices.Count; i++)
                 {
                     index = Math.Max(index, lv_frames.SelectedIndices[i]);
                 }
-                
+
+                undoAddIndex = index;
+
+                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add);
+
                 // Maintain a copy of the list of added frames so the control can select them after
                 List<Frame> copiedFrames = new List<Frame>();
                 foreach (Frame frame in frameListClip.Frames)
                 {
                     Frame newFrame = frame.Clone();
                     copiedFrames.Add(newFrame);
+
+                    undoTask.RegisterFrame(newFrame, undoAddIndex++);
                 }
 
                 viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
                 MarkModified();
+
+                undoSystem.RegisterUndo(undoTask);
 
                 RefreshView();
 
@@ -687,6 +733,8 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void AnimationView_FormClosed(object sender, FormClosedEventArgs e)
         {
+            undoSystem.Clear();
+
             // Unload the animation preview panel so no loose references remain to the animation that this form was displaying
             animationPreviewPanel.Disable();
             animationPreviewPanel.LoadAnimation(null);
@@ -754,6 +802,14 @@ namespace Pixelaria.Views.ModelViews
 
                 eventArgs.Cancel = true;
             }
+        }
+
+        // 
+        // Undo System undo registered
+        // 
+        private void undoSystem_UndoRegistered(object sender, UndoEventArgs e)
+        {
+            RefreshUndoControls();
         }
 
         // 
@@ -926,6 +982,36 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
+        // Undo toolbar button click
+        // 
+        private void tsb_undo_Click(object sender, EventArgs e)
+        {
+            Undo();
+        }
+        // 
+        // Undo menu item click
+        // 
+        private void tsm_undo_Click(object sender, EventArgs e)
+        {
+            Undo();
+        }
+
+        // 
+        // Redo toolbar button click
+        // 
+        private void tsb_redo_Click(object sender, EventArgs e)
+        {
+            Redo();
+        }
+        // 
+        // Redo menu item click
+        // 
+        private void tsm_redo_Click(object sender, EventArgs e)
+        {
+            Redo();
+        }
+
+        // 
         // Animation Name textbox change
         // 
         private void txt_animName_TextChanged(object sender, EventArgs e)
@@ -963,5 +1049,139 @@ namespace Pixelaria.Views.ModelViews
         }
 
         #endregion
+
+        /// <summary>
+        /// Implements an animation modify undo task that deletes frames
+        /// </summary>
+        public class FramesAddDeleteUndoTask : IUndoTask
+        {
+            /// <summary>
+            /// The animation that will be modified by this FramesDeleteUndoTask
+            /// </summary>
+            private Animation animation;
+
+            /// <summary>
+            /// The type of this operation
+            /// </summary>
+            private FrameAddDeleteOperationType operationType;
+
+            /// <summary>
+            /// The indices of the frames being deleted
+            /// </summary>
+            private List<int> frameIndices;
+
+            /// <summary>
+            /// The frames that were deleted
+            /// </summary>
+            private List<Frame> frames;
+
+            /// <summary>
+            /// Initializes a new instance of a FramesDeleteUndoTask class
+            /// </summary>
+            /// <param name="animation">The animation that will be modified by this FramesDeleteUndoTask</param>
+            /// <param name="operationType">The type of operation to perform on this FramesAddDeleteUndoTask</param>
+            public FramesAddDeleteUndoTask(Animation animation, FrameAddDeleteOperationType operationType)
+            {
+                this.animation = animation;
+                this.operationType = operationType;
+                this.frameIndices = new List<int>();
+                this.frames = new List<Frame>();
+            }
+
+            /// <summary>
+            /// Registers a frame that is being deleted on this FramesDeleteUndoTask instance
+            /// </summary>
+            /// <param name="frame">The frame being deleted</param>
+            /// <param name="index">The index to register. In case this is a delete undo operation, this value is not used</param>
+            public void RegisterFrame(Frame frame, int index = 0)
+            {
+                frameIndices.Add((operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index));
+                frames.Add(frame);
+            }
+
+            /// <summary>
+            /// Clears this UndoTask object
+            /// </summary>
+            public void Clear()
+            {
+                // Dispose of frames that are not in animations
+                foreach (Frame frame in frames)
+                {
+                    if (frame.Animation == null)
+                    {
+                        frame.Dispose();
+                    }
+                }
+
+                frames.Clear();
+                frameIndices.Clear();
+            }
+
+            /// <summary>
+            /// Undoes this task
+            /// </summary>
+            public void Undo()
+            {
+                if (operationType == FrameAddDeleteOperationType.Delete)
+                {
+                    for (int i = 0; i < frames.Count; i++)
+                    {
+                        animation.AddFrame(frames[i], frameIndices[i]);
+                    }
+                }
+                else
+                {
+                    foreach (Frame frame in frames)
+                    {
+                        animation.RemoveFrame(frame);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Redoes this task
+            /// </summary>
+            public void Redo()
+            {
+                if (operationType == FrameAddDeleteOperationType.Delete)
+                {
+                    foreach (Frame frame in frames)
+                    {
+                        animation.RemoveFrame(frame);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < frames.Count; i++)
+                    {
+                        animation.AddFrame(frames[i], frameIndices[i]);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Returns a short string description of this UndoTask
+            /// </summary>
+            /// <returns>A short string description of this UndoTask</returns>
+            public string GetDescription()
+            {
+                return "Frames Deleted";
+            }
+        }
+
+        /// <summary>
+        /// Specifies which operation a FrameAddDeleteUndoTask is currently performing
+        /// </summary>
+        public enum FrameAddDeleteOperationType
+        {
+            /// <summary>
+            /// Specifies a Delete Frames operation
+            /// </summary>
+            Delete,
+            /// <summary>
+            /// Specifies an Add Frames operaiton
+            /// </summary>
+            Add
+        }
     }
 }

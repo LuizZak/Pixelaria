@@ -771,7 +771,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Describes an undo task capable of undoing changes made to a bitmap
     /// </summary>
-    public class BitmapUndoTask : UndoTask
+    public class BitmapUndoTask : IUndoTask
     {
         /// <summary>
         /// The target picture box that will be invalidated
@@ -1264,7 +1264,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// A per-pixel undo task
         /// </summary>
-        public class PerPixelUndoTask : UndoTask
+        public class PerPixelUndoTask : IUndoTask
         {
             /// <summary>
             /// List of pixels stored on this per-pixel undo
@@ -3344,7 +3344,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// A rectangle undo task
         /// </summary>
-        protected class RectangleUndoTask : UndoTask
+        protected class RectangleUndoTask : IUndoTask
         {
             /// <summary>
             /// The target InternalPictureBox of this RectangleUndoTask
@@ -3660,7 +3660,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// An ellipse undo task
         /// </summary>
-        protected class EllipseUndoTask : UndoTask
+        protected class EllipseUndoTask : IUndoTask
         {
             /// <summary>
             /// The target InternalPictureBox of this EllipseUndoTask
@@ -4181,7 +4181,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// A line undo task
         /// </summary>
-        protected class LineUndoTask : UndoTask
+        protected class LineUndoTask : IUndoTask
         {
             /// <summary>
             /// The target InternalPictureBox of this RectangleUndoTask
@@ -5251,7 +5251,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// A selection undo task
         /// </summary>
-        protected class SelectionUndoTask : UndoTask
+        protected class SelectionUndoTask : IUndoTask
         {
             /// <summary>
             /// The owning paint operation
