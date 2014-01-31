@@ -20,7 +20,6 @@ Legend:
 
 -- v1.6b
 
-+ Added undo/redo on the Animation editor
 + Increased speed of rendering of filters by up to 16x.
 + Added Hue, Saturation and Lightness filters.
 

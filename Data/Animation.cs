@@ -113,16 +113,12 @@ namespace Pixelaria.Data
         /// </summary>
         public void Dispose()
         {
-            if (frames != null)
+            // Frames clearing
+            foreach (Frame frame in frames)
             {
-                // Frames clearing
-                foreach (Frame frame in frames)
-                {
-                    frame.Dispose();
-                }
-                frames.Clear();
+                frame.Dispose();
             }
-
+            frames.Clear();
             frames = null;
         }
 
@@ -163,7 +159,7 @@ namespace Pixelaria.Data
         /// references
         /// </summary>
         /// <param name="anim">The Animation object to copy the properties from</param>
-        /// <param name="moveFrames">Whether to remove the frames form the given animation and add them to this Animation. When set to false, instead of moving the frames, the methods clones the frames</param>
+        /// <param name="moveFrames">Whether to reemove the frames form the given animation adn add them to this Animation. When set to false, instead of moving the frames, the methods clones the frames</param>
         public void CopyFrom(Animation anim, bool moveFrames)
         {
             this.Name = anim.Name;
