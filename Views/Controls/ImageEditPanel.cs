@@ -132,7 +132,7 @@ namespace Pixelaria.Views.Controls
         /// Gets or sets the current paint operation to perform on this ImageEditPanel
         /// </summary>
         [Browsable(false)]
-        public PaintOperation CurrentPaintOperation
+        public IPaintOperation CurrentPaintOperation
         {
             get { return internalPictureBox.CurrentPaintOperation; }
             set
@@ -142,9 +142,9 @@ namespace Pixelaria.Views.Controls
                 
                 internalPictureBox.CurrentPaintOperation = value;
 
-                if (value is ClipboardPaintOperation)
+                if (value is IClipboardPaintOperation)
                 {
-                    FireClipboardStateEvent((value as ClipboardPaintOperation).CanCopy(), (value as ClipboardPaintOperation).CanCut(), (value as ClipboardPaintOperation).CanPaste());
+                    FireClipboardStateEvent((value as IClipboardPaintOperation).CanCopy(), (value as IClipboardPaintOperation).CanCut(), (value as IClipboardPaintOperation).CanPaste());
                 }
                 else
                 {
@@ -168,9 +168,9 @@ namespace Pixelaria.Views.Controls
             {
                 defaultCompositingMode = value;
 
-                if (internalPictureBox.CurrentPaintOperation is CompositingPaintOperation)
+                if (internalPictureBox.CurrentPaintOperation is ICompositingPaintOperation)
                 {
-                    (internalPictureBox.CurrentPaintOperation as CompositingPaintOperation).CompositingMode = value;
+                    (internalPictureBox.CurrentPaintOperation as ICompositingPaintOperation).CompositingMode = value;
                 }
             }
         }
@@ -184,9 +184,9 @@ namespace Pixelaria.Views.Controls
             set
             {
                 defaultFillMode = value;
-                if (internalPictureBox.CurrentPaintOperation is FillModePaintOperation)
+                if (internalPictureBox.CurrentPaintOperation is IFillModePaintOperation)
                 {
-                    (internalPictureBox.CurrentPaintOperation as FillModePaintOperation).FillMode = value;
+                    (internalPictureBox.CurrentPaintOperation as IFillModePaintOperation).FillMode = value;
                 }
             }
         }
@@ -299,7 +299,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="operation">The operation that fired the event</param>
         /// <param name="status">The status for the event</param>
-        public void FireOperationStatusEvent(PaintOperation operation, string status)
+        public void FireOperationStatusEvent(IPaintOperation operation, string status)
         {
             if (OperationStatusChanged != null)
             {
@@ -320,7 +320,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// The current paint operation
             /// </summary>
-            private PaintOperation currentPaintOperation;
+            private IPaintOperation currentPaintOperation;
 
             /// <summary>
             /// The buffer bitmap that the paint operations will use in order to buffer screen previews
@@ -365,7 +365,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox
             /// </summary>
-            public PaintOperation CurrentPaintOperation { get { return currentPaintOperation; } set { if (IsDisposed) return; SetPaintOperation(value); } }
+            public IPaintOperation CurrentPaintOperation { get { return currentPaintOperation; } set { if (IsDisposed) return; SetPaintOperation(value); } }
 
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
@@ -476,7 +476,7 @@ namespace Pixelaria.Views.Controls
             /// Sets the current paint operation of this InternalPictureBox to be of the given type
             /// </summary>
             /// <param name="newPaintOperation"></param>
-            public void SetPaintOperation(PaintOperation newPaintOperation)
+            public void SetPaintOperation(IPaintOperation newPaintOperation)
             {
                 if (currentPaintOperation != null)
                 {
@@ -494,13 +494,13 @@ namespace Pixelaria.Views.Controls
                     this.Cursor = currentPaintOperation.OperationCursor;
                 }
 
-                if (currentPaintOperation is CompositingPaintOperation)
+                if (currentPaintOperation is ICompositingPaintOperation)
                 {
-                    (currentPaintOperation as CompositingPaintOperation).CompositingMode = owningPanel.defaultCompositingMode;
+                    (currentPaintOperation as ICompositingPaintOperation).CompositingMode = owningPanel.defaultCompositingMode;
                 }
-                if (currentPaintOperation is FillModePaintOperation)
+                if (currentPaintOperation is IFillModePaintOperation)
                 {
-                    (currentPaintOperation as FillModePaintOperation).FillMode = owningPanel.defaultFillMode;
+                    (currentPaintOperation as IFillModePaintOperation).FillMode = owningPanel.defaultFillMode;
                 }
             }
 
@@ -754,14 +754,14 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the operation that fired the status change
         /// </summary>
-        public PaintOperation Operation { get; private set; }
+        public IPaintOperation Operation { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the OperationStatusChange event
         /// </summary>
         /// <param name="operation">The operation that fired the status change</param>
         /// <param name="status">The operation status</param>
-        public OperationStatusEventArgs(PaintOperation operation, string status)
+        public OperationStatusEventArgs(IPaintOperation operation, string status)
         {
             this.Operation = operation;
             this.Status = status;
@@ -875,7 +875,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies a Paint Operation to be performed on the InternalPictureBox
     /// </summary>
-    public interface PaintOperation
+    public interface IPaintOperation
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -956,7 +956,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies a Paint Operation that has a color component
     /// </summary>
-    public interface ColoredPaintOperation
+    public interface IColoredPaintOperation
     {
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
@@ -972,7 +972,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies a Paint Operation that has a compositing mode
     /// </summary>
-    public interface CompositingPaintOperation
+    public interface ICompositingPaintOperation
     {
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
@@ -983,7 +983,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies a Paint Operation that has a size component
     /// </summary>
-    public interface SizedPaintOperation
+    public interface ISizedPaintOperation
     {
         /// <summary>
         /// Gets or sets the size of this SizedPaintOperation
@@ -995,7 +995,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies a Paint Operation that has a fill mode
     /// </summary>
-    public interface FillModePaintOperation
+    public interface IFillModePaintOperation
     {
         /// <summary>
         /// Gets or sets the FillMode for this paint operation
@@ -1006,7 +1006,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies a Paint Operation that has clipboard access capabilities
     /// </summary>
-    public interface ClipboardPaintOperation
+    public interface IClipboardPaintOperation
     {
         /// <summary>
         /// Performs a Copy operation
@@ -1047,7 +1047,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Specifies an empty paint operation
     /// </summary>
-    public class NullPaintOperation : PaintOperation
+    public class NullPaintOperation : IPaintOperation
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -1128,7 +1128,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements basic functionality to paint operations
     /// </summary>
-    public abstract class BasePaintOperation : PaintOperation
+    public abstract class BasePaintOperation : IPaintOperation
     {
         /// <summary>
         /// The PictureBox owning this PaintOperation
@@ -1856,7 +1856,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Base class for pencil-like paint operations
     /// </summary>
-    public abstract class BasePencilPaintOperation : BasePaintOperation, PaintOperation, SizedPaintOperation
+    public abstract class BasePencilPaintOperation : BasePaintOperation, IPaintOperation, ISizedPaintOperation
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -2488,7 +2488,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Base class for shape dragging paint operations
     /// </summary>
-    public abstract class BaseShapeOperation : BaseDraggingPaintOperation, PaintOperation
+    public abstract class BaseShapeOperation : BaseDraggingPaintOperation, IPaintOperation
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -2763,7 +2763,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Pencil paint operation
     /// </summary>
-    public class PencilPaintOperation : BasePencilPaintOperation, ColoredPaintOperation, CompositingPaintOperation
+    public class PencilPaintOperation : BasePencilPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// Initializes a new instance of the PencilPaintOperation class
@@ -2807,7 +2807,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements an Eraser paint operation
     /// </summary>
-    public class EraserPaintOperation : BasePencilPaintOperation, ColoredPaintOperation
+    public class EraserPaintOperation : BasePencilPaintOperation, IColoredPaintOperation
     {
         /// <summary>
         /// Initializes this EraserPaintOperation
@@ -3091,7 +3091,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Picker paint operation
     /// </summary>
-    public class PickerPaintOperation : BasePaintOperation, PaintOperation
+    public class PickerPaintOperation : BasePaintOperation, IPaintOperation
     {
         /// <summary>
         /// The last absolute position of the mouse
@@ -3175,7 +3175,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Rectangle paint operation
     /// </summary>
-    public class RectanglePaintOperation : BaseShapeOperation, PaintOperation, ColoredPaintOperation, CompositingPaintOperation, FillModePaintOperation
+    public class RectanglePaintOperation : BaseShapeOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation, IFillModePaintOperation
     {
         /// <summary>
         /// Initialies a new instance of the RectanglePaintOperation class, setting the two drawing colors
@@ -3470,7 +3470,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements an Ellipse paint operation
     /// </summary>
-    public class EllipsePaintOperation : BaseShapeOperation, PaintOperation, ColoredPaintOperation, CompositingPaintOperation, FillModePaintOperation
+    public class EllipsePaintOperation : BaseShapeOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation, IFillModePaintOperation
     {
         /// <summary>
         /// Initialies a new instance of the RectanglePaintOperation class, setting the two drawing colors
@@ -3786,7 +3786,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Line paint operation
     /// </summary>
-    public class LinePaintOperation : BaseDraggingPaintOperation, PaintOperation, ColoredPaintOperation, CompositingPaintOperation
+    public class LinePaintOperation : BaseDraggingPaintOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -4309,7 +4309,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Bucket paint operation
     /// </summary>
-    public class BucketPaintOperation : BasePaintOperation, PaintOperation, ColoredPaintOperation, CompositingPaintOperation
+    public class BucketPaintOperation : BasePaintOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -4514,7 +4514,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    public class SelectionPaintOperation : BaseDraggingPaintOperation, PaintOperation, ClipboardPaintOperation, CompositingPaintOperation
+    public class SelectionPaintOperation : BaseDraggingPaintOperation, IPaintOperation, IClipboardPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -5452,7 +5452,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Implements a Zoom paint operation
     /// </summary>
-    public class ZoomPaintOperation : BaseDraggingPaintOperation, PaintOperation
+    public class ZoomPaintOperation : BaseDraggingPaintOperation, IPaintOperation
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
