@@ -101,12 +101,6 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssl_memory = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tsb_undo = new System.Windows.Forms.ToolStripButton();
-            this.tsb_redo = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsm_undo = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsm_redo = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -294,9 +288,6 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_copyFrames,
             this.tsb_cutFrames,
             this.tsb_pasteFrames,
-            this.toolStripSeparator4,
-            this.tsb_undo,
-            this.tsb_redo,
             this.toolStripSeparator2,
             this.toolStripLabel1,
             this.txt_animName});
@@ -455,9 +446,6 @@ namespace Pixelaria.Views.ModelViews
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsm_undo,
-            this.tsm_redo,
-            this.toolStripMenuItem1,
             this.tsm_copy,
             this.tsm_cut,
             this.tsm_paste});
@@ -470,7 +458,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_copy.Image = global::Pixelaria.Properties.Resources.edit_copy;
             this.tsm_copy.Name = "tsm_copy";
             this.tsm_copy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.tsm_copy.Size = new System.Drawing.Size(152, 22);
+            this.tsm_copy.Size = new System.Drawing.Size(144, 22);
             this.tsm_copy.Text = "Copy";
             // 
             // tsm_cut
@@ -478,7 +466,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_cut.Image = global::Pixelaria.Properties.Resources.edit_cut;
             this.tsm_cut.Name = "tsm_cut";
             this.tsm_cut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.tsm_cut.Size = new System.Drawing.Size(152, 22);
+            this.tsm_cut.Size = new System.Drawing.Size(144, 22);
             this.tsm_cut.Text = "Cut";
             // 
             // tsm_paste
@@ -486,7 +474,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_paste.Image = global::Pixelaria.Properties.Resources.edit_paste;
             this.tsm_paste.Name = "tsm_paste";
             this.tsm_paste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.tsm_paste.Size = new System.Drawing.Size(152, 22);
+            this.tsm_paste.Size = new System.Drawing.Size(144, 22);
             this.tsm_paste.Text = "Paste";
             // 
             // framesToolStripMenuItem
@@ -600,54 +588,6 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
             this.toolStripStatusLabel6.Size = new System.Drawing.Size(10, 20);
             // 
-            // tsb_undo
-            // 
-            this.tsb_undo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_undo.Image = global::Pixelaria.Properties.Resources.edit_undo;
-            this.tsb_undo.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_undo.Name = "tsb_undo";
-            this.tsb_undo.Size = new System.Drawing.Size(23, 22);
-            this.tsb_undo.Text = "Undo";
-            this.tsb_undo.Click += new System.EventHandler(this.tsb_undo_Click);
-            // 
-            // tsb_redo
-            // 
-            this.tsb_redo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_redo.Image = global::Pixelaria.Properties.Resources.edit_redo;
-            this.tsb_redo.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_redo.Name = "tsb_redo";
-            this.tsb_redo.Size = new System.Drawing.Size(23, 22);
-            this.tsb_redo.Text = "toolStripButton2";
-            this.tsb_redo.Click += new System.EventHandler(this.tsb_redo_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
-            // 
-            // tsm_undo
-            // 
-            this.tsm_undo.Image = global::Pixelaria.Properties.Resources.edit_undo;
-            this.tsm_undo.Name = "tsm_undo";
-            this.tsm_undo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.tsm_undo.Size = new System.Drawing.Size(152, 22);
-            this.tsm_undo.Text = "Undo";
-            this.tsm_undo.Click += new System.EventHandler(this.tsm_undo_Click);
-            // 
-            // tsm_redo
-            // 
-            this.tsm_redo.Image = global::Pixelaria.Properties.Resources.edit_redo;
-            this.tsm_redo.Name = "tsm_redo";
-            this.tsm_redo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-            this.tsm_redo.Size = new System.Drawing.Size(152, 22);
-            this.tsm_redo.Text = "Redo";
-            this.tsm_redo.Click += new System.EventHandler(this.tsm_redo_Click);
-            // 
             // AnimationView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -740,11 +680,5 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_copy;
         private System.Windows.Forms.ToolStripMenuItem tsm_cut;
         private System.Windows.Forms.ToolStripMenuItem tsm_paste;
-        private System.Windows.Forms.ToolStripButton tsb_undo;
-        private System.Windows.Forms.ToolStripButton tsb_redo;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem tsm_undo;
-        private System.Windows.Forms.ToolStripMenuItem tsm_redo;
     }
 }
