@@ -378,9 +378,13 @@ namespace Pixelaria.Views.ModelViews
             {
                 AnimationResizeSettings settings = arv.GeneratedSettings;
 
+                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(viewAnimation);
+
                 viewAnimation.Resize(settings);
 
                 MarkModified();
+
+                undoSystem.RegisterUndo(undoTask);
 
                 RefreshView();
             }
@@ -615,7 +619,11 @@ namespace Pixelaria.Views.ModelViews
                 index = -1;
             }
 
-            viewAnimation.CreateFrame(index);
+            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add);
+
+            undoTask.RegisterFrame(viewAnimation.CreateFrame(index), index);
+
+            undoSystem.RegisterUndo(undoTask);
 
             MarkModified();
 
@@ -629,7 +637,13 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddNewFrame()
         {
-            viewAnimation.CreateFrame();
+            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add);
+
+            int index = viewAnimation.FrameCount;
+
+            undoTask.RegisterFrame(viewAnimation.CreateFrame(), index);
+
+            undoSystem.RegisterUndo(undoTask);
 
             MarkModified();
 
@@ -647,7 +661,9 @@ namespace Pixelaria.Views.ModelViews
             if (lv_frames.SelectedItems.Count == 0)
                 return;
 
-            // Temprarely disable the panel while showing the form so we don't waste CPU
+            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(viewAnimation);
+
+            // Temporarely disable the panel while showing the form so we don't waste CPU
             animationPreviewPanel.Disable();
 
             // Get the currently selected frame
@@ -661,7 +677,14 @@ namespace Pixelaria.Views.ModelViews
             if (frameView.ModifiedFrames)
             {
                 MarkModified();
+
+                undoSystem.RegisterUndo(undoTask);
+
                 RefreshView();
+            }
+            else
+            {
+                undoTask.Clear();
             }
 
             // Select the frame that was edited
@@ -1051,7 +1074,7 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         /// <summary>
-        /// Implements an animation modify undo task that deletes frames
+        /// Implements an animation modify undo task that undoes/redoes adding and deleting of frames
         /// </summary>
         public class FramesAddDeleteUndoTask : IUndoTask
         {
@@ -1165,7 +1188,84 @@ namespace Pixelaria.Views.ModelViews
             /// <returns>A short string description of this UndoTask</returns>
             public string GetDescription()
             {
-                return "Frames Deleted";
+                return operationType == FrameAddDeleteOperationType.Add ? "Frames pasted" : "Frames deleted";
+            }
+        }
+
+        /// <summary>
+        /// Implements an animation modify undo task that undoes/redoes changes in the animation properties, including frames
+        /// </summary>
+        public class AnimationModifyUndoTask : IUndoTask
+        {
+            /// <summary>
+            /// The animation to affect with this FramesModifyUndoTask instance
+            /// </summary>
+            private Animation animation;
+
+            /// <summary>
+            /// A copy of the animation that was made before changes were made
+            /// </summary>
+            private Animation oldAnimation;
+
+            /// <summary>
+            /// A copy of the animation after changes were made
+            /// </summary>
+            private Animation newAnimation;
+
+            /// <summary>
+            /// Initializes a new instance of the FramesModifyUndoTask class
+            /// </summary>
+            /// <param name="animation">The animation to affect with this FramesModifyUndoTask instance</param>
+            public AnimationModifyUndoTask(Animation animation)
+            {
+                this.animation = animation;
+                this.oldAnimation = animation.Clone();
+                this.newAnimation = new Animation(animation.Name, animation.Width, animation.Height);
+            }
+
+            /// <summary>
+            /// Clears this UndoTask object
+            /// </summary>
+            public void Clear()
+            {
+                if (this.oldAnimation != null)
+                {
+                    this.oldAnimation.Dispose();
+                    this.oldAnimation = null;
+                }
+
+                if (this.newAnimation != null)
+                {
+                    this.newAnimation.Dispose();
+                    this.newAnimation = null;
+                }
+            }
+
+            /// <summary>
+            /// Undoes this task
+            /// </summary>
+            public void Undo()
+            {
+                this.newAnimation.CopyFrom(animation, true);
+                this.animation.CopyFrom(oldAnimation, true);
+            }
+
+            /// <summary>
+            /// Redoes this task
+            /// </summary>
+            public void Redo()
+            {
+                this.oldAnimation.CopyFrom(animation, true);
+                this.animation.CopyFrom(newAnimation, true);
+            }
+
+            /// <summary>
+            /// Returns a short string description of this UndoTask
+            /// </summary>
+            /// <returns>A short string description of this UndoTask</returns>
+            public string GetDescription()
+            {
+                return "Frames modify";
             }
         }
 

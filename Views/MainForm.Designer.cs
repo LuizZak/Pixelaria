@@ -120,6 +120,7 @@ namespace Pixelaria.Views
             // 
             // ts_mainStrip
             // 
+            this.ts_mainStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.ts_mainStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsb_new,
             this.tsb_open,
