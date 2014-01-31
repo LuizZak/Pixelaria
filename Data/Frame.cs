@@ -114,7 +114,8 @@ namespace Pixelaria.Data
         public void Dispose()
         {
             animation = null;
-            frameTexture.Dispose();
+            if (frameTexture != null)
+                frameTexture.Dispose();
             frameTexture = null;
             hash = null;
         }
