@@ -249,7 +249,7 @@ namespace Pixelaria.Data.Exports
         private void InternalPack(ref uint atlasWidth, ref uint atlasHeight, int maxWidth)
         {
             int x = exportSettings.XPadding;
-            int y = exportSettings.YPadding;
+            int y;
             int width = 0;
             int height = 0;
 
@@ -290,7 +290,7 @@ namespace Pixelaria.Data.Exports
                     x = exportSettings.XPadding;
                 }
 
-                y = 0;
+                y = exportSettings.YPadding;
 
                 // Do a little trickery to find the minimum Y for this frame
                 if (x - exportSettings.XPadding < atlasWidth)
@@ -574,22 +574,22 @@ namespace Pixelaria.Data.Exports
         /// about frames positioning, frames minimum area, and repeated frames
         /// </summary>
         public FrameComparision GeneratedFrameComparision { get { return frameComparision; } }
-
+        
         /// <summary>
         /// Default IComparer used to sort and store information about frames
         /// </summary>
         public class FrameComparision : IComparer<Frame>
         {
             /// <summary>
-            /// List of internal compare fragments
+            /// Dictionary of internal compare fragments
             /// </summary>
-            List<CompareFrag> fragList;
+            Dictionary<Frame, CompareFrag> fragDictionary;
 
             /// <summary>
             /// List of internal similar fragments
             /// </summary>
-            List<SimilarFrag> similarList;
-
+            Dictionary<Frame, SimilarFrag> similarDictionary;
+            
             /// <summary>
             /// Whether to compute the minimum areas of the frames before comparing them
             /// </summary>
@@ -598,12 +598,12 @@ namespace Pixelaria.Data.Exports
             /// <summary>
             /// Gets the number of cached compare fragments currently stores
             /// </summary>
-            public int CachedCompareCount { get { return fragList.Count; } }
+            public int CachedCompareCount { get { return fragDictionary.Count; } }
 
             /// <summary>
             /// Gets the number of cached similar fragments currently stores
             /// </summary>
-            public int CachedSimilarCount { get { return similarList.Count; } }
+            public int CachedSimilarCount { get { return similarDictionary.Count; } }
 
             /// <summary>
             /// Creates a new instance of the FrameComparision class
@@ -611,8 +611,8 @@ namespace Pixelaria.Data.Exports
             /// <param name="useMinimumTextureArea">Whether to compute the minimum areas of the frames before comparing them</param>
             public FrameComparision(bool useMinimumTextureArea)
             {
-                this.fragList = new List<CompareFrag>();
-                this.similarList = new List<SimilarFrag>();
+                this.fragDictionary = new Dictionary<Frame, CompareFrag>();
+                this.similarDictionary = new Dictionary<Frame, SimilarFrag>();
 
                 this.useMinimumTextureArea = useMinimumTextureArea;
             }
@@ -623,8 +623,8 @@ namespace Pixelaria.Data.Exports
             public void Reset()
             {
                 // Clear the references for the GC's sake
-                fragList.Clear();
-                similarList.Clear();
+                fragDictionary.Clear();
+                similarDictionary.Clear();
             }
 
             // Summary:
@@ -665,13 +665,12 @@ namespace Pixelaria.Data.Exports
             public Rectangle GetFrameArea(Frame frame)
             {
                 // Try to find the already-computed frame area first
-                foreach (CompareFrag frag in fragList)
-                {
-                    if (frag.Frame == frame)
-                    {
-                        return frag.FrameRectangle;
-                    }
-                }
+                CompareFrag frag;
+
+                fragDictionary.TryGetValue(frame, out frag);
+
+                if (frag != null)
+                    return frag.FrameRectangle;
 
                 CompareFrag newFrag = new CompareFrag();
 
@@ -682,7 +681,7 @@ namespace Pixelaria.Data.Exports
                 else
                     newFrag.FrameRectangle = new Rectangle(0, 0, frame.Width, frame.Height);
 
-                fragList.Add(newFrag);
+                fragDictionary[frame] = newFrag;
 
                 return newFrag.FrameRectangle;
             }
@@ -694,15 +693,7 @@ namespace Pixelaria.Data.Exports
             /// <param name="frame2">The second frame to register</param>
             public void RegisterSimilarFrames(Frame frame1, Frame frame2)
             {
-                // Seek similar repeated frames and discard this one if it's repeated
-                foreach (SimilarFrag frag in similarList)
-                {
-                    if ((frag.Frame1 == frame1 && frag.Frame2 == frame2) ||
-                        (frag.Frame2 == frame1 && frag.Frame1 == frame2))
-                        return;
-                }
-
-                similarList.Add(new SimilarFrag() { Frame1 = frame1, Frame2 = frame2 });
+                similarDictionary[frame2] = new SimilarFrag() { Frame1 = frame1, Frame2 = frame2 };
             }
 
             /// <summary>
@@ -716,13 +707,10 @@ namespace Pixelaria.Data.Exports
             /// <returns>The first frame inserted that is similar to the given frame. If the given frame is the original similar frame, null is returned. If no similar frames were stored, null is returned.</returns>
             public Frame GetOriginalSimilarFrame(Frame frame)
             {
-                foreach (SimilarFrag frag in similarList)
-                {
-                    if (frag.Frame2 == frame)
-                    {
-                        return frag.Frame1;
-                    }
-                }
+                SimilarFrag similar = null;
+
+                if (similarDictionary.TryGetValue(frame, out similar))
+                    return similar.Frame1;
 
                 return null;
             }
@@ -732,7 +720,7 @@ namespace Pixelaria.Data.Exports
             /// The fragment is composed of a Frame and a Rectangle
             /// that represents the Frame's area
             /// </summary>
-            struct CompareFrag
+            class CompareFrag
             {
                 /// <summary>
                 /// The frame of this fragment
@@ -750,7 +738,7 @@ namespace Pixelaria.Data.Exports
             /// The fragment is composed of a pair of frames that
             /// are identical in the pixel level
             /// </summary>
-            struct SimilarFrag
+            class SimilarFrag
             {
                 /// <summary>
                 /// The first similar frame
