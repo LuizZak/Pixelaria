@@ -445,7 +445,7 @@ namespace Pixelaria.Data.Exports
             // Scan vertically until the first non-0 alpha pixel is found
             for (y = 0; y < height; y++)
             {
-                for (int _x = 0; _x < width; _x++)
+                for (int _x = x; _x < width; _x++)
                 {
                     if (fastBitmap.GetPixelInt(_x, y) >> 24 != 0)
                     {
