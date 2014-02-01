@@ -20,11 +20,13 @@ Legend:
 
 -- v1.7b
 
-* Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the Y axis
+* Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the vertical axis
+* Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
+
 
 -- v1.6b
 
-+ Added undo/redo on the Animation editor
++ Added undo/redo on the Animation editor.
 + Increased speed of rendering of filters by up to 16x.
 + Added Hue, Saturation and Lightness filters.
 
