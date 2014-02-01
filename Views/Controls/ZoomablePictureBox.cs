@@ -461,6 +461,8 @@ namespace Pixelaria.Views.Controls
                     RectangleF imageBoundsRec = rec;
                     imageBoundsRec.X += 0.5f;
                     imageBoundsRec.Y += 0.5f;
+                    imageBoundsRec.Width -= 1;
+                    imageBoundsRec.Height -= 1;
                     pe.Graphics.DrawRectangle(Pens.White, imageBoundsRec.X, imageBoundsRec.Y, imageBoundsRec.Width, imageBoundsRec.Height);
                 }
 
