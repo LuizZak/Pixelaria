@@ -193,13 +193,20 @@ namespace Pixelaria.Data
         /// <returns>Whether this frame's contents match another frame's</returns>
         public bool Equals(Frame frame)
         {
-            if (this.width != frame.Width || this.height != frame.height)
+            if (this.width != frame.width || this.height != frame.height)
                 return false;
 
-            if (!Utilities.ByteArrayCompare(this.hash, frame.hash))
+            if (this.hash == null || frame.hash == null)
                 return false;
 
-            return Utilities.ImagesAreIdentical(this.frameTexture, frame.frameTexture);
+            int l = this.hash.Length;
+            for (int i = 0; i < l; i++)
+            {
+                if (this.hash[i] != frame.hash[i])
+                    return false;
+            }
+
+            return true;
         }
 
         /// <summary>
