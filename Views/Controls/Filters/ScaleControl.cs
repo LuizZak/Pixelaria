@@ -60,8 +60,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as ScaleFilter).ScaleY = 1;
             }
 
-            this.updateRequired = true;
-
             this.ignoreEvent = false;
         }
 
@@ -102,8 +100,6 @@ namespace Pixelaria.Views.Controls.Filters
                 ignoreEvent = false;
             }
 
-            updateRequired = true;
-
             (filter as ScaleFilter).ScaleX = (float)anud_scaleX.Value;
 
             FireFilterUpdated();
@@ -124,8 +120,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as ScaleFilter).ScaleX = (float)anud_scaleX.Value;
                 ignoreEvent = false;
             }
-            
-            updateRequired = true;
 
             (filter as ScaleFilter).ScaleY = (float)anud_scaleY.Value;
 
@@ -139,8 +133,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             if (ignoreEvent)
                 return;
-
-            updateRequired = true;
 
             (filter as ScaleFilter).Centered = cb_centered.Checked;
 
@@ -158,8 +150,6 @@ namespace Pixelaria.Views.Controls.Filters
                 anud_scaleY.Value = anud_scaleX.Value;
                 ignoreEvent = false;
 
-                updateRequired = true;
-
                 (filter as ScaleFilter).ScaleX = (float)anud_scaleX.Value;
                 (filter as ScaleFilter).ScaleY = (float)anud_scaleY.Value;
 
@@ -174,8 +164,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             if (ignoreEvent)
                 return;
-
-            updateRequired = true;
 
             (filter as ScaleFilter).PixelQuality = cb_pixelQuality.Checked;
 

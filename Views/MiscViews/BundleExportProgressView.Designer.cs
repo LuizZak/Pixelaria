@@ -22,7 +22,7 @@
 
 namespace Pixelaria.Views.MiscViews
 {
-    partial class ExportProgressView
+    partial class BundleExportProgressView
     {
         /// <summary>
         /// Required designer variable.
@@ -50,14 +50,14 @@ namespace Pixelaria.Views.MiscViews
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportProgressView));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BundleExportProgressView));
             this.pb_progress = new System.Windows.Forms.ProgressBar();
             this.lbl_progress = new System.Windows.Forms.Label();
             this.btn_ok = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.pb_stageProgress = new System.Windows.Forms.ProgressBar();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -107,14 +107,13 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Export Progress";
             // 
-            // label1
+            // pb_stageProgress
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 16);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(34, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Total:";
+            this.pb_stageProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pb_stageProgress.Location = new System.Drawing.Point(9, 90);
+            this.pb_stageProgress.Name = "pb_stageProgress";
+            this.pb_stageProgress.Size = new System.Drawing.Size(396, 23);
+            this.pb_stageProgress.TabIndex = 3;
             // 
             // label2
             // 
@@ -125,14 +124,16 @@ namespace Pixelaria.Views.MiscViews
             this.label2.TabIndex = 2;
             this.label2.Text = "Current Task:";
             // 
-            // pb_stageProgress
+            // label1
             // 
-            this.pb_stageProgress.Location = new System.Drawing.Point(9, 90);
-            this.pb_stageProgress.Name = "pb_stageProgress";
-            this.pb_stageProgress.Size = new System.Drawing.Size(396, 23);
-            this.pb_stageProgress.TabIndex = 3;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 16);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(34, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Total:";
             // 
-            // ExportProgressView
+            // BundleExportProgressView
             // 
             this.AcceptButton = this.btn_ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -144,7 +145,7 @@ namespace Pixelaria.Views.MiscViews
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ExportProgressView";
+            this.Name = "BundleExportProgressView";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Export Progress";

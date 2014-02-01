@@ -236,17 +236,23 @@
     <Compile Include="Views\MiscViews\AnimationResizeView.Designer.cs">
       <DependentUpon>AnimationResizeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\MiscViews\ExportProgressView.cs">
+    <Compile Include="Views\MiscViews\BundleExportProgressView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\MiscViews\ExportProgressView.Designer.cs">
-      <DependentUpon>ExportProgressView.cs</DependentUpon>
+    <Compile Include="Views\MiscViews\BundleExportProgressView.Designer.cs">
+      <DependentUpon>BundleExportProgressView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\MiscViews\FramesRescaleSettingsView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\MiscViews\FramesRescaleSettingsView.Designer.cs">
       <DependentUpon>FramesRescaleSettingsView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MiscViews\SheetExportProgressView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\MiscViews\SheetExportProgressView.Designer.cs">
+      <DependentUpon>SheetExportProgressView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ModelViews\AnimationPreviewPanel.cs">
       <SubType>UserControl</SubType>
@@ -352,11 +358,14 @@
     <EmbeddedResource Include="Views\MiscViews\AnimationResizeView.resx">
       <DependentUpon>AnimationResizeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MiscViews\ExportProgressView.resx">
-      <DependentUpon>ExportProgressView.cs</DependentUpon>
+    <EmbeddedResource Include="Views\MiscViews\BundleExportProgressView.resx">
+      <DependentUpon>BundleExportProgressView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MiscViews\FramesRescaleSettingsView.resx">
       <DependentUpon>FramesRescaleSettingsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MiscViews\SheetExportProgressView.resx">
+      <DependentUpon>SheetExportProgressView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationPreviewPanel.resx">
       <DependentUpon>AnimationPreviewPanel.cs</DependentUpon>
@@ -484,6 +493,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\pxl_icon_tile_392x424.png" />
+    <None Include="Resources\sheet_save_icon.png" />
+    <None Include="Resources\pxl_icon_256x256_tile.png" />
     <None Include="Resources\filter_saturation.png" />
     <None Include="Resources\filter_lightness.png" />
     <None Include="Resources\filter_hue.png" />

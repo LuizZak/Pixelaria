@@ -52,6 +52,16 @@ namespace Pixelaria.Filters
         public float OffsetY { get; set; }
 
         /// <summary>
+        /// Gets or sets whether to wrap the image around the X axis
+        /// </summary>
+        public bool WrapHorizontal { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to wrap the image around the Y axis
+        /// </summary>
+        public bool WrapVertical { get; set; }
+
+        /// <summary>
         /// Applies this OffsetFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
@@ -73,6 +83,65 @@ namespace Pixelaria.Filters
 
             g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
 
+            // Draw wrap-arounds
+            if (WrapHorizontal && OffsetX != 0)
+            {
+                RectangleF wrapRec = rec;
+
+                if (OffsetX > 0)
+                {
+                    wrapRec.X -= bitmap.Width;
+                }
+                else
+                {
+                    wrapRec.X += bitmap.Width;
+                }
+
+                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+            }
+
+            if (WrapVertical && OffsetY != 0)
+            {
+                RectangleF wrapRec = rec;
+
+                if (OffsetY > 0)
+                {
+                    wrapRec.Y -= bitmap.Height;
+                }
+                else
+                {
+                    wrapRec.Y += bitmap.Height;
+                }
+
+                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+            }
+
+            // Diagonal wrap-arounds
+            if (WrapVertical && WrapHorizontal && OffsetX != 0 && OffsetY != 0)
+            {
+                RectangleF wrapRec = rec;
+
+                if (OffsetX > 0)
+                {
+                    wrapRec.X -= bitmap.Width;
+                }
+                else
+                {
+                    wrapRec.X += bitmap.Width;
+                }
+
+                if (OffsetY > 0)
+                {
+                    wrapRec.Y -= bitmap.Height;
+                }
+                else
+                {
+                    wrapRec.Y += bitmap.Height;
+                }
+
+                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+            }
+
             g.Dispose();
             bit.Dispose();
         }
@@ -87,6 +156,8 @@ namespace Pixelaria.Filters
 
             writer.Write(OffsetX);
             writer.Write(OffsetY);
+            writer.Write(WrapHorizontal);
+            writer.Write(WrapVertical);
         }
 
         /// <summary>
@@ -99,6 +170,8 @@ namespace Pixelaria.Filters
 
             OffsetX = reader.ReadSingle();
             OffsetY = reader.ReadSingle();
+            WrapHorizontal = reader.ReadBoolean();
+            WrapVertical = reader.ReadBoolean();
         }
     }
 }

@@ -256,6 +256,22 @@ namespace Pixelaria.Views
 
             int addIndex = controller.GetAnimationIndex(animation);
 
+            // If the target node is the bundle root, add the index of the animation sheets to the target add index
+            if (parentNode.Tag is Bundle)
+            {
+                foreach (TreeNode node in tv_bundleAnimations.Nodes[0].Nodes)
+                {
+                    if (node.Tag is AnimationSheet)
+                    {
+                        addIndex++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
             TreeNode animNode = parentNode.Nodes.Insert(addIndex, animation.Name);
 
             animNode.Tag = animation;
@@ -736,6 +752,15 @@ namespace Pixelaria.Views
 
                     controller.AddAnimationToAnimationSheet(anim, sheet);
                 }
+
+                // Target is Bundle root and dragged node is an Animation:
+                // Remove the animation from the current bundle, if it's in one
+                if (eventArgs.TargetNode.Tag is Bundle && eventArgs.DraggedNode.Tag is Animation)
+                {
+                    Animation anim = (Animation)eventArgs.DraggedNode.Tag;
+
+                    controller.AddAnimationToAnimationSheet(anim, null);
+                }
             }
 
             // Handle side effects after drag events
@@ -1068,6 +1093,20 @@ namespace Pixelaria.Views
             if (sheet != null)
             {
                 controller.ShowDuplicateAnimationSheet(sheet);
+            }
+        }
+
+        // 
+        // Export Animation Sheet context menu click
+        // 
+        private void exportSheetImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Get the currently selected AnimationSheet node
+            AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
+
+            if (sheet != null)
+            {
+                controller.ShowExportAnimationSheetImage(sheet);
             }
         }
 

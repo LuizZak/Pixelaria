@@ -55,8 +55,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as HueFilter).Hue = 0;
                 (filter as HueFilter).Relative = false;
             }
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -80,7 +78,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as HueFilter).Hue = (int)anud_hue.Value;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
 
@@ -91,7 +88,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as HueFilter).Relative = cb_relative.Checked;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
     }

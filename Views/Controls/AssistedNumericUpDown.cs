@@ -168,6 +168,15 @@ namespace Pixelaria.Views.Controls
         }
 
         // 
+        // Control NUD value changed
+        // 
+        private void nud_controlNud_ValueChanged(object sender, EventArgs e)
+        {
+            if (!mouseDown)
+                Invalidate();
+        }
+
+        // 
         // OnPaint event handler
         // 
         protected override void OnPaint(PaintEventArgs e)

@@ -56,8 +56,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as FadeFilter).FadeColor = Color.White;
                 (filter as FadeFilter).FadeAlpha = false;
             }
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -88,8 +86,6 @@ namespace Pixelaria.Views.Controls.Filters
 
                 (filter as FadeFilter).FadeColor = cd.Color;
 
-                this.updateRequired = true;
-
                 this.FireFilterUpdated();
             }
         }
@@ -100,8 +96,6 @@ namespace Pixelaria.Views.Controls.Filters
         private void anud_factor_ValueChanged(object sender, EventArgs e)
         {
             (filter as FadeFilter).FadeFactor = (float)(anud_factor.Value / 100);
-
-            this.updateRequired = true;
 
             this.FireFilterUpdated();
         }

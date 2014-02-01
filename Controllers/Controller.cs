@@ -439,6 +439,7 @@ namespace Pixelaria.Controllers
 
         /// <summary>
         /// Adds the given Animation object into the given AnimationSheet object
+        /// If null is provided as animation sheet, the animation is removed from it's current animation sheet, if it's inside one
         /// </summary>
         /// <param name="anim">The animation to add to the animation sheet</param>
         /// <param name="sheet">The AnimationSheet to add the animation to</param>
@@ -553,7 +554,7 @@ namespace Pixelaria.Controllers
                 }
             }
 
-            ExportProgressView progressForm = new ExportProgressView(currentBundle, defaultExporter);
+            BundleExportProgressView progressForm = new BundleExportProgressView(currentBundle, defaultExporter);
 
             progressForm.ShowDialog(this.mainForm);
         }
@@ -684,6 +685,58 @@ namespace Pixelaria.Controllers
             }
 
             MarkUnsavedChanges(true);
+        }
+
+        /// <summary>
+        /// Shows an interface to save an animation sheet's generated texture to disk
+        /// </summary>
+        /// <param name="sheet">The animation sheet to save to disk</param>
+        public void ShowExportAnimationSheetImage(AnimationSheet sheet)
+        {
+            if (sheet.AnimationCount == 0)
+            {
+                MessageBox.Show("There are no animations on the sheet! Add at least one animation to the sheet before exporting an image.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Get a file name
+            string saveName = ShowSaveImage(null, sheet.Name, mainForm);
+
+            if (saveName != "")
+            {
+                SheetExportProgressView exportView = new SheetExportProgressView(sheet, saveName, defaultExporter);
+
+                exportView.ShowDialog(mainForm);
+            }
+        }
+
+        /// <summary>
+        /// Shows a dialog to save an image to disk
+        /// </summary>
+        /// <param name="imageToSave">The image to save to disk</param>
+        /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
+        /// <param name="owner">An optional owner for the file dialog</param>
+        /// <returns>The selected save path, or an empty string if the user has not chosen a save path</returns>
+        public string ShowSaveImage(Image imageToSave = null, string fileName = "", IWin32Window owner = null)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+
+            sfd.Filter = "PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
+            sfd.FileName = fileName;
+
+            if (sfd.ShowDialog(owner) == DialogResult.OK)
+            {
+                if (imageToSave != null)
+                {
+                    string savePath = sfd.FileName;
+
+                    imageToSave.Save(savePath);
+                }
+
+                return sfd.FileName;
+            }
+
+            return string.Empty;
         }
 
         ////////////////////////////////////////////////////////////////////////////////

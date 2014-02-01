@@ -61,8 +61,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as RotationFilter).RotateAroundCenter = false;
                 (filter as RotationFilter).PixelQuality = false;
             }
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -86,8 +84,6 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_angle_ValueChanged(object sender, EventArgs e)
         {
-            updateRequired = true;
-
             (filter as RotationFilter).Rotation = (float)anud_angle.Value;
 
             FireFilterUpdated();
@@ -98,8 +94,6 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_rotateAroundCenter_CheckedChanged(object sender, EventArgs e)
         {
-            updateRequired = true;
-
             (filter as RotationFilter).RotateAroundCenter = cb_rotateAroundCenter.Checked;
 
             FireFilterUpdated();
@@ -110,8 +104,6 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_pixelQuality_CheckedChanged(object sender, EventArgs e)
         {
-            updateRequired = true;
-
             (filter as RotationFilter).PixelQuality = cb_pixelQuality.Checked;
 
             FireFilterUpdated();

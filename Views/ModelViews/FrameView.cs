@@ -46,6 +46,11 @@ namespace Pixelaria.Views.ModelViews
     public partial class FrameView : ModifiableContentView
     {
         /// <summary>
+        /// The Controller that owns this FrameView instance
+        /// </summary>
+        private Controller controller;
+
+        /// <summary>
         /// The frame to edit on this form
         /// </summary>
         private Frame frameToEdit;
@@ -155,6 +160,8 @@ namespace Pixelaria.Views.ModelViews
         public FrameView(Controller controller, Frame frameToEdit)
         {
             InitializeComponent();
+
+            this.controller = controller;
 
             this.filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
             this.presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
@@ -354,25 +361,19 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ExportFrame()
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-
-            sfd.Filter = "PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
+            Image img = viewFrame.GetComposedBitmap();
+            string fileName = "";
 
             if (frameToEdit.Animation.FrameCount > 1)
             {
-                sfd.FileName = frameToEdit.Animation.Name + "_" + frameToEdit.Index;
+                fileName = frameToEdit.Animation.Name + "_" + frameToEdit.Index;
             }
             else
             {
-                sfd.FileName = frameToEdit.Animation.Name;
+                fileName = frameToEdit.Animation.Name;
             }
 
-            if (sfd.ShowDialog(this) == DialogResult.OK)
-            {
-                string savePath = sfd.FileName;
-
-                viewFrame.GetComposedBitmap().Save(savePath);
-            }
+            controller.ShowSaveImage(img, fileName, this);
         }
 
         /// <summary>

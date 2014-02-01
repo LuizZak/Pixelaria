@@ -71,9 +71,9 @@ namespace Pixelaria.Views.MiscViews
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
+            this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_width)).BeginInit();
@@ -359,24 +359,9 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Preview";
             // 
-            // zpb_preview
-            // 
-            this.zpb_preview.AllowScrollbars = false;
-            this.zpb_preview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.zpb_preview.Location = new System.Drawing.Point(6, 16);
-            this.zpb_preview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MaximumZoom")));
-            this.zpb_preview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MinimumZoom")));
-            this.zpb_preview.Name = "zpb_preview";
-            this.zpb_preview.ShowImageArea = true;
-            this.zpb_preview.Size = new System.Drawing.Size(267, 265);
-            this.zpb_preview.TabIndex = 0;
-            this.zpb_preview.TabStop = false;
-            this.zpb_preview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.Zoom")));
-            this.zpb_preview.ZoomFactor = 1.414214F;
-            // 
             // btn_ok
             // 
-            this.btn_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
             this.btn_ok.Location = new System.Drawing.Point(427, 305);
             this.btn_ok.Name = "btn_ok";
@@ -390,7 +375,7 @@ namespace Pixelaria.Views.MiscViews
             // 
             // btn_cancel
             // 
-            this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
             this.btn_cancel.Location = new System.Drawing.Point(494, 305);
@@ -401,6 +386,25 @@ namespace Pixelaria.Views.MiscViews
             this.btn_cancel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btn_cancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btn_cancel.UseVisualStyleBackColor = true;
+            // 
+            // zpb_preview
+            // 
+            this.zpb_preview.AllowScrollbars = false;
+            this.zpb_preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.zpb_preview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_preview.ClipBackgroundToImage = true;
+            this.zpb_preview.Location = new System.Drawing.Point(6, 16);
+            this.zpb_preview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MaximumZoom")));
+            this.zpb_preview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MinimumZoom")));
+            this.zpb_preview.Name = "zpb_preview";
+            this.zpb_preview.ShowImageArea = true;
+            this.zpb_preview.Size = new System.Drawing.Size(267, 265);
+            this.zpb_preview.TabIndex = 0;
+            this.zpb_preview.TabStop = false;
+            this.zpb_preview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.Zoom")));
+            this.zpb_preview.ZoomFactor = 1.414214F;
             // 
             // AnimationResizeView
             // 
@@ -415,8 +419,8 @@ namespace Pixelaria.Views.MiscViews
             this.Controls.Add(this.btn_ok);
             this.Controls.Add(this.btn_cancel);
             this.Controls.Add(this.groupBox2);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(597, 377);
             this.Name = "AnimationResizeView";
             this.Text = "Animation Resize";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AnimationResizeView_FormClosed);

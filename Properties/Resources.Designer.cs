@@ -831,6 +831,26 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap pxl_icon_256x256_tile {
+            get {
+                object obj = ResourceManager.GetObject("pxl_icon_256x256_tile", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap pxl_icon_tile_392x424 {
+            get {
+                object obj = ResourceManager.GetObject("pxl_icon_tile_392x424", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] rect_cursor {
@@ -896,6 +916,16 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap sheet_new {
             get {
                 object obj = ResourceManager.GetObject("sheet_new", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sheet_save_icon {
+            get {
+                object obj = ResourceManager.GetObject("sheet_save_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

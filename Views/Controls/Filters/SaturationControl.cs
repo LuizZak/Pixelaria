@@ -56,8 +56,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as SaturationFilter).Relative = false;
                 (filter as SaturationFilter).KeepGrays = true;
             }
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -83,7 +81,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as SaturationFilter).Saturation = (int)anud_saturation.Value;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
 
@@ -94,7 +91,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as SaturationFilter).Relative = cb_relative.Checked;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
 
@@ -105,7 +101,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as SaturationFilter).KeepGrays = cb_keepGrays.Checked;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
 
@@ -118,7 +113,6 @@ namespace Pixelaria.Views.Controls.Filters
 
             (filter as SaturationFilter).Multiply = cb_multiply.Checked;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
     }

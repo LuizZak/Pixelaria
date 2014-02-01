@@ -32,7 +32,7 @@ namespace Pixelaria.Views.MiscViews
     /// <summary>
     /// Form used to display the progress of a bundle export
     /// </summary>
-    public partial class ExportProgressView : Form
+    public partial class BundleExportProgressView : Form
     {
         /// <summary>
         /// The bundle to export
@@ -50,11 +50,11 @@ namespace Pixelaria.Views.MiscViews
         private bool canClose = true;
 
         /// <summary>
-        /// Initializes a new instance of the ExportProgressView class
+        /// Initializes a new instance of the BundleExportProgressView class
         /// </summary>
         /// <param name="bundle">The bundle to export</param>
         /// <param name="exporter">The exporter to use when exporting the bundle</param>
-        public ExportProgressView(Bundle bundle, IDefaultExporter exporter)
+        public BundleExportProgressView(Bundle bundle, IDefaultExporter exporter)
         {
             InitializeComponent();
 

@@ -55,8 +55,6 @@ namespace Pixelaria.Views.Controls.Filters
                 (filter as LightnessFilter).Lightness = 100;
                 (filter as LightnessFilter).Relative = false;
             }
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -81,7 +79,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as LightnessFilter).Lightness = (int)anud_lightness.Value;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
 
@@ -92,7 +89,6 @@ namespace Pixelaria.Views.Controls.Filters
         {
             (filter as LightnessFilter).Relative = cb_relative.Checked;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
 
@@ -105,7 +101,6 @@ namespace Pixelaria.Views.Controls.Filters
 
             (filter as LightnessFilter).Multiply = cb_multiply.Checked;
 
-            updateRequired = true;
             FireFilterUpdated();
         }
     }

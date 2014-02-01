@@ -393,7 +393,8 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
-        /// Adds the given Animation object into the given AnimationSheet object
+        /// Adds the given Animation object into the given AnimationSheet object.
+        /// If null is provided as animation sheet, the animation is removed from it's current animation sheet, if it's inside one
         /// </summary>
         /// <param name="anim">The animation to add to the animation sheet</param>
         /// <param name="sheet">The AnimationSheet to add the animation to</param>

@@ -221,15 +221,18 @@ namespace Pixelaria.Data
         /// <summary>
         /// Swaps the current frame bitmap with the given one. If the new bitmap's dimensions
         /// don't match the Frame's dimensions, an ArgumentException is thrown.
-        /// IF there's already a Bitmap loaded, the current Bitmap is disposed to save memory.
+        /// If there's already a Bitmap loaded, the current Bitmap is disposed to save memory.
         /// </summary>
         /// <param name="bitmap">The new frame bitmap</param>
-        public void SetFrameBitmap(Bitmap bitmap)
+        /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
+        public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
         {
             if (frameTexture != null)
                 frameTexture.Dispose();
 
             frameTexture = bitmap;
+
+            UpdateHash();
         }
 
         /// <summary>

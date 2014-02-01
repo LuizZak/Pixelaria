@@ -383,6 +383,7 @@ namespace Pixelaria.Views.Controls
                 r = C;
                 b = X;
             }
+
             float m = l - C / 2;
 
             r += m;

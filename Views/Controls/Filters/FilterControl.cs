@@ -46,11 +46,6 @@ namespace Pixelaria.Views.Controls.Filters
         protected Bitmap originalBitmap;
 
         /// <summary>
-        /// Whether there is an update pending
-        /// </summary>
-        protected bool updateRequired;
-
-        /// <summary>
         /// The Bitmap that represents the preview for the filter
         /// </summary>
         protected Bitmap preview;
@@ -109,17 +104,6 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Returns a Bitmap visualization for this TransparencyControl
-        /// </summary>
-        /// <returns>A Bitmap visualization for this TransparencyControl</returns>
-        public virtual Bitmap GetVisualization()
-        {
-            UpdateVisualization();
-
-            return preview;
-        }
-
-        /// <summary>
         /// Applies the filter settings to the given Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply the filter to</param>
@@ -140,26 +124,6 @@ namespace Pixelaria.Views.Controls.Filters
             {
                 FilterUpdated.Invoke(this, new EventArgs());
             }
-        }
-
-        /// <summary>
-        /// Updates the internal visualization of the FilterControl
-        /// </summary>
-        protected void UpdateVisualization()
-        {
-            if (updateRequired == false)
-                return;
-
-            if (preview != null)
-            {
-                this.preview = this.originalBitmap.Clone() as Bitmap;
-            }
-
-            FastBitmap.CopyPixels(originalBitmap, preview);
-
-            filter.ApplyToBitmap(preview);
-
-            updateRequired = false;
         }
 
         /// <summary>

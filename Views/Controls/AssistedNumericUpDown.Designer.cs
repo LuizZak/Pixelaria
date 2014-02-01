@@ -62,6 +62,7 @@ namespace Pixelaria.Views.Controls
             this.nud_controlNud.Name = "nud_controlNud";
             this.nud_controlNud.Size = new System.Drawing.Size(78, 20);
             this.nud_controlNud.TabIndex = 0;
+            this.nud_controlNud.ValueChanged += new System.EventHandler(this.nud_controlNud_ValueChanged);
             // 
             // AssistedNumericUpDown
             // 

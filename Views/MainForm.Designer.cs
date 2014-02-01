@@ -95,6 +95,7 @@ namespace Pixelaria.Views
             this.tsm_sheetCreateAnimation = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_sheetImportAnimation = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_duplicateSheet = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportSheetImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsm_editSheetProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.cms_animationNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -415,10 +416,11 @@ namespace Pixelaria.Views
             this.tsm_sheetCreateAnimation,
             this.tsm_sheetImportAnimation,
             this.tsm_duplicateSheet,
+            this.exportSheetImageToolStripMenuItem,
             this.toolStripMenuItem2,
             this.tsm_editSheetProperties});
             this.cms_sheetNodeRightClick.Name = "cms_sheetNodeRightClick";
-            this.cms_sheetNodeRightClick.Size = new System.Drawing.Size(204, 120);
+            this.cms_sheetNodeRightClick.Size = new System.Drawing.Size(204, 142);
             // 
             // cmb_deleteSheet
             // 
@@ -451,6 +453,14 @@ namespace Pixelaria.Views
             this.tsm_duplicateSheet.Size = new System.Drawing.Size(203, 22);
             this.tsm_duplicateSheet.Text = "Duplicate Sheet";
             this.tsm_duplicateSheet.Click += new System.EventHandler(this.tsm_duplicateSheet_Click);
+            // 
+            // exportSheetImageToolStripMenuItem
+            // 
+            this.exportSheetImageToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.sheet_save_icon;
+            this.exportSheetImageToolStripMenuItem.Name = "exportSheetImageToolStripMenuItem";
+            this.exportSheetImageToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
+            this.exportSheetImageToolStripMenuItem.Text = "Export Sheet Image...";
+            this.exportSheetImageToolStripMenuItem.Click += new System.EventHandler(this.exportSheetImageToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -539,15 +549,17 @@ namespace Pixelaria.Views
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
+            this.BackgroundImage = global::Pixelaria.Properties.Resources.pxl_icon_tile_392x424;
             this.ClientSize = new System.Drawing.Size(1125, 717);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.tv_bundleAnimations);
             this.Controls.Add(this.ts_mainStrip);
+            this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Pixelaria v1.4";
+            this.Text = "Pixelaria v1.7";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ts_mainStrip.ResumeLayout(false);
@@ -613,5 +625,6 @@ namespace Pixelaria.Views
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.ToolStripMenuItem duplicateAnimationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tsm_duplicateSheet;
+        private System.Windows.Forms.ToolStripMenuItem exportSheetImageToolStripMenuItem;
     }
 }

@@ -20,9 +20,19 @@ Legend:
 
 -- v1.7b
 
-* Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the vertical axis
-* Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
++ Added option to wrap the image around the bounds on the Offset Filter.
 
+* Fixed animations being added in incorrect order on the tree view when loading bundle files sometimes
+* Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the vertical axis.
+* Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
+* Fixed direct changes in the assisted numeric up down's input box not reflecting on the assist bar bellow.
+
+. Main Form
+  + Added background image for the form
+
+. Animation Resize View
+  * The form is now resizable.
+  * Now the preview image box's background image is clipped to the image size.
 
 -- v1.6b
 

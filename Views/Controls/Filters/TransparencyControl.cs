@@ -55,8 +55,6 @@ namespace Pixelaria.Views.Controls.Filters
                 this.filter = new TransparencyFilter();
                 (filter as TransparencyFilter).Transparency = 1;
             }
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -77,8 +75,6 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_transparency_ValueChanged(object sender, EventArgs e)
         {
-            updateRequired = true;
-
             (filter as TransparencyFilter).Transparency = (float)anud_transparency.Value / 255;
 
             FireFilterUpdated();

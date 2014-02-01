@@ -54,6 +54,8 @@ namespace Pixelaria.Views.Controls.Filters
             this.label2 = new System.Windows.Forms.Label();
             this.anud_offsetX = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
+            this.cb_wrapHorizontal = new System.Windows.Forms.CheckBox();
+            this.cb_wrapVertical = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // anud_offsetY
@@ -140,16 +142,40 @@ namespace Pixelaria.Views.Controls.Filters
             this.label1.TabIndex = 6;
             this.label1.Text = "Horizontal:";
             // 
+            // cb_wrapHorizontal
+            // 
+            this.cb_wrapHorizontal.AutoSize = true;
+            this.cb_wrapHorizontal.Location = new System.Drawing.Point(60, 76);
+            this.cb_wrapHorizontal.Name = "cb_wrapHorizontal";
+            this.cb_wrapHorizontal.Size = new System.Drawing.Size(109, 17);
+            this.cb_wrapHorizontal.TabIndex = 10;
+            this.cb_wrapHorizontal.Text = "Wrap Horizontally";
+            this.cb_wrapHorizontal.UseVisualStyleBackColor = true;
+            this.cb_wrapHorizontal.CheckedChanged += new System.EventHandler(this.cb_wrapHorizontal_CheckedChanged);
+            // 
+            // cb_wrapVertical
+            // 
+            this.cb_wrapVertical.AutoSize = true;
+            this.cb_wrapVertical.Location = new System.Drawing.Point(175, 76);
+            this.cb_wrapVertical.Name = "cb_wrapVertical";
+            this.cb_wrapVertical.Size = new System.Drawing.Size(97, 17);
+            this.cb_wrapVertical.TabIndex = 11;
+            this.cb_wrapVertical.Text = "Wrap Vertically";
+            this.cb_wrapVertical.UseVisualStyleBackColor = true;
+            this.cb_wrapVertical.CheckedChanged += new System.EventHandler(this.cb_wrapVertical_CheckedChanged);
+            // 
             // OffsetControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cb_wrapVertical);
+            this.Controls.Add(this.cb_wrapHorizontal);
             this.Controls.Add(this.anud_offsetY);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.anud_offsetX);
             this.Controls.Add(this.label1);
             this.Name = "OffsetControl";
-            this.Size = new System.Drawing.Size(541, 73);
+            this.Size = new System.Drawing.Size(541, 98);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -161,5 +187,7 @@ namespace Pixelaria.Views.Controls.Filters
         private System.Windows.Forms.Label label2;
         private AssistedNumericUpDown anud_offsetX;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox cb_wrapHorizontal;
+        private System.Windows.Forms.CheckBox cb_wrapVertical;
     }
 }

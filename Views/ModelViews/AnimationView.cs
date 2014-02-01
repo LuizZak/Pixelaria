@@ -548,6 +548,7 @@ namespace Pixelaria.Views.ModelViews
                     GetListViewItemForFrame(frame).Selected = true;
                 }
             }
+            // Image pasting
             else if (Clipboard.CurrentDataType == ImageStreamClipboardObject.DataType)
             {
                 // Recreate the frame from the image stream
@@ -730,7 +731,6 @@ namespace Pixelaria.Views.ModelViews
 
                     Frame frame = new Frame(null, bit.Width, bit.Height, false);
                     frame.SetFrameBitmap(bit);
-                    frame.UpdateHash();
 
                     viewAnimation.AddFrames(new Frame[] { frame }, sizeMatching, -1);
 

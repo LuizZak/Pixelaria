@@ -184,7 +184,7 @@ namespace Pixelaria.Data.Persistence
 
             memStream.Dispose();
 
-            frame.SetFrameBitmap(bitmap);
+            frame.SetFrameBitmap(bitmap, false);
             frame.SetHash(hash);
 
             return frame;

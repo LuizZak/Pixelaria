@@ -53,6 +53,8 @@ namespace Pixelaria.Views.Controls.Filters
                 this.filter = new OffsetFilter();
                 (filter as OffsetFilter).OffsetX = 0;
                 (filter as OffsetFilter).OffsetY = 0;
+                (filter as OffsetFilter).WrapHorizontal = false;
+                (filter as OffsetFilter).WrapVertical = false;
             }
 
             this.anud_offsetX.Minimum = -bitmap.Width;
@@ -60,8 +62,6 @@ namespace Pixelaria.Views.Controls.Filters
 
             this.anud_offsetX.Maximum = bitmap.Width;
             this.anud_offsetY.Maximum = bitmap.Height;
-
-            this.updateRequired = true;
         }
 
         /// <summary>
@@ -76,6 +76,8 @@ namespace Pixelaria.Views.Controls.Filters
 
             anud_offsetX.Value = (decimal)(filter as OffsetFilter).OffsetX;
             anud_offsetY.Value = (decimal)(filter as OffsetFilter).OffsetY;
+            cb_wrapHorizontal.Checked = (filter as OffsetFilter).WrapHorizontal;
+            cb_wrapVertical.Checked = (filter as OffsetFilter).WrapVertical;
         }
 
         // 
@@ -94,6 +96,26 @@ namespace Pixelaria.Views.Controls.Filters
         private void anud_offsetY_ValueChanged(object sender, EventArgs e)
         {
             (filter as OffsetFilter).OffsetY = (float)anud_offsetY.Value;
+
+            FireFilterUpdated();
+        }
+
+        // 
+        // Wrap Horizontal checkbox check
+        // 
+        private void cb_wrapHorizontal_CheckedChanged(object sender, EventArgs e)
+        {
+            (filter as OffsetFilter).WrapHorizontal = cb_wrapHorizontal.Checked;
+
+            FireFilterUpdated();
+        }
+
+        // 
+        // Wrap Vertical checkbox checked
+        // 
+        private void cb_wrapVertical_CheckedChanged(object sender, EventArgs e)
+        {
+            (filter as OffsetFilter).WrapVertical = cb_wrapVertical.Checked;
 
             FireFilterUpdated();
         }
