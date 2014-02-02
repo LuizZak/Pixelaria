@@ -254,24 +254,28 @@ namespace Pixelaria.Utils
             float g = (argb >> 8) & 0xFF;
             float b = argb & 0xFF;
 
-            if (r < 0) r = 0;
-            if (g < 0) g = 0;
-            if (b < 0) b = 0;
-            if (r > 255) r = 255;
-            if (g > 255) g = 255;
-            if (b > 255) b = 255;
-
             r /= 255;
             g /= 255;
             b /= 255;
 
-            float M = Math.Max(r, Math.Max(g, b));
-            float m = Math.Min(r, Math.Min(g, b));
+            float M = b;
+            float m = b;
+
+            if (m > g)
+                m = g;
+            if (m > r)
+                m = r;
+
+            if (M < g)
+                M = g;
+            if (M < r)
+                M = r;
+
             float d = M - m;
 
-            float h = 0;
-            float s = 0;
-            float l = 0;
+            float h;
+            float s;
+            float l;
 
             if (d == 0)
             {
@@ -279,18 +283,16 @@ namespace Pixelaria.Utils
             }
             else if (M == r)
             {
-                h = ((g - b) / d) % 6;
+                h = (((g - b) / d) % 6) * 60;
             }
             else if (M == g)
             {
-                h = (b - r) / d + 2;
+                h = ((b - r) / d + 2) * 60;
             }
             else
             {
-                h = (r - g) / d + 4;
+                h = ((r - g) / d + 4) * 60;
             }
-
-            h *= 60;
 
             if (h < 0)
             {
@@ -305,10 +307,8 @@ namespace Pixelaria.Utils
             }
             else
             {
-                s = d / (1 - Math.Abs(2 * l - 1));
+                s = d / (1 - Math.Abs(2 * l - 1)) * 100;
             }
-
-            s *= 100;
 
             return new AHSL(a, (int)h, (int)s, (int)(l * 100));
         }
