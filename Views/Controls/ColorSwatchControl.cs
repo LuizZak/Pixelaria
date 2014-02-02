@@ -386,13 +386,9 @@ namespace Pixelaria.Views.Controls
 
             float m = l - C / 2;
 
-            r += m;
-            g += m;
-            b += m;
-
-            r *= 255;
-            g *= 255;
-            b *= 255;
+            r = (r + m) * 255;
+            g = (g + m) * 255;
+            b = (b + m) * 255;
 
             if (revertByteOrder)
             {
@@ -426,45 +422,25 @@ namespace Pixelaria.Views.Controls
     public struct AHSL
     {
         /// <summary>
-        /// The Alpha component
-        /// </summary>
-        int a;
-
-        /// <summary>
-        /// The Hue component
-        /// </summary>
-        int h;
-
-        /// <summary>
-        /// The Saturation component
-        /// </summary>
-        int s;
-
-        /// <summary>
-        /// The Lightness component
-        /// </summary>
-        int l;
-
-        /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
         /// </summary>
-        public int A { get { return a; } set { this.a = value; } }
+        public int A;
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 360
         /// </summary>
-        public int H { get { return h; } set { this.h = value; } }
+        public int H;
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 100
         /// </summary>
-        public int S { get { return s; } set { this.s = value; } }
+        public int S;
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 100
         /// </summary>
-        public int L { get { return l; } set { this.l = value; } }
-
+        public int L;
+        
         /// <summary>
         /// Creates a new AHSL color
         /// </summary>
@@ -474,10 +450,10 @@ namespace Pixelaria.Views.Controls
         /// <param name="l">The Lightness component</param>
         public AHSL(int a, int h, int s, int l)
         {
-            this.a = a;
-            this.h = h;
-            this.s = s;
-            this.l = l;
+            this.A = a;
+            this.H = h;
+            this.S = s;
+            this.L = l;
         }
 
         /// <summary>
@@ -486,7 +462,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>The Color object that represents this AHSL color</returns>
         public Color ToColor()
         {
-            return ColorSwatch.ColorFromHSL(this.h, this.s, this.l, (this.a / 255.0f));
+            return ColorSwatch.ColorFromHSL(this.H, this.S, this.L, (this.A / 255.0f));
         }
 
         /// <summary>
@@ -496,7 +472,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>The ARGB color that represents this AHSL color</returns>
         public int ToARGB(bool revertByteOrder = false)
         {
-            return ColorSwatch.ARGBFromHSL(this.h, this.s, this.l, (this.a / 255.0f), revertByteOrder);
+            return ColorSwatch.ARGBFromHSL(this.H, this.S, this.L, (this.A / 255.0f), revertByteOrder);
         }
 
         /// <summary>
