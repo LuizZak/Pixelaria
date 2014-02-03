@@ -187,7 +187,7 @@ namespace Pixelaria.Filters
                     }
                     else
                     {
-                        ahsl.S = (Relative ? Math.Min(100, (ahsl.S + Saturation)) % 101 : Saturation);
+                        ahsl.S = (Relative ? Math.Min(100, (ahsl.S + Saturation)) : Saturation);
                     }
                 }
 
@@ -289,7 +289,7 @@ namespace Pixelaria.Filters
                 }
                 else
                 {
-                    ahsl.L = (Relative ? Math.Min(100, (ahsl.L + Lightness)) % 101 : Lightness);
+                    ahsl.L = (Relative ? Math.Min(100, (ahsl.L + Lightness)) : Lightness);
                 }
 
                 *scan0 = ahsl.ToARGB();
