@@ -78,11 +78,7 @@ namespace Pixelaria.Utils
         /// <returns>Total memory usage, in bytes</returns>
         public static long MemoryUsageOfImage(Image image)
         {
-            long bytes = 0;
-
-            bytes = image.Width * image.Height * Utilities.BitsPerPixelForFormat(image.PixelFormat) / 8;
-
-            return bytes;
+            return image.Width * image.Height * Utilities.BitsPerPixelForFormat(image.PixelFormat) / 8;
         }
 
         /// <summary>
