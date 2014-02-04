@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.7b
+                   v1.75b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,8 +18,9 @@ Legend:
 * Fix/Change
 . Note
 
--- v1.7b
+-- v1.75b
 
++ Added Spray paint operation
 + Added option to wrap the image around the bounds on the Offset Filter.
 + Increased speed of HSL filters slightly.
 
