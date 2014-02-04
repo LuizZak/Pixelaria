@@ -363,7 +363,7 @@ namespace Pixelaria.Views.ModelViews
                 return;
             }
 
-            if (this.sheetToEdit != null)
+            if (sheetToEdit != null && modified)
             {
                 ApplyChanges();
             }
