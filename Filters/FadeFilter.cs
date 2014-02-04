@@ -107,30 +107,39 @@ namespace Pixelaria.Filters
             int fr = (int)(FadeColor.R * factor);
             int fg = (int)(FadeColor.G * factor);
             int fb = (int)(FadeColor.B * factor);
-
-            // Apply the fade
-            while (count-- > 0)
+            if (factor == 1)
             {
-                byte *b = (scan0b++);
-                byte *g = (scan0b++);
-                byte *r = (scan0b++);
-                byte *a = (scan0b++);
-
-                if (factor == 1)
+                // Apply the fade
+                while (count-- > 0)
                 {
+                    byte* b = (scan0b++);
+                    byte* g = (scan0b++);
+                    byte* r = (scan0b++);
+                    byte* a = (scan0b++);
+
                     *a = (byte)(FadeAlpha ? fa : *a);
                     *r = (byte)(fr);
                     *g = (byte)(fg);
                     *b = (byte)(fb);
                 }
-                else
+            }
+            else
+            {
+                // Apply the fade
+                while (count-- > 0)
                 {
+                    byte* b = (scan0b++);
+                    byte* g = (scan0b++);
+                    byte* r = (scan0b++);
+                    byte* a = (scan0b++);
+
                     *a = (byte)(FadeAlpha ? (*a * from + fa) : *a);
                     *r = (byte)(*r * from + fr);
                     *g = (byte)(*g * from + fg);
                     *b = (byte)(*b * from + fb);
                 }
             }
+            
 
             bitmap.UnlockBits(data);
         }
