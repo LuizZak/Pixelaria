@@ -88,6 +88,9 @@ namespace Pixelaria.Views
             CloseAllWindows();
             UpdateTitleBar(bundle);
             UpdateAnimationsTreeView(bundle);
+
+            // Open the root node
+            tv_bundleAnimations.Nodes[0].Expand();
         }
 
         /// <summary>
