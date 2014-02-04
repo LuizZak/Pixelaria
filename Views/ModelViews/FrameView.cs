@@ -312,7 +312,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.iepb_frame.CurrentPaintOperation = paintOperation;
 
-            //gb_sizeGroup.Visible = paintOperation is SizedPaintOperation;
+            gb_sizeGroup.Visible = paintOperation is ISizedPaintOperation;
             gb_fillMode.Visible = paintOperation is IFillModePaintOperation;
         }
 
@@ -868,6 +868,14 @@ namespace Pixelaria.Views.ModelViews
         private void rb_picker_CheckedChanged(object sender, EventArgs e)
         {
             ChangePaintOperation(new PickerPaintOperation());
+        }
+
+        // 
+        // Spray Paint tool button click
+        // 
+        private void rb_sprayPaint_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangePaintOperation(new SprayPaintOperation());
         }
 
         // 

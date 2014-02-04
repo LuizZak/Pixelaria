@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PencilPaintOperation pencilPaintOperation2 = new Pixelaria.Views.Controls.PencilPaintOperation();
+            Pixelaria.Views.Controls.NullPaintOperation nullPaintOperation1 = new Pixelaria.Views.Controls.NullPaintOperation();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -64,6 +64,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_bucket = new System.Windows.Forms.RadioButton();
             this.rb_selection = new System.Windows.Forms.RadioButton();
             this.rb_zoom = new System.Windows.Forms.RadioButton();
+            this.rb_sprayPaint = new System.Windows.Forms.RadioButton();
             this.pnl_framePreview = new System.Windows.Forms.Panel();
             this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
@@ -214,7 +215,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_line.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_line.AutoSize = true;
             this.rb_line.Image = global::Pixelaria.Properties.Resources.line_icon;
-            this.rb_line.Location = new System.Drawing.Point(3, 31);
+            this.rb_line.Location = new System.Drawing.Point(31, 31);
             this.rb_line.Name = "rb_line";
             this.rb_line.Size = new System.Drawing.Size(22, 22);
             this.rb_line.TabIndex = 17;
@@ -228,7 +229,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_rectangle.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_rectangle.AutoSize = true;
             this.rb_rectangle.Image = global::Pixelaria.Properties.Resources.rectangle_icon;
-            this.rb_rectangle.Location = new System.Drawing.Point(31, 31);
+            this.rb_rectangle.Location = new System.Drawing.Point(59, 31);
             this.rb_rectangle.Name = "rb_rectangle";
             this.rb_rectangle.Size = new System.Drawing.Size(22, 22);
             this.rb_rectangle.TabIndex = 12;
@@ -241,7 +242,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_circle.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_circle.AutoSize = true;
             this.rb_circle.Image = global::Pixelaria.Properties.Resources.circle_icon;
-            this.rb_circle.Location = new System.Drawing.Point(59, 31);
+            this.rb_circle.Location = new System.Drawing.Point(3, 59);
             this.rb_circle.Name = "rb_circle";
             this.rb_circle.Size = new System.Drawing.Size(22, 22);
             this.rb_circle.TabIndex = 13;
@@ -254,7 +255,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_bucket.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_bucket.AutoSize = true;
             this.rb_bucket.Image = global::Pixelaria.Properties.Resources.bucket_icon;
-            this.rb_bucket.Location = new System.Drawing.Point(3, 59);
+            this.rb_bucket.Location = new System.Drawing.Point(31, 59);
             this.rb_bucket.Name = "rb_bucket";
             this.rb_bucket.Size = new System.Drawing.Size(22, 22);
             this.rb_bucket.TabIndex = 14;
@@ -267,7 +268,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_selection.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_selection.AutoSize = true;
             this.rb_selection.Image = global::Pixelaria.Properties.Resources.selection_icon;
-            this.rb_selection.Location = new System.Drawing.Point(31, 59);
+            this.rb_selection.Location = new System.Drawing.Point(59, 59);
             this.rb_selection.Name = "rb_selection";
             this.rb_selection.Size = new System.Drawing.Size(22, 22);
             this.rb_selection.TabIndex = 15;
@@ -281,7 +282,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_zoom.AutoSize = true;
             this.rb_zoom.Enabled = false;
             this.rb_zoom.Image = global::Pixelaria.Properties.Resources.zoom_icon;
-            this.rb_zoom.Location = new System.Drawing.Point(59, 59);
+            this.rb_zoom.Location = new System.Drawing.Point(3, 87);
             this.rb_zoom.Name = "rb_zoom";
             this.rb_zoom.Size = new System.Drawing.Size(22, 22);
             this.rb_zoom.TabIndex = 16;
@@ -289,6 +290,19 @@ namespace Pixelaria.Views.ModelViews
             this.rb_zoom.UseVisualStyleBackColor = true;
             this.rb_zoom.Visible = false;
             this.rb_zoom.CheckedChanged += new System.EventHandler(this.rb_zoom_CheckedChanged);
+            // 
+            // rb_sprayPaint
+            // 
+            this.rb_sprayPaint.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_sprayPaint.AutoSize = true;
+            this.rb_sprayPaint.Image = global::Pixelaria.Properties.Resources.spray_icon;
+            this.rb_sprayPaint.Location = new System.Drawing.Point(3, 31);
+            this.rb_sprayPaint.Name = "rb_sprayPaint";
+            this.rb_sprayPaint.Size = new System.Drawing.Size(22, 22);
+            this.rb_sprayPaint.TabIndex = 18;
+            this.tt_mainTooltip.SetToolTip(this.rb_sprayPaint, "Spray Paint (V)");
+            this.rb_sprayPaint.UseVisualStyleBackColor = true;
+            this.rb_sprayPaint.CheckedChanged += new System.EventHandler(this.rb_sprayPaint_CheckedChanged);
             // 
             // pnl_framePreview
             // 
@@ -659,6 +673,7 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel1.Controls.Add(this.rb_pencil);
             this.flowLayoutPanel1.Controls.Add(this.rb_eraser);
             this.flowLayoutPanel1.Controls.Add(this.rb_picker);
+            this.flowLayoutPanel1.Controls.Add(this.rb_sprayPaint);
             this.flowLayoutPanel1.Controls.Add(this.rb_line);
             this.flowLayoutPanel1.Controls.Add(this.rb_rectangle);
             this.flowLayoutPanel1.Controls.Add(this.rb_circle);
@@ -1145,7 +1160,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
             this.tsm_emptyFilter.Text = "Empty";
             this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
@@ -1153,21 +1168,17 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
             this.tsm_filterPresets.Text = "Presets";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
             // 
             // iepb_frame
             // 
-            pencilPaintOperation2.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-            pencilPaintOperation2.FirstColor = System.Drawing.Color.Black;
-            pencilPaintOperation2.PencilPoint = new System.Drawing.Point(0, 0);
-            pencilPaintOperation2.SecondColor = System.Drawing.Color.Black;
-            this.iepb_frame.CurrentPaintOperation = pencilPaintOperation2;
+            this.iepb_frame.CurrentPaintOperation = nullPaintOperation1;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1354,5 +1365,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_filterPresets;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripButton tsb_osShowCurrentFrame;
+        private System.Windows.Forms.RadioButton rb_sprayPaint;
     }
 }
