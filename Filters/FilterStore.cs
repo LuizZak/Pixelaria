@@ -91,6 +91,7 @@ namespace Pixelaria.Filters
         private void InitList()
         {
             filterItems = new List<FilterItem>();
+            filterPresets = new List<FilterPreset>();
 
             RegisterFilter("Transparency", Pixelaria.Properties.Resources.filter_transparency_icon, typeof(TransparencyFilter), typeof(TransparencyControl));
             RegisterFilter("Scale", Pixelaria.Properties.Resources.filter_scale_icon, typeof(ScaleFilter), typeof(ScaleControl));
