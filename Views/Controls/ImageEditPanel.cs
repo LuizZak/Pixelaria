@@ -1473,9 +1473,9 @@ namespace Pixelaria.Views.Controls
                 int id = x + y * width;
 
                 int c = 0;
-                int f = pixelList.Count;
+                int f = pixelList.Count - 1;
 
-                while (c < f)
+                while (c <= f)
                 {
                     int mid = (c + f) / 2;
                     int idMid = pixelList[mid].PixelIndex;
@@ -2324,7 +2324,7 @@ namespace Pixelaria.Views.Controls
 
                                 g.Flush();
 
-                                Color backPixel = pictureBox.Bitmap.GetPixel(p.X, p.Y);
+                                Color backPixel = oldColor;
                                 newColor = penColor.Blend(backPixel);
                             }
                             else
