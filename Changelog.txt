@@ -29,6 +29,7 @@ Legend:
 * Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the vertical axis.
 * Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
 * Fixed direct changes in the assisted numeric up down's input box not reflecting on the assist bar bellow. 
+* Fixed bug where bundle project would be marked modified after chosing Ok on an Animation Sheet even if no modifications where made to it.
 
 . Main Form
   + Added background image for the form.
