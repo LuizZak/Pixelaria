@@ -165,7 +165,7 @@ namespace Pixelaria.Data.Persistence
 
             memStream.Write(buff, 0, buff.Length);
 
-            Bitmap bitmap = new Bitmap(Image.FromStream(memStream));
+            Bitmap bitmap = Bitmap.FromStream(memStream) as Bitmap;
 
             // Get the hash now
             byte[] hash = null;
