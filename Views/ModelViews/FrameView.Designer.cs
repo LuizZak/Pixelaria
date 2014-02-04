@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PencilPaintOperation pencilPaintOperation1 = new Pixelaria.Views.Controls.PencilPaintOperation();
+            Pixelaria.Views.Controls.PencilPaintOperation pencilPaintOperation2 = new Pixelaria.Views.Controls.PencilPaintOperation();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -67,7 +67,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview = new System.Windows.Forms.Panel();
             this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -149,7 +149,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_zoomIcon)).BeginInit();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -173,7 +173,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_pencil.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_pencil.AutoSize = true;
             this.rb_pencil.Checked = true;
-            this.rb_pencil.Image = ((System.Drawing.Image)(resources.GetObject("rb_pencil.Image")));
+            this.rb_pencil.Image = global::Pixelaria.Properties.Resources.pencil_icon;
             this.rb_pencil.Location = new System.Drawing.Point(3, 3);
             this.rb_pencil.Name = "rb_pencil";
             this.rb_pencil.Size = new System.Drawing.Size(22, 22);
@@ -187,7 +187,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_eraser.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_eraser.AutoSize = true;
-            this.rb_eraser.Image = ((System.Drawing.Image)(resources.GetObject("rb_eraser.Image")));
+            this.rb_eraser.Image = global::Pixelaria.Properties.Resources.eraser_icon;
             this.rb_eraser.Location = new System.Drawing.Point(31, 3);
             this.rb_eraser.Name = "rb_eraser";
             this.rb_eraser.Size = new System.Drawing.Size(22, 22);
@@ -200,7 +200,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_picker.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_picker.AutoSize = true;
-            this.rb_picker.Image = ((System.Drawing.Image)(resources.GetObject("rb_picker.Image")));
+            this.rb_picker.Image = global::Pixelaria.Properties.Resources.picker_icon;
             this.rb_picker.Location = new System.Drawing.Point(59, 3);
             this.rb_picker.Name = "rb_picker";
             this.rb_picker.Size = new System.Drawing.Size(22, 22);
@@ -213,7 +213,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_line.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_line.AutoSize = true;
-            this.rb_line.Image = ((System.Drawing.Image)(resources.GetObject("rb_line.Image")));
+            this.rb_line.Image = global::Pixelaria.Properties.Resources.line_icon;
             this.rb_line.Location = new System.Drawing.Point(3, 31);
             this.rb_line.Name = "rb_line";
             this.rb_line.Size = new System.Drawing.Size(22, 22);
@@ -227,7 +227,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_rectangle.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_rectangle.AutoSize = true;
-            this.rb_rectangle.Image = ((System.Drawing.Image)(resources.GetObject("rb_rectangle.Image")));
+            this.rb_rectangle.Image = global::Pixelaria.Properties.Resources.rectangle_icon;
             this.rb_rectangle.Location = new System.Drawing.Point(31, 31);
             this.rb_rectangle.Name = "rb_rectangle";
             this.rb_rectangle.Size = new System.Drawing.Size(22, 22);
@@ -240,7 +240,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_circle.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_circle.AutoSize = true;
-            this.rb_circle.Image = ((System.Drawing.Image)(resources.GetObject("rb_circle.Image")));
+            this.rb_circle.Image = global::Pixelaria.Properties.Resources.circle_icon;
             this.rb_circle.Location = new System.Drawing.Point(59, 31);
             this.rb_circle.Name = "rb_circle";
             this.rb_circle.Size = new System.Drawing.Size(22, 22);
@@ -253,7 +253,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_bucket.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_bucket.AutoSize = true;
-            this.rb_bucket.Image = ((System.Drawing.Image)(resources.GetObject("rb_bucket.Image")));
+            this.rb_bucket.Image = global::Pixelaria.Properties.Resources.bucket_icon;
             this.rb_bucket.Location = new System.Drawing.Point(3, 59);
             this.rb_bucket.Name = "rb_bucket";
             this.rb_bucket.Size = new System.Drawing.Size(22, 22);
@@ -266,7 +266,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.rb_selection.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_selection.AutoSize = true;
-            this.rb_selection.Image = ((System.Drawing.Image)(resources.GetObject("rb_selection.Image")));
+            this.rb_selection.Image = global::Pixelaria.Properties.Resources.selection_icon;
             this.rb_selection.Location = new System.Drawing.Point(31, 59);
             this.rb_selection.Name = "rb_selection";
             this.rb_selection.Size = new System.Drawing.Size(22, 22);
@@ -280,7 +280,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_zoom.Appearance = System.Windows.Forms.Appearance.Button;
             this.rb_zoom.AutoSize = true;
             this.rb_zoom.Enabled = false;
-            this.rb_zoom.Image = ((System.Drawing.Image)(resources.GetObject("rb_zoom.Image")));
+            this.rb_zoom.Image = global::Pixelaria.Properties.Resources.zoom_icon;
             this.rb_zoom.Location = new System.Drawing.Point(59, 59);
             this.rb_zoom.Name = "rb_zoom";
             this.rb_zoom.Size = new System.Drawing.Size(22, 22);
@@ -303,7 +303,7 @@ namespace Pixelaria.Views.ModelViews
             // zpb_framePreview
             // 
             this.zpb_framePreview.AllowScrollbars = false;
-            this.zpb_framePreview.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("zpb_framePreview.BackgroundImage")));
+            this.zpb_framePreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_framePreview.ClipBackgroundToImage = true;
             this.zpb_framePreview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.zpb_framePreview.Location = new System.Drawing.Point(0, 0);
@@ -319,7 +319,7 @@ namespace Pixelaria.Views.ModelViews
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.panel4.Controls.Add(this.pictureBox1);
+            this.panel4.Controls.Add(this.pb_zoomIcon);
             this.panel4.Controls.Add(this.anud_zoom);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel4.Location = new System.Drawing.Point(90, 635);
@@ -327,14 +327,14 @@ namespace Pixelaria.Views.ModelViews
             this.panel4.Size = new System.Drawing.Size(504, 43);
             this.panel4.TabIndex = 5;
             // 
-            // pictureBox1
+            // pb_zoomIcon
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(5, 11);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
+            this.pb_zoomIcon.Image = global::Pixelaria.Properties.Resources.zoom_icon;
+            this.pb_zoomIcon.Location = new System.Drawing.Point(5, 11);
+            this.pb_zoomIcon.Name = "pb_zoomIcon";
+            this.pb_zoomIcon.Size = new System.Drawing.Size(16, 16);
+            this.pb_zoomIcon.TabIndex = 1;
+            this.pb_zoomIcon.TabStop = false;
             // 
             // anud_zoom
             // 
@@ -510,7 +510,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // btn_brushSize_1
             // 
-            this.btn_brushSize_1.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_1.Image")));
+            this.btn_brushSize_1.Image = global::Pixelaria.Properties.Resources.brush_size_1;
             this.btn_brushSize_1.Location = new System.Drawing.Point(2, 2);
             this.btn_brushSize_1.Margin = new System.Windows.Forms.Padding(2);
             this.btn_brushSize_1.Name = "btn_brushSize_1";
@@ -521,7 +521,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // btn_brushSize_2
             // 
-            this.btn_brushSize_2.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_2.Image")));
+            this.btn_brushSize_2.Image = global::Pixelaria.Properties.Resources.brush_size_2;
             this.btn_brushSize_2.Location = new System.Drawing.Point(28, 2);
             this.btn_brushSize_2.Margin = new System.Windows.Forms.Padding(2);
             this.btn_brushSize_2.Name = "btn_brushSize_2";
@@ -532,7 +532,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // btn_brushSize_3
             // 
-            this.btn_brushSize_3.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_3.Image")));
+            this.btn_brushSize_3.Image = global::Pixelaria.Properties.Resources.brush_size_3;
             this.btn_brushSize_3.Location = new System.Drawing.Point(54, 2);
             this.btn_brushSize_3.Margin = new System.Windows.Forms.Padding(2);
             this.btn_brushSize_3.Name = "btn_brushSize_3";
@@ -543,7 +543,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // btn_brushSize_4
             // 
-            this.btn_brushSize_4.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_4.Image")));
+            this.btn_brushSize_4.Image = global::Pixelaria.Properties.Resources.brush_size_4;
             this.btn_brushSize_4.Location = new System.Drawing.Point(2, 28);
             this.btn_brushSize_4.Margin = new System.Windows.Forms.Padding(2);
             this.btn_brushSize_4.Name = "btn_brushSize_4";
@@ -554,7 +554,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // btn_brushSize_5
             // 
-            this.btn_brushSize_5.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_5.Image")));
+            this.btn_brushSize_5.Image = global::Pixelaria.Properties.Resources.brush_size_5;
             this.btn_brushSize_5.Location = new System.Drawing.Point(28, 28);
             this.btn_brushSize_5.Margin = new System.Windows.Forms.Padding(2);
             this.btn_brushSize_5.Name = "btn_brushSize_5";
@@ -565,7 +565,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // btn_brushSize_6
             // 
-            this.btn_brushSize_6.Image = ((System.Drawing.Image)(resources.GetObject("btn_brushSize_6.Image")));
+            this.btn_brushSize_6.Image = global::Pixelaria.Properties.Resources.brush_size_6;
             this.btn_brushSize_6.Location = new System.Drawing.Point(54, 28);
             this.btn_brushSize_6.Margin = new System.Windows.Forms.Padding(2);
             this.btn_brushSize_6.Name = "btn_brushSize_6";
@@ -620,7 +620,7 @@ namespace Pixelaria.Views.ModelViews
             // rb_fillMode_3
             // 
             this.rb_fillMode_3.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_fillMode_3.Image = ((System.Drawing.Image)(resources.GetObject("rb_fillMode_3.Image")));
+            this.rb_fillMode_3.Image = global::Pixelaria.Properties.Resources.fill_mode_3;
             this.rb_fillMode_3.Location = new System.Drawing.Point(4, 77);
             this.rb_fillMode_3.Name = "rb_fillMode_3";
             this.rb_fillMode_3.Size = new System.Drawing.Size(76, 23);
@@ -632,7 +632,7 @@ namespace Pixelaria.Views.ModelViews
             // rb_fillMode_2
             // 
             this.rb_fillMode_2.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_fillMode_2.Image = ((System.Drawing.Image)(resources.GetObject("rb_fillMode_2.Image")));
+            this.rb_fillMode_2.Image = global::Pixelaria.Properties.Resources.fill_mode_2;
             this.rb_fillMode_2.Location = new System.Drawing.Point(4, 48);
             this.rb_fillMode_2.Name = "rb_fillMode_2";
             this.rb_fillMode_2.Size = new System.Drawing.Size(76, 23);
@@ -644,7 +644,7 @@ namespace Pixelaria.Views.ModelViews
             // rb_fillMode_1
             // 
             this.rb_fillMode_1.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_fillMode_1.Image = ((System.Drawing.Image)(resources.GetObject("rb_fillMode_1.Image")));
+            this.rb_fillMode_1.Image = global::Pixelaria.Properties.Resources.fill_mode_1;
             this.rb_fillMode_1.Location = new System.Drawing.Point(4, 19);
             this.rb_fillMode_1.Name = "rb_fillMode_1";
             this.rb_fillMode_1.Size = new System.Drawing.Size(76, 23);
@@ -720,7 +720,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_applyChangesAndClose
             // 
             this.tsb_applyChangesAndClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_applyChangesAndClose.Image = ((System.Drawing.Image)(resources.GetObject("tsb_applyChangesAndClose.Image")));
+            this.tsb_applyChangesAndClose.Image = global::Pixelaria.Properties.Resources.action_check;
             this.tsb_applyChangesAndClose.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_applyChangesAndClose.Name = "tsb_applyChangesAndClose";
             this.tsb_applyChangesAndClose.Size = new System.Drawing.Size(23, 22);
@@ -730,7 +730,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_applyChanges
             // 
             this.tsb_applyChanges.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_applyChanges.Image = ((System.Drawing.Image)(resources.GetObject("tsb_applyChanges.Image")));
+            this.tsb_applyChanges.Image = global::Pixelaria.Properties.Resources.download;
             this.tsb_applyChanges.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_applyChanges.Name = "tsb_applyChanges";
             this.tsb_applyChanges.Size = new System.Drawing.Size(23, 22);
@@ -745,7 +745,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_prevFrame
             // 
             this.tsb_prevFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_prevFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_prevFrame.Image")));
+            this.tsb_prevFrame.Image = global::Pixelaria.Properties.Resources.frame_previous;
             this.tsb_prevFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_prevFrame.Name = "tsb_prevFrame";
             this.tsb_prevFrame.Size = new System.Drawing.Size(23, 22);
@@ -755,7 +755,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_nextFrame
             // 
             this.tsb_nextFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_nextFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_nextFrame.Image")));
+            this.tsb_nextFrame.Image = global::Pixelaria.Properties.Resources.frame_next;
             this.tsb_nextFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_nextFrame.Name = "tsb_nextFrame";
             this.tsb_nextFrame.Size = new System.Drawing.Size(23, 22);
@@ -765,7 +765,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_insertNewframe
             // 
             this.tsb_insertNewframe.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_insertNewframe.Image = ((System.Drawing.Image)(resources.GetObject("tsb_insertNewframe.Image")));
+            this.tsb_insertNewframe.Image = global::Pixelaria.Properties.Resources.frame_insert_new_icon;
             this.tsb_insertNewframe.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_insertNewframe.Name = "tsb_insertNewframe";
             this.tsb_insertNewframe.Size = new System.Drawing.Size(23, 22);
@@ -775,7 +775,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_addFrameAtEnd
             // 
             this.tsb_addFrameAtEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_addFrameAtEnd.Image = ((System.Drawing.Image)(resources.GetObject("tsb_addFrameAtEnd.Image")));
+            this.tsb_addFrameAtEnd.Image = global::Pixelaria.Properties.Resources.frame_add_new_icon;
             this.tsb_addFrameAtEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_addFrameAtEnd.Name = "tsb_addFrameAtEnd";
             this.tsb_addFrameAtEnd.Size = new System.Drawing.Size(23, 22);
@@ -790,7 +790,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_clearFrame
             // 
             this.tsb_clearFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_clearFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_clearFrame.Image")));
+            this.tsb_clearFrame.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsb_clearFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_clearFrame.Name = "tsb_clearFrame";
             this.tsb_clearFrame.Size = new System.Drawing.Size(23, 22);
@@ -800,7 +800,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_copy
             // 
             this.tsb_copy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_copy.Image = ((System.Drawing.Image)(resources.GetObject("tsb_copy.Image")));
+            this.tsb_copy.Image = global::Pixelaria.Properties.Resources.edit_copy;
             this.tsb_copy.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_copy.Name = "tsb_copy";
             this.tsb_copy.Size = new System.Drawing.Size(23, 22);
@@ -810,7 +810,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_cut
             // 
             this.tsb_cut.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_cut.Image = ((System.Drawing.Image)(resources.GetObject("tsb_cut.Image")));
+            this.tsb_cut.Image = global::Pixelaria.Properties.Resources.edit_cut;
             this.tsb_cut.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_cut.Name = "tsb_cut";
             this.tsb_cut.Size = new System.Drawing.Size(23, 22);
@@ -820,7 +820,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_paste
             // 
             this.tsb_paste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_paste.Image = ((System.Drawing.Image)(resources.GetObject("tsb_paste.Image")));
+            this.tsb_paste.Image = global::Pixelaria.Properties.Resources.edit_paste;
             this.tsb_paste.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_paste.Name = "tsb_paste";
             this.tsb_paste.Size = new System.Drawing.Size(23, 22);
@@ -835,7 +835,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_undo
             // 
             this.tsb_undo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_undo.Image = ((System.Drawing.Image)(resources.GetObject("tsb_undo.Image")));
+            this.tsb_undo.Image = global::Pixelaria.Properties.Resources.edit_undo;
             this.tsb_undo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_undo.Name = "tsb_undo";
             this.tsb_undo.Size = new System.Drawing.Size(23, 22);
@@ -845,7 +845,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_redo
             // 
             this.tsb_redo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_redo.Image = ((System.Drawing.Image)(resources.GetObject("tsb_redo.Image")));
+            this.tsb_redo.Image = global::Pixelaria.Properties.Resources.edit_redo;
             this.tsb_redo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_redo.Name = "tsb_redo";
             this.tsb_redo.Size = new System.Drawing.Size(23, 22);
@@ -861,7 +861,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsb_grid.CheckOnClick = true;
             this.tsb_grid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_grid.Image = ((System.Drawing.Image)(resources.GetObject("tsb_grid.Image")));
+            this.tsb_grid.Image = global::Pixelaria.Properties.Resources.grid_icon;
             this.tsb_grid.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_grid.Name = "tsb_grid";
             this.tsb_grid.Size = new System.Drawing.Size(23, 22);
@@ -871,7 +871,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_previewFrame
             // 
             this.tsb_previewFrame.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_previewFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsb_previewFrame.Image")));
+            this.tsb_previewFrame.Image = global::Pixelaria.Properties.Resources.frame_preview_icon;
             this.tsb_previewFrame.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_previewFrame.Name = "tsb_previewFrame";
             this.tsb_previewFrame.Size = new System.Drawing.Size(23, 22);
@@ -881,7 +881,7 @@ namespace Pixelaria.Views.ModelViews
             // tsb_previewAnimation
             // 
             this.tsb_previewAnimation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_previewAnimation.Image = ((System.Drawing.Image)(resources.GetObject("tsb_previewAnimation.Image")));
+            this.tsb_previewAnimation.Image = global::Pixelaria.Properties.Resources.anim_preview_icon;
             this.tsb_previewAnimation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_previewAnimation.Name = "tsb_previewAnimation";
             this.tsb_previewAnimation.Size = new System.Drawing.Size(23, 22);
@@ -1000,7 +1000,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_exportFrame
             // 
-            this.tsm_exportFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_exportFrame.Image")));
+            this.tsm_exportFrame.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
             this.tsm_exportFrame.Name = "tsm_exportFrame";
             this.tsm_exportFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.tsm_exportFrame.Size = new System.Drawing.Size(198, 22);
@@ -1009,7 +1009,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_importFrame
             // 
-            this.tsm_importFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_importFrame.Image")));
+            this.tsm_importFrame.Image = global::Pixelaria.Properties.Resources.frame_open_icon;
             this.tsm_importFrame.Name = "tsm_importFrame";
             this.tsm_importFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.tsm_importFrame.Size = new System.Drawing.Size(198, 22);
@@ -1038,7 +1038,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_undo
             // 
-            this.tsm_undo.Image = ((System.Drawing.Image)(resources.GetObject("tsm_undo.Image")));
+            this.tsm_undo.Image = global::Pixelaria.Properties.Resources.edit_undo;
             this.tsm_undo.Name = "tsm_undo";
             this.tsm_undo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
             this.tsm_undo.Size = new System.Drawing.Size(234, 22);
@@ -1047,7 +1047,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_redo
             // 
-            this.tsm_redo.Image = ((System.Drawing.Image)(resources.GetObject("tsm_redo.Image")));
+            this.tsm_redo.Image = global::Pixelaria.Properties.Resources.edit_redo;
             this.tsm_redo.Name = "tsm_redo";
             this.tsm_redo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
             this.tsm_redo.Size = new System.Drawing.Size(234, 22);
@@ -1061,7 +1061,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_copy
             // 
-            this.tsm_copy.Image = ((System.Drawing.Image)(resources.GetObject("tsm_copy.Image")));
+            this.tsm_copy.Image = global::Pixelaria.Properties.Resources.edit_copy;
             this.tsm_copy.Name = "tsm_copy";
             this.tsm_copy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
             this.tsm_copy.Size = new System.Drawing.Size(234, 22);
@@ -1070,7 +1070,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_cut
             // 
-            this.tsm_cut.Image = ((System.Drawing.Image)(resources.GetObject("tsm_cut.Image")));
+            this.tsm_cut.Image = global::Pixelaria.Properties.Resources.edit_cut;
             this.tsm_cut.Name = "tsm_cut";
             this.tsm_cut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
             this.tsm_cut.Size = new System.Drawing.Size(234, 22);
@@ -1079,7 +1079,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_paste
             // 
-            this.tsm_paste.Image = ((System.Drawing.Image)(resources.GetObject("tsm_paste.Image")));
+            this.tsm_paste.Image = global::Pixelaria.Properties.Resources.edit_paste;
             this.tsm_paste.Name = "tsm_paste";
             this.tsm_paste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
             this.tsm_paste.Size = new System.Drawing.Size(234, 22);
@@ -1102,7 +1102,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_prevFrame
             // 
-            this.tsm_prevFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_prevFrame.Image")));
+            this.tsm_prevFrame.Image = global::Pixelaria.Properties.Resources.frame_previous;
             this.tsm_prevFrame.Name = "tsm_prevFrame";
             this.tsm_prevFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
             this.tsm_prevFrame.Size = new System.Drawing.Size(234, 22);
@@ -1111,7 +1111,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tsm_nextFrame
             // 
-            this.tsm_nextFrame.Image = ((System.Drawing.Image)(resources.GetObject("tsm_nextFrame.Image")));
+            this.tsm_nextFrame.Image = global::Pixelaria.Properties.Resources.frame_next;
             this.tsm_nextFrame.Name = "tsm_nextFrame";
             this.tsm_nextFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.tsm_nextFrame.Size = new System.Drawing.Size(234, 22);
@@ -1145,7 +1145,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
             this.tsm_emptyFilter.Text = "Empty";
             this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
@@ -1153,21 +1153,21 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
             this.tsm_filterPresets.Text = "Presets";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
             // 
             // iepb_frame
             // 
-            pencilPaintOperation1.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-            pencilPaintOperation1.FirstColor = System.Drawing.Color.Black;
-            pencilPaintOperation1.PencilPoint = new System.Drawing.Point(0, 0);
-            pencilPaintOperation1.SecondColor = System.Drawing.Color.Black;
-            this.iepb_frame.CurrentPaintOperation = pencilPaintOperation1;
+            pencilPaintOperation2.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            pencilPaintOperation2.FirstColor = System.Drawing.Color.Black;
+            pencilPaintOperation2.PencilPoint = new System.Drawing.Point(0, 0);
+            pencilPaintOperation2.SecondColor = System.Drawing.Color.Black;
+            this.iepb_frame.CurrentPaintOperation = pencilPaintOperation2;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1235,7 +1235,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).EndInit();
             this.panel4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_zoomIcon)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -1288,7 +1288,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel4;
         private Controls.AssistedNumericUpDown anud_zoom;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pb_zoomIcon;
         private System.Windows.Forms.ToolStripButton tsb_addFrameAtEnd;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
