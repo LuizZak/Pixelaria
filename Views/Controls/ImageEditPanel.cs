@@ -1335,25 +1335,17 @@ namespace Pixelaria.Views.Controls
             /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
             public void RegisterPixel(int x, int y, int oldColor, int newColor, bool checkExisting = true)
             {
-                if (checkExisting)
+                // Early out: don't register duplicated pixels
+                if (checkExisting && !indexPixels)
                 {
-                    // Early out: don't register duplicated pixels
-                    if (indexPixels)
+                    foreach (PixelUndo pu in pixelList)
                     {
-                        if (ContainsPixel(x, y))
+                        if (pu.PixelX == x && pu.PixelY == y)
                             return;
-                    }
-                    else
-                    {
-                        foreach (PixelUndo pu in pixelList)
-                        {
-                            if (pu.PixelX == x && pu.PixelY == y)
-                                return;
-                        }
                     }
                 }
 
-                InternalRegisterPixel(x, y, oldColor, newColor);
+                InternalRegisterPixel(x, y, oldColor, newColor, !checkExisting);
             }
 
             /// <summary>
@@ -1363,7 +1355,8 @@ namespace Pixelaria.Views.Controls
             /// <param name="y">The Y coordinate of the pixel to store</param>
             /// <param name="oldColor">The old color of the pixel</param>
             /// <param name="newColor">The new color of the pixel</param>
-            private void InternalRegisterPixel(int x, int y, int oldColor, int newColor)
+            /// <param name="replaceExisting">Whether to allow relpacing existing pixels on the list</param>
+            private void InternalRegisterPixel(int x, int y, int oldColor, int newColor, bool replaceExisting)
             {
                 int pixelIndex = x + y * width;
 
@@ -1399,10 +1392,13 @@ namespace Pixelaria.Views.Controls
                         pixelList.Insert(e + 1, item);
                         return;
                     }
-                    // Pixel index of the item at the end of the interval is equals to the item being added: Replace the pixel
+                    // Pixel index of the item at the end of the interval is equals to the item being added: Replace the pixel if replacing is allowed and quit
                     else if (idF == pixelIndex)
                     {
-                        pixelList[e] = item;
+                        if (replaceExisting)
+                            pixelList[e] = item;
+
+                        return;
                     }
 
                     idC = pixelList[s].PixelIndex;
@@ -1414,10 +1410,13 @@ namespace Pixelaria.Views.Controls
                         pixelList.Insert(s, item);
                         return;
                     }
-                    // Pixel index of the item at the start of the interval is equals to the item being added: Replace the pixel
+                    // Pixel index of the item at the start of the interval is equals to the item being added: Replace the pixel if replacing is allowed and quit
                     else if (idC == pixelIndex)
                     {
-                        pixelList[s] = item;
+                        if (replaceExisting)
+                            pixelList[s] = item;
+
+                        return;
                     }
 
                     int mid = s + (e - s) / 2;
@@ -1435,7 +1434,9 @@ namespace Pixelaria.Views.Controls
                     }
                     else if (idM == pixelIndex)
                     {
-                        pixelList[mid] = item;
+                        if (replaceExisting)
+                            pixelList[mid] = item;
+
                         return;
                     }
 
