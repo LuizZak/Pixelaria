@@ -1384,54 +1384,54 @@ namespace Pixelaria.Views.Controls
                     return;
                 }
 
-                int c = 0;
-                int f = l - 1;
+                int s = 0;
+                int e = l - 1;
                 while (true)
                 {
                     int idC, idM, idF;
 
-                    idF = pixelList[f].PixelIndex;
+                    idF = pixelList[e].PixelIndex;
 
                     // Pixel index of the item at the end of the interval is smaller than the current pixel index: Add
                     // item after the interval
                     if (idF < pixelIndex)
                     {
-                        pixelList.Insert(f + 1, item);
+                        pixelList.Insert(e + 1, item);
                         return;
                     }
                     // Pixel index of the item at the end of the interval is equals to the item being added: Replace the pixel
                     else if (idF == pixelIndex)
                     {
-                        pixelList[f] = item;
+                        pixelList[e] = item;
                     }
 
-                    idC = pixelList[c].PixelIndex;
+                    idC = pixelList[s].PixelIndex;
 
                     // Pixel index of the item at the start of the interval is larger than the current pixel index: Add
                     // item before the interval
                     if (idC > pixelIndex)
                     {
-                        pixelList.Insert(c, item);
+                        pixelList.Insert(s, item);
                         return;
                     }
                     // Pixel index of the item at the start of the interval is equals to the item being added: Replace the pixel
                     else if (idC == pixelIndex)
                     {
-                        pixelList[c] = item;
+                        pixelList[s] = item;
                     }
 
-                    int mid = (c + f) / 2;
+                    int mid = s + (e - s) / 2;
                     idM = pixelList[mid].PixelIndex;
 
                     if (idM > pixelIndex)
                     {
-                        c++;
-                        f = mid - 1;
+                        s++;
+                        e = mid - 1;
                     }
                     else if (idM < pixelIndex)
                     {
-                        c = mid + 1;
-                        f--;
+                        s = mid + 1;
+                        e--;
                     }
                     else if (idM == pixelIndex)
                     {
@@ -1440,9 +1440,9 @@ namespace Pixelaria.Views.Controls
                     }
 
                     // End of search: Add item at the current index
-                    if (c > f)
+                    if (s > e)
                     {
-                        pixelList.Insert(c, item);
+                        pixelList.Insert(s, item);
                         return;
                     }
                 }
@@ -1472,12 +1472,12 @@ namespace Pixelaria.Views.Controls
 
                 int id = x + y * width;
 
-                int c = 0;
-                int f = pixelList.Count - 1;
+                int s = 0;
+                int e = pixelList.Count - 1;
 
-                while (c <= f)
+                while (s <= e)
                 {
-                    int mid = (c + f) / 2;
+                    int mid = s + (e - s) / 2;
                     int idMid = pixelList[mid].PixelIndex;
 
                     if (idMid == id)
@@ -1486,11 +1486,11 @@ namespace Pixelaria.Views.Controls
                     }
                     else if (idMid > id)
                     {
-                        f = mid - 1;
+                        e = mid - 1;
                     }
                     else if (idMid < id)
                     {
-                        c = mid + 1;
+                        s = mid + 1;
                     }
                 }
 
