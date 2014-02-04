@@ -276,7 +276,7 @@ namespace Pixelaria.Filters
         /// </summary>
         private void LoadFilterPresets()
         {
-            filterPresets = new List<FilterPreset>();
+            filterPresets.Clear();
 
             string savePath = Path.GetDirectoryName(Application.ExecutablePath) + "\\filterpresets.bin";
 
