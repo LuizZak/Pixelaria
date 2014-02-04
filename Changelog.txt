@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.75b
+                   v1.85b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,7 +18,7 @@ Legend:
 * Fix/Change
 . Note
 
--- v1.75b
+-- v1.85b
 
 + Added Spray paint operation
 + Added option to wrap the image around the bounds on the Offset Filter.
@@ -30,6 +30,7 @@ Legend:
 * Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
 * Fixed direct changes in the assisted numeric up down's input box not reflecting on the assist bar bellow. 
 * Fixed bug where bundle project would be marked modified after chosing Ok on an Animation Sheet even if no modifications where made to it.
+* Improved bundle loading speeds
 
 . Main Form
   + Added background image for the form.
