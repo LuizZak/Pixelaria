@@ -232,7 +232,8 @@ namespace Pixelaria.Data
 
             frameTexture = bitmap;
 
-            UpdateHash();
+            if (updateHash)
+                UpdateHash();
         }
 
         /// <summary>
