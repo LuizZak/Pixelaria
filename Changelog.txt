@@ -23,6 +23,7 @@ Legend:
 + Added option to wrap the image around the bounds on the Offset Filter.
 + Increased speed of HSL filters slightly.
 
+* Fixed the pencil undo not correctly undoing all the pixels when the blending mode is set to replace
 * Fixed animations being added in incorrect order on the tree view when loading bundle files sometimes.
 * Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the vertical axis.
 * Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
