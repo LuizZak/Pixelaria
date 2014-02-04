@@ -517,6 +517,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\spray_cursor.cur" />
+    <None Include="Resources\spray_icon.png" />
     <None Include="Resources\pxl_icon_tile_392x424.png" />
     <None Include="Resources\sheet_save_icon.png" />
     <None Include="Resources\pxl_icon_256x256_tile.png" />

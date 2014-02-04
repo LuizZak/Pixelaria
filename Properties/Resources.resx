@@ -118,6 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="frame_os_prev" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\frame_os_prev.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="filter_enable_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_enable_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -126,6 +129,9 @@
   </data>
   <data name="sheet_duplicate_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sheet_duplicate_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="brush_size_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\brush_size_6.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="anim_preview_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\anim_preview_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -151,9 +157,6 @@
   <data name="filter_rotation_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_rotation_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="edit_undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit_undo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="edit-redo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\edit-redo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -162,9 +165,6 @@
   </data>
   <data name="zoom_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\zoom_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="folder_open" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\folder_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="sheet_save_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sheet_save_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -187,8 +187,8 @@
   <data name="frame_previous" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_previous.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="brush_size_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\brush_size_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="checkers_pattern" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\checkers_pattern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="action_delete1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\action_delete1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -231,6 +231,9 @@
   </data>
   <data name="frame_open_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_open_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="pxl_icon_tile_392x424" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\pxl_icon_tile_392x424.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="filter_offset_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_offset_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -313,14 +316,14 @@
   <data name="document-save" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\document-save.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="checkers_pattern" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\checkers_pattern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="folder_open" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\folder_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="filter_transparency_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_transparency_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="brush_size_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\brush_size_6.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="edit_undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\edit_undo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="frame_preview_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_preview_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -656,10 +659,13 @@ POSSIBILITY OF SUCH DAMAGES.
   <data name="new_sheet" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\new_sheet.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="frame_os_prev" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\frame_os_prev.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="brush_size_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\brush_size_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="pxl_icon_tile_392x424" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\pxl_icon_tile_392x424.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="spray_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\spray_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="spray_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\spray_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

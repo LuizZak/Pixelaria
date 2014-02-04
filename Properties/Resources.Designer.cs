@@ -933,6 +933,26 @@ namespace Pixelaria.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] spray_cursor {
+            get {
+                object obj = ResourceManager.GetObject("spray_cursor", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap spray_icon {
+            get {
+                object obj = ResourceManager.GetObject("spray_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] zoom_cursor {
             get {
                 object obj = ResourceManager.GetObject("zoom_cursor", resourceCulture);

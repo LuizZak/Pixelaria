@@ -491,6 +491,11 @@ namespace Pixelaria.Views.Controls
                 {
                     currentPaintOperation.Initialize(this);
 
+                    if (!mouseOverImage)
+                    {
+                        currentPaintOperation.MouseLeave(new EventArgs());
+                    }
+
                     this.Cursor = currentPaintOperation.OperationCursor;
                 }
 
@@ -1857,7 +1862,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Base class for pencil-like paint operations
     /// </summary>
-    public abstract class BasePencilPaintOperation : BasePaintOperation, IPaintOperation, ISizedPaintOperation
+    public abstract class BasePencilPaintOperation : BasePaintOperation, IPaintOperation
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -2153,10 +2158,7 @@ namespace Pixelaria.Views.Controls
             lastMousePosition = e.Location;
 
             Point absolutePencil = Point.Round(GetAbsolutePoint(pencilPoint));
-            if (size > 1)
-            {
-                absolutePencil.Offset(-size / 2, -size / 2);
-            }
+
             // Early out
             if (!WithinBounds(absolutePencil))
             {
@@ -2180,6 +2182,7 @@ namespace Pixelaria.Views.Controls
 
                     penId = 1;
                 }
+                // Color pick
                 else if (e.Button == MouseButtons.Middle)
                 {
                     firstColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
@@ -2190,42 +2193,13 @@ namespace Pixelaria.Views.Controls
                     pictureBox.Invalidate();
                 }
 
-                // Mouse handling
-                Bitmap penBitmap = (penId == 0 ? firstPenBitmap : secondPenBitmap);
-
-                // Start drawing the pixels
+                // Draw a single pixel now
                 if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                 {
                     Color newColor = (penId == 0 ? firstColor : secondColor);
+                    Bitmap targetBitmap = CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap;
 
-                    // Replace blend mode
-                    if (CompositingMode == System.Drawing.Drawing2D.CompositingMode.SourceCopy)
-                    {
-                        Color oldColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
-
-                        ((Bitmap)pictureBox.Image).SetPixel(absolutePencil.X, absolutePencil.Y, newColor);
-
-                        pictureBox.MarkModified();
-
-                        // Register pixel on undo operation
-                        currentUndoTask.RegisterPixel(absolutePencil.X, absolutePencil.Y, oldColor, newColor);
-                    }
-                    // Blend blend mode
-                    else
-                    {
-                        Graphics g = Graphics.FromImage(currentTraceBitmap);
-
-                        Color oldColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
-
-                        g.DrawImage(penBitmap, absolutePencil);
-
-                        newColor = newColor.Blend(oldColor);
-
-                        g.Flush();
-                        g.Dispose();
-
-                        currentUndoTask.RegisterPixel(absolutePencil.X, absolutePencil.Y, oldColor, newColor);
-                    }
+                    DrawPencil(absolutePencil, targetBitmap);
                 }
             }
         }
@@ -2240,28 +2214,13 @@ namespace Pixelaria.Views.Controls
 
             if (mouseDown)
             {
-                Bitmap image = (CompositingMode == CompositingMode.SourceCopy ? pictureBox.Bitmap : currentTraceBitmap);
-                Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
-                Color penColor = (penId == 0 ? firstColor : secondColor);
+                Bitmap targetBitmap = (CompositingMode == CompositingMode.SourceCopy ? pictureBox.Bitmap : currentTraceBitmap);
 
                 Point pencil = GetAbsolutePoint(pencilPoint);
                 Point pencilLast = GetAbsolutePoint(lastMousePosition);
 
-                if (size > 1)
-                {
-                    pencil.Offset(-size / 2, -size / 2);
-                    pencilLast.Offset(-size / 2, -size / 2);
-                }
-
                 if (pencil != pencilLast)
                 {
-                    Graphics g = null;
-
-                    if (CompositingMode == CompositingMode.SourceOver)
-                    {
-                        g = Graphics.FromImage(image);
-                    }
-
                     int x0 = pencilLast.X;
                     int y0 = pencilLast.Y;
                     int x1 = pencil.X;
@@ -2300,7 +2259,7 @@ namespace Pixelaria.Views.Controls
                         ystep = -1;
 
                     Point p = new Point();
-                    PointF pf = new PointF();
+                    int c = 0;
                     for (int x = x0; x <= x1; x++)
                     {
                         if (steep)
@@ -2314,31 +2273,9 @@ namespace Pixelaria.Views.Controls
                             p.Y = y;
                         }
 
-                        if (p.X >= 0 && p.X < image.Width && p.Y >= 0 && p.Y < image.Height)
+                        if (WithinBounds(p) && c > 0)
                         {
-                            Color oldColor = pictureBox.Bitmap.GetPixel(p.X, p.Y);
-                            Color newColor = Color.Black;
-
-                            if (CompositingMode == CompositingMode.SourceOver)
-                            {
-                                g.DrawImage(pen, p);
-
-                                g.Flush();
-
-                                Color backPixel = oldColor;
-                                newColor = penColor.Blend(backPixel);
-                            }
-                            else
-                            {
-                                image.SetPixel(p.X, p.Y, penColor);
-
-                                newColor = penColor;
-                            }
-
-                            currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor);
-
-                            pf = GetRelativePoint(p);
-                            InvalidateRect(pf, pen.Width, pen.Height);
+                            DrawPencil(p, targetBitmap);
                         }
 
                         error = error - deltay;
@@ -2347,12 +2284,7 @@ namespace Pixelaria.Views.Controls
                             y = y + ystep;
                             error = error + deltax;
                         }
-                    }
-
-                    if (CompositingMode == CompositingMode.SourceOver)
-                    {
-                        g.Flush();
-                        g.Dispose();
+                        c++;
                     }
 
                     pictureBox.MarkModified();
@@ -2430,6 +2362,40 @@ namespace Pixelaria.Views.Controls
 
             pictureBox.OwningPanel.UndoSystem.RegisterUndo(currentUndoTask);
             currentUndoTask = null;
+        }
+
+        /// <summary>
+        /// Draws the pencil with the current properties on the given bitmap object
+        /// </summary>
+        /// <param name="p">The point to draw the pencil to</param>
+        /// <param name="bitmap">The bitmap to draw the pencil on</param>
+        protected virtual void DrawPencil(Point p, Bitmap bitmap)
+        {
+            // Find the properties to draw the pen with
+            Color oldColor = pictureBox.Bitmap.GetPixel(p.X, p.Y);
+            Color newColor = Color.Black;
+            Color penColor = (penId == 0 ? firstColor : secondColor);
+            Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
+
+            if (CompositingMode == CompositingMode.SourceOver)
+            {
+                Color c = Color.FromArgb(penColor.ToArgb() | (0xFF << 24));
+                bitmap.SetPixel(p.X, p.Y, c);
+
+                Color backPixel = oldColor;
+                newColor = penColor.Blend(backPixel);
+            }
+            else
+            {
+                bitmap.SetPixel(p.X, p.Y, penColor);
+
+                newColor = penColor;
+            }
+
+            currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor);
+
+            PointF pf = GetRelativePoint(p);
+            InvalidateRect(pf, pen.Width, pen.Height);
         }
 
         /// <summary>
@@ -2912,7 +2878,7 @@ namespace Pixelaria.Views.Controls
 
             if (!mouseDown)
             {
-                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription);
+                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription, true);
 
                 // Mouse down
                 if (e.Button == MouseButtons.Left)
@@ -2952,8 +2918,7 @@ namespace Pixelaria.Views.Controls
                     }
                     else
                     {
-                        //newColor = Color.FromArgb((255 - baseColor.A), newColor.R, newColor.G, newColor.B);
-                        float newAlpha = 1 - (((float)newColor.A / 255) * ((float)baseColor.A / 255));
+                        float newAlpha = (((float)newColor.A / 255) * (1 - (float)baseColor.A / 255));
                         newColor = Color.FromArgb((int)(newAlpha * 255), newColor.R, newColor.G, newColor.B);
                     }
 
@@ -3170,6 +3135,136 @@ namespace Pixelaria.Views.Controls
 
                 lastMousePointAbsolute = absolute;
             }
+        }
+    }
+
+    /// <summary>
+    /// Implements a Spray paint operation
+    /// </summary>
+    public class SprayPaintOperation : BasePencilPaintOperation, IColoredPaintOperation, ISizedPaintOperation, ICompositingPaintOperation
+    {
+        /// <summary>
+        /// Instance of a Random class used to randomize the spray of this SprayPaintOperation
+        /// </summary>
+        Random random;
+
+        /// <summary>
+        /// The spray's timer, used to make the operation paint with the mouse held down at a stationary point
+        /// </summary>
+        Timer sprayTimer;
+
+        /// <summary>
+        /// Initializes a new instance of the SprayPaintOperation class
+        /// </summary>
+        /// <param name="firstColor">The first pencil color</param>
+        /// <param name="secondColor">The second pencil color</param>
+        /// <param name="pencilSize">The size of the pencil</param>
+        public SprayPaintOperation()
+            : base()
+        {
+            random = new Random();
+
+            sprayTimer = new Timer();
+            sprayTimer.Interval = 10;
+            sprayTimer.Tick += new EventHandler(sprayTimer_Tick);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the SprayPaintOperation class, initializing the object
+        /// with the two spray colors to use
+        /// </summary>
+        /// <param name="firstColor">The first pencil color</param>
+        /// <param name="secondColor">The second pencil color</param>
+        /// <param name="pencilSize">The size of the pencil</param>
+        public SprayPaintOperation(Color firstColor, Color secondColor, int pencilSize)
+            : this()
+        {
+            this.FirstColor = firstColor;
+            this.SecondColor = secondColor;
+            this.Size = pencilSize;
+        }
+
+        /// <summary>
+        /// Finalizes this Paint Operation
+        /// </summary>
+        public override void Destroy()
+        {
+            sprayTimer.Stop();
+            sprayTimer.Dispose();
+
+            base.Destroy();
+        }
+
+        /// <summary>
+        /// Initializes this PencilPaintOperation
+        /// </summary>
+        /// <param name="pictureBox"></param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        {
+            base.Initialize(pictureBox);
+
+            // Initialize the operation cursor
+            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.spray_cursor);
+            OperationCursor = new Cursor(cursorMemoryStream);
+            cursorMemoryStream.Dispose();
+
+            this.undoDecription = "Spray";
+        }
+
+        /// <summary>
+        /// Called to notify this PaintOperation that the mouse is being held down
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        public override void MouseDown(MouseEventArgs e)
+        {
+            base.MouseDown(e);
+
+            if (mouseDown)
+            {
+                sprayTimer.Start();
+            }
+        }
+
+        /// <summary>
+        /// Called to notify this PaintOperation that the mouse is being released
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        public override void MouseUp(MouseEventArgs e)
+        {
+            base.MouseUp(e);
+
+            if (!mouseDown)
+            {
+                sprayTimer.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Draws the pencil with the current properties on the given bitmap object
+        /// </summary>
+        /// <param name="p">The point to draw the pencil to</param>
+        /// <param name="bitmap">The bitmap to draw the pencil on</param>
+        protected override void DrawPencil(Point p, Bitmap bitmap)
+        {
+            // Randomize the point around a circle based on the current radius
+            double angle = random.NextDouble() * Math.PI * 2;
+            float radius = (float)((float)(random.Next(0, size) / 2));
+
+            p.X = p.X + (int)Math.Round(Math.Cos(angle) * radius);
+            p.Y = p.Y + (int)Math.Round(Math.Sin(angle) * radius);
+
+            if (WithinBounds(p))
+            {
+                base.DrawPencil(p, bitmap);
+            }
+        }
+
+        // 
+        // Spray Timer tick
+        // 
+        private void sprayTimer_Tick(object sender, EventArgs e)
+        {
+            DrawPencil(GetAbsolutePoint(pencilPoint), (compositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap));
         }
     }
 
