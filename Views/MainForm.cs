@@ -111,7 +111,7 @@ namespace Pixelaria.Views
         /// <param name="bundle">The bundle to fill the title bar with information of</param>
         public void UpdateTitleBar(Bundle bundle)
         {
-            this.Text = "Pixelaria v1.4 [" + bundle.Name + "]" + (controller.UnsavedChanges ? "*" : "");
+            this.Text = "Pixelaria v1.75 [" + bundle.Name + "]" + (controller.UnsavedChanges ? "*" : "");
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace Pixelaria.Views
             }
 
             // Create the tree node now
-            il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.Transparent));
+            il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White));
 
             int addIndex = controller.GetAnimationIndex(animation);
 
