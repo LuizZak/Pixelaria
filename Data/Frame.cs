@@ -300,7 +300,7 @@ namespace Pixelaria.Data
 
             RectangleF area = new RectangleF((float)Math.Round(tx), (float)Math.Round(ty), (float)Math.Round(composed.Width * scaleX), (float)Math.Round(composed.Height * scaleY));
 
-            graphics.FillRectangle(Brushes.White, area);
+            graphics.Clear(backColor);
 
             graphics.DrawImage(composed, area);
 
