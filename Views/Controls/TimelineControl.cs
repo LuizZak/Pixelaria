@@ -518,6 +518,9 @@ namespace Pixelaria.Views.Controls
 
             Focus();
 
+            if (!Enabled)
+                return;
+
             // Enabling flags
             bool knobsEnabled = behaviorType == TimelineBehaviorType.RangeSelector || behaviorType == TimelineBehaviorType.TimelineWithRange;
             bool rangeEnabled = behaviorType == TimelineBehaviorType.RangeSelector || behaviorType == TimelineBehaviorType.TimelineWithRange;
@@ -633,6 +636,9 @@ namespace Pixelaria.Views.Controls
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+
+            if (!Enabled)
+                return;
 
             // Enabling flags
             bool knobsEnabled = behaviorType == TimelineBehaviorType.RangeSelector || behaviorType == TimelineBehaviorType.TimelineWithRange;
@@ -918,6 +924,9 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseLeave(e);
 
+            if (!Enabled)
+                return;
+
             // Redraw the knobs:
             if (firstKnob.MouseOver)
                 Invalidate(new Rectangle((int)firstKnob.X - firstKnob.KnobThickness - (int)ScrollX, timelineHeight - 3, (int)firstKnob.X + firstKnob.KnobThickness, timelineHeight * 2));
@@ -941,6 +950,9 @@ namespace Pixelaria.Views.Controls
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             base.OnMouseWheel(e);
+
+            if (!Enabled)
+                return;
 
             // Scroll the view
             if ((e.X > 0 && e.X < Width) &&
