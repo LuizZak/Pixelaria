@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -93,7 +94,6 @@ namespace Pixelaria.Views.ModelViews
         {
             if (playing)
             {
-                tb_timeline.Maximum = currentAnimation.FrameCount - 1;
                 animationTimer.Start();
             }
         }
@@ -155,9 +155,11 @@ namespace Pixelaria.Views.ModelViews
                 lbl_currentFrame.Text = "0";
                 lbl_frameCount.Text = "0";
 
-                tb_timeline.Minimum = 0;
-                tb_timeline.Maximum = 0;
-                tb_timeline.Enabled = false;
+                tlc_timeline.Minimum = 0;
+                tlc_timeline.Maximum = 1;
+                tlc_timeline.Range = new Point(0, 1);
+                tlc_timeline.CurrentFrame = 0;
+                tlc_timeline.Enabled = false;
 
                 nud_previewZoom.Maximum = 15;
                 nud_previewZoom.Enabled = false;
@@ -180,9 +182,11 @@ namespace Pixelaria.Views.ModelViews
 
             lbl_frameCount.Text = currentAnimation.FrameCount + "";
 
-            tb_timeline.Minimum = 0;
-            tb_timeline.Maximum = currentAnimation.FrameCount - 1;
-            tb_timeline.Enabled = true;
+            tlc_timeline.Minimum = 1;
+            tlc_timeline.Maximum = currentAnimation.FrameCount;
+            tlc_timeline.Range = new Point(0, currentAnimation.FrameCount);
+            tlc_timeline.CurrentFrame = 0;
+            tlc_timeline.Enabled = true;
 
             // Update the maximum scale for the zoom numeric up and down
             nud_previewZoom.Maximum = Math.Min(Math.Min(maxZoom, 4096 / currentAnimation.Width), 4096 / currentAnimation.Height);
@@ -227,7 +231,7 @@ namespace Pixelaria.Views.ModelViews
 
             currentFrame = newFrame;
 
-            lbl_currentFrame.Text = "" + newFrame;
+            lbl_currentFrame.Text = "" + (newFrame + 1);
             pnl_preview.Image = currentAnimation.GetFrameAtIndex(newFrame).GetComposedBitmap();
         }
 
@@ -269,11 +273,18 @@ namespace Pixelaria.Views.ModelViews
         // 
         void animationTimer_Tick(object sender, EventArgs e)
         {
-            if (draggingTrackbar || currentAnimation == null || currentAnimation.FrameCount == 0)
+            if (draggingTrackbar || tlc_timeline.DraggingFrame || currentAnimation == null || currentAnimation.FrameCount == 0)
                 return;
 
-            ChangeFrame((currentFrame + 1) % currentAnimation.FrameCount);
-            tb_timeline.Value = currentFrame;
+            int newFrame = currentFrame + 1;
+
+            if (newFrame > tlc_timeline.GetRange().X + tlc_timeline.GetRange().Y - 1)
+            {
+                newFrame = tlc_timeline.GetRange().X - 1;
+            }
+
+            ChangeFrame(newFrame);
+            tlc_timeline.CurrentFrame = currentFrame + 1;
 
             if (currentAnimation.PlaybackSettings.FPS == 0)
             {
@@ -301,11 +312,11 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
-        // Timeline Trackbar value change
+        // Timeline frame changed
         // 
-        private void tb_timeline_Scroll(object sender, EventArgs e)
+        private void tlc_timeline_FrameChanged(object sender, int newFrame)
         {
-            ChangeFrame(tb_timeline.Value);
+            ChangeFrame(newFrame - 1);
         }
 
         // 

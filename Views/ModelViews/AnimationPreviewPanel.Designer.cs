@@ -52,19 +52,18 @@ namespace Pixelaria.Views.ModelViews
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationPreviewPanel));
             this.cb_playPreview = new System.Windows.Forms.CheckBox();
-            this.tb_timeline = new System.Windows.Forms.TrackBar();
             this.nud_previewZoom = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
-            this.pnl_preview = new Pixelaria.Views.Controls.CPictureBox();
             this.tb_zoomTrack = new System.Windows.Forms.TrackBar();
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_currentFrame = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.lbl_frameCount = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.tb_timeline)).BeginInit();
+            this.tlc_timeline = new Pixelaria.Views.Controls.TimelineControl();
+            this.pnl_preview = new Pixelaria.Views.Controls.CPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_previewZoom)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pnl_preview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tb_zoomTrack)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnl_preview)).BeginInit();
             this.SuspendLayout();
             // 
             // cb_playPreview
@@ -77,20 +76,6 @@ namespace Pixelaria.Views.ModelViews
             this.cb_playPreview.Text = "Play";
             this.cb_playPreview.UseVisualStyleBackColor = true;
             this.cb_playPreview.CheckedChanged += new System.EventHandler(this.cb_playPreview_CheckedChanged);
-            // 
-            // tb_timeline
-            // 
-            this.tb_timeline.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tb_timeline.Location = new System.Drawing.Point(3, 62);
-            this.tb_timeline.Maximum = 0;
-            this.tb_timeline.Name = "tb_timeline";
-            this.tb_timeline.Size = new System.Drawing.Size(197, 45);
-            this.tb_timeline.TabIndex = 4;
-            this.tb_timeline.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.tb_timeline.Scroll += new System.EventHandler(this.tb_timeline_Scroll);
-            this.tb_timeline.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tb_timeline_MouseDown);
-            this.tb_timeline.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tb_timeline_MouseUp);
             // 
             // nud_previewZoom
             // 
@@ -129,19 +114,6 @@ namespace Pixelaria.Views.ModelViews
             this.label2.Size = new System.Drawing.Size(37, 13);
             this.label2.TabIndex = 7;
             this.label2.Text = "Zoom:";
-            // 
-            // pnl_preview
-            // 
-            this.pnl_preview.BackColor = System.Drawing.Color.White;
-            this.pnl_preview.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pnl_preview.BackgroundImage")));
-            this.pnl_preview.ImageInterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-            this.pnl_preview.ImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pnl_preview.Location = new System.Drawing.Point(3, 113);
-            this.pnl_preview.Name = "pnl_preview";
-            this.pnl_preview.Size = new System.Drawing.Size(197, 162);
-            this.pnl_preview.TabIndex = 6;
-            this.pnl_preview.TabStop = false;
-            this.pnl_preview.DoubleClick += new System.EventHandler(this.pnl_preview_DoubleClick);
             // 
             // tb_zoomTrack
             // 
@@ -189,26 +161,56 @@ namespace Pixelaria.Views.ModelViews
             this.lbl_frameCount.TabIndex = 15;
             this.lbl_frameCount.Text = "0";
             // 
+            // tlc_timeline
+            // 
+            this.tlc_timeline.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tlc_timeline.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.TimelineWithRange;
+            this.tlc_timeline.CurrentFrame = 0;
+            this.tlc_timeline.Location = new System.Drawing.Point(3, 62);
+            this.tlc_timeline.Maximum = 10;
+            this.tlc_timeline.Minimum = 0;
+            this.tlc_timeline.Name = "tlc_timeline";
+            this.tlc_timeline.Range = new System.Drawing.Point(0, 10);
+            this.tlc_timeline.ScrollScaleWidth = 1F;
+            this.tlc_timeline.ScrollX = 0F;
+            this.tlc_timeline.Size = new System.Drawing.Size(197, 38);
+            this.tlc_timeline.TabIndex = 16;
+            this.tlc_timeline.Text = "timelineControl1";
+            this.tlc_timeline.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tlc_timeline_FrameChanged);
+            // 
+            // pnl_preview
+            // 
+            this.pnl_preview.BackColor = System.Drawing.Color.White;
+            this.pnl_preview.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pnl_preview.BackgroundImage")));
+            this.pnl_preview.ImageInterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+            this.pnl_preview.ImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.pnl_preview.Location = new System.Drawing.Point(6, 106);
+            this.pnl_preview.Name = "pnl_preview";
+            this.pnl_preview.Size = new System.Drawing.Size(197, 162);
+            this.pnl_preview.TabIndex = 6;
+            this.pnl_preview.TabStop = false;
+            this.pnl_preview.DoubleClick += new System.EventHandler(this.pnl_preview_DoubleClick);
+            // 
             // AnimationPreviewPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.tlc_timeline);
             this.Controls.Add(this.lbl_frameCount);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lbl_currentFrame);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tb_zoomTrack);
             this.Controls.Add(this.cb_playPreview);
-            this.Controls.Add(this.tb_timeline);
             this.Controls.Add(this.nud_previewZoom);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.pnl_preview);
             this.Name = "AnimationPreviewPanel";
             this.Size = new System.Drawing.Size(203, 584);
-            ((System.ComponentModel.ISupportInitialize)(this.tb_timeline)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_previewZoom)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pnl_preview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tb_zoomTrack)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnl_preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -217,7 +219,6 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         private System.Windows.Forms.CheckBox cb_playPreview;
-        private System.Windows.Forms.TrackBar tb_timeline;
         private System.Windows.Forms.NumericUpDown nud_previewZoom;
         private System.Windows.Forms.Label label2;
         private Pixelaria.Views.Controls.CPictureBox pnl_preview;
@@ -226,5 +227,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label lbl_currentFrame;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lbl_frameCount;
+        private Controls.TimelineControl tlc_timeline;
     }
 }
