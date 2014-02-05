@@ -165,7 +165,12 @@ namespace Pixelaria.Data.Persistence
 
             memStream.Write(buff, 0, buff.Length);
 
-            Bitmap bitmap = Bitmap.FromStream(memStream) as Bitmap;
+            Image img = Image.FromStream(memStream);
+
+            // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
+            Bitmap bitmap = new Bitmap(img);
+
+            img.Dispose();
 
             // Get the hash now
             byte[] hash = null;
