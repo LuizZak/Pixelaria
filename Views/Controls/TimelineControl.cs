@@ -451,7 +451,7 @@ namespace Pixelaria.Views.Controls
                     int textY = timelineHeight + 12;
 
                     // Draw the first frame:
-                    e.Graphics.DrawString(minimum + "", this.Font, Brushes.DarkGray, -ScrollX + firstKnob.KnobThickness / 2 - minSize / 2, textY);
+                    e.Graphics.DrawString(minimum + "", this.Font, Brushes.DarkGray, -ScrollX, textY);
 
                     // Draw the last frame:
                     e.Graphics.DrawString("" + (maximum), font, Brushes.DarkGray, ((Width * ScrollScaleWidth) - firstKnob.KnobThickness / 2 - 1) - (maxSize) - ScrollX, textY);
@@ -656,8 +656,8 @@ namespace Pixelaria.Views.Controls
                 // Clamp the movement delta
                 int moveDelta = diff + draggingTimelineRange.X;
 
-                if (moveDelta < 0)
-                    moveDelta = 0;
+                if (moveDelta < 1)
+                    moveDelta = 1;
                 if (moveDelta + draggingTimelineRange.Y > maximum)
                     moveDelta = maximum - draggingTimelineRange.Y;
 
