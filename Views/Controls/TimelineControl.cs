@@ -165,16 +165,16 @@ namespace Pixelaria.Views.Controls
                 // Set a foramt flag:
                 TextFormatFlags flags = TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
 
-                SizeF stringSize = TextRenderer.MeasureText(g, "" + (minimum), f, new Size(), flags);
+                SizeF stringSize = TextRenderer.MeasureText(g, "" + (minimum), font, new Size(), flags);
                 minSize = stringSize.Width;
 
-                stringSize = TextRenderer.MeasureText(g, "" + (maximum), f, new Size(), flags);
+                stringSize = TextRenderer.MeasureText(g, "" + (maximum), font, new Size(), flags);
                 maxSize = stringSize.Width;
 
                 // Draw the middle frame (only if there are more than 1 frames):
                 if (maximum > 1)
                 {
-                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, f, new Size(), flags);
+                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, font, new Size(), flags);
                     medSize = stringSize.Width;
                 }
 
@@ -210,13 +210,13 @@ namespace Pixelaria.Views.Controls
                 // Set a foramt flag:
                 TextFormatFlags flags = TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
 
-                SizeF stringSize = TextRenderer.MeasureText(g, "" + (maximum), f, new Size(), flags);
+                SizeF stringSize = TextRenderer.MeasureText(g, "" + (maximum), font, new Size(), flags);
                 maxSize = stringSize.Width;
 
                 // Draw the middle frame (only if there are more than 1 frames):
                 if (maximum > 1)
                 {
-                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, f, new Size(), flags);
+                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, font, new Size(), flags);
                     medSize = stringSize.Width;
                 }
 
@@ -454,12 +454,12 @@ namespace Pixelaria.Views.Controls
                     e.Graphics.DrawString(minimum + "", this.Font, Brushes.DarkGray, -ScrollX + firstKnob.KnobThickness / 2 - minSize / 2, textY);
 
                     // Draw the last frame:
-                    e.Graphics.DrawString("" + (maximum), f, Brushes.DarkGray, ((Width * ScrollScaleWidth) - firstKnob.KnobThickness / 2 - 1) - (maxSize) - ScrollX, textY);
+                    e.Graphics.DrawString("" + (maximum), font, Brushes.DarkGray, ((Width * ScrollScaleWidth) - firstKnob.KnobThickness / 2 - 1) - (maxSize) - ScrollX, textY);
 
                     // Draw the middle frame (only if there is more than 1 frame):
                     if ((maximum - minimum) > 1)
                     {
-                        e.Graphics.DrawString("" + (maximum + minimum) / 2, f, Brushes.DarkGray, ((Width * ScrollScaleWidth) / 2) - medSize / 2 - ScrollX, textY);
+                        e.Graphics.DrawString("" + (maximum + minimum) / 2, font, Brushes.DarkGray, ((Width * ScrollScaleWidth) / 2) - medSize / 2 - ScrollX, textY);
                     }
                 }
 
@@ -1123,7 +1123,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Create the font object this control will use to draw the texts:
         /// </summary>
-        private Font f = new System.Drawing.Font("Segoi UI", 8.1f);
+        private Font font = new System.Drawing.Font("Segoi UI", 8.1f);
 
         /// <summary>
         /// Temporary integer used in various calculations
