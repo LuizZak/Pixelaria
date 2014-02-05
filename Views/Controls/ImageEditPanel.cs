@@ -906,8 +906,8 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
-        /// <param name="newBtmap">The new bitmap being edited</param>
-        void ChangeBitmap(Bitmap newBtmap);
+        /// <param name="newBitmap">The new bitmap being edited</param>
+        void ChangeBitmap(Bitmap newBitmap);
 
         /// <summary>
         /// Called to notify this PaintOperation that the control is being redrawn
@@ -1078,8 +1078,8 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
-        /// <param name="newBtmap">The new bitmap being edited</param>
-        public void ChangeBitmap(Bitmap newBtmap) { }
+        /// <param name="newBitmap">The new bitmap being edited</param>
+        public void ChangeBitmap(Bitmap newBitmap) { }
 
         /// <summary>
         /// Called to notify this PaintOperation that the control is being redrawn
@@ -1167,8 +1167,8 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
-        /// <param name="newBtmap">The new bitmap being edited</param>
-        public virtual void ChangeBitmap(Bitmap newBtmap) { }
+        /// <param name="newBitmap">The new bitmap being edited</param>
+        public virtual void ChangeBitmap(Bitmap newBitmap) { }
 
         /// <summary>
         /// Called to notify this PaintOperation that the control is being redrawn
@@ -2066,8 +2066,8 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
-        /// <param name="newBtmap">The new bitmap being edited</param>
-        public override void ChangeBitmap(Bitmap newBtmap)
+        /// <param name="newBitmap">The new bitmap being edited</param>
+        public override void ChangeBitmap(Bitmap newBitmap)
         {
             if (mouseDown)
             {
@@ -2078,9 +2078,9 @@ namespace Pixelaria.Views.Controls
             if (graphics != null)
                 graphics.Dispose();
 
-            if (newBtmap != null)
+            if (newBitmap != null)
             {
-                graphics = Graphics.FromImage(newBtmap);
+                graphics = Graphics.FromImage(newBitmap);
             }
             else
             {
@@ -4785,8 +4785,8 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
-        /// <param name="newBtmap">The new bitmap being edited</param>
-        public override void ChangeBitmap(Bitmap newBtmap)
+        /// <param name="newBitmap">The new bitmap being edited</param>
+        public override void ChangeBitmap(Bitmap newBitmap)
         {
             CancelOperation(false);
         }
