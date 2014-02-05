@@ -237,6 +237,9 @@
     <Compile Include="Views\Controls\SheetPreviewPictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\Controls\TimelineControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Views\Controls\ZoomablePictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
