@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
@@ -59,11 +60,23 @@ namespace Pixelaria.Views
         {
             InitializeComponent();
 
+            // Enable double buffering on the MDI client to avoid flickering while redrawing
+            foreach (Control control in this.Controls)
+            {
+                if (control is MdiClient)
+                {
+                    MethodInfo method = ((MdiClient)control).GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
+                    method.Invoke((MdiClient)control, new Object[] { ControlStyles.OptimizedDoubleBuffer, true });
+                }
+            }
+
             this.Menu = this.mm_menu;
 
             this.il_treeView.Images.SetKeyName(2, "EMPTY");
 
             this.recentFileClick = new EventHandler(mi_fileItem_Click);
+
+            //this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
 
             // Hook up the TreeView event handlers
             this.tv_bundleAnimations.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(AnimationNodeDoubleClickHandler);
@@ -662,6 +675,19 @@ namespace Pixelaria.Views
                     e.Cancel = true;
                 }
             }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+        }
+
+        // 
+        // OnPaintBackground event handler
+        // 
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            base.OnPaintBackground(e);
         }
 
         //

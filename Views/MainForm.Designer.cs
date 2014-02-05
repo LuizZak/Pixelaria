@@ -554,7 +554,6 @@ namespace Pixelaria.Views
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.tv_bundleAnimations);
             this.Controls.Add(this.ts_mainStrip);
-            this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.Name = "MainForm";
