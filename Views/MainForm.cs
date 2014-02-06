@@ -76,8 +76,6 @@ namespace Pixelaria.Views
 
             this.recentFileClick = new EventHandler(mi_fileItem_Click);
 
-            //this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
-
             // Hook up the TreeView event handlers
             this.tv_bundleAnimations.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(AnimationNodeDoubleClickHandler);
             this.tv_bundleAnimations.NodeMouseClick += new TreeNodeMouseClickEventHandler(TreeViewNodeClickHandler);
