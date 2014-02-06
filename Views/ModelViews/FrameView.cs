@@ -585,6 +585,24 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Clears the frame. This method also registers an undo task for the clearing process
+        /// </summary>
+        private void ClearFrame()
+        {
+            BitmapUndoTask bud = new BitmapUndoTask(iepb_frame.PictureBox, iepb_frame.PictureBox.Bitmap, "Clear");
+
+            FastBitmap.ClearBitmap(iepb_frame.PictureBox.Bitmap, 0);
+
+            bud.RegisterNewBitmap(iepb_frame.PictureBox.Bitmap);
+
+            iepb_frame.PictureBox.Invalidate();
+
+            iepb_frame.UndoSystem.RegisterUndo(bud);
+
+            MarkModified();
+        }
+
+        /// <summary>
         /// Undoes a task
         /// </summary>
         private void Undo()
@@ -1357,17 +1375,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsb_clearFrame_Click(object sender, EventArgs e)
         {
-            BitmapUndoTask bud = new BitmapUndoTask(this.iepb_frame.PictureBox, this.iepb_frame.PictureBox.Bitmap, "Clear");
-
-            FastBitmap.ClearBitmap(this.iepb_frame.PictureBox.Bitmap, 0);
-
-            bud.RegisterNewBitmap(this.iepb_frame.PictureBox.Bitmap);
-
-            this.iepb_frame.PictureBox.Invalidate();
-
-            this.iepb_frame.UndoSystem.RegisterUndo(bud);
-
-            this.MarkModified();
+            ClearFrame();
         }
 
         // 

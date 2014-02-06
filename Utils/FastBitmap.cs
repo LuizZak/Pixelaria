@@ -324,6 +324,7 @@ namespace Pixelaria.Utils
                 *(s0t++) = *(s0s++);
                 *(s0t++) = *(s0s++);
                 *(s0t++) = *(s0s++);
+
                 *(s0t++) = *(s0s++);
                 *(s0t++) = *(s0s++);
                 *(s0t++) = *(s0s++);
