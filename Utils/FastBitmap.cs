@@ -251,7 +251,23 @@ namespace Pixelaria.Utils
             int count = width * height;
             int* curScan = scan0;
 
+            int rem = count % 8;
+
+            count /= 8;
+
             while (count-- > 0)
+            {
+                *(curScan++) = color;
+                *(curScan++) = color;
+                *(curScan++) = color;
+                *(curScan++) = color;
+
+                *(curScan++) = color;
+                *(curScan++) = color;
+                *(curScan++) = color;
+                *(curScan++) = color;
+            }
+            while (rem-- > 0)
             {
                 *(curScan++) = color;
             }
@@ -298,8 +314,22 @@ namespace Pixelaria.Utils
             int bpp = 1; // Bytes per pixel
 
             int count = fastSource.width * fastSource.height * bpp;
+            int rem = count % 8;
+
+            count /= 8;
 
             while (count-- > 0)
+            {
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+                *(s0t++) = *(s0s++);
+            }
+            while (rem-- > 0)
             {
                 *(s0t++) = *(s0s++);
             }
