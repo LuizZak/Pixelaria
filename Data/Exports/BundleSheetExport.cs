@@ -153,10 +153,10 @@ namespace Pixelaria.Data.Exports
                     XmlNode frameNode = xml.CreateNode(XmlNodeType.Element, "frame", "");
 
                     frameNode.Attributes.Append(xml.CreateAttribute("index")).InnerText = frame.Index + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (exportSettings.UsePaddingOnXml ? 0 : exportSettings.XPadding / 2) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (exportSettings.UsePaddingOnXml ? 0 : exportSettings.YPadding / 2) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (exportSettings.UsePaddingOnXml ? 0 : exportSettings.XPadding) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (exportSettings.UsePaddingOnXml ? 0 : exportSettings.YPadding) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (exportSettings.UsePaddingOnXml ? exportSettings.XPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (exportSettings.UsePaddingOnXml ? exportSettings.YPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (exportSettings.UsePaddingOnXml ? exportSettings.XPadding : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (exportSettings.UsePaddingOnXml ? exportSettings.YPadding : 0) + "";
 
                     frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X + "";
                     frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y + "";
