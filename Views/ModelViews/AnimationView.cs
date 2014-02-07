@@ -198,7 +198,7 @@ namespace Pixelaria.Views.ModelViews
 
                 ListViewItem frameItem = new ListViewItem();
 
-                frameItem.Text = "Frame " + i;
+                frameItem.Text = "Frame " + (i + 1);
                 frameItem.ImageIndex = i;
                 frameItem.Tag = frame;
 

@@ -108,6 +108,7 @@ namespace Pixelaria.Views.ModelViews
             this.cb_reuseIdenticalFrames.Checked = this.sheetToEdit.ExportSettings.ReuseIdenticalFramesArea;
             this.cb_highPrecision.Checked = this.exportSettings.HighPrecisionAreaMatching;
             this.cb_allowUordering.Checked = this.sheetToEdit.ExportSettings.AllowUnorderedFrames;
+            this.cb_padFramesOnXml.Checked = this.sheetToEdit.ExportSettings.UsePaddingOnXml;
             this.cb_exportXml.Checked = this.sheetToEdit.ExportSettings.ExportXml;
             this.nud_xPadding.Value = this.sheetToEdit.ExportSettings.XPadding;
             this.nud_yPadding.Value = this.sheetToEdit.ExportSettings.YPadding;
@@ -219,6 +220,7 @@ namespace Pixelaria.Views.ModelViews
             exportSettings.ReuseIdenticalFramesArea = cb_reuseIdenticalFrames.Checked;
             exportSettings.HighPrecisionAreaMatching = cb_highPrecision.Checked;
             exportSettings.AllowUnorderedFrames = cb_allowUordering.Checked;
+            exportSettings.UsePaddingOnXml = cb_padFramesOnXml.Checked;
             exportSettings.ExportXml = cb_exportXml.Checked;
             exportSettings.XPadding = (int)nud_xPadding.Value;
             exportSettings.YPadding = (int)nud_yPadding.Value;
