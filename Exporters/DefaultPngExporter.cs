@@ -117,9 +117,18 @@ namespace Pixelaria.Exporters
 
             XmlNode rootNode = xml.CreateNode(XmlNodeType.Element, "sheetList", "");
 
+            // Count number of exported sheets
+            int expCount = 0;
             // Append the animation sheets now
-            foreach (string sheetXml in xmls)
+            for(int i = 0; i < xmls.Count; i++)
             {
+                if (!bundleSheetList[i].ExportSettings.ExportXml)
+                    continue;
+
+                expCount++;
+
+                string sheetXml = xmls[i];
+
                 XmlNode sheetNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
                 sheetNode.Attributes.Append(xml.CreateAttribute("path")).InnerText = Utilities.GetRelativePath(sheetXml + ".xml", bundle.ExportPath);
@@ -127,8 +136,11 @@ namespace Pixelaria.Exporters
                 rootNode.AppendChild(sheetNode);
             }
 
-            xml.AppendChild(rootNode);
-            xml.Save(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name + ".xml");
+            if (expCount > 0)
+            {
+                xml.AppendChild(rootNode);
+                xml.Save(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name + ".xml");
+            }
 
             if (proxyHandler != null)
             {
