@@ -2259,7 +2259,6 @@ namespace Pixelaria.Views.Controls
                         ystep = -1;
 
                     Point p = new Point();
-                    int c = 0;
                     for (int x = x0; x <= x1; x++)
                     {
                         if (steep)
@@ -2273,7 +2272,7 @@ namespace Pixelaria.Views.Controls
                             p.Y = y;
                         }
 
-                        if (WithinBounds(p) && c > 0)
+                        if (WithinBounds(p) && p != pencilLast)
                         {
                             DrawPencil(p, targetBitmap);
                         }
@@ -2284,7 +2283,6 @@ namespace Pixelaria.Views.Controls
                             y = y + ystep;
                             error = error + deltax;
                         }
-                        c++;
                     }
 
                     pictureBox.MarkModified();
