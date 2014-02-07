@@ -20,24 +20,29 @@ Legend:
 
 -- v1.85b
 
-+ Added Spray paint operation
++ Added Spray paint operation.
 + Added option to wrap the image around the bounds on the Offset Filter.
 + Increased speed of HSL filters slightly.
 
-* Fixed the pencil undo not correctly undoing all the pixels when the blending mode is set to replace
+* Fixed animation sheets not marked to export .xmls being referenced on the main bundle .xml file.
+* Now when no animation sheet is marked to export a .xml file, no main bundle .xml file will be created.
+* Fixed frame padding being incorrectly applied to frames in the .xml file.
+* Fixed animation sheets ignoring the 'Pad Frames in .XML' option.
+* Fixed the pencil undo not correctly undoing all the pixels when the blending mode is set to replace.
 * Fixed animations being added in incorrect order on the tree view when loading bundle files sometimes.
 * Fixed animation sheets generated size being slightly larger than optimal because of mis-alignments over the vertical axis.
 * Optimized speed of animation sheet exporting routines, up to 1,6x faster export times now.
 * Fixed direct changes in the assisted numeric up down's input box not reflecting on the assist bar bellow. 
 * Fixed bug where bundle project would be marked modified after chosing Ok on an Animation Sheet even if no modifications where made to it.
-* Improved bundle loading speeds
+* Improved bundle loading speeds.
 
 . Animation View
-  + Implemented new fancier timeline control for the animation preview portion of the form that includes a range selection to play only a selected range of frames
+  + Implemented new fancier timeline control for the animation preview portion of the form that includes a range selection to play only a selected range of frames.
+  * Now frame indices through the interface start counting from 1.
 
 . Main Form
   + Added background image for the form.
-  * Now the bundle root node is expanded whenever a new project file is loaded
+  * Now the bundle root node is expanded whenever a new project file is loaded.
 
 . Animation Resize View
   * The form is now resizable.
