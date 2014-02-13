@@ -492,6 +492,12 @@ namespace Pixelaria.Data
         public bool AllowUnorderedFrames;
 
         /// <summary>
+        /// Whether to place the frames in a uniform grid that is sized according to the smallest
+        /// dimensions capable of fitting all the frames. Setting this option overrides the ForceMinimumDimensions flag
+        /// </summary>
+        public bool UseUniformGrid;
+
+        /// <summary>
         /// Whether to pad the frame's sheet coordinates using the X and Y padding of this sprite.
         /// Use this to pad the frame's sheet coordinates and size and avoid the clamped edges effect
         /// when rendering frames using non-point clamp sampler modes
