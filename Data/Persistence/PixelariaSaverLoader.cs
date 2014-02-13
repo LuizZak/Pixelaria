@@ -36,7 +36,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The version of this Pixelaria persistence handler
         /// </summary>
-        private static int version = 6;
+        private static int version = 7;
 
         /// <summary>
         /// Gets the version of this Pixelaria persistence handler
@@ -255,8 +255,20 @@ namespace Pixelaria.Data.Persistence
             {
                 settings.HighPrecisionAreaMatching = reader.ReadBoolean();
             }
+
             settings.AllowUnorderedFrames = reader.ReadBoolean();
+
+            if (version >= 7)
+            {
+                settings.UseUniformGrid = reader.ReadBoolean();
+            }
+            else
+            {
+                settings.UseUniformGrid = false;
+            }
+
             settings.UsePaddingOnXml = reader.ReadBoolean();
+
             if (version >= 5)
             {
                 settings.ExportXml = reader.ReadBoolean();
@@ -410,6 +422,7 @@ namespace Pixelaria.Data.Persistence
             writer.Write(settings.ReuseIdenticalFramesArea);
             writer.Write(settings.HighPrecisionAreaMatching);
             writer.Write(settings.AllowUnorderedFrames);
+            writer.Write(settings.UseUniformGrid);
             writer.Write(settings.UsePaddingOnXml);
             writer.Write(settings.ExportXml);
             writer.Write(settings.XPadding);
