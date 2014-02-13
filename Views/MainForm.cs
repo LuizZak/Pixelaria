@@ -122,7 +122,7 @@ namespace Pixelaria.Views
         /// <param name="bundle">The bundle to fill the title bar with information of</param>
         public void UpdateTitleBar(Bundle bundle)
         {
-            this.Text = "Pixelaria v1.75 [" + bundle.Name + "]" + (controller.UnsavedChanges ? "*" : "");
+            this.Text = "Pixelaria v1.85 [" + bundle.Name + "]" + (controller.UnsavedChanges ? "*" : "");
         }
 
         /// <summary>
