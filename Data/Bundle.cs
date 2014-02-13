@@ -174,8 +174,9 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="anim">The animation to duplicate</param>
         /// <param name="sheet">The AnimationSheet to add the duplicated animation to</param>
+        /// <param name="rearrange">Whether to re-arrange the index of the animation on the container</param>
         /// <returns>The new animation that was duplicated</returns>
-        public Animation DuplicateAnimation(Animation anim, AnimationSheet sheet)
+        public Animation DuplicateAnimation(Animation anim, AnimationSheet sheet, bool rearrange = true)
         {
             Animation dup = anim.Clone();
 
@@ -183,9 +184,12 @@ namespace Pixelaria.Data
 
             AddAnimation(dup, sheet);
 
-            int index = GetAnimationIndex(anim);
+            if (rearrange)
+            {
+                int index = GetAnimationIndex(anim);
 
-            RearrangeAnimationsPosition(dup, index + 1);
+                RearrangeAnimationsPosition(dup, index + 1);
+            }
 
             // Find a new name for the animation
             int n = 2;
@@ -348,7 +352,7 @@ namespace Pixelaria.Data
             // Duplicate the animations
             foreach (Animation anim in sheet.Animations)
             {
-                DuplicateAnimation(anim, dup);
+                DuplicateAnimation(anim, dup, false);
             }
 
             return dup;
