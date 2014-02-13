@@ -43,7 +43,7 @@ namespace Pixelaria.Data.Exports
             this.frameList = new List<Frame>();
             this.boundsList = new List<Rectangle>();
             this.originsList = new List<Rectangle>();
-            this.frameComparision = new FrameComparision(settings.ForceMinimumDimensions);
+            this.frameComparision = new FrameComparision(settings.ForceMinimumDimensions && !settings.UseUniformGrid);
             this.exportSettings = settings;
 
             this.name = name;
@@ -93,6 +93,8 @@ namespace Pixelaria.Data.Exports
             int maxWidthReal = 0;
             
             int maxFrameWidth = 0;
+            int maxFrameHeight = 0;
+
             int minFrameWidth = int.MaxValue;
 
             frameComparision.Reset();
@@ -126,6 +128,10 @@ namespace Pixelaria.Data.Exports
                 {
                     maxFrameWidth = frame.Width;
                 }
+                if (frame.Height > maxFrameHeight)
+                {
+                    maxFrameHeight = frame.Height;
+                }
                 if (frame.Width < minFrameWidth)
                 {
                     minFrameWidth = frame.Width;
@@ -153,7 +159,7 @@ namespace Pixelaria.Data.Exports
             {
                 atlasWidth = 0;
                 atlasHeight = 0;
-                InternalPack(ref atlasWidth, ref atlasHeight, (int)curWidth);
+                InternalPack(ref atlasWidth, ref atlasHeight, (int)curWidth, exportSettings.UseUniformGrid ? maxFrameWidth : -1, exportSettings.UseUniformGrid ? maxFrameHeight : -1);
 
                 float ratio = (float)atlasWidth / atlasHeight;
 
@@ -224,7 +230,7 @@ namespace Pixelaria.Data.Exports
             atlasWidth = 0;
             atlasHeight = 0;
 
-            InternalPack(ref atlasWidth, ref atlasHeight, minAreaWidth);
+            InternalPack(ref atlasWidth, ref atlasHeight, minAreaWidth, exportSettings.UseUniformGrid ? maxFrameWidth : -1, exportSettings.UseUniformGrid ? maxFrameHeight : -1);
 
             // Round up to the closest power of two
             if (exportSettings.ForcePowerOfTwoDimensions)
@@ -246,7 +252,10 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="atlasWidth">An output atlas width uint</param>
         /// <param name="atlasHeight">At output atlas height uint</param>
-        private void InternalPack(ref uint atlasWidth, ref uint atlasHeight, int maxWidth)
+        /// <param name="maxWidth">The maximum width the generated sheet can have</param>
+        /// <param name="frameWidth">The uniform width to use for all the frames. -1 uses the individual frame width</param>
+        /// <param name="frameHeight">The uniform height to use for all the frames. -1 uses the individual frame height</param>
+        private void InternalPack(ref uint atlasWidth, ref uint atlasHeight, int maxWidth, int frameWidth = -1, int frameHeight = -1)
         {
             int x = exportSettings.XPadding;
             int y;
@@ -273,16 +282,15 @@ namespace Pixelaria.Data.Exports
 
 
                 // Calculate frame origin
-                originsList[i] = new Rectangle(0, 0, frame.Width, frame.Height);
+                originsList[i] = new Rectangle(0, 0, (frameWidth == -1 ? frame.Width : frameWidth), (frameHeight == -1 ? frame.Height : frameHeight));
 
-                if (exportSettings.ForceMinimumDimensions)
+                if (exportSettings.ForceMinimumDimensions && !exportSettings.UseUniformGrid)
                 {
                     originsList[i] = frameComparision.GetFrameArea(frame);
                 }
 
                 width = originsList[i].Width;
                 height = originsList[i].Height;
-
 
                 // X coordinate wrapping
                 if (x + width > maxWidth)
