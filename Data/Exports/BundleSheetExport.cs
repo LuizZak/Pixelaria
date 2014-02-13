@@ -158,8 +158,8 @@ namespace Pixelaria.Data.Exports
                     frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (exportSettings.UsePaddingOnXml ? exportSettings.XPadding : 0) + "";
                     frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (exportSettings.UsePaddingOnXml ? exportSettings.YPadding : 0) + "";
 
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X - (exportSettings.UsePaddingOnXml ? exportSettings.XPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y - (exportSettings.UsePaddingOnXml ? exportSettings.YPadding / 2 : 0) + "";
                     frameNode.Attributes.Append(xml.CreateAttribute("frameW")).InnerText = rect.FrameArea.Width + "";
                     frameNode.Attributes.Append(xml.CreateAttribute("frameH")).InnerText = rect.FrameArea.Height + "";
 
@@ -282,6 +282,17 @@ namespace Pixelaria.Data.Exports
                 this.frame = frame;
                 this.sheetArea = sheetArea;
                 this.frameArea = frameArea;
+
+                // Clip the area to the frame size
+                if (this.sheetArea.Width > this.frame.Width)
+                    this.sheetArea.Width = this.frame.Width;
+                if (this.sheetArea.Height > this.frame.Height)
+                    this.sheetArea.Height = this.frame.Height;
+
+                if (this.frameArea.Width > this.frame.Width)
+                    this.frameArea.Width = this.frame.Width;
+                if (this.frameArea.Height > this.frame.Height)
+                    this.frameArea.Height = this.frame.Height;
             }
         }
     }
