@@ -144,13 +144,11 @@ Checking this will force the program to try to calculate the minimum
 possible area with a higher precision. May save a few precious pixels in
 exchange of a much longer export time.</value>
   </data>
-  <data name="cb_padFramesOnXml.ToolTip" xml:space="preserve">
-    <value>Whether to pad the frame boundaries on the .xml as well.
-Padding the frames on the .xml means the coordinates
-for the frame boundaries on the sheet to be inflated by the
-X and Y padding that are set bellow. This may remove texture
-warping artifacts produced by clipped textures on some
-drawing engines.</value>
+  <data name="cb_useUniformGrid.ToolTip" xml:space="preserve">
+    <value>Whether to place the frames in a uniform grid that is sized
+according to the smallest dimensions capable of fitting all
+the frames. Setting this option overrides the
+'Force minimum dimensions' option.</value>
   </data>
   <data name="cb_exportXml.ToolTip" xml:space="preserve">
     <value>Whether to export an .xml file along with the texture files.
@@ -158,6 +156,14 @@ The .xml will hold the list of all the animations and their
 respective frames as well as the frame bounds. The
 .xml will be referenced on a main bundle .xml once
 exported.</value>
+  </data>
+  <data name="cb_padFramesOnXml.ToolTip" xml:space="preserve">
+    <value>Whether to pad the frame boundaries on the .xml as well.
+Padding the frames on the .xml means the coordinates
+for the frame boundaries on the sheet to be inflated by the
+X and Y padding that are set bellow. This may remove texture
+warping artifacts produced by clipped textures on some
+drawing engines.</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="pictureBox2.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

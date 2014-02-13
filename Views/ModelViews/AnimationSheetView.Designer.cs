@@ -99,6 +99,7 @@ namespace Pixelaria.Views.ModelViews
             this.label6 = new System.Windows.Forms.Label();
             this.lbl_zoomLevel = new System.Windows.Forms.Label();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.cb_useUniformGrid = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).BeginInit();
@@ -136,7 +137,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btn_ok.Enabled = false;
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
-            this.btn_ok.Location = new System.Drawing.Point(446, 493);
+            this.btn_ok.Location = new System.Drawing.Point(446, 515);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
             this.btn_ok.TabIndex = 24;
@@ -151,7 +152,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_cancel.Location = new System.Drawing.Point(527, 493);
+            this.btn_cancel.Location = new System.Drawing.Point(527, 515);
             this.btn_cancel.Name = "btn_cancel";
             this.btn_cancel.Size = new System.Drawing.Size(75, 29);
             this.btn_cancel.TabIndex = 23;
@@ -172,7 +173,7 @@ namespace Pixelaria.Views.ModelViews
             this.groupBox2.Controls.Add(this.btn_generatePreview);
             this.groupBox2.Location = new System.Drawing.Point(3, 60);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(293, 276);
+            this.groupBox2.Size = new System.Drawing.Size(293, 297);
             this.groupBox2.TabIndex = 27;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export Settings";
@@ -188,7 +189,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // nud_yPadding
             // 
-            this.nud_yPadding.Location = new System.Drawing.Point(74, 241);
+            this.nud_yPadding.Location = new System.Drawing.Point(74, 262);
             this.nud_yPadding.Maximum = new decimal(new int[] {
             128,
             0,
@@ -203,7 +204,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // nud_xPadding
             // 
-            this.nud_xPadding.Location = new System.Drawing.Point(74, 215);
+            this.nud_xPadding.Location = new System.Drawing.Point(74, 236);
             this.nud_xPadding.Maximum = new decimal(new int[] {
             128,
             0,
@@ -224,12 +225,13 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel1.Controls.Add(this.cb_reuseIdenticalFrames);
             this.flowLayoutPanel1.Controls.Add(this.cb_highPrecision);
             this.flowLayoutPanel1.Controls.Add(this.cb_allowUordering);
-            this.flowLayoutPanel1.Controls.Add(this.cb_padFramesOnXml);
+            this.flowLayoutPanel1.Controls.Add(this.cb_useUniformGrid);
             this.flowLayoutPanel1.Controls.Add(this.cb_exportXml);
+            this.flowLayoutPanel1.Controls.Add(this.cb_padFramesOnXml);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(6, 19);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(5);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(195, 188);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(195, 209);
             this.flowLayoutPanel1.TabIndex = 11;
             // 
             // cb_forcePowerOfTwoDimensions
@@ -309,7 +311,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.cb_padFramesOnXml.AutoSize = true;
             this.flowLayoutPanel1.SetFlowBreak(this.cb_padFramesOnXml, true);
-            this.cb_padFramesOnXml.Location = new System.Drawing.Point(3, 141);
+            this.cb_padFramesOnXml.Location = new System.Drawing.Point(3, 187);
             this.cb_padFramesOnXml.Name = "cb_padFramesOnXml";
             this.cb_padFramesOnXml.Size = new System.Drawing.Size(152, 17);
             this.cb_padFramesOnXml.TabIndex = 8;
@@ -323,6 +325,7 @@ namespace Pixelaria.Views.ModelViews
             this.cb_exportXml.AutoSize = true;
             this.cb_exportXml.Checked = true;
             this.cb_exportXml.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.flowLayoutPanel1.SetFlowBreak(this.cb_exportXml, true);
             this.cb_exportXml.Location = new System.Drawing.Point(3, 164);
             this.cb_exportXml.Name = "cb_exportXml";
             this.cb_exportXml.Size = new System.Drawing.Size(76, 17);
@@ -335,7 +338,7 @@ namespace Pixelaria.Views.ModelViews
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 241);
+            this.label4.Location = new System.Drawing.Point(10, 262);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(58, 13);
             this.label4.TabIndex = 10;
@@ -344,7 +347,7 @@ namespace Pixelaria.Views.ModelViews
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 217);
+            this.label3.Location = new System.Drawing.Point(10, 238);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(58, 13);
             this.label3.TabIndex = 9;
@@ -368,7 +371,7 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_alertPanel.Controls.Add(this.pictureBox2);
             this.pnl_alertPanel.Controls.Add(this.lbl_alertLabel);
-            this.pnl_alertPanel.Location = new System.Drawing.Point(12, 493);
+            this.pnl_alertPanel.Location = new System.Drawing.Point(12, 515);
             this.pnl_alertPanel.Name = "pnl_alertPanel";
             this.pnl_alertPanel.Size = new System.Drawing.Size(428, 29);
             this.pnl_alertPanel.TabIndex = 26;
@@ -397,7 +400,7 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_errorPanel.Controls.Add(this.pictureBox1);
             this.pnl_errorPanel.Controls.Add(this.lbl_error);
-            this.pnl_errorPanel.Location = new System.Drawing.Point(12, 493);
+            this.pnl_errorPanel.Location = new System.Drawing.Point(12, 515);
             this.pnl_errorPanel.Name = "pnl_errorPanel";
             this.pnl_errorPanel.Size = new System.Drawing.Size(428, 29);
             this.pnl_errorPanel.TabIndex = 25;
@@ -475,7 +478,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MinimumZoom")));
             this.zpb_sheetPreview.Name = "zpb_sheetPreview";
             this.zpb_sheetPreview.ShowImageArea = true;
-            this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 381);
+            this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 403);
             this.zpb_sheetPreview.TabIndex = 0;
             this.zpb_sheetPreview.TabStop = false;
             this.zpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.Zoom")));
@@ -540,7 +543,7 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel2.Controls.Add(this.gb_exportSummary);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(12, 74);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(299, 413);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(299, 435);
             this.flowLayoutPanel2.TabIndex = 29;
             // 
             // gb_exportSummary
@@ -553,7 +556,7 @@ namespace Pixelaria.Views.ModelViews
             this.gb_exportSummary.Controls.Add(this.label7);
             this.gb_exportSummary.Controls.Add(this.lbl_dimensions);
             this.gb_exportSummary.Controls.Add(this.label6);
-            this.gb_exportSummary.Location = new System.Drawing.Point(3, 342);
+            this.gb_exportSummary.Location = new System.Drawing.Point(3, 363);
             this.gb_exportSummary.Name = "gb_exportSummary";
             this.gb_exportSummary.Size = new System.Drawing.Size(293, 70);
             this.gb_exportSummary.TabIndex = 29;
@@ -638,7 +641,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.lbl_zoomLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lbl_zoomLevel.AutoSize = true;
-            this.lbl_zoomLevel.Location = new System.Drawing.Point(317, 473);
+            this.lbl_zoomLevel.Location = new System.Drawing.Point(317, 495);
             this.lbl_zoomLevel.Name = "lbl_zoomLevel";
             this.lbl_zoomLevel.Size = new System.Drawing.Size(51, 13);
             this.lbl_zoomLevel.TabIndex = 30;
@@ -650,13 +653,26 @@ namespace Pixelaria.Views.ModelViews
             this.tt_mainTooltip.InitialDelay = 500;
             this.tt_mainTooltip.ReshowDelay = 100;
             // 
+            // cb_useUniformGrid
+            // 
+            this.cb_useUniformGrid.AutoSize = true;
+            this.flowLayoutPanel1.SetFlowBreak(this.cb_useUniformGrid, true);
+            this.cb_useUniformGrid.Location = new System.Drawing.Point(3, 141);
+            this.cb_useUniformGrid.Name = "cb_useUniformGrid";
+            this.cb_useUniformGrid.Size = new System.Drawing.Size(102, 17);
+            this.cb_useUniformGrid.TabIndex = 11;
+            this.cb_useUniformGrid.Text = "Use uniform grid";
+            this.tt_mainTooltip.SetToolTip(this.cb_useUniformGrid, resources.GetString("cb_useUniformGrid.ToolTip"));
+            this.cb_useUniformGrid.UseVisualStyleBackColor = true;
+            this.cb_useUniformGrid.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            // 
             // AnimationSheetView
             // 
             this.AcceptButton = this.btn_ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_cancel;
-            this.ClientSize = new System.Drawing.Size(614, 534);
+            this.ClientSize = new System.Drawing.Size(614, 556);
             this.Controls.Add(this.lbl_zoomLevel);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.pnl_alertPanel);
@@ -668,7 +684,7 @@ namespace Pixelaria.Views.ModelViews
             this.Controls.Add(this.zpb_sheetPreview);
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(630, 572);
+            this.MinimumSize = new System.Drawing.Size(630, 594);
             this.Name = "AnimationSheetView";
             this.Text = "Animation Sheet Editor";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AnimationSheetView_FormClosed);
@@ -746,5 +762,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ProgressBar pb_exportProgress;
         private System.Windows.Forms.Label lbl_zoomLevel;
         private System.Windows.Forms.ToolTip tt_mainTooltip;
+        private System.Windows.Forms.CheckBox cb_useUniformGrid;
     }
 }
