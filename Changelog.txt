@@ -22,6 +22,7 @@ Legend:
 
 + Added Spray paint operation.
 + Added option to wrap the image around the bounds on the Offset Filter.
++ Added 'Use Uniform Grid' option to Animation Sheets. Enabling this option will export the frames in a grid formed by the largest frame dimension capable of fitting all the frames of the atlas.
 + Increased speed of HSL filters slightly.
 
 * Fixed animation sheets not marked to export .xmls being referenced on the main bundle .xml file.
