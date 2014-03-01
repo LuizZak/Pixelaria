@@ -22,6 +22,7 @@ Legend:
 
 * Fixed single-pixel pencil operations with a Replace blend mode not being saved when the user clicks 'Save Changes and Close' sometimes.
 * Fixed rectangle and ellipse operations breaking the undo tasks.
+* Fixed spray paint operation color and size being reset when the tool changes.
 
 * Now the sliders for the Scale filter accept negative values, allowing for flipping/reversing of target images.
 
