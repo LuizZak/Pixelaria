@@ -126,10 +126,10 @@ namespace Pixelaria.Views.Controls.Filters
             0,
             0});
             this.anud_scaleY.Minimum = new decimal(new int[] {
+            10,
             0,
             0,
-            0,
-            0});
+            -2147483648});
             this.anud_scaleY.Name = "anud_scaleY";
             this.anud_scaleY.Size = new System.Drawing.Size(532, 32);
             this.anud_scaleY.TabIndex = 5;
@@ -160,10 +160,10 @@ namespace Pixelaria.Views.Controls.Filters
             0,
             0});
             this.anud_scaleX.Minimum = new decimal(new int[] {
+            10,
             0,
             0,
-            0,
-            0});
+            -2147483648});
             this.anud_scaleX.Name = "anud_scaleX";
             this.anud_scaleX.Size = new System.Drawing.Size(532, 32);
             this.anud_scaleX.TabIndex = 3;
