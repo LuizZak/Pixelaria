@@ -2016,6 +2016,14 @@ namespace Pixelaria.Views.Controls
         public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
 
         /// <summary>
+        /// Initializes a new instance of the BasePencilPaintOperation class
+        /// </summary>
+        public BasePencilPaintOperation()
+        {
+            this.size = 1;
+        }
+
+        /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
@@ -2025,7 +2033,6 @@ namespace Pixelaria.Views.Controls
 
             this.pictureBox = pictureBox;
             this.lastMousePosition = new Point();
-            this.size = 1;
 
             RegeneratePenBitmap();
 
