@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.85b
+                   v1.90b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -17,6 +17,10 @@ Legend:
 + Addition
 * Fix/Change
 . Note
+
+-- v1.90b
+
+* Fixed single-pixel pencil operations with a Replace blend mode not being saved when the user clicks 'Save Changes and Close' sometimes.
 
 -- v1.85b
 

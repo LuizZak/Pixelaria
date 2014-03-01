@@ -2200,6 +2200,8 @@ namespace Pixelaria.Views.Controls
                     Bitmap targetBitmap = CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap;
 
                     DrawPencil(absolutePencil, targetBitmap);
+
+
                 }
             }
         }
@@ -2354,9 +2356,9 @@ namespace Pixelaria.Views.Controls
                 gfx.Clear(Color.Transparent);
 
                 gfx.Dispose();
-
-                pictureBox.MarkModified();
             }
+
+            pictureBox.MarkModified();
 
             pictureBox.OwningPanel.UndoSystem.RegisterUndo(currentUndoTask);
             currentUndoTask = null;
