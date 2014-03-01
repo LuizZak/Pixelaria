@@ -877,7 +877,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_eraser_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new EraserPaintOperation());
+            if (rb_eraser.Checked)
+            {
+                ChangePaintOperation(new EraserPaintOperation());
+            }
         }
 
         // 
@@ -885,7 +888,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_picker_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new PickerPaintOperation());
+            if (rb_picker.Checked)
+            {
+                ChangePaintOperation(new PickerPaintOperation());
+            }
         }
 
         // 
@@ -893,7 +899,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_sprayPaint_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new SprayPaintOperation());
+            if (rb_sprayPaint.Checked)
+            {
+                ChangePaintOperation(new SprayPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
+            }
         }
 
         // 
@@ -901,7 +910,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_line_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new LinePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            if (rb_line.Checked)
+            {
+                ChangePaintOperation(new LinePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            }
         }
 
         // 
@@ -909,7 +921,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_rectangle_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new RectanglePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            if (rb_rectangle.Checked)
+            {
+                ChangePaintOperation(new RectanglePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            }
         }
 
         // 
@@ -917,7 +932,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_circle_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new EllipsePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            if (rb_circle.Checked)
+            {
+                ChangePaintOperation(new EllipsePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            }
         }
 
         // 
@@ -925,7 +943,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_bucket_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new BucketPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            if (rb_bucket.Checked)
+            {
+                ChangePaintOperation(new BucketPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+            }
         }
 
         // 
@@ -933,7 +954,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_selection_CheckedChanged(object sender, EventArgs e)
         {
-            ChangePaintOperation(new SelectionPaintOperation());
+            if (rb_selection.Checked)
+            {
+                ChangePaintOperation(new SelectionPaintOperation());
+            }
         }
 
         // 
@@ -941,7 +965,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_zoom_CheckedChanged(object sender, EventArgs e)
         {
-            if (rb_zoom.Enabled)
+            if (rb_zoom.Enabled && rb_zoom.Checked)
             {
                 ChangePaintOperation(new ZoomPaintOperation());
             }
@@ -952,7 +976,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_blendingBlend_CheckedChanged(object sender, EventArgs e)
         {
-            this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceOver;
+            if (rb_blendingBlend.Checked)
+            {
+                this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceOver;
+            }
         }
 
         // 
@@ -960,7 +987,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_blendingReplace_CheckedChanged(object sender, EventArgs e)
         {
-            this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceCopy;
+            if (rb_blendingReplace.Checked)
+            {
+                this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceCopy;
+            }
         }
 
         #region Brush Size Control
