@@ -2603,7 +2603,7 @@ namespace Pixelaria.Views.Controls
 
                 graphics.Clear(Color.Transparent);
 
-                PerformShapeOperation(fc, sc, rec, pictureBox.Buffer, compositingMode, fillMode);
+                PerformShapeOperation(fc, sc, rec, pictureBox.Buffer, compositingMode, fillMode, false);
             }
         }
 
@@ -2670,7 +2670,7 @@ namespace Pixelaria.Views.Controls
                     fc = secondColor;
                 }
 
-                PerformShapeOperation(fc, sc, GetCurrentRectangle(false), pictureBox.Bitmap, compositingMode, fillMode);
+                PerformShapeOperation(fc, sc, GetCurrentRectangle(false), pictureBox.Bitmap, compositingMode, fillMode, true);
 
                 pictureBox.MarkModified();
             }
@@ -2713,7 +2713,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="bitmap">The Bitmap to draw the shape on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="fillMode">The fill mode for this shape operation</param>
-        public abstract void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode);
+        /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
+        public abstract void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo);
 
         /// <summary>
         /// Performs the shape paint operation with the given parameters
@@ -2724,7 +2725,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="graphics">The Graphics to draw the shape on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="fillMode">The fill mode for this shape operation</param>
-        public abstract void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode);
+        /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
+        public abstract void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo);
     }
 
     /// <summary>
@@ -3349,9 +3351,11 @@ namespace Pixelaria.Views.Controls
         /// <param name="bitmap">The Bitmap to draw the shape on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="fillMode">The fill mode for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
+        /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
+        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
         {
-            pictureBox.OwningPanel.UndoSystem.RegisterUndo(new RectangleUndoTask(pictureBox, firstColor, secondColor, area, compositingMode, fillMode));
+            if (registerUndo)
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new RectangleUndoTask(pictureBox, firstColor, secondColor, area, compositingMode, fillMode));
 
             PerformRectangleOperation(firstColor, secondColor, area, bitmap, compositingMode, fillMode);
         }
@@ -3365,7 +3369,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="graphics">The Graphics to draw the shape on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="fillMode">The fill mode for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
+        /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
+        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
         {
             PerformRectangleOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
         }
@@ -3633,9 +3638,11 @@ namespace Pixelaria.Views.Controls
         /// <param name="bitmap">The Bitmap to draw the shape on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="fillMode">The fill mode for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
+        /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
+        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
         {
-            pictureBox.OwningPanel.UndoSystem.RegisterUndo(new EllipseUndoTask(pictureBox, firstColor, secondColor, area, compositingMode, fillMode));
+            if (registerUndo)
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new EllipseUndoTask(pictureBox, firstColor, secondColor, area, compositingMode, fillMode));
 
             PerformEllipseOperation(firstColor, secondColor, area, bitmap, compositingMode, fillMode);
         }
@@ -3649,7 +3656,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="graphics">The Graphics to draw the shape on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="fillMode">The fill mode for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
+        /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
+        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
         {
             PerformElipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
         }
