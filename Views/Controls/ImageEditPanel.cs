@@ -2762,7 +2762,7 @@ namespace Pixelaria.Views.Controls
         {
             this.FirstColor = firstColor;
             this.SecondColor = secondColor;
-            this.Size = pencilSize;
+            this.Size = 1;
         }
 
         /// <summary>
