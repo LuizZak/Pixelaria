@@ -21,6 +21,7 @@ Legend:
 -- v1.90b
 
 * Fixed single-pixel pencil operations with a Replace blend mode not being saved when the user clicks 'Save Changes and Close' sometimes.
+* Fixed rectangle and ellipse operations breaking the undo tasks.
 
 -- v1.85b
 
