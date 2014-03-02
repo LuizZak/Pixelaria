@@ -422,7 +422,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (lv_frames.SelectedItems.Count > 0)
             {
-                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Delete);
+                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Delete, "Frames Deleted");
 
                 // Delete selected frames
                 foreach (ListViewItem item in lv_frames.SelectedItems)
@@ -543,7 +543,7 @@ namespace Pixelaria.Views.ModelViews
 
                 undoAddIndex = index;
 
-                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add);
+                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add, "Frames Pasted");
 
                 // Maintain a copy of the list of added frames so the control can select them after
                 List<Frame> copiedFrames = new List<Frame>();
@@ -641,7 +641,7 @@ namespace Pixelaria.Views.ModelViews
                 index = -1;
             }
 
-            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add);
+            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add, "Frame Inserted");
 
             undoTask.RegisterFrame(viewAnimation.CreateFrame(index), index);
 
@@ -659,7 +659,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddNewFrame()
         {
-            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add);
+            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add, "Frame Added");
 
             int index = viewAnimation.FrameCount;
 
@@ -1105,6 +1105,16 @@ namespace Pixelaria.Views.ModelViews
             private Animation animation;
 
             /// <summary>
+            /// The description for this FramesAddDeleteUndoTask
+            /// </summary>
+            private string description;
+
+            /// <summary>
+            /// Whether this action has been undone
+            /// </summary>
+            private bool undone = false;
+
+            /// <summary>
             /// The type of this operation
             /// </summary>
             private FrameAddDeleteOperationType operationType;
@@ -1124,9 +1134,11 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             /// <param name="animation">The animation that will be modified by this FramesDeleteUndoTask</param>
             /// <param name="operationType">The type of operation to perform on this FramesAddDeleteUndoTask</param>
-            public FramesAddDeleteUndoTask(Animation animation, FrameAddDeleteOperationType operationType)
+            /// <param name="description">The description for this FramesAddDeleteUndoTask</param>
+            public FramesAddDeleteUndoTask(Animation animation, FrameAddDeleteOperationType operationType, string description)
             {
                 this.animation = animation;
+                this.description = description;
                 this.operationType = operationType;
                 this.frameIndices = new List<int>();
                 this.frames = new List<Frame>();
@@ -1148,12 +1160,15 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void Clear()
             {
-                // Dispose of frames that are not in animations
-                foreach (Frame frame in frames)
+                if (!undone)
                 {
-                    if (frame.Animation == null)
+                    // Dispose of frames that are not in animations
+                    foreach (Frame frame in frames)
                     {
-                        frame.Dispose();
+                        if (frame.Animation == null)
+                        {
+                            frame.Dispose();
+                        }
                     }
                 }
 
@@ -1168,18 +1183,21 @@ namespace Pixelaria.Views.ModelViews
             {
                 if (operationType == FrameAddDeleteOperationType.Delete)
                 {
-                    for (int i = 0; i < frames.Count; i++)
+                    //for (int i = 0; i < frames.Count; i++)
+                    for (int i = frameIndices.Count - 1; i >= 0; i--)
                     {
                         animation.AddFrame(frames[i], frameIndices[i]);
                     }
                 }
                 else
                 {
-                    foreach (Frame frame in frames)
+                    for (int i = frameIndices.Count - 1; i >= 0; i--)
                     {
-                        animation.RemoveFrame(frame);
+                        animation.RemoveFrameIndex(frameIndices[i]);
                     }
                 }
+
+                undone = true;
             }
 
             /// <summary>
@@ -1189,18 +1207,21 @@ namespace Pixelaria.Views.ModelViews
             {
                 if (operationType == FrameAddDeleteOperationType.Delete)
                 {
-                    foreach (Frame frame in frames)
+                    for(int i = frameIndices.Count - 1; i >= 0; i--)
                     {
-                        animation.RemoveFrame(frame);
+                        animation.RemoveFrameIndex(frameIndices[i]);
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < frames.Count; i++)
+                    //for (int i = 0; i < frames.Count; i++)
+                    for (int i = frameIndices.Count - 1; i >= 0; i--)
                     {
                         animation.AddFrame(frames[i], frameIndices[i]);
                     }
                 }
+
+                undone = false;
             }
 
             /// <summary>
@@ -1209,7 +1230,7 @@ namespace Pixelaria.Views.ModelViews
             /// <returns>A short string description of this UndoTask</returns>
             public string GetDescription()
             {
-                return operationType == FrameAddDeleteOperationType.Add ? "Frames pasted" : "Frames deleted";
+                return description;
             }
         }
 
