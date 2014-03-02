@@ -4715,7 +4715,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the area the selection is currently occupying in the canvas
         /// </summary>
-        public Rectangle SelectionArea { get { return selectedArea; } }
+        public Rectangle SelectionArea { get { return selectedArea; } set { selectedArea = value; pictureBox.Invalidate(GetSelectionArea(true)); } }
 
         /// <summary>
         /// Gets the area the selection was snipped from
