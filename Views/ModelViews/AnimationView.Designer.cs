@@ -428,7 +428,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_redo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_redo.Name = "tsb_redo";
             this.tsb_redo.Size = new System.Drawing.Size(23, 22);
-            this.tsb_redo.Text = "toolStripButton2";
+            this.tsb_redo.Text = "Redo";
             this.tsb_redo.Click += new System.EventHandler(this.tsb_redo_Click);
             // 
             // toolStripSeparator2

@@ -232,6 +232,27 @@ namespace Pixelaria.Views.ModelViews
         {
             tsm_undo.Enabled = tsb_undo.Enabled = undoSystem.CanUndo;
             tsm_redo.Enabled = tsb_redo.Enabled = undoSystem.CanRedo;
+
+            if (this.tsb_undo.Enabled)
+            {
+                this.tsm_undo.Text = this.tsb_undo.ToolTipText = "Undo " + undoSystem.NextUndo.GetDescription();
+
+            }
+            else
+            {
+                this.tsb_undo.ToolTipText = "";
+                this.tsm_undo.Text = "Undo";
+            }
+
+            if (this.tsb_redo.Enabled)
+            {
+                this.tsm_redo.Text = this.tsb_redo.ToolTipText = "Redo " + undoSystem.NextRedo.GetDescription();
+            }
+            else
+            {
+                this.tsb_redo.ToolTipText = "";
+                this.tsm_redo.Text = "Redo";
+            }
         }
 
         /// <summary>
