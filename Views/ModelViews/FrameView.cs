@@ -732,18 +732,33 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
         private void DisplayFilterPreset(FilterPreset filterPreset)
         {
-            Bitmap target = null;
+            Bitmap filterTarget = null;
+            Bitmap undoTarget = null;
+            BitmapUndoTask but;
 
-            target = viewFrame.GetComposedBitmap();
+            undoTarget = filterTarget = viewFrame.GetComposedBitmap();
 
             if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
             {
-                (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).CancelOperation(true);
+                SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
+
+                Rectangle area = op.SelectionArea;
+
+                op.ForceApplyChanges = false;
+                op.FinishOperation(true);
+
+                but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
+
+                op.StartOperation(area, SelectionPaintOperation.SelectionOperationType.Moved);
+
+                filterTarget = op.SelectionBitmap;
+            }
+            else
+            {
+                but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
             }
 
-            BitmapUndoTask but = new BitmapUndoTask(this.iepb_frame.PictureBox, target, "Filter");
-
-            BaseFilterView bfv = new BaseFilterView(filterPreset, target);
+            BaseFilterView bfv = new BaseFilterView(filterPreset, filterTarget);
 
             if (bfv.ShowDialog(this) == DialogResult.OK)
             {
@@ -752,7 +767,23 @@ namespace Pixelaria.Views.ModelViews
                     iepb_frame.PictureBox.Invalidate();
                     MarkModified();
 
-                    but.RegisterNewBitmap(target);
+                    if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
+                    {
+                        SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
+
+                        Rectangle area = op.SelectionArea;
+
+                        op.ForceApplyChanges = false;
+                        op.FinishOperation(true);
+
+                        but.RegisterNewBitmap(undoTarget);
+
+                        op.StartOperation(area, SelectionPaintOperation.SelectionOperationType.Moved);
+                    }
+                    else
+                    {
+                        but.RegisterNewBitmap(undoTarget);
+                    }
 
                     iepb_frame.UndoSystem.RegisterUndo(but);
                 }
