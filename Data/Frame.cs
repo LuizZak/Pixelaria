@@ -140,7 +140,7 @@ namespace Pixelaria.Data
         {
             if (this.animation != null && this.animation != newAnimation)
             {
-                throw new Exception("The frame may not be added to another animation before being removed to one prior");
+                throw new Exception("The frame may not be added to another animation before being removed from the current one before");
             }
 
             this.animation = newAnimation;
