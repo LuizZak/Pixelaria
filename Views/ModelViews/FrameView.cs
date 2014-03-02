@@ -30,6 +30,7 @@ using Pixelaria.Controllers;
 
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
+using Pixelaria.Data.Undo;
 
 using Pixelaria.Filters;
 
@@ -734,7 +735,8 @@ namespace Pixelaria.Views.ModelViews
         {
             Bitmap filterTarget = null;
             Bitmap undoTarget = null;
-            BitmapUndoTask but;
+
+            BitmapUndoTask but = null;
 
             undoTarget = filterTarget = viewFrame.GetComposedBitmap();
 
@@ -742,14 +744,22 @@ namespace Pixelaria.Views.ModelViews
             {
                 SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
 
-                Rectangle area = op.SelectionArea;
+                if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Moved)
+                {
+                    Rectangle area = op.SelectionArea;
+                    Rectangle startArea = op.SelectionStartArea;
+                    
+                    op.CancelOperation(true);
 
-                op.ForceApplyChanges = false;
-                op.FinishOperation(true);
+                    but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
 
-                but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
-
-                op.StartOperation(area, SelectionPaintOperation.SelectionOperationType.Moved);
+                    op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
+                    op.SelectionArea = area;
+                }
+                else if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Paste)
+                {
+                    but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
+                }
 
                 filterTarget = op.SelectionBitmap;
             }
@@ -764,6 +774,8 @@ namespace Pixelaria.Views.ModelViews
             {
                 if (bfv.ChangesDetected())
                 {
+                    bool registerUndo = true;
+
                     iepb_frame.PictureBox.Invalidate();
                     MarkModified();
 
@@ -771,21 +783,30 @@ namespace Pixelaria.Views.ModelViews
                     {
                         SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
 
-                        Rectangle area = op.SelectionArea;
+                        if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Moved)
+                        {
+                            Rectangle area = op.SelectionArea;
+                            Rectangle startArea = op.SelectionStartArea;
 
-                        op.ForceApplyChanges = false;
-                        op.FinishOperation(true);
+                            op.CancelOperation(true);
 
-                        but.RegisterNewBitmap(undoTarget);
+                            but.RegisterNewBitmap(undoTarget);
 
-                        op.StartOperation(area, SelectionPaintOperation.SelectionOperationType.Moved);
+                            op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
+                            op.SelectionArea = area;
+                        }
+                        else if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Paste)
+                        {
+                            registerUndo = false;
+                        }
                     }
                     else
                     {
                         but.RegisterNewBitmap(undoTarget);
                     }
 
-                    iepb_frame.UndoSystem.RegisterUndo(but);
+                    if (registerUndo)
+                        iepb_frame.UndoSystem.RegisterUndo(but);
                 }
             }
             else
