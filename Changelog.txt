@@ -27,6 +27,8 @@ Legend:
 * Now the sliders for the Scale filter accept negative values, allowing for flipping/reversing of target images.
 
 . FrameView
+  + Added functionality to apply filters to the current selection only when a selection is available.
+  * Fixed selection being able to go past the image boundaries.
   * Now when pasting an image the pasting is placed at the top-left visible position of the canvas instead of the top-left most corner of the image.
 
 -- v1.85b
