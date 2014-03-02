@@ -5381,7 +5381,17 @@ namespace Pixelaria.Views.Controls
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            Point p1 = mouseDownAbsolutePoint;
+            Point p2 = mouseAbsolutePoint;
+
+            // Clip the selected area to be within the image boundaries
+            p1.X = Math.Max(0, Math.Min(pictureBox.Image.Width - 1, p1.X));
+            p1.Y = Math.Max(0, Math.Min(pictureBox.Image.Height - 1, p1.Y));
+
+            p2.X = Math.Max(0, Math.Min(pictureBox.Image.Width - 1, p2.X));
+            p2.Y = Math.Max(0, Math.Min(pictureBox.Image.Height - 1, p2.Y));
+
+            Rectangle rec = GetRectangleArea(new Point[] { p1, p2 }, relative);
 
             if (relative)
             {
