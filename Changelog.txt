@@ -26,6 +26,9 @@ Legend:
 
 * Now the sliders for the Scale filter accept negative values, allowing for flipping/reversing of target images.
 
+. FrameView
+  * Now when pasting an image the pasting is placed at the top-left visible position of the canvas instead of the top-left most corner of the image.
+
 -- v1.85b
 
 + Added Spray paint operation.

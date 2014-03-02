@@ -4886,7 +4886,10 @@ namespace Pixelaria.Views.Controls
 
                 operationMode = SelectionOperationType.Paste;
 
-                StartOperation(new Rectangle(0, 0, bit.Width, bit.Height), bit);
+                // Get the top-left pixel to place the selection at
+                Point loc = GetAbsolutePoint(new PointF(0, 0));
+                
+                StartOperation(new Rectangle(loc.X, loc.Y, bit.Width, bit.Height), bit);
             }
 
             pictureBox.MarkModified();
