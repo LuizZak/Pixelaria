@@ -177,6 +177,43 @@ namespace Pixelaria.Data.Undo
         }
 
         /// <summary>
+        /// Removes and returns the next undo task from this UndoSystem's undo list.
+        /// The returned task is not disposed before being returned.
+        /// If no undo task is available, null is returned
+        /// </summary>
+        /// <returns>The next available undo operation if available, null otherwise</returns>
+        public IUndoTask SliceUndo()
+        {
+            if (!CanUndo)
+                return null;
+
+            IUndoTask task = NextUndo;
+
+            undoTasks.Remove(task);
+            currentTask--;
+
+            return task;
+        }
+
+        /// <summary>
+        /// Removes and returns the next redo task from this UndoSystem's undo list.
+        /// The returned task is not disposed before being returned.
+        /// If no redo task is available, null is returned
+        /// </summary>
+        /// <returns>The next available redo operation if available, null otherwise</returns>
+        public IUndoTask SliceRedo()
+        {
+            if (!CanRedo)
+                return null;
+
+            IUndoTask task = NextRedo;
+
+            undoTasks.Remove(task);
+
+            return task;
+        }
+
+        /// <summary>
         /// Clears all operations on this UndoSystem
         /// </summary>
         public void Clear()
@@ -251,19 +288,36 @@ namespace Pixelaria.Data.Undo
         string description;
 
         /// <summary>
+        /// Initializes a new instance of the MultiUndoTask class with a description
+        /// </summary>
+        /// <param name="tasks">The tasks to perform</param>
+        public MultiUndoTask(string description)
+        {
+            undoList = new List<IUndoTask>();
+            this.description = description;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the MultiUndoTask class with a list of tasks to perform and a description
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
         /// <param name="description">The description for this MultiUndoTask</param>
         public MultiUndoTask(IEnumerable<IUndoTask> tasks, string description)
+            : this(description)
         {
-            undoList = new List<IUndoTask>();
-            this.description = description;
-
             foreach (IUndoTask task in tasks)
             {
                 undoList.Add(task);
             }
+        }
+
+        /// <summary>
+        /// Adds a new task on this MultiUndoTask
+        /// </summary>
+        /// <param name="task">The task to add to this MultiUndoTask</param>
+        public void AddTask(IUndoTask task)
+        {
+            undoList.Add(task);
         }
 
         /// <summary>
