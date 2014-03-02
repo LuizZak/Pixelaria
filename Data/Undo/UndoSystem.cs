@@ -236,6 +236,81 @@ namespace Pixelaria.Data.Undo
     }
 
     /// <summary>
+    /// An undo task that encloses multiple IUndoTasks in it
+    /// </summary>
+    public class MultiUndoTask : IUndoTask
+    {
+        /// <summary>
+        /// The list of undo tasks enclosed in this MultiUndoTask
+        /// </summary>
+        List<IUndoTask> undoList;
+
+        /// <summary>
+        /// The description for this MultiUndoTask instance
+        /// </summary>
+        string description;
+
+        /// <summary>
+        /// Initializes a new instance of the MultiUndoTask class with a list of tasks to perform and a description
+        /// </summary>
+        /// <param name="tasks">The tasks to perform</param>
+        /// <param name="description">The description for this MultiUndoTask</param>
+        public MultiUndoTask(IEnumerable<IUndoTask> tasks, string description)
+        {
+            undoList = new List<IUndoTask>();
+            this.description = description;
+
+            foreach (IUndoTask task in tasks)
+            {
+                undoList.Add(task);
+            }
+        }
+
+        /// <summary>
+        /// Clears this UndoTask object
+        /// </summary>
+        public void Clear()
+        {
+            foreach (IUndoTask task in undoList)
+            {
+                task.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Undoes this task
+        /// </summary>
+        public void Undo()
+        {
+            foreach (IUndoTask task in undoList)
+            {
+                task.Undo();
+            }
+        }
+
+        /// <summary>
+        /// Redoes this task
+        /// </summary>
+        public void Redo()
+        {
+            // Redo in reverse order (last to first)
+            for (int i = undoList.Count - 1; i >= 0; i--)
+            {
+                undoList[i].Redo();
+            }
+        }
+
+        /// <summary>
+        /// Returns a short string description of this UndoTask
+        /// </summary>
+        /// <returns>A short string description of this UndoTask</returns>
+        public string GetDescription()
+        {
+            return description;
+        }
+    }
+
+    /// <summary>
     /// Arguments for the UndoRegistered event
     /// </summary>
     public class UndoEventArgs : EventArgs
