@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.90b
+                   v1.95b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,7 +18,7 @@ Legend:
 * Fix/Change
 . Note
 
--- v1.90b
+-- v1.95b
 
 * Fixed single-pixel pencil operations with a Replace blend mode not being saved when the user clicks 'Save Changes and Close' sometimes.
 * Fixed rectangle and ellipse operations breaking the undo tasks.
@@ -26,9 +26,14 @@ Legend:
 
 * Now the sliders for the Scale filter accept negative values, allowing for flipping/reversing of target images.
 
+. AnimationView
+  * Fixed undoing frame deleting re-adding them in the wrong order.
+  * Fixed undoing frame removal not working sometimes.
+  * Fixed crash related to undoing/redoing frame removals.
+
 . FrameView
   + Added functionality to apply filters to the current selection only when a selection is available.
-
+  
   * Fixed selection being able to go past the image boundaries.
   * Now when pasting an image the pasting is placed at the top-left visible position of the canvas instead of the top-left most corner of the image.
 
