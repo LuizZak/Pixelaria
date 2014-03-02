@@ -407,6 +407,15 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
+        /// Removes a Frame at the given index from this Animation object
+        /// </summary>
+        /// <param name="frameIndex">The index of the frame to remove</param>
+        public void RemoveFrameIndex(int frameIndex)
+        {
+            RemoveFrame(GetFrameAtIndex(frameIndex));
+        }
+
+        /// <summary>
         /// Gets the index of the given frame on this animation
         /// </summary>
         /// <param name="frame">The frame on this animation to get the index of</param>
