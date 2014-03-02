@@ -4703,9 +4703,29 @@ namespace Pixelaria.Views.Controls
         private SelectionOperationType operationMode;
 
         /// <summary>
+        /// Gets whether there's an area currently selected
+        /// </summary>
+        public bool Selected { get { return selected; } }
+
+        /// <summary>
         /// Gets or sets the bitmap that represents the currently selected graphics
         /// </summary>
         public Bitmap SelectionBitmap { get { return selectionBitmap; } set { selectionBitmap = value; pictureBox.Invalidate(); } }
+
+        /// <summary>
+        /// Gets the area the selection is currently occupying in the canvas
+        /// </summary>
+        public Rectangle SelectionArea { get { return selectedArea; } }
+
+        /// <summary>
+        /// Gets the area the selection was snipped from
+        /// </summary>
+        public Rectangle SelectionStartArea { get { return selectedStartArea; } }
+
+        /// <summary>
+        /// Gets the operation currently being performed by this SelectionPaintOperation
+        /// </summary>
+        public SelectionOperationType OperationType { get { return operationMode; } }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
@@ -5067,6 +5087,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
         {
+            Point p = GetAbsolutePoint(e.Location);
+
             if (mouseDown)
             {
                 if (movingSelection)
@@ -5080,6 +5102,9 @@ namespace Pixelaria.Views.Controls
                 }
                 else if(drawingSelection)
                 {
+                    selectedArea = GetCurrentRectangle(false);
+                    relativeSelectedArea = GetCurrentRectangle(true);
+
                     if (selectedArea.Width > 0 && selectedArea.Height > 0)
                     {
                         selected = true;
@@ -5092,6 +5117,7 @@ namespace Pixelaria.Views.Controls
                         StartOperation(selectedArea, null);
 
                         drawingSelection = false;
+                        mouseDown = false;
                     }
                 }
             }
@@ -5149,12 +5175,44 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Starts the selection operation with the given area
+        /// </summary>
+        /// <param name="area">The area to snip the bitmap from</param>
+        public void StartOperation(Rectangle area)
+        {
+            StartOperation(area, null);
+        }
+
+        /// <summary>
+        /// Starts the selection operation with the given area and operation mode
+        /// </summary>
+        /// <param name="area">The area to select</param>
+        /// <param name="operation">The operation mode to apply</param>
+        public void StartOperation(Rectangle area, SelectionOperationType operation)
+        {
+            StartOperation(area, null, operation);
+        }
+
+        /// <summary>
         /// Starts the selection operation with the given area and bitmap
         /// </summary>
         /// <param name="area">The area to place the bitmap at</param>
         /// <param name="pasteBitmap">The bitmap to paste</param>
         public void StartOperation(Rectangle area, Bitmap pasteBitmap)
         {
+            StartOperation(area, pasteBitmap, operationMode);
+        }
+
+        /// <summary>
+        /// Starts the selection operation witht he given area, bitmap and operation type
+        /// </summary>
+        /// <param name="area">The area to place the bitmap at</param>
+        /// <param name="pasteBitmap">The bitmap to paste</param>
+        /// <param name="operation">The operation type to mark this selection as</param>
+        public void StartOperation(Rectangle area, Bitmap pasteBitmap, SelectionOperationType operation)
+        {
+            operationMode = operation;
+
             ForceApplyChanges = false;
 
             if (selectionBitmap != null)
@@ -5546,7 +5604,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Describes the type of operation of a SelectionUndoTask
         /// </summary>
-        protected enum SelectionOperationType
+        public enum SelectionOperationType
         {
             /// <summary>
             /// The selection was cut from the canvas
