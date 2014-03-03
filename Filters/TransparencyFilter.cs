@@ -51,6 +51,14 @@ namespace Pixelaria.Filters
         public float Transparency;
 
         /// <summary>
+        /// Initializes a new instance of the TransparencyFilter class
+        /// </summary>
+        public TransparencyFilter()
+        {
+            Transparency = 1;
+        }
+
+        /// <summary>
         /// Applies this TransparencyFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>

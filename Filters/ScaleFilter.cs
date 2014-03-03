@@ -63,6 +63,15 @@ namespace Pixelaria.Filters
         public bool PixelQuality { get; set; }
 
         /// <summary>
+        /// Initializes a new instance of the ScaleFilter class
+        /// </summary>
+        public ScaleFilter()
+        {
+            ScaleX = 1;
+            ScaleY = 1;
+        }
+
+        /// <summary>
         /// Applies this ScaleFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>

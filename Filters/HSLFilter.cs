@@ -154,6 +154,17 @@ namespace Pixelaria.Filters
         public bool Multiply;
 
         /// <summary>
+        /// Initializes a new instance of the SaturationFilter class
+        /// </summary>
+        public SaturationFilter()
+        {
+            Saturation = 100;
+            Relative = false;
+            KeepGrays = true;
+            Multiply = false;
+        }
+
+        /// <summary>
         /// Applies this SaturationFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this SaturationFilter to</param>
@@ -256,6 +267,16 @@ namespace Pixelaria.Filters
         /// Gets or sets whether to multiply the current values instead of adding to them
         /// </summary>
         public bool Multiply;
+
+        /// <summary>
+        /// Initializes a new instance of the LightnessFilter class
+        /// </summary>
+        public LightnessFilter()
+        {
+            Lightness = 100;
+            Relative = false;
+            Multiply = false;
+        }
 
         /// <summary>
         /// Applies this LightnessFilter to a Bitmap

@@ -67,7 +67,7 @@ namespace Pixelaria.Filters
         public bool FadeAlpha;
 
         /// <summary>
-        /// Initializes a new instance of the BlendFilter class
+        /// Initializes a new instance of the FadeFilter class
         /// </summary>
         public FadeFilter()
         {
