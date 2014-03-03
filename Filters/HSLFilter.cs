@@ -240,7 +240,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name { get { return "Saturation"; } }
+        public string Name { get { return "Lightness"; } }
 
         /// <summary>
         /// Lightness value ranging from 0 - 100
