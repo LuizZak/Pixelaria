@@ -57,11 +57,12 @@ namespace Pixelaria.Views.Controls
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "ColorSwatchControl";
-            this.Size = new System.Drawing.Size(313, 382);
+            this.Size = new System.Drawing.Size(224, 382);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
     }
 }

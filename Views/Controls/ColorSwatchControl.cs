@@ -164,7 +164,7 @@ namespace Pixelaria.Views.Controls
 
             // Keep track of the current mouse position so we can invalidate the region
             mouseCellX = Math.Max(0, Math.Min(cellsPerRow - 1, e.X / cellWidth));
-            mouseCellY = Math.Max(0, e.Y / cellHeight);
+            mouseCellY = Math.Max(0, Math.Min((int)Math.Ceiling(colorSwatch.ColorCount / (float)(cellsPerRow)) - 1, e.Y / cellHeight));
 
             // Invalidate the mouse region
             Rectangle newCellRect = GetMouseCellArea();
@@ -351,6 +351,16 @@ namespace Pixelaria.Views.Controls
         public void AddColor(Color color)
         {
             colorList.Add(color);
+        }
+
+        /// <summary>
+        /// Sets a color on this ColorSwatches to be of the given color
+        /// </summary>
+        /// <param name="color">The color to set</param>
+        /// <param name="index">The position to set the color at</param>
+        public void SetColor(Color color, int index)
+        {
+            colorList[index] = color;
         }
 
         #region Helper Methods
