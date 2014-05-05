@@ -146,6 +146,9 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseDown(e);
 
+            if (e.Button != MouseButtons.Left)
+                return;
+
             // Gets the color the user clicked on
             if (ColorSelect != null)
             {
