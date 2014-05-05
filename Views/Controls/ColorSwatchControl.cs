@@ -56,6 +56,11 @@ namespace Pixelaria.Views.Controls
         private bool mouseOver;
 
         /// <summary>
+        /// Whether the mouse is currently pressed down on this control
+        /// </summary>
+        private bool mouseDown;
+
+        /// <summary>
         /// Delegate for a ColorSelect event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -146,6 +151,8 @@ namespace Pixelaria.Views.Controls
             {
                 ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
             }
+
+            mouseDown = true;
         }
 
         // 
@@ -175,6 +182,15 @@ namespace Pixelaria.Views.Controls
 
                 Invalidate(oldRec);
                 Invalidate(newRec);
+
+                if (mouseDown && mouseOver)
+                {
+                    // Gets the color the user clicked on
+                    if (ColorSelect != null)
+                    {
+                        ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
+                    }
+                }
             }
 
             lastMouseCellArea = newCellRect;
@@ -205,6 +221,16 @@ namespace Pixelaria.Views.Controls
             newCellRect.Offset(-1, -1);
             newCellRect.Inflate(2, 2);
             Invalidate(newCellRect);
+        }
+
+        // 
+        // OnMouseUp event handler
+        // 
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            mouseDown = false;
         }
 
         /// <summary>
