@@ -55,12 +55,26 @@ namespace Pixelaria.Views.ModelViews
             Pixelaria.Views.Controls.NullPaintOperation nullPaintOperation1 = new Pixelaria.Views.Controls.NullPaintOperation();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.rb_pencil = new System.Windows.Forms.RadioButton();
+            this.rb_eraser = new System.Windows.Forms.RadioButton();
+            this.rb_picker = new System.Windows.Forms.RadioButton();
+            this.rb_sprayPaint = new System.Windows.Forms.RadioButton();
+            this.rb_line = new System.Windows.Forms.RadioButton();
+            this.rb_rectangle = new System.Windows.Forms.RadioButton();
+            this.rb_circle = new System.Windows.Forms.RadioButton();
+            this.rb_bucket = new System.Windows.Forms.RadioButton();
+            this.rb_selection = new System.Windows.Forms.RadioButton();
+            this.rb_zoom = new System.Windows.Forms.RadioButton();
             this.pnl_framePreview = new System.Windows.Forms.Panel();
+            this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
+            this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorSwatchControl();
             this.splitter1 = new System.Windows.Forms.Splitter();
+            this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorPicker();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -74,21 +88,12 @@ namespace Pixelaria.Views.ModelViews
             this.btn_brushSize_4 = new System.Windows.Forms.Button();
             this.btn_brushSize_5 = new System.Windows.Forms.Button();
             this.btn_brushSize_6 = new System.Windows.Forms.Button();
+            this.anud_brushSize = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.gb_fillMode = new System.Windows.Forms.GroupBox();
             this.rb_fillMode_3 = new System.Windows.Forms.RadioButton();
             this.rb_fillMode_2 = new System.Windows.Forms.RadioButton();
             this.rb_fillMode_1 = new System.Windows.Forms.RadioButton();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.rb_pencil = new System.Windows.Forms.RadioButton();
-            this.rb_eraser = new System.Windows.Forms.RadioButton();
-            this.rb_picker = new System.Windows.Forms.RadioButton();
-            this.rb_sprayPaint = new System.Windows.Forms.RadioButton();
-            this.rb_line = new System.Windows.Forms.RadioButton();
-            this.rb_rectangle = new System.Windows.Forms.RadioButton();
-            this.rb_circle = new System.Windows.Forms.RadioButton();
-            this.rb_bucket = new System.Windows.Forms.RadioButton();
-            this.rb_selection = new System.Windows.Forms.RadioButton();
-            this.rb_zoom = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsb_applyChangesAndClose = new System.Windows.Forms.ToolStripButton();
@@ -141,13 +146,9 @@ namespace Pixelaria.Views.ModelViews
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
-            this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
-            this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorSwatchControl();
-            this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorPicker();
-            this.anud_brushSize = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.pnl_framePreview.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_zoomIcon)).BeginInit();
             this.panel2.SuspendLayout();
@@ -162,12 +163,146 @@ namespace Pixelaria.Views.ModelViews
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.SuspendLayout();
             // 
             // printDialog1
             // 
             this.printDialog1.UseEXDialog = true;
+            // 
+            // rb_pencil
+            // 
+            this.rb_pencil.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_pencil.AutoSize = true;
+            this.rb_pencil.Checked = true;
+            this.rb_pencil.Image = global::Pixelaria.Properties.Resources.pencil_icon;
+            this.rb_pencil.Location = new System.Drawing.Point(3, 3);
+            this.rb_pencil.Name = "rb_pencil";
+            this.rb_pencil.Size = new System.Drawing.Size(22, 22);
+            this.rb_pencil.TabIndex = 9;
+            this.rb_pencil.TabStop = true;
+            this.tt_mainTooltip.SetToolTip(this.rb_pencil, "\"Pencil (D)\"");
+            this.rb_pencil.UseVisualStyleBackColor = true;
+            this.rb_pencil.CheckedChanged += new System.EventHandler(this.rb_pencil_CheckedChanged);
+            // 
+            // rb_eraser
+            // 
+            this.rb_eraser.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_eraser.AutoSize = true;
+            this.rb_eraser.Image = global::Pixelaria.Properties.Resources.eraser_icon;
+            this.rb_eraser.Location = new System.Drawing.Point(31, 3);
+            this.rb_eraser.Name = "rb_eraser";
+            this.rb_eraser.Size = new System.Drawing.Size(22, 22);
+            this.rb_eraser.TabIndex = 10;
+            this.tt_mainTooltip.SetToolTip(this.rb_eraser, "Eraser (E)");
+            this.rb_eraser.UseVisualStyleBackColor = true;
+            this.rb_eraser.CheckedChanged += new System.EventHandler(this.rb_eraser_CheckedChanged);
+            // 
+            // rb_picker
+            // 
+            this.rb_picker.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_picker.AutoSize = true;
+            this.rb_picker.Image = global::Pixelaria.Properties.Resources.picker_icon;
+            this.rb_picker.Location = new System.Drawing.Point(59, 3);
+            this.rb_picker.Name = "rb_picker";
+            this.rb_picker.Size = new System.Drawing.Size(22, 22);
+            this.rb_picker.TabIndex = 11;
+            this.tt_mainTooltip.SetToolTip(this.rb_picker, "Color Picker (C)");
+            this.rb_picker.UseVisualStyleBackColor = true;
+            this.rb_picker.CheckedChanged += new System.EventHandler(this.rb_picker_CheckedChanged);
+            // 
+            // rb_sprayPaint
+            // 
+            this.rb_sprayPaint.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_sprayPaint.AutoSize = true;
+            this.rb_sprayPaint.Image = global::Pixelaria.Properties.Resources.spray_icon;
+            this.rb_sprayPaint.Location = new System.Drawing.Point(3, 31);
+            this.rb_sprayPaint.Name = "rb_sprayPaint";
+            this.rb_sprayPaint.Size = new System.Drawing.Size(22, 22);
+            this.rb_sprayPaint.TabIndex = 18;
+            this.tt_mainTooltip.SetToolTip(this.rb_sprayPaint, "Spray Paint (V)");
+            this.rb_sprayPaint.UseVisualStyleBackColor = true;
+            this.rb_sprayPaint.CheckedChanged += new System.EventHandler(this.rb_sprayPaint_CheckedChanged);
+            // 
+            // rb_line
+            // 
+            this.rb_line.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_line.AutoSize = true;
+            this.rb_line.Image = global::Pixelaria.Properties.Resources.line_icon;
+            this.rb_line.Location = new System.Drawing.Point(31, 31);
+            this.rb_line.Name = "rb_line";
+            this.rb_line.Size = new System.Drawing.Size(22, 22);
+            this.rb_line.TabIndex = 17;
+            this.rb_line.TabStop = true;
+            this.tt_mainTooltip.SetToolTip(this.rb_line, "Line (V)");
+            this.rb_line.UseVisualStyleBackColor = true;
+            this.rb_line.CheckedChanged += new System.EventHandler(this.rb_line_CheckedChanged);
+            // 
+            // rb_rectangle
+            // 
+            this.rb_rectangle.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_rectangle.AutoSize = true;
+            this.rb_rectangle.Image = global::Pixelaria.Properties.Resources.rectangle_icon;
+            this.rb_rectangle.Location = new System.Drawing.Point(59, 31);
+            this.rb_rectangle.Name = "rb_rectangle";
+            this.rb_rectangle.Size = new System.Drawing.Size(22, 22);
+            this.rb_rectangle.TabIndex = 12;
+            this.tt_mainTooltip.SetToolTip(this.rb_rectangle, "Rectangle (R)");
+            this.rb_rectangle.UseVisualStyleBackColor = true;
+            this.rb_rectangle.CheckedChanged += new System.EventHandler(this.rb_rectangle_CheckedChanged);
+            // 
+            // rb_circle
+            // 
+            this.rb_circle.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_circle.AutoSize = true;
+            this.rb_circle.Image = global::Pixelaria.Properties.Resources.circle_icon;
+            this.rb_circle.Location = new System.Drawing.Point(3, 59);
+            this.rb_circle.Name = "rb_circle";
+            this.rb_circle.Size = new System.Drawing.Size(22, 22);
+            this.rb_circle.TabIndex = 13;
+            this.tt_mainTooltip.SetToolTip(this.rb_circle, "Ellipse (Q)");
+            this.rb_circle.UseVisualStyleBackColor = true;
+            this.rb_circle.CheckedChanged += new System.EventHandler(this.rb_circle_CheckedChanged);
+            // 
+            // rb_bucket
+            // 
+            this.rb_bucket.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_bucket.AutoSize = true;
+            this.rb_bucket.Image = global::Pixelaria.Properties.Resources.bucket_icon;
+            this.rb_bucket.Location = new System.Drawing.Point(31, 59);
+            this.rb_bucket.Name = "rb_bucket";
+            this.rb_bucket.Size = new System.Drawing.Size(22, 22);
+            this.rb_bucket.TabIndex = 14;
+            this.tt_mainTooltip.SetToolTip(this.rb_bucket, "Flood Fill (F)");
+            this.rb_bucket.UseVisualStyleBackColor = true;
+            this.rb_bucket.CheckedChanged += new System.EventHandler(this.rb_bucket_CheckedChanged);
+            // 
+            // rb_selection
+            // 
+            this.rb_selection.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_selection.AutoSize = true;
+            this.rb_selection.Image = global::Pixelaria.Properties.Resources.selection_icon;
+            this.rb_selection.Location = new System.Drawing.Point(59, 59);
+            this.rb_selection.Name = "rb_selection";
+            this.rb_selection.Size = new System.Drawing.Size(22, 22);
+            this.rb_selection.TabIndex = 15;
+            this.tt_mainTooltip.SetToolTip(this.rb_selection, "Selection (S)");
+            this.rb_selection.UseVisualStyleBackColor = true;
+            this.rb_selection.CheckedChanged += new System.EventHandler(this.rb_selection_CheckedChanged);
+            // 
+            // rb_zoom
+            // 
+            this.rb_zoom.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rb_zoom.AutoSize = true;
+            this.rb_zoom.Enabled = false;
+            this.rb_zoom.Image = global::Pixelaria.Properties.Resources.zoom_icon;
+            this.rb_zoom.Location = new System.Drawing.Point(3, 87);
+            this.rb_zoom.Name = "rb_zoom";
+            this.rb_zoom.Size = new System.Drawing.Size(22, 22);
+            this.rb_zoom.TabIndex = 16;
+            this.tt_mainTooltip.SetToolTip(this.rb_zoom, "Zoom (Z)");
+            this.rb_zoom.UseVisualStyleBackColor = true;
+            this.rb_zoom.Visible = false;
+            this.rb_zoom.CheckedChanged += new System.EventHandler(this.rb_zoom_CheckedChanged);
             // 
             // pnl_framePreview
             // 
@@ -178,6 +313,22 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview.Name = "pnl_framePreview";
             this.pnl_framePreview.Size = new System.Drawing.Size(249, 318);
             this.pnl_framePreview.TabIndex = 7;
+            // 
+            // zpb_framePreview
+            // 
+            this.zpb_framePreview.AllowScrollbars = false;
+            this.zpb_framePreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_framePreview.ClipBackgroundToImage = true;
+            this.zpb_framePreview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.zpb_framePreview.Location = new System.Drawing.Point(0, 0);
+            this.zpb_framePreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MaximumZoom")));
+            this.zpb_framePreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MinimumZoom")));
+            this.zpb_framePreview.Name = "zpb_framePreview";
+            this.zpb_framePreview.Size = new System.Drawing.Size(245, 314);
+            this.zpb_framePreview.TabIndex = 0;
+            this.zpb_framePreview.TabStop = false;
+            this.zpb_framePreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.Zoom")));
+            this.zpb_framePreview.ZoomFactor = 1.414214F;
             // 
             // panel4
             // 
@@ -198,6 +349,40 @@ namespace Pixelaria.Views.ModelViews
             this.pb_zoomIcon.Size = new System.Drawing.Size(16, 16);
             this.pb_zoomIcon.TabIndex = 1;
             this.pb_zoomIcon.TabStop = false;
+            // 
+            // anud_zoom
+            // 
+            this.anud_zoom.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.anud_zoom.AssistBarColor = System.Drawing.Color.CornflowerBlue;
+            this.anud_zoom.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_zoom.DecimalPlaces = 2;
+            this.anud_zoom.Increment = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            this.anud_zoom.Location = new System.Drawing.Point(26, 4);
+            this.anud_zoom.Maximum = new decimal(new int[] {
+            160,
+            0,
+            0,
+            0});
+            this.anud_zoom.Minimum = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            this.anud_zoom.Name = "anud_zoom";
+            this.anud_zoom.Size = new System.Drawing.Size(470, 32);
+            this.anud_zoom.TabIndex = 0;
+            this.anud_zoom.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_zoom.ValueChanged += new System.EventHandler(this.anud_zoom_ValueChanged);
             // 
             // panel2
             // 
@@ -220,6 +405,17 @@ namespace Pixelaria.Views.ModelViews
             this.panel3.Size = new System.Drawing.Size(224, 284);
             this.panel3.TabIndex = 5;
             // 
+            // cs_colorSwatch
+            // 
+            this.cs_colorSwatch.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_colorSwatch.Location = new System.Drawing.Point(0, 0);
+            this.cs_colorSwatch.Name = "cs_colorSwatch";
+            this.cs_colorSwatch.Size = new System.Drawing.Size(223, 283);
+            this.cs_colorSwatch.TabIndex = 4;
+            this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
+            // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -228,6 +424,19 @@ namespace Pixelaria.Views.ModelViews
             this.splitter1.Size = new System.Drawing.Size(224, 3);
             this.splitter1.TabIndex = 6;
             this.splitter1.TabStop = false;
+            // 
+            // cp_mainColorPicker
+            // 
+            this.cp_mainColorPicker.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.cp_mainColorPicker.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cp_mainColorPicker.FirstColor = System.Drawing.Color.Black;
+            this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
+            this.cp_mainColorPicker.Name = "cp_mainColorPicker";
+            this.cp_mainColorPicker.SecondColor = System.Drawing.Color.White;
+            this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorPickerColor.FirstColor;
+            this.cp_mainColorPicker.Size = new System.Drawing.Size(224, 537);
+            this.cp_mainColorPicker.TabIndex = 3;
+            this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
             // 
             // panel1
             // 
@@ -379,6 +588,36 @@ namespace Pixelaria.Views.ModelViews
             this.btn_brushSize_6.UseVisualStyleBackColor = true;
             this.btn_brushSize_6.Click += new System.EventHandler(this.btn_brushSize_6_Click);
             // 
+            // anud_brushSize
+            // 
+            this.anud_brushSize.AssistBarColor = System.Drawing.Color.CornflowerBlue;
+            this.anud_brushSize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_brushSize.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_brushSize.Location = new System.Drawing.Point(6, 19);
+            this.anud_brushSize.Maximum = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
+            this.anud_brushSize.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_brushSize.Name = "anud_brushSize";
+            this.anud_brushSize.Size = new System.Drawing.Size(72, 32);
+            this.anud_brushSize.TabIndex = 0;
+            this.anud_brushSize.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_brushSize.ValueChanged += new System.EventHandler(this.anud_brushSize_ValueChanged);
+            // 
             // gb_fillMode
             // 
             this.gb_fillMode.Controls.Add(this.rb_fillMode_3);
@@ -446,141 +685,6 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(90, 166);
             this.flowLayoutPanel1.TabIndex = 0;
-            // 
-            // rb_pencil
-            // 
-            this.rb_pencil.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_pencil.AutoSize = true;
-            this.rb_pencil.Checked = true;
-            this.rb_pencil.Image = global::Pixelaria.Properties.Resources.pencil_icon;
-            this.rb_pencil.Location = new System.Drawing.Point(3, 3);
-            this.rb_pencil.Name = "rb_pencil";
-            this.rb_pencil.Size = new System.Drawing.Size(22, 22);
-            this.rb_pencil.TabIndex = 9;
-            this.rb_pencil.TabStop = true;
-            this.tt_mainTooltip.SetToolTip(this.rb_pencil, "\"Pencil (D)\"");
-            this.rb_pencil.UseVisualStyleBackColor = true;
-            this.rb_pencil.CheckedChanged += new System.EventHandler(this.rb_pencil_CheckedChanged);
-            // 
-            // rb_eraser
-            // 
-            this.rb_eraser.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_eraser.AutoSize = true;
-            this.rb_eraser.Image = global::Pixelaria.Properties.Resources.eraser_icon;
-            this.rb_eraser.Location = new System.Drawing.Point(31, 3);
-            this.rb_eraser.Name = "rb_eraser";
-            this.rb_eraser.Size = new System.Drawing.Size(22, 22);
-            this.rb_eraser.TabIndex = 10;
-            this.tt_mainTooltip.SetToolTip(this.rb_eraser, "Eraser (E)");
-            this.rb_eraser.UseVisualStyleBackColor = true;
-            this.rb_eraser.CheckedChanged += new System.EventHandler(this.rb_eraser_CheckedChanged);
-            // 
-            // rb_picker
-            // 
-            this.rb_picker.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_picker.AutoSize = true;
-            this.rb_picker.Image = global::Pixelaria.Properties.Resources.picker_icon;
-            this.rb_picker.Location = new System.Drawing.Point(59, 3);
-            this.rb_picker.Name = "rb_picker";
-            this.rb_picker.Size = new System.Drawing.Size(22, 22);
-            this.rb_picker.TabIndex = 11;
-            this.tt_mainTooltip.SetToolTip(this.rb_picker, "Color Picker (C)");
-            this.rb_picker.UseVisualStyleBackColor = true;
-            this.rb_picker.CheckedChanged += new System.EventHandler(this.rb_picker_CheckedChanged);
-            // 
-            // rb_sprayPaint
-            // 
-            this.rb_sprayPaint.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_sprayPaint.AutoSize = true;
-            this.rb_sprayPaint.Image = global::Pixelaria.Properties.Resources.spray_icon;
-            this.rb_sprayPaint.Location = new System.Drawing.Point(3, 31);
-            this.rb_sprayPaint.Name = "rb_sprayPaint";
-            this.rb_sprayPaint.Size = new System.Drawing.Size(22, 22);
-            this.rb_sprayPaint.TabIndex = 18;
-            this.tt_mainTooltip.SetToolTip(this.rb_sprayPaint, "Spray Paint (V)");
-            this.rb_sprayPaint.UseVisualStyleBackColor = true;
-            this.rb_sprayPaint.CheckedChanged += new System.EventHandler(this.rb_sprayPaint_CheckedChanged);
-            // 
-            // rb_line
-            // 
-            this.rb_line.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_line.AutoSize = true;
-            this.rb_line.Image = global::Pixelaria.Properties.Resources.line_icon;
-            this.rb_line.Location = new System.Drawing.Point(31, 31);
-            this.rb_line.Name = "rb_line";
-            this.rb_line.Size = new System.Drawing.Size(22, 22);
-            this.rb_line.TabIndex = 17;
-            this.rb_line.TabStop = true;
-            this.tt_mainTooltip.SetToolTip(this.rb_line, "Line (V)");
-            this.rb_line.UseVisualStyleBackColor = true;
-            this.rb_line.CheckedChanged += new System.EventHandler(this.rb_line_CheckedChanged);
-            // 
-            // rb_rectangle
-            // 
-            this.rb_rectangle.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_rectangle.AutoSize = true;
-            this.rb_rectangle.Image = global::Pixelaria.Properties.Resources.rectangle_icon;
-            this.rb_rectangle.Location = new System.Drawing.Point(59, 31);
-            this.rb_rectangle.Name = "rb_rectangle";
-            this.rb_rectangle.Size = new System.Drawing.Size(22, 22);
-            this.rb_rectangle.TabIndex = 12;
-            this.tt_mainTooltip.SetToolTip(this.rb_rectangle, "Rectangle (R)");
-            this.rb_rectangle.UseVisualStyleBackColor = true;
-            this.rb_rectangle.CheckedChanged += new System.EventHandler(this.rb_rectangle_CheckedChanged);
-            // 
-            // rb_circle
-            // 
-            this.rb_circle.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_circle.AutoSize = true;
-            this.rb_circle.Image = global::Pixelaria.Properties.Resources.circle_icon;
-            this.rb_circle.Location = new System.Drawing.Point(3, 59);
-            this.rb_circle.Name = "rb_circle";
-            this.rb_circle.Size = new System.Drawing.Size(22, 22);
-            this.rb_circle.TabIndex = 13;
-            this.tt_mainTooltip.SetToolTip(this.rb_circle, "Ellipse (Q)");
-            this.rb_circle.UseVisualStyleBackColor = true;
-            this.rb_circle.CheckedChanged += new System.EventHandler(this.rb_circle_CheckedChanged);
-            // 
-            // rb_bucket
-            // 
-            this.rb_bucket.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_bucket.AutoSize = true;
-            this.rb_bucket.Image = global::Pixelaria.Properties.Resources.bucket_icon;
-            this.rb_bucket.Location = new System.Drawing.Point(31, 59);
-            this.rb_bucket.Name = "rb_bucket";
-            this.rb_bucket.Size = new System.Drawing.Size(22, 22);
-            this.rb_bucket.TabIndex = 14;
-            this.tt_mainTooltip.SetToolTip(this.rb_bucket, "Flood Fill (F)");
-            this.rb_bucket.UseVisualStyleBackColor = true;
-            this.rb_bucket.CheckedChanged += new System.EventHandler(this.rb_bucket_CheckedChanged);
-            // 
-            // rb_selection
-            // 
-            this.rb_selection.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_selection.AutoSize = true;
-            this.rb_selection.Image = global::Pixelaria.Properties.Resources.selection_icon;
-            this.rb_selection.Location = new System.Drawing.Point(59, 59);
-            this.rb_selection.Name = "rb_selection";
-            this.rb_selection.Size = new System.Drawing.Size(22, 22);
-            this.rb_selection.TabIndex = 15;
-            this.tt_mainTooltip.SetToolTip(this.rb_selection, "Selection (S)");
-            this.rb_selection.UseVisualStyleBackColor = true;
-            this.rb_selection.CheckedChanged += new System.EventHandler(this.rb_selection_CheckedChanged);
-            // 
-            // rb_zoom
-            // 
-            this.rb_zoom.Appearance = System.Windows.Forms.Appearance.Button;
-            this.rb_zoom.AutoSize = true;
-            this.rb_zoom.Enabled = false;
-            this.rb_zoom.Image = global::Pixelaria.Properties.Resources.zoom_icon;
-            this.rb_zoom.Location = new System.Drawing.Point(3, 87);
-            this.rb_zoom.Name = "rb_zoom";
-            this.rb_zoom.Size = new System.Drawing.Size(22, 22);
-            this.rb_zoom.TabIndex = 16;
-            this.tt_mainTooltip.SetToolTip(this.rb_zoom, "Zoom (Z)");
-            this.rb_zoom.UseVisualStyleBackColor = true;
-            this.rb_zoom.Visible = false;
-            this.rb_zoom.CheckedChanged += new System.EventHandler(this.rb_zoom_CheckedChanged);
             // 
             // label1
             // 
@@ -1094,22 +1198,6 @@ namespace Pixelaria.Views.ModelViews
             this.tsl_operationLabel.Name = "tsl_operationLabel";
             this.tsl_operationLabel.Size = new System.Drawing.Size(0, 17);
             // 
-            // zpb_framePreview
-            // 
-            this.zpb_framePreview.AllowScrollbars = false;
-            this.zpb_framePreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.zpb_framePreview.ClipBackgroundToImage = true;
-            this.zpb_framePreview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zpb_framePreview.Location = new System.Drawing.Point(0, 0);
-            this.zpb_framePreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MaximumZoom")));
-            this.zpb_framePreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MinimumZoom")));
-            this.zpb_framePreview.Name = "zpb_framePreview";
-            this.zpb_framePreview.Size = new System.Drawing.Size(245, 314);
-            this.zpb_framePreview.TabIndex = 0;
-            this.zpb_framePreview.TabStop = false;
-            this.zpb_framePreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.Zoom")));
-            this.zpb_framePreview.ZoomFactor = 1.414214F;
-            // 
             // iepb_frame
             // 
             this.iepb_frame.CurrentPaintOperation = nullPaintOperation1;
@@ -1129,94 +1217,6 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.MouseEnter += new System.EventHandler(this.iepb_frame_MouseEnter);
             this.iepb_frame.MouseLeave += new System.EventHandler(this.iepb_frame_MouseLeave);
             this.iepb_frame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.iepb_frame_MouseMove);
-            // 
-            // anud_zoom
-            // 
-            this.anud_zoom.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.anud_zoom.AssistBarColor = System.Drawing.Color.CornflowerBlue;
-            this.anud_zoom.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_zoom.DecimalPlaces = 2;
-            this.anud_zoom.Increment = new decimal(new int[] {
-            25,
-            0,
-            0,
-            131072});
-            this.anud_zoom.Location = new System.Drawing.Point(26, 4);
-            this.anud_zoom.Maximum = new decimal(new int[] {
-            160,
-            0,
-            0,
-            0});
-            this.anud_zoom.Minimum = new decimal(new int[] {
-            25,
-            0,
-            0,
-            131072});
-            this.anud_zoom.Name = "anud_zoom";
-            this.anud_zoom.Size = new System.Drawing.Size(470, 32);
-            this.anud_zoom.TabIndex = 0;
-            this.anud_zoom.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_zoom.ValueChanged += new System.EventHandler(this.anud_zoom_ValueChanged);
-            // 
-            // cs_colorSwatch
-            // 
-            this.cs_colorSwatch.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_colorSwatch.Location = new System.Drawing.Point(0, 0);
-            this.cs_colorSwatch.Name = "cs_colorSwatch";
-            this.cs_colorSwatch.Size = new System.Drawing.Size(223, 283);
-            this.cs_colorSwatch.TabIndex = 4;
-            this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
-            // 
-            // cp_mainColorPicker
-            // 
-            this.cp_mainColorPicker.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.cp_mainColorPicker.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cp_mainColorPicker.FirstColor = System.Drawing.Color.Black;
-            this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
-            this.cp_mainColorPicker.Name = "cp_mainColorPicker";
-            this.cp_mainColorPicker.SecondColor = System.Drawing.Color.White;
-            this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorPickerColor.FirstColor;
-            this.cp_mainColorPicker.Size = new System.Drawing.Size(224, 537);
-            this.cp_mainColorPicker.TabIndex = 3;
-            this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
-            // 
-            // anud_brushSize
-            // 
-            this.anud_brushSize.AssistBarColor = System.Drawing.Color.CornflowerBlue;
-            this.anud_brushSize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_brushSize.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_brushSize.Location = new System.Drawing.Point(6, 19);
-            this.anud_brushSize.Maximum = new decimal(new int[] {
-            15,
-            0,
-            0,
-            0});
-            this.anud_brushSize.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_brushSize.Name = "anud_brushSize";
-            this.anud_brushSize.Size = new System.Drawing.Size(72, 32);
-            this.anud_brushSize.TabIndex = 0;
-            this.anud_brushSize.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_brushSize.ValueChanged += new System.EventHandler(this.anud_brushSize_ValueChanged);
             // 
             // FrameView
             // 
@@ -1244,6 +1244,7 @@ namespace Pixelaria.Views.ModelViews
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrameView_FormClosed);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrameView_KeyDown);
             this.pnl_framePreview.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).EndInit();
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pb_zoomIcon)).EndInit();
             this.panel2.ResumeLayout(false);
@@ -1264,7 +1265,6 @@ namespace Pixelaria.Views.ModelViews
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

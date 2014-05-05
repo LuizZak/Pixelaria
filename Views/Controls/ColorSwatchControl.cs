@@ -174,10 +174,7 @@ namespace Pixelaria.Views.Controls
                 Rectangle oldRec = lastMouseCellArea;
                 Rectangle newRec = newCellRect;
 
-                oldRec.Offset(-1, -1);
                 oldRec.Inflate(2, 2);
-
-                newRec.Offset(-1, -1);
                 newRec.Inflate(2, 2);
 
                 Invalidate(oldRec);
