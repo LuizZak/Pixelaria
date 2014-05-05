@@ -97,7 +97,9 @@ namespace Pixelaria.Views.Controls
 
                     value = Math.Min(Maximum, Math.Max(Minimum, value));
 
+                    mouseDown = true;
                     nud_controlNud.Value = value;
+                    mouseDown = false;
 
                     if (oldValue > value)
                     {
