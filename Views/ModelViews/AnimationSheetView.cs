@@ -30,6 +30,8 @@ using Pixelaria.Data.Exports;
 
 using Pixelaria.Controllers;
 
+using Pixelaria.Utils;
+
 namespace Pixelaria.Views.ModelViews
 {
     /// <summary>
@@ -276,6 +278,7 @@ namespace Pixelaria.Views.ModelViews
                 lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
                 lbl_framesOnSheet.Text = (bse.FrameCount - bse.ReusedFrameCount) + "";
                 lbl_reusedFrames.Text = (bse.ReusedFrameCount) + "";
+                lbl_memoryUsage.Text = Utilities.FormatByteSize(Utilities.MemoryUsageOfImage(img));
 
                 if (pnl_alertPanel.Visible && lbl_alertLabel.Text == "No animations on sheet to generate preview.")
                 {

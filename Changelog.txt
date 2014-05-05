@@ -31,6 +31,9 @@ Legend:
   * Fixed undoing frame removal not working sometimes.
   * Fixed crash related to undoing/redoing frame removals.
 
+. AnimationSheetView
+  + Added a memory usage information label to preview the memory the exported image will use.
+
 . FrameView
   + Added functionality to apply filters to the current selection only when a selection is available.
   
