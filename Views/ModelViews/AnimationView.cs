@@ -130,11 +130,19 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Refresh the title of this view
+        /// Refreshs the title of this view
         /// </summary>
         private void RefreshTitle()
         {
             this.Text = "Animation [" + currentAnimation.Name + "]" + (modified ? "*" : "");
+        }
+
+        /// <summary>
+        /// Refreshes the buttons of the form
+        /// </summary>
+        private void RefreshButtons()
+        {
+            this.tsb_applyChanges.Enabled = this.modified;
         }
 
         /// <summary>
@@ -263,6 +271,7 @@ namespace Pixelaria.Views.ModelViews
             base.MarkModified();
 
             RefreshTitle();
+            RefreshButtons();
         }
 
         /// <summary>
@@ -273,6 +282,7 @@ namespace Pixelaria.Views.ModelViews
             base.MarkUnmodified();
 
             RefreshTitle();
+            RefreshButtons();
         }
 
         /// <summary>
@@ -295,8 +305,6 @@ namespace Pixelaria.Views.ModelViews
             }
 
             base.ApplyChanges();
-
-            RefreshTitle();
         }
 
         /// <summary>
