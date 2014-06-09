@@ -2205,6 +2205,8 @@ namespace Pixelaria.Views.Controls
                 // Color pick
                 else if (e.Button == MouseButtons.Middle)
                 {
+                    mouseDown = true;
+
                     firstColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
                     RegeneratePenBitmap();
 
@@ -2236,78 +2238,93 @@ namespace Pixelaria.Views.Controls
 
             if (mouseDown)
             {
-                Bitmap targetBitmap = (CompositingMode == CompositingMode.SourceCopy ? pictureBox.Bitmap : currentTraceBitmap);
-
                 Point pencil = GetAbsolutePoint(pencilPoint);
                 Point pencilLast = GetAbsolutePoint(lastMousePosition);
 
-                if (pencil != pencilLast)
+                if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                 {
-                    int x0 = pencilLast.X;
-                    int y0 = pencilLast.Y;
-                    int x1 = pencil.X;
-                    int y1 = pencil.Y;
-
-                    bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-                    if (steep)
+                    if (pencil != pencilLast)
                     {
-                        int t = x0;
-                        x0 = y0;
-                        y0 = t;
+                        Bitmap targetBitmap = (CompositingMode == CompositingMode.SourceCopy ? pictureBox.Bitmap : currentTraceBitmap);
 
-                        t = x1;
-                        x1 = y1;
-                        y1 = t;
-                    }
-                    if (x0 > x1)
-                    {
-                        int t = x0;
-                        x0 = x1;
-                        x1 = t;
+                        int x0 = pencilLast.X;
+                        int y0 = pencilLast.Y;
+                        int x1 = pencil.X;
+                        int y1 = pencil.Y;
 
-                        t = y0;
-                        y0 = y1;
-                        y1 = t;
-                    }
-                    int deltax = x1 - x0;
-                    int deltay = Math.Abs(y1 - y0);
-                    int error = deltax / 2;
-                    int ystep;
-                    int y = y0;
-
-                    if (y0 < y1)
-                        ystep = 1;
-                    else
-                        ystep = -1;
-
-                    Point p = new Point();
-                    for (int x = x0; x <= x1; x++)
-                    {
+                        bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
                         if (steep)
                         {
-                            p.X = y;
-                            p.Y = x;
+                            int t = x0;
+                            x0 = y0;
+                            y0 = t;
+
+                            t = x1;
+                            x1 = y1;
+                            y1 = t;
                         }
+                        if (x0 > x1)
+                        {
+                            int t = x0;
+                            x0 = x1;
+                            x1 = t;
+
+                            t = y0;
+                            y0 = y1;
+                            y1 = t;
+                        }
+                        int deltax = x1 - x0;
+                        int deltay = Math.Abs(y1 - y0);
+                        int error = deltax / 2;
+                        int ystep;
+                        int y = y0;
+
+                        if (y0 < y1)
+                            ystep = 1;
                         else
+                            ystep = -1;
+
+                        Point p = new Point();
+                        for (int x = x0; x <= x1; x++)
                         {
-                            p.X = x;
-                            p.Y = y;
+                            if (steep)
+                            {
+                                p.X = y;
+                                p.Y = x;
+                            }
+                            else
+                            {
+                                p.X = x;
+                                p.Y = y;
+                            }
+
+                            if (WithinBounds(p) && p != pencilLast)
+                            {
+                                DrawPencil(p, targetBitmap);
+                            }
+
+                            error = error - deltay;
+                            if (error < 0)
+                            {
+                                y = y + ystep;
+                                error = error + deltax;
+                            }
                         }
 
-                        if (WithinBounds(p) && p != pencilLast)
-                        {
-                            DrawPencil(p, targetBitmap);
-                        }
-
-                        error = error - deltay;
-                        if (error < 0)
-                        {
-                            y = y + ystep;
-                            error = error + deltax;
-                        }
+                        pictureBox.MarkModified();
                     }
+                }
+                else if (e.Button == MouseButtons.Middle)
+                {
+                    if (pencil != pencilLast)
+                    {
+                        firstColor = pictureBox.Bitmap.GetPixel(pencil.X, pencil.Y);
+                        RegeneratePenBitmap();
 
-                    pictureBox.MarkModified();
+                        pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+
+                        pictureBox.Invalidate();
+                    }
                 }
             }
 
@@ -4456,6 +4473,16 @@ namespace Pixelaria.Views.Controls
         private Color secondColor = Color.Black;
 
         /// <summary>
+        /// The point at which the mouse is currently over
+        /// </summary>
+        private Point mousePosition;
+
+        /// <summary>
+        /// The last recorded mouse position
+        /// </summary>
+        private Point lastMousePosition;
+
+        /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
         /// </summary>
         public virtual Color FirstColor { get { return firstColor; } set { firstColor = value; } }
@@ -4531,6 +4558,32 @@ namespace Pixelaria.Views.Controls
 
                 pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
             }
+        }
+
+        /// <summary>
+        /// Called to notify this PaintOperation that the mouse is being moved
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        public override void MouseMove(MouseEventArgs e)
+        {
+            base.MouseMove(e);
+
+            mousePosition = e.Location;
+
+            if (e.Button == MouseButtons.Middle)
+            {
+                Point mouse = GetAbsolutePoint(mousePosition);
+                Point mouseLast = GetAbsolutePoint(lastMousePosition);
+
+                if (mouse != mouseLast)
+                {
+                    firstColor = pictureBox.Bitmap.GetPixel(mouse.X, mouse.Y);
+
+                    pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+                }
+            }
+
+            lastMousePosition = mousePosition;
         }
 
         /// <summary>
