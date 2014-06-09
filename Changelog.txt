@@ -20,8 +20,12 @@ Legend:
 
 -- v1.10.0b
 
++ AniomationView
+  * Fixed another crash related to pasting frames.
+
 . FrameView
   + Added support for duplication of selection by holding Control when dragging a selected portion of the image.
+  . Now color picking on the pencil and bucket operations also work when dragging the mouse with the mouse wheel held down.
 
 * Fixed issue with the scale filter blurring images when their dimensions were odd.
 
