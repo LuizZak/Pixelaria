@@ -20,7 +20,12 @@ Legend:
 
 -- v1.10.0b
 
-. Reduced flickering of assisted numeric value input (numeric input with bar used with mouse under it)
+. FrameView
+  + Added support for duplication of selection by holding Control when dragging a selected portion of the image.
+
+* Fixed issue with the scale filter blurring images when their dimensions were odd.
+
+. Reduced flickering of assisted numeric value input (numeric input with bar used with mouse under it).
 
 -- v1.95b
 

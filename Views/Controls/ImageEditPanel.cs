@@ -1668,6 +1668,11 @@ namespace Pixelaria.Views.Controls
         protected bool shiftDown;
 
         /// <summary>
+        /// Whether the CONTROL key is currently held down
+        /// </summary>
+        protected bool ctrlDown;
+
+        /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
@@ -1760,6 +1765,10 @@ namespace Pixelaria.Views.Controls
             {
                 shiftDown = true;
             }
+            else if (e.KeyCode == Keys.ControlKey)
+            {
+                ctrlDown = true;
+            }
         }
 
         /// <summary>
@@ -1771,6 +1780,10 @@ namespace Pixelaria.Views.Controls
             if(e.KeyCode == Keys.ShiftKey)
             {
                 shiftDown = false;
+            }
+            else if (e.KeyCode == Keys.ControlKey)
+            {
+                ctrlDown = false;
             }
         }
 
@@ -5029,6 +5042,13 @@ namespace Pixelaria.Views.Controls
             }
             else if(selected && WithinBounds(p))
             {
+                // If the control key is currently down, duplicate the image and start dragging the duplicated image instead
+                if (ctrlDown)
+                {
+                    FinishOperation(true);
+                    StartOperation(selectedArea, ExtractBitmap(selectedArea), SelectionOperationType.Paste);
+                }
+
                 movingSelection = true;
                 movingOffset = new Point(p.X - selectedArea.X, p.Y - selectedArea.Y);
             }
@@ -5175,6 +5195,26 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Extracts a portion of the edit image and returns a bitmap of it.
+        /// The operation does not modifies the original image
+        /// </summary>
+        /// <param name="area">The area to remove from the image</param>
+        /// <returns>A bitmap of the selected portion of the bitmap</returns>
+        public Bitmap ExtractBitmap(Rectangle area)
+        {
+            Bitmap bitmap = new Bitmap(area.Width, area.Height);
+
+            graphics = Graphics.FromImage(bitmap);
+
+            graphics.DrawImage(pictureBox.Bitmap, new Rectangle(0, 0, area.Width, area.Height), area, GraphicsUnit.Pixel);
+
+            graphics.Dispose();
+            graphics = null;
+
+            return bitmap;
+        }
+
+        /// <summary>
         /// Starts the selection operation with the given area
         /// </summary>
         /// <param name="area">The area to snip the bitmap from</param>
@@ -5228,14 +5268,7 @@ namespace Pixelaria.Views.Controls
             // Get the selected area
             if (pasteBitmap == null)
             {
-                pasteBitmap = new Bitmap(selectedArea.Width, selectedArea.Height);
-
-                graphics = Graphics.FromImage(pasteBitmap);
-
-                graphics.DrawImage(pictureBox.Bitmap, new Rectangle(0, 0, selectedArea.Width, selectedArea.Height), selectedArea, GraphicsUnit.Pixel);
-
-                graphics.Dispose();
-                graphics = null;
+                pasteBitmap = ExtractBitmap(area);
 
                 // Clear the bitmap behind the image
                 graphics = Graphics.FromImage(pictureBox.Image);
