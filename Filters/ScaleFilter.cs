@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -102,8 +103,8 @@ namespace Pixelaria.Filters
 
             if (Centered)
             {
-                rec.X = bitmap.Width / 2 - rec.Width / 2;
-                rec.Y = bitmap.Height / 2 - rec.Height / 2;
+                rec.X = (float)Math.Round(bitmap.Width / 2 - rec.Width / 2);
+                rec.Y = (float)Math.Round(bitmap.Height / 2 - rec.Height / 2);
             }
 
             g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
