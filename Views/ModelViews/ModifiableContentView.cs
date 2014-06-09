@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public virtual void ApplyChanges()
         {
-            modified = false;
+            MarkUnmodified();
         }
 
         /// <summary>
