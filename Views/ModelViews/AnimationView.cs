@@ -534,12 +534,15 @@ namespace Pixelaria.Views.ModelViews
 
                 // Gets the index to position the frames
                 int index = -1;
-                int undoAddIndex = -1;
+                int undoAddIndex;
 
                 for (int i = 0; i < lv_frames.SelectedIndices.Count; i++)
                 {
                     index = Math.Max(index, lv_frames.SelectedIndices[i]);
                 }
+
+                if (index == -1)
+                    index = lv_frames.Items.Count;
 
                 undoAddIndex = index;
 
