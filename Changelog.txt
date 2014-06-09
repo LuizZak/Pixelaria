@@ -21,6 +21,7 @@ Legend:
 -- v1.10.0b
 
 + AniomationView
+  * Fixed undoing/redoing something not marking the animation as modified.
   * Fixed another crash related to pasting frames.
 
 . FrameView

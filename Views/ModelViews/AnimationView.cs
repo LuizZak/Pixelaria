@@ -367,6 +367,8 @@ namespace Pixelaria.Views.ModelViews
             {
                 undoSystem.Undo();
 
+                MarkModified();
+
                 RefreshView();
             }
         }
@@ -379,6 +381,8 @@ namespace Pixelaria.Views.ModelViews
             if (undoSystem.CanRedo)
             {
                 undoSystem.Redo();
+
+                MarkModified();
 
                 RefreshView();
             }
