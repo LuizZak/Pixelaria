@@ -48,6 +48,11 @@ namespace Pixelaria.Data.Undo
         private int maxTaskCount;
 
         /// <summary>
+        /// The current group undo task
+        /// </summary>
+        private GroupUndoTask currentGroupUndoTask;
+
+        /// <summary>
         /// Event handler for the events on the UndoSystem
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -90,6 +95,12 @@ namespace Pixelaria.Data.Undo
         public bool CanRedo { get { return currentTask < undoTasks.Count; } }
 
         /// <summary>
+        /// Gets whether this UndoSystem is currently in group undo mode, recording all
+        /// current undos into a group that will be stored as a single undo task later
+        /// </summary>
+        public bool InGroupUndo { get { return currentGroupUndoTask != null; } }
+
+        /// <summary>
         /// Returns the next undo operation on the undo stack. If there's no undo operation available, null is returned
         /// </summary>
         public IUndoTask NextUndo { get { return CanUndo ? undoTasks[currentTask - 1] : null; } }
@@ -115,6 +126,13 @@ namespace Pixelaria.Data.Undo
         /// <param name="task">The task to undo</param>
         public void RegisterUndo(IUndoTask task)
         {
+            // Grouped undos: record them inside the group undo
+            if (InGroupUndo)
+            {
+                currentGroupUndoTask.AddTask(task);
+                return;
+            }
+
             // Redo task clearing
             ClearRedos();
 
@@ -146,6 +164,11 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Undo()
         {
+            if (InGroupUndo)
+            {
+                FinishGroupUndo();
+            }
+
             if (currentTask == 0)
                 return;
 
@@ -164,6 +187,11 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
+            if (InGroupUndo)
+            {
+                FinishGroupUndo();
+            }
+
             if (currentTask == undoTasks.Count)
                 return;
 
@@ -177,8 +205,42 @@ namespace Pixelaria.Data.Undo
         }
 
         /// <summary>
+        /// Starts a group undo task
+        /// </summary>
+        /// <param name="description">A description for the task</param>
+        public void StartGroupUndo(string description)
+        {
+            if (InGroupUndo)
+                return;
+
+            currentGroupUndoTask = new GroupUndoTask(description);
+        }
+
+        /// <summary>
+        /// Finishes and records the current grouped undo tasks
+        /// </summary>
+        /// <param name="cancel">Whether to cancel the undo operations currently grouped</param>
+        public void FinishGroupUndo(bool cancel = false)
+        {
+            if (!InGroupUndo)
+                return;
+
+            GroupUndoTask task = currentGroupUndoTask;
+            currentGroupUndoTask = null;
+
+            if (!cancel)
+            {
+                RegisterUndo(task);
+            }
+            else
+            {
+                task.Clear();
+            }
+        }
+
+        /// <summary>
         /// Removes and returns the next undo task from this UndoSystem's undo list.
-        /// The returned task is not disposed before being returned.
+        /// The undo task is not performed, and is not disposed before being returned.
         /// If no undo task is available, null is returned
         /// </summary>
         /// <returns>The next available undo operation if available, null otherwise</returns>
@@ -197,7 +259,7 @@ namespace Pixelaria.Data.Undo
 
         /// <summary>
         /// Removes and returns the next redo task from this UndoSystem's undo list.
-        /// The returned task is not disposed before being returned.
+        /// The undo task is not performed, and is not disposed before being returned.
         /// If no redo task is available, null is returned
         /// </summary>
         /// <returns>The next available redo operation if available, null otherwise</returns>
@@ -275,34 +337,34 @@ namespace Pixelaria.Data.Undo
     /// <summary>
     /// An undo task that encloses multiple IUndoTasks in it
     /// </summary>
-    public class MultiUndoTask : IUndoTask
+    public class GroupUndoTask : IUndoTask
     {
         /// <summary>
-        /// The list of undo tasks enclosed in this MultiUndoTask
+        /// The list of undo tasks enclosed in this GroupUndoTask
         /// </summary>
         List<IUndoTask> undoList;
 
         /// <summary>
-        /// The description for this MultiUndoTask instance
+        /// The description for this GroupUndoTask instance
         /// </summary>
         string description;
 
         /// <summary>
-        /// Initializes a new instance of the MultiUndoTask class with a description
+        /// Initializes a new instance of the GroupUndoTask class with a description
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
-        public MultiUndoTask(string description)
+        public GroupUndoTask(string description)
         {
             undoList = new List<IUndoTask>();
             this.description = description;
         }
 
         /// <summary>
-        /// Initializes a new instance of the MultiUndoTask class with a list of tasks to perform and a description
+        /// Initializes a new instance of the GroupUndoTask class with a list of tasks to perform and a description
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
-        /// <param name="description">The description for this MultiUndoTask</param>
-        public MultiUndoTask(IEnumerable<IUndoTask> tasks, string description)
+        /// <param name="description">The description for this GroupUndoTask</param>
+        public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description)
             : this(description)
         {
             foreach (IUndoTask task in tasks)
@@ -312,9 +374,9 @@ namespace Pixelaria.Data.Undo
         }
 
         /// <summary>
-        /// Adds a new task on this MultiUndoTask
+        /// Adds a new task on this GroupUndoTask
         /// </summary>
-        /// <param name="task">The task to add to this MultiUndoTask</param>
+        /// <param name="task">The task to add to this GroupUndoTask</param>
         public void AddTask(IUndoTask task)
         {
             undoList.Add(task);
@@ -329,6 +391,8 @@ namespace Pixelaria.Data.Undo
             {
                 task.Clear();
             }
+
+            undoList.Clear();
         }
 
         /// <summary>
@@ -336,9 +400,10 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Undo()
         {
-            foreach (IUndoTask task in undoList)
+            // Undo in reverse order (last to first)
+            for (int i = undoList.Count - 1; i >= 0; i--)
             {
-                task.Undo();
+                undoList[i].Undo();
             }
         }
 
@@ -347,10 +412,9 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
-            // Redo in reverse order (last to first)
-            for (int i = undoList.Count - 1; i >= 0; i--)
+            foreach (IUndoTask task in undoList)
             {
-                undoList[i].Redo();
+                task.Redo();
             }
         }
 
