@@ -5304,6 +5304,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="operation">The operation type to mark this selection as</param>
         public void StartOperation(Rectangle area, Bitmap pasteBitmap, SelectionOperationType operation)
         {
+            pictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection");
+
             operationMode = operation;
 
             ForceApplyChanges = false;
@@ -5346,8 +5348,11 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Cancels the current dragging operation
         /// </summary>
-        public void CancelOperation(bool drawOnCanvas)
+        public void CancelOperation(bool drawOnCanvas, bool cancelGroup = true)
         {
+            if (cancelGroup)
+                pictureBox.OwningPanel.UndoSystem.FinishGroupUndo(true);
+
             if (!selected)
                 return;
 
@@ -5450,6 +5455,8 @@ namespace Pixelaria.Views.Controls
 
             // Default the operation mode to 'Moved'
             operationMode = SelectionOperationType.Moved;
+
+            pictureBox.OwningPanel.UndoSystem.FinishGroupUndo(false);
         }
 
         /// <summary>

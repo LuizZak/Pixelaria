@@ -23,9 +23,11 @@ Legend:
 + AniomationView
   * Fixed undoing/redoing something not marking the animation as modified.
   * Fixed another crash related to pasting frames.
+  . Now the Apply Changes button is disabled until an unsaved change is made.
 
 . FrameView
   + Added support for duplication of selection by holding Control when dragging a selected portion of the image.
+  . Now application of filters on a selection and moving it to somewhere else will be grouped into a single undo.
   . Now color picking on the pencil and bucket operations also work when dragging the mouse with the mouse wheel held down.
 
 * Fixed issue with the scale filter blurring images when their dimensions were odd.

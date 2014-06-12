@@ -749,7 +749,7 @@ namespace Pixelaria.Views.ModelViews
                     Rectangle area = op.SelectionArea;
                     Rectangle startArea = op.SelectionStartArea;
                     
-                    op.CancelOperation(true);
+                    op.CancelOperation(true, false);
 
                     but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
 
@@ -788,7 +788,7 @@ namespace Pixelaria.Views.ModelViews
                             Rectangle area = op.SelectionArea;
                             Rectangle startArea = op.SelectionStartArea;
 
-                            op.CancelOperation(true);
+                            op.CancelOperation(true, false);
 
                             but.RegisterNewBitmap(undoTarget);
 
