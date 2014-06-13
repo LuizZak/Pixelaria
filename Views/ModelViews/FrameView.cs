@@ -38,6 +38,7 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.Filters;
+using Pixelaria.Views.MiscViews;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -382,7 +383,30 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ImportFrame()
         {
+            Image img = controller.ShowLoadImage("", this);
 
+            if (img == null)
+                return;
+
+            if (img.Width > viewFrame.Width || img.Height > viewFrame.Height)
+            {
+                FramesRescaleSettingsView frs = new FramesRescaleSettingsView("The selected image is larger than the current image. Please select the scaling mode to apply to the new image:", FramesRescalingOptions.ShowFrameScale | FramesRescalingOptions.ShowDrawingMode);
+
+                if (frs.ShowDialog(this) == DialogResult.OK)
+                {
+                    FrameSizeMatchingSettings settings = frs.GeneratedSettings;
+
+                    img = ImageUtilities.Resize(img, viewFrame.Width, viewFrame.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
+                }
+            }
+
+            ClearFrame();
+
+            if(!(this.iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
+                ChangePaintOperation(new SelectionPaintOperation());
+
+            ((SelectionPaintOperation)this.iepb_frame.CurrentPaintOperation).CancelOperation(false);
+            ((SelectionPaintOperation)this.iepb_frame.CurrentPaintOperation).StartOperation(new Rectangle(0, 0, img.Width, img.Height), (Bitmap)img, SelectionPaintOperation.SelectionOperationType.Paste);
         }
 
         /// <summary>
@@ -588,17 +612,29 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Clears the frame. This method also registers an undo task for the clearing process
         /// </summary>
-        private void ClearFrame()
+        /// <param name="registerUndo">Whether to register an undo for the clear operation</param>
+        private void ClearFrame(bool registerUndo = true)
         {
-            BitmapUndoTask bud = new BitmapUndoTask(iepb_frame.PictureBox, iepb_frame.PictureBox.Bitmap, "Clear");
+            BitmapUndoTask bud = null;
+
+            if (registerUndo)
+            {
+                bud = new BitmapUndoTask(iepb_frame.PictureBox, iepb_frame.PictureBox.Bitmap, "Clear");
+            }
 
             FastBitmap.ClearBitmap(iepb_frame.PictureBox.Bitmap, 0);
 
-            bud.RegisterNewBitmap(iepb_frame.PictureBox.Bitmap);
+            if (registerUndo)
+            {
+                bud.RegisterNewBitmap(iepb_frame.PictureBox.Bitmap);
+            }
 
             iepb_frame.PictureBox.Invalidate();
 
-            iepb_frame.UndoSystem.RegisterUndo(bud);
+            if (registerUndo)
+            {
+                iepb_frame.UndoSystem.RegisterUndo(bud);
+            }
 
             MarkModified();
         }

@@ -331,33 +331,7 @@ namespace Pixelaria.Data
             if(this.width == newWidth && this.height == newHeight)
                 return;
 
-            Rectangle currentBounds = new Rectangle(0, 0, width, height);
-            Rectangle newBounds = new Rectangle(0, 0, newWidth, newHeight);
-            
-            // New bounds calculation
-            if (scalingMethod == PerFrameScalingMethod.PlaceAtTopLeft)
-            {
-                newBounds = currentBounds;
-            }
-            else if (scalingMethod == PerFrameScalingMethod.PlaceAtCenter)
-            {
-                // Center the sprite
-                currentBounds.X = newBounds.Width / 2 - currentBounds.Width / 2;
-                currentBounds.Y = newBounds.Height / 2 - currentBounds.Height / 2;
-
-                newBounds = currentBounds;
-            }
-
-            // New texture creation
-            Bitmap newTexture = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppArgb);
-            
-            Graphics graphics = Graphics.FromImage(newTexture);
-
-            graphics.InterpolationMode = interpolationMode;
-            graphics.DrawImage(frameTexture, newBounds);
-
-            graphics.Flush();
-            graphics.Dispose();
+            Bitmap newTexture = (Bitmap)ImageUtilities.Resize(frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
 
             // Texture replacement
             frameTexture.Dispose();

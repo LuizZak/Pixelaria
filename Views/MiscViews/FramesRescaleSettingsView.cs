@@ -41,13 +41,31 @@ namespace Pixelaria.Views.MiscViews
         /// Initializes a new instance of the FramesRescaleSettingsView class
         /// </summary>
         /// <param name="message">The message to display on the dialog's label</param>
-        public FramesRescaleSettingsView(string message = "")
+        /// <param name="optionsToDisplay">The options to display to the user</param>
+        public FramesRescaleSettingsView(string message = "", FramesRescalingOptions optionsToDisplay = FramesRescalingOptions.ShowAll)
         {
             InitializeComponent();
 
             if (message == "")
             {
                 lbl_message.Text = "Some of the frames being pasted don't have a resolution that matchis this animation's. Please select the scaling options for these frames:";
+            }
+
+            gb_animationSize.Visible = false;
+            gb_frameScaling.Visible = false;
+            gb_drawingMode.Visible = false;
+
+            if ((optionsToDisplay & FramesRescalingOptions.ShowAnimationSize) != 0)
+            {
+                gb_animationSize.Visible = true;
+            }
+            if ((optionsToDisplay & FramesRescalingOptions.ShowFrameScale) != 0)
+            {
+                gb_frameScaling.Visible = true;
+            }
+            if ((optionsToDisplay & FramesRescalingOptions.ShowDrawingMode) != 0)
+            {
+                gb_drawingMode.Visible = true;
             }
         }
 
@@ -83,6 +101,10 @@ namespace Pixelaria.Views.MiscViews
             {
                 GeneratedSettings.PerFrameScalingMethod = PerFrameScalingMethod.Stretch;
             }
+            else if (rb_frameScaling_zoom.Checked)
+            {
+                GeneratedSettings.PerFrameScalingMethod = PerFrameScalingMethod.Zoom;
+            }
 
             // Drawing mode
             if (rb_drawingMode_lowQuality.Checked)
@@ -98,5 +120,16 @@ namespace Pixelaria.Views.MiscViews
 
             this.Close();
         }
+    }
+
+    /// <summary>
+    /// Enumerates which properties should be visible for selection on a FramesRescaleSettingsView
+    /// </summary>
+    public enum FramesRescalingOptions
+    {
+        ShowAnimationSize = 0x1,
+        ShowFrameScale = 0x2,
+        ShowDrawingMode = 0x4,
+        ShowAll = 0xFFFF
     }
 }

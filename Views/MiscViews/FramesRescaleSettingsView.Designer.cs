@@ -52,22 +52,25 @@ namespace Pixelaria.Views.MiscViews
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FramesRescaleSettingsView));
             this.lbl_message = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gb_animationSize = new System.Windows.Forms.GroupBox();
+            this.rb_animSize_useNewSize = new System.Windows.Forms.RadioButton();
             this.rb_animSize_useMaximumSize = new System.Windows.Forms.RadioButton();
             this.rb_animSize_keepOriginal = new System.Windows.Forms.RadioButton();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.gb_frameScaling = new System.Windows.Forms.GroupBox();
             this.rb_frameScaling_stretch = new System.Windows.Forms.RadioButton();
             this.rb_frameScaling_placeAtCenter = new System.Windows.Forms.RadioButton();
             this.rb_frameScaling_placeAtTopLeft = new System.Windows.Forms.RadioButton();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.gb_drawingMode = new System.Windows.Forms.GroupBox();
             this.rb_drawingMode_highQuality = new System.Windows.Forms.RadioButton();
             this.rb_drawingMode_lowQuality = new System.Windows.Forms.RadioButton();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
-            this.rb_animSize_useNewSize = new System.Windows.Forms.RadioButton();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.rb_frameScaling_zoom = new System.Windows.Forms.RadioButton();
+            this.gb_animationSize.SuspendLayout();
+            this.gb_frameScaling.SuspendLayout();
+            this.gb_drawingMode.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lbl_message
@@ -81,19 +84,30 @@ namespace Pixelaria.Views.MiscViews
             this.lbl_message.Text = "Some of the frames being pasted don\'t have a resolution that matchis this animati" +
     "on\'s. Please select the scaling options for these frames:";
             // 
-            // groupBox1
+            // gb_animationSize
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gb_animationSize.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.rb_animSize_useNewSize);
-            this.groupBox1.Controls.Add(this.rb_animSize_useMaximumSize);
-            this.groupBox1.Controls.Add(this.rb_animSize_keepOriginal);
-            this.groupBox1.Location = new System.Drawing.Point(12, 56);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(232, 95);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Animation Size";
+            this.gb_animationSize.Controls.Add(this.rb_animSize_useNewSize);
+            this.gb_animationSize.Controls.Add(this.rb_animSize_useMaximumSize);
+            this.gb_animationSize.Controls.Add(this.rb_animSize_keepOriginal);
+            this.gb_animationSize.Location = new System.Drawing.Point(3, 3);
+            this.gb_animationSize.Name = "gb_animationSize";
+            this.gb_animationSize.Size = new System.Drawing.Size(226, 95);
+            this.gb_animationSize.TabIndex = 1;
+            this.gb_animationSize.TabStop = false;
+            this.gb_animationSize.Text = "Animation Size";
+            // 
+            // rb_animSize_useNewSize
+            // 
+            this.rb_animSize_useNewSize.AutoSize = true;
+            this.rb_animSize_useNewSize.Location = new System.Drawing.Point(6, 65);
+            this.rb_animSize_useNewSize.Name = "rb_animSize_useNewSize";
+            this.rb_animSize_useNewSize.Size = new System.Drawing.Size(92, 17);
+            this.rb_animSize_useNewSize.TabIndex = 2;
+            this.rb_animSize_useNewSize.TabStop = true;
+            this.rb_animSize_useNewSize.Text = "Use New Size";
+            this.rb_animSize_useNewSize.UseVisualStyleBackColor = true;
             // 
             // rb_animSize_useMaximumSize
             // 
@@ -117,19 +131,20 @@ namespace Pixelaria.Views.MiscViews
             this.rb_animSize_keepOriginal.Text = "Keep Original";
             this.rb_animSize_keepOriginal.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
+            // gb_frameScaling
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gb_frameScaling.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.rb_frameScaling_stretch);
-            this.groupBox2.Controls.Add(this.rb_frameScaling_placeAtCenter);
-            this.groupBox2.Controls.Add(this.rb_frameScaling_placeAtTopLeft);
-            this.groupBox2.Location = new System.Drawing.Point(12, 157);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(232, 90);
-            this.groupBox2.TabIndex = 2;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Frame Scaling Method";
+            this.gb_frameScaling.Controls.Add(this.rb_frameScaling_zoom);
+            this.gb_frameScaling.Controls.Add(this.rb_frameScaling_stretch);
+            this.gb_frameScaling.Controls.Add(this.rb_frameScaling_placeAtCenter);
+            this.gb_frameScaling.Controls.Add(this.rb_frameScaling_placeAtTopLeft);
+            this.gb_frameScaling.Location = new System.Drawing.Point(3, 104);
+            this.gb_frameScaling.Name = "gb_frameScaling";
+            this.gb_frameScaling.Size = new System.Drawing.Size(226, 113);
+            this.gb_frameScaling.TabIndex = 2;
+            this.gb_frameScaling.TabStop = false;
+            this.gb_frameScaling.Text = "Frame Scaling Method";
             // 
             // rb_frameScaling_stretch
             // 
@@ -163,16 +178,16 @@ namespace Pixelaria.Views.MiscViews
             this.rb_frameScaling_placeAtTopLeft.Text = "Place at Top Left";
             this.rb_frameScaling_placeAtTopLeft.UseVisualStyleBackColor = true;
             // 
-            // groupBox3
+            // gb_drawingMode
             // 
-            this.groupBox3.Controls.Add(this.rb_drawingMode_highQuality);
-            this.groupBox3.Controls.Add(this.rb_drawingMode_lowQuality);
-            this.groupBox3.Location = new System.Drawing.Point(12, 253);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(232, 72);
-            this.groupBox3.TabIndex = 3;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Drawing Mode";
+            this.gb_drawingMode.Controls.Add(this.rb_drawingMode_highQuality);
+            this.gb_drawingMode.Controls.Add(this.rb_drawingMode_lowQuality);
+            this.gb_drawingMode.Location = new System.Drawing.Point(3, 223);
+            this.gb_drawingMode.Name = "gb_drawingMode";
+            this.gb_drawingMode.Size = new System.Drawing.Size(226, 72);
+            this.gb_drawingMode.TabIndex = 3;
+            this.gb_drawingMode.TabStop = false;
+            this.gb_drawingMode.Text = "Drawing Mode";
             // 
             // rb_drawingMode_highQuality
             // 
@@ -198,8 +213,9 @@ namespace Pixelaria.Views.MiscViews
             // 
             // btn_ok
             // 
+            this.btn_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
-            this.btn_ok.Location = new System.Drawing.Point(102, 331);
+            this.btn_ok.Location = new System.Drawing.Point(102, 365);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(61, 23);
             this.btn_ok.TabIndex = 4;
@@ -211,9 +227,10 @@ namespace Pixelaria.Views.MiscViews
             // 
             // btn_cancel
             // 
+            this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_cancel.Location = new System.Drawing.Point(169, 331);
+            this.btn_cancel.Location = new System.Drawing.Point(169, 365);
             this.btn_cancel.Name = "btn_cancel";
             this.btn_cancel.Size = new System.Drawing.Size(75, 23);
             this.btn_cancel.TabIndex = 5;
@@ -222,41 +239,52 @@ namespace Pixelaria.Views.MiscViews
             this.btn_cancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btn_cancel.UseVisualStyleBackColor = true;
             // 
-            // rb_animSize_useNewSize
+            // flowLayoutPanel1
             // 
-            this.rb_animSize_useNewSize.AutoSize = true;
-            this.rb_animSize_useNewSize.Location = new System.Drawing.Point(6, 65);
-            this.rb_animSize_useNewSize.Name = "rb_animSize_useNewSize";
-            this.rb_animSize_useNewSize.Size = new System.Drawing.Size(92, 17);
-            this.rb_animSize_useNewSize.TabIndex = 2;
-            this.rb_animSize_useNewSize.TabStop = true;
-            this.rb_animSize_useNewSize.Text = "Use New Size";
-            this.rb_animSize_useNewSize.UseVisualStyleBackColor = true;
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel1.Controls.Add(this.gb_animationSize);
+            this.flowLayoutPanel1.Controls.Add(this.gb_frameScaling);
+            this.flowLayoutPanel1.Controls.Add(this.gb_drawingMode);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 56);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(232, 301);
+            this.flowLayoutPanel1.TabIndex = 6;
             // 
-            // FramesRescaleSettingsForm
+            // rb_frameScaling_zoom
+            // 
+            this.rb_frameScaling_zoom.AutoSize = true;
+            this.rb_frameScaling_zoom.Location = new System.Drawing.Point(6, 88);
+            this.rb_frameScaling_zoom.Name = "rb_frameScaling_zoom";
+            this.rb_frameScaling_zoom.Size = new System.Drawing.Size(52, 17);
+            this.rb_frameScaling_zoom.TabIndex = 3;
+            this.rb_frameScaling_zoom.Text = "Zoom";
+            this.rb_frameScaling_zoom.UseVisualStyleBackColor = true;
+            // 
+            // FramesRescaleSettingsView
             // 
             this.AcceptButton = this.btn_ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_cancel;
-            this.ClientSize = new System.Drawing.Size(256, 366);
+            this.ClientSize = new System.Drawing.Size(256, 400);
+            this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.btn_cancel);
             this.Controls.Add(this.btn_ok);
-            this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lbl_message);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "FramesRescaleSettingsForm";
+            this.Name = "FramesRescaleSettingsView";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Frames Rescale Settings";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.gb_animationSize.ResumeLayout(false);
+            this.gb_animationSize.PerformLayout();
+            this.gb_frameScaling.ResumeLayout(false);
+            this.gb_frameScaling.PerformLayout();
+            this.gb_drawingMode.ResumeLayout(false);
+            this.gb_drawingMode.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -264,18 +292,20 @@ namespace Pixelaria.Views.MiscViews
         #endregion
 
         private System.Windows.Forms.Label lbl_message;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gb_animationSize;
         private System.Windows.Forms.RadioButton rb_animSize_useMaximumSize;
         private System.Windows.Forms.RadioButton rb_animSize_keepOriginal;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox gb_frameScaling;
         private System.Windows.Forms.RadioButton rb_frameScaling_placeAtTopLeft;
         private System.Windows.Forms.RadioButton rb_frameScaling_placeAtCenter;
         private System.Windows.Forms.RadioButton rb_frameScaling_stretch;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox gb_drawingMode;
         private System.Windows.Forms.RadioButton rb_drawingMode_highQuality;
         private System.Windows.Forms.RadioButton rb_drawingMode_lowQuality;
         private System.Windows.Forms.Button btn_ok;
         private System.Windows.Forms.Button btn_cancel;
         private System.Windows.Forms.RadioButton rb_animSize_useNewSize;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.RadioButton rb_frameScaling_zoom;
     }
 }

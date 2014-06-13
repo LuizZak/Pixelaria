@@ -739,6 +739,27 @@ namespace Pixelaria.Controllers
             return string.Empty;
         }
 
+        /// <summary>
+        /// Shows a dialog to load an image from disk
+        /// </summary>
+        /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
+        /// <param name="owner">An optional owner for the file dialog</param>
+        /// <returns>The selected load path, or an empty string if the user has not chosen a load path</returns>
+        public Image ShowLoadImage(string fileName = "", IWin32Window owner = null)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            ofd.Filter = "PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
+            ofd.FileName = fileName;
+
+            if (ofd.ShowDialog(owner) == DialogResult.OK)
+            {
+                return Image.FromFile(ofd.FileName);
+            }
+
+            return null;
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
         //////////
         ////////// Misc Methods

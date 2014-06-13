@@ -170,6 +170,10 @@ namespace Pixelaria.Views.MiscViews
             {
                 GeneratedSettings.PerFrameScalingMethod = PerFrameScalingMethod.Stretch;
             }
+            else if (rb_frameScaling_zoom.Checked)
+            {
+                GeneratedSettings.PerFrameScalingMethod = PerFrameScalingMethod.Zoom;
+            }
 
             // Drawing mode
             if (rb_drawingMode_lowQuality.Checked)
@@ -227,6 +231,7 @@ namespace Pixelaria.Views.MiscViews
             ignoreEvent = true;
 
             nud_height.Value = ClampDecimal((nud_width.Value) / aspectRatio);
+            newHeight = (int)nud_height.Value;
 
             UpdateScaleNuds();
 
