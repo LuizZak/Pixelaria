@@ -619,14 +619,23 @@ namespace Pixelaria.Views.ModelViews
                 List<Frame> copiedFrames = new List<Frame>();
                 copiedFrames.Add(frame);
 
+                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(viewAnimation, FrameAddDeleteOperationType.Add, "Frames Pasted");
+
                 for (int i = 0; i < lv_frames.SelectedIndices.Count; i++)
                 {
                     index = Math.Max(index, lv_frames.SelectedIndices[i]);
                 }
 
+                if (index == -1)
+                    index = lv_frames.Items.Count;
+
+                undoTask.RegisterFrame(copiedFrames[0], index);
+
                 viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
                 MarkModified();
+
+                undoSystem.RegisterUndo(undoTask);
 
                 RefreshView();
 
