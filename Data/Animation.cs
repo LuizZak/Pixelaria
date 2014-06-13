@@ -618,6 +618,10 @@ namespace Pixelaria.Data
         /// <summary>
         /// Specifies that the frames should be stretched to fit the new bounds
         /// </summary>
-        Stretch
+        Stretch,
+        /// <summary>
+        /// Specifies that the frames should be zoomed to fit the new bounds
+        /// </summary>
+        Zoom
     }
 }

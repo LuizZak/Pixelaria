@@ -1029,7 +1029,6 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_importFrame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.tsm_importFrame.Size = new System.Drawing.Size(198, 22);
             this.tsm_importFrame.Text = "Import Frame...";
-            this.tsm_importFrame.Visible = false;
             this.tsm_importFrame.Click += new System.EventHandler(this.tsm_importFrame_Click);
             // 
             // editToolStripMenuItem

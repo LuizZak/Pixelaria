@@ -20,19 +20,26 @@ Legend:
 
 -- v1.10.0b
 
-+ AniomationView
-  * Fixed undoing/redoing something not marking the animation as modified.
-  * Fixed another crash related to pasting frames.
-  . Now the Apply Changes button is disabled until an unsaved change is made.
-
-. FrameView
-  + Added support for duplication of selection by holding Control when dragging a selected portion of the image.
-  . Now application of filters on a selection and moving it to somewhere else will be grouped into a single undo.
-  . Now color picking on the pencil and bucket operations also work when dragging the mouse with the mouse wheel held down.
++ Added 'Zoom' frame scaling option on rescaling dialogs.
 
 * Fixed issue with the scale filter blurring images when their dimensions were odd.
 
 . Reduced flickering of assisted numeric value input (numeric input with bar used with mouse under it).
+
++ AniomationView
+  * Fixed pasting images not registering an undo operation for it
+  * Fixed undoing/redoing something not marking the animation as modified.
+  * Fixed another crash related to pasting frames.
+  
+  * Fixed Animation Resize window 'Keep Aspect Ratio' not updating labels correctly.
+  . Now the Apply Changes button is disabled until an unsaved change is made.
+
+. FrameView
+  + Added support for duplication of selection by holding Control when dragging a selected portion of the image.
+  + Added support for importing frames from images.
+  
+  . Now application of filters on a selection and moving it to somewhere else will be grouped into a single undo.
+  . Now color picking on the pencil and bucket operations also work when dragging the mouse with the mouse wheel held down.
 
 -- v1.95b
 

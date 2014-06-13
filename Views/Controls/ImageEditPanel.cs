@@ -4769,6 +4769,15 @@ namespace Pixelaria.Views.Controls
         private SelectionOperationType operationMode;
 
         /// <summary>
+        /// The undo event handler
+        /// </summary>
+        private UndoSystem.UndoEventHandler undoHandler;
+        /// <summary>
+        /// The redo event handler
+        /// </summary>
+        private UndoSystem.UndoEventHandler redoHandler;
+
+        /// <summary>
         /// Gets whether there's an area currently selected
         /// </summary>
         public bool Selected { get { return selected; } }
@@ -4823,8 +4832,11 @@ namespace Pixelaria.Views.Controls
 
             base.Initialize(pictureBox);
 
-            pictureBox.OwningPanel.UndoSystem.UndoPerformed += new UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
-            pictureBox.OwningPanel.UndoSystem.RedoPerformed += new UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
+            undoHandler = new UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
+            redoHandler = new UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
+
+            pictureBox.OwningPanel.UndoSystem.UndoPerformed += undoHandler;
+            pictureBox.OwningPanel.UndoSystem.RedoPerformed += redoHandler;
 
             this.Loaded = true;
         }
@@ -4860,6 +4872,10 @@ namespace Pixelaria.Views.Controls
         public override void Destroy()
         {
             FinishOperation(true);
+
+            // Remove the event handler
+            pictureBox.OwningPanel.UndoSystem.UndoPerformed -= undoHandler;
+            pictureBox.OwningPanel.UndoSystem.RedoPerformed -= redoHandler;
 
             this.pictureBox = null;
 
