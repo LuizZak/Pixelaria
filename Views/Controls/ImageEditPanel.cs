@@ -5898,4 +5898,63 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         SolidFillSecondColor
     }
+
+    /// <summary>
+    /// Abstract class to be inherited by objects that decorate the picture box's visual display
+    /// </summary>
+    public abstract class PictureBoxDecorator
+    {
+        /// <summary>
+        /// The reference to the picture box to decorate
+        /// </summary>
+        private ImageEditPanel.InternalPictureBox pictureBox;
+
+        /// <summary>
+        /// Gets the reference to the picture box to decorate
+        /// </summary>
+        public ImageEditPanel.InternalPictureBox PictureBox
+        {
+            get { return pictureBox; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the PictureBoxDecorator class
+        /// </summary>
+        /// <param name="pictureBox">The picture box to decorate</param>
+        public PictureBoxDecorator(ImageEditPanel.InternalPictureBox pictureBox)
+        {
+            this.pictureBox = pictureBox;
+        }
+
+        /// <summary>
+        /// Initializes this PictureBoxDecorator's instance
+        /// </summary>
+        public abstract void Initialize();
+
+        /// <summary>
+        /// Destroys this PictureBoxDecorator's instance
+        /// </summary>
+        public virtual void Destroy()
+        {
+            this.pictureBox = null;
+        }
+
+        /// <summary>
+        /// Decorates the under image, using the given event arguments
+        /// </summary>
+        /// <param name="evArgs">The event arguments for the paint event args</param>
+        public abstract void DecorateUnderImage(PaintEventArgs evArgs);
+
+        /// <summary>
+        /// Decorates the main image, using the given event arguments
+        /// </summary>
+        /// <param name="evArgs">The event arguments for the paint event args</param>
+        public abstract void DecorateMainImage(PaintEventArgs evArgs);
+
+        /// <summary>
+        /// Decorates the front image, using the given event arguments
+        /// </summary>
+        /// <param name="evArgs">The event arguments for the paint event args</param>
+        public abstract void DecorateFrontImage(PaintEventArgs evArgs);
+    }
 }

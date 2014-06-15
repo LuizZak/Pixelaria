@@ -127,7 +127,7 @@ namespace Pixelaria.Views.ModelViews
 
     /// <summary>
     /// Specifies an object that can be marked as modified through a method
-    /// SetModified
+    /// MarkModified
     /// </summary>
     public interface Modifiable
     {
