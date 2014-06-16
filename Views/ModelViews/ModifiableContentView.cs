@@ -79,9 +79,9 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Shows a changes save confirmation to the user and returns the dialog result of the message box that was shown.
-        /// IF no changes were detected, the method returns DialogResult.Yes by default.
-        /// This method calls the ApplyChanges method if the user pesses Yes on the confirmation dialog box
+        /// <para>Shows a changes save confirmation to the user and returns the dialog result of the message box that was shown.</para>
+        /// <para>If no changes were detected, the method returns DialogResult.Yes by default.</para>
+        /// <para>This method calls the ApplyChanges method if the user pesses Yes on the confirmation dialog box</para>
         /// </summary>
         /// <returns>The dialog result of the message box that was shown</returns>
         public virtual DialogResult ConfirmChanges()
