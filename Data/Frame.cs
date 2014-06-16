@@ -60,6 +60,11 @@ namespace Pixelaria.Data
         private byte[] hash;
 
         /// <summary>
+        /// The unique identifier for this frame in the whole bundle
+        /// </summary>
+        private int id;
+
+        /// <summary>
         /// Gets the width of this frame
         /// </summary>
         public int Width { get { return width; } }
@@ -83,6 +88,11 @@ namespace Pixelaria.Data
         /// Gets the hash of this Frame texture
         /// </summary>
         public byte[] Hash { get { return hash; } }
+
+        /// <summary>
+        /// Gets or sets the ID of this frame
+        /// </summary>
+        public int ID { get { return id; } set { id = value; } }
 
         /// <summary>
         /// Creates a new animation frame

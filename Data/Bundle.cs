@@ -129,6 +129,13 @@ namespace Pixelaria.Data
                 anim.ID = GetNextValidAnimationID();
 
             animations.Add(anim);
+
+            // Iterate through the frames and check them
+            foreach (Frame frame in anim.Frames)
+            {
+                if (frame.ID == -1)
+                    frame.ID = GetNextValidFrameID();
+            }
         }
 
         /// <summary>
@@ -463,9 +470,34 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
+        /// Gets the next valid Frame ID based on the IDs of the current frames
+        /// </summary>
+        /// <returns>An integer that is safe to be used as an ID for a frame</returns>
+        public int GetNextValidFrameID()
+        {
+            int id = nextFrameID;
+
+            // If the ID equals to -1, it hasn't been cached yet
+            if (id == -1)
+            {
+                id = 0;
+
+                foreach (Animation anim in animations)
+                {
+                    foreach (Frame frame in anim.Frames)
+                    {
+                        id = Math.Max(id, frame.ID + 1);
+                    }
+                }
+            }
+
+            return id;
+        }
+
+        /// <summary>
         /// Gets the next valid Animation ID based on the IDs of the current animations
         /// </summary>
-        /// <returns>An integer that is save to be used as an ID for an animation</returns>
+        /// <returns>An integer that is safe to be used as an ID for an animation</returns>
         public int GetNextValidAnimationID()
         {
             int id = 0;
@@ -481,7 +513,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the next valid AnimationSheet ID based on the IDs of the current animation sheets
         /// </summary>
-        /// <returns>An integer that is save to be used as an ID for an animation sheets</returns>
+        /// <returns>An integer that is safe to be used as an ID for an animation sheets</returns>
         public int GetNextValidAnimationSheetID()
         {
             int id = 0;
@@ -493,5 +525,10 @@ namespace Pixelaria.Data
 
             return id;
         }
+
+        /// <summary>
+        /// The next valid frame ID
+        /// </summary>
+        private int nextFrameID = -1;
     }
 }

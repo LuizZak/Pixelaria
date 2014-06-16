@@ -36,7 +36,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The version of this Pixelaria persistence handler
         /// </summary>
-        private static int version = 7;
+        private static int version = 8;
 
         /// <summary>
         /// Gets the version of this Pixelaria persistence handler
@@ -171,6 +171,11 @@ namespace Pixelaria.Data.Persistence
             Bitmap bitmap = new Bitmap(img);
 
             img.Dispose();
+
+            if (version >= 8)
+            {
+                frame.ID = reader.ReadInt32();
+            }
 
             // Get the hash now
             byte[] hash = null;
@@ -377,6 +382,9 @@ namespace Pixelaria.Data.Persistence
 
             // Skip to the end and keep saving
             stream.Position = stream.Length;
+
+            // Write the frame ID
+            writer.Write(frame.ID);
 
             // Write the hash now
             writer.Write(frame.Hash.Length);
