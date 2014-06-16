@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -61,6 +62,11 @@ namespace Pixelaria.Views.ModelViews
         /// The copy of the frame that is actually edited by this form
         /// </summary>
         private Frame viewFrame;
+
+        /// <summary>
+        /// Previous frame index
+        /// </summary>
+        private int oldFrameIndex;
 
         /// <summary>
         /// The current onion skin
@@ -138,6 +144,21 @@ namespace Pixelaria.Views.ModelViews
         public Frame FrameLoaded { get { return frameToEdit; } }
 
         /// <summary>
+        /// Delegate for the EdirFrameChanged event
+        /// </summary>
+        /// <param name="sender">The object that fired the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void EditFrameChangedEventHandler(object sender, EditFrameChangedEventArgs args);
+
+        /// <summary>
+        /// Occurs whenever the current edit frame has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the current edit frame has changed")]
+        public event EditFrameChangedEventHandler EditFrameChanged;
+
+        /// <summary>
         /// Static initializer for the FrameView class
         /// </summary>
         static FrameView()
@@ -162,6 +183,8 @@ namespace Pixelaria.Views.ModelViews
         public FrameView(Controller controller, Frame frameToEdit)
         {
             InitializeComponent();
+
+            this.oldFrameIndex = frameToEdit.Index;
 
             this.controller = controller;
 
@@ -262,9 +285,16 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshView()
         {
+            // Update the enabled state of the Previous Frame and Next Frame buttons
             tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = frameToEdit.Index > 0;
             tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = frameToEdit.Index < frameToEdit.Animation.FrameCount - 1;
 
+            // Update the frame display
+            tc_currentFrame.Minimum = 1;
+            tc_currentFrame.Maximum = frameToEdit.Animation.FrameCount;
+            tc_currentFrame.CurrentFrame = (frameToEdit.Index + 1);
+
+            // Refresh the undo and redo buttons
             RefreshUndoRedo();
         }
 
@@ -350,6 +380,13 @@ namespace Pixelaria.Views.ModelViews
                 zpb_framePreview.Image = viewFrame.GetComposedBitmap();
             }
 
+            if (EditFrameChanged != null)
+            {
+                EditFrameChanged.Invoke(this, new EditFrameChangedEventArgs(oldFrameIndex, frame.Index));
+            }
+
+            oldFrameIndex = frame.Index;
+
             // Update onion skin if enabled
             if (OnionSkinEnabled)
             {
@@ -412,23 +449,50 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Moves to the previous frame
         /// </summary>
-        private void PrevFrame()
+        /// <returns>Whether the frame was sucessfully retroceeded</returns>
+        private bool PrevFrame()
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
                 LoadFrame(frameToEdit.Animation.Frames[frameToEdit.Index - 1]);
+
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
         /// Moves to the next frame
         /// </summary>
-        private void NextFrame()
+        /// <returns>Whether the frame was successfully advanced</returns>
+        private bool NextFrame()
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
                 LoadFrame(frameToEdit.Animation.Frames[frameToEdit.Index + 1]);
+                
+                return true;
             }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Moves to the given frame
+        /// </summary>
+        /// <param name="index">The frame to move the edit window to</param>
+        /// <returns>Whether the frame view sucessfully selected the provided frame</returns>
+        private bool SetFrameIndex(int index)
+        {
+            if (ConfirmChanges() != DialogResult.Cancel)
+            {
+                LoadFrame(frameToEdit.Animation.Frames[index]);
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -1341,6 +1405,16 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
+        // Current Frame timeline control frame changed event handler
+        // 
+        private void tc_currentFrame_FrameChanged(object sender, FrameChangedEventArgs eventArgs)
+        {
+            SetFrameIndex(eventArgs.NewFrame - 1);
+
+            eventArgs.Cancel = true;
+        }
+
+        // 
         // Image Panel zoom change event
         // 
         private void PictureBox_ZoomChanged(object sender, ZoomChangedEventArgs e)
@@ -1655,6 +1729,33 @@ namespace Pixelaria.Views.ModelViews
         private bool ignoreOnionSkinDepthComboboxEvent = false;
 
         #endregion
+    }
+
+    /// <summary>
+    /// Event arguments for a EditFrameChanged event
+    /// </summary>
+    public class EditFrameChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the old frame index
+        /// </summary>
+        public int OldFrameIndex { get; private set; }
+
+        /// <summary>
+        /// Gets the new frame index
+        /// </summary>
+        public int NewFrameIndex { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the EditFrameChangedEventArgs class
+        /// </summary>
+        /// <param name="oldIndex">The old frame index</param>
+        /// <param name="newIndex">The new frame index</param>
+        public EditFrameChangedEventArgs(int oldIndex, int newIndex)
+        {
+            this.OldFrameIndex = oldIndex;
+            this.NewFrameIndex = newIndex;
+        }
     }
 
     /// <summary>

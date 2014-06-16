@@ -322,6 +322,7 @@
     <Compile Include="Views\ModelViews\ImportAnimationView.Designer.cs">
       <DependentUpon>ImportAnimationView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\ModelViews\Miscs\OnionSkinDecorator.cs" />
     <Compile Include="Views\ModelViews\ModifiableContentView.cs">
       <SubType>Form</SubType>
     </Compile>

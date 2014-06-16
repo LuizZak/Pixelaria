@@ -68,6 +68,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview = new System.Windows.Forms.Panel();
             this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.tc_currentFrame = new Pixelaria.Views.Controls.TimelineControl();
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -333,18 +334,37 @@ namespace Pixelaria.Views.ModelViews
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel4.Controls.Add(this.tc_currentFrame);
             this.panel4.Controls.Add(this.pb_zoomIcon);
             this.panel4.Controls.Add(this.anud_zoom);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel4.Location = new System.Drawing.Point(90, 635);
+            this.panel4.Location = new System.Drawing.Point(90, 586);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(504, 43);
+            this.panel4.Size = new System.Drawing.Size(504, 92);
             this.panel4.TabIndex = 5;
+            // 
+            // tc_currentFrame
+            // 
+            this.tc_currentFrame.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tc_currentFrame.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.Timeline;
+            this.tc_currentFrame.CurrentFrame = 2;
+            this.tc_currentFrame.FrameDisplayType = Pixelaria.Views.Controls.TimelineFrameDisplayType.FrameNumber;
+            this.tc_currentFrame.Location = new System.Drawing.Point(4, 3);
+            this.tc_currentFrame.Maximum = 10;
+            this.tc_currentFrame.Minimum = 0;
+            this.tc_currentFrame.Name = "tc_currentFrame";
+            this.tc_currentFrame.Range = new System.Drawing.Point(0, 10);
+            this.tc_currentFrame.ScrollScaleWidth = 1F;
+            this.tc_currentFrame.ScrollX = 0F;
+            this.tc_currentFrame.Size = new System.Drawing.Size(492, 41);
+            this.tc_currentFrame.TabIndex = 2;
+            this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
             // 
             // pb_zoomIcon
             // 
             this.pb_zoomIcon.Image = global::Pixelaria.Properties.Resources.zoom_icon;
-            this.pb_zoomIcon.Location = new System.Drawing.Point(5, 11);
+            this.pb_zoomIcon.Location = new System.Drawing.Point(4, 50);
             this.pb_zoomIcon.Name = "pb_zoomIcon";
             this.pb_zoomIcon.Size = new System.Drawing.Size(16, 16);
             this.pb_zoomIcon.TabIndex = 1;
@@ -363,7 +383,7 @@ namespace Pixelaria.Views.ModelViews
             0,
             0,
             131072});
-            this.anud_zoom.Location = new System.Drawing.Point(26, 4);
+            this.anud_zoom.Location = new System.Drawing.Point(26, 50);
             this.anud_zoom.Maximum = new decimal(new int[] {
             160,
             0,
@@ -375,7 +395,7 @@ namespace Pixelaria.Views.ModelViews
             0,
             131072});
             this.anud_zoom.Name = "anud_zoom";
-            this.anud_zoom.Size = new System.Drawing.Size(470, 32);
+            this.anud_zoom.Size = new System.Drawing.Size(470, 35);
             this.anud_zoom.TabIndex = 0;
             this.anud_zoom.Value = new decimal(new int[] {
             1,
@@ -1207,7 +1227,7 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.Name = "iepb_frame";
             this.iepb_frame.NotifyTo = null;
             this.iepb_frame.PictureBoxBackgroundImage = ((System.Drawing.Image)(resources.GetObject("iepb_frame.PictureBoxBackgroundImage")));
-            this.iepb_frame.Size = new System.Drawing.Size(504, 586);
+            this.iepb_frame.Size = new System.Drawing.Size(504, 537);
             this.iepb_frame.TabIndex = 0;
             this.iepb_frame.Text = "imageEditPictureBox1";
             this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
@@ -1365,5 +1385,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripButton tsb_osShowCurrentFrame;
         private System.Windows.Forms.RadioButton rb_sprayPaint;
+        private Controls.TimelineControl tc_currentFrame;
     }
 }

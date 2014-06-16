@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
+using Pixelaria.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -314,9 +315,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Timeline frame changed
         // 
-        private void tlc_timeline_FrameChanged(object sender, int newFrame)
+        private void tlc_timeline_FrameChanged(object sender, FrameChangedEventArgs e)
         {
-            ChangeFrame(newFrame - 1);
+            ChangeFrame(e.NewFrame - 1);            
         }
 
         // 

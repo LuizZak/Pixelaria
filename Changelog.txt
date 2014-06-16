@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                   v1.10.0b
+                   v1.11.0b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -17,6 +17,11 @@ Legend:
 + Addition
 * Fix/Change
 . Note
+
+-- v1.11.0b
+
+. FrameView
+  + Added a timeline to visualize and quickly select which frame is currently being edited.
 
 -- v1.10.0b
 

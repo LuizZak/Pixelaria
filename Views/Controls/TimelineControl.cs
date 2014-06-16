@@ -28,6 +28,11 @@ namespace Pixelaria.Views.Controls
         protected TimelineBehaviorType behaviorType;
 
         /// <summary>
+        /// The frame display type of this timeline
+        /// </summary>
+        protected TimelineFrameDisplayType frameDisplayType;
+
+        /// <summary>
         /// ToolTip instance associated with this timeline. Used to show the frames the knobs are pointing to
         /// </summary>
         protected ToolTip ToolTip;
@@ -80,12 +85,12 @@ namespace Pixelaria.Views.Controls
             set
             {
                 // Invalidate last playhead position:
-                Invalidate(new Rectangle((firstKnob.KnobThickness / 2) + (int)((float)(currentFrame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - 2 - (int)ScrollX, 0, 4, timelineHeight));
+                InvalidatePlayhead();
 
                 currentFrame = value;
 
                 // Invalidate new playhead position:
-                Invalidate(new Rectangle((firstKnob.KnobThickness / 2) + (int)((float)(currentFrame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - 2 - (int)ScrollX, 0, 4, timelineHeight));
+                InvalidatePlayhead();
             }
         }
 
@@ -282,11 +287,24 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Gets or sets the frame display type of this timeline
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(TimelineFrameDisplayType.Tick)]
+        [Description("The frame display type of this timeline")]
+        public TimelineFrameDisplayType FrameDisplayType
+        {
+            get { return frameDisplayType; }
+            set { if (frameDisplayType != value) { frameDisplayType = value; Invalidate(); } }
+        }
+
+        /// <summary>
         /// Event handler for the RangeChangedEvent
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="newRange">The new value range</param>
-        public delegate void RangeChangedEventHandler(object sender, Point newRange);
+        /// <param name="newRange">The event arguments for the event</param>
+        public delegate void RangeChangedEventHandler(object sender, RangeChangedEventArgs eventArgs);
         /// <summary>
         /// Event fired every time the frame range has changed
         /// </summary>
@@ -299,8 +317,8 @@ namespace Pixelaria.Views.Controls
         /// Event handler for the FrameChanged
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="newFrame">The new frame set by the user</param>
-        public delegate void FrameChangedEventHandler(object sender, int newFrame);
+        /// <param name="newFrame">The event arguments for the event</param>
+        public delegate void FrameChangedEventHandler(object sender, FrameChangedEventArgs eventArgs);
         /// <summary>
         /// Event fired every time the frame range has changed
         /// </summary>
@@ -480,14 +498,33 @@ namespace Pixelaria.Views.Controls
                     playheadPos1.X = (firstKnob.KnobThickness / 2) + (int)((float)(currentFrame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - (int)ScrollX;
                     playheadPos1.Y = 0;
 
-                    // Create the playhead size point:
-                    Point playheadPos2 = new Point(playheadPos1.X, playheadPos1.Y);
+                    if (frameDisplayType == TimelineFrameDisplayType.Tick)
+                    {
+                        // Create the playhead size point:
+                        Point playheadPos2 = new Point(playheadPos1.X, playheadPos1.Y);
 
-                    // Set the playhead size point:
-                    playheadPos2.Y = timelineHeight;
+                        // Set the playhead size point:
+                        playheadPos2.Y = timelineHeight;
 
-                    // Draw the playhead:
-                    e.Graphics.DrawLine(new Pen(Color.White, 4), playheadPos1, playheadPos2);
+                        // Draw the playhead:
+                        e.Graphics.DrawLine(new Pen(Color.White, 4), playheadPos1, playheadPos2);
+                    }
+                    else if (frameDisplayType == TimelineFrameDisplayType.FrameNumber)
+                    {
+                        string frameText = currentFrame + "";
+                        SizeF frameTextSize = e.Graphics.MeasureString(frameText, this.font);
+
+                        Brush brush = new SolidBrush(Color.White);
+
+                        e.Graphics.FillRectangle(brush, new RectangleF(playheadPos1.X - frameTextSize.Width / 2, playheadPos1.Y, frameTextSize.Width, timelineHeight + 1));
+
+                        brush.Dispose();
+
+                        e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
+                        e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+
+                        e.Graphics.DrawString(currentFrame + "", this.font, Brushes.Black, playheadPos1.X - frameTextSize.Width / 2, playheadPos1.Y - 1);
+                    }
                 }
             }
 
@@ -590,13 +627,9 @@ namespace Pixelaria.Views.Controls
                 {
                     if (IsMouseOnTimeline())
                     {
-                        CurrentFrame = GetFrameUnderMouse();
                         draggingFrame = true;
 
-                        if (FrameChanged != null)
-                        {
-                            FrameChanged.Invoke(this, currentFrame);
-                        }
+                        ChangeFrame(GetFrameUnderMouse());
                     }
                 }
             }
@@ -673,19 +706,13 @@ namespace Pixelaria.Views.Controls
                     // Clip the current frame to be in between the range
                     if (currentFrame < firstKnob.Value)
                     {
-                        currentFrame = firstKnob.Value;
-
-                        if (FrameChanged != null)
-                            FrameChanged.Invoke(this, currentFrame);
+                        ChangeFrame(firstKnob.Value);
                     }
 
                     // Clip the current frame to be in between the range
                     if (currentFrame > secondKnob.Value)
                     {
-                        currentFrame = secondKnob.Value;
-
-                        if (FrameChanged != null)
-                            FrameChanged.Invoke(this, currentFrame);
+                        ChangeFrame(secondKnob.Value);
                     }
 
                     // Redraw the control
@@ -693,7 +720,7 @@ namespace Pixelaria.Views.Controls
 
                     // Invoke the change event
                     if (RangeChanged != null)
-                        RangeChanged.Invoke(this, GetRange());
+                        RangeChanged.Invoke(this, new RangeChangedEventArgs(GetRange()));
                 }
             }
             // The user is dragging the view
@@ -713,10 +740,7 @@ namespace Pixelaria.Views.Controls
 
                 if (newFrame != currentFrame)
                 {
-                    CurrentFrame = newFrame;
-
-                    if (FrameChanged != null)
-                        FrameChanged.Invoke(this, currentFrame);
+                    ChangeFrame(newFrame);
                 }
             }
             // The user is hovering the mouse over the control
@@ -748,19 +772,13 @@ namespace Pixelaria.Views.Controls
                     // Clip the current frame to be in between the range
                     if (currentFrame < firstKnob.Value)
                     {
-                        currentFrame = firstKnob.Value;
-
-                        if (FrameChanged != null)
-                            FrameChanged.Invoke(this, currentFrame);
+                        ChangeFrame(firstKnob.Value);
                     }
 
                     // Clip the current frame to be in between the range
                     if (currentFrame > secondKnob.Value)
                     {
-                        currentFrame = secondKnob.Value;
-
-                        if (FrameChanged != null)
-                            FrameChanged.Invoke(this, currentFrame);
+                        ChangeFrame(secondKnob.Value);
                     }
 
                     // Calculate the redraw rectangle:
@@ -774,7 +792,7 @@ namespace Pixelaria.Views.Controls
                     ToolTip.Show("" + (drag.Value), this, (int)(drag.ScaledX), -25, 1000);
 
                     if (RangeChanged != null)
-                        RangeChanged.Invoke(this, GetRange());
+                        RangeChanged.Invoke(this, new RangeChangedEventArgs(GetRange()));
                 }
 
                 // Set the knob mouse over setting:
@@ -917,6 +935,25 @@ namespace Pixelaria.Views.Controls
             draggingView = false;
         }
         /// <summary>
+        /// OnMouseCaptureChanged event called whenever the capture target has changed
+        /// </summary>
+        /// <param name="e">The EventArgs for this event</param>
+        protected override void OnMouseCaptureChanged(EventArgs e)
+        {
+            base.OnMouseCaptureChanged(e);
+
+            if (draggingTimeline)
+            {
+                Invalidate();
+            }
+
+            // Set the drag to a null:
+            drag = null;
+            draggingFrame = false;
+            draggingTimeline = false;
+            draggingView = false;
+        }
+        /// <summary>
         /// OnMouseUp event called whenever the user leaves the mouse out of this control's bounds
         /// </summary>
         /// <param name="e">The MouseEventArgs for this event</param>
@@ -1023,6 +1060,27 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Changes the current frame being displayed
+        /// </summary>
+        /// <param name="newFrame">The new frame to display</param>
+        protected void ChangeFrame(int newFrame)
+        {
+            int oldFrame = currentFrame;
+
+            if (FrameChanged != null)
+            {
+                FrameChangedEventArgs evArgs = new FrameChangedEventArgs(oldFrame, newFrame);
+
+                FrameChanged.Invoke(this, evArgs);
+
+                if (evArgs.Cancel)
+                    return;
+            }
+
+            CurrentFrame = newFrame;
+        }
+
+        /// <summary>
         /// Gets a Rectangle that represents the timeline display area
         /// </summary>
         /// <returns>A Rectangle that represents the timeline display area</returns>
@@ -1067,6 +1125,21 @@ namespace Pixelaria.Views.Controls
             int my = this.PointToClient(MousePosition).Y;
 
             return mx > x && mx < x + w && my < timelineHeight;
+        }
+
+        /// <summary>
+        /// Invalidates the playhead position
+        /// </summary>
+        protected void InvalidatePlayhead()
+        {
+            Graphics g = this.CreateGraphics();
+
+            string frameText = currentFrame + "";
+            SizeF frameTextSize = g.MeasureString(frameText, this.font);
+
+            Invalidate(new Rectangle((firstKnob.KnobThickness / 2) + (int)((float)(currentFrame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - (int)ScrollX - (int)frameTextSize.Width / 2 - 1, 0, (int)frameTextSize.Width + 2, timelineHeight + 1));
+
+            g.Dispose();
         }
 
         /// <summary>
@@ -1129,6 +1202,58 @@ namespace Pixelaria.Views.Controls
         /// Temporary integer used in various calculations
         /// </summary>
         private int temp = 0;
+    }
+
+    /// <summary>
+    /// Event arguments for the RangeChanged event
+    /// </summary>
+    public class RangeChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The new range
+        /// </summary>
+        public Point NewRange { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the RangeChangedEventArgs class
+        /// </summary>
+        /// <param name="newRange">The new range for the timeline selection</param>
+        public RangeChangedEventArgs(Point newRange)
+        {
+            this.NewRange = newRange;
+        }
+    }
+
+    /// <summary>
+    /// The event arguments for a FrameChanged event
+    /// </summary>
+    public class FrameChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The new frame selected
+        /// </summary>
+        public int NewFrame { get; private set; }
+
+        /// <summary>
+        /// The previous frame selected
+        /// </summary>
+        public int OldFrame { get; private set; }
+
+        /// <summary>
+        /// Whether to cancel this event and not modify the frame
+        /// </summary>
+        public bool Cancel { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the FrameChangedEventArgs class
+        /// </summary>
+        /// <param name="oldFrame">The previous frame selected</param>
+        /// <param name="newFrame">The new frame selected</param>
+        public FrameChangedEventArgs(int oldFrame, int newFrame)
+        {
+            this.OldFrame = oldFrame;
+            this.NewFrame = newFrame;
+        }
     }
 
     /// <summary>
@@ -1372,5 +1497,20 @@ namespace Pixelaria.Views.Controls
         /// range
         /// </summary>
         TimelineWithRange
+    }
+
+    /// <summary>
+    /// Defines the type of drawing to use when displaying the current frame of a TimelineControl
+    /// </summary>
+    public enum TimelineFrameDisplayType
+    {
+        /// <summary>
+        /// Displays a single white tick along the timeline bar
+        /// </summary>
+        Tick,
+        /// <summary>
+        /// Displays a frame number, surrounded by a blue box on the timeline
+        /// </summary>
+        FrameNumber
     }
 }
