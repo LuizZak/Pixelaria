@@ -129,12 +129,15 @@ namespace Pixelaria.Data
                 anim.ID = GetNextValidAnimationID();
 
             animations.Add(anim);
+            anim.OwnerBundle = this;
 
-            // Iterate through the frames and check them
+            // Iterate through the frames and check their ids
             foreach (Frame frame in anim.Frames)
             {
                 if (frame.ID == -1)
                     frame.ID = GetNextValidFrameID();
+                else
+                    nextFrameID = Math.Max(nextFrameID, frame.ID + 1);
             }
         }
 
@@ -171,6 +174,8 @@ namespace Pixelaria.Data
                     break;
                 }
             }
+
+            anim.OwnerBundle = null;
 
             animations.Remove(anim);
         }
@@ -475,7 +480,7 @@ namespace Pixelaria.Data
         /// <returns>An integer that is safe to be used as an ID for a frame</returns>
         public int GetNextValidFrameID()
         {
-            int id = nextFrameID;
+            int id = nextFrameID++;
 
             // If the ID equals to -1, it hasn't been cached yet
             if (id == -1)
@@ -489,6 +494,8 @@ namespace Pixelaria.Data
                         id = Math.Max(id, frame.ID + 1);
                     }
                 }
+
+                nextFrameID = id + 1;
             }
 
             return id;

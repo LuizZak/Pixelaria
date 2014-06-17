@@ -123,6 +123,7 @@
     <Compile Include="Data\Clipboard\DataClipboard.cs" />
     <Compile Include="Data\Exports\BundleSheetExport.cs" />
     <Compile Include="Data\Exports\TextureAtlas.cs" />
+    <Compile Include="Data\Factories\FrameFactory.cs" />
     <Compile Include="Data\Frame.cs" />
     <Compile Include="Data\IDObject.cs" />
     <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />

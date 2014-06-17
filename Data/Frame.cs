@@ -32,7 +32,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Describes an animation frame
     /// </summary>
-    public class Frame : IDisposable
+    public class Frame : IDisposable, IDObject
     {
         /// <summary>
         /// The width of this frame
@@ -103,6 +103,7 @@ namespace Pixelaria.Data
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
         public Frame(Animation parentAnimation, int width, int height, bool initHash = true)
         {
+            this.id = -1;
             this.width = width;
             this.height = height;
             this.animation = parentAnimation;

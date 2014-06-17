@@ -89,6 +89,11 @@ namespace Pixelaria.Data
         public Frame this[int index] { get { return this.GetFrameAtIndex(index); } }
 
         /// <summary>
+        /// Gets or sets the bundle this animation is contained within
+        /// </summary>
+        public Bundle OwnerBundle { get; set; }
+
+        /// <summary>
         /// Creates a new Animation with 0 frames
         /// </summary>
         /// <param name="name">The name of this animation</param>
@@ -184,7 +189,12 @@ namespace Pixelaria.Data
                 }
                 else
                 {
-                    this.AddFrame(frame.Clone());
+                    Frame cloneFrame = frame.Clone();
+
+                    if (OwnerBundle != null)
+                        cloneFrame.ID = OwnerBundle.GetNextValidFrameID();
+
+                    this.AddFrame(cloneFrame);
                 }
             }
         }
@@ -383,6 +393,11 @@ namespace Pixelaria.Data
         public Frame CreateFrame(int position = -1)
         {
             Frame frame = new Frame(this, Width, Height);
+
+            if (OwnerBundle != null)
+            {
+                frame.ID = OwnerBundle.GetNextValidFrameID();
+            }
 
             if (position == -1)
             {

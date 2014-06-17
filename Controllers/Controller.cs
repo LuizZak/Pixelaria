@@ -26,6 +26,7 @@ using System.Windows.Forms;
 
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
+using Pixelaria.Data.Factories;
 using Pixelaria.Data.Persistence;
 using Pixelaria.Data.Validators;
 
@@ -76,6 +77,11 @@ namespace Pixelaria.Controllers
         IAnimationSheetValidator animationSheetValidator;
 
         /// <summary>
+        /// The frame factory
+        /// </summary>
+        IFrameFactory frameFactory;
+
+        /// <summary>
         /// Whether the current bundle has unsaved changes
         /// </summary>
         bool unsavedChanges;
@@ -111,6 +117,11 @@ namespace Pixelaria.Controllers
         public IAnimationSheetValidator AnimationSheetValidator { get { return animationSheetValidator; } }
 
         /// <summary>
+        /// Gets the current IFrameFactory of the program
+        /// </summary>
+        public IFrameFactory FrameFactory { get { return frameFactory; } }
+
+        /// <summary>
         /// Gets whether the current bundle has unsaved changes
         /// </summary>
         public bool UnsavedChanges { get { return unsavedChanges; } }
@@ -130,6 +141,8 @@ namespace Pixelaria.Controllers
             mainForm.controller = this;
 
             ShowNewBundle();
+
+            frameFactory = new DefaultFrameFactory(this);
 
             DefaultValidator defValidator = new DefaultValidator(this);
 
