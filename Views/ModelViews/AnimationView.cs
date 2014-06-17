@@ -1519,7 +1519,7 @@ namespace Pixelaria.Views.ModelViews
                     {
                         FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(animation, FrameAddDeleteOperationType.Add, "Frame Added");
 
-                        undoTask.RegisterFrame(newFrame, j);
+                        undoTask.RegisterFrame(newFrame, i);
 
                         compoundTask.AddTask(undoTask);
 
