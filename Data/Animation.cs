@@ -364,6 +364,18 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
+        /// Swaps the two given frame indices 
+        /// </summary>
+        /// <param name="index1">The first index to swap</param>
+        /// <param name="index2">The second index to swap</param>
+        public void SwapFrameIndices(int index1, int index2)
+        {
+            Frame temp = frames[index1];
+            frames[index1] = frames[index2];
+            frames[index2] = temp;
+        }
+
+        /// <summary>
         /// Duplicates a frame from the given index and inserts it at the new index
         /// </summary>
         /// <param name="frameIndex">The index of the frame to duplicate</param>
