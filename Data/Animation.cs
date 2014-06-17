@@ -324,6 +324,9 @@ namespace Pixelaria.Data
 
             frame.Added(this);
 
+            if (frame.ID == -1 && OwnerBundle != null)
+                frame.ID = OwnerBundle.GetNextValidFrameID();
+
             if (index == -1)
             {
                 frames.Add(frame);
