@@ -464,6 +464,22 @@ namespace Pixelaria.Data
         {
             return frames[index];
         }
+
+        /// <summary>
+        /// Gets the frame with the given ID
+        /// </summary>
+        /// <param name="id">The ID to search for</param>
+        /// <returns>A frame with the given ID, or null if none was found</returns>
+        public Frame GetFrameByID(int id)
+        {
+            foreach (Frame frame in frames)
+            {
+                if (frame.ID == id)
+                    return frame;
+            }
+
+            return null;
+        }
     }
 
     /// <summary>
