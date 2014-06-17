@@ -224,7 +224,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Changes the current displayed frame
         /// </summary>
-        /// <param name="oldFrame">The new frame to display</param>
+        /// <param name="newFrame">The new frame to display</param>
         private void ChangeFrame(int newFrame)
         {
             if (currentAnimation == null || currentAnimation.FrameCount == 0)
