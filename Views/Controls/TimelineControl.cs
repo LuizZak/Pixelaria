@@ -303,7 +303,7 @@ namespace Pixelaria.Views.Controls
         /// Event handler for the RangeChangedEvent
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="newRange">The event arguments for the event</param>
+        /// <param name="eventArgs">The event arguments for the event</param>
         public delegate void RangeChangedEventHandler(object sender, RangeChangedEventArgs eventArgs);
         /// <summary>
         /// Event fired every time the frame range has changed
@@ -317,7 +317,7 @@ namespace Pixelaria.Views.Controls
         /// Event handler for the FrameChanged
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="newFrame">The event arguments for the event</param>
+        /// <param name="eventArgs">The event arguments for the event</param>
         public delegate void FrameChangedEventHandler(object sender, FrameChangedEventArgs eventArgs);
         /// <summary>
         /// Event fired every time the frame range has changed
@@ -1062,7 +1062,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the current frame being displayed
         /// </summary>
-        /// <param name="newFrame">The new frame to display</param>
+        /// <param name="oldFrame">The new frame to display</param>
         protected void ChangeFrame(int newFrame)
         {
             int oldFrame = currentFrame;
@@ -1248,7 +1248,7 @@ namespace Pixelaria.Views.Controls
         /// Initializes a new instance of the FrameChangedEventArgs class
         /// </summary>
         /// <param name="oldFrame">The previous frame selected</param>
-        /// <param name="newFrame">The new frame selected</param>
+        /// <param name="oldFrame">The new frame selected</param>
         public FrameChangedEventArgs(int oldFrame, int newFrame)
         {
             this.OldFrame = oldFrame;
