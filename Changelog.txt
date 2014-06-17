@@ -20,6 +20,9 @@ Legend:
 
 -- v1.11.0b
 
+. AnimationView
+  * Fixed crashings related to undoing/redoing animation changes when frames were added inside the FrameView sometimes.
+
 . FrameView
   + Added a timeline to visualize and quickly select which frame is currently being edited.
 
@@ -31,7 +34,7 @@ Legend:
 
 . Reduced flickering of assisted numeric value input (numeric input with bar used with mouse under it).
 
-+ AniomationView
++ AnimationView
   * Fixed pasting images not registering an undo operation for it
   * Fixed undoing/redoing something not marking the animation as modified.
   * Fixed another crash related to pasting frames.
