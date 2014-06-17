@@ -502,7 +502,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                Frame frame = frameToEdit.Clone();
+                Frame frame = controller.FrameFactory.CloneFrame(frameToEdit);
 
                 frameToEdit.Animation.AddFrame(frame, frameToEdit.Index + 1);
 
@@ -519,7 +519,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                Frame frame = frameToEdit.Clone();
+                Frame frame = controller.FrameFactory.CloneFrame(frameToEdit);
 
                 frameToEdit.Animation.AddFrame(frame);
 
