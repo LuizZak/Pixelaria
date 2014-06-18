@@ -367,10 +367,7 @@ namespace Pixelaria.Data.Undo
         public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description)
             : this(description)
         {
-            foreach (IUndoTask task in tasks)
-            {
-                undoList.Add(task);
-            }
+            AddTasks(tasks);
         }
 
         /// <summary>
@@ -380,6 +377,18 @@ namespace Pixelaria.Data.Undo
         public void AddTask(IUndoTask task)
         {
             undoList.Add(task);
+        }
+
+        /// <summary>
+        /// Adds a list of tasks on this GroupUndoTask
+        /// </summary>
+        /// <param name="tasks">The tasks to add to this GroupUndoTask</param>
+        public void AddTasks(IEnumerable<IUndoTask> tasks)
+        {
+            foreach (IUndoTask task in tasks)
+            {
+                AddTask(task);
+            }
         }
 
         /// <summary>
