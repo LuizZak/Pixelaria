@@ -1192,7 +1192,11 @@ namespace Pixelaria.Views.ModelViews
             /// <param name="index">The index to register. In case this is a delete undo operation, this value is not used</param>
             public void RegisterFrame(Frame frame, int index = 0)
             {
-                frameIndices.Add((operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index));
+                if(frame.Animation == null)
+                    frameIndices.Add(index);
+                else
+                    frameIndices.Add((operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index));
+
                 frames.Add(frame);
             }
 
@@ -1495,6 +1499,7 @@ namespace Pixelaria.Views.ModelViews
 
                 // To track for reordering of frames
                 List<Frame> unmodified = new List<Frame>(animation.Frames);
+                List<IUndoTask> undoList = new List<IUndoTask>();
 
                 // 1.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
                 for (int i = 0; i < animation.FrameCount; i++)
@@ -1528,12 +1533,14 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 // 2.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
+                undoList.Clear();
                 for (int i = 0; i < oldAnimationFrames.Count; i++)
                 {
                     Frame oldFrame = oldAnimationFrames[i];
                     bool found = false;
 
                     int j = 0;
+                    int jFound = 0;
 
                     for (j = 0; j < animation.FrameCount; j++)
                     {
@@ -1541,6 +1548,7 @@ namespace Pixelaria.Views.ModelViews
 
                         if (oldFrame.ID == newFrame.ID)
                         {
+                            jFound = j;
                             found = true;
                             break;
                         }
@@ -1549,14 +1557,15 @@ namespace Pixelaria.Views.ModelViews
                     if (!found)
                     {
                         FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(animation, FrameAddDeleteOperationType.Delete, "Frame Removed");
+                        undoTask.RegisterFrame(oldFrame, i);
 
-                        undoTask.RegisterFrame(oldFrame, j);
-
-                        compoundTask.AddTask(undoTask);
+                        undoList.Add(undoTask);
 
                         unmodified.Remove(oldFrame);
                     }
                 }
+                undoList.Reverse();
+                compoundTask.AddTasks(undoList);
 
                 // 3.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
                 for (int i = 0; i < animation.FrameCount; i++)
