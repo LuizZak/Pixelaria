@@ -23,6 +23,8 @@ Legend:
 + Added Stroke filter, which adds an outline around a sprite image.
 + Enabled expanding/collapsing of filters on the filter form.
 
+. Added an icon for the filters on the filter form.
+
 . AnimationView
   * Fixed crashings related to undoing/redoing animation changes when frames were added inside the FrameView sometimes.
 

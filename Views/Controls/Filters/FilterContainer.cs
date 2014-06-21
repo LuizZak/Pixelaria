@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Pixelaria.Filters;
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews;
 
@@ -181,6 +182,8 @@ namespace Pixelaria.Views.Controls.Filters
 
             filter.Width = pnl_container.Width;
             filter.Dock = DockStyle.Top;
+
+            pb_filterIcon.Image = FilterStore.Instance.GetIconForFilter(filter.FilterName);
 
             this.ClientSize = new Size(this.Width, this.pnl_container.Bounds.Bottom);
         }

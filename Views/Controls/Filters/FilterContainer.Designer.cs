@@ -55,6 +55,8 @@ namespace Pixelaria.Views.Controls.Filters
             this.lbl_filterName = new System.Windows.Forms.Label();
             this.btn_enable = new System.Windows.Forms.Button();
             this.btn_collapse = new System.Windows.Forms.Button();
+            this.pb_filterIcon = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_filterIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // pnl_container
@@ -83,7 +85,7 @@ namespace Pixelaria.Views.Controls.Filters
             // lbl_filterName
             // 
             this.lbl_filterName.AutoSize = true;
-            this.lbl_filterName.Location = new System.Drawing.Point(34, 4);
+            this.lbl_filterName.Location = new System.Drawing.Point(60, 5);
             this.lbl_filterName.Name = "lbl_filterName";
             this.lbl_filterName.Size = new System.Drawing.Size(60, 13);
             this.lbl_filterName.TabIndex = 1;
@@ -117,11 +119,20 @@ namespace Pixelaria.Views.Controls.Filters
             this.btn_collapse.UseVisualStyleBackColor = true;
             this.btn_collapse.Click += new System.EventHandler(this.btn_collapse_Click);
             // 
+            // pb_filterIcon
+            // 
+            this.pb_filterIcon.Location = new System.Drawing.Point(39, 3);
+            this.pb_filterIcon.Name = "pb_filterIcon";
+            this.pb_filterIcon.Size = new System.Drawing.Size(15, 15);
+            this.pb_filterIcon.TabIndex = 4;
+            this.pb_filterIcon.TabStop = false;
+            // 
             // FilterContainer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.pb_filterIcon);
             this.Controls.Add(this.btn_collapse);
             this.Controls.Add(this.btn_enable);
             this.Controls.Add(this.lbl_filterName);
@@ -129,6 +140,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.Controls.Add(this.pnl_container);
             this.Name = "FilterContainer";
             this.Size = new System.Drawing.Size(796, 161);
+            ((System.ComponentModel.ISupportInitialize)(this.pb_filterIcon)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,5 +153,6 @@ namespace Pixelaria.Views.Controls.Filters
         private System.Windows.Forms.Label lbl_filterName;
         private System.Windows.Forms.Button btn_enable;
         private System.Windows.Forms.Button btn_collapse;
+        private System.Windows.Forms.PictureBox pb_filterIcon;
     }
 }
