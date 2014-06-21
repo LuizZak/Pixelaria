@@ -313,9 +313,10 @@ namespace Pixelaria.Views.ModelViews
             this.Controls.Add(this.zpb_preview);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.zpb_original);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(663, 3000);
+            this.MinimumSize = new System.Drawing.Size(663, 706);
             this.Name = "BaseFilterView";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Filter";

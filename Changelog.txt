@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.11.0b
+                  v1.13.0b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,12 +18,14 @@ Legend:
 * Fix/Change
 . Note
 
--- v1.11.0b
+-- v1.13.0b
 
 + Added Stroke filter, which adds an outline around a sprite image.
 + Enabled expanding/collapsing of filters on the filter form.
 
 . Added an icon for the filters on the filter form.
+
+-- v1.11.0b
 
 . AnimationView
   * Fixed crashings related to undoing/redoing animation changes when frames were added inside the FrameView sometimes.
