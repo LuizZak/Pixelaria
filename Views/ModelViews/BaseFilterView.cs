@@ -692,23 +692,7 @@ namespace Pixelaria.Views.ModelViews
             /// <param name="container">The container to display on this ContainerDragForm</param>
             public ContainerDragForm(FilterContainer container)
             {
-                this.SuspendLayout();
-
                 this.container = container;
-                this.containerStartSize = container.Size;
-                this.ShowInTaskbar = false;
-
-                this.Size = new Size(this.container.Width + 1, this.container.Height + 1);
-                this.FormBorderStyle = FormBorderStyle.None;
-                this.container.Dock = DockStyle.Fill;
-                this.Controls.Add(container);
-
-                this.ResumeLayout();
-
-                this.dragTimer = new Timer();
-                this.dragTimer.Interval = 10;
-                this.dragTimer.Tick += new EventHandler(dragTimer_Tick);
-                this.dragTimer.Start();
             }
 
             /// <summary>
@@ -739,6 +723,33 @@ namespace Pixelaria.Views.ModelViews
                         ContainerDragging.Invoke(this, new EventArgs());
                     }
                 }
+            }
+
+            // 
+            // OnLoad event handler
+            // 
+            protected override void OnLoad(EventArgs e)
+            {
+                base.OnLoad(e);
+
+                this.SuspendLayout();
+
+                this.containerStartSize = container.Size;
+                this.ShowInTaskbar = false;
+
+                this.AutoScaleMode = AutoScaleMode.None;
+                this.MinimumSize = new Size(0, 0);
+                this.ClientSize = new Size(this.container.Width + 1, this.container.ClientSize.Height + 1);
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.container.Dock = DockStyle.Fill;
+                this.Controls.Add(container);
+
+                this.ResumeLayout();
+
+                this.dragTimer = new Timer();
+                this.dragTimer.Interval = 10;
+                this.dragTimer.Tick += new EventHandler(dragTimer_Tick);
+                this.dragTimer.Start();
             }
 
             // 

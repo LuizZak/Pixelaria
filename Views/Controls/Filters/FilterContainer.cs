@@ -65,6 +65,11 @@ namespace Pixelaria.Views.Controls.Filters
         Point mouseDownPoint;
 
         /// <summary>
+        /// This filter container's state
+        /// </summary>
+        FilterContainerState containerState;
+
+        /// <summary>
         /// Gets the FilterControl currently held by this FilterContainer
         /// </summary>
         public FilterControl FilterControl { get { return filterControl; } }
@@ -130,6 +135,11 @@ namespace Pixelaria.Views.Controls.Filters
         public Point MouseDownPoint { get { return mouseDownPoint; } }
 
         /// <summary>
+        /// Gets this filter container's state
+        /// </summary>
+        public FilterContainerState ContainerState { get { return containerState; } }
+
+        /// <summary>
         /// Occurs whenever the user starts dragging the FilterControl
         /// </summary>
         public event EventHandler ContainerDragStart;
@@ -148,6 +158,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             InitializeComponent();
 
+            this.containerState = FilterContainerState.Expanded;
             this.mouseDown = false;
             this.owningView = owningView;
             this.filterEnabled = true;
@@ -182,6 +193,45 @@ namespace Pixelaria.Views.Controls.Filters
         {
             if (filterEnabled)
                 filterControl.ApplyFilter(bitmap);
+        }
+
+        /// <summary>
+        /// Expands this filter's exhibition
+        /// </summary>
+        public void Expand()
+        {
+            containerState = FilterContainerState.Expanded;
+
+            this.btn_collapse.Image = Pixelaria.Properties.Resources.minus_icon;
+
+            this.ClientSize = new Size(this.ClientSize.Width, this.pnl_container.Bounds.Bottom);
+        }
+
+        /// <summary>
+        /// Collapse this filter's exhibition
+        /// </summary>
+        public void Collapse()
+        {
+            containerState = FilterContainerState.Collapsed;
+
+            this.btn_collapse.Image = Pixelaria.Properties.Resources.plus_icon;
+
+            this.ClientSize = new Size(this.ClientSize.Width, 20);
+        }
+
+        /// <summary>
+        /// Toggles this filter's exhibition
+        /// </summary>
+        public void Toggle()
+        {
+            if (containerState == FilterContainerState.Expanded)
+            {
+                Collapse();
+            }
+            else
+            {
+                Expand();
+            }
         }
 
         /// <summary>
@@ -299,5 +349,28 @@ namespace Pixelaria.Views.Controls.Filters
         {
             FilterEnabled = !FilterEnabled;
         }
+
+        // 
+        // Collapse/Expand Button click
+        // 
+        private void btn_collapse_Click(object sender, EventArgs e)
+        {
+            Toggle();
+        }
+    }
+
+    /// <summary>
+    /// Specifies one of the valid filter container states
+    /// </summary>
+    public enum FilterContainerState
+    {
+        /// <summary>
+        /// Expanded state
+        /// </summary>
+        Expanded,
+        /// <summary>
+        /// Collapsed state
+        /// </summary>
+        Collapsed
     }
 }

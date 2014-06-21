@@ -54,6 +54,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.btn_remove = new System.Windows.Forms.Button();
             this.lbl_filterName = new System.Windows.Forms.Label();
             this.btn_enable = new System.Windows.Forms.Button();
+            this.btn_collapse = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // pnl_container
@@ -82,7 +83,7 @@ namespace Pixelaria.Views.Controls.Filters
             // lbl_filterName
             // 
             this.lbl_filterName.AutoSize = true;
-            this.lbl_filterName.Location = new System.Drawing.Point(17, 4);
+            this.lbl_filterName.Location = new System.Drawing.Point(34, 4);
             this.lbl_filterName.Name = "lbl_filterName";
             this.lbl_filterName.Size = new System.Drawing.Size(60, 13);
             this.lbl_filterName.TabIndex = 1;
@@ -102,11 +103,26 @@ namespace Pixelaria.Views.Controls.Filters
             this.btn_enable.UseVisualStyleBackColor = true;
             this.btn_enable.Click += new System.EventHandler(this.btn_enable_Click);
             // 
+            // btn_collapse
+            // 
+            this.btn_collapse.FlatAppearance.BorderSize = 0;
+            this.btn_collapse.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
+            this.btn_collapse.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_collapse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_collapse.Image = global::Pixelaria.Properties.Resources.minus_icon;
+            this.btn_collapse.Location = new System.Drawing.Point(18, 3);
+            this.btn_collapse.Name = "btn_collapse";
+            this.btn_collapse.Size = new System.Drawing.Size(15, 15);
+            this.btn_collapse.TabIndex = 3;
+            this.btn_collapse.UseVisualStyleBackColor = true;
+            this.btn_collapse.Click += new System.EventHandler(this.btn_collapse_Click);
+            // 
             // FilterContainer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.btn_collapse);
             this.Controls.Add(this.btn_enable);
             this.Controls.Add(this.lbl_filterName);
             this.Controls.Add(this.btn_remove);
@@ -124,5 +140,6 @@ namespace Pixelaria.Views.Controls.Filters
         private System.Windows.Forms.Button btn_remove;
         private System.Windows.Forms.Label lbl_filterName;
         private System.Windows.Forms.Button btn_enable;
+        private System.Windows.Forms.Button btn_collapse;
     }
 }
