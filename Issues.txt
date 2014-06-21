@@ -1,0 +1,24 @@
+             *   *   *   *   *
+                              
+             *   Pixelaria   *
+                              
+             *   *   *   *   *
+
+                  v1.11.0b
+
+Pixel Art Animation Creation and Exporting Tool
+     Copyright ù© 2013 Luiz Fernando Silva
+
+
+- Issues List
+
+Legend:
+
++ Open Issue
+- Closed Issue
+* Issue Fix Version
+
+-- v1.11.0b
+
++ When an undo/redo operation is made while a selection is currently made, the sprite image is spliced.
+
