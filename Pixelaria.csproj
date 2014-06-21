@@ -140,6 +140,7 @@
     <Compile Include="Filters\OffsetFilter.cs" />
     <Compile Include="Filters\RotationFilter.cs" />
     <Compile Include="Filters\ScaleFilter.cs" />
+    <Compile Include="Filters\StrokeFilter.cs" />
     <Compile Include="Filters\TransparencyFilter.cs" />
     <Compile Include="Importers\DefaultPngImporter.cs" />
     <Compile Include="Importers\IDefaultImporter.cs" />
@@ -176,6 +177,12 @@
     </Compile>
     <Compile Include="Views\Controls\CPictureBox.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\StrokeControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\Filters\StrokeControl.Designer.cs">
+      <DependentUpon>StrokeControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\Filters\FadeControl.cs">
       <SubType>UserControl</SubType>
@@ -347,6 +354,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\ColorSwatchControl.resx">
       <DependentUpon>ColorSwatchControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\Filters\StrokeControl.resx">
+      <DependentUpon>StrokeControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\Filters\FadeControl.resx">
       <DependentUpon>FadeControl.cs</DependentUpon>
@@ -525,6 +535,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\plus_icon.png" />
+    <None Include="Resources\minus_icon.png" />
+    <None Include="Resources\filter_stroke.png" />
     <None Include="Resources\spray_cursor.cur" />
     <None Include="Resources\spray_icon.png" />
     <None Include="Resources\pxl_icon_tile_392x424.png" />

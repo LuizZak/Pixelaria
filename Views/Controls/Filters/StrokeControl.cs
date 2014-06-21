@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -30,18 +31,18 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles an OffsetFilter
     /// </summary>
-    public partial class OffsetControl : FilterControl
+    public partial class StrokeControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new instance of the OffsetControl class
+        /// Initializes a new instance of the StrokeControl class
         /// </summary>
-        public OffsetControl()
+        public StrokeControl()
         {
             InitializeComponent();
         }
 
         /// <summary>
-        /// Initializes this OffsetControl
+        /// Initializes this StrokeControl
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -50,18 +51,12 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (this.filter == null)
             {
-                this.filter = new OffsetFilter();
-                (filter as OffsetFilter).OffsetX = 0;
-                (filter as OffsetFilter).OffsetY = 0;
-                (filter as OffsetFilter).WrapHorizontal = false;
-                (filter as OffsetFilter).WrapVertical = false;
+                this.filter = new StrokeFilter();
+                (filter as StrokeFilter).StrokeColor = Color.Red;
+                (filter as StrokeFilter).StrokeRadius = 1;
+                (filter as StrokeFilter).KnockoutImage = false;
+                (filter as StrokeFilter).Smooth = false;
             }
-
-            this.anud_offsetX.Minimum = -bitmap.Width;
-            this.anud_offsetY.Minimum = -bitmap.Height;
-
-            this.anud_offsetX.Maximum = bitmap.Width;
-            this.anud_offsetY.Maximum = bitmap.Height;
         }
 
         /// <summary>
@@ -71,52 +66,57 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="filter">The IFilter instance to update the fields from</param>
         public override void UpdateFieldsFromFilter(IFilter filter)
         {
-            if (!(filter is OffsetFilter))
+            if (!(filter is StrokeFilter))
                 return;
 
-            anud_offsetX.Value = (decimal)(filter as OffsetFilter).OffsetX;
-            anud_offsetY.Value = (decimal)(filter as OffsetFilter).OffsetY;
-            cb_wrapHorizontal.Checked = (filter as OffsetFilter).WrapHorizontal;
-            cb_wrapVertical.Checked = (filter as OffsetFilter).WrapVertical;
+            anud_strokeSize.Value = (decimal)(filter as StrokeFilter).StrokeRadius;
+            cp_color.BackColor = (filter as StrokeFilter).StrokeColor;
+            cb_knockout.Checked = (filter as StrokeFilter).KnockoutImage;
+            cb_smooth.Checked = (filter as StrokeFilter).Smooth;
         }
 
         // 
-        // X offset nud
+        // Color Panel click
         // 
-        private void anud_offsetX_ValueChanged(object sender, EventArgs e)
+        private void cp_color_Click(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).OffsetX = (float)anud_offsetX.Value;
+            ColorDialog cd = new ColorDialog();
+            cd.AllowFullOpen = true;
 
+            if (cd.ShowDialog(this.FindForm()) == DialogResult.OK)
+            {
+                cp_color.BackColor = cd.Color;
+
+                (filter as StrokeFilter).StrokeColor = cd.Color;
+
+                this.FireFilterUpdated();
+            }
+        }
+
+        // 
+        // Stroke Size ANUD changed
+        // 
+        private void anud_strokeSize_ValueChanged(object sender, EventArgs e)
+        {
+            (filter as StrokeFilter).StrokeRadius = (int)anud_strokeSize.Value;
             FireFilterUpdated();
         }
 
         // 
-        // Y offset nud
+        // Knockout Image checkbox check
         // 
-        private void anud_offsetY_ValueChanged(object sender, EventArgs e)
+        private void cb_knockout_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).OffsetY = (float)anud_offsetY.Value;
-
+            (filter as StrokeFilter).KnockoutImage = cb_knockout.Checked;
             FireFilterUpdated();
         }
 
         // 
-        // Wrap Horizontal checkbox check
+        // Smooth checkbox check
         // 
-        private void cb_wrapHorizontal_CheckedChanged(object sender, EventArgs e)
+        private void cb_smooth_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).WrapHorizontal = cb_wrapHorizontal.Checked;
-
-            FireFilterUpdated();
-        }
-
-        // 
-        // Wrap Vertical checkbox checked
-        // 
-        private void cb_wrapVertical_CheckedChanged(object sender, EventArgs e)
-        {
-            (filter as OffsetFilter).WrapVertical = cb_wrapVertical.Checked;
-
+            (filter as StrokeFilter).Smooth = cb_smooth.Checked;
             FireFilterUpdated();
         }
     }

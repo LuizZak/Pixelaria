@@ -102,6 +102,8 @@ namespace Pixelaria.Filters
             RegisterFilter("Hue", Pixelaria.Properties.Resources.filter_hue, typeof(HueFilter), typeof(HueControl));
             RegisterFilter("Saturation", Pixelaria.Properties.Resources.filter_saturation, typeof(SaturationFilter), typeof(SaturationControl));
             RegisterFilter("Lightness", Pixelaria.Properties.Resources.filter_lightness, typeof(LightnessFilter), typeof(LightnessControl));
+
+            RegisterFilter("Stroke", Pixelaria.Properties.Resources.filter_stroke, typeof(StrokeFilter), typeof(StrokeControl));
         }
 
         /// <summary>
