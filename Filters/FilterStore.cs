@@ -223,6 +223,22 @@ namespace Pixelaria.Filters
         }
 
         /// <summary>
+        /// Returns an image binded to the given filter name
+        /// </summary>
+        /// <param name="name">The name of the filter</param>
+        /// <returns>An image, binded to the given filter name</returns>
+        public Image GetIconForFilter(string name)
+        {
+            foreach (FilterItem item in filterItems)
+            {
+                if (item.FilterName == name)
+                    return item.FilterIcon;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Gets an array of all the filter display names of the program
         /// </summary>
         /// <returns>An array of all the filter display names of the program</returns>
