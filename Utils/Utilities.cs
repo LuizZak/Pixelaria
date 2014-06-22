@@ -355,8 +355,8 @@ namespace Pixelaria.Utils
                 return color;
             if (color.A == 255)
                 return color;
-
-            int Alpha = Convert.ToInt32(color.A) + 1;
+            
+            int Alpha = color.A + 1;
 
             int B = Alpha * color.B + (255 - Alpha) * backColor.B >> 8;
             int G = Alpha * color.G + (255 - Alpha) * backColor.G >> 8;
