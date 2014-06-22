@@ -127,12 +127,12 @@ namespace Pixelaria.Views
             this.tsb_open,
             this.tsb_save,
             this.toolStripSeparator1,
-            this.tsb_bundleSettings,
             this.tsb_createAnimation,
             this.tsb_importAnimation,
             this.tsb_createAnimationSheet,
             this.toolStripSeparator2,
-            this.tsb_exportButton});
+            this.tsb_exportButton,
+            this.tsb_bundleSettings});
             this.ts_mainStrip.Location = new System.Drawing.Point(0, 0);
             this.ts_mainStrip.Name = "ts_mainStrip";
             this.ts_mainStrip.Size = new System.Drawing.Size(1125, 25);
