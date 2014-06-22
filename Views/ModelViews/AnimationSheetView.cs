@@ -164,6 +164,7 @@ namespace Pixelaria.Views.ModelViews
             pnl_alertPanel.Visible = alert;
 
             btn_ok.Enabled = valid;
+            btn_apply.Enabled = (valid && modified);
 
             return valid;
         }
@@ -182,6 +183,7 @@ namespace Pixelaria.Views.ModelViews
             controller.UpdatedAnimationSheet(sheetToEdit);
 
             this.Text = "Animation Sheet [" + sheetToEdit.Name + "]";
+            this.btn_apply.Enabled = false;
 
             base.ApplyChanges();
         }
@@ -211,6 +213,7 @@ namespace Pixelaria.Views.ModelViews
             if (sheetToEdit != null)
             {
                 this.Text = "Animation Sheet [" + sheetToEdit.Name + "]*";
+                this.btn_apply.Enabled = true;
             }
 
             base.MarkModified();
@@ -433,6 +436,14 @@ namespace Pixelaria.Views.ModelViews
         private void btn_cancel_Click(object sender, EventArgs e)
         {
             DiscardChangesAndClose();
+        }
+
+        // 
+        // Apply Changes button click
+        // 
+        private void btn_apply_Click(object sender, EventArgs e)
+        {
+            ApplyChanges();
         }
 
         // 

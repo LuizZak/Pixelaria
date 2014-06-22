@@ -103,6 +103,7 @@ namespace Pixelaria.Views.ModelViews
             this.lbl_zoomLevel = new System.Windows.Forms.Label();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.cb_showFrameBounds = new System.Windows.Forms.CheckBox();
+            this.btn_apply = new System.Windows.Forms.Button();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).BeginInit();
@@ -140,7 +141,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btn_ok.Enabled = false;
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
-            this.btn_ok.Location = new System.Drawing.Point(446, 541);
+            this.btn_ok.Location = new System.Drawing.Point(365, 541);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
             this.btn_ok.TabIndex = 24;
@@ -155,7 +156,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_cancel.Location = new System.Drawing.Point(527, 541);
+            this.btn_cancel.Location = new System.Drawing.Point(446, 541);
             this.btn_cancel.Name = "btn_cancel";
             this.btn_cancel.Size = new System.Drawing.Size(75, 29);
             this.btn_cancel.TabIndex = 23;
@@ -389,7 +390,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_alertPanel.Controls.Add(this.lbl_alertLabel);
             this.pnl_alertPanel.Location = new System.Drawing.Point(12, 541);
             this.pnl_alertPanel.Name = "pnl_alertPanel";
-            this.pnl_alertPanel.Size = new System.Drawing.Size(428, 29);
+            this.pnl_alertPanel.Size = new System.Drawing.Size(347, 29);
             this.pnl_alertPanel.TabIndex = 26;
             // 
             // pictureBox2
@@ -418,7 +419,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_errorPanel.Controls.Add(this.lbl_error);
             this.pnl_errorPanel.Location = new System.Drawing.Point(12, 541);
             this.pnl_errorPanel.Name = "pnl_errorPanel";
-            this.pnl_errorPanel.Size = new System.Drawing.Size(428, 29);
+            this.pnl_errorPanel.Size = new System.Drawing.Size(347, 29);
             this.pnl_errorPanel.TabIndex = 25;
             // 
             // pictureBox1
@@ -489,10 +490,12 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_sheetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_sheetPreview.ClipBackgroundToImage = true;
+            this.zpb_sheetPreview.Importer = null;
             this.zpb_sheetPreview.Location = new System.Drawing.Point(317, 90);
             this.zpb_sheetPreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MaximumZoom")));
             this.zpb_sheetPreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MinimumZoom")));
             this.zpb_sheetPreview.Name = "zpb_sheetPreview";
+            this.zpb_sheetPreview.SheetExport = null;
             this.zpb_sheetPreview.ShowImageArea = true;
             this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 408);
             this.zpb_sheetPreview.TabIndex = 0;
@@ -701,6 +704,22 @@ namespace Pixelaria.Views.ModelViews
             this.cb_showFrameBounds.UseVisualStyleBackColor = true;
             this.cb_showFrameBounds.CheckedChanged += new System.EventHandler(this.cb_showFrameBounds_CheckedChanged);
             // 
+            // btn_apply
+            // 
+            this.btn_apply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_apply.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btn_apply.Enabled = false;
+            this.btn_apply.Image = global::Pixelaria.Properties.Resources.download;
+            this.btn_apply.Location = new System.Drawing.Point(527, 541);
+            this.btn_apply.Name = "btn_apply";
+            this.btn_apply.Size = new System.Drawing.Size(75, 29);
+            this.btn_apply.TabIndex = 32;
+            this.btn_apply.Text = "&Apply";
+            this.btn_apply.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btn_apply.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btn_apply.UseVisualStyleBackColor = true;
+            this.btn_apply.Click += new System.EventHandler(this.btn_apply_Click);
+            // 
             // AnimationSheetView
             // 
             this.AcceptButton = this.btn_ok;
@@ -708,6 +727,7 @@ namespace Pixelaria.Views.ModelViews
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_cancel;
             this.ClientSize = new System.Drawing.Size(614, 582);
+            this.Controls.Add(this.btn_apply);
             this.Controls.Add(this.cb_showFrameBounds);
             this.Controls.Add(this.lbl_zoomLevel);
             this.Controls.Add(this.flowLayoutPanel2);
@@ -802,5 +822,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label lbl_memoryUsage;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.CheckBox cb_showFrameBounds;
+        private System.Windows.Forms.Button btn_apply;
     }
 }

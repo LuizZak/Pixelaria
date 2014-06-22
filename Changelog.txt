@@ -27,6 +27,7 @@ Legend:
 
 . AnimationSheetView
   + Added checkbox to toggle visualization of individual frame bounds on the sheet.
+  + Added an 'Apply' button that will apply changes made without closing the form.
 
 -- v1.11.0b
 
