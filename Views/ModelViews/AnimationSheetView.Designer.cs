@@ -53,7 +53,7 @@ namespace Pixelaria.Views.ModelViews
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationSheetView));
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
-            this.cb_favorRatioOverarea = new System.Windows.Forms.CheckBox();
+            this.cb_favorRatioOverArea = new System.Windows.Forms.CheckBox();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -121,19 +121,19 @@ namespace Pixelaria.Views.ModelViews
             // 
             // cb_favorRatioOverarea
             // 
-            this.cb_favorRatioOverarea.AutoSize = true;
-            this.flowLayoutPanel1.SetFlowBreak(this.cb_favorRatioOverarea, true);
-            this.cb_favorRatioOverarea.Location = new System.Drawing.Point(3, 3);
-            this.cb_favorRatioOverarea.Name = "cb_favorRatioOverarea";
-            this.helpProvider1.SetShowHelp(this.cb_favorRatioOverarea, true);
-            this.cb_favorRatioOverarea.Size = new System.Drawing.Size(124, 17);
-            this.cb_favorRatioOverarea.TabIndex = 3;
-            this.cb_favorRatioOverarea.Text = "Favor ratio over area";
-            this.tt_mainTooltip.SetToolTip(this.cb_favorRatioOverarea, "Whether to favor ratio over minimum area.\r\nChecking this will produce a more squa" +
+            this.cb_favorRatioOverArea.AutoSize = true;
+            this.flowLayoutPanel1.SetFlowBreak(this.cb_favorRatioOverArea, true);
+            this.cb_favorRatioOverArea.Location = new System.Drawing.Point(3, 3);
+            this.cb_favorRatioOverArea.Name = "cb_favorRatioOverarea";
+            this.helpProvider1.SetShowHelp(this.cb_favorRatioOverArea, true);
+            this.cb_favorRatioOverArea.Size = new System.Drawing.Size(124, 17);
+            this.cb_favorRatioOverArea.TabIndex = 3;
+            this.cb_favorRatioOverArea.Text = "Favor ratio over area";
+            this.tt_mainTooltip.SetToolTip(this.cb_favorRatioOverArea, "Whether to favor ratio over minimum area.\r\nChecking this will produce a more squa" +
         "re-ish image.\r\nThe output is also produced faster, but may be\r\nslightly bigger i" +
         "n pixel count.");
-            this.cb_favorRatioOverarea.UseVisualStyleBackColor = true;
-            this.cb_favorRatioOverarea.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_favorRatioOverArea.UseVisualStyleBackColor = true;
+            this.cb_favorRatioOverArea.CheckedChanged += new System.EventHandler(this.checkboxesChange);
             // 
             // btn_ok
             // 
@@ -223,7 +223,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Controls.Add(this.cb_favorRatioOverarea);
+            this.flowLayoutPanel1.Controls.Add(this.cb_favorRatioOverArea);
             this.flowLayoutPanel1.Controls.Add(this.cb_forcePowerOfTwoDimensions);
             this.flowLayoutPanel1.Controls.Add(this.cb_forceMinimumDimensions);
             this.flowLayoutPanel1.Controls.Add(this.cb_reuseIdenticalFrames);
@@ -787,7 +787,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label lbl_sheetPreview;
         private System.Windows.Forms.Button btn_generatePreview;
         private System.Windows.Forms.CheckBox cb_forcePowerOfTwoDimensions;
-        private System.Windows.Forms.CheckBox cb_favorRatioOverarea;
+        private System.Windows.Forms.CheckBox cb_favorRatioOverArea;
         private System.Windows.Forms.CheckBox cb_allowUordering;
         private System.Windows.Forms.CheckBox cb_reuseIdenticalFrames;
         private System.Windows.Forms.CheckBox cb_forceMinimumDimensions;

@@ -110,7 +110,7 @@ namespace Pixelaria.Views.ModelViews
 
             this.txt_sheetName.Text = this.sheetToEdit.Name;
 
-            this.cb_favorRatioOverarea.Checked = this.sheetToEdit.ExportSettings.FavorRatioOverArea;
+            this.cb_favorRatioOverArea.Checked = this.sheetToEdit.ExportSettings.FavorRatioOverArea;
             this.cb_forcePowerOfTwoDimensions.Checked = this.sheetToEdit.ExportSettings.ForcePowerOfTwoDimensions;
             this.cb_forceMinimumDimensions.Checked = this.sheetToEdit.ExportSettings.ForceMinimumDimensions;
             this.cb_reuseIdenticalFrames.Checked = this.sheetToEdit.ExportSettings.ReuseIdenticalFramesArea;
@@ -226,7 +226,7 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The newly repopulated AnimationExportSettings</returns>
         public AnimationExportSettings RepopulateExportSettings()
         {
-            exportSettings.FavorRatioOverArea = cb_favorRatioOverarea.Checked;
+            exportSettings.FavorRatioOverArea = cb_favorRatioOverArea.Checked;
             exportSettings.ForcePowerOfTwoDimensions = cb_forcePowerOfTwoDimensions.Checked;
             exportSettings.ForceMinimumDimensions = cb_forceMinimumDimensions.Checked;
             exportSettings.ReuseIdenticalFramesArea = cb_reuseIdenticalFrames.Checked;
