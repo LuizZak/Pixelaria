@@ -101,6 +101,7 @@ namespace Pixelaria.Views.ModelViews
                 this.gb_exportSummary.Visible = false;
 
                 this.lbl_zoomLevel.Visible = false;
+                this.cb_showFrameBounds.Visible = false;
 
                 this.Text = "New Animation Sheet";
 
