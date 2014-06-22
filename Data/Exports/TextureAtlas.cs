@@ -384,7 +384,7 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Returns the frame that relies on the given index
+        /// Returns the frame that lies on the given index
         /// </summary>
         /// <param name="frameIndex">The index for frame</param>
         /// <returns>The frame that relies on that index</returns>
@@ -638,14 +638,14 @@ namespace Pixelaria.Data.Exports
             // Summary:
             //     Compares two objects and returns a value indicating whether one is less than,
             //     equal to, or greater than the other.
-            //
+            // 
             // Parameters:
             //   x:
             //     The first object to compare.
-            //
+            // 
             //   y:
             //     The second object to compare.
-            //
+            // 
             // Returns:
             //     A signed integer that indicates the relative values of x and y, as shown
             //     in the following table.
