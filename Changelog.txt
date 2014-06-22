@@ -25,6 +25,9 @@ Legend:
 
 . Added an icon for the filters on the filter form.
 
+. AnimationSheetView
+  + Added checkbox to toggle visualization of individual frame bounds on the sheet.
+
 -- v1.11.0b
 
 . AnimationView

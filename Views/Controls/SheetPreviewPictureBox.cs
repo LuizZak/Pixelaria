@@ -23,6 +23,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+using Pixelaria.Data.Exports;
 using Pixelaria.Importers;
 
 namespace Pixelaria.Views.Controls
@@ -36,6 +37,11 @@ namespace Pixelaria.Views.Controls
         /// The current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
         private SheetSettings sheetSettings;
+
+        /// <summary>
+        /// The curre sheet export this SheetPreviewPictureBox is displaying
+        /// </summary>
+        private BundleSheetExport sheetExport;
 
         /// <summary>
         /// The array of rectangle areas for each frame
@@ -53,12 +59,19 @@ namespace Pixelaria.Views.Controls
         public SheetSettings SheetSettings { get { return sheetSettings; } set { sheetSettings = value; frameRects = Importer.GenerateFrameBounds(Image, sheetSettings); Invalidate(); } }
 
         /// <summary>
-        /// Loads the preview data
+        /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
+        /// </summary>
+        public BundleSheetExport SheetExport { get { return sheetExport; } set { sheetExport = value; Invalidate(); } }
+
+        /// <summary>
+        /// Loads an image import preview
         /// </summary>
         /// <param name="previewImage">The image to use as preview</param>
         /// <param name="sheetSettings">The sheet settings</param>
         public void LoadPreview(Image previewImage, SheetSettings sheetSettings)
         {
+            Unload();
+
             // Reset the transformations
             scale = new PointF(1, 1);
             offsetPoint = Point.Empty;
@@ -73,6 +86,34 @@ namespace Pixelaria.Views.Controls
             UpdateScrollbars();
         }
 
+        /// <summary>
+        /// Loads a bundle sheet export preview
+        /// </summary>
+        /// <param name="bundleSheetExport">The bundle sheet export containing data about the exported image</param>
+        public void LoadExportSheet(BundleSheetExport bundleSheetExport)
+        {
+            Unload();
+
+            // Reset the transformations
+            this.Image = bundleSheetExport.Sheet;
+            this.sheetExport = bundleSheetExport;
+
+            Invalidate();
+
+            UpdateScrollbars();
+        }
+
+        /// <summary>
+        /// Unloads the currently displayed preview
+        /// </summary>
+        public void Unload()
+        {
+            sheetExport = null;
+            frameRects = null;
+
+            Invalidate();
+        }
+
         // 
         // OnPaint event handler. Draws the underlying sheet, and the frame rectangles on the sheet
         // 
@@ -80,16 +121,31 @@ namespace Pixelaria.Views.Controls
         {
             base.OnPaint(pe);
 
-            if (Image != null && Importer != null)
+            if (Image != null)
             {
-                // Draw the frame bounds now
-                foreach (Rectangle rec in frameRects)
+                if (sheetExport != null)
                 {
-                    RectangleF r = rec;
-                    r.X += 0.5f;
-                    r.Y += 0.5f;
+                    // Draw the frame bounds now
+                    foreach (BundleSheetExport.FrameRect rect in sheetExport.FrameRects)
+                    {
+                        RectangleF r = rect.SheetArea;
+                        r.X += 0.5f;
+                        r.Y += 0.5f;
 
-                    pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
+                        pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
+                    }
+                }
+                else if (Importer != null && frameRects != null)
+                {
+                    // Draw the frame bounds now
+                    foreach (Rectangle rec in frameRects)
+                    {
+                        RectangleF r = rec;
+                        r.X += 0.5f;
+                        r.Y += 0.5f;
+
+                        pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
+                    }
                 }
             }
         }

@@ -55,6 +55,11 @@ namespace Pixelaria.Views.ModelViews
         AnimationExportSettings exportSettings;
 
         /// <summary>
+        /// The current bundle sheet export
+        /// </summary>
+        BundleSheetExport bundleSheetExport;
+
+        /// <summary>
         /// Gets the current AnimationSheet being edited
         /// </summary>
         public AnimationSheet CurrentSheet { get { return sheetToEdit; } }
@@ -260,9 +265,9 @@ namespace Pixelaria.Views.ModelViews
                 Stopwatch sw = Stopwatch.StartNew();
 
                 // Export the bundle
-                BundleSheetExport bse = controller.GenerateBundleSheet(exportSettings, handler, sheetToEdit.Animations);
+                bundleSheetExport = controller.GenerateBundleSheet(exportSettings, handler, sheetToEdit.Animations);
 
-                Image img = bse.Sheet;
+                Image img = bundleSheetExport.Sheet;
 
                 sw.Stop();
                 this.FindForm().Cursor = Cursors.Default;
@@ -276,13 +281,18 @@ namespace Pixelaria.Views.ModelViews
 
                 lbl_dimensions.Text = img.Width + "x" + img.Height;
                 lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
-                lbl_framesOnSheet.Text = (bse.FrameCount - bse.ReusedFrameCount) + "";
-                lbl_reusedFrames.Text = (bse.ReusedFrameCount) + "";
+                lbl_framesOnSheet.Text = (bundleSheetExport.FrameCount - bundleSheetExport.ReusedFrameCount) + "";
+                lbl_reusedFrames.Text = (bundleSheetExport.ReusedFrameCount) + "";
                 lbl_memoryUsage.Text = Utilities.FormatByteSize(Utilities.MemoryUsageOfImage(img));
 
                 if (pnl_alertPanel.Visible && lbl_alertLabel.Text == "No animations on sheet to generate preview.")
                 {
                     pnl_alertPanel.Visible = false;
+                }
+
+                if (cb_showFrameBounds.Checked)
+                {
+                    ShowFrameBounds();
                 }
             }
             else
@@ -290,6 +300,25 @@ namespace Pixelaria.Views.ModelViews
                 lbl_alertLabel.Text = "No animations on sheet to generate preview.";
                 pnl_alertPanel.Visible = true;
             }
+        }
+
+        /// <summary>
+        /// Shows the frame bounds for the exported image
+        /// </summary>
+        public void ShowFrameBounds()
+        {
+            if (bundleSheetExport != null)
+            {
+                zpb_sheetPreview.LoadExportSheet(bundleSheetExport);
+            }
+        }
+
+        /// <summary>
+        /// Hides the frame bounds for the exported image
+        /// </summary>
+        public void HideFrameBounds()
+        {
+            zpb_sheetPreview.Unload();
         }
 
         /// <summary>
@@ -301,6 +330,11 @@ namespace Pixelaria.Views.ModelViews
             {
                 zpb_sheetPreview.Image.Dispose();
                 zpb_sheetPreview.Image = null;
+            }
+
+            if (bundleSheetExport != null)
+            {
+                bundleSheetExport = null;
             }
         }
 
@@ -357,6 +391,21 @@ namespace Pixelaria.Views.ModelViews
         private void AnimationSheetView_FormClosed(object sender, FormClosedEventArgs e)
         {
             RemovePreview();
+        }
+
+        // 
+        // Show Frame Bounds checkbox check
+        // 
+        private void cb_showFrameBounds_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cb_showFrameBounds.Checked)
+            {
+                ShowFrameBounds();
+            }
+            else
+            {
+                HideFrameBounds();
+            }
         }
 
         // 

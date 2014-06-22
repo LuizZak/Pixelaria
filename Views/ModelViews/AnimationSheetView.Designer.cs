@@ -82,7 +82,7 @@ namespace Pixelaria.Views.ModelViews
             this.txt_sheetName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_sheetPreview = new System.Windows.Forms.Label();
-            this.zpb_sheetPreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.zpb_sheetPreview = new Pixelaria.Views.Controls.SheetPreviewPictureBox();
             this.gb_sheetInfo = new System.Windows.Forms.GroupBox();
             this.lbl_frameCount = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -102,6 +102,7 @@ namespace Pixelaria.Views.ModelViews
             this.label6 = new System.Windows.Forms.Label();
             this.lbl_zoomLevel = new System.Windows.Forms.Label();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.cb_showFrameBounds = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).BeginInit();
@@ -493,7 +494,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MinimumZoom")));
             this.zpb_sheetPreview.Name = "zpb_sheetPreview";
             this.zpb_sheetPreview.ShowImageArea = true;
-            this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 429);
+            this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 408);
             this.zpb_sheetPreview.TabIndex = 0;
             this.zpb_sheetPreview.TabStop = false;
             this.zpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.Zoom")));
@@ -676,7 +677,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.lbl_zoomLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lbl_zoomLevel.AutoSize = true;
-            this.lbl_zoomLevel.Location = new System.Drawing.Point(317, 521);
+            this.lbl_zoomLevel.Location = new System.Drawing.Point(317, 501);
             this.lbl_zoomLevel.Name = "lbl_zoomLevel";
             this.lbl_zoomLevel.Size = new System.Drawing.Size(51, 13);
             this.lbl_zoomLevel.TabIndex = 30;
@@ -688,6 +689,18 @@ namespace Pixelaria.Views.ModelViews
             this.tt_mainTooltip.InitialDelay = 500;
             this.tt_mainTooltip.ReshowDelay = 100;
             // 
+            // cb_showFrameBounds
+            // 
+            this.cb_showFrameBounds.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cb_showFrameBounds.AutoSize = true;
+            this.cb_showFrameBounds.Location = new System.Drawing.Point(317, 517);
+            this.cb_showFrameBounds.Name = "cb_showFrameBounds";
+            this.cb_showFrameBounds.Size = new System.Drawing.Size(167, 17);
+            this.cb_showFrameBounds.TabIndex = 31;
+            this.cb_showFrameBounds.Text = "Show individual frame bounds";
+            this.cb_showFrameBounds.UseVisualStyleBackColor = true;
+            this.cb_showFrameBounds.CheckedChanged += new System.EventHandler(this.cb_showFrameBounds_CheckedChanged);
+            // 
             // AnimationSheetView
             // 
             this.AcceptButton = this.btn_ok;
@@ -695,6 +708,7 @@ namespace Pixelaria.Views.ModelViews
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_cancel;
             this.ClientSize = new System.Drawing.Size(614, 582);
+            this.Controls.Add(this.cb_showFrameBounds);
             this.Controls.Add(this.lbl_zoomLevel);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.pnl_alertPanel);
@@ -749,7 +763,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.TextBox txt_sheetName;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox2;
-        private Pixelaria.Views.Controls.ZoomablePictureBox zpb_sheetPreview;
+        private Pixelaria.Views.Controls.SheetPreviewPictureBox zpb_sheetPreview;
         private System.Windows.Forms.Label lbl_sheetPreview;
         private System.Windows.Forms.Button btn_generatePreview;
         private System.Windows.Forms.CheckBox cb_forcePowerOfTwoDimensions;
@@ -787,5 +801,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.CheckBox cb_useUniformGrid;
         private System.Windows.Forms.Label lbl_memoryUsage;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox cb_showFrameBounds;
     }
 }

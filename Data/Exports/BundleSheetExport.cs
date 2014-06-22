@@ -84,6 +84,11 @@ namespace Pixelaria.Data.Exports
         public FrameRect this[int i] { get { return frameRects[i]; } }
 
         /// <summary>
+        /// Gets the array of FrameRect objects inside this BundleSheetExport
+        /// </summary>
+        public FrameRect[] FrameRects { get { return frameRects; } }
+
+        /// <summary>
         /// Gets or sets the export settings to be used when exporting the Bundle Sheet
         /// </summary>
         public AnimationExportSettings ExportSettings { get { return exportSettings; } }
