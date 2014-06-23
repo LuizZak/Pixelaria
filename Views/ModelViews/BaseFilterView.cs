@@ -116,7 +116,7 @@ namespace Pixelaria.Views.ModelViews
 
             this.btn_ok.Enabled = true;
 
-            this.zpb_original.Image = bitmap;
+            this.zpb_original.Image = this.bitmapOriginal;
             this.zpb_preview.Image = this.bitmapPreview;
 
             if (bitmapOriginal.Width >= this.zpb_preview.Width || bitmapOriginal.Height >= this.zpb_preview.Height)
@@ -155,6 +155,28 @@ namespace Pixelaria.Views.ModelViews
             : this(bitmap)
         {
             LoadFilterPreset(preset);
+        }
+
+        /// <summary>
+        /// Sets the image to apply the filters to
+        /// </summary>
+        /// <param name="bitmap">The new bitmap to apply the filters to</param>
+        public void SetImage(Bitmap bitmap)
+        {
+            this.bitmapPreview.Dispose();
+
+            this.bitmapOriginal = bitmap;
+            this.bitmapPreview = bitmap.Clone() as Bitmap;
+
+            this.zpb_original.SetImage(this.bitmapOriginal, true);
+            this.zpb_preview.SetImage(this.bitmapPreview, true);
+
+            foreach (FilterContainer container in filterContainers)
+            {
+                container.FilterControl.Initialize(this.bitmapOriginal);
+            }
+
+            ApplyFilter();
         }
 
         /// <summary>
