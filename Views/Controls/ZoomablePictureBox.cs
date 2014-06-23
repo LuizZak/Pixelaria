@@ -281,7 +281,7 @@ namespace Pixelaria.Views.Controls
             if (resetTransform)
             {
                 this.offsetPoint = new Point();
-                this.scale = new PointF(1, 1);
+                this.Zoom = new PointF(1, 1);
             }
 
             ClipTransform();
