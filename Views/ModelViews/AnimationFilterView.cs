@@ -38,6 +38,8 @@ namespace Pixelaria.Views.ModelViews
             this.tc_timeline.Minimum = 1;
             this.tc_timeline.Maximum = animation.FrameCount;
 
+            this.tc_timeline.Range = new Point(0, animation.FrameCount);
+
             this.fs_filters.SetImage(animation.GetFrameAtIndex(0).GetComposedBitmap());
 
             this.pnl_errorPanel.Visible = false;
@@ -76,6 +78,29 @@ namespace Pixelaria.Views.ModelViews
             return fs_filters.ChangesDetected();
         }
 
+        /// <summary>
+        /// Applies the filter to the animation
+        /// </summary>
+        public void ApplyFilter()
+        {
+            if (fs_filters.ChangesDetected())
+            {
+                Point range = tc_timeline.GetRange();
+
+                for (int i = range.X - 1; i < range.X + range.Y; i++)
+                {
+                    Frame frame = animation[i];
+
+                    foreach (FilterContainer container in fs_filters.FilterContainers)
+                    {
+                        Bitmap bitmap = frame.GetComposedBitmap();
+                        container.ApplyFilter(bitmap);
+                        frame.SetFrameBitmap(bitmap);
+                    }
+                }
+            }
+        }
+
         // 
         // Timeline frame changed
         // 
@@ -89,18 +114,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            if (fs_filters.ChangesDetected())
-            {
-                foreach (Frame frame in animation.Frames)
-                {
-                    foreach (FilterContainer container in fs_filters.FilterContainers)
-                    {
-                        Bitmap bitmap = frame.GetComposedBitmap();
-                        container.ApplyFilter(bitmap);
-                        frame.SetFrameBitmap(bitmap);
-                    }
-                }
-            }
+            ApplyFilter();
 
             this.DialogResult = DialogResult.OK;
             this.Close();

@@ -119,14 +119,15 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 559);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 13);
+            this.label1.Size = new System.Drawing.Size(248, 13);
             this.label1.TabIndex = 33;
-            this.label1.Text = "Preview frame:";
+            this.label1.Text = "Preview frame and select range to modify with filter:";
             // 
             // tc_timeline
             // 
-            this.tc_timeline.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.Timeline;
+            this.tc_timeline.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.TimelineWithRange;
             this.tc_timeline.CurrentFrame = 1;
+            this.tc_timeline.DisableFrameSelectionOutOfRange = false;
             this.tc_timeline.FrameDisplayType = Pixelaria.Views.Controls.TimelineFrameDisplayType.FrameNumber;
             this.tc_timeline.Location = new System.Drawing.Point(12, 575);
             this.tc_timeline.Maximum = 1;
