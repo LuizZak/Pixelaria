@@ -553,6 +553,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\anim_reverse_icon.png" />
     <None Include="Resources\plus_icon.png" />
     <None Include="Resources\minus_icon.png" />
     <None Include="Resources\filter_stroke.png" />

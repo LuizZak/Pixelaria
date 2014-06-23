@@ -534,6 +534,53 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
+        /// <summary>
+        /// Reverses the currently selected frames in place. If no frames are selected, the whole animation is reversed
+        /// </summary>
+        public void ReverseFrames()
+        {
+            // Reversing cannot happen when only one frame is selected
+            if (lv_frames.SelectedIndices.Count == 1)
+                return;
+
+            ///// Get the frames to reverse
+            List<int> frameIndicesToReverse = new List<int>();
+
+            // If no frames are selected, reverse all the frames
+            if (lv_frames.SelectedIndices.Count == 0)
+            {
+                for (int i = 0; i < lv_frames.Items.Count; i++)
+                {
+                    frameIndicesToReverse.Add(i);
+                }
+            }
+            else
+            {
+                foreach (ListViewItem item in lv_frames.SelectedItems)
+                {
+                    frameIndicesToReverse.Add(item.Index);
+                }
+            }
+            
+            ///// Reverse the frames
+
+            // Create an undo task
+            AnimationModifyUndoTask amu = new AnimationModifyUndoTask(viewAnimation);
+
+            for (int i = 0; i < frameIndicesToReverse.Count / 2; i++)
+            {
+                viewAnimation.SwapFrameIndices(frameIndicesToReverse[i], frameIndicesToReverse[frameIndicesToReverse.Count - i - 1]);
+            }
+
+            // Record the undo operation
+            amu.RecordChanges();
+            undoSystem.RegisterUndo(amu);
+
+            MarkModified();
+
+            RefreshView();
+        }
+
         #endregion
 
         #region Frame Related Methods
@@ -616,6 +663,17 @@ namespace Pixelaria.Views.ModelViews
             DeleteSelectedFrames();
 
             MarkModified();
+        }
+
+        /// <summary>
+        /// Selects all the frames
+        /// </summary>
+        private void SelectAll()
+        {
+            foreach(ListViewItem item in lv_frames.Items)
+            {
+                item.Selected = true;
+            }
         }
 
         /// <summary>
@@ -936,15 +994,23 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         // 
+        // OnClosing event handler
+        // 
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            // Unload the animation preview panel so no lost references remain to the animation that this form was displaying
+            animationPreviewPanel.Disable();
+            animationPreviewPanel.LoadAnimation(null);
+        }
+
+        // 
         // Form Closed event handler
         // 
         private void AnimationView_FormClosed(object sender, FormClosedEventArgs e)
         {
             undoSystem.Clear();
-
-            // Unload the animation preview panel so no loose references remain to the animation that this form was displaying
-            animationPreviewPanel.Disable();
-            animationPreviewPanel.LoadAnimation(null);
 
             Clipboard.ClipboardChanged -= clipboardHandler;
 
@@ -1223,6 +1289,22 @@ namespace Pixelaria.Views.ModelViews
         private void tsm_redo_Click(object sender, EventArgs e)
         {
             Redo();
+        }
+
+        // 
+        // Reverse Frames item click
+        // 
+        private void tsm_reverseFrames_Click(object sender, EventArgs e)
+        {
+            ReverseFrames();
+        }
+
+        // 
+        // Select All item click
+        // 
+        private void tsm_selectAll_Click(object sender, EventArgs e)
+        {
+            SelectAll();
         }
 
         // 

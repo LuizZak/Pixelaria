@@ -24,7 +24,13 @@ Legend:
 + Enabled expanding/collapsing of filters on the filter form.
 + Added support for filters on entire animations and filter access on the Animation View form.
 
+* Fixed an occasional crash related to closing an AnimationView with an animation playing on the preview panel.
+
 . Added an icon for the filters on the filter form.
+
+. AnimationView
+  + Added a CTRL+A and menu item shortcut to select all frames.
+  + Added 'Reverse Frames' menu option.
 
 . AnimationSheetView
   + Added checkbox to toggle visualization of individual frame bounds on the sheet.
