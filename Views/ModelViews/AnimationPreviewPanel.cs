@@ -274,7 +274,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         void animationTimer_Tick(object sender, EventArgs e)
         {
-            if (draggingTrackbar || tlc_timeline.DraggingFrame || currentAnimation == null || currentAnimation.FrameCount == 0)
+            if (draggingTrackbar || tlc_timeline.DraggingFrame || currentAnimation == null || currentAnimation.FrameCount == 0 || ParentForm == null)
                 return;
 
             int newFrame = currentFrame + 1;
