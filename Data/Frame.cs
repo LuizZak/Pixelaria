@@ -238,10 +238,13 @@ namespace Pixelaria.Data
         /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
         public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
         {
-            if (frameTexture != null)
-                frameTexture.Dispose();
+            if (bitmap != frameTexture)
+            {
+                if (frameTexture != null)
+                    frameTexture.Dispose();
 
-            frameTexture = bitmap;
+                frameTexture = bitmap;
+            }
 
             if (updateHash)
                 UpdateHash();
