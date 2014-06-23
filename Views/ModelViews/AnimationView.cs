@@ -34,6 +34,8 @@ using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
 using Pixelaria.Data.Undo;
 
+using Pixelaria.Filters;
+
 using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
@@ -77,6 +79,16 @@ namespace Pixelaria.Views.ModelViews
         private DataClipboard.ClipboardEventHandler clipboardHandler;
 
         /// <summary>
+        /// Event handler for a filter item click
+        /// </summary>
+        private EventHandler filterClickEventHandler;
+
+        /// <summary>
+        /// Event handler for a filter preset item click
+        /// </summary>
+        private EventHandler presetClickEventHandler;
+
+        /// <summary>
         /// Gets the current animation being displayed on this AnimationView
         /// </summary>
         public Animation CurrentAnimation { get { return currentAnimation; } }
@@ -97,6 +109,12 @@ namespace Pixelaria.Views.ModelViews
         public AnimationView(Controller controller, Animation animation)
         {
             InitializeComponent();
+
+            this.filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
+            this.presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
+
+            this.UpdateFilterList();
+            this.UpdateFilterPresetList();
 
             this.controller = controller;
             this.undoSystem = new UndoSystem();
@@ -403,6 +421,89 @@ namespace Pixelaria.Views.ModelViews
                 MarkModified();
 
                 RefreshView();
+            }
+        }
+
+        /// <summary>
+        /// Updates the list of available filters
+        /// </summary>
+        private void UpdateFilterList()
+        {
+            // Remove old filter items
+            while (tsm_filters.DropDownItems.Count > 3)
+            {
+                tsm_filters.DropDownItems.RemoveAt(3);
+            }
+
+            // Fetch the list of filters
+            string[] filterNames = FilterStore.Instance.FiltersList;
+            Image[] iconList = FilterStore.Instance.FilterIconList;
+
+            // Create and add all the new filter items
+            for (int i = 0; i < iconList.Length; i++)
+            {
+                ToolStripMenuItem tsm_filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
+
+                tsm_filterItem.Tag = filterNames[i];
+                tsm_filterItem.Click += filterClickEventHandler;
+
+                tsm_filters.DropDownItems.Add(tsm_filterItem);
+            }
+        }
+
+        /// <summary>
+        /// Updates the list of available filter presets
+        /// </summary>
+        private void UpdateFilterPresetList()
+        {
+            // Remove old filter items
+            tsm_filterPresets.DropDownItems.Clear();
+
+            // Fetch the list of filters
+            FilterPreset[] presets = FilterStore.Instance.FilterPrests;
+
+            if (presets.Length == 0)
+            {
+                ToolStripMenuItem tsm_emptyItem = new ToolStripMenuItem("Empty");
+
+                tsm_emptyItem.Enabled = false;
+
+                tsm_filterPresets.DropDownItems.Add(tsm_emptyItem);
+            }
+
+            // Create and add all the new filter items
+            for (int i = 0; i < presets.Length; i++)
+            {
+                ToolStripMenuItem tsm_presetItem = new ToolStripMenuItem(presets[i].Name, tsm_filterPresets.Image);
+
+                tsm_presetItem.Tag = presets[i].Name;
+                tsm_presetItem.Click += presetClickEventHandler;
+
+                tsm_filterPresets.DropDownItems.Add(tsm_presetItem);
+            }
+        }
+
+        /// <summary>
+        /// Displays a BaseFilterView with the given FilterPreset loaded
+        /// </summary>
+        /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
+        private void DisplayFilterPreset(FilterPreset filterPreset)
+        {
+            AnimationFilterView afv = new AnimationFilterView(filterPreset, this.viewAnimation);
+
+            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(this.viewAnimation);
+
+            if (afv.ShowDialog(this) == DialogResult.OK && afv.ChangesDetected())
+            {
+                undoTask.RecordChanges();
+
+                undoSystem.RegisterUndo(undoTask);
+
+                RefreshView();
+            }
+            else
+            {
+                undoTask.Clear();
             }
         }
 
@@ -805,6 +906,34 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         #region Event Handlers
+
+        #region Filters Menu
+
+        // 
+        // Empty Filter menu item click
+        // 
+        private void tsm_emptyFilter_Click(object sender, EventArgs e)
+        {
+            DisplayFilterPreset(new FilterPreset("New Preset", new IFilter[] { }));
+        }
+
+        // 
+        // Filter menu item click
+        // 
+        private void tsm_filterItem_Click(object sender, EventArgs e)
+        {
+            DisplayFilterPreset(new FilterPreset("New Preset", new IFilter[] { FilterStore.Instance.CreateFilter(((ToolStripMenuItem)sender).Tag as string) }));
+        }
+
+        // 
+        // Preset menu item click
+        // 
+        private void tsm_presetItem_Click(object sender, EventArgs e)
+        {
+            DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName(((ToolStripMenuItem)sender).Tag as string));
+        }
+
+        #endregion
 
         // 
         // Form Closed event handler

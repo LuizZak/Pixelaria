@@ -22,6 +22,7 @@ Legend:
 
 + Added Stroke filter, which adds an outline around a sprite image.
 + Enabled expanding/collapsing of filters on the filter form.
++ Added support for filters on entire animations and filter access on the Animation View form.
 
 . Added an icon for the filters on the filter form.
 

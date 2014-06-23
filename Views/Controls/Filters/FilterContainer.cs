@@ -36,9 +36,14 @@ namespace Pixelaria.Views.Controls.Filters
     public partial class FilterContainer : UserControl
     {
         /// <summary>
-        /// The BaseFilterView that owns this FilterContainer
+        /// The ImageFilterView that owns this FilterContainer
         /// </summary>
         ImageFilterView owningView;
+
+        /// <summary>
+        /// The FilterSelector that owns this FilterContainer
+        /// </summary>
+        FilterSelector owningSelector;
 
         /// <summary>
         /// The FilterControl currently held by this FilterContainer
@@ -162,6 +167,23 @@ namespace Pixelaria.Views.Controls.Filters
             this.containerState = FilterContainerState.Expanded;
             this.mouseDown = false;
             this.owningView = owningView;
+            this.filterEnabled = true;
+
+            LoadFilter(filter);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the FilterContainer class
+        /// </summary>
+        /// <param name="owningSelector">The view that will own this FilterContainer</param>
+        /// <param name="filter">The filter to hold on this FilterContainer</param>
+        public FilterContainer(FilterSelector owningSelector, FilterControl filter)
+        {
+            InitializeComponent();
+
+            this.containerState = FilterContainerState.Expanded;
+            this.mouseDown = false;
+            this.owningSelector = owningSelector;
             this.filterEnabled = true;
 
             LoadFilter(filter);
@@ -342,7 +364,10 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void btn_remove_Click(object sender, EventArgs e)
         {
-            owningView.RemoveFilterControl(this);
+            if(owningView != null)
+                owningView.RemoveFilterControl(this);
+            else if(owningSelector != null)
+                owningSelector.RemoveFilterControl(this);
         }
 
         // 

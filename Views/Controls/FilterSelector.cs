@@ -69,6 +69,11 @@ namespace Pixelaria.Views.Controls
         Panel containerReplacePanel;
 
         /// <summary>
+        /// Gets the list of FilterContainer objects that are currently applying filters to the bitmap
+        /// </summary>
+        public FilterContainer[] FilterContainers { get { return filterContainers.ToArray(); } }
+
+        /// <summary>
         /// Initializes a new instance of the FilterSelector class
         /// </summary>
         public FilterSelector()
@@ -93,27 +98,14 @@ namespace Pixelaria.Views.Controls
 
             this.filterContainers = new List<FilterContainer>();
 
-            //this.bitmapOriginal = bitmap;
-            //this.bitmapPreview = bitmap.Clone() as Bitmap;
-
             this.filterUpdatedHandler = new EventHandler(FilterUpdated);
             this.filterItemClick = new EventHandler(tsm_filterItem_Click);
             this.containerDraggedHandler = new EventHandler(ContainerDragged);
             this.containerDroppedHandler = new EventHandler(ContainerDropped);
             this.containerDraggingHandler = new EventHandler(ContainerDragging);
 
-            //this.pnl_errorPanel.Visible = false;
-
-            //this.btn_ok.Enabled = true;
-
             this.zpb_original.Image = this.bitmapOriginal;
             this.zpb_preview.Image = this.bitmapPreview;
-
-            if (bitmapOriginal.Width >= this.zpb_preview.Width || bitmapOriginal.Height >= this.zpb_preview.Height)
-            {
-                this.zpb_original.ImageLayout = ImageLayout.None;
-                this.zpb_preview.ImageLayout = ImageLayout.None;
-            }
 
             this.zpb_original.HookToControl(this);
             this.zpb_preview.HookToControl(this);
@@ -131,20 +123,31 @@ namespace Pixelaria.Views.Controls
         /// <param name="bitmap">The new bitmap to apply the filters to</param>
         public void SetImage(Bitmap bitmap)
         {
-            this.bitmapPreview.Dispose();
+            if(this.bitmapPreview != null)
+                this.bitmapPreview.Dispose();
 
             this.bitmapOriginal = bitmap;
             this.bitmapPreview = bitmap.Clone() as Bitmap;
 
-            this.zpb_original.SetImage(this.bitmapOriginal, true);
-            this.zpb_preview.SetImage(this.bitmapPreview, true);
+            ignoreZoomEvents = true;
+
+            this.zpb_original.SetImage(this.bitmapOriginal, false);
+            this.zpb_preview.SetImage(this.bitmapPreview, false);
+
+            ignoreZoomEvents = false;
+
+            if (bitmapOriginal.Width >= this.zpb_preview.Width || bitmapOriginal.Height >= this.zpb_preview.Height)
+            {
+                this.zpb_original.ImageLayout = ImageLayout.None;
+                this.zpb_preview.ImageLayout = ImageLayout.None;
+            }
 
             foreach (FilterContainer container in filterContainers)
             {
                 container.FilterControl.Initialize(this.bitmapOriginal);
             }
 
-            ApplyFilter();
+            UpdateVisualization();
         }
 
         /// <summary>
@@ -211,7 +214,6 @@ namespace Pixelaria.Views.Controls
         /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
         public void LoadFilterControl(FilterControl filterControl, bool updateVisualization = true)
         {
-            /*
             filterControl.Initialize(this.bitmapOriginal);
 
             FilterContainer filterContainer = new FilterContainer(this, filterControl);
@@ -231,7 +233,7 @@ namespace Pixelaria.Views.Controls
             if (updateVisualization)
             {
                 UpdateVisualization();
-            }*/
+            }
         }
 
         /// <summary>
@@ -353,6 +355,9 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void UpdateVisualization()
         {
+            if (bitmapOriginal == null)
+                return;
+
             FastBitmap.CopyPixels(bitmapOriginal, bitmapPreview);
 
             foreach (FilterContainer container in filterContainers)

@@ -1065,6 +1065,9 @@ namespace Pixelaria.Views.Controls
         /// <param name="oldFrame">The new frame to display</param>
         protected void ChangeFrame(int newFrame)
         {
+            if (currentFrame == newFrame)
+                return;
+
             int oldFrame = currentFrame;
 
             if (FrameChanged != null)
