@@ -1003,23 +1003,15 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         // 
-        // OnClosing event handler
-        // 
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
-        {
-            base.OnClosing(e);
-
-            // Unload the animation preview panel so no lost references remain to the animation that this form was displaying
-            animationPreviewPanel.Disable();
-            animationPreviewPanel.LoadAnimation(null);
-        }
-
-        // 
         // Form Closed event handler
         // 
         private void AnimationView_FormClosed(object sender, FormClosedEventArgs e)
         {
             undoSystem.Clear();
+
+            // Unload the animation preview panel so no lost references remain to the animation that this form was displaying
+            animationPreviewPanel.Disable();
+            animationPreviewPanel.LoadAnimation(null);
 
             Clipboard.ClipboardChanged -= clipboardHandler;
 
