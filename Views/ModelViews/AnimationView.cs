@@ -166,6 +166,15 @@ namespace Pixelaria.Views.ModelViews
         private void RefreshButtons()
         {
             this.tsb_applyChanges.Enabled = this.modified;
+
+            // Refreshes the 'Reverse Frames' menu item
+            if (lv_frames.SelectedIndices.Count == 2)
+                tsm_reverseFrames.Text = "Swap Frames";
+            else
+                tsm_reverseFrames.Text = "Reverse Frames";
+
+            RefreshClipboardControls();
+            RefreshUndoControls();
         }
 
         /// <summary>
@@ -1322,7 +1331,7 @@ namespace Pixelaria.Views.ModelViews
         private void lv_frames_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Refreshes the toolbar where the Copy/Cut/Paste buttons are located
-            RefreshClipboardControls();
+            RefreshButtons();
         }
 
         // 
