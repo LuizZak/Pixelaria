@@ -243,7 +243,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// Updates the interface to reflect the values of the Unsaved Changes flag.
         /// </summary>
-        /// <param name="isUnsaved">The  current Unsaved Changes flag</param>
+        /// <param name="isUnsaved">The current Unsaved Changes flag</param>
         public void UnsavedChangesUpdated(bool isUnsaved)
         {
             UpdateTitleBar(controller.CurrentBundle);
