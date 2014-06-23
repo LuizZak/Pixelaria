@@ -33,6 +33,11 @@ namespace Pixelaria.Views.Controls
         protected TimelineFrameDisplayType frameDisplayType;
 
         /// <summary>
+        /// Whether to disable selection of frames that are out of range
+        /// </summary>
+        protected bool disableFrameSelectionOutOfRange;
+
+        /// <summary>
         /// ToolTip instance associated with this timeline. Used to show the frames the knobs are pointing to
         /// </summary>
         protected ToolTip ToolTip;
@@ -300,6 +305,19 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Gets or sets whether to disable selection of frames that are out of range
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("Whether to disable selection of frames that are out of range")]
+        public bool DisableFrameSelectionOutOfRange
+        {
+            get { return disableFrameSelectionOutOfRange; }
+            set { disableFrameSelectionOutOfRange = value; }
+        }
+
+        /// <summary>
         /// Event handler for the RangeChangedEvent
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -343,6 +361,7 @@ namespace Pixelaria.Views.Controls
             this.Minimum = 0;
             this.Maximum = 1;
             this.currentFrame = -1;
+            this.disableFrameSelectionOutOfRange = true;
 
             // Set the knobs' values:
             firstKnob.Value = this.minimum;
@@ -1106,7 +1125,12 @@ namespace Pixelaria.Views.Controls
 
 	        int f = Math.Max(minimum, Math.Min(maximum, minimum + (int)Math.Round(mx * (maximum - minimum))));
 
-            if (clipOnRange && behaviorType == TimelineBehaviorType.RangeSelector || behaviorType == TimelineBehaviorType.TimelineWithRange)
+            if (clipOnRange && behaviorType == TimelineBehaviorType.RangeSelector)
+            {
+                Point range = GetRange();
+                f = Math.Max(range.X, Math.Min(range.X + range.Y, f));
+            }
+            else if (behaviorType == TimelineBehaviorType.TimelineWithRange && disableFrameSelectionOutOfRange)
             {
                 Point range = GetRange();
                 f = Math.Max(range.X, Math.Min(range.X + range.Y, f));
