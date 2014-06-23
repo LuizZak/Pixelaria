@@ -1,42 +1,22 @@
-﻿/*
-    Pixelaria
-    Copyright (C) 2013 Luiz Fernando Silva
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-    The full license may be found on the License.txt file attached to the
-    base directory of this project.
-*/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
-
+using Pixelaria.Utils;
 using Pixelaria.Views.Controls.Filters;
 
-using Pixelaria.Utils;
-
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.Controls
 {
     /// <summary>
-    /// Implements an interface that the user can use to tweak settings of and apply a filter to an image
+    /// Control that presents an interface for the user to compose a filter list
     /// </summary>
-    public partial class BaseFilterView : Form
+    public partial class FilterSelector : UserControl
     {
         /// <summary>
         /// The Bitmap the filter will be applied on when the user clicks 'Ok'
@@ -89,22 +69,32 @@ namespace Pixelaria.Views.ModelViews
         Panel containerReplacePanel;
 
         /// <summary>
-        /// Gets the number of filters being applied to the image right now
+        /// Initializes a new instance of the FilterSelector class
         /// </summary>
-        public int FilterCount { get { return filterContainers.Count; } }
-
-        /// <summary>
-        /// Initializes a new instance of the BaseFilterView class
-        /// </summary>
-        /// <param name="bitmap">A bitmap to apply the filter to</param>
-        private BaseFilterView(Bitmap bitmap)
+        public FilterSelector()
         {
             InitializeComponent();
 
+            Init();
+        }
+
+        /// <summary>
+        /// Initializes this FilterSelector control
+        /// </summary>
+        public void Init()
+        {
+            this.btn_addFilter.Click += new System.EventHandler(this.btn_addFilter_Click);
+            this.cb_filterPresets.TextChanged += new System.EventHandler(this.cb_filterPresets_TextChanged);
+            this.btn_savePreset.Click += new System.EventHandler(this.btn_savePreset_Click);
+            this.btn_deletePreset.Click += new System.EventHandler(this.btn_deletePreset_Click);
+            this.btn_loadPreset.Click += new System.EventHandler(this.btn_loadPreset_Click);
+            this.zpb_preview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_preview_ZoomChanged);
+            this.zpb_original.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_original_ZoomChanged);
+
             this.filterContainers = new List<FilterContainer>();
 
-            this.bitmapOriginal = bitmap;
-            this.bitmapPreview = bitmap.Clone() as Bitmap;
+            //this.bitmapOriginal = bitmap;
+            //this.bitmapPreview = bitmap.Clone() as Bitmap;
 
             this.filterUpdatedHandler = new EventHandler(FilterUpdated);
             this.filterItemClick = new EventHandler(tsm_filterItem_Click);
@@ -112,9 +102,9 @@ namespace Pixelaria.Views.ModelViews
             this.containerDroppedHandler = new EventHandler(ContainerDropped);
             this.containerDraggingHandler = new EventHandler(ContainerDragging);
 
-            this.pnl_errorPanel.Visible = false;
+            //this.pnl_errorPanel.Visible = false;
 
-            this.btn_ok.Enabled = true;
+            //this.btn_ok.Enabled = true;
 
             this.zpb_original.Image = this.bitmapOriginal;
             this.zpb_preview.Image = this.bitmapPreview;
@@ -133,28 +123,6 @@ namespace Pixelaria.Views.ModelViews
             UpdateFilterList();
             UpdateFilterPresetList();
             UpdateFilterPresetButtons();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BaseFilterView class
-        /// </summary>
-        /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
-        /// <param name="bitmap">A bitmap to apply the filter to</param>
-        public BaseFilterView(FilterControl[] filters, Bitmap bitmap)
-            : this(bitmap)
-        {
-            LoadFilters(filters);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BaseFilterView class
-        /// </summary>
-        /// <param name="preset">A FilterPreset that contains data about filters to load on this BaseFilterView</param>
-        /// <param name="bitmap">A bitmap to apply the filter to</param>
-        public BaseFilterView(FilterPreset preset, Bitmap bitmap)
-            : this(bitmap)
-        {
-            LoadFilterPreset(preset);
         }
 
         /// <summary>
@@ -243,6 +211,7 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
         public void LoadFilterControl(FilterControl filterControl, bool updateVisualization = true)
         {
+            /*
             filterControl.Initialize(this.bitmapOriginal);
 
             FilterContainer filterContainer = new FilterContainer(this, filterControl);
@@ -262,7 +231,7 @@ namespace Pixelaria.Views.ModelViews
             if (updateVisualization)
             {
                 UpdateVisualization();
-            }
+            }*/
         }
 
         /// <summary>
@@ -406,7 +375,7 @@ namespace Pixelaria.Views.ModelViews
             Image[] iconList = FilterStore.Instance.FilterIconList;
 
             //foreach (string filter in filterNames)
-            for(int i = 0; i < iconList.Length; i++)
+            for (int i = 0; i < iconList.Length; i++)
             {
                 ToolStripMenuItem tsm_filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
 
@@ -460,7 +429,7 @@ namespace Pixelaria.Views.ModelViews
         {
             IFilter[] filters = new IFilter[filterContainers.Count];
 
-            for(int i = 0; i < filters.Length; i++)
+            for (int i = 0; i < filters.Length; i++)
             {
                 filters[i] = filterContainers[i].FilterControl.Filter;
             }
@@ -571,38 +540,6 @@ namespace Pixelaria.Views.ModelViews
 
             this.Focus();
             this.BringToFront();
-        }
-
-        // 
-        // Form Closed event handler
-        // 
-        protected override void OnClosed(EventArgs e)
-        {
-            if (this.zpb_preview.Image != null)
-            {
-                this.zpb_preview.Image.Dispose();
-            }
-
-            foreach (FilterContainer container in filterContainers)
-            {
-                container.FilterControl.Dispose();
-            }
-
-            bitmapPreview.Dispose();
-            bitmapOriginal = null;
-
-            base.OnClosed(e);
-        }
-
-        // 
-        // Ok button click
-        // 
-        private void btn_ok_Click(object sender, EventArgs e)
-        {
-            ApplyFilter();
-
-            this.DialogResult = DialogResult.OK;
-            this.Close();
         }
 
         // 
@@ -791,6 +728,6 @@ namespace Pixelaria.Views.ModelViews
             {
                 UpdateDrag();
             }
-        }        
+        }
     }
 }

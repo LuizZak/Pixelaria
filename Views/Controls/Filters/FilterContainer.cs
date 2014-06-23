@@ -38,7 +38,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// The BaseFilterView that owns this FilterContainer
         /// </summary>
-        BaseFilterView owningView;
+        ImageFilterView owningView;
 
         /// <summary>
         /// The FilterControl currently held by this FilterContainer
@@ -155,7 +155,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         /// <param name="owningView">The view that will own this FilterContainer</param>
         /// <param name="filter">The filter to hold on this FilterContainer</param>
-        public FilterContainer(BaseFilterView owningView, FilterControl filter)
+        public FilterContainer(ImageFilterView owningView, FilterControl filter)
         {
             InitializeComponent();
 

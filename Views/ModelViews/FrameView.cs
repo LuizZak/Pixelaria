@@ -868,7 +868,7 @@ namespace Pixelaria.Views.ModelViews
                 but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
             }
 
-            BaseFilterView bfv = new BaseFilterView(filterPreset, filterTarget);
+            ImageFilterView bfv = new ImageFilterView(filterPreset, filterTarget);
 
             if (bfv.ShowDialog(this) == DialogResult.OK)
             {

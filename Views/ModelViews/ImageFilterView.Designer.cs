@@ -22,7 +22,7 @@
 
 namespace Pixelaria.Views.ModelViews
 {
-    partial class BaseFilterView
+    partial class ImageFilterView
     {
         /// <summary>
         /// Required designer variable.
@@ -51,7 +51,7 @@ namespace Pixelaria.Views.ModelViews
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BaseFilterView));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageFilterView));
             this.gb_filterControlContainer = new System.Windows.Forms.GroupBox();
             this.btn_addFilter = new System.Windows.Forms.Button();
             this.pnl_container = new System.Windows.Forms.FlowLayoutPanel();
