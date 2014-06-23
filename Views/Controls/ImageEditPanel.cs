@@ -230,7 +230,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Init()
         {
-            internalPictureBox.HookToForm(this.FindForm());
+            internalPictureBox.HookToControl(this.FindForm());
         }
 
         /// <summary>

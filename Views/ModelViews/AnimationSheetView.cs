@@ -73,7 +73,7 @@ namespace Pixelaria.Views.ModelViews
         {
             InitializeComponent();
 
-            zpb_sheetPreview.HookToForm(this);
+            zpb_sheetPreview.HookToControl(this);
 
             this.controller = controller;
             this.sheetToEdit = sheetToEdit;

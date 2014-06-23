@@ -125,8 +125,8 @@ namespace Pixelaria.Views.ModelViews
                 this.zpb_preview.ImageLayout = ImageLayout.None;
             }
 
-            this.zpb_original.HookToForm(this);
-            this.zpb_preview.HookToForm(this);
+            this.zpb_original.HookToControl(this);
+            this.zpb_preview.HookToControl(this);
 
             this.ignoreZoomEvents = false;
 

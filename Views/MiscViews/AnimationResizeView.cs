@@ -87,7 +87,7 @@ namespace Pixelaria.Views.MiscViews
         {
             InitializeComponent();
 
-            this.zpb_preview.HookToForm(this);
+            this.zpb_preview.HookToControl(this);
 
             this.animation = animation;
 

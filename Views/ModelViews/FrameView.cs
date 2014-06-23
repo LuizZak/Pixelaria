@@ -217,7 +217,7 @@ namespace Pixelaria.Views.ModelViews
             // Frame preview
             this.framePreviewEnabled = false;
             this.pnl_framePreview.Visible = this.framePreviewEnabled;
-            this.zpb_framePreview.HookToForm(this);
+            this.zpb_framePreview.HookToControl(this);
 
             this.tsb_onionSkin.Checked = OnionSkinEnabled;
             this.tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;

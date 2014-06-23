@@ -288,13 +288,13 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Hooks the mouse wheel event listener to the given form
+        /// Hooks the mouse wheel event listener to the given control
         /// </summary>
-        /// <param name="owningForm">The form that owns this SheetPreviewPictureBox. Used to hook the mouse wheel listener</param>
+        /// <param name="owningControl">The control that owns this SheetPreviewPictureBox. Used to hook the mouse wheel listener</param>
         /// <param name="boundsControl">The control to use the bounds of to clip the mouse wheel event. Setting to null uses this control as bounds</param>
-        public void HookToForm(Form owningForm, Control boundsControl = null)
+        public void HookToControl(Control owningControl, Control boundsControl = null)
         {
-            owningForm.MouseWheel += new MouseEventHandler(ZoomablePictureBox_MouseWheel);
+            owningControl.MouseWheel += new MouseEventHandler(ZoomablePictureBox_MouseWheel);
             this.boundsControl = (boundsControl == null ? this : boundsControl);
         }
 

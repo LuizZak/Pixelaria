@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ModelViews
             this.parentSheet = parentSheet;
 
             InitializeComponent();
-            cpb_sheetPreview.HookToForm(this);
+            cpb_sheetPreview.HookToControl(this);
 
             this.cpb_sheetPreview.Importer = controller.DefaultImporter;
 
