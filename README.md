@@ -11,3 +11,5 @@ Main interface with an animation opened
 
 ![](http://i.imgur.com/RuRrDDC.png)
 Frame editor showing an onion skin
+
+[The rest of the screenshots can be viewed here.](http://imgur.com/a/AsLt7)
