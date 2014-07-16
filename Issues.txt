@@ -21,4 +21,5 @@ Legend:
 -- v1.11.0b
 
 + When an undo/redo operation is made while a selection is currently made, the sprite image is spliced.
+>> Fixed on v1.13.0b
 

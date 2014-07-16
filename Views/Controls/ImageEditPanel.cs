@@ -4888,11 +4888,11 @@ namespace Pixelaria.Views.Controls
 
             base.Initialize(pictureBox);
 
-            undoHandler = new UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
-            redoHandler = new UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
+            undoHandler = new UndoSystem.UndoEventHandler(UndoSystem_WillPerformUndo);
+            redoHandler = new UndoSystem.UndoEventHandler(UndoSystem_WillPerformRedo);
 
-            pictureBox.OwningPanel.UndoSystem.UndoPerformed += undoHandler;
-            pictureBox.OwningPanel.UndoSystem.RedoPerformed += redoHandler;
+            pictureBox.OwningPanel.UndoSystem.WillPerformUndo += undoHandler;
+            pictureBox.OwningPanel.UndoSystem.WillPerformRedo += redoHandler;
 
             this.Loaded = true;
         }
@@ -4907,19 +4907,19 @@ namespace Pixelaria.Views.Controls
         }
 
         // 
-        // Undo System Undo Performed event handler
+        // Undo System Will Perform Undo event handler
         // 
-        private void UndoSystem_UndoPerformed(object sender, UndoEventArgs e)
+        private void UndoSystem_WillPerformUndo(object sender, UndoEventArgs e)
         {
-            CancelOperation(false);
+            CancelOperation(true);
         }
 
         // 
-        // Undo System Redo Performed event handler
+        // Undo System Will Perform Redo event handler
         // 
-        private void UndoSystem_RedoPerformed(object sender, UndoEventArgs e)
+        private void UndoSystem_WillPerformRedo(object sender, UndoEventArgs e)
         {
-            CancelOperation(false);
+            CancelOperation(true);
         }
 
         /// <summary>
@@ -4930,8 +4930,8 @@ namespace Pixelaria.Views.Controls
             FinishOperation(true);
 
             // Remove the event handler
-            pictureBox.OwningPanel.UndoSystem.UndoPerformed -= undoHandler;
-            pictureBox.OwningPanel.UndoSystem.RedoPerformed -= redoHandler;
+            pictureBox.OwningPanel.UndoSystem.WillPerformUndo -= undoHandler;
+            pictureBox.OwningPanel.UndoSystem.WillPerformRedo -= redoHandler;
 
             this.pictureBox = null;
 
@@ -5160,9 +5160,13 @@ namespace Pixelaria.Views.Controls
 
             if (!selectedArea.Contains(p))
             {
-                if (selected)
+                if (selected && selectedArea != selectedStartArea)
                 {
                     FinishOperation(true);
+                }
+                else
+                {
+                    CancelOperation(true);
                 }
             }
             else if(selected && WithinBounds(p))
@@ -5376,7 +5380,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="operation">The operation type to mark this selection as</param>
         public void StartOperation(Rectangle area, Bitmap pasteBitmap, SelectionOperationType operation)
         {
-            pictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection");
+            pictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection", true);
 
             operationMode = operation;
 
