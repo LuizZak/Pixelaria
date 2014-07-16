@@ -65,9 +65,19 @@ namespace Pixelaria.Data.Undo
         public event UndoEventHandler UndoRegistered;
 
         /// <summary>
+        /// Occurs whenever a task will be undone
+        /// </summary>
+        public event UndoEventHandler WillPerformUndo;
+
+        /// <summary>
         /// Occurs whenever a task was undone
         /// </summary>
         public event UndoEventHandler UndoPerformed;
+
+        /// <summary>
+        /// Occurs whenever a task will be redone
+        /// </summary>
+        public event UndoEventHandler WillPerformRedo;
 
         /// <summary>
         /// Occurs whenever a task was redone
@@ -164,18 +174,29 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Undo()
         {
-            if (InGroupUndo)
-            {
-                FinishGroupUndo();
-            }
-
             if (currentTask == 0)
                 return;
 
-            IUndoTask task = undoTasks[--currentTask];
+            // Get the task to undo
+            IUndoTask task = undoTasks[currentTask - 1];
 
+            // Fire the WillPerformUndo event handler
+            if (WillPerformUndo != null)
+            {
+                WillPerformUndo.Invoke(this, new UndoEventArgs(task));
+            }
+
+            // Finish any currently opened group undos
+            if (InGroupUndo)
+            {
+                FinishGroupUndo(currentGroupUndoTask.DiscardOnOperation);
+            }
+
+            // Undo the task
+            currentTask--;
             task.Undo();
 
+            // Fire the UndoPerformed event handler
             if (UndoPerformed != null)
             {
                 UndoPerformed.Invoke(this, new UndoEventArgs(task));
@@ -187,17 +208,28 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
-            if (InGroupUndo)
-            {
-                FinishGroupUndo();
-            }
-
             if (currentTask == undoTasks.Count)
                 return;
 
-            IUndoTask task = undoTasks[currentTask++];
+            // Get the task to undo
+            IUndoTask task = undoTasks[currentTask];
+
+            // Fire the WillPerformRedo event handler
+            if (WillPerformRedo != null)
+            {
+                WillPerformRedo.Invoke(this, new UndoEventArgs(task));
+            }
+
+            // Finish any currently opened group undos
+            if (InGroupUndo)
+            {
+                FinishGroupUndo(currentGroupUndoTask.DiscardOnOperation);
+            }
+
+            currentTask++;
             task.Redo();
 
+            // Fire the UndoPerformed event handler
             if (RedoPerformed != null)
             {
                 RedoPerformed.Invoke(this, new UndoEventArgs(task));
@@ -208,12 +240,14 @@ namespace Pixelaria.Data.Undo
         /// Starts a group undo task
         /// </summary>
         /// <param name="description">A description for the task</param>
-        public void StartGroupUndo(string description)
+        /// <param name="discardOnOperation">Whether to discard the undo group if it's opened on this UndoSystem while it receives an undo/redo call</param>
+        public void StartGroupUndo(string description, bool discardOnOperation = false)
         {
             if (InGroupUndo)
                 return;
 
             currentGroupUndoTask = new GroupUndoTask(description);
+            currentGroupUndoTask.DiscardOnOperation = discardOnOperation;
         }
 
         /// <summary>
@@ -350,6 +384,11 @@ namespace Pixelaria.Data.Undo
         string description;
 
         /// <summary>
+        /// Gets or sets a value specifying whether to discard the undo group if it's opened on an UndoSystem while it receives an undo/redo call
+        /// </summary>
+        public bool DiscardOnOperation { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the GroupUndoTask class with a description
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
@@ -364,10 +403,11 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
         /// <param name="description">The description for this GroupUndoTask</param>
-        public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description)
+        public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description, bool discardOnOperation = false)
             : this(description)
         {
             AddTasks(tasks);
+            this.DiscardOnOperation = discardOnOperation;
         }
 
         /// <summary>
