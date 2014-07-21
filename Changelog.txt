@@ -29,8 +29,9 @@ Legend:
 . Added an icon for the filters on the filter form.
 
 . FrameView
-  * Fixing bug where undoing operations with something selected would glitch out the image on the canvas.
-  * Fixing deselecting selections after not modifying anything about them still creating undo tasks.
+  * Fixed bug where undoing operations with something selected would glitch out the image on the canvas.
+  * Fixed deselecting selections after not modifying anything about them still creating undo tasks.
+  * Fixed applying filters to a selection and not moving it not creating an undo task for it.
 
 . AnimationView
   + Added a CTRL+A and menu item shortcut to select all frames.

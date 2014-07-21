@@ -840,6 +840,7 @@ namespace Pixelaria.Views.ModelViews
 
             undoTarget = filterTarget = viewFrame.GetComposedBitmap();
 
+            // Apply the filter to a selection
             if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
             {
                 SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
@@ -899,6 +900,8 @@ namespace Pixelaria.Views.ModelViews
                         {
                             registerUndo = false;
                         }
+
+                        op.ForceApplyChanges = true;
                     }
                     else
                     {

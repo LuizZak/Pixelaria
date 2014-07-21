@@ -5160,7 +5160,7 @@ namespace Pixelaria.Views.Controls
 
             if (!selectedArea.Contains(p))
             {
-                if (selected && selectedArea != selectedStartArea)
+                if (selected && (selectedArea != selectedStartArea || ForceApplyChanges))
                 {
                     FinishOperation(true);
                 }
