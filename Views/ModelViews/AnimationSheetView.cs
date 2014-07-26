@@ -102,6 +102,7 @@ namespace Pixelaria.Views.ModelViews
 
                 this.lbl_zoomLevel.Visible = false;
                 this.cb_showFrameBounds.Visible = false;
+                this.btn_apply.Enabled = false;
 
                 this.Text = "New Animation Sheet";
 
@@ -165,7 +166,7 @@ namespace Pixelaria.Views.ModelViews
             pnl_alertPanel.Visible = alert;
 
             btn_ok.Enabled = valid;
-            btn_apply.Enabled = (valid && modified);
+            btn_apply.Enabled = (valid && modified && sheetToEdit != null);
 
             return valid;
         }
