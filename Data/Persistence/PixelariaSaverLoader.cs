@@ -20,10 +20,14 @@
     base directory of this project.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.IO;
 
+using Pixelaria.Data.Persistence.Blocks;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence
@@ -66,6 +70,22 @@ namespace Pixelaria.Data.Persistence
             string bundleName = reader.ReadString();
             string bundlePath = "";
 
+            ////////
+            //// Version 9 and later
+            ////////
+
+            // Version 9 and later are loaded with the new file loader
+            if (bundleVersion >= 9)
+            {
+                stream.Close();
+                PixelariaFile file = LoadFileFromDisk(path);
+                return file.LoadedBundle;
+            }
+
+            ////////
+            //// Legacy file formats
+            ////////
+
             if (bundleVersion >= 3)
             {
                 bundlePath = reader.ReadString();
@@ -99,6 +119,25 @@ namespace Pixelaria.Data.Persistence
 
             return bundle;
         }
+
+        /// <summary>
+        /// Loads a Pixelaria (.plx) file from disk
+        /// </summary>
+        /// <param name="path">The path of the file to load</param>
+        /// <returns>A new Pixelaria file</returns>
+        public static PixelariaFile LoadFileFromDisk(string path)
+        {
+            PixelariaFile file = new PixelariaFile(path, null);
+
+            PixelariaFileLoader loader = new PixelariaFileLoader(file);
+            loader.Load();
+
+            return file;
+        }
+
+        #endregion
+
+        #region Version 8 and prior loader
 
         /// <summary>
         /// Loads an Animation from the given stream, using the specified version
@@ -290,7 +329,7 @@ namespace Pixelaria.Data.Persistence
 
         #endregion
 
-        #region Save
+        #region Version 8 and prior saver
 
         /// <summary>
         /// Saves the given bundle to disk
@@ -438,5 +477,230 @@ namespace Pixelaria.Data.Persistence
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Encapsulates a Pixelaria .plx file
+    /// </summary>
+    public class PixelariaFile
+    {
+        /// <summary>
+        /// The version of this Pixelaria file
+        /// </summary>
+        protected int version = 8;
+
+        /// <summary>
+        /// The Bundle binded to this PixelariaFile
+        /// </summary>
+        protected Bundle bundle;
+
+        /// <summary>
+        /// The stream containing this file
+        /// </summary>
+        protected Stream stream;
+
+        /// <summary>
+        /// The path to the .plx file to manipulate
+        /// </summary>
+        protected string filePath;
+
+        /// <summary>
+        /// The list of blocks currently on the file
+        /// </summary>
+        protected List<Block> blockList;
+
+        /// <summary>
+        /// Gets or sets the version of this PixelariaFile
+        /// </summary>
+        public int Version { get { return version; } set { version = value; } }
+
+        /// <summary>
+        /// Gets the Bundle binded to this PixelariaFile
+        /// </summary>
+        public Bundle LoadedBundle
+        {
+            get { return bundle; }
+        }
+
+        /// <summary>
+        /// Gets the current stream containing the file
+        /// </summary>
+        public Stream CurrentStream
+        {
+            get { return stream; }
+            set { stream = value; }
+        }
+
+        /// <summary>
+        /// The path to the .plx file to manipulate
+        /// </summary>
+        public string FilePath
+        {
+            get { return filePath; }
+        }
+
+        /// <summary>
+        /// Gets the list of blocks currently in this PixelariaFile
+        /// </summary>
+        public Block[] Blocks
+        {
+            get { return blockList.ToArray(); }
+        }
+
+        /// <summary>
+        /// Gets the number of blocks inside this PixelariaFile
+        /// </summary>
+        public int BlockCount { get { return blockList.Count; } }
+
+        /// <summary>
+        /// Initializes a new instance of the PixelariaFile class
+        /// </summary>
+        /// <param name="filePath">The path to the .plx file to manipulate</param>
+        /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
+        public PixelariaFile(string filePath, Bundle bundle)
+        {
+            this.filePath = filePath;
+            this.bundle = bundle;
+        }
+
+        /// <summary>
+        /// Adds a block to this file's composition
+        /// </summary>
+        /// <param name="block">The block to add to this PixelariaFile</param>
+        public void AddBlock(Block block)
+        {
+            blockList.Add(block);
+        }
+
+        /// <summary>
+        /// Removes a block from this file's composition
+        /// </summary>
+        /// <param name="block">The block to remove</param>
+        public void RemoveBlock(Block block)
+        {
+            blockList.Remove(block);
+        }
+
+        /// <summary>
+        /// Gets all the blocks inside this PixelariaFile that match the given blockID
+        /// </summary>
+        /// <param name="blockID">The blockID to match</param>
+        /// <returns>All the blocks that match the given ID inside this PixelariaFile</returns>
+        public Block[] GetBlocksByID(short blockID)
+        {
+            Func<Block, bool> query = new Func<Block, bool>
+            (
+                (Block block) => block.BlockID == blockID
+            );
+
+            return blockList.Where<Block>(query).ToArray<Block>();
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a Version 9 and later block-composed file loader
+    /// </summary>
+    public class PixelariaFileLoader
+    {
+        /// <summary>
+        /// The file to load
+        /// </summary>
+        private PixelariaFile file;
+
+        /// <summary>
+        /// Initializes a new instance of the PixelariaFileLoader class
+        /// </summary>
+        /// <param name="file">The file to load from the stream</param>
+        public PixelariaFileLoader(PixelariaFile file)
+        {
+            this.file = file;
+        }
+
+        /// <summary>
+        /// Loads the contents of a PixelariaFile
+        /// </summary>
+        public void Load()
+        {
+            // Get the stream to load the file from
+            Stream stream = file.CurrentStream;
+            if(stream == null)
+            {
+                file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
+            }
+
+            // Read the header
+            BinaryReader reader = new BinaryReader(stream);
+
+            // Signature Block
+            if (reader.ReadByte() != 'P' || reader.ReadByte() != 'X' || reader.ReadByte() != 'L')
+            {
+                return;
+            }
+
+            // Bundle Header block
+            file.Version = reader.ReadInt32();
+
+            // Load the blocks
+            while (stream.Position <= stream.Length)
+            {
+                Block readBlock = Block.FromStream(stream);
+
+                file.AddBlock(readBlock);
+            }
+            
+            return;
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a Version 9 and later block-composed file saver
+    /// </summary>
+    public class PixelariaFileSaver
+    {
+        /// <summary>
+        /// The file to save
+        /// </summary>
+        private PixelariaFile file;
+
+        /// <summary>
+        /// Initializes a new instance of the PixelariaFileLoader class
+        /// </summary>
+        /// <param name="file">The file to save to the stream</param>
+        public PixelariaFileSaver(PixelariaFile file)
+        {
+            this.file = file;
+        }
+
+        /// <summary>
+        /// Saves the contents of a PixelariaFile
+        /// </summary>
+        public void Save()
+        {
+            // Get the stream to load the file from
+            Stream stream = file.CurrentStream;
+            if (stream == null)
+            {
+                file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
+            }
+
+            // Save the header
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            // Signature Block
+            writer.Write((byte)'P');
+            writer.Write((byte)'X');
+            writer.Write((byte)'L');
+            
+            // Bundle Header block
+            writer.Write(file.Version);
+
+            // Save the blocks
+            foreach (Block block in file.Blocks)
+            {
+                block.SaveToStream(stream);
+            }
+
+            return;
+        }
     }
 }

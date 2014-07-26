@@ -126,6 +126,9 @@
     <Compile Include="Data\Factories\FrameFactory.cs" />
     <Compile Include="Data\Frame.cs" />
     <Compile Include="Data\IDObject.cs" />
+    <Compile Include="Data\Persistence\Blocks\AnimationBlock.cs" />
+    <Compile Include="Data\Persistence\Blocks\AnimationSheetBlock.cs" />
+    <Compile Include="Data\Persistence\Blocks\Block.cs" />
     <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />
     <Compile Include="Data\Undo\UndoSystem.cs" />
     <Compile Include="Data\Validators\DefaultValidator.cs" />
