@@ -1511,11 +1511,6 @@ namespace Pixelaria.Views.ModelViews
             private Bitmap newBitmap;
 
             /// <summary>
-            /// Whether this action has been undone
-            /// </summary>
-            private bool undone = false;
-
-            /// <summary>
             /// Initializes a new instance of a FrameEditUndoTask class
             /// </summary>
             /// <param name="frame">The frame to record the changes made to</param>
@@ -1554,8 +1549,6 @@ namespace Pixelaria.Views.ModelViews
             public void Undo()
             {
                 frame.SetFrameBitmap(oldBitmap.Clone(new Rectangle(0, 0, oldBitmap.Width, oldBitmap.Height), oldBitmap.PixelFormat));
-
-                undone = true;
             }
 
             /// <summary>
@@ -1564,8 +1557,6 @@ namespace Pixelaria.Views.ModelViews
             public void Redo()
             {
                 frame.SetFrameBitmap(newBitmap.Clone(new Rectangle(0, 0, oldBitmap.Width, oldBitmap.Height), oldBitmap.PixelFormat));
-
-                undone = false;
             }
 
             /// <summary>
