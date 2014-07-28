@@ -131,6 +131,7 @@
     <Compile Include="Data\Persistence\Blocks\Block.cs" />
     <Compile Include="Data\Persistence\Blocks\ProjectTreeBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />
+    <Compile Include="Data\ProjectTree.cs" />
     <Compile Include="Data\Undo\UndoSystem.cs" />
     <Compile Include="Data\Validators\DefaultValidator.cs" />
     <Compile Include="Data\Validators\IAnimationSheetValidator.cs" />
@@ -246,6 +247,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\Controls\ImageEditPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ProjectTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\RearrangeableListView.cs">
