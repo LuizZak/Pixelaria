@@ -152,6 +152,8 @@ namespace Pixelaria.Data.Persistence
 
             SaveFileToDisk(file);
 
+            file.CurrentStream.Close();
+
             return;
 
             // Start writing to the file
