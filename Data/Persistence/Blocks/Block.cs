@@ -12,7 +12,7 @@ namespace Pixelaria.Data.Persistence.Blocks
     public class Block
     {
         /// <summary>
-        /// Gets the file this block is currently present in
+        /// Gets or sets the file this block is currently present in
         /// </summary>
         public PixelariaFile OwningFile
         {
@@ -26,6 +26,15 @@ namespace Pixelaria.Data.Persistence.Blocks
         public short BlockID
         {
             get { return this.blockID; }
+        }
+
+        /// <summary>
+        /// <para>Gets the version of the contents of this block.</para>
+        /// <para>The version is unrelated to the File version and is used to verify what is inside the content portion</para>
+        /// </summary>
+        public short BlockVersion
+        {
+            get { return this.blockVersion; }
         }
 
         /// <summary>
@@ -50,7 +59,10 @@ namespace Pixelaria.Data.Persistence.Blocks
         /// Prepares the contents of this block to be saved based on the contents of the given Bundle
         /// </summary>
         /// <param name="bundle">The bundle to prepare this block from</param>
-        public virtual void PrepareFromBundle(Bundle bundle) { }
+        public virtual void PrepareFromBundle(Bundle bundle)
+        {
+            readyBundle = bundle;
+        }
 
         /// <summary>
         /// Saves this block to the given Stream
@@ -60,12 +72,27 @@ namespace Pixelaria.Data.Persistence.Blocks
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
+            blockOffset = stream.Position;
+
             // Write the block ID
             writer.Write(blockID);
             // Write the block length
             writer.Write(blockLength);
+            // Write the block version
+            writer.Write(blockVersion);
+
+            long contentOffset = stream.Position;
+
             // Save the content now
             SaveContentToStream(stream);
+
+            // Write the content length now
+            long length = stream.Position - contentOffset;
+
+            stream.Position = blockOffset + sizeof(short);
+            writer.Write(length);
+
+            stream.Position = contentOffset + length;
         }
 
         /// <summary>
@@ -90,10 +117,13 @@ namespace Pixelaria.Data.Persistence.Blocks
 
             // Save the stream offset
             blockOffset = stream.Position;
+
             // Read the block ID
             blockID = reader.ReadInt16();
             // Read the block length
             blockLength = reader.ReadInt64();
+            // Read the block version
+            blockVersion = reader.ReadInt16();
             // Read the content now
             LoadContentFromStream(stream);
         }
@@ -102,7 +132,7 @@ namespace Pixelaria.Data.Persistence.Blocks
         /// Loads the content portion of the block from the given stream
         /// </summary>
         /// <param name="stream">The stream to load the content from</param>
-        public virtual void LoadContentFromStream(Stream stream)
+        protected virtual void LoadContentFromStream(Stream stream)
         {
             BinaryReader reader = new BinaryReader(stream);
 
@@ -115,9 +145,19 @@ namespace Pixelaria.Data.Persistence.Blocks
         protected PixelariaFile owningFile;
 
         /// <summary>
+        /// The bundle that this block was prepared to handle
+        /// </summary>
+        protected Bundle readyBundle;
+
+        /// <summary>
         /// The ID of this block
         /// </summary>
         protected short blockID;
+
+        /// <summary>
+        /// The version of the contents of this block
+        /// </summary>
+        protected short blockVersion;
 
         /// <summary>
         /// <para>The length of this block data on the stream.</para>
@@ -140,8 +180,9 @@ namespace Pixelaria.Data.Persistence.Blocks
         /// Reads a block from the given stream object
         /// </summary>
         /// <param name="stream">The stream to read the block from</param>
+        /// <param name="file">The PixelariaFile to use when loading the block</param>
         /// <returns>A block read from the given stream</returns>
-        public static Block FromStream(Stream stream)
+        public static Block FromStream(Stream stream, PixelariaFile file)
         {
             // Save the current stream position
             long offset = stream.Position;
@@ -152,6 +193,7 @@ namespace Pixelaria.Data.Persistence.Blocks
 
             // Rewind the stream and read the block now
             stream.Position = offset;
+            block.owningFile = file;
             block.LoadFromStream(stream);
 
             return block;
@@ -175,6 +217,9 @@ namespace Pixelaria.Data.Persistence.Blocks
                 // Animation Sheet block
                 case BLOCKID_ANIMATIONSHEET:
                     return new AnimationSheetBlock();
+                // Project Tree block
+                case BLOCKID_PROJECTTREE:
+                    return new ProjectTreeBlock();
             }
 
             return new Block();
@@ -186,5 +231,7 @@ namespace Pixelaria.Data.Persistence.Blocks
         public const short BLOCKID_ANIMATION = 0x0001;
         /// <summary>Represents an Animation Sheet block</summary>
         public const short BLOCKID_ANIMATIONSHEET = 0x0002;
+        /// <summary>Represents a Project Tree block</summary>
+        public const short BLOCKID_PROJECTTREE = 0x0003;
     }
 }

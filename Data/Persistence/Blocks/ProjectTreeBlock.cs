@@ -10,6 +10,12 @@ namespace Pixelaria.Data.Persistence.Blocks
     /// </summary>
     public class ProjectTreeBlock : Block
     {
-
+        /// <summary>
+        /// Initializes a new instance of the ProjectTreeBlock class
+        /// </summary>
+        public ProjectTreeBlock()
+        {
+            this.blockID = BLOCKID_PROJECTTREE;
+        }
     }
 }

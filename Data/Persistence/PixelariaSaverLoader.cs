@@ -127,12 +127,77 @@ namespace Pixelaria.Data.Persistence
         /// <returns>A new Pixelaria file</returns>
         public static PixelariaFile LoadFileFromDisk(string path)
         {
-            PixelariaFile file = new PixelariaFile(path, null);
+            PixelariaFile file = new PixelariaFile(path, new Bundle("Name"));
 
             PixelariaFileLoader loader = new PixelariaFileLoader(file);
             loader.Load();
 
             return file;
+        }
+
+        #endregion
+
+        #region Saving
+
+        /// <summary>
+        /// Saves the given bundle to disk
+        /// </summary>
+        /// <param name="bundle">The bundle to save</param>
+        /// <param name="path">The path to save the bundle to</param>
+        public static void SaveBundleToDisk(Bundle bundle, string path)
+        {
+            PixelariaFile file = new PixelariaFile(path, bundle);
+
+            file.AddDefaultBlocks();
+
+            SaveFileToDisk(file);
+
+            return;
+
+            // Start writing to the file
+            Stream stream = null;
+
+            stream = new FileStream(path, FileMode.Create);
+
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            // Signature block
+            writer.Write((byte)'P');
+            writer.Write((byte)'X');
+            writer.Write((byte)'L');
+
+            // Bundle Header block
+            writer.Write(version);
+            writer.Write(bundle.Name);
+            writer.Write(bundle.ExportPath);
+
+            // Animation Block
+            writer.Write(bundle.Animations.Length);
+
+            foreach (Animation anim in bundle.Animations)
+            {
+                WriteAnimationToStream(anim, stream);
+            }
+
+            // Sheet block
+            writer.Write(bundle.AnimationSheets.Length);
+
+            foreach (AnimationSheet sheet in bundle.AnimationSheets)
+            {
+                WriteAnimationSheetToStream(sheet, stream);
+            }
+
+            stream.Close();
+        }
+
+        /// <summary>
+        /// Saves the given PixelariaFile object to disk
+        /// </summary>
+        /// <param name="file">The file to save to disk</param>
+        public static void SaveFileToDisk(PixelariaFile file)
+        {
+            PixelariaFileSaver saver = new PixelariaFileSaver(file);
+            saver.Save();
         }
 
         #endregion
@@ -332,49 +397,6 @@ namespace Pixelaria.Data.Persistence
         #region Version 8 and prior saver
 
         /// <summary>
-        /// Saves the given bundle to disk
-        /// </summary>
-        /// <param name="bundle">The bundle to save</param>
-        /// <param name="path">The path to save the bundle to</param>
-        public static void SaveBundleToDisk(Bundle bundle, string path)
-        {
-            // Start writing to the file
-            Stream stream = null;
-
-            stream = new FileStream(path, FileMode.Create);
-
-            BinaryWriter writer = new BinaryWriter(stream);
-
-            // Signature block
-            writer.Write((byte)'P');
-            writer.Write((byte)'X');
-            writer.Write((byte)'L');
-
-            // Bundle Header block
-            writer.Write(version);
-            writer.Write(bundle.Name);
-            writer.Write(bundle.ExportPath);
-
-            // Animation Block
-            writer.Write(bundle.Animations.Length);
-
-            foreach(Animation anim in bundle.Animations)
-            {
-                WriteAnimationToStream(anim, stream);
-            }
-
-            // Sheet block
-            writer.Write(bundle.AnimationSheets.Length);
-
-            foreach (AnimationSheet sheet in bundle.AnimationSheets)
-            {
-                WriteAnimationSheetToStream(sheet, stream);
-            }
-
-            stream.Close();
-        }
-
-        /// <summary>
         /// Writes the given Animation into a stream
         /// </summary>
         /// <param name="animation">The animation to write to the stream</param>
@@ -487,7 +509,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The version of this Pixelaria file
         /// </summary>
-        protected int version = 8;
+        protected int version = 9;
 
         /// <summary>
         /// The Bundle binded to this PixelariaFile
@@ -561,6 +583,7 @@ namespace Pixelaria.Data.Persistence
         {
             this.filePath = filePath;
             this.bundle = bundle;
+            this.blockList = new List<Block>();
         }
 
         /// <summary>
@@ -570,6 +593,23 @@ namespace Pixelaria.Data.Persistence
         public void AddBlock(Block block)
         {
             blockList.Add(block);
+            block.OwningFile = this;
+        }
+
+        /// <summary>
+        /// <para>Adds the default block definitions to this PixelariaFile.</para>
+        /// <para>The default blocks added are:</para>
+        /// <list type="bullet">
+        /// <item><description>AnimationBlock</description></item>
+        /// <item><description>AnimationSheetBlock</description></item>
+        /// <item><description>ProjectTreeBlock</description></item>
+        /// </list>
+        /// </summary>
+        public void AddDefaultBlocks()
+        {
+            this.AddBlock(new AnimationBlock());
+            this.AddBlock(new AnimationSheetBlock());
+            this.AddBlock(new ProjectTreeBlock());
         }
 
         /// <summary>
@@ -588,12 +628,7 @@ namespace Pixelaria.Data.Persistence
         /// <returns>All the blocks that match the given ID inside this PixelariaFile</returns>
         public Block[] GetBlocksByID(short blockID)
         {
-            Func<Block, bool> query = new Func<Block, bool>
-            (
-                (Block block) => block.BlockID == blockID
-            );
-
-            return blockList.Where<Block>(query).ToArray<Block>();
+            return blockList.Where<Block>((Block block) => block.BlockID == blockID).ToArray<Block>();
         }
     }
 
@@ -639,13 +674,13 @@ namespace Pixelaria.Data.Persistence
 
             // Bundle Header block
             file.Version = reader.ReadInt32();
+            file.LoadedBundle.Name = reader.ReadString();
+            file.LoadedBundle.ExportPath = reader.ReadString();
 
             // Load the blocks
-            while (stream.Position <= stream.Length)
+            while (stream.Position < stream.Length)
             {
-                Block readBlock = Block.FromStream(stream);
-
-                file.AddBlock(readBlock);
+                file.AddBlock(Block.FromStream(stream, file));
             }
             
             return;
@@ -680,7 +715,7 @@ namespace Pixelaria.Data.Persistence
             Stream stream = file.CurrentStream;
             if (stream == null)
             {
-                file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
+                file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             }
 
             // Save the header
@@ -693,14 +728,15 @@ namespace Pixelaria.Data.Persistence
             
             // Bundle Header block
             writer.Write(file.Version);
+            writer.Write(file.LoadedBundle.Name);
+            writer.Write(file.LoadedBundle.ExportPath);
 
             // Save the blocks
             foreach (Block block in file.Blocks)
             {
+                block.PrepareFromBundle(file.LoadedBundle);
                 block.SaveToStream(stream);
             }
-
-            return;
         }
     }
 }

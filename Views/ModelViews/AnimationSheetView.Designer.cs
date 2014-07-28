@@ -119,19 +119,19 @@ namespace Pixelaria.Views.ModelViews
             this.gb_exportSummary.SuspendLayout();
             this.SuspendLayout();
             // 
-            // cb_favorRatioOverarea
+            // cb_favorRatioOverArea
             // 
             this.cb_favorRatioOverArea.AutoSize = true;
             this.flowLayoutPanel1.SetFlowBreak(this.cb_favorRatioOverArea, true);
             this.cb_favorRatioOverArea.Location = new System.Drawing.Point(3, 3);
-            this.cb_favorRatioOverArea.Name = "cb_favorRatioOverarea";
+            this.cb_favorRatioOverArea.Name = "cb_favorRatioOverArea";
             this.helpProvider1.SetShowHelp(this.cb_favorRatioOverArea, true);
             this.cb_favorRatioOverArea.Size = new System.Drawing.Size(124, 17);
             this.cb_favorRatioOverArea.TabIndex = 3;
             this.cb_favorRatioOverArea.Text = "Favor ratio over area";
             this.tt_mainTooltip.SetToolTip(this.cb_favorRatioOverArea, "Whether to favor ratio over minimum area.\r\nChecking this will produce a more squa" +
-        "re-ish image.\r\nThe output is also produced faster, but may be\r\nslightly bigger i" +
-        "n pixel count.");
+                    "re-ish image.\r\nThe output is also produced faster, but may be\r\nslightly bigger i" +
+                    "n pixel count.");
             this.cb_favorRatioOverArea.UseVisualStyleBackColor = true;
             this.cb_favorRatioOverArea.CheckedChanged += new System.EventHandler(this.checkboxesChange);
             // 
@@ -203,7 +203,7 @@ namespace Pixelaria.Views.ModelViews
             this.nud_yPadding.Size = new System.Drawing.Size(87, 20);
             this.nud_yPadding.TabIndex = 13;
             this.tt_mainTooltip.SetToolTip(this.nud_yPadding, "The horizontal spacing to apply between each frame on\r\nthe sheet texture. The spa" +
-        "cing will also be applied around\r\nthe texture edges.");
+                    "cing will also be applied around\r\nthe texture edges.");
             this.nud_yPadding.ValueChanged += new System.EventHandler(this.nudsCommon);
             // 
             // nud_xPadding
@@ -218,7 +218,7 @@ namespace Pixelaria.Views.ModelViews
             this.nud_xPadding.Size = new System.Drawing.Size(87, 20);
             this.nud_xPadding.TabIndex = 12;
             this.tt_mainTooltip.SetToolTip(this.nud_xPadding, "The horizontal spacing to apply between each frame on\r\nthe sheet texture. The spa" +
-        "cing will also be applied around\r\nthe texture edges.");
+                    "cing will also be applied around\r\nthe texture edges.");
             this.nud_xPadding.ValueChanged += new System.EventHandler(this.nudsCommon);
             // 
             // flowLayoutPanel1
@@ -263,7 +263,7 @@ namespace Pixelaria.Views.ModelViews
             this.cb_forceMinimumDimensions.TabIndex = 5;
             this.cb_forceMinimumDimensions.Text = "Force minimum dimensions";
             this.tt_mainTooltip.SetToolTip(this.cb_forceMinimumDimensions, "Checking this option will pack textures tightier by removing\r\nthe transparent edg" +
-        "es around the frames.\r\n");
+                    "es around the frames.\r\n");
             this.cb_forceMinimumDimensions.UseVisualStyleBackColor = true;
             this.cb_forceMinimumDimensions.CheckedChanged += new System.EventHandler(this.checkboxesChange);
             // 
@@ -306,8 +306,8 @@ namespace Pixelaria.Views.ModelViews
             this.cb_allowUordering.TabIndex = 7;
             this.cb_allowUordering.Text = "Sort frames by size";
             this.tt_mainTooltip.SetToolTip(this.cb_allowUordering, "Whether to sort frames by size on the export sheet.\r\nThe frames will be laid from" +
-        " larger dimensions to smaller.\r\nChecking this option will in almost all cases im" +
-        "prove packing\r\nefficiency.");
+                    " larger dimensions to smaller.\r\nChecking this option will in almost all cases im" +
+                    "prove packing\r\nefficiency.");
             this.cb_allowUordering.UseVisualStyleBackColor = true;
             this.cb_allowUordering.CheckedChanged += new System.EventHandler(this.checkboxesChange);
             // 
@@ -320,7 +320,9 @@ namespace Pixelaria.Views.ModelViews
             this.cb_useUniformGrid.Size = new System.Drawing.Size(102, 17);
             this.cb_useUniformGrid.TabIndex = 11;
             this.cb_useUniformGrid.Text = "Use uniform grid";
-            this.tt_mainTooltip.SetToolTip(this.cb_useUniformGrid, resources.GetString("cb_useUniformGrid.ToolTip"));
+            this.tt_mainTooltip.SetToolTip(this.cb_useUniformGrid, "Whether to place the frames in a uniform grid that is sized\naccording to the smal" +
+                    "lest dimensions capable of fitting all\nthe frames. Setting this option overrides" +
+                    " the\n\'Force minimum dimensions\' option.");
             this.cb_useUniformGrid.UseVisualStyleBackColor = true;
             this.cb_useUniformGrid.CheckedChanged += new System.EventHandler(this.checkboxesChange);
             // 
@@ -384,8 +386,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             // pnl_alertPanel
             // 
-            this.pnl_alertPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnl_alertPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_alertPanel.Controls.Add(this.pictureBox2);
             this.pnl_alertPanel.Controls.Add(this.lbl_alertLabel);
             this.pnl_alertPanel.Location = new System.Drawing.Point(12, 541);
@@ -413,8 +415,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             // pnl_errorPanel
             // 
-            this.pnl_errorPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnl_errorPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_errorPanel.Controls.Add(this.pictureBox1);
             this.pnl_errorPanel.Controls.Add(this.lbl_error);
             this.pnl_errorPanel.Location = new System.Drawing.Point(12, 541);
@@ -442,8 +444,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.txt_sheetName);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
@@ -455,8 +457,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             // txt_sheetName
             // 
-            this.txt_sheetName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txt_sheetName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_sheetName.Location = new System.Drawing.Point(50, 23);
             this.txt_sheetName.Name = "txt_sheetName";
             this.txt_sheetName.Size = new System.Drawing.Size(534, 20);
@@ -484,9 +486,9 @@ namespace Pixelaria.Views.ModelViews
             // zpb_sheetPreview
             // 
             this.zpb_sheetPreview.AllowScrollbars = false;
-            this.zpb_sheetPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.zpb_sheetPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.zpb_sheetPreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_sheetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_sheetPreview.ClipBackgroundToImage = true;
@@ -555,8 +557,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             // flowLayoutPanel2
             // 
-            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)));
             this.flowLayoutPanel2.Controls.Add(this.gb_sheetInfo);
             this.flowLayoutPanel2.Controls.Add(this.groupBox2);
             this.flowLayoutPanel2.Controls.Add(this.gb_exportSummary);
@@ -742,6 +744,7 @@ namespace Pixelaria.Views.ModelViews
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(630, 620);
             this.Name = "AnimationSheetView";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Animation Sheet Editor";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AnimationSheetView_FormClosed);
             this.groupBox2.ResumeLayout(false);
