@@ -30,7 +30,7 @@ namespace Pixelaria.Data.Persistence.Blocks
     /// <summary>
     /// Contains information about the project tree to be displayed on the main interface
     /// </summary>
-    public class ProjectTreeBlock : Block
+    public class ProjectTreeBlock : FileBlock
     {
         /// <summary>
         /// Initializes a new instance of the ProjectTreeBlock class

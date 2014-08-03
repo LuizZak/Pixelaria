@@ -35,7 +35,7 @@ namespace Pixelaria.Data.Persistence.Blocks
     /// <summary>
     /// Represents an animation block to save/load from a file
     /// </summary>
-    public class AnimationBlock : Block
+    public class AnimationBlock : FileBlock
     {
         /// <summary>
         /// Initializes a new instance of the AnimationBlock class

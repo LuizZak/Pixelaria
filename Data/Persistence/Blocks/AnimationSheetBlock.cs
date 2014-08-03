@@ -31,7 +31,7 @@ namespace Pixelaria.Data.Persistence.Blocks
     /// <summary>
     /// Represents an Animation Sheet block on a pixelaria file
     /// </summary>
-    public class AnimationSheetBlock : Block
+    public class AnimationSheetBlock : FileBlock
     {
         /// <summary>
         /// Initializes a new instance of the AnimationSheetBlock class

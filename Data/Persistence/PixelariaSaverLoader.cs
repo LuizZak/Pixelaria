@@ -531,7 +531,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The list of blocks currently on the file
         /// </summary>
-        protected List<Block> blockList;
+        protected List<FileBlock> blockList;
 
         /// <summary>
         /// Gets or sets the version of this PixelariaFile
@@ -566,7 +566,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// Gets the list of blocks currently in this PixelariaFile
         /// </summary>
-        public Block[] Blocks
+        public FileBlock[] Blocks
         {
             get { return blockList.ToArray(); }
         }
@@ -585,14 +585,14 @@ namespace Pixelaria.Data.Persistence
         {
             this.filePath = filePath;
             this.bundle = bundle;
-            this.blockList = new List<Block>();
+            this.blockList = new List<FileBlock>();
         }
 
         /// <summary>
         /// Adds a block to this file's composition
         /// </summary>
         /// <param name="block">The block to add to this PixelariaFile</param>
-        public void AddBlock(Block block)
+        public void AddBlock(FileBlock block)
         {
             blockList.Add(block);
             block.OwningFile = this;
@@ -618,7 +618,7 @@ namespace Pixelaria.Data.Persistence
         /// Removes a block from this file's composition
         /// </summary>
         /// <param name="block">The block to remove</param>
-        public void RemoveBlock(Block block)
+        public void RemoveBlock(FileBlock block)
         {
             blockList.Remove(block);
         }
@@ -628,9 +628,9 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="blockID">The blockID to match</param>
         /// <returns>All the blocks that match the given ID inside this PixelariaFile</returns>
-        public Block[] GetBlocksByID(short blockID)
+        public FileBlock[] GetBlocksByID(short blockID)
         {
-            return blockList.Where<Block>((Block block) => block.BlockID == blockID).ToArray<Block>();
+            return blockList.Where<FileBlock>((FileBlock block) => block.BlockID == blockID).ToArray<FileBlock>();
         }
     }
 
@@ -682,7 +682,7 @@ namespace Pixelaria.Data.Persistence
             // Load the blocks
             while (stream.Position < stream.Length)
             {
-                file.AddBlock(Block.FromStream(stream, file));
+                file.AddBlock(FileBlock.FromStream(stream, file));
             }
             
             return;
@@ -734,7 +734,7 @@ namespace Pixelaria.Data.Persistence
             writer.Write(file.LoadedBundle.ExportPath);
 
             // Save the blocks
-            foreach (Block block in file.Blocks)
+            foreach (FileBlock block in file.Blocks)
             {
                 block.PrepareFromBundle(file.LoadedBundle);
                 block.SaveToStream(stream);

@@ -128,6 +128,7 @@
     <Compile Include="Data\IDObject.cs" />
     <Compile Include="Data\Persistence\Blocks\AnimationBlock.cs" />
     <Compile Include="Data\Persistence\Blocks\AnimationSheetBlock.cs" />
+    <Compile Include="Data\Persistence\BaseBlock.cs" />
     <Compile Include="Data\Persistence\Blocks\Block.cs" />
     <Compile Include="Data\Persistence\Blocks\ProjectTreeBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />
