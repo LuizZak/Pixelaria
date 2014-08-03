@@ -37,7 +37,7 @@ Legend:
 . AnimationView
   + Added a CTRL+A and menu item shortcut to select all frames.
   + Added 'Reverse Frames' menu option.
-  * Fixed undoing/redoing operations on the animation that included animation resizing.
+  * Fixed undoing/redoing operations on the animation that included animation resizing not being undone/redone properly, resulting in chopped images.
 
 . AnimationSheetView
   + Added checkbox to toggle visualization of individual frame bounds on the sheet.
