@@ -536,10 +536,10 @@ namespace Pixelaria.Views.ModelViews
                 viewAnimation.Resize(settings);
 
                 MarkModified();
-
-                undoSystem.RegisterUndo(undoTask);
-
                 RefreshView();
+
+                undoTask.RecordChanges();
+                undoSystem.RegisterUndo(undoTask);
             }
         }
 
@@ -952,6 +952,8 @@ namespace Pixelaria.Views.ModelViews
                         }
                     }
 
+                    AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(this.viewAnimation);
+
                     Frame frame = controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
                     frame.SetFrameBitmap(bit);
 
@@ -962,6 +964,9 @@ namespace Pixelaria.Views.ModelViews
                     RefreshView();
 
                     lv_frames.Items[lv_frames.Items.Count - 1].Selected = true;
+
+                    undoTask.RecordChanges();
+                    this.undoSystem.RegisterUndo(undoTask);
                 }
                 catch (Exception e)
                 {
@@ -1637,12 +1642,100 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Implements an animation modify undo task that undoes/redoes changes in the animation properties, including frames
+        /// Implements an animation resize undo task that undoes/redoes animation resize operations
+        /// </summary>
+        public class AnimationResizeUndoTask : IUndoTask
+        {
+            /// <summary>
+            /// The animation to affect with this AnimationResizeUndoTask instance
+            /// </summary>
+            private Animation animation;
+
+            /// <summary>
+            /// The list of new frames
+            /// </summary>
+            private Bitmap[] newFrames;
+
+            /// <summary>
+            /// The old size of the animation before resizing
+            /// </summary>
+            private AnimationResizeSettings oldResizeSettings;
+
+            /// <summary>
+            /// The resize settings for the operation
+            /// </summary>
+            private AnimationResizeSettings newResizeSettings;
+
+            /// <summary>
+            /// Initializes a new instance of the FramesModifyUndoTask class
+            /// </summary>
+            /// <param name="animation">The animation to affect with this FramesModifyUndoTask instance</param>
+            /// <param name="oldSize">The old size of the animation before resizing</param>
+            /// <param name="resizeSettings">The resize settings for the operation</param>
+            public AnimationResizeUndoTask(Animation animation, Size oldSize, AnimationResizeSettings resizeSettings)
+            {
+                this.animation = animation;
+                this.newFrames = animation.Frames.ToBitmapArray(true);
+                this.oldResizeSettings = new AnimationResizeSettings() { InterpolationMode = resizeSettings.InterpolationMode, NewWidth = oldSize.Width, NewHeight = oldSize.Height, PerFrameScalingMethod = resizeSettings.PerFrameScalingMethod };
+                this.newResizeSettings = resizeSettings;
+            }
+
+            /// <summary>
+            /// Clears this UndoTask object
+            /// </summary>
+            public void Clear()
+            {
+                foreach (Bitmap bit in this.newFrames)
+                {
+                    bit.Dispose();
+                }
+
+                this.newFrames = null;
+                this.animation = null;
+            }
+
+            /// <summary>
+            /// Undoes this task
+            /// </summary>
+            public void Undo()
+            {
+                animation.Resize(oldResizeSettings);
+            }
+
+            /// <summary>
+            /// Redoes this task
+            /// </summary>
+            public void Redo()
+            {
+                animation.Resize(newResizeSettings);
+
+                // Apply the frame contents now
+                for(int i = 0; i < animation.FrameCount; i++)
+                {
+                    Frame frame = animation[i];
+
+                    frame.SetFrameBitmap((Bitmap)newFrames[i].Clone());
+                }
+            }
+
+            /// <summary>
+            /// Returns a short string description of this UndoTask
+            /// </summary>
+            /// <returns>A short string description of this UndoTask</returns>
+            public string GetDescription()
+            {
+                return "Animation Resize";
+            }
+        }
+
+        /// <summary>
+        /// Implements an animation modify undo task that undoes/redoes changes in the animation properties, including frame bitmap modifications.
+        /// Currently, modifications that including and removing several frames in the same operation is a little glitchy, and may not function properly
         /// </summary>
         public class AnimationModifyUndoTask : IUndoTask
         {
             /// <summary>
-            /// The animation to affect with this FramesModifyUndoTask instance
+            /// The animation to affect with this AnimationModifyUndoTask instance
             /// </summary>
             private Animation animation;
 
@@ -1839,6 +1932,25 @@ namespace Pixelaria.Views.ModelViews
                         FrameReoderUndoTask undoTask = new FrameReoderUndoTask(animation, j, i);
                         compoundTask.AddTask(undoTask);
                     }
+                }
+
+                // Register the animation resize operation
+                if (oldAnimation.Width != animation.Width || oldAnimation.Height != animation.Height)
+                {
+                    GroupUndoTask wrapTask = new GroupUndoTask(compoundTask.GetDescription());
+                    wrapTask.ReverseOnUndo = true;
+
+                    AnimationResizeSettings settings = new AnimationResizeSettings();
+                    settings.NewWidth = animation.Width;
+                    settings.NewHeight = animation.Height;
+                    settings.InterpolationMode = InterpolationMode.Low;
+                    settings.PerFrameScalingMethod = PerFrameScalingMethod.Zoom;
+
+                    AnimationResizeUndoTask undoTask = new AnimationResizeUndoTask(animation, new Size(oldAnimation.Width, oldAnimation.Height), settings);
+                    wrapTask.AddTask(compoundTask);
+                    wrapTask.AddTask(undoTask);
+
+                    compoundTask = wrapTask;
                 }
             }
 

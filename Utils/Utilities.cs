@@ -21,12 +21,15 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
+using Pixelaria.Data;
 using Pixelaria.Views.Controls;
 
 namespace Pixelaria.Utils
@@ -417,6 +420,35 @@ namespace Pixelaria.Utils
             float dy = point.Y - point2.Y;
 
             return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>
+        /// Transforms a given list of Frames into a list of Bitmaps.
+        /// The list of bitmaps will be equivalent to taking the Frame.GetComposedBitmap() of each frame
+        /// </summary>
+        /// <param name="frameList">A list of frames to transform into bitmaps</param>
+        /// <param name="clone">Whether to clone the bitmaps or not. Cloning the bitmaps generates plain new ones for each frames, occupying more memory</param>
+        /// <returns>The given list of frames, turned into a list of bitmaps</returns>
+        public static List<Bitmap> ToBitmapList(this List<Frame> frameList, bool clone)
+        {
+            return new List<Bitmap>(
+                                from frame in frameList
+                                select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
+                                );
+        }
+
+        /// <summary>
+        /// Transforms a given array of Frames into a array of Bitmaps.
+        /// The array of bitmaps will be equivalent to taking the Frame.GetComposedBitmap() of each frame
+        /// </summary>
+        /// <param name="frames">An array of frames to transform into bitmaps</param>
+        /// <param name="clone">Whether to clone the bitmaps or not. Cloning the bitmaps generates plain new ones for each frames, occupying more memory</param>
+        /// <returns>The given array of frames, turned into a array of bitmaps</returns>
+        public static Bitmap[] ToBitmapArray(this Frame[] frames, bool clone)
+        {
+            return (from frame in frames
+                    select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
+                    ).ToArray<Bitmap>();
         }
     }
 }

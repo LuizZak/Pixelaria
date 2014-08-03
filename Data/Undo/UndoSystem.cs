@@ -389,6 +389,11 @@ namespace Pixelaria.Data.Undo
         public bool DiscardOnOperation { get; set; }
 
         /// <summary>
+        /// Gets or sets whether to reverse the order of the operations on undo
+        /// </summary>
+        public bool ReverseOnUndo { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the GroupUndoTask class with a description
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
@@ -396,6 +401,7 @@ namespace Pixelaria.Data.Undo
         {
             undoList = new List<IUndoTask>();
             this.description = description;
+            this.ReverseOnUndo = true;
         }
 
         /// <summary>
@@ -403,11 +409,13 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         /// <param name="tasks">The tasks to perform</param>
         /// <param name="description">The description for this GroupUndoTask</param>
-        public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description, bool discardOnOperation = false)
+        /// <param name="discardOnOperation">Whether to reverse the order of the operations on undo</param>
+        public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description, bool discardOnOperation = false, bool reverseOnUndo = true)
             : this(description)
         {
             AddTasks(tasks);
             this.DiscardOnOperation = discardOnOperation;
+            this.ReverseOnUndo = reverseOnUndo;
         }
 
         /// <summary>
@@ -449,10 +457,20 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Undo()
         {
-            // Undo in reverse order (last to first)
-            for (int i = undoList.Count - 1; i >= 0; i--)
+            if (ReverseOnUndo)
             {
-                undoList[i].Undo();
+                // Undo in reverse order (last to first)
+                for (int i = undoList.Count - 1; i >= 0; i--)
+                {
+                    undoList[i].Undo();
+                }
+            }
+            else
+            {
+                foreach (IUndoTask task in undoList)
+                {
+                    task.Undo();
+                }
             }
         }
 
