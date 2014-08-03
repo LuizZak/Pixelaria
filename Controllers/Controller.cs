@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -50,6 +51,11 @@ namespace Pixelaria.Controllers
         /// The currently opened bundle
         /// </summary>
         Bundle currentBundle;
+
+        /// <summary>
+        /// The list of currently opened files
+        /// </summary>
+        List<PixelariaFile> files;
 
         /// <summary>
         /// The main application form
@@ -97,6 +103,11 @@ namespace Pixelaria.Controllers
         public Bundle CurrentBundle { get { return currentBundle; } }
 
         /// <summary>
+        /// Gets an array of the current files opened in the program
+        /// </summary>
+        public PixelariaFile[] Files { get { return files.ToArray(); } }
+
+        /// <summary>
         /// Gets the current IDefaultImporter of the program
         /// </summary>
         public IDefaultImporter DefaultImporter { get { return defaultImporter; } }
@@ -137,27 +148,32 @@ namespace Pixelaria.Controllers
         /// <param name="mainForm">The form to use as the main form of the application</param>
         public Controller(MainForm mainForm)
         {
+            // Initialize the basic fields
             this.mainForm = mainForm;
-            mainForm.controller = this;
+            this.mainForm.controller = this;
 
-            ShowNewBundle();
+            this.files = new List<PixelariaFile>();
 
-            frameFactory = new DefaultFrameFactory(this);
+            // Initialize the factories
+            this.frameFactory = new DefaultFrameFactory(this);
 
+            // Initialize the validators and exporters
             DefaultValidator defValidator = new DefaultValidator(this);
 
-            animationValidator = defValidator;
-            animationSheetValidator = defValidator;
+            this.animationValidator = defValidator;
+            this.animationSheetValidator = defValidator;
 
-            defaultImporter = new DefaultPngImporter();
-            defaultExporter = new DefaultPngExporter();
+            this.defaultImporter = new DefaultPngImporter();
+            this.defaultExporter = new DefaultPngExporter();
 
             // Initialize the Settings singleton
             Settings.GetSettings(Path.GetDirectoryName(Application.ExecutablePath) + "\\settings.ini");
 
-            recentFileList = new RecentFileList(10);
+            this.recentFileList = new RecentFileList(10);
+            this.mainForm.UpdateRecentFilesList();
 
-            mainForm.UpdateRecentFilesList();
+            // Start with a new empty bundle
+            ShowNewBundle();
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -190,9 +206,12 @@ namespace Pixelaria.Controllers
         {
             // Dispose of the current bundle if it's present
             if (currentBundle != null)
-                currentBundle.Dispose();
+            {
+                CloseBundle(currentBundle);
+            }
 
-            Bundle newBundle = PixelariaSaverLoader.LoadBundleFromDisk(savePath);
+            PixelariaFile file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
+            Bundle newBundle = file.LoadedBundle;
 
             if (newBundle == null)
             {
@@ -246,6 +265,20 @@ namespace Pixelaria.Controllers
                 return;
 
             LoadBundleFromFile(recentFileList[index]);
+        }
+
+        /// <summary>
+        /// Closes the given bundle from the controller
+        /// </summary>
+        /// <param name="bundle">The bundle to close</param>
+        public void CloseBundle(Bundle bundle)
+        {
+            PixelariaFile file = GetPixelariaFileByBundle(bundle);
+
+            if (file != null)
+                file.Dispose();
+
+            bundle.Dispose();
         }
 
         /// <summary>
@@ -479,6 +512,34 @@ namespace Pixelaria.Controllers
         public AnimationSheet GetOwningAnimationSheet(Animation anim)
         {
             return currentBundle.GetOwningAnimationSheet(anim);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        //////////
+        ////////// PixelariaFile Related Methods
+        //////////
+        /////
+        ///// Methods that interact with PixelariaFile objects, by creating, updating
+        ///// and removing the files. May end up interacting with bundle controllers
+        ///// as well.
+        /////
+        ////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Gets a PixelariaFile object which matches the given Bundle object.
+        /// If none of the files currently opened match the bundle, null is returned.
+        /// </summary>
+        /// <param name="bundle">The bundle to get the pixelaria file from</param>
+        /// <returns>A PixelariaFile that has the given bundle loaded into it</returns>
+        public PixelariaFile GetPixelariaFileByBundle(Bundle bundle)
+        {
+            foreach (PixelariaFile file in files)
+            {
+                if (file.LoadedBundle == bundle)
+                    return file;
+            }
+
+            return null;
         }
 
         ////////////////////////////////////////////////////////////////////////////////

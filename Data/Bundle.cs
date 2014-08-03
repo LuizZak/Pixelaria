@@ -41,6 +41,11 @@ namespace Pixelaria.Data
         List<AnimationSheet> animationSheets;
 
         /// <summary>
+        /// A project tree that represents the tree visualization for the project contents
+        /// </summary>
+        ProjectTree bundleProjectTree;
+
+        /// <summary>
         /// Gets the array of animations on this bundle
         /// </summary>
         public Animation[] Animations { get { return animations.ToArray(); } }
@@ -67,17 +72,25 @@ namespace Pixelaria.Data
         public string SaveFile { get; set; }
 
         /// <summary>
+        /// Gets the a project tree that represents the tree visualization for the project contents
+        /// </summary>
+        public ProjectTree BundleProjectTree { get { return this.bundleProjectTree; } }
+
+        /// <summary>
         /// Initializes a new instance of the Bundle class
         /// </summary>
         /// <param name="name">The name for this bundle</param>
         public Bundle(string name)
         {
-            Name = name;
-            SaveFile = "";
-            ExportPath = "";
+            this.Name = name;
+            this.SaveFile = "";
+            this.ExportPath = "";
 
-            animations = new List<Animation>();
-            animationSheets = new List<AnimationSheet>();
+            this.animations = new List<Animation>();
+            this.animationSheets = new List<AnimationSheet>();
+
+            // Initialize the bundle tree
+            this.bundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
         }
 
         /// <summary>

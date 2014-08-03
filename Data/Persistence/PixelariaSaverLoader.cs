@@ -27,7 +27,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.IO;
 
-using Pixelaria.Data.Persistence.Blocks;
+using Pixelaria.Data.Persistence.PixelariaFileBlocks;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence
@@ -69,18 +69,6 @@ namespace Pixelaria.Data.Persistence
             int bundleVersion = reader.ReadInt32();
             string bundleName = reader.ReadString();
             string bundlePath = "";
-
-            ////////
-            //// Version 9 and later
-            ////////
-
-            // Version 9 and later are loaded with the new file loader
-            if (bundleVersion >= 9)
-            {
-                stream.Close();
-                PixelariaFile file = LoadFileFromDisk(path);
-                return file.LoadedBundle;
-            }
 
             ////////
             //// Legacy file formats
@@ -127,10 +115,39 @@ namespace Pixelaria.Data.Persistence
         /// <returns>A new Pixelaria file</returns>
         public static PixelariaFile LoadFileFromDisk(string path)
         {
-            PixelariaFile file = new PixelariaFile(path, new Bundle("Name"));
+            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            BinaryReader reader = new BinaryReader(stream);
 
-            PixelariaFileLoader loader = new PixelariaFileLoader(file);
-            loader.Load();
+            // Signature Block
+            if (reader.ReadByte() != 'P' || reader.ReadByte() != 'X' || reader.ReadByte() != 'L')
+            {
+                return null;
+            }
+
+            // Bundle Header block
+            int bundleVersion = reader.ReadInt32();
+            stream.Close();
+
+            PixelariaFile file;
+
+            ////////
+            //// Version 9 and later
+            ////////
+            if (bundleVersion >= 9)
+            {
+                file = new PixelariaFile(path, new Bundle("Name"));
+
+                PixelariaFileLoader loader = new PixelariaFileLoader(file);
+                loader.Load();
+
+                return file;
+            }
+
+            Bundle bundle = LoadBundleFromDisk(path);
+
+            file = new PixelariaFile(path, bundle);
+            file.AddDefaultBlocks();
+            file.PrepareBlocksWithBundle();
 
             return file;
         }
@@ -506,7 +523,7 @@ namespace Pixelaria.Data.Persistence
     /// <summary>
     /// Encapsulates a Pixelaria .plx file
     /// </summary>
-    public class PixelariaFile
+    public class PixelariaFile : IDisposable
     {
         /// <summary>
         /// The version of this Pixelaria file
@@ -589,6 +606,19 @@ namespace Pixelaria.Data.Persistence
         }
 
         /// <summary>
+        /// Disposes of this PixelariaFile and all used resources
+        /// </summary>
+        public void Dispose()
+        {
+            foreach (BaseBlock block in blockList)
+            {
+                block.Dispose();
+            }
+            blockList.Clear();
+            blockList = null;
+        }
+
+        /// <summary>
         /// Adds a block to this file's composition
         /// </summary>
         /// <param name="block">The block to add to this PixelariaFile</param>
@@ -621,6 +651,17 @@ namespace Pixelaria.Data.Persistence
         public void RemoveBlock(FileBlock block)
         {
             blockList.Remove(block);
+        }
+
+        /// <summary>
+        /// Prepares the blocks with the currently loaded bundle
+        /// </summary>
+        public void PrepareBlocksWithBundle()
+        {
+            foreach (FileBlock block in blockList)
+            {
+                block.PrepareFromBundle(bundle);
+            }
         }
 
         /// <summary>
@@ -684,8 +725,8 @@ namespace Pixelaria.Data.Persistence
             {
                 file.AddBlock(FileBlock.FromStream(stream, file));
             }
-            
-            return;
+
+            file.CurrentStream.Close();
         }
     }
 
@@ -739,6 +780,8 @@ namespace Pixelaria.Data.Persistence
                 block.PrepareFromBundle(file.LoadedBundle);
                 block.SaveToStream(stream);
             }
+
+            file.CurrentStream.Close();
         }
     }
 }

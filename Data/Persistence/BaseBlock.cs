@@ -31,7 +31,7 @@ namespace Pixelaria.Data.Persistence
     /// <summary>
     /// Represents a base class for block data objects to be used by the persistence manager to encode/decode data sequentially from streams
     /// </summary>
-    public abstract class BaseBlock
+    public abstract class BaseBlock : IDisposable
     {
         /// <summary>
         /// Gets the ID of this block
@@ -66,6 +66,14 @@ namespace Pixelaria.Data.Persistence
         public long BlockOffset
         {
             get { return blockOffset; }
+        }
+
+        /// <summary>
+        /// Disposes of this BaseBlock and all related resources
+        /// </summary>
+        public virtual void Dispose()
+        {
+            blockContent = null;
         }
 
         /// <summary>

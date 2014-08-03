@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Pixelaria.Data.Persistence.Blocks
+namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
     /// <summary>
     /// Contains information about the project tree to be displayed on the main interface
@@ -33,11 +33,37 @@ namespace Pixelaria.Data.Persistence.Blocks
     public class ProjectTreeBlock : FileBlock
     {
         /// <summary>
+        /// Gets or sets the current project tree inside this ProjectTreeBlock
+        /// </summary>
+        public ProjectTree Tree { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the ProjectTreeBlock class
         /// </summary>
         public ProjectTreeBlock()
         {
             this.blockID = BLOCKID_PROJECTTREE;
+        }
+
+        /// <summary>
+        /// Prepares the contents of this block to be saved based on the contents of the given Bundle
+        /// </summary>
+        /// <param name="bundle">The bundle to prepare this block from</param>
+        public override void PrepareFromBundle(Bundle bundle)
+        {
+            base.PrepareFromBundle(bundle);
+
+            this.Tree = bundle.BundleProjectTree;
+        }
+
+        protected override void SaveContentToStream(System.IO.Stream stream)
+        {
+            base.SaveContentToStream(stream);
+        }
+
+        protected override void LoadContentFromStream(System.IO.Stream stream)
+        {
+            base.LoadContentFromStream(stream);
         }
     }
 }

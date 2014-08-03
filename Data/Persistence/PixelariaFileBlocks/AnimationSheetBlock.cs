@@ -26,7 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Pixelaria.Data.Persistence.Blocks
+namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
     /// <summary>
     /// Represents an Animation Sheet block on a pixelaria file

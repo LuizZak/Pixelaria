@@ -30,7 +30,7 @@ using System.Text;
 
 using Pixelaria.Utils;
 
-namespace Pixelaria.Data.Persistence.Blocks
+namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
     /// <summary>
     /// Represents an animation block to save/load from a file

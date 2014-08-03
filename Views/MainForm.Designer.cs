@@ -104,7 +104,7 @@ namespace Pixelaria.Views
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_editAnimProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.tv_bundleAnimations = new Pixelaria.Views.Controls.RearrangeableTreeView();
+            this.tv_bundleAnimations = new Pixelaria.Views.Controls.ProjectTreeView();
             this.ts_mainStrip.SuspendLayout();
             this.cms_bundleNodeRightClick.SuspendLayout();
             this.cms_sheetNodeRightClick.SuspendLayout();
@@ -573,7 +573,7 @@ namespace Pixelaria.Views
 
         #endregion
 
-        private Pixelaria.Views.Controls.RearrangeableTreeView tv_bundleAnimations;
+        private Pixelaria.Views.Controls.ProjectTreeView tv_bundleAnimations;
         private System.Windows.Forms.ImageList il_treeView;
         private System.Windows.Forms.ToolStrip ts_mainStrip;
         private System.Windows.Forms.ToolStripButton tsb_bundleSettings;
