@@ -193,6 +193,13 @@ namespace Pixelaria.Controllers
                 currentBundle.Dispose();
 
             Bundle newBundle = PixelariaSaverLoader.LoadBundleFromDisk(savePath);
+
+            if (newBundle == null)
+            {
+                MessageBox.Show("There was an error loading the file! It may be corrupted or not a valid Pixelaria file", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             newBundle.SaveFile = savePath;
 
             LoadBundle(newBundle);
