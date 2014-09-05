@@ -934,7 +934,11 @@ namespace Pixelaria.Views.ModelViews
 
                 try
                 {
-                    bit = (Bitmap)Image.FromFile(ofd.FileName);
+                    Bitmap tempBit = (Bitmap)Image.FromFile(ofd.FileName);
+
+                    bit = new Bitmap(tempBit);
+
+                    tempBit.Dispose();
 
                     FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
 
