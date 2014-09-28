@@ -790,6 +790,18 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             return new Rectangle(2, 19, this.Width - 4, 15);
         }
+        
+        /// <summary>
+        /// Returns a Rectangle object that represents the slider knob's bounds
+        /// </summary>
+        /// <returns>A Rectangle object that represents the slider knob's bounds</returns>
+        private Rectangle GetKnobRectangleBounds()
+        {
+            RectangleF bounds = this.GenerateKnobGraphicsPath().GetBounds();
+            bounds.Inflate(4, 0);
+
+            return new Rectangle((int)bounds.X, (int)bounds.Y, (int)bounds.Width, (int)bounds.Height);
+        }
 
         #endregion
 
