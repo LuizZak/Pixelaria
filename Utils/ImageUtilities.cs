@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 using Pixelaria.Data;
+using Pixelaria.Properties;
 
 namespace Pixelaria.Utils
 {
@@ -86,6 +87,19 @@ namespace Pixelaria.Utils
             graphics.Dispose();
 
             return newTexture;
+        }
+
+        /// <summary>
+        /// Returns an Image object that represents the default tile image to be used in the background of controls
+        /// that display any type of transparency
+        /// </summary>
+        /// <returns>
+        /// An Image object that represents the default tile image to be used in the background of controlsthat display
+        /// any type of transparency
+        /// </returns>
+        public static Image GetDefaultTile()
+        {
+            return Resources.checkers_pattern;
         }
     }
 }
