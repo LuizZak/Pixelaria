@@ -51,6 +51,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         private ColorSliderComponent colorComponent;
 
         /// <summary>
+        /// Whether the mouse is currently over the slider area
+        /// </summary>
+        private bool mouseOverSlider = false;
+
+        /// <summary>
         /// Whether the mouse is currently dragging the knob on this ColorSlider
         /// </summary>
         private bool mouseDragging = false;
@@ -165,6 +170,21 @@ namespace Pixelaria.Views.Controls.ColorControls
             {
                 UpdateValueForMouseEvent(e);
             }
+            else
+            {
+                if (GetSliderRectangleBounds().Contains(e.Location) && !mouseOverSlider)
+                {
+                    mouseOverSlider = true;
+                    InvalidateKnob();
+                    InvalidateSlider();
+                }
+                else if (!GetSliderRectangleBounds().Contains(e.Location))
+                {
+                    mouseOverSlider = false;
+                    InvalidateKnob();
+                    InvalidateSlider();
+                }
+            }
         }
 
         //
@@ -174,7 +194,26 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             base.OnMouseUp(e);
 
-            mouseDragging = false;
+            if (mouseDragging)
+            {
+                InvalidateSlider();
+                mouseDragging = false;
+            }
+        }
+
+        //
+        // OnMouseLeave event handler
+        //
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if (mouseOverSlider)
+            {
+                mouseOverSlider = false;
+                InvalidateKnob();
+                InvalidateSlider();
+            }
         }
 
         /// <summary>
@@ -277,6 +316,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             invalidateRect.Height = this.Height - invalidateRect.Top;
 
             this.Invalidate(invalidateRect);
+            this.InvalidateKnob();
         }
 
         /// <summary>
@@ -312,7 +352,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </returns>
         private int GetSliderXOffset()
         {
-            return (int)(7 + currentValue * (this.Width - 14));
+            Rectangle rec = GetSliderRectangleBounds();
+
+            return (int)(rec.Left + rec.Height / 2 + currentValue * (rec.Width - rec.Height));
         }
 
         /// <summary>
@@ -367,10 +409,14 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="value">The value to set. The value must range from [0 - 1]</param>
         private void SetColorComponentValue(float value)
         {
+            // Pre-invalidate the knob area
+            InvalidateKnob();
+
+            //
             AHSL oldColor = activeColor;
+
             currentValue = value;
 
-            AHSL ahsl = activeColor;
             AHSL newColor = activeColor;
 
             switch (this.ColorComponent)
@@ -500,6 +546,28 @@ namespace Pixelaria.Views.Controls.ColorControls
         }
 
         /// <summary>
+        /// Invalidates the region associated with this slider's knob
+        /// </summary>
+        private void InvalidateKnob()
+        {
+            RectangleF bounds = this.GenerateKnobGraphicsPath().GetBounds();
+            bounds.Inflate(2, 2);
+
+            this.Invalidate(new Rectangle((int)bounds.X, (int)bounds.Y, (int)bounds.Width, (int)bounds.Height));
+        }
+
+        /// <summary>
+        /// Invalidates the region associated with this slider's slider rectangle
+        /// </summary>
+        private void InvalidateSlider()
+        {
+            RectangleF bounds = this.GetSliderRectangleBounds();
+            bounds.Inflate(2, 2);
+
+            this.Invalidate(new Rectangle((int)bounds.X, (int)bounds.Y, (int)bounds.Width, (int)bounds.Height));
+        }
+
+        /// <summary>
         /// Draws the slider's label on a given Graphics object
         /// </summary>
         /// <param name="g">A valid Graphics object to draw the label to</param>
@@ -538,7 +606,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             fillBrush.Dispose();
 
             // Draw the outline
-            Pen pen = (Pen)Pens.DarkGray.Clone();
+            Pen pen = (Pen)(mouseOverSlider ? (mouseDragging ? Pens.Black : Pens.Gray) : Pens.DarkGray).Clone();
             pen.Width = 2;
             g.DrawPath(pen, path);
 
@@ -551,35 +619,18 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="g">A valid Graphics object to draw the knob to</param>
         private void DrawKnob(Graphics g)
         {
-            float xOffset = GetSliderXOffset();
+            Pen basePen = (Pen)Pens.DarkGray.Clone();
+            basePen.Width = 4;
 
-            Rectangle sliderRect = GetSliderRectangleBounds();
+            GraphicsPath knobPath = this.GenerateKnobGraphicsPath();
 
-            Matrix knobMatrix = new Matrix();
-            knobMatrix.Translate(xOffset - 6, sliderRect.Top + sliderRect.Height - 5);
+            g.DrawPath(basePen, knobPath);
 
-            // Create the knob base graphics path
-            GraphicsPath knobBase = new GraphicsPath();
-            knobBase.AddLine(6, 0, 12, 8);
-            knobBase.AddLine(12, 8, 0, 8);
-            knobBase.AddLine(0, 8, 6, 0);
-            knobBase.CloseAllFigures();
+            basePen.Color = Color.White;
+            basePen.Width = (mouseOverSlider || mouseDragging ? 3 : 2);
+            g.DrawPath(basePen, knobPath);
 
-            knobBase.Transform(knobMatrix);
-
-            // Draw the knob line
-            Color lineColor = Color.FromArgb(255, activeColor.R, activeColor.G, activeColor.B).Invert();
-            Pen linePen = new Pen(lineColor);
-            g.DrawLine(linePen, xOffset, sliderRect.Top, xOffset, sliderRect.Bottom);
-            linePen.Dispose();
-
-            // Draw the knob base
-            Brush knobBrush = new SolidBrush(Color.FromKnownColor(KnownColor.Control));
-
-            g.FillPath(knobBrush, knobBase);
-            g.DrawPath(Pens.DarkGray, knobBase);
-
-            knobBrush.Dispose();
+            knobPath.Dispose();
         }
 
         /// <summary>
@@ -594,6 +645,22 @@ namespace Pixelaria.Views.Controls.ColorControls
             path.AddRoundedRectangle(rect, rect.Height);
 
             return path;
+        }
+
+        /// <summary>
+        /// Generates and returns a GraphicsPath that represents the outline of the slider's knob
+        /// </summary>
+        /// <returns>A GraphicsPath that represents the outline of the slider's knob</returns>
+        private GraphicsPath GenerateKnobGraphicsPath()
+        {
+            float xOffset = GetSliderXOffset();
+
+            Rectangle sliderRect = GetSliderRectangleBounds();
+
+            GraphicsPath knobPath = new GraphicsPath();
+            knobPath.AddEllipse(new RectangleF(xOffset - sliderRect.Height / 2, sliderRect.Top, sliderRect.Height, sliderRect.Height));
+
+            return knobPath;
         }
 
         /// <summary>
@@ -705,7 +772,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>A Rectangle object that represents the slider's bounds</returns>
         private Rectangle GetSliderRectangleBounds()
         {
-            return new Rectangle(0, 19, this.Width - 1, 15);
+            return new Rectangle(2, 19, this.Width - 4, 15);
         }
 
         #endregion
