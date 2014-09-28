@@ -63,7 +63,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// An offset applied to the mouse position while dragging the knob
         /// </summary>
-        private float knobDraggingOffset = 0;
+        private int knobDraggingOffset = 0;
 
         /// <summary>
         /// The current value specified by this ColorSlider, ranging from [0 - 1]
@@ -167,7 +167,7 @@ namespace Pixelaria.Views.Controls.ColorControls
 
                 if (bounds.Contains(e.Location))
                 {
-                    knobDraggingOffset = e.Location.X - (bounds.Right + bounds.Left) / 2;
+                    knobDraggingOffset = e.Location.X - (int)(bounds.Right + bounds.Left) / 2;
                 }
 
                 UpdateValueForMouseEvent(e);
@@ -239,7 +239,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="e">The mouse event args to use to manipulate the mouse</param>
         private void UpdateValueForMouseEvent(MouseEventArgs e)
         {
-            float value = GetValueForXOffset(e.X - (int)knobDraggingOffset);
+            float value = GetValueForXOffset(e.X - knobDraggingOffset);
 
             SetColorComponentValue(value);
         }
