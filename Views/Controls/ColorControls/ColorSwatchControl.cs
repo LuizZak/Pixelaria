@@ -669,12 +669,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="s">The Saturation component, ranging from 0-100</param>
         /// <param name="l">The Lightness component, ranging from 0-100</param>
         public AHSL(int a, int h, int s, int l)
-        {
-            this.Af = a / 255.0f;
-            this.Hf = h / 360.0f;
-            this.Sf = s / 100.0f;
-            this.Lf = l / 100.0f;
-        }
+            : this(a / 255.0f, h / 360.0f, s / 100.0f, l / 100.0f) { }
 
         /// <summary>
         /// Creates a new AHSL color
@@ -685,10 +680,10 @@ namespace Pixelaria.Views.Controls
         /// <param name="l">The Lightness component, ranging from 0-1</param>
         public AHSL(float a, float h, float s, float l)
         {
-            this.Af = a;
-            this.Hf = h;
-            this.Sf = s;
-            this.Lf = l;
+            this.Af = Math.Max(0, Math.Min(1, a));
+            this.Hf = Math.Max(0, Math.Min(1, h));
+            this.Sf = Math.Max(0, Math.Min(1, s));
+            this.Lf = Math.Max(0, Math.Min(1, l));
         }
 
         /// <summary>
