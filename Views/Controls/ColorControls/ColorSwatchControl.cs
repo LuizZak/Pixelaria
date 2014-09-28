@@ -396,18 +396,36 @@ namespace Pixelaria.Views.Controls
         /// <param name="alpha">An optional alpha component</param>
         /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
         /// <returns>An ARGB color from the given HSL color components</returns>
+        public static int ARGBFromHSL(int h, int s, int l, int alpha = 255, bool revertByteOrder = false)
+        {
+            float af = alpha / 255.0f;
+            float hf = h / 360.0f;
+            float sf = s / 100.0f;
+            float lf = l / 100.0f;
+
+            return ARGBFromHSL(hf, sf, lf, af, revertByteOrder);
+        }
+
+        /// <summary>
+        /// Creates an ARGB color form the given HSL color components
+        /// </summary>
+        /// <param name="h">The hue</param>
+        /// <param name="s">The saturation</param>
+        /// <param name="l">The lightness</param>
+        /// <param name="alpha">An optional alpha component</param>
+        /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
+        /// <returns>An ARGB color from the given HSL color components</returns>
         public static int ARGBFromHSL(float h, float s, float l, float alpha = 1, bool revertByteOrder = false)
         {
             if (h < 0) h = 0;
             if (s < 0) s = 0;
             if (l < 0) l = 0;
-            if (h >= 360) h = 359;
-            if (s > 100) s = 100;
-            if (l > 100) l = 100;
-            s /= 100;
-            l /= 100;
+            if (h >= 1) h = 0.99999999f;
+            if (s > 1) s = 1;
+            if (l > 1) l = 1;
+            
             float C = (1 - Math.Abs(2 * l - 1)) * s;
-            float hh = h / 60;
+            float hh = h / (60 / 360.0f);
             float X = C * (1 - Math.Abs(hh % 2 - 1));
 
             float r = 0, g = 0, b = 0;
@@ -483,36 +501,108 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
         /// </summary>
-        public int A;
+        public int A
+        {
+            get
+            {
+                return (int)(Af * 255.0f);
+            }
+            set
+            {
+                Af = value / 255.0f;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 360
         /// </summary>
-        public int H;
+        public int H
+        {
+            get
+            {
+                return (int)(Hf * 360.0f);
+            }
+            set
+            {
+                Hf = value / 360.0f;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 100
         /// </summary>
-        public int S;
+        public int S
+        {
+            get
+            {
+                return (int)(Sf * 100.0f);
+            }
+            set
+            {
+                Sf = value / 100.0f;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 100
         /// </summary>
-        public int L;
+        public int L
+        {
+            get
+            {
+                return (int)(Lf * 100.0f);
+            }
+            set
+            {
+                Lf = value / 100.0f;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the alpha component as a value ranging from 0 - 1
+        /// </summary>
+        public float Af;
+        /// <summary>
+        /// Gets or sets the hue component as a value ranging from 0 - 1
+        /// </summary>
+        public float Hf;
+        /// <summary>
+        /// Gets or sets the saturation component as a value ranging from 0 - 1
+        /// </summary>
+        public float Sf;
+        /// <summary>
+        /// Gets or sets the lightness component as a value ranging from 0 - 1
+        /// </summary>
+        public float Lf;
         
         /// <summary>
         /// Creates a new AHSL color
         /// </summary>
-        /// <param name="a">The Alpha component</param>
-        /// <param name="h">The Hue component</param>
-        /// <param name="s">The Saturation component</param>
-        /// <param name="l">The Lightness component</param>
+        /// <param name="a">The Alpha component, ranging from 0-255</param>
+        /// <param name="h">The Hue component, ranging from 0-360</param>
+        /// <param name="s">The Saturation component, ranging from 0-100</param>
+        /// <param name="l">The Lightness component, ranging from 0-100</param>
         public AHSL(int a, int h, int s, int l)
         {
-            this.A = a;
-            this.H = h;
-            this.S = s;
-            this.L = l;
+            this.Af = a / 255.0f;
+            this.Hf = h / 360.0f;
+            this.Sf = s / 100.0f;
+            this.Lf = l / 100.0f;
+        }
+
+        /// <summary>
+        /// Creates a new AHSL color
+        /// </summary>
+        /// <param name="a">The Alpha component, ranging from 0-1</param>
+        /// <param name="h">The Hue component, ranging from 0-1</param>
+        /// <param name="s">The Saturation component, ranging from 0-1</param>
+        /// <param name="l">The Lightness component, ranging from 0-1</param>
+        public AHSL(float a, float h, float s, float l)
+        {
+            this.Af = a;
+            this.Hf = h;
+            this.Sf = s;
+            this.Lf = l;
         }
 
         /// <summary>
@@ -521,7 +611,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>The Color object that represents this AHSL color</returns>
         public Color ToColor()
         {
-            return ColorSwatch.ColorFromHSL(this.H, this.S, this.L, (this.A / 255.0f));
+            return ColorSwatch.ColorFromHSL(this.Hf, this.Sf, this.Lf, this.Af);
         }
 
         /// <summary>
@@ -531,7 +621,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>The ARGB color that represents this AHSL color</returns>
         public int ToARGB(bool revertByteOrder = false)
         {
-            return ColorSwatch.ARGBFromHSL(this.H, this.S, this.L, (this.A / 255.0f), revertByteOrder);
+            return ColorSwatch.ARGBFromHSL(this.Hf, this.Sf, this.Lf, this.Af, revertByteOrder);
         }
 
         /// <summary>
@@ -544,7 +634,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>The AHSL color representing the given AHSL value</returns>
         public static AHSL FromAHSL(int a, int h, int s, int l)
         {
-            return AHSL.FromARGB(ColorSwatch.ARGBFromHSL(h, s, l, a / 255.0f));
+            return new AHSL(a, h, s, l);
         }
 
         /// <summary>
