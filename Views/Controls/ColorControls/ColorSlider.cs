@@ -55,6 +55,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         private bool mouseOverSlider = false;
 
+        private bool mouseOverKnob = false;
+
         /// <summary>
         /// Whether the mouse is currently dragging the knob on this ColorSlider
         /// </summary>
@@ -161,8 +163,8 @@ namespace Pixelaria.Views.Controls.ColorControls
             {
                 // Test agains the current knob position, if the mouse is over the knob, setup an offset so
                 // the mouse drags relative to the current knob's position
-                RectangleF bounds = this.GenerateKnobGraphicsPath().GetBounds();
-                bounds.Inflate(2, 2);
+                Rectangle bounds = GetKnobRectangleBounds();
+                
                 knobDraggingOffset = 0;
 
                 if (bounds.Contains(e.Location))
@@ -191,14 +193,29 @@ namespace Pixelaria.Views.Controls.ColorControls
                 if (GetSliderRectangleBounds().Contains(e.Location) && !mouseOverSlider)
                 {
                     mouseOverSlider = true;
-                    InvalidateKnob();
                     InvalidateSlider();
                 }
                 else if (!GetSliderRectangleBounds().Contains(e.Location))
                 {
-                    mouseOverSlider = false;
+                    if(mouseOverSlider)
+                    {
+                        mouseOverSlider = false;
+                        InvalidateSlider();
+                    }
+                }
+
+                if (GetKnobRectangleBounds().Contains(e.Location) && !mouseOverKnob)
+                {
+                    mouseOverKnob = true;
                     InvalidateKnob();
-                    InvalidateSlider();
+                }
+                else if (!GetKnobRectangleBounds().Contains(e.Location))
+                {
+                    if (mouseOverKnob)
+                    {
+                        mouseOverKnob = false;
+                        InvalidateKnob();
+                    }
                 }
             }
         }
@@ -227,8 +244,13 @@ namespace Pixelaria.Views.Controls.ColorControls
             if (mouseOverSlider)
             {
                 mouseOverSlider = false;
-                InvalidateKnob();
                 InvalidateSlider();
+            }
+
+            if (mouseOverKnob)
+            {
+                mouseOverKnob = false;
+                InvalidateKnob();
             }
         }
 
@@ -643,7 +665,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             g.DrawPath(basePen, knobPath);
 
             basePen.Color = Color.White;
-            basePen.Width = (mouseOverSlider || mouseDragging ? 3 : 2);
+            basePen.Width = (mouseOverKnob || mouseDragging ? 3 : 2);
             g.DrawPath(basePen, knobPath);
 
             knobPath.Dispose();
