@@ -249,15 +249,27 @@ namespace Pixelaria.Utils
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
         public static AHSL ToAHSL(int argb)
         {
-            int a = argb >> 24;
+            float a = (int)((uint)argb >> 24);
             float r = (argb >> 16) & 0xFF;
             float g = (argb >> 8) & 0xFF;
             float b = argb & 0xFF;
 
+            a /= 255;
             r /= 255;
             g /= 255;
             b /= 255;
 
+
+            return ToAHSL(a, r, g, b);
+        }
+
+        /// <summary>
+        /// Converts the given ARGB color to an AHSL color
+        /// </summary>
+        /// <param name="argb">The color to convert to AHSL</param>
+        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        public static AHSL ToAHSL(float a, float r, float g, float b)
+        {
             float M = b;
             float m = b;
 
@@ -307,10 +319,10 @@ namespace Pixelaria.Utils
             }
             else
             {
-                s = d / (1 - Math.Abs(2 * l - 1)) * 100;
+                s = d / (1 - Math.Abs(2 * l - 1));
             }
 
-            return new AHSL(a, (int)h, (int)s, (int)(l * 100));
+            return new AHSL(a, h / 360, s, l);
         }
 
         /// <summary>
