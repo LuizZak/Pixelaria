@@ -54,7 +54,10 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Whether the mouse is currently over the slider area
         /// </summary>
         private bool mouseOverSlider = false;
-
+        
+        /// <summary>
+        /// Whether the mouse is currently over the knob area
+        /// </summary>
         private bool mouseOverKnob = false;
 
         /// <summary>
