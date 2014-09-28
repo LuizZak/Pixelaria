@@ -535,6 +535,19 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Creates an AHSL object from the given AHSL color
+        /// </summary>
+        /// <param name="a">The Alpha component</param>
+        /// <param name="h">The Hue component</param>
+        /// <param name="s">The Saturation component</param>
+        /// <param name="l">The Lightness component</param>
+        /// <returns>The AHSL color representing the given AHSL value</returns>
+        public static AHSL FromAHSL(int a, int h, int s, int l)
+        {
+            return AHSL.FromARGB(ColorSwatch.ARGBFromHSL(h, s, l, a / 255.0f));
+        }
+
+        /// <summary>
         /// Creates an AHSL object from the given ARGB color
         /// </summary>
         /// <param name="a">The Alpha component</param>

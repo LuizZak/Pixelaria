@@ -53,21 +53,21 @@ namespace Pixelaria.Views.Controls
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.pb_palette = new System.Windows.Forms.PictureBox();
-            this.pnl_firstColor = new Pixelaria.Views.Controls.ColorPanel();
-            this.pnl_secondColor = new Pixelaria.Views.Controls.ColorPanel();
-            this.anud_transparency = new Pixelaria.Views.Controls.AssistedNumericUpDown();
-            this.anud_redComonent = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
-            this.anud_greenComponent = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
-            this.anud_blueComponent = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.anud_l = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.anud_s = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.anud_h = new Pixelaria.Views.Controls.AssistedNumericUpDown();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.anud_blueComponent = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_greenComponent = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_redComonent = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.pnl_secondColor = new Pixelaria.Views.Controls.ColorPanel();
+            this.pnl_firstColor = new Pixelaria.Views.Controls.ColorPanel();
+            this.anud_transparency = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.pb_palette)).BeginInit();
             this.SuspendLayout();
             // 
@@ -102,88 +102,6 @@ namespace Pixelaria.Views.Controls
             this.pb_palette.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pb_palette_MouseMove);
             this.pb_palette.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pb_palette_MouseUp);
             // 
-            // pnl_firstColor
-            // 
-            this.pnl_firstColor.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.pnl_firstColor.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pnl_firstColor.Location = new System.Drawing.Point(4, 3);
-            this.pnl_firstColor.Name = "pnl_firstColor";
-            this.pnl_firstColor.Size = new System.Drawing.Size(104, 46);
-            this.pnl_firstColor.TabIndex = 4;
-            this.pnl_firstColor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_firstColor_MouseDown);
-            // 
-            // pnl_secondColor
-            // 
-            this.pnl_secondColor.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.pnl_secondColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnl_secondColor.Location = new System.Drawing.Point(115, 3);
-            this.pnl_secondColor.Name = "pnl_secondColor";
-            this.pnl_secondColor.Size = new System.Drawing.Size(104, 46);
-            this.pnl_secondColor.TabIndex = 5;
-            this.pnl_secondColor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_secondColor_MouseDown);
-            // 
-            // anud_transparency
-            // 
-            this.anud_transparency.AssistBarColor = System.Drawing.Color.CornflowerBlue;
-            this.anud_transparency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_transparency.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_transparency.Location = new System.Drawing.Point(42, 280);
-            this.anud_transparency.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.anud_transparency.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_transparency.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_transparency.Name = "anud_transparency";
-            this.anud_transparency.Size = new System.Drawing.Size(177, 33);
-            this.anud_transparency.TabIndex = 2;
-            this.anud_transparency.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_transparency.ValueChanged += new System.EventHandler(this.anud_transparency_ValueChanged);
-            // 
-            // anud_redComonent
-            // 
-            this.anud_redComonent.AssistBarColor = System.Drawing.Color.Red;
-            this.anud_redComonent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_redComonent.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_redComonent.Location = new System.Drawing.Point(42, 324);
-            this.anud_redComonent.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.anud_redComonent.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_redComonent.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_redComonent.Name = "anud_redComonent";
-            this.anud_redComonent.Size = new System.Drawing.Size(177, 32);
-            this.anud_redComonent.TabIndex = 6;
-            this.anud_redComonent.Value = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_redComonent.ValueChanged += new System.EventHandler(this.anud_redComonent_ValueChanged);
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -193,37 +111,6 @@ namespace Pixelaria.Views.Controls
             this.label3.TabIndex = 7;
             this.label3.Text = "Red:";
             // 
-            // anud_greenComponent
-            // 
-            this.anud_greenComponent.AssistBarColor = System.Drawing.Color.Lime;
-            this.anud_greenComponent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_greenComponent.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_greenComponent.Location = new System.Drawing.Point(42, 356);
-            this.anud_greenComponent.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.anud_greenComponent.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_greenComponent.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_greenComponent.Name = "anud_greenComponent";
-            this.anud_greenComponent.Size = new System.Drawing.Size(177, 32);
-            this.anud_greenComponent.TabIndex = 8;
-            this.anud_greenComponent.Value = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_greenComponent.ValueChanged += new System.EventHandler(this.anud_greenComponent_ValueChanged);
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -232,37 +119,6 @@ namespace Pixelaria.Views.Controls
             this.label4.Size = new System.Drawing.Size(39, 13);
             this.label4.TabIndex = 9;
             this.label4.Text = "Green:";
-            // 
-            // anud_blueComponent
-            // 
-            this.anud_blueComponent.AssistBarColor = System.Drawing.Color.Blue;
-            this.anud_blueComponent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_blueComponent.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_blueComponent.Location = new System.Drawing.Point(42, 388);
-            this.anud_blueComponent.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.anud_blueComponent.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_blueComponent.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_blueComponent.Name = "anud_blueComponent";
-            this.anud_blueComponent.Size = new System.Drawing.Size(177, 32);
-            this.anud_blueComponent.TabIndex = 10;
-            this.anud_blueComponent.Value = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_blueComponent.ValueChanged += new System.EventHandler(this.anud_blueComponent_ValueChanged);
             // 
             // label5
             // 
@@ -281,6 +137,24 @@ namespace Pixelaria.Views.Controls
             this.label6.Size = new System.Drawing.Size(18, 13);
             this.label6.TabIndex = 12;
             this.label6.Text = "H:";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(23, 465);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(17, 13);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "S:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(24, 497);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(16, 13);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "L:";
             // 
             // anud_l
             // 
@@ -375,23 +249,149 @@ namespace Pixelaria.Views.Controls
             0});
             this.anud_h.ValueChanged += new System.EventHandler(this.anud_h_ValueChanged);
             // 
-            // label7
+            // anud_blueComponent
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(23, 465);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(17, 13);
-            this.label7.TabIndex = 16;
-            this.label7.Text = "S:";
+            this.anud_blueComponent.AssistBarColor = System.Drawing.Color.Blue;
+            this.anud_blueComponent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_blueComponent.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_blueComponent.Location = new System.Drawing.Point(42, 388);
+            this.anud_blueComponent.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.anud_blueComponent.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.anud_blueComponent.Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_blueComponent.Name = "anud_blueComponent";
+            this.anud_blueComponent.Size = new System.Drawing.Size(177, 32);
+            this.anud_blueComponent.TabIndex = 10;
+            this.anud_blueComponent.Value = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_blueComponent.ValueChanged += new System.EventHandler(this.anud_blueComponent_ValueChanged);
             // 
-            // label8
+            // anud_greenComponent
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(24, 497);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(16, 13);
-            this.label8.TabIndex = 17;
-            this.label8.Text = "L:";
+            this.anud_greenComponent.AssistBarColor = System.Drawing.Color.Lime;
+            this.anud_greenComponent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_greenComponent.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_greenComponent.Location = new System.Drawing.Point(42, 356);
+            this.anud_greenComponent.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.anud_greenComponent.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.anud_greenComponent.Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_greenComponent.Name = "anud_greenComponent";
+            this.anud_greenComponent.Size = new System.Drawing.Size(177, 32);
+            this.anud_greenComponent.TabIndex = 8;
+            this.anud_greenComponent.Value = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_greenComponent.ValueChanged += new System.EventHandler(this.anud_greenComponent_ValueChanged);
+            // 
+            // anud_redComonent
+            // 
+            this.anud_redComonent.AssistBarColor = System.Drawing.Color.Red;
+            this.anud_redComonent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_redComonent.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_redComonent.Location = new System.Drawing.Point(42, 324);
+            this.anud_redComonent.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.anud_redComonent.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.anud_redComonent.Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_redComonent.Name = "anud_redComonent";
+            this.anud_redComonent.Size = new System.Drawing.Size(177, 32);
+            this.anud_redComonent.TabIndex = 6;
+            this.anud_redComonent.Value = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_redComonent.ValueChanged += new System.EventHandler(this.anud_redComonent_ValueChanged);
+            // 
+            // pnl_secondColor
+            // 
+            this.pnl_secondColor.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.pnl_secondColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnl_secondColor.Location = new System.Drawing.Point(115, 3);
+            this.pnl_secondColor.Name = "pnl_secondColor";
+            this.pnl_secondColor.Size = new System.Drawing.Size(104, 46);
+            this.pnl_secondColor.TabIndex = 5;
+            this.pnl_secondColor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_secondColor_MouseDown);
+            // 
+            // pnl_firstColor
+            // 
+            this.pnl_firstColor.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.pnl_firstColor.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnl_firstColor.Location = new System.Drawing.Point(4, 3);
+            this.pnl_firstColor.Name = "pnl_firstColor";
+            this.pnl_firstColor.Size = new System.Drawing.Size(104, 46);
+            this.pnl_firstColor.TabIndex = 4;
+            this.pnl_firstColor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_firstColor_MouseDown);
+            // 
+            // anud_transparency
+            // 
+            this.anud_transparency.AssistBarColor = System.Drawing.Color.CornflowerBlue;
+            this.anud_transparency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_transparency.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_transparency.Location = new System.Drawing.Point(42, 280);
+            this.anud_transparency.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.anud_transparency.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.anud_transparency.Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.anud_transparency.Name = "anud_transparency";
+            this.anud_transparency.Size = new System.Drawing.Size(177, 33);
+            this.anud_transparency.TabIndex = 2;
+            this.anud_transparency.Value = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.anud_transparency.ValueChanged += new System.EventHandler(this.anud_transparency_ValueChanged);
             // 
             // ColorPicker
             // 

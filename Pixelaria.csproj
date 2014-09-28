@@ -167,19 +167,25 @@
     <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\ColorPanel.cs">
+    <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\ColorPicker.cs">
+    <Compile Include="Views\Controls\ColorControls\ColorPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\Controls\ColorPicker.Designer.cs">
+    <Compile Include="Views\Controls\ColorControls\ColorPicker.Designer.cs">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\ColorSwatchControl.cs">
+    <Compile Include="Views\Controls\ColorControls\ColorSlider.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\Controls\ColorSwatchControl.Designer.cs">
+    <Compile Include="Views\Controls\ColorControls\ColorSlider.Designer.cs">
+      <DependentUpon>ColorSlider.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.Designer.cs">
       <DependentUpon>ColorSwatchControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\CPictureBox.cs">
@@ -371,10 +377,13 @@
     <EmbeddedResource Include="Views\Controls\AssistedNumericUpDown.resx">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorPicker.resx">
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorSwatchControl.resx">
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSlider.resx">
+      <DependentUpon>ColorSlider.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSwatchControl.resx">
       <DependentUpon>ColorSwatchControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\FilterSelector.resx">

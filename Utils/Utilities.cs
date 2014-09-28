@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -470,6 +471,21 @@ namespace Pixelaria.Utils
             return (from frame in frames
                     select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
                     ).ToArray<Bitmap>();
+        }
+
+        /// <summary>
+        /// Adds a rounded rectangle to this GraphicsPath
+        /// </summary>
+        /// <param name="gfxPath">The GraphicsPath to add the rounded rectangle to</param>
+        /// <param name="bounds">The bounds of the rounded rectangle</param>
+        /// <param name="cornerRadius">The radius of the corners</param>
+        public static void AddRoundedRectangle(this GraphicsPath gfxPath, Rectangle bounds, int cornerRadius)
+        {
+            gfxPath.AddArc(bounds.X, bounds.Y, cornerRadius, cornerRadius, 180, 90);
+            gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y, cornerRadius, cornerRadius, 270, 90);
+            gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+            gfxPath.AddArc(bounds.X, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+            gfxPath.CloseAllFigures();
         }
     }
 }
