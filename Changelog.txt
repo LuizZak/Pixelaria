@@ -31,6 +31,7 @@ Legend:
 
 . FrameView
   + Added new fancier looking color slider controls to manipulate the color components of the currently active color.
+  * Changed the side bar's size to better fit the new color slider controls.
   * Fixed bug where undoing operations with something selected would glitch out the image on the canvas.
   * Fixed deselecting selections after not modifying anything about them still creating undo tasks.
   * Fixed applying filters to a selection and not moving it not creating an undo task for it.

@@ -52,15 +52,15 @@ namespace Pixelaria.Views.Controls
         {
             this.label1 = new System.Windows.Forms.Label();
             this.pb_palette = new System.Windows.Forms.PictureBox();
+            this.cs_lightness = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_saturation = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_hue = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.cs_blue = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.cs_green = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.cs_red = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.cs_alpha = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.pnl_secondColor = new Pixelaria.Views.Controls.ColorPanel();
             this.pnl_firstColor = new Pixelaria.Views.Controls.ColorPanel();
-            this.cs_hue = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
-            this.cs_saturation = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
-            this.cs_lightness = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             ((System.ComponentModel.ISupportInitialize)(this.pb_palette)).BeginInit();
             this.SuspendLayout();
             // 
@@ -78,7 +78,7 @@ namespace Pixelaria.Views.Controls
             this.pb_palette.Image = global::Pixelaria.Properties.Resources.color_picker;
             this.pb_palette.Location = new System.Drawing.Point(3, 68);
             this.pb_palette.Name = "pb_palette";
-            this.pb_palette.Size = new System.Drawing.Size(216, 206);
+            this.pb_palette.Size = new System.Drawing.Size(163, 151);
             this.pb_palette.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb_palette.TabIndex = 0;
             this.pb_palette.TabStop = false;
@@ -86,44 +86,82 @@ namespace Pixelaria.Views.Controls
             this.pb_palette.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pb_palette_MouseMove);
             this.pb_palette.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pb_palette_MouseUp);
             // 
+            // cs_lightness
+            // 
+            this.cs_lightness.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_lightness.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Lightness;
+            this.cs_lightness.Location = new System.Drawing.Point(4, 502);
+            this.cs_lightness.Name = "cs_lightness";
+            this.cs_lightness.Size = new System.Drawing.Size(161, 38);
+            this.cs_lightness.TabIndex = 24;
+            // 
+            // cs_saturation
+            // 
+            this.cs_saturation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_saturation.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Saturation;
+            this.cs_saturation.Location = new System.Drawing.Point(4, 458);
+            this.cs_saturation.Name = "cs_saturation";
+            this.cs_saturation.Size = new System.Drawing.Size(161, 38);
+            this.cs_saturation.TabIndex = 23;
+            // 
+            // cs_hue
+            // 
+            this.cs_hue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_hue.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Hue;
+            this.cs_hue.Location = new System.Drawing.Point(4, 414);
+            this.cs_hue.Name = "cs_hue";
+            this.cs_hue.Size = new System.Drawing.Size(161, 38);
+            this.cs_hue.TabIndex = 22;
+            // 
             // cs_blue
             // 
+            this.cs_blue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_blue.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Blue;
-            this.cs_blue.Location = new System.Drawing.Point(3, 412);
+            this.cs_blue.Location = new System.Drawing.Point(4, 357);
             this.cs_blue.Name = "cs_blue";
-            this.cs_blue.Size = new System.Drawing.Size(216, 38);
+            this.cs_blue.Size = new System.Drawing.Size(161, 38);
             this.cs_blue.TabIndex = 21;
             // 
             // cs_green
             // 
+            this.cs_green.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_green.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Green;
-            this.cs_green.Location = new System.Drawing.Point(3, 368);
+            this.cs_green.Location = new System.Drawing.Point(4, 313);
             this.cs_green.Name = "cs_green";
-            this.cs_green.Size = new System.Drawing.Size(216, 38);
+            this.cs_green.Size = new System.Drawing.Size(161, 38);
             this.cs_green.TabIndex = 20;
             // 
             // cs_red
             // 
+            this.cs_red.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_red.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Red;
-            this.cs_red.Location = new System.Drawing.Point(4, 324);
+            this.cs_red.Location = new System.Drawing.Point(5, 269);
             this.cs_red.Name = "cs_red";
-            this.cs_red.Size = new System.Drawing.Size(216, 38);
+            this.cs_red.Size = new System.Drawing.Size(161, 38);
             this.cs_red.TabIndex = 19;
             // 
             // cs_alpha
             // 
-            this.cs_alpha.Location = new System.Drawing.Point(3, 280);
+            this.cs_alpha.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_alpha.Location = new System.Drawing.Point(4, 225);
             this.cs_alpha.Name = "cs_alpha";
-            this.cs_alpha.Size = new System.Drawing.Size(216, 38);
+            this.cs_alpha.Size = new System.Drawing.Size(161, 38);
             this.cs_alpha.TabIndex = 18;
             // 
             // pnl_secondColor
             // 
             this.pnl_secondColor.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.pnl_secondColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnl_secondColor.Location = new System.Drawing.Point(115, 3);
+            this.pnl_secondColor.Location = new System.Drawing.Point(85, 3);
             this.pnl_secondColor.Name = "pnl_secondColor";
-            this.pnl_secondColor.Size = new System.Drawing.Size(104, 46);
+            this.pnl_secondColor.Size = new System.Drawing.Size(81, 46);
             this.pnl_secondColor.TabIndex = 5;
             this.pnl_secondColor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_secondColor_MouseDown);
             // 
@@ -133,33 +171,9 @@ namespace Pixelaria.Views.Controls
             this.pnl_firstColor.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pnl_firstColor.Location = new System.Drawing.Point(4, 3);
             this.pnl_firstColor.Name = "pnl_firstColor";
-            this.pnl_firstColor.Size = new System.Drawing.Size(104, 46);
+            this.pnl_firstColor.Size = new System.Drawing.Size(75, 46);
             this.pnl_firstColor.TabIndex = 4;
             this.pnl_firstColor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_firstColor_MouseDown);
-            // 
-            // cs_hue
-            // 
-            this.cs_hue.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Hue;
-            this.cs_hue.Location = new System.Drawing.Point(3, 469);
-            this.cs_hue.Name = "cs_hue";
-            this.cs_hue.Size = new System.Drawing.Size(216, 38);
-            this.cs_hue.TabIndex = 22;
-            // 
-            // cs_saturation
-            // 
-            this.cs_saturation.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Saturation;
-            this.cs_saturation.Location = new System.Drawing.Point(3, 513);
-            this.cs_saturation.Name = "cs_saturation";
-            this.cs_saturation.Size = new System.Drawing.Size(216, 38);
-            this.cs_saturation.TabIndex = 23;
-            // 
-            // cs_lightness
-            // 
-            this.cs_lightness.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Lightness;
-            this.cs_lightness.Location = new System.Drawing.Point(3, 557);
-            this.cs_lightness.Name = "cs_lightness";
-            this.cs_lightness.Size = new System.Drawing.Size(216, 38);
-            this.cs_lightness.TabIndex = 24;
             // 
             // ColorPicker
             // 
@@ -177,7 +191,7 @@ namespace Pixelaria.Views.Controls
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pb_palette);
             this.Name = "ColorPicker";
-            this.Size = new System.Drawing.Size(225, 624);
+            this.Size = new System.Drawing.Size(170, 624);
             ((System.ComponentModel.ISupportInitialize)(this.pb_palette)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -109,8 +109,8 @@ namespace Pixelaria.Views.Controls
 
             mouseCellX = mouseCellY = 0;
 
-            cellWidth = 17;
-            cellHeight = 17;
+            cellWidth = 13;
+            cellHeight = 13;
 
             cellsPerRow = 13;
 

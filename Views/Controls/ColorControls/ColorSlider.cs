@@ -517,15 +517,25 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             GraphicsPath path = GenerateSliderGraphicsPath();
 
-            // Draw a background
-            Brush backBrush = new TextureBrush(ImageUtilities.GetDefaultTile());
-            g.FillPath(backBrush, path);
-            backBrush.Dispose();
+            // Get the fill brush
+            LinearGradientBrush fillBrush = GenerateSliderGradient();
+
+            // Iterate through the colors and check if there's any that isn't fully opaque
+            foreach (Color color in fillBrush.InterpolationColors.Colors)
+            {
+                if (color.A != 255)
+                {
+                    // Draw a background
+                    Brush backBrush = new TextureBrush(ImageUtilities.GetDefaultTile());
+                    g.FillPath(backBrush, path);
+                    backBrush.Dispose();
+                    break;
+                }
+            }
 
             // Draw the fill
-            Brush brush = GenerateSliderGradient();
-            g.FillPath(brush, path);
-            brush.Dispose();
+            g.FillPath(fillBrush, path);
+            fillBrush.Dispose();
 
             // Draw the outline
             Pen pen = (Pen)Pens.DarkGray.Clone();

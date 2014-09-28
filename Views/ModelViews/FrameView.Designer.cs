@@ -338,9 +338,9 @@ namespace Pixelaria.Views.ModelViews
             this.panel4.Controls.Add(this.pb_zoomIcon);
             this.panel4.Controls.Add(this.anud_zoom);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel4.Location = new System.Drawing.Point(90, 586);
+            this.panel4.Location = new System.Drawing.Point(90, 775);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(504, 92);
+            this.panel4.Size = new System.Drawing.Size(556, 92);
             this.panel4.TabIndex = 5;
             // 
             // tc_currentFrame
@@ -357,7 +357,7 @@ namespace Pixelaria.Views.ModelViews
             this.tc_currentFrame.Range = new System.Drawing.Point(0, 10);
             this.tc_currentFrame.ScrollScaleWidth = 1F;
             this.tc_currentFrame.ScrollX = 0F;
-            this.tc_currentFrame.Size = new System.Drawing.Size(492, 41);
+            this.tc_currentFrame.Size = new System.Drawing.Size(544, 41);
             this.tc_currentFrame.TabIndex = 2;
             this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
             // 
@@ -395,7 +395,7 @@ namespace Pixelaria.Views.ModelViews
             0,
             131072});
             this.anud_zoom.Name = "anud_zoom";
-            this.anud_zoom.Size = new System.Drawing.Size(470, 35);
+            this.anud_zoom.Size = new System.Drawing.Size(522, 35);
             this.anud_zoom.TabIndex = 0;
             this.anud_zoom.Value = new decimal(new int[] {
             1,
@@ -410,9 +410,9 @@ namespace Pixelaria.Views.ModelViews
             this.panel2.Controls.Add(this.splitter1);
             this.panel2.Controls.Add(this.cp_mainColorPicker);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(594, 49);
+            this.panel2.Location = new System.Drawing.Point(646, 49);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(224, 629);
+            this.panel2.Size = new System.Drawing.Size(172, 818);
             this.panel2.TabIndex = 4;
             // 
             // panel3
@@ -420,9 +420,9 @@ namespace Pixelaria.Views.ModelViews
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel3.Controls.Add(this.cs_colorSwatch);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel3.Location = new System.Drawing.Point(0, 540);
+            this.panel3.Location = new System.Drawing.Point(0, 553);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(224, 284);
+            this.panel3.Size = new System.Drawing.Size(172, 284);
             this.panel3.TabIndex = 5;
             // 
             // cs_colorSwatch
@@ -432,16 +432,16 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_colorSwatch.Location = new System.Drawing.Point(0, 0);
             this.cs_colorSwatch.Name = "cs_colorSwatch";
-            this.cs_colorSwatch.Size = new System.Drawing.Size(223, 283);
+            this.cs_colorSwatch.Size = new System.Drawing.Size(171, 283);
             this.cs_colorSwatch.TabIndex = 4;
             this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
             // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitter1.Location = new System.Drawing.Point(0, 537);
+            this.splitter1.Location = new System.Drawing.Point(0, 550);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(224, 3);
+            this.splitter1.Size = new System.Drawing.Size(172, 3);
             this.splitter1.TabIndex = 6;
             this.splitter1.TabStop = false;
             // 
@@ -449,12 +449,12 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.cp_mainColorPicker.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.cp_mainColorPicker.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cp_mainColorPicker.FirstColor = System.Drawing.Color.Black;
+            this.cp_mainColorPicker.FirstColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
             this.cp_mainColorPicker.Name = "cp_mainColorPicker";
-            this.cp_mainColorPicker.SecondColor = System.Drawing.Color.White;
+            this.cp_mainColorPicker.SecondColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorPickerColor.FirstColor;
-            this.cp_mainColorPicker.Size = new System.Drawing.Size(224, 537);
+            this.cp_mainColorPicker.Size = new System.Drawing.Size(172, 550);
             this.cp_mainColorPicker.TabIndex = 3;
             this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
             // 
@@ -466,7 +466,7 @@ namespace Pixelaria.Views.ModelViews
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 49);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(90, 629);
+            this.panel1.Size = new System.Drawing.Size(90, 818);
             this.panel1.TabIndex = 1;
             // 
             // flowLayoutPanel3
@@ -1200,7 +1200,7 @@ namespace Pixelaria.Views.ModelViews
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsl_coordinates,
             this.tsl_operationLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 678);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 867);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(818, 22);
             this.statusStrip1.TabIndex = 8;
@@ -1227,7 +1227,7 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.Name = "iepb_frame";
             this.iepb_frame.NotifyTo = null;
             this.iepb_frame.PictureBoxBackgroundImage = ((System.Drawing.Image)(resources.GetObject("iepb_frame.PictureBoxBackgroundImage")));
-            this.iepb_frame.Size = new System.Drawing.Size(504, 537);
+            this.iepb_frame.Size = new System.Drawing.Size(556, 726);
             this.iepb_frame.TabIndex = 0;
             this.iepb_frame.Text = "imageEditPictureBox1";
             this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
@@ -1241,7 +1241,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(818, 700);
+            this.ClientSize = new System.Drawing.Size(818, 889);
             this.Controls.Add(this.pnl_framePreview);
             this.Controls.Add(this.iepb_frame);
             this.Controls.Add(this.panel4);
