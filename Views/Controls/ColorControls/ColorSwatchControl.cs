@@ -537,10 +537,10 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Creates an AHSL object from the given AHSL color
         /// </summary>
-        /// <param name="a">The Alpha component</param>
-        /// <param name="h">The Hue component</param>
-        /// <param name="s">The Saturation component</param>
-        /// <param name="l">The Lightness component</param>
+        /// <param name="a">The Alpha component, ranging from 0-255</param>
+        /// <param name="h">The Hue component, ranging from 0-360</param>
+        /// <param name="s">The Saturation component, ranging from 0-100</param>
+        /// <param name="l">The Lightness component, ranging from 0-100</param>
         /// <returns>The AHSL color representing the given AHSL value</returns>
         public static AHSL FromAHSL(int a, int h, int s, int l)
         {
