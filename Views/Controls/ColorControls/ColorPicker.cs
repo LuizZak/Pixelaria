@@ -38,12 +38,12 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The first color of the control
         /// </summary>
-        private Color firstColor;
+        private AHSL firstColor;
 
         /// <summary>
         /// The second color of the control
         /// </summary>
-        private Color secondColor;
+        private AHSL secondColor;
 
         /// <summary>
         /// Gets or sets the currently selected color
@@ -73,12 +73,22 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the first color of the control
         /// </summary>
-        public Color FirstColor { get { return firstColor; } set { firstColor = value; pnl_firstColor.BackColor = value; if (SelectedColor == ColorPickerColor.FirstColor) UpdateSliders(); } }
+        public Color FirstColor { get { return firstColor.ToColor(); } set { firstColor = value.ToAHSL(); pnl_firstColor.BackColor = value; if (SelectedColor == ColorPickerColor.FirstColor) UpdateSliders(); } }
 
         /// <summary>
         /// Gets or sets the second color of the control
         /// </summary>
-        public Color SecondColor { get { return secondColor; } set { secondColor = value; pnl_secondColor.BackColor = value; if (SelectedColor == ColorPickerColor.SecondColor) UpdateSliders(); } }
+        public Color SecondColor { get { return secondColor.ToColor(); } set { secondColor = value.ToAHSL(); pnl_secondColor.BackColor = value; if (SelectedColor == ColorPickerColor.SecondColor) UpdateSliders(); } }
+
+        /// <summary>
+        /// Gets or sets the first color of the control in AHSL format
+        /// </summary>
+        public AHSL FirstAHSLColor { get { return firstColor; } set { firstColor = value; pnl_firstColor.BackColor = value.ToColor(); if (SelectedColor == ColorPickerColor.FirstColor) UpdateSliders(); } }
+
+        /// <summary>
+        /// Gets or sets the second color of the control in AHSL format
+        /// </summary>
+        public AHSL SecondAHSLColor { get { return secondColor; } set { secondColor = value; pnl_secondColor.BackColor = value.ToColor(); if (SelectedColor == ColorPickerColor.SecondColor) UpdateSliders(); } }
 
         /// <summary>
         /// Gets or sets which color the ColorPicker is supposed to be currently displaying
@@ -90,27 +100,21 @@ namespace Pixelaria.Views.Controls
             {
                 selectedColor = value;
 
-                Color color = firstColor;
+                Color color = FirstColor;
 
                 switch (selectedColor)
                 {
                     case ColorPickerColor.FirstColor:
                         pnl_firstColor.BorderStyle = BorderStyle.Fixed3D;
                         pnl_secondColor.BorderStyle = BorderStyle.FixedSingle;
-                        color = firstColor;
+                        color = FirstColor;
                         break;
                     case ColorPickerColor.SecondColor:
                         pnl_firstColor.BorderStyle = BorderStyle.FixedSingle;
                         pnl_secondColor.BorderStyle = BorderStyle.Fixed3D;
-                        color = secondColor;
+                        color = SecondColor;
                         break;
                 }
-
-                // Update the color components sliders
-                anud_transparency.Value = color.A;
-                anud_redComonent.Value = color.R;
-                anud_greenComponent.Value = color.G;
-                anud_blueComponent.Value = color.B;
             }
         }
 
@@ -121,14 +125,22 @@ namespace Pixelaria.Views.Controls
         {
             InitializeComponent();
 
-            firstColor = Color.Black;
-            secondColor = Color.White;
+            firstColor = Color.Black.ToAHSL();
+            secondColor = Color.White.ToAHSL();
 
-            pnl_firstColor.BackColor = firstColor;
-            pnl_secondColor.BackColor = secondColor;
+            pnl_firstColor.BackColor = FirstColor;
+            pnl_secondColor.BackColor = SecondColor;
+
+            // Hookup the events
+            this.cs_alpha.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            this.cs_red.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            this.cs_green.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            this.cs_blue.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            this.cs_hue.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            this.cs_saturation.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            this.cs_lightness.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
         }
 
-        int updateSliders = -1;
         /// <summary>
         /// Sets the currently selected color
         /// </summary>
@@ -136,22 +148,32 @@ namespace Pixelaria.Views.Controls
         /// <param name="keepTransparency">Whether to keep the current alpha channel unmodified</param>
         public void SetCurrentColor(Color color, bool keepTransparency = false)
         {
-            Color oldColor = Color.White;
+            SetCurrentColor(color.ToAHSL(), keepTransparency);
+        }
+
+        /// <summary>
+        /// Sets the currently selected color
+        /// </summary>
+        /// <param name="color">The new value for the currently selected color</param>
+        /// <param name="keepTransparency">Whether to keep the current alpha channel unmodified</param>
+        public void SetCurrentColor(AHSL color, bool keepTransparency = false)
+        {
+            AHSL oldColor = Color.White.ToAHSL();
 
             if (keepTransparency)
             {
-                color = Color.FromArgb(GetCurrentColor().A, color.R, color.G, color.B);
+                color.A = GetCurrentColor().A;
             }
 
             switch (selectedColor)
             {
                 case ColorPickerColor.FirstColor:
                     oldColor = firstColor;
-                    FirstColor = color;
+                    FirstAHSLColor = color;
                     break;
                 case ColorPickerColor.SecondColor:
                     oldColor = secondColor;
-                    SecondColor = color;
+                    SecondAHSLColor = color;
                     break;
             }
 
@@ -159,7 +181,7 @@ namespace Pixelaria.Views.Controls
 
             if (ColorPick != null)
             {
-                ColorPick.Invoke(this, new ColorPickEventArgs(oldColor, color, selectedColor));
+                ColorPick(this, new ColorPickEventArgs(oldColor.ToColor(), color.ToColor(), selectedColor));
             }
         }
 
@@ -168,7 +190,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void UpdateSliders()
         {
-            Color color = Color.White;
+            AHSL color = Color.White.ToAHSL();
 
             switch (selectedColor)
             {
@@ -180,23 +202,16 @@ namespace Pixelaria.Views.Controls
                     break;
             }
 
-            anud_transparency.Value = color.A;
-
-            if (updateSliders != 0)
-            {
-                // Update the color components sliders
-                anud_redComonent.Value = color.R;
-                anud_greenComponent.Value = color.G;
-                anud_blueComponent.Value = color.B;
-            }
-            if (updateSliders != 1)
-            {
-                AHSL ahsl = color.ToAHSL();
-
-                anud_h.Value = ahsl.H;
-                anud_s.Value = ahsl.S;
-                anud_l.Value = ahsl.L;
-            }
+            // Global alpha channel
+            this.cs_alpha.ActiveColor = color;
+            // RGB
+            this.cs_red.ActiveColor = color;
+            this.cs_green.ActiveColor = color;
+            this.cs_blue.ActiveColor = color;
+            // HSL
+            this.cs_hue.ActiveColor = color;
+            this.cs_saturation.ActiveColor = color;
+            this.cs_lightness.ActiveColor = color;
         }
 
         /// <summary>
@@ -214,36 +229,6 @@ namespace Pixelaria.Views.Controls
             }
 
             return Color.White;
-        }
-
-        /// <summary>
-        /// Updates the current color using the RGB components to get the new color value
-        /// </summary>
-        private void UpdateColorRGB()
-        {
-            if (updateSliders != -1)
-                return;
-
-            Color c = Color.FromArgb((int)anud_transparency.Value, (int)anud_redComonent.Value, (int)anud_greenComponent.Value, (int)anud_blueComponent.Value);
-
-            updateSliders = 0;
-            SetCurrentColor(c);
-            updateSliders = -1;
-        }
-
-        /// <summary>
-        /// Updates the current color using the HSL components to get the new color value
-        /// </summary>
-        private void UpdateColorHSL()
-        {
-            if (updateSliders != -1)
-                return;
-
-            Color c = new AHSL((int)anud_transparency.Value, (int)anud_h.Value, (int)anud_s.Value, (int)anud_l.Value).ToColor();
-
-            updateSliders = 1;
-            SetCurrentColor(c);
-            updateSliders = -1;
         }
 
         // 
@@ -291,56 +276,12 @@ namespace Pixelaria.Views.Controls
             mouseDown = false;
         }
 
-        // 
-        // Transparency NUD value changed event handler
-        // 
-        private void anud_transparency_ValueChanged(object sender, EventArgs e)
+        //
+        // Color Sliders component changed event handler
+        //
+        private void cs_colorChanged(object sender, ColorControls.ColorChangedEventArgs eventArgs)
         {
-            UpdateColorRGB();
-        }
-
-        // 
-        // Red NUD value changed event handler
-        // 
-        private void anud_redComonent_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateColorRGB();
-        }
-        // 
-        // Green NUD value changed event handler
-        // 
-        private void anud_greenComponent_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateColorRGB();
-        }
-        // 
-        // Blue NUD value changed event handler
-        // 
-        private void anud_blueComponent_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateColorRGB();
-        }
-
-        // 
-        // Hue NUD value changed event handler
-        // 
-        private void anud_h_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateColorHSL();
-        }
-        // 
-        // Saturation NUD value changed event handler
-        // 
-        private void anud_s_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateColorHSL();
-        }
-        // 
-        // Lightness NUD value changed event handler
-        // 
-        private void anud_l_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateColorHSL();
+            this.SetCurrentColor(eventArgs.NewColor);
         }
 
         /// <summary>

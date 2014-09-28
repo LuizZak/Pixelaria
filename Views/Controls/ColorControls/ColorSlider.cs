@@ -43,7 +43,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The active color for this ColorSlider
         /// </summary>
-        private Color activeColor = Color.FromArgb(0xFF, 0xAE, 0xB0, 0x11);
+        private AHSL activeColor = Color.White.ToAHSL();
 
         /// <summary>
         /// The color component this ColorSlider is currently manipulating
@@ -54,6 +54,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Whether the mouse is currently dragging the knob on this ColorSlider
         /// </summary>
         private bool mouseDragging = false;
+
+        /// <summary>
+        /// The current value specified by this ColorSlider, ranging from [0 - 1]
+        /// </summary>
+        private float currentValue = 0;
 
         /// <summary>
         /// Gets or sets the color component this ColorSlider is currently manipulating
@@ -77,6 +82,17 @@ namespace Pixelaria.Views.Controls.ColorControls
         }
 
         /// <summary>
+        /// Gets the current value specified by this ColorSlider, ranging from [0 - 1]
+        /// </summary>
+        public float CurrentValue
+        {
+            get
+            {
+                return currentValue;
+            }
+        }
+
+        /// <summary>
         /// Delegate for a ColorChanged event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -94,7 +110,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the active color for this ColorSlider
         /// </summary>
-        public Color ActiveColor
+        public AHSL ActiveColor
         {
             get
             {
@@ -103,8 +119,8 @@ namespace Pixelaria.Views.Controls.ColorControls
             set
             {
                 activeColor = value;
+                this.SetActiveColor(activeColor);
                 this.RecalculateValue();
-                this.Invalidate();
             }
         }
 
@@ -177,11 +193,15 @@ namespace Pixelaria.Views.Controls.ColorControls
 
         #region TextBox input handling
 
+        bool ignoreTextField = false;
         //
         // Value rich text box text changed
         //
         private void rtb_value_TextChanged(object sender, EventArgs e)
         {
+            if (ignoreTextField)
+                return;
+
             int rawValue = 0;
             int maxValue = GetColorComponentMaxValue();
             float value = 0;
@@ -238,8 +258,25 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             int selectionStart = this.rtb_value.SelectionStart;
 
+            this.currentValue = GetColorComponentValue();
+            ignoreTextField = true;
             this.rtb_value.Text = "" + GetColorComponentValueRaw();
+            ignoreTextField = false;
             this.rtb_value.SelectionStart = Math.Min(this.rtb_value.TextLength, selectionStart);
+        }
+
+        /// <summary>
+        /// Sets a given color as the current active color of this ColorSlider
+        /// </summary>
+        /// <param name="color">The color to set as the new active color for this ColorSlider</param>
+        private void SetActiveColor(AHSL color)
+        {
+            this.activeColor = color;
+
+            Rectangle invalidateRect = GetSliderRectangleBounds();
+            invalidateRect.Height = this.Height - invalidateRect.Top;
+
+            this.Invalidate(invalidateRect);
         }
 
         /// <summary>
@@ -275,7 +312,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </returns>
         private int GetSliderXOffset()
         {
-            return (int)(7 + GetColorComponentValue() * (this.Width - 14));
+            return (int)(7 + currentValue * (this.Width - 14));
         }
 
         /// <summary>
@@ -300,20 +337,23 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             switch (this.ColorComponent)
             {
+                // Global alpha channel
                 case ColorSliderComponent.Alpha:
-                    return activeColor.A / 255.0f;
+                    return activeColor.Af;
+                // RGB
                 case ColorSliderComponent.Red:
-                    return activeColor.R / 255.0f;
+                    return activeColor.Rf;
                 case ColorSliderComponent.Green:
-                    return activeColor.G / 255.0f;
+                    return activeColor.Gf;
                 case ColorSliderComponent.Blue:
-                    return activeColor.B / 255.0f;
+                    return activeColor.Bf;
+                // HSL
                 case ColorSliderComponent.Hue:
-                    return activeColor.ToAHSL().H / 360.0f;
+                    return activeColor.Hf;
                 case ColorSliderComponent.Saturation:
-                    return activeColor.ToAHSL().S / 100.0f;
+                    return activeColor.Sf;
                 case ColorSliderComponent.Lightness:
-                    return activeColor.ToAHSL().L / 100.0f;
+                    return activeColor.Lf;
 
                 default:
                     return 0;
@@ -327,42 +367,41 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="value">The value to set. The value must range from [0 - 1]</param>
         private void SetColorComponentValue(float value)
         {
-            Color oldColor = activeColor;
+            AHSL oldColor = activeColor;
+            currentValue = value;
 
-            int intValue = 0;
-            AHSL ahsl = activeColor.ToAHSL();
+            AHSL ahsl = activeColor;
+            AHSL newColor = activeColor;
 
             switch (this.ColorComponent)
             {
+                // Global alpha channel
                 case ColorSliderComponent.Alpha:
-                    intValue = (int)(value * 255.0f);
-                    ActiveColor = Color.FromArgb(intValue, activeColor.R, activeColor.G, activeColor.B);
+                    newColor.Af = value;
                     break;
+                // RGB
                 case ColorSliderComponent.Red:
-                    intValue = (int)(value * 255.0f);
-                    ActiveColor = Color.FromArgb(activeColor.A, intValue, activeColor.G, activeColor.B);
+                    newColor = AHSL.FromArgb(activeColor.Af, value, activeColor.Gf, activeColor.Bf);
                     break;
                 case ColorSliderComponent.Green:
-                    intValue = (int)(value * 255.0f);
-                    ActiveColor = Color.FromArgb(activeColor.A, activeColor.R, intValue, activeColor.B);
+                    newColor = AHSL.FromArgb(activeColor.Af, activeColor.Rf, value, activeColor.Bf);
                     break;
                 case ColorSliderComponent.Blue:
-                    intValue = (int)(value * 255.0f);
-                    ActiveColor = Color.FromArgb(activeColor.A, activeColor.R, activeColor.G, intValue);
+                    newColor = AHSL.FromArgb(activeColor.Af, activeColor.Rf, activeColor.Gf, value);
                     break;
+                // HSL
                 case ColorSliderComponent.Hue:
-                    intValue = (int)(value * 360.0f);
-                    ActiveColor = AHSL.FromAHSL(ahsl.A, intValue, ahsl.S, ahsl.L).ToColor();
+                    newColor.Hf = value;
                     break;
                 case ColorSliderComponent.Saturation:
-                    intValue = (int)(value * 360.0f);
-                    ActiveColor = AHSL.FromAHSL(ahsl.A, ahsl.H, intValue, ahsl.L).ToColor();
+                    newColor.Sf = value;
                     break;
                 case ColorSliderComponent.Lightness:
-                    intValue = (int)(value * 360.0f);
-                    ActiveColor = AHSL.FromAHSL(ahsl.A, ahsl.H, ahsl.S, intValue).ToColor();
+                    newColor.Lf = value;
                     break;
             }
+
+            SetActiveColor(newColor);
 
             // Fire the event now
             if (this.ColorChanged != null)
@@ -392,11 +431,11 @@ namespace Pixelaria.Views.Controls.ColorControls
                 case ColorSliderComponent.Blue:
                     return activeColor.B;
                 case ColorSliderComponent.Hue:
-                    return activeColor.ToAHSL().H;
+                    return activeColor.H;
                 case ColorSliderComponent.Saturation:
-                    return activeColor.ToAHSL().S;
+                    return activeColor.S;
                 case ColorSliderComponent.Lightness:
-                    return activeColor.ToAHSL().L;
+                    return activeColor.L;
 
                 default:
                     return 0;
@@ -413,10 +452,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             switch (this.ColorComponent)
             {
-                // RGB
+                // ARGB
                 case ColorSliderComponent.Alpha:
                 case ColorSliderComponent.Red:
                 case ColorSliderComponent.Green:
+                case ColorSliderComponent.Blue:
                     return 255;
                 // Hue
                 case ColorSliderComponent.Hue:
@@ -614,34 +654,39 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>A color with the current active component set to be of the given value</returns>
         private Color GetColorWithActiveComponentSet(float componentValue)
         {
-            Color retColor = this.activeColor;
+            AHSL retColor = this.activeColor;
 
             switch (this.ColorComponent)
             {
+                // Global alpha channel
                 case ColorSliderComponent.Alpha:
-                    retColor = Color.FromArgb((int)(255 * componentValue), retColor.R, retColor.G, retColor.B);
+                    retColor.Af = componentValue;
                     break;
+
+                // RGB
                 case ColorSliderComponent.Red:
-                    retColor = Color.FromArgb(retColor.A, (int)(255 * componentValue), retColor.G, retColor.B);
+                    retColor = AHSL.FromArgb(retColor.Af, componentValue, retColor.Gf, retColor.Bf);
                     break;
                 case ColorSliderComponent.Green:
-                    retColor = Color.FromArgb(retColor.A, retColor.R, (int)(255 * componentValue), retColor.B);
+                    retColor = AHSL.FromArgb(retColor.Af, retColor.Rf, componentValue, retColor.Bf);
                     break;
                 case ColorSliderComponent.Blue:
-                    retColor = Color.FromArgb(retColor.A, retColor.R, retColor.G, (int)(255 * componentValue));
+                    retColor = AHSL.FromArgb(retColor.Af, retColor.Rf, retColor.Gf, componentValue);
                     break;
+
+                // HSL
                 case ColorSliderComponent.Hue:
-                    retColor = AHSL.FromAHSL(retColor.A, (int)(360 * componentValue), (int)(retColor.GetSaturation() * 100), (int)(retColor.GetLightness() * 100)).ToColor();
+                    retColor.Hf = componentValue;
                     break;
                 case ColorSliderComponent.Saturation:
-                    retColor = AHSL.FromAHSL(retColor.A, (int)(retColor.GetHue()), (int)(100 * componentValue), (int)(retColor.GetLightness() * 100)).ToColor();
+                    retColor.Sf = componentValue;
                     break;
                 case ColorSliderComponent.Lightness:
-                    retColor = AHSL.FromAHSL(retColor.A, (int)(retColor.GetHue()), (int)(retColor.GetSaturation() * 100), (int)(100 * componentValue)).ToColor();
+                    retColor.Lf = componentValue;
                     break;
             }
 
-            return retColor;
+            return retColor.ToColor();
         }
 
         /// <summary>
@@ -710,12 +755,12 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets the original color before the component was updated
         /// </summary>
-        public Color OldColor { get; private set; }
+        public AHSL OldColor { get; private set; }
 
         /// <summary>
         /// Gets the new color after the component was updated
         /// </summary>
-        public Color NewColor { get; private set; }
+        public AHSL NewColor { get; private set; }
 
         /// <summary>
         /// Gets the color component that was modified
@@ -728,7 +773,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="oldColor">The original color before the component was updated</param>
         /// <param name="newColor">The new color after the component was updated</param>
         /// <param name="componentChanged">The color component that was modified</param>
-        public ColorChangedEventArgs(Color oldColor, Color newColor, ColorSliderComponent componentChanged)
+        public ColorChangedEventArgs(AHSL oldColor, AHSL newColor, ColorSliderComponent componentChanged)
         {
             this.OldColor = oldColor;
             this.NewColor = newColor;
