@@ -80,11 +80,11 @@ namespace Pixelaria.Filters
             {
                 int c = *(scan0);
 
-                AHSL ahsl = AHSL.FromARGB(c);
+                AHSL ahsl = AHSL.FromArgb(c);
 
                 ahsl.H = (Relative ? (ahsl.H + Hue) % 360 : Hue);
 
-                *scan0 = ahsl.ToARGB();
+                *scan0 = ahsl.ToArgb();
 
                 scan0++;
             }
@@ -188,7 +188,7 @@ namespace Pixelaria.Filters
             {
                 int c = *(scan0);
 
-                AHSL ahsl = AHSL.FromARGB(c);
+                AHSL ahsl = AHSL.FromArgb(c);
 
                 if (!KeepGrays || ahsl.S > 0)
                 {
@@ -202,7 +202,7 @@ namespace Pixelaria.Filters
                     }
                 }
 
-                *scan0 = ahsl.ToARGB();
+                *scan0 = ahsl.ToArgb();
 
                 scan0++;
             }
@@ -302,7 +302,7 @@ namespace Pixelaria.Filters
             {
                 int c = *(scan0);
 
-                AHSL ahsl = AHSL.FromARGB(c);
+                AHSL ahsl = AHSL.FromArgb(c);
 
                 if (Multiply)
                 {
@@ -313,7 +313,7 @@ namespace Pixelaria.Filters
                     ahsl.L = (Relative ? Math.Min(100, (ahsl.L + Lightness)) : Lightness);
                 }
 
-                *scan0 = ahsl.ToARGB();
+                *scan0 = ahsl.ToArgb();
 
                 scan0++;
             }
