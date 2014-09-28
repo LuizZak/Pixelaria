@@ -323,6 +323,27 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Gets the hue-saturation-lightness (HSL) lightness value for this System.Drawing.Color structure.
+        /// </summary>
+        /// <param name="color">The Color to convert to get the lightness component from</param>
+        /// <returns>The lightness of this System.Drawing.Color. The lightness ranges from 0.0 through 1.0, where 0.0 is black and 1.0 is white.</returns>
+        public static float GetLightness(this Color color)
+        {
+            return color.ToAHSL().L / 100.0f;
+        }
+
+        /// <summary>
+        /// Gets an inverted version of this Color object. Note the Alpha channel is left intact in the inversion process
+        /// </summary>
+        /// <param name="color">The color to invert</param>
+        /// <returns>An inverted version of this Color object</returns>
+        public static Color Invert(this Color color)
+        {
+            const int RGBMAX = 255;
+            return Color.FromArgb(color.A, RGBMAX - color.R, RGBMAX - color.G, RGBMAX - color.B);
+        }
+
+        /// <summary>
         /// Fades the first color with the second, using the given factor to decide
         /// how much of each color will be used. The alpha channel is optionally changed
         /// </summary>
