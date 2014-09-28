@@ -60,12 +60,15 @@ namespace Pixelaria.Views.Controls.ColorControls
             this.rtb_value.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.rtb_value.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtb_value.Location = new System.Drawing.Point(0, 0);
-            this.rtb_value.MaxLength = 3;
+            this.rtb_value.MaxLength = 4;
             this.rtb_value.Multiline = false;
             this.rtb_value.Name = "rtb_value";
             this.rtb_value.Size = new System.Drawing.Size(29, 15);
-            this.rtb_value.TabIndex = 1;
+            this.rtb_value.TabIndex = 0;
+            this.rtb_value.TabStop = false;
             this.rtb_value.Text = "100";
+            this.rtb_value.TextChanged += new System.EventHandler(this.rtb_value_TextChanged);
+            this.rtb_value.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rtb_value_KeyDown);
             // 
             // panel1
             // 
