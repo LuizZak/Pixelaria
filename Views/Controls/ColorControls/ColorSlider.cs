@@ -61,6 +61,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         private bool mouseDragging = false;
 
         /// <summary>
+        /// An offset applied to the mouse position while dragging the knob
+        /// </summary>
+        private float knobDraggingOffset = 0;
+
+        /// <summary>
         /// The current value specified by this ColorSlider, ranging from [0 - 1]
         /// </summary>
         private float currentValue = 0;
@@ -154,6 +159,17 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             if (rect.Contains(e.Location))
             {
+                // Test agains the current knob position, if the mouse is over the knob, setup an offset so
+                // the mouse drags relative to the current knob's position
+                RectangleF bounds = this.GenerateKnobGraphicsPath().GetBounds();
+                bounds.Inflate(2, 2);
+                knobDraggingOffset = 0;
+
+                if (bounds.Contains(e.Location))
+                {
+                    knobDraggingOffset = e.Location.X - (bounds.Right + bounds.Left) / 2;
+                }
+
                 UpdateValueForMouseEvent(e);
                 mouseDragging = true;
             }
@@ -223,7 +239,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="e">The mouse event args to use to manipulate the mouse</param>
         private void UpdateValueForMouseEvent(MouseEventArgs e)
         {
-            float value = GetValueForXOffset(e.X);
+            float value = GetValueForXOffset(e.X - (int)knobDraggingOffset);
 
             SetColorComponentValue(value);
         }
