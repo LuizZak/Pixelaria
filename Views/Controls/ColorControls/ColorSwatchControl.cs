@@ -687,6 +687,31 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Tests whether two AHSL color structures are different
+        /// </summary>
+        /// <param name="color1">The first AHSL color to test</param>
+        /// <param name="color2">The second AHSL color to test</param>
+        /// <returns>Whether two AHSL color structures are different</returns>
+        public static bool operator !=(AHSL color1, AHSL color2)
+        {
+            return !(color1 == color2);
+        }
+
+        /// <summary>
+        /// Tests whether two AHSL color structures are the same
+        /// </summary>
+        /// <param name="color1">The first AHSL color to test</param>
+        /// <param name="color2">The second AHSL color to test</param>
+        /// <returns>Whether two AHSL color structures are the same</returns>
+        public static bool operator==(AHSL color1, AHSL color2)
+        {
+            return (color1.Af == color2.Af &&
+                    color1.Hf == color2.Hf &&
+                    color1.Sf == color2.Sf &&
+                    color1.Lf == color2.Lf);
+        }
+
+        /// <summary>
         /// Converts this AHSL color to a Color object
         /// </summary>
         /// <returns>The Color object that represents this AHSL color</returns>
