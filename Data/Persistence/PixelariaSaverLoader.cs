@@ -639,9 +639,18 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
-            this.AddBlock(new AnimationBlock());
-            this.AddBlock(new AnimationSheetBlock());
-            this.AddBlock(new ProjectTreeBlock());
+            if (this.GetBlocksByType(typeof(AnimationBlock)).Length == 0)
+            {
+                this.AddBlock(new AnimationBlock());
+            }
+            if (this.GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
+            {
+                this.AddBlock(new AnimationSheetBlock());
+            }
+            if (this.GetBlocksByType(typeof(ProjectTreeBlock)).Length == 0)
+            {
+                this.AddBlock(new ProjectTreeBlock());
+            }
         }
 
         /// <summary>
@@ -662,6 +671,26 @@ namespace Pixelaria.Data.Persistence
             {
                 block.PrepareFromBundle(bundle);
             }
+        }
+
+        /// <summary>
+        /// Returns a list of blocks that match a given type
+        /// </summary>
+        /// <param name="blockType">The block type to match</param>
+        /// <returns>A list of all the blocks that match the given type</returns>
+        public FileBlock[] GetBlocksByType(Type blockType)
+        {
+            List<FileBlock> blocks = new List<FileBlock>();
+
+            foreach (FileBlock block in blockList)
+            {
+                if (block.GetType() == blockType)
+                {
+                    blocks.Add(block);
+                }
+            }
+
+            return blocks.ToArray();
         }
 
         /// <summary>
