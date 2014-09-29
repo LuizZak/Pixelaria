@@ -2370,7 +2370,7 @@ namespace Pixelaria.Views.Controls
                 }
                 else if (e.Button == MouseButtons.Middle)
                 {
-                    if (pencil != pencilLast)
+                    if (pencil != pencilLast && WithinBounds(pencil))
                     {
                         firstColor = pictureBox.Bitmap.GetPixel(pencil.X, pencil.Y);
                         RegeneratePenBitmap();
@@ -4632,7 +4632,7 @@ namespace Pixelaria.Views.Controls
                 Point mouse = GetAbsolutePoint(mousePosition);
                 Point mouseLast = GetAbsolutePoint(lastMousePosition);
 
-                if (mouse != mouseLast)
+                if (mouse != mouseLast && WithinBounds(mouse))
                 {
                     firstColor = pictureBox.Bitmap.GetPixel(mouse.X, mouse.Y);
 
