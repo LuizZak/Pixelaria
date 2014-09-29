@@ -73,22 +73,74 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the first color of the control
         /// </summary>
-        public Color FirstColor { get { return firstColor.ToColor(); } set { firstColor = value.ToAHSL(); pnl_firstColor.BackColor = value; if (SelectedColor == ColorPickerColor.FirstColor) UpdateSliders(); } }
+        public Color FirstColor
+        {
+            get { return firstColor.ToColor(); }
+            set
+            {
+                if (firstColor.ToColor() == value)
+                    return;
+
+                firstColor = value.ToAHSL();
+                pnl_firstColor.BackColor = value;
+                if (SelectedColor == ColorPickerColor.FirstColor)
+                    UpdateSliders();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the second color of the control
         /// </summary>
-        public Color SecondColor { get { return secondColor.ToColor(); } set { secondColor = value.ToAHSL(); pnl_secondColor.BackColor = value; if (SelectedColor == ColorPickerColor.SecondColor) UpdateSliders(); } }
+        public Color SecondColor
+        {
+            get { return secondColor.ToColor(); }
+            set
+            {
+                if (secondColor.ToColor() == value)
+                    return;
+
+                secondColor = value.ToAHSL();
+                pnl_secondColor.BackColor = value;
+                if (SelectedColor == ColorPickerColor.SecondColor)
+                    UpdateSliders();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the first color of the control in AHSL format
         /// </summary>
-        public AHSL FirstAHSLColor { get { return firstColor; } set { firstColor = value; pnl_firstColor.BackColor = value.ToColor(); if (SelectedColor == ColorPickerColor.FirstColor) UpdateSliders(); } }
+        public AHSL FirstAHSLColor
+        {
+            get { return firstColor; }
+            set
+            {
+                if (firstColor == value)
+                    return;
+
+                firstColor = value;
+                pnl_firstColor.BackColor = value.ToColor();
+                if (SelectedColor == ColorPickerColor.FirstColor)
+                    UpdateSliders();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the second color of the control in AHSL format
         /// </summary>
-        public AHSL SecondAHSLColor { get { return secondColor; } set { secondColor = value; pnl_secondColor.BackColor = value.ToColor(); if (SelectedColor == ColorPickerColor.SecondColor) UpdateSliders(); } }
+        public AHSL SecondAHSLColor
+        {
+            get { return secondColor; }
+            set
+            {
+                if (firstColor == value)
+                    return;
+
+                secondColor = value;
+                pnl_secondColor.BackColor = value.ToColor();
+                if (SelectedColor == ColorPickerColor.SecondColor)
+                    UpdateSliders();
+            }
+        }
 
         /// <summary>
         /// Gets or sets which color the ColorPicker is supposed to be currently displaying
