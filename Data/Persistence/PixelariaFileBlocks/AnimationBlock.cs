@@ -206,11 +206,12 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             frame.GetComposedBitmap().Save(stream, ImageFormat.Png);
 
             // Skip back to the image size offset and save the size
+            long streamEnd = stream.Position;
             stream.Position = sizeOffset;
-            writer.Write(stream.Length - sizeOffset - 8);
+            writer.Write(streamEnd - sizeOffset - 8);
 
             // Skip back to the end to keep saving
-            stream.Position = stream.Length;
+            stream.Position = streamEnd;
 
             // Write the frame ID
             writer.Write(frame.ID);
