@@ -35,6 +35,7 @@ Legend:
   * Fixed bug where undoing operations with something selected would glitch out the image on the canvas.
   * Fixed deselecting selections after not modifying anything about them still creating undo tasks.
   * Fixed applying filters to a selection and not moving it not creating an undo task for it.
+  * Fixed clicking with the middle mouse button to pick a color with the pencil creating an empty undo action.
 
 . AnimationView
   + Added a CTRL+A and menu item shortcut to select all frames.

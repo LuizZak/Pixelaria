@@ -2278,8 +2278,6 @@ namespace Pixelaria.Views.Controls
                     Bitmap targetBitmap = CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap;
 
                     DrawPencil(absolutePencil, targetBitmap);
-
-
                 }
             }
         }
@@ -2393,7 +2391,10 @@ namespace Pixelaria.Views.Controls
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
         {
-            FinishOperation();
+            if (e.Button != MouseButtons.Middle)
+            {
+                FinishOperation();
+            }
 
             mouseDown = false;
         }
