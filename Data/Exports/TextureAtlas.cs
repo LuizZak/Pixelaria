@@ -68,7 +68,7 @@ namespace Pixelaria.Data.Exports
         {
             frameList.Add(frame);
             boundsList.Add(new Rectangle());
-            originsList.Add(new Rectangle());
+            originsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
         }
 
         /// <summary>
