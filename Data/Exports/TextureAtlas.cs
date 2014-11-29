@@ -210,11 +210,6 @@ namespace Pixelaria.Data.Exports
         private AnimationExportSettings exportSettings;
 
         /// <summary>
-        /// The current event handler to report progress to
-        /// </summary>
-        private BundleExportProgressEventHandler progressHandler;
-
-        /// <summary>
         /// The information about this texture atlas
         /// </summary>
         public TextureAtlasInformation Information;
