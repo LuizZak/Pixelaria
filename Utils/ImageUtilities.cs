@@ -101,5 +101,89 @@ namespace Pixelaria.Utils
         {
             return Resources.checkers_pattern;
         }
+
+        /// <summary>
+        /// Returns a Rectangle that specifies the minimum image area, clipping out all the alpha pixels
+        /// </summary>
+        /// <param name="image">The image to find the mimimum image area</param>
+        /// <returns>A Rectangle that specifies the minimum image area, clipping out all the alpha pixels</returns>
+        public static Rectangle FindMinimumImageArea(Bitmap image)
+        {
+            int x = 0;
+            int y = 0;
+            int widthRange = image.Width - 1;
+            int heightRange = image.Height - 1;
+
+            int width = image.Width;
+            int height = image.Height;
+
+            FastBitmap fastBitmap = new FastBitmap(image);
+
+            fastBitmap.Lock();
+
+            // Scan horizontally until the first non-0 alpha pixel is found
+            for (x = 0; x < width; x++)
+            {
+                for (int _y = 0; _y < height; _y++)
+                {
+                    if (fastBitmap.GetPixelInt(x, _y) >> 24 != 0)
+                    {
+                        goto skipx;
+                    }
+                }
+            }
+
+        skipx:
+
+            widthRange -= x;
+
+            // Scan vertically until the first non-0 alpha pixel is found
+            for (y = 0; y < height; y++)
+            {
+                for (int _x = x; _x < width; _x++)
+                {
+                    if (fastBitmap.GetPixelInt(_x, y) >> 24 != 0)
+                    {
+                        goto skipy;
+                    }
+                }
+            }
+
+        skipy:
+
+            heightRange -= y;
+
+            // Scan the width now and skip the empty pixels
+            for (; widthRange > x; widthRange--)
+            {
+                for (int _y = y; _y < height; _y++)
+                {
+                    if (fastBitmap.GetPixelInt(x + widthRange, _y) >> 24 != 0)
+                    {
+                        goto skipwidth;
+                    }
+                }
+            }
+
+        skipwidth:
+
+            // Scan the height now and skip the empty pixels
+            for (; heightRange > y; heightRange--)
+            {
+                for (int _x = x; _x < x + widthRange + 1; _x++)
+                {
+                    if (fastBitmap.GetPixelInt(_x, heightRange + y) >> 24 != 0)
+                    {
+                        goto skipheight;
+                    }
+                }
+            }
+
+        skipheight:
+
+            fastBitmap.Unlock();
+
+            return new Rectangle(x, y, widthRange + 1, heightRange + 1);
+        }
     }
 }

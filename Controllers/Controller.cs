@@ -32,7 +32,7 @@ using Pixelaria.Data.Persistence;
 using Pixelaria.Data.Validators;
 
 using Pixelaria.Importers;
-using Pixelaria.Exporters;
+using Pixelaria.Controllers.Exporters;
 
 using Pixelaria.Views;
 using Pixelaria.Views.MiscViews;

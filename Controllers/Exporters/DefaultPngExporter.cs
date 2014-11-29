@@ -26,12 +26,15 @@ using System.Drawing;
 using System.IO;
 using System.Xml;
 
+using Pixelaria.Algorithms;
+using Pixelaria.Algorithms.Packers;
+
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
 using Pixelaria.Utils;
 
-namespace Pixelaria.Exporters
+namespace Pixelaria.Controllers.Exporters
 {
     /// <summary>
     /// Default exporter that uses PNG as the texture format
@@ -80,6 +83,10 @@ namespace Pixelaria.Exporters
             stages = totalStages * 2 + 1;
 
             // Export all the animation sheets now
+
+            // 
+            // 1. Export Animation Sheets
+            // 
             foreach (AnimationSheet sheet in bundle.AnimationSheets)
             {
                 if (sheet.Animations.Length > 0)
@@ -94,7 +101,9 @@ namespace Pixelaria.Exporters
                 currentStage++;
             }
 
-            // Save the sheets to disk
+            //
+            // 2. Save the sheets to disk
+            //
             for(int i = 0; i < bundleSheetList.Count; i++)
             {
                 BundleSheetExport exp = bundleSheetList[i];
@@ -110,7 +119,9 @@ namespace Pixelaria.Exporters
                 currentStage++;
             }
 
-            // Compose the main bundle .xml
+            //
+            // 3. Compose the main bundle .xml
+            //
             XmlDocument xml = new XmlDocument();
 
             xml.AppendChild(xml.CreateNode(XmlNodeType.XmlDeclaration, "sheetList", ""));
@@ -157,18 +168,7 @@ namespace Pixelaria.Exporters
         /// <returns>An image sheet representing the animations passed</returns>
         public Image ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, BundleExportProgressEventHandler progressHandler = null)
         {
-            TextureAtlas atlas = new TextureAtlas(exportSettings);
-
-            // Pack the frames into the atlas
-            foreach (Animation anim in anims)
-            {
-                for (int i = 0; i < anim.FrameCount; i++)
-                {
-                    atlas.InsertFrame(anim.GetFrameAtIndex(i));
-                }
-            }
-
-            atlas.Pack();
+            TextureAtlas atlas = GenerateAtlasFromAnimations(exportSettings, anims, "", progressHandler);
 
             return atlas.GenerateSheet();
         }
@@ -194,8 +194,14 @@ namespace Pixelaria.Exporters
         /// <returns>A BundleSheetExport representing the animation sheet passed ready to be saved to disk</returns>
         public BundleSheetExport ExportBundleSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null)
         {
+            //
+            // 1. Generate texture atlas
+            //
             using (TextureAtlas atlas = GenerateAtlasFromAnimationSheet(sheet, progressHandler))
             {
+                //
+                // 2. Generate an export sheet from the texture atlas
+                //
                 return BundleSheetExport.FromAtlas(atlas);
             }
         }
@@ -209,19 +215,8 @@ namespace Pixelaria.Exporters
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
         public BundleSheetExport ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, BundleExportProgressEventHandler progressHandler = null)
         {
-            using (TextureAtlas atlas = new TextureAtlas(settings))
+            using (TextureAtlas atlas = GenerateAtlasFromAnimations(settings, anims, "", progressHandler))
             {
-                // Pack the frames into the atlas
-                foreach (Animation anim in anims)
-                {
-                    for (int i = 0; i < anim.FrameCount; i++)
-                    {
-                        atlas.InsertFrame(anim.GetFrameAtIndex(i));
-                    }
-                }
-
-                atlas.Pack(progressHandler);
-
                 return BundleSheetExport.FromAtlas(atlas);
             }
         }
@@ -234,10 +229,25 @@ namespace Pixelaria.Exporters
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
         public TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null)
         {
-            TextureAtlas atlas = new TextureAtlas(sheet.ExportSettings, sheet.Name);
+            return GenerateAtlasFromAnimations(sheet.ExportSettings, sheet.Animations, sheet.Name, progressHandler);
+        }
 
-            // Pack the frames into the atlas
-            foreach (Animation anim in sheet.Animations)
+        /// <summary>
+        /// Exports the given animations into an image sheet and returns the created sheet
+        /// </summary>
+        /// <param name="exportSettings">The export settings for the sheet</param>
+        /// <param name="anims">The list of animations to export</param>
+        /// <param name="name">The name for the generated texture atlas. Used for progress reports</param>
+        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
+        /// <returns>An image sheet representing the animations passed</returns>
+        public TextureAtlas GenerateAtlasFromAnimations(AnimationExportSettings exportSettings, Animation[] anims, string name = "", BundleExportProgressEventHandler progressHandler = null)
+        {
+            TextureAtlas atlas = new TextureAtlas(exportSettings, name);
+
+            //
+            // 1. Add the frames to the texture atlas
+            //
+            foreach (Animation anim in anims)
             {
                 for (int i = 0; i < anim.FrameCount; i++)
                 {
@@ -245,7 +255,11 @@ namespace Pixelaria.Exporters
                 }
             }
 
-            atlas.Pack(progressHandler);
+            //
+            // 2. Pack the frames into the atlas
+            //
+            ITexturePacker packer = new DefaultTexturePacker();
+            packer.Pack(atlas, progressHandler);
 
             return atlas;
         }

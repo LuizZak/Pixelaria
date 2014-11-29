@@ -105,6 +105,24 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Returns the given uint value snapped to the next highest power of two value
+        /// </summary>
+        /// <param name="value">The value to snap to the closest power of two value</param>
+        /// <returns>The given uint value snapped to the next highest power of two value</returns>
+        public static uint SnapToNextPowerOfTwo(uint value)
+        {
+            value--;
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            value++;
+
+            return value;
+        }
+
+        /// <summary>
         /// Returns a formated sting that contains the most significant magnitude
         /// representation of the given number of bytes
         /// </summary>

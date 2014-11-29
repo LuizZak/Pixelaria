@@ -116,6 +116,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\ITexturePacker.cs" />
+    <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="Data\Clipboard\DataClipboard.cs" />
     <Compile Include="Data\Exports\BundleSheetExport.cs" />
     <Compile Include="Data\Exports\TextureAtlas.cs" />
+    <Compile Include="Data\Exports\TextureAtlasInformation.cs" />
     <Compile Include="Data\Factories\FrameFactory.cs" />
     <Compile Include="Data\Frame.cs" />
     <Compile Include="Data\IDObject.cs" />
@@ -138,8 +141,8 @@
     <Compile Include="Data\Validators\DefaultValidator.cs" />
     <Compile Include="Data\Validators\IAnimationSheetValidator.cs" />
     <Compile Include="Data\Validators\IAnimationValidator.cs" />
-    <Compile Include="Exporters\DefaultPngExporter.cs" />
-    <Compile Include="Exporters\IDefaultExporter.cs" />
+    <Compile Include="Controllers\Exporters\DefaultPngExporter.cs" />
+    <Compile Include="Controllers\Exporters\IDefaultExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
     <Compile Include="Filters\HSLFilter.cs" />

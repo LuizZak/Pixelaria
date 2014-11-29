@@ -25,7 +25,7 @@ using System.Drawing;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
-namespace Pixelaria.Exporters
+namespace Pixelaria.Controllers.Exporters
 {
     /// <summary>
     /// Defines a default exporter behavior that must be implemented by exporters in the program 

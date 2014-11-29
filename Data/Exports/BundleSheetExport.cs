@@ -34,7 +34,7 @@ namespace Pixelaria.Data.Exports
     /// <summary>
     /// Describes an exported Bundle Sheet containing a sequence of animations, and data pertaining to the animations
     /// </summary>
-    public class BundleSheetExport
+    public class BundleSheetExport : IDisposable
     {
         /// <summary>
         /// The list of FrameRect objects inside this BundleSheetExport
@@ -99,6 +99,14 @@ namespace Pixelaria.Data.Exports
         private BundleSheetExport()
         {
 
+        }
+
+        /// <summary>
+        /// Disposes of this bundle sheet and all resources allocated by it
+        /// </summary>
+        public void Dispose()
+        {
+            this.sheet.Dispose();
         }
 
         /// <summary>
@@ -219,6 +227,9 @@ namespace Pixelaria.Data.Exports
         /// <returns>A new BundleSheetExport created from the given TextureAtlas</returns>
         public static BundleSheetExport FromAtlas(TextureAtlas atlas)
         {
+            //
+            // 1. Generate final export image
+            //
             Image image = atlas.GenerateSheet();
 
             // Import the frame rects to a bundle sheet now
@@ -227,10 +238,13 @@ namespace Pixelaria.Data.Exports
             export.sheet = image;
             export.exportSettings = atlas.ExportSettings;
             export.animations = atlas.GetAnimationsOnAtlas();
-            export.reusedFrameCount = atlas.GeneratedFrameComparision.CachedSimilarCount;
+            export.reusedFrameCount = atlas.Information.ReusedFrameOriginsCount;
 
             List<FrameRect> frameRectList = new List<FrameRect>();
 
+            //
+            // 2. Copy the frame bounds from the atlas to the bundle sheet
+            //
             for (int i = 0; i < atlas.FrameCount; i++)
             {
                 frameRectList.Add(new FrameRect(atlas.GetFrame(i), atlas.GetFrameBoundsRectangle(i), atlas.GetFrameOriginsRectangle(i)));

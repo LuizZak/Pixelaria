@@ -34,7 +34,7 @@ using Pixelaria.Controllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
-using Pixelaria.Exporters;
+using Pixelaria.Controllers.Exporters;
 
 namespace Pixelaria.Views.MiscViews
 {
