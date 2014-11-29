@@ -39,7 +39,7 @@ namespace Pixelaria.Controllers.Exporters
     /// <summary>
     /// Default exporter that uses PNG as the texture format
     /// </summary>
-    public class DefaultPngExporter : IDefaultExporter
+    public class DefaultPngExporter : IBundleExporter
     {
         /// <summary>
         /// Exports the given Bundle

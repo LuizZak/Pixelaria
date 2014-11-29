@@ -56,7 +56,7 @@ namespace Pixelaria.Views.MiscViews
         /// <summary>
         /// The exporter to use when exporting the animation sheet
         /// </summary>
-        private IDefaultExporter exporter;
+        private IBundleExporter exporter;
 
         /// <summary>
         /// Whether the user can close this form
@@ -69,7 +69,7 @@ namespace Pixelaria.Views.MiscViews
         /// <param name="sheet">The animation sheet to export</param>
         /// <param name="savePath">The path to save the animation sheet to</param>
         /// <param name="exporter">The exporter to use when exporting the animation sheet</param>
-        public SheetExportProgressView(AnimationSheet sheet, string savePath, IDefaultExporter exporter)
+        public SheetExportProgressView(AnimationSheet sheet, string savePath, IBundleExporter exporter)
         {
             InitializeComponent();
 

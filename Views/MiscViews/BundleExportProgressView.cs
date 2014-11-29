@@ -42,7 +42,7 @@ namespace Pixelaria.Views.MiscViews
         /// <summary>
         /// The exporter to use when exporting the bundle
         /// </summary>
-        private IDefaultExporter exporter;
+        private IBundleExporter exporter;
 
         /// <summary>
         /// Whether the user can close this form
@@ -54,7 +54,7 @@ namespace Pixelaria.Views.MiscViews
         /// </summary>
         /// <param name="bundle">The bundle to export</param>
         /// <param name="exporter">The exporter to use when exporting the bundle</param>
-        public BundleExportProgressView(Bundle bundle, IDefaultExporter exporter)
+        public BundleExportProgressView(Bundle bundle, IBundleExporter exporter)
         {
             InitializeComponent();
 

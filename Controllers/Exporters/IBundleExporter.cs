@@ -28,9 +28,9 @@ using Pixelaria.Data.Exports;
 namespace Pixelaria.Controllers.Exporters
 {
     /// <summary>
-    /// Defines a default exporter behavior that must be implemented by exporters in the program 
+    /// Defines the behavior that must be implemented by exporters in the program
     /// </summary>
-    public interface IDefaultExporter
+    public interface IBundleExporter
     {
         /// <summary>
         /// Exports the given Bundle

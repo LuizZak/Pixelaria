@@ -70,7 +70,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// The default animation exporter
         /// </summary>
-        IDefaultExporter defaultExporter;
+        IBundleExporter defaultExporter;
 
         /// <summary>
         /// The Animation fields validator
@@ -115,7 +115,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the current IDefaultExporter of the program
         /// </summary>
-        public IDefaultExporter DefaultExporter { get { return defaultExporter; } }
+        public IBundleExporter DefaultExporter { get { return defaultExporter; } }
 
         /// <summary>
         /// Gets the current IAnimationValidator of the program

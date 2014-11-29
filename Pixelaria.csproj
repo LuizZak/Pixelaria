@@ -142,7 +142,7 @@
     <Compile Include="Data\Validators\IAnimationSheetValidator.cs" />
     <Compile Include="Data\Validators\IAnimationValidator.cs" />
     <Compile Include="Controllers\Exporters\DefaultPngExporter.cs" />
-    <Compile Include="Controllers\Exporters\IDefaultExporter.cs" />
+    <Compile Include="Controllers\Exporters\IBundleExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
     <Compile Include="Filters\HSLFilter.cs" />
