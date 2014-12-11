@@ -70,7 +70,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="sheetSettings">The sheet settings</param>
         public void LoadPreview(Image previewImage, SheetSettings sheetSettings)
         {
-            Unload();
+            UnloadExportSheet();
 
             // Reset the transformations
             scale = new PointF(1, 1);
@@ -92,7 +92,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="bundleSheetExport">The bundle sheet export containing data about the exported image</param>
         public void LoadExportSheet(BundleSheetExport bundleSheetExport)
         {
-            Unload();
+            UnloadExportSheet();
 
             // Reset the transformations
             this.Image = bundleSheetExport.Sheet;
@@ -104,9 +104,9 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Unloads the currently displayed preview
+        /// Unloads the currently displayed export sheet preview
         /// </summary>
-        public void Unload()
+        public void UnloadExportSheet()
         {
             sheetExport = null;
             frameRects = null;

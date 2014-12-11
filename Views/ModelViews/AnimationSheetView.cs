@@ -323,7 +323,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void HideFrameBounds()
         {
-            zpb_sheetPreview.Unload();
+            zpb_sheetPreview.UnloadExportSheet();
         }
 
         /// <summary>
