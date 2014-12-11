@@ -71,7 +71,9 @@ namespace Pixelaria.Algorithms.Packers
             // 1. (Optional) Sort the frames from largest to smallest before packing
             if (exportSettings.AllowUnorderedFrames)
             {
-                frameList.Sort(frameComparision);
+                // Use a stable sort
+                frameList.AddRange(frameList.OrderBy(frame => frame, frameComparision).ToList());
+                frameList.RemoveRange(0, frameList.Count / 2);
             }
 
             // 2. (Optional) Find identical frames and pack them to use the same sheet area
