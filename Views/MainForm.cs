@@ -122,7 +122,7 @@ namespace Pixelaria.Views
         /// <param name="bundle">The bundle to fill the title bar with information of</param>
         public void UpdateTitleBar(Bundle bundle)
         {
-            this.Text = "Pixelaria v1.13.0 [" + bundle.Name + "]" + (controller.UnsavedChanges ? "*" : "");
+            this.Text = "Pixelaria v1.14.0b [" + bundle.Name + "]" + (controller.UnsavedChanges ? "*" : "");
         }
 
         /// <summary>
@@ -1199,6 +1199,14 @@ namespace Pixelaria.Views
         private void tsb_exportButton_Click(object sender, EventArgs e)
         {
             ExportBundle();
+        }
+
+        //
+        // Support menu item click
+        //
+        private void mi_fileBug_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://sourceforge.net/p/pixelaria/tickets/?source=navbar");
         }
 
         // 
