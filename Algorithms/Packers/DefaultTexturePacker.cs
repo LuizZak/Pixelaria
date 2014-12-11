@@ -200,7 +200,7 @@ namespace Pixelaria.Algorithms.Packers
             atlasHeight = 0;
 
             // 5. Pack the texture atlas
-            InternalPack(atlas, ref atlasWidth, ref atlasHeight, minAreaWidth, exportSettings.UseUniformGrid ? maxFrameWidth : -1, exportSettings.UseUniformGrid ? maxFrameHeight : -1);
+            InternalPack(atlas, ref atlasWidth, ref atlasHeight, minAreaWidth, exportSettings.UseUniformGrid ? maxFrameWidth : -1, exportSettings.UseUniformGrid ? maxFrameHeight : -1, true);
 
             // Round up to the closest power of two
             if (exportSettings.ForcePowerOfTwoDimensions)
@@ -229,7 +229,8 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="maxWidth">The maximum width the generated sheet can have</param>
         /// <param name="frameWidth">The uniform width to use for all the frames. -1 uses the individual frame width</param>
         /// <param name="frameHeight">The uniform height to use for all the frames. -1 uses the individual frame height</param>
-        private void InternalPack(TextureAtlas atlas, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, int frameWidth = -1, int frameHeight = -1)
+        /// <param name="registerReused">Whether to register the reused frame indices in this pass</param>
+        private void InternalPack(TextureAtlas atlas, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, int frameWidth = -1, int frameHeight = -1, bool registerReused = false)
         {
             // Cache some fields as locals
             AnimationExportSettings exportSettings = atlas.ExportSettings;
@@ -318,6 +319,36 @@ namespace Pixelaria.Algorithms.Packers
                 if (x > maxWidth)
                 {
                     x = exportSettings.XPadding;
+                }
+            }
+
+            atlas.ReuseCount.Clear();
+
+            for (int i = 0; i < frameList.Count; i++)
+            {
+                if (exportSettings.ReuseIdenticalFramesArea)
+                {
+                    Rectangle frameBounds = boundsList[i];
+                    int repCount = 0;
+
+                    for (int j = 0; j < frameList.Count; j++)
+                    {
+                        if (i == j)
+                            continue;
+
+                        Rectangle otherFrameBounds = boundsList[j];
+
+                        if (frameBounds == otherFrameBounds)
+                        {
+                            repCount++;
+                        }
+                    }
+
+                    atlas.ReuseCount.Add(repCount);
+                }
+                else
+                {
+                    atlas.ReuseCount.Add(0);
                 }
             }
         }

@@ -43,6 +43,7 @@ namespace Pixelaria.Data.Exports
             this.frameList = new List<Frame>();
             this.boundsList = new List<Rectangle>();
             this.originsList = new List<Rectangle>();
+            this.reuseCount = new List<int>();
             this.exportSettings = settings;
             this.Information = new TextureAtlasInformation();
 
@@ -58,6 +59,7 @@ namespace Pixelaria.Data.Exports
             frameList.Clear();
             boundsList.Clear();
             originsList.Clear();
+            reuseCount.Clear();
         }
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace Pixelaria.Data.Exports
             frameList.Add(frame);
             boundsList.Add(new Rectangle());
             originsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
+            reuseCount.Add(0);
         }
 
         /// <summary>
@@ -200,6 +203,11 @@ namespace Pixelaria.Data.Exports
         private List<Rectangle> originsList;
 
         /// <summary>
+        /// List of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.
+        /// </summary>
+        private List<int> reuseCount;
+
+        /// <summary>
         /// Total area of this TextureAtlas
         /// </summary>
         private Rectangle atlasRectangle;
@@ -240,6 +248,11 @@ namespace Pixelaria.Data.Exports
         /// The origin rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
         /// </summary>
         public List<Rectangle> OriginsList { get { return originsList; } }
+
+        /// <summary>
+        /// Gets the list of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.
+        /// </summary>
+        public List<int> ReuseCount { get { return reuseCount; } }
 
         /// <summary>
         /// Gets this atlas' width

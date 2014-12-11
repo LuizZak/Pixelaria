@@ -42,6 +42,11 @@ namespace Pixelaria.Data.Exports
         FrameRect[] frameRects;
 
         /// <summary>
+        /// The array of frames reused for all the frame rectangle bounds
+        /// </summary>
+        int[] reuseCount;
+
+        /// <summary>
         /// The list of animations in this BundleSheet
         /// </summary>
         Animation[] animations;
@@ -87,6 +92,11 @@ namespace Pixelaria.Data.Exports
         /// Gets the array of FrameRect objects inside this BundleSheetExport
         /// </summary>
         public FrameRect[] FrameRects { get { return frameRects; } }
+
+        /// <summary>
+        /// Gets the array of frames reused for all the frame rectangle bounds
+        /// </summary>
+        public int[] ReuseCounts { get { return reuseCount; } }
 
         /// <summary>
         /// Gets or sets the export settings to be used when exporting the Bundle Sheet
@@ -239,6 +249,7 @@ namespace Pixelaria.Data.Exports
             export.exportSettings = atlas.ExportSettings;
             export.animations = atlas.GetAnimationsOnAtlas();
             export.reusedFrameCount = atlas.Information.ReusedFrameOriginsCount;
+            export.reuseCount = atlas.ReuseCount.ToArray();
 
             List<FrameRect> frameRectList = new List<FrameRect>();
 
