@@ -223,7 +223,7 @@ namespace Pixelaria.Views.Controls
                     g.DrawImage(frameImage, rect);
                 }
 
-                x += frameImage.Width;
+                x += frameImage.Width - 1; // Subtract 1 so the white margin is not noticeably too large
 
                 // If the passed number is 0, quit now to avoid infinite loops
                 if (number == 0)
