@@ -20,12 +20,16 @@ Legend:
 
 -- v1.14.0b
 
+* Fixed bug where the .plx bundle file could get corrupted after saving.
+
 . FrameView
   * Fixed pencil not changing active color to the first when picking colors with middle mouse button.
 
 . AnimationSheetView
   + Added feature to display number of frames occupying the same frame bounds with a 'Show use count' checkbox.
   * Now the texture packer will preserve frame order when sorting frames by size when the option is selected.
+  * Now when moving frames around the animation preview panel will be updated accordingly.
+  * Now when updates to the animation are made (cut, paste, move, edit frame, etc.), the animation preview panel will not playback automatically.
 
 . Added a "File a Bug..." menu item to direct users to a repository of bug repport on the SourceForce page.
 

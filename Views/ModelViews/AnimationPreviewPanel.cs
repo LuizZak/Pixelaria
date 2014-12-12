@@ -103,44 +103,135 @@ namespace Pixelaria.Views.ModelViews
         /// Loads the given animation into this AnimationPreviewPanel
         /// </summary>
         /// <param name="animation">The animation to load</param>
-        public void LoadAnimation(Animation animation)
+        /// <param name="resetPlayback">Whether to reset the playback of the animation back to the start</param>
+        public void LoadAnimation(Animation animation, bool resetPlayback = true)
         {
             pnl_preview.Image = null;
 
             currentAnimation = animation;
-            currentFrame = 0;
 
             if (animation != null && animation.FrameCount != 0)
             {
-                cb_playPreview.Checked = true;
+                // Clip the current frame to be within the range of the animation
+                currentFrame = Math.Max(0, Math.Min(animation.FrameCount - 1, currentFrame));
 
                 RefreshPreviewPanel();
 
                 AutoAdjustZoom();
 
-                if (currentAnimation.PlaybackSettings.FPS == 0)
+                if (resetPlayback)
                 {
-                    SetPlayback(false);
-                }
-                else
-                {
-                    animationTimer.Interval = 1000 / (currentAnimation.PlaybackSettings.FPS == -1 ? 60 : currentAnimation.PlaybackSettings.FPS);
-                    cb_playPreview.Checked = true;
-                    SetPlayback(true);
+                    if (currentAnimation.PlaybackSettings.FPS == 0)
+                    {
+                        cb_playPreview.Checked = false;
+                        InternalSetPlayback(false);
+                    }
+                    else
+                    {
+                        currentFrame = 0;
+
+                        animationTimer.Interval = 1000 / (currentAnimation.PlaybackSettings.FPS == -1 ? 60 : currentAnimation.PlaybackSettings.FPS);
+                        cb_playPreview.Checked = true;
+                        InternalSetPlayback(true);
+                    }
                 }
             }
             else
             {
+                // Set the control state to be disabled
+                currentFrame = 0;
                 playing = false;
-
                 cb_playPreview.Checked = false;
+                InternalSetPlayback(false);
 
                 RefreshPreviewPanel();
 
                 animationTimer.Interval = 1000;
-
-                SetPlayback(false);
             }
+        }
+
+        /// <summary>
+        /// Changes the zoom of the preview animation
+        /// </summary>
+        /// <param name="newZoom">The new zoom size</param>
+        /// <param name="updateControls">Whether to update the zoom controls after the zoom is set</param>
+        public void ChangePreviewZoom(decimal newZoom, bool updateControls = false)
+        {
+            if (currentAnimation == null || currentAnimation.FrameCount == 0)
+                return;
+
+            pnl_preview.Width = (int)(currentAnimation.Width * newZoom);
+            pnl_preview.Height = (int)(currentAnimation.Height * newZoom);
+
+            if (updateControls)
+            {
+                nud_previewZoom.Value = newZoom;
+                tb_zoomTrack.Value = (int)(newZoom * 4);
+            }
+        }
+
+        /// <summary>
+        /// Changes the current displayed frame
+        /// </summary>
+        /// <param name="newFrame">The new frame to display</param>
+        public void ChangeFrame(int newFrame)
+        {
+            if (currentAnimation == null || currentAnimation.FrameCount == 0)
+                return;
+
+            currentFrame = newFrame;
+
+            lbl_currentFrame.Text = "" + (newFrame + 1);
+            pnl_preview.Image = currentAnimation.GetFrameAtIndex(newFrame).GetComposedBitmap();
+        }
+
+        /// <summary>
+        /// Sets whether or not to play the current animation
+        /// </summary>
+        /// <param name="play">Whether or not to play the current animation</param>
+        public void SetPlayback(bool play)
+        {
+            if (playing == play)
+                return;
+
+            cb_playPreview.Checked = play;
+            InternalSetPlayback(play);
+        }
+
+        /// <summary>
+        /// Sets whether or not to play the current animation
+        /// </summary>
+        /// <param name="play">Whether or not to play the current animation</param>
+        private void InternalSetPlayback(bool play)
+        {
+            if (playing == play)
+                return;
+
+            playing = play;
+
+            if (play)
+            {
+                animationTimer.Start();
+            }
+            else
+            {
+                animationTimer.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Automatically adjust the zoom to fit the whoe panel
+        /// </summary>
+        private void AutoAdjustZoom()
+        {
+            if (currentAnimation == null || currentAnimation.FrameCount == 0)
+                return;
+
+            decimal zoom = (decimal)(this.Width - pnl_preview.Location.X) / currentAnimation.Width;
+
+            zoom = Math.Floor(zoom * 4) / 4;
+
+            ChangePreviewZoom(Math.Min(nud_previewZoom.Maximum, Math.Max(zoom, nud_previewZoom.Minimum)), true);
         }
 
         /// <summary>
@@ -201,74 +292,6 @@ namespace Pixelaria.Views.ModelViews
             cb_playPreview.Enabled = true;
         }
 
-        /// <summary>
-        /// Changes the zoom of the preview animation
-        /// </summary>
-        /// <param name="newZoom">The new zoom size</param>
-        /// <param name="updateControls">Whether to update the zoom controls after the zoom is set</param>
-        private void ChangePreviewZoom(decimal newZoom, bool updateControls = false)
-        {
-            if (currentAnimation == null || currentAnimation.FrameCount == 0)
-                return;
-
-            pnl_preview.Width = (int)(currentAnimation.Width * newZoom);
-            pnl_preview.Height = (int)(currentAnimation.Height * newZoom);
-
-            if (updateControls)
-            {
-                nud_previewZoom.Value = newZoom;
-                tb_zoomTrack.Value = (int)(newZoom * 4);
-            }
-        }
-
-        /// <summary>
-        /// Changes the current displayed frame
-        /// </summary>
-        /// <param name="newFrame">The new frame to display</param>
-        private void ChangeFrame(int newFrame)
-        {
-            if (currentAnimation == null || currentAnimation.FrameCount == 0)
-                return;
-
-            currentFrame = newFrame;
-
-            lbl_currentFrame.Text = "" + (newFrame + 1);
-            pnl_preview.Image = currentAnimation.GetFrameAtIndex(newFrame).GetComposedBitmap();
-        }
-
-        /// <summary>
-        /// Sets whether or not to play the current animation
-        /// </summary>
-        /// <param name="play">Whether or not to play the current animation</param>
-        private void SetPlayback(bool play)
-        {
-            playing = play;
-
-            if (play)
-            {
-                animationTimer.Start();
-            }
-            else
-            {
-                animationTimer.Stop();
-            }
-        }
-
-        /// <summary>
-        /// Automatically adjust the zoom to fit the whoe panel
-        /// </summary>
-        private void AutoAdjustZoom()
-        {
-            if (currentAnimation == null || currentAnimation.FrameCount == 0)
-                return;
-
-            decimal zoom = (decimal)(this.Width - pnl_preview.Location.X) / currentAnimation.Width;
-
-            zoom = Math.Floor(zoom * 4) / 4;
-
-            ChangePreviewZoom(Math.Min(nud_previewZoom.Maximum, Math.Max(zoom, nud_previewZoom.Minimum)), true);
-        }
-
         // 
         // Animation Timer tick
         // 
@@ -289,7 +312,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (currentAnimation.PlaybackSettings.FPS == 0)
             {
-                SetPlayback(false);
+                InternalSetPlayback(false);
             }
             else
             {
@@ -299,7 +322,7 @@ namespace Pixelaria.Views.ModelViews
                 {
                     cb_playPreview.Checked = true;
 
-                    SetPlayback(true);
+                    InternalSetPlayback(true);
                 }
             }
         }
@@ -350,7 +373,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cb_playPreview_CheckedChanged(object sender, EventArgs e)
         {
-            SetPlayback(cb_playPreview.Checked);
+            InternalSetPlayback(cb_playPreview.Checked);
         }
 
         // 

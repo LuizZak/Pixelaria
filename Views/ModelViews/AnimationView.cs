@@ -133,7 +133,11 @@ namespace Pixelaria.Views.ModelViews
 
             RefreshView();
 
+            // Mark unmodified because some operations on the constructor may change the value of the modified field for some reason
+            // TODO: Check why the 'modified' field starts true when it reaches this point of the constructor
             MarkUnmodified();
+
+            animationPreviewPanel.SetPlayback(true);
         }
 
         #region Interface Related Methods
@@ -149,7 +153,7 @@ namespace Pixelaria.Views.ModelViews
             RefreshAnimationInfo();
             RefreshClipboardControls();
             RefreshUndoControls();
-            animationPreviewPanel.LoadAnimation(viewAnimation);
+            animationPreviewPanel.LoadAnimation(viewAnimation, false);
         }
 
         /// <summary>
@@ -1087,6 +1091,7 @@ namespace Pixelaria.Views.ModelViews
                 undoSystem.RegisterUndo(undoTask);
 
                 RefreshFramesView();
+                animationPreviewPanel.LoadAnimation(this.viewAnimation, false);
 
                 MarkModified();
 
