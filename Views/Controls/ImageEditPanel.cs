@@ -1338,6 +1338,11 @@ namespace Pixelaria.Views.Controls
             private bool indexPixels;
 
             /// <summary>
+            /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
+            /// </summary>
+            private bool keepReplacedOriginals;
+
+            /// <summary>
             /// The width of the bitmap being affected
             /// </summary>
             private int width;
@@ -1363,12 +1368,15 @@ namespace Pixelaria.Views.Controls
             /// <param name="targetPictureBox">The target for the undo operation</param>
             /// <param name="description">A description to use for this UndoTask</param>
             /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
-            public PerPixelUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, string description, bool indexPixels = false)
+            /// <param name="keepReplacedOriginals">Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.</param>
+            public PerPixelUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, string description, bool indexPixels = false, bool keepReplacedOriginals = false)
             {
                 this.pixelList = new List<PixelUndo>();
                 this.pictureBox = targetPictureBox;
                 this.description = description;
                 this.indexPixels = indexPixels;
+                this.keepReplacedOriginals = keepReplacedOriginals;
+
                 this.width = targetPictureBox.Bitmap.Width;
                 this.height = targetPictureBox.Bitmap.Height;
             }
@@ -1457,7 +1465,14 @@ namespace Pixelaria.Views.Controls
                     else if (idF == pixelIndex)
                     {
                         if (replaceExisting)
+                        {
+                            if (keepReplacedOriginals)
+                            {
+                                item.UndoColor = pixelList[e].UndoColor;
+                            }
+
                             pixelList[e] = item;
+                        }
 
                         return;
                     }
@@ -1475,7 +1490,14 @@ namespace Pixelaria.Views.Controls
                     else if (idC == pixelIndex)
                     {
                         if (replaceExisting)
+                        {
+                            if (keepReplacedOriginals)
+                            {
+                                item.UndoColor = pixelList[s].UndoColor;
+                            }
+
                             pixelList[s] = item;
+                        }
 
                         return;
                     }
@@ -1496,7 +1518,14 @@ namespace Pixelaria.Views.Controls
                     else if (idM == pixelIndex)
                     {
                         if (replaceExisting)
+                        {
+                            if (keepReplacedOriginals)
+                            {
+                                item.UndoColor = pixelList[mid].UndoColor;
+                            }
+
                             pixelList[mid] = item;
+                        }
 
                         return;
                     }
