@@ -328,7 +328,7 @@ namespace Pixelaria.Algorithms.Packers
 
             for (int i = 0; i < frameList.Count; i++)
             {
-                if (exportSettings.ReuseIdenticalFramesArea)
+                if (exportSettings.ReuseIdenticalFramesArea && registerReused)
                 {
                     Rectangle frameBounds = boundsList[i];
                     int repCount = 0;
