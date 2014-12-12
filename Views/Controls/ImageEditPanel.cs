@@ -6047,18 +6047,18 @@ namespace Pixelaria.Views.Controls
         /// Decorates the under image, using the given event arguments
         /// </summary>
         /// <param name="underImage">The under image to decorate</param>
-        public abstract void DecorateUnderImage(Image underImage);
+        public virtual void DecorateUnderImage(Image underImage) { }
 
         /// <summary>
         /// Decorates the main image, using the given event arguments
         /// </summary>
         /// <param name="mainImage">The main image to decorate</param>
-        public abstract void DecorateMainImage(Image mainImage);
+        public virtual void DecorateMainImage(Image mainImage) { }
         
         /// <summary>
         /// Decorates the front image, using the given event arguments
         /// </summary>
         /// <param name="frontImage">The front image to decorate</param>
-        public abstract void DecorateFrontImage(Image frontImage);
+        public virtual void DecorateFrontImage(Image frontImage) { }
     }
 }
