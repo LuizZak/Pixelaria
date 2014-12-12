@@ -20,7 +20,10 @@
     base directory of this project.
 */
 
+using System;
+using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Data.Exports;
@@ -47,6 +50,11 @@ namespace Pixelaria.Views.Controls
         /// The array of rectangle areas for each frame
         /// </summary>
         private Rectangle[] frameRects;
+
+        /// <summary>
+        /// Whether to display the number of frames that have been reused when drawing the frame bounds
+        /// </summary>
+        private bool displayReusedCount = false;
         
         /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
@@ -62,6 +70,20 @@ namespace Pixelaria.Views.Controls
         /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
         public BundleSheetExport SheetExport { get { return sheetExport; } set { sheetExport = value; Invalidate(); } }
+
+        /// <summary>
+        /// Gets or sets whether to display the number of frames that have been reused when drawing the frame bounds
+        /// </summary>
+        [DefaultValue(false)]
+        public bool DisplayReusedCount
+        {
+            get { return displayReusedCount; }
+            set
+            {
+                displayReusedCount = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Loads an image import preview
@@ -123,30 +145,124 @@ namespace Pixelaria.Views.Controls
 
             if (Image != null)
             {
+                RectangleF[] rects = null;
+                int[] reuseCont = null;
+
                 if (sheetExport != null)
                 {
-                    // Draw the frame bounds now
-                    foreach (BundleSheetExport.FrameRect rect in sheetExport.FrameRects)
-                    {
-                        RectangleF r = rect.SheetArea;
-                        r.X += 0.5f;
-                        r.Y += 0.5f;
-
-                        pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
-                    }
+                    rects = (from frameRect in sheetExport.FrameRects select (RectangleF)frameRect.SheetArea).ToArray();
+                    reuseCont = sheetExport.ReuseCounts;
                 }
                 else if (Importer != null && frameRects != null)
                 {
+                    rects = (from frameRect in frameRects select (RectangleF)frameRect).ToArray();
+                    reuseCont = (from i in frameRects select 1).ToArray();
+                }
+
+                pe.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+
+                if (rects != null)
+                {
                     // Draw the frame bounds now
-                    foreach (Rectangle rec in frameRects)
+                    for(int i = 0; i < rects.Length; i++)
                     {
-                        RectangleF r = rec;
+                        RectangleF r = rects[i];
                         r.X += 0.5f;
                         r.Y += 0.5f;
 
                         pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
+
+                        if(this.displayReusedCount)
+                        {
+                            int scale = 3;
+                            int frameCount = reuseCont[i] + 1;
+
+                            while ((r.Size.Width < SizeForImageNumber(frameCount, scale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, scale).Height * 2) && scale > 1)
+                                scale--;
+
+                            RenderPixelNumber(pe.Graphics, new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f)), frameCount, scale);
+                        }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns the size of a number to be rendered using pixel image digits
+        /// </summary>
+        /// <param name="number">The number to measure</param>
+        /// <param name="scale">The scale of the number to produce</param>
+        /// <returns>The size of the number, in pixels</returns>
+        Size SizeForImageNumber(int number, int scale)
+        {
+            return new Size(((int)Math.Floor(Math.Log10(number)) + 1) * 5 * scale, 5 * scale);
+        }
+
+        /// <summary>
+        /// Renders a pixel number on a given graphics object
+        /// </summary>
+        /// <param name="g">The graphics object to render the number to</param>
+        /// <param name="point">The point to render the number at</param>
+        /// <param name="number">The number to render</param>
+        /// <param name="scale">The scaling to use. Set to 1 to pass the default scale</param>
+        void RenderPixelNumber(Graphics g, Point point, int number, int scale = 1)
+        {
+            string numberString = Math.Abs(number).ToString();
+            int x = 0;
+            for (int i = 0; i < numberString.Length; i++)
+            {
+                int digit = int.Parse(numberString[i] + "");
+
+                Image frameImage = ImageForDigit(digit);
+                Rectangle rect = new Rectangle(point.X + x, point.Y, frameImage.Width * scale, frameImage.Height * scale);
+
+                // Ignore if outside the visible area of the graphics object
+                RectangleF re = g.ClipBounds;
+                if (re.IntersectsWith(rect))
+                {
+                    g.DrawImage(frameImage, rect);
+                }
+
+                x += frameImage.Width;
+
+                // If the passed number is 0, quit now to avoid infinite loops
+                if (number == 0)
+                    return;
+            }
+        }
+
+        /// <summary>
+        /// Returns the image for a given pixel digit
+        /// </summary>
+        /// <param name="digit">A valid digit between 0-9</param>
+        /// <returns>An image that represents the given digit</returns>
+        Image ImageForDigit(int digit)
+        {
+            switch (digit)
+            {
+                case 0:
+                    return Pixelaria.Properties.Resources.Numbers_0;
+                case 1:
+                    return Pixelaria.Properties.Resources.Numbers_1;
+                case 2:
+                    return Pixelaria.Properties.Resources.Numbers_2;
+                case 3:
+                    return Pixelaria.Properties.Resources.Numbers_3;
+                case 4:
+                    return Pixelaria.Properties.Resources.Numbers_4;
+                case 5:
+                    return Pixelaria.Properties.Resources.Numbers_5;
+                case 6:
+                    return Pixelaria.Properties.Resources.Numbers_6;
+                case 7:
+                    return Pixelaria.Properties.Resources.Numbers_7;
+                case 8:
+                    return Pixelaria.Properties.Resources.Numbers_8;
+                case 9:
+                    return Pixelaria.Properties.Resources.Numbers_9;
+
+                default:
+                    return Pixelaria.Properties.Resources.Numbers_0;
             }
         }
     }

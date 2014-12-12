@@ -576,6 +576,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\Numbers_9.png" />
+    <None Include="Resources\Numbers_8.png" />
+    <None Include="Resources\Numbers_7.png" />
+    <None Include="Resources\Numbers_6.png" />
+    <None Include="Resources\Numbers_5.png" />
+    <None Include="Resources\Numbers_4.png" />
+    <None Include="Resources\Numbers_3.png" />
+    <None Include="Resources\Numbers_2.png" />
+    <None Include="Resources\Numbers_1.png" />
+    <None Include="Resources\Numbers_0.png" />
     <None Include="Resources\anim_reverse_icon.png" />
     <None Include="Resources\plus_icon.png" />
     <None Include="Resources\minus_icon.png" />

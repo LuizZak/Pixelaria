@@ -316,6 +316,8 @@ namespace Pixelaria.Views.ModelViews
             {
                 zpb_sheetPreview.LoadExportSheet(bundleSheetExport);
             }
+
+            cb_showReuseCount.Enabled = true;
         }
 
         /// <summary>
@@ -324,6 +326,30 @@ namespace Pixelaria.Views.ModelViews
         public void HideFrameBounds()
         {
             zpb_sheetPreview.UnloadExportSheet();
+
+            cb_showReuseCount.Enabled = false;
+        }
+
+        /// <summary>
+        /// Shows the reuse count for the exported image
+        /// </summary>
+        public void ShowReuseCount()
+        {
+            if (bundleSheetExport != null)
+            {
+                zpb_sheetPreview.DisplayReusedCount = true;
+            }
+        }
+
+        /// <summary>
+        /// Hides the reuse count for the exported image
+        /// </summary>
+        public void HideReuseCount()
+        {
+            if (bundleSheetExport != null)
+            {
+                zpb_sheetPreview.DisplayReusedCount = false;
+            }
         }
 
         /// <summary>
@@ -410,6 +436,21 @@ namespace Pixelaria.Views.ModelViews
             else
             {
                 HideFrameBounds();
+            }
+        }
+
+        //
+        // Show Reuse Count checkbox check
+        //
+        private void cb_showReuseCount_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cb_showReuseCount.Checked)
+            {
+                ShowReuseCount();
+            }
+            else
+            {
+                HideReuseCount();
             }
         }
 

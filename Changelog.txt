@@ -20,6 +20,9 @@ Legend:
 
 -- v1.14.0b
 
+. AnimationSheetView
+  + Added new 'Show use count' checkbox on the sheet preview that displays the number of frames stored on each of the frame bounds on the export sheet.
+
 * Now the texture packer utilizes a stable sort for sorting the frame sizes, meaning frame order will be preserved on frames of equal size.
 
 . Added a "File a Bug..." menu item to direct users to a repository of bug repport on the SourceForce page.

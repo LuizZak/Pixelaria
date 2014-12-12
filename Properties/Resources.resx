@@ -680,4 +680,34 @@ POSSIBILITY OF SUCH DAMAGES.
   <data name="anim_reverse_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\anim_reverse_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Numbers_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_0.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_5.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_6.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_7" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_7.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_8.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Numbers_9" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_9.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
