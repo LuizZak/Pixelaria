@@ -56,6 +56,11 @@ namespace Pixelaria.Views.Controls
         /// Whether to display the number of frames that have been reused when drawing the frame bounds
         /// </summary>
         private bool displayReusedCount = false;
+
+        /// <summary>
+        /// The array of images used to represent the pixel digits
+        /// </summary>
+        private Image[] pixelDigitsImages;
         
         /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
@@ -81,9 +86,33 @@ namespace Pixelaria.Views.Controls
             get { return displayReusedCount; }
             set
             {
+                if (pixelDigitsImages == null)
+                {
+                    LoadPixelDigitImages();
+                }
+
                 displayReusedCount = value;
                 Invalidate();
             }
+        }
+
+        /// <summary>
+        /// Loads the pixel digit images
+        /// </summary>
+        private void LoadPixelDigitImages()
+        {
+            pixelDigitsImages = new Image[10];
+
+            pixelDigitsImages[0] = Pixelaria.Properties.Resources.Numbers_0;
+            pixelDigitsImages[1] = Pixelaria.Properties.Resources.Numbers_1;
+            pixelDigitsImages[2] = Pixelaria.Properties.Resources.Numbers_2;
+            pixelDigitsImages[3] = Pixelaria.Properties.Resources.Numbers_3;
+            pixelDigitsImages[4] = Pixelaria.Properties.Resources.Numbers_4;
+            pixelDigitsImages[5] = Pixelaria.Properties.Resources.Numbers_5;
+            pixelDigitsImages[6] = Pixelaria.Properties.Resources.Numbers_6;
+            pixelDigitsImages[7] = Pixelaria.Properties.Resources.Numbers_7;
+            pixelDigitsImages[8] = Pixelaria.Properties.Resources.Numbers_8;
+            pixelDigitsImages[9] = Pixelaria.Properties.Resources.Numbers_9;
         }
 
         /// <summary>
@@ -251,32 +280,10 @@ namespace Pixelaria.Views.Controls
         /// <returns>An image that represents the given digit</returns>
         Image ImageForDigit(int digit)
         {
-            switch (digit)
-            {
-                case 0:
-                    return Pixelaria.Properties.Resources.Numbers_0;
-                case 1:
-                    return Pixelaria.Properties.Resources.Numbers_1;
-                case 2:
-                    return Pixelaria.Properties.Resources.Numbers_2;
-                case 3:
-                    return Pixelaria.Properties.Resources.Numbers_3;
-                case 4:
-                    return Pixelaria.Properties.Resources.Numbers_4;
-                case 5:
-                    return Pixelaria.Properties.Resources.Numbers_5;
-                case 6:
-                    return Pixelaria.Properties.Resources.Numbers_6;
-                case 7:
-                    return Pixelaria.Properties.Resources.Numbers_7;
-                case 8:
-                    return Pixelaria.Properties.Resources.Numbers_8;
-                case 9:
-                    return Pixelaria.Properties.Resources.Numbers_9;
+            if (digit < 0 || digit >= pixelDigitsImages.Length)
+                return pixelDigitsImages[0];
 
-                default:
-                    return Pixelaria.Properties.Resources.Numbers_0;
-            }
+            return pixelDigitsImages[digit];
         }
     }
 }
