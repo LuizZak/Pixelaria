@@ -24,6 +24,8 @@ Legend:
 
 . FrameView
   * Fixed pencil not changing active color to the first when picking colors with middle mouse button.
+  * Fixed spray paint brush size aid glitching out when using the second color.
+  * Fixed broken eraser undo operation.
 
 . AnimationSheetView
   + Added feature to display number of frames occupying the same frame bounds with a 'Show use count' checkbox.

@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.11.0b
+                  v1.14.0b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright © 2013 Luiz Fernando Silva
@@ -16,10 +16,10 @@ Legend:
 
 + Open Issue
 - Closed Issue
-* Issue Fix Version
+>> Issue Fix Notice
 
 -- v1.11.0b
 
-+ When an undo/redo operation is made while a selection is currently made, the sprite image is spliced.
+- When an undo/redo operation is made while a selection is currently made, the sprite image is spliced.
 >> Fixed on v1.13.0b
 
