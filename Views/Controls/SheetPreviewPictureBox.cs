@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -163,16 +164,28 @@ namespace Pixelaria.Views.Controls
 
                 if (rects != null)
                 {
+                    List<RectangleF> drawnRects = new List<RectangleF>();
+
                     // Draw the frame bounds now
                     for(int i = 0; i < rects.Length; i++)
                     {
+                        if (drawnRects.Contains(rects[i]))
+                            continue;
+                        drawnRects.Add(rects[i]);
+
                         RectangleF r = rects[i];
                         r.X += 0.5f;
                         r.Y += 0.5f;
 
+                        if (!pe.Graphics.ClipBounds.IntersectsWith(r))
+                            continue;
+
                         pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
 
-                        if(this.displayReusedCount)
+                        // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
+                        Point pixelPoint = new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f));
+
+                        if (this.displayReusedCount)
                         {
                             int scale = 3;
                             int frameCount = reuseCont[i] + 1;
@@ -180,7 +193,7 @@ namespace Pixelaria.Views.Controls
                             while ((r.Size.Width < SizeForImageNumber(frameCount, scale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, scale).Height * 2) && scale > 1)
                                 scale--;
 
-                            RenderPixelNumber(pe.Graphics, new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f)), frameCount, scale);
+                            RenderPixelNumber(pe.Graphics, pixelPoint, frameCount, scale);
                         }
                     }
                 }
