@@ -21,12 +21,11 @@ Legend:
 -- v1.14.0b
 
 . FrameView
-  * Fixed pencil not changing active color to first color when picking color with middle mouse button.
+  * Fixed pencil not changing active color to the first when picking colors with middle mouse button.
 
 . AnimationSheetView
-  + Added new 'Show use count' checkbox on the sheet preview that displays the number of frames stored on each of the frame bounds on the export sheet.
-
-* Now the texture packer utilizes a stable sort for sorting the frame sizes, meaning frame order will be preserved on frames of equal size.
+  + Added feature to display number of frames occupying the same frame bounds with a 'Show use count' checkbox.
+  * Now the texture packer will preserve frame order when sorting frames by size when the option is selected.
 
 . Added a "File a Bug..." menu item to direct users to a repository of bug repport on the SourceForce page.
 
