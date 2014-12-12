@@ -40,6 +40,7 @@ using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.Filters;
 using Pixelaria.Views.MiscViews;
+using Pixelaria.Views.ModelViews.Miscs;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -134,6 +135,11 @@ namespace Pixelaria.Views.ModelViews
         public static OnionSkinMode OnionSkinMode;
 
         /// <summary>
+        /// The onion skin decorator used to display the onion skin on this frame view
+        /// </summary>
+        public OnionSkinDecorator OnionSkinDecorator;
+
+        /// <summary>
         /// Gets whether this FrameView has modified any frames while open
         /// </summary>
         public bool ModifiedFrames { get; private set; }
@@ -223,6 +229,18 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
             this.tsb_osShowCurrentFrame.Checked = OnionSkinShowCurrentFrame;
             this.tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+
+            this.OnionSkinDecorator = new OnionSkinDecorator(this, this.iepb_frame.PictureBox);
+            this.OnionSkinDecorator.OnionSkinDepth = OnionSkinDepth;
+            this.OnionSkinDecorator.OnionSkinMode = OnionSkinMode;
+            this.OnionSkinDecorator.OnionSkinShowCurrentFrame = OnionSkinShowCurrentFrame;
+            this.OnionSkinDecorator.OnionSkinTransparency = OnionSkinTransparency;
+            this.iepb_frame.PictureBox.AddDecorator(this.OnionSkinDecorator);
+
+            if (OnionSkinEnabled)
+            {
+                this.ShowOnionSkin();
+            }
 
             if (CurrentCompositingMode == CompositingMode.SourceOver)
             {
@@ -386,13 +404,6 @@ namespace Pixelaria.Views.ModelViews
             }
 
             oldFrameIndex = frame.Index;
-
-            // Update onion skin if enabled
-            if (OnionSkinEnabled)
-            {
-                DestroyOnionSkin();
-                ShowOnionSkin();
-            }
         }
 
         /// <summary>
@@ -575,72 +586,7 @@ namespace Pixelaria.Views.ModelViews
             if (!tsl_onionSkinDepth.Visible)
                 tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = true;
 
-            if (onionSkin != null && (onionSkin.Width != frameToEdit.Width || onionSkin.Height != frameToEdit.Height))
-            {
-                onionSkin.Dispose();
-                onionSkin = null;
-            }
-            else if(onionSkin != null)
-            {
-                FastBitmap.ClearBitmap(onionSkin, 0);
-            }
-
-            if (onionSkin == null)
-            {
-                // Create the new onion skin
-                onionSkin = new Bitmap(frameToEdit.Width, frameToEdit.Height, PixelFormat.Format32bppArgb);
-            }
-
-            Graphics og = Graphics.FromImage(onionSkin);
-
-            og.CompositingMode = CompositingMode.SourceOver;
-
-            Rectangle bounds = new Rectangle(0, 0, frameToEdit.Width, frameToEdit.Height);
-
-            // Create image attributes
-            ImageAttributes attributes = new ImageAttributes();
-
-            // Create a color matrix object
-            ColorMatrix matrix = new ColorMatrix();
-
-            //float multDecay = 0.3f + (0.7f / OnionSkinDepth);
-            float multDecay = 0.5f + (OnionSkinDepth / 50.0f);
-
-            // Draw the previous frames
-            if(OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == ModelViews.OnionSkinMode.PreviousAndNextFrames)
-            {
-                int fi = frameToEdit.Index;
-                float mult = 1;
-                for (int i = fi - 1; i > fi - OnionSkinDepth - 1 && i >= 0; i--)
-                {
-                    matrix.Matrix33 = OnionSkinTransparency * mult;
-                    mult *= multDecay;
-                    attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-
-                    og.DrawImage(frameToEdit.Animation[i].GetComposedBitmap(), bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
-                }
-            }
-            // Draw the next frames
-            if (OnionSkinMode == ModelViews.OnionSkinMode.NextFrames || OnionSkinMode == ModelViews.OnionSkinMode.PreviousAndNextFrames)
-            {
-                int fi = frameToEdit.Index;
-                float mult = 1;
-                for (int i = fi + 1; i < fi + OnionSkinDepth + 1 && i < frameToEdit.Animation.FrameCount; i++)
-                {
-                    matrix.Matrix33 = OnionSkinTransparency * mult;
-                    mult *= multDecay;
-                    attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-
-                    og.DrawImage(frameToEdit.Animation[i].GetComposedBitmap(), bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
-                }
-            }
-
-            og.Flush();
-            og.Dispose();
-
-            iepb_frame.PictureBox.DisplayImage = OnionSkinShowCurrentFrame;
-
-            iepb_frame.PictureBox.UnderImage = onionSkin;
+            OnionSkinDecorator.ShowOnionSkin();
         }
 
         /// <summary>
@@ -650,27 +596,10 @@ namespace Pixelaria.Views.ModelViews
         {
             OnionSkinEnabled = false;
 
+            this.OnionSkinDecorator.HideOnionSkin();
+
             if (tsl_onionSkinDepth.Visible)
                 tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = false;
-
-            iepb_frame.PictureBox.DisplayImage = true;
-
-            DestroyOnionSkin();
-        }
-
-        /// <summary>
-        /// Destroys the current onion skin
-        /// </summary>
-        private void DestroyOnionSkin()
-        {
-            iepb_frame.PictureBox.UnderImage = null;
-
-            // Dispose of the onion skin
-            if (onionSkin != null)
-            {
-                onionSkin.Dispose();
-                onionSkin = null;
-            }
         }
 
         /// <summary>

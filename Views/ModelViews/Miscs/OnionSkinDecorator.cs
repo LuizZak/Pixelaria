@@ -31,6 +31,11 @@ namespace Pixelaria.Views.ModelViews.Miscs
         protected Bitmap onionSkin;
 
         /// <summary>
+        /// Whether the onion skin is currently enabled
+        /// </summary>
+        public bool OnionSkinEnabled;
+
+        /// <summary>
         /// The depth of the onion skin
         /// </summary>
         public int OnionSkinDepth;
@@ -75,7 +80,11 @@ namespace Pixelaria.Views.ModelViews.Miscs
         // 
         private void frameView_EditFrameChanged(object sender, EditFrameChangedEventArgs args)
         {
-            
+            if (OnionSkinEnabled)
+            {
+                DestroyOnionSkin();
+                ShowOnionSkin();
+            }
         }
 
         /// <summary>
@@ -93,6 +102,11 @@ namespace Pixelaria.Views.ModelViews.Miscs
         {
             this.pictureBox = null;
 
+            if (this.onionSkin != null)
+            {
+                this.onionSkin.Dispose();
+            }
+
             this.frameView.EditFrameChanged -= frameChangedEventHandler;
         }
 
@@ -101,19 +115,10 @@ namespace Pixelaria.Views.ModelViews.Miscs
         /// </summary>
         public void ShowOnionSkin()
         {
-            // Update the toolbar
-            /*tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
-            tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            OnionSkinEnabled = true;
 
-            if (tscb_osFrameCount.SelectedIndex != OnionSkinDepth - 1)
-            {
-                ignoreOnionSkinDepthComboboxEvent = true;
-                tscb_osFrameCount.SelectedIndex = OnionSkinDepth - 1;
-                ignoreOnionSkinDepthComboboxEvent = false;
-            }
-
-            if (!tsl_onionSkinDepth.Visible)
-                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = true;*/
+            if (this.frameView.FrameLoaded == null)
+                return;
 
             if (onionSkin != null && (onionSkin.Width != frameView.FrameLoaded.Width || onionSkin.Height != frameView.FrameLoaded.Height))
             {
@@ -179,35 +184,48 @@ namespace Pixelaria.Views.ModelViews.Miscs
             og.Dispose();
 
             pictureBox.DisplayImage = OnionSkinShowCurrentFrame;
+            pictureBox.Invalidate();
+        }
 
-            pictureBox.UnderImage = onionSkin;
+        /// <summary>
+        /// Hides the onion skin for the current frame
+        /// </summary>
+        public void HideOnionSkin()
+        {
+            pictureBox.DisplayImage = true;
+
+            DestroyOnionSkin();
+
+            OnionSkinEnabled = false;
+        }
+
+        /// <summary>
+        /// Destroys the current onion skin
+        /// </summary>
+        private void DestroyOnionSkin()
+        {
+            // Dispose of the onion skin
+            if (onionSkin != null)
+            {
+                onionSkin.Dispose();
+                onionSkin = null;
+            }
+
+            pictureBox.Invalidate();
         }
 
         /// <summary>
         /// Decorates the under image, using the given event arguments
         /// </summary>
-        /// <param name="underImage">The under image to decorate</param>
-        public override void DecorateUnderImage(Image underImage)
+        /// <param name="image">The under image to decorate</param>
+        public override void DecorateUnderImage(Image image)
         {
+            if (onionSkin != null)
+            {
+                Graphics g = Graphics.FromImage(image);
 
-        }
-
-        /// <summary>
-        /// Decorates the main image, using the given event arguments
-        /// </summary>
-        /// <param name="mainImage">The main image to decorate</param>
-        public override void DecorateMainImage(Image mainImage)
-        {
-
-        }
-
-        /// <summary>
-        /// Decorates the front image, using the given event arguments
-        /// </summary>
-        /// <param name="frontImage">The front image to decorate</param>
-        public override void DecorateFrontImage(Image frontImage)
-        {
-
+                g.DrawImage(onionSkin, 0, 0);
+            }
         }
     }
 }

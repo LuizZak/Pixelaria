@@ -451,6 +451,18 @@ namespace Pixelaria.Views.Controls
                     decorator.Destroy();
                 }
 
+                // Create the under and over images
+                if (overImage != null)
+                {
+                    overImage.Dispose();
+                    overImage = null;
+                }
+                if (underImage != null)
+                {
+                    underImage.Dispose();
+                    underImage = null;
+                }
+
                 pictureBoxDecorators.Clear();
 
                 buffer.Dispose();
@@ -470,6 +482,19 @@ namespace Pixelaria.Views.Controls
                     buffer.Dispose();                
 
                 buffer = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+
+                // Create the under and over images
+                if (overImage != null)
+                {
+                    overImage.Dispose();
+                }
+                if (underImage != null)
+                {
+                    underImage.Dispose();
+                }
+
+                overImage = new Bitmap(buffer.Width, buffer.Height, PixelFormat.Format32bppArgb);
+                underImage = new Bitmap(buffer.Width, buffer.Height, PixelFormat.Format32bppArgb);
 
                 if (currentPaintOperation != null)
                 {
@@ -542,6 +567,37 @@ namespace Pixelaria.Views.Controls
                 OnPaintBackground(pe);
             }
 
+            /// <summary>
+            /// Adds a decorator to this picture box
+            /// </summary>
+            /// <param name="decorator">The decorator to add to this picture box</param>
+            public void AddDecorator(PictureBoxDecorator decorator)
+            {
+                this.pictureBoxDecorators.Add(decorator);
+                decorator.AddedToPictureBox(this);
+                this.Invalidate();
+            }
+
+            /// <summary>
+            /// Removes a decorator from this picture box
+            /// </summary>
+            /// <param name="decorator">The decorator to remove from this picture box</param>
+            public void RemoveDecorator(PictureBoxDecorator decorator)
+            {
+                this.pictureBoxDecorators.Remove(decorator);
+                this.Invalidate();
+            }
+
+            /// <summary>
+            /// Removes a decorator from this picture box
+            /// </summary>
+            /// <param name="decorator">The decorator to remove from this picture box</param>
+            public void ClearDecorators()
+            {
+                this.pictureBoxDecorators.Clear();
+                this.Invalidate();
+            }
+
             // 
             // OnPaint event handler
             // 
@@ -578,21 +634,21 @@ namespace Pixelaria.Views.Controls
                 {
                     UpdateGraphicsTransform(pe.Graphics);
 
-                    // Clear the buffer
+                    // Reset the buffer back to the original input bitmap state
                     FastBitmap.CopyPixels(Bitmap, buffer);
 
                     // Clip to the image's boundaries
                     pe.Graphics.IntersectClip(new RectangleF(0, 0, Image.Width, Image.Height));
-
                     Region clip = pe.Graphics.Clip;
 
+                    // Start painting now
                     currentPaintOperation.Paint(pe);
 
                     if (displayImage)
                     {
                         foreach (PictureBoxDecorator decorator in pictureBoxDecorators)
                         {
-                            decorator.DecorateUnderImage(buffer);
+                            decorator.DecorateMainImage(buffer);
                         }
 
                         // Draw the buffer now
@@ -602,13 +658,6 @@ namespace Pixelaria.Views.Controls
                     // Draw the over image
                     if (overImage != null)
                     {
-                        RectangleF sourceRect = new RectangleF(0, 0, Image.Width, Image.Height);
-
-                        sourceRect.X += offsetPoint.X;
-                        sourceRect.Y += offsetPoint.Y;
-                        sourceRect.Width /= scale.X;
-                        sourceRect.Height /= scale.Y;
-
                         // Apply the decorators
                         Image copy = overImage;
 
@@ -618,11 +667,11 @@ namespace Pixelaria.Views.Controls
 
                             foreach (PictureBoxDecorator decorator in pictureBoxDecorators)
                             {
-                                decorator.DecorateUnderImage(copy);
+                                decorator.DecorateFrontImage(copy);
                             }
                         }
 
-                        pe.Graphics.DrawImage(copy, sourceRect, sourceRect, GraphicsUnit.Pixel);
+                        pe.Graphics.DrawImage(copy, Point.Empty);
                     }
 
                     // Reset the clipping and draw the grid
@@ -6036,6 +6085,15 @@ namespace Pixelaria.Views.Controls
         public abstract void Initialize();
 
         /// <summary>
+        /// Called to notify this picture box decorator that it has been added to a picture box
+        /// </summary>
+        /// <param name="pictureBox">The picture box this decorator has been added to</param>
+        public void AddedToPictureBox(ImageEditPanel.InternalPictureBox pictureBox)
+        {
+            Initialize();
+        }
+
+        /// <summary>
         /// Destroys this PictureBoxDecorator's instance
         /// </summary>
         public virtual void Destroy()
@@ -6046,19 +6104,19 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Decorates the under image, using the given event arguments
         /// </summary>
-        /// <param name="underImage">The under image to decorate</param>
-        public virtual void DecorateUnderImage(Image underImage) { }
+        /// <param name="image">The under image to decorate</param>
+        public virtual void DecorateUnderImage(Image image) { }
 
         /// <summary>
         /// Decorates the main image, using the given event arguments
         /// </summary>
-        /// <param name="mainImage">The main image to decorate</param>
-        public virtual void DecorateMainImage(Image mainImage) { }
+        /// <param name="image">The main image to decorate</param>
+        public virtual void DecorateMainImage(Image image) { }
         
         /// <summary>
         /// Decorates the front image, using the given event arguments
         /// </summary>
-        /// <param name="frontImage">The front image to decorate</param>
-        public virtual void DecorateFrontImage(Image frontImage) { }
+        /// <param name="image">The front image to decorate</param>
+        public virtual void DecorateFrontImage(Image image) { }
     }
 }
