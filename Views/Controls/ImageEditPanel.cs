@@ -3006,7 +3006,7 @@ namespace Pixelaria.Views.Controls
 
             if (!mouseDown)
             {
-                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription, true);
+                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription, true, true);
 
                 // Mouse down
                 if (e.Button == MouseButtons.Left)
@@ -3160,7 +3160,7 @@ namespace Pixelaria.Views.Controls
 
                             image.SetPixel(p.X, p.Y, newColor);
 
-                            currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor);
+                            currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor, false);
 
                             pf = GetRelativePoint(p);
                             InvalidateRect(pf, pen.Width, pen.Height);
