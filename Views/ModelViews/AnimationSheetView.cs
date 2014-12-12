@@ -335,10 +335,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void ShowReuseCount()
         {
-            if (bundleSheetExport != null)
-            {
-                zpb_sheetPreview.DisplayReusedCount = true;
-            }
+            zpb_sheetPreview.DisplayReusedCount = true;
         }
 
         /// <summary>
