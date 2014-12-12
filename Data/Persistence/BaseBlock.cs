@@ -148,6 +148,11 @@ namespace Pixelaria.Data.Persistence
         {
             BinaryReader reader = new BinaryReader(stream);
 
+            if (stream.Position + stream.Length < blockLength)
+            {
+                throw new ArgumentException("The stream provided does not have the required " + blockLength + " bytes needed to load this file block.", "stream");
+            }
+
             blockContent = reader.ReadBytes((int)blockLength);
         }
 
