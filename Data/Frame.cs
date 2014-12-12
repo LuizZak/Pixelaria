@@ -151,7 +151,7 @@ namespace Pixelaria.Data
         {
             if (this.animation != null && this.animation != newAnimation)
             {
-                throw new Exception("The frame may not be added to another animation before being removed from the current one before");
+                throw new InvalidOperationException("The frame may not be added to another animation before being removed from the current one before");
             }
 
             this.animation = newAnimation;
@@ -187,7 +187,7 @@ namespace Pixelaria.Data
 
             if (animation != null && frame.width != this.width && frame.width != animation.Width && frame.height != this.height && frame.height != animation.Height)
             {
-                throw new Exception("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
+                throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
             this.width = frame.width;
