@@ -2552,8 +2552,19 @@ namespace Pixelaria.Views.Controls
                 g.FillEllipse(b, 0, 0, size, size);
             }
 
-            secondPenBitmap = new Bitmap(size, size, PixelFormat.Format32bppArgb);
-            secondPenBitmap.SetPixel(0, 0, Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+            secondPenBitmap = new Bitmap(size + 1, size + 1, PixelFormat.Format32bppArgb);
+
+            if (size == 1)
+            {
+                secondPenBitmap.SetPixel(0, 0, Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(secondPenBitmap);
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                Brush b = new SolidBrush(Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+                g.FillEllipse(b, 0, 0, size, size);
+            }
         }
 
         /// <summary>
@@ -3347,7 +3358,7 @@ namespace Pixelaria.Views.Controls
         {
             base.MouseDown(e);
 
-            if (mouseDown)
+            if (mouseDown && e.Button != MouseButtons.Middle)
             {
                 sprayTimer.Start();
             }
