@@ -2263,6 +2263,9 @@ namespace Pixelaria.Views.Controls
                 {
                     mouseDown = true;
 
+                    // Set pen to first color because color picking always changes the first color
+                    penId = 0;
+
                     firstColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
                     RegeneratePenBitmap();
 
