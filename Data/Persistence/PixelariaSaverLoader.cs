@@ -810,6 +810,9 @@ namespace Pixelaria.Data.Persistence
                 block.SaveToStream(stream);
             }
 
+            // Truncate the stream so any unwanted extra data is not left pending, that can lead to potential crashes when reading the file back again
+            stream.SetLength(stream.Position);
+
             file.CurrentStream.Close();
         }
     }
