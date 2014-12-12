@@ -488,10 +488,8 @@ namespace Pixelaria.Algorithms.Packers
 
             /// <summary>
             /// Gets the original similar frame based on the given frame.
-            /// The returned frame is the first frame inserted that is similar
-            /// to the given frame. If the given frame is the original similar
-            /// frame, null is returned. If no similar frames were stored, null
-            /// is returned.
+            /// The returned frame is the first frame inserted that is similar to the given frame. If the given frame is the original similar
+            /// frame, null is returned. If no similar frames were stored, null is returned.
             /// </summary>
             /// <param name="frame">The frame to seek the original similar frame from</param>
             /// <returns>The first frame inserted that is similar to the given frame. If the given frame is the original similar frame, null is returned. If no similar frames were stored, null is returned.</returns>
