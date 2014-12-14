@@ -59,12 +59,12 @@ namespace Pixelaria.Views
             this.tsb_open = new System.Windows.Forms.ToolStripButton();
             this.tsb_save = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsb_bundleSettings = new System.Windows.Forms.ToolStripButton();
             this.tsb_createAnimation = new System.Windows.Forms.ToolStripButton();
             this.tsb_importAnimation = new System.Windows.Forms.ToolStripButton();
             this.tsb_createAnimationSheet = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsb_exportButton = new System.Windows.Forms.ToolStripButton();
+            this.tsb_bundleSettings = new System.Windows.Forms.ToolStripButton();
             this.cms_bundleNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_createNewAnimation = new System.Windows.Forms.ToolStripMenuItem();
             this.cmb_importAnimation = new System.Windows.Forms.ToolStripMenuItem();
@@ -176,16 +176,6 @@ namespace Pixelaria.Views
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
-            // tsb_bundleSettings
-            // 
-            this.tsb_bundleSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsb_bundleSettings.Image = global::Pixelaria.Properties.Resources.document_properties;
-            this.tsb_bundleSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_bundleSettings.Name = "tsb_bundleSettings";
-            this.tsb_bundleSettings.Size = new System.Drawing.Size(23, 22);
-            this.tsb_bundleSettings.Text = "Bundle Settings";
-            this.tsb_bundleSettings.Click += new System.EventHandler(this.tsb_bundleSettings_Click);
-            // 
             // tsb_createAnimation
             // 
             this.tsb_createAnimation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -230,6 +220,16 @@ namespace Pixelaria.Views
             this.tsb_exportButton.Size = new System.Drawing.Size(23, 22);
             this.tsb_exportButton.Text = "Export Bundle";
             this.tsb_exportButton.Click += new System.EventHandler(this.tsb_exportButton_Click);
+            // 
+            // tsb_bundleSettings
+            // 
+            this.tsb_bundleSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_bundleSettings.Image = global::Pixelaria.Properties.Resources.document_properties;
+            this.tsb_bundleSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_bundleSettings.Name = "tsb_bundleSettings";
+            this.tsb_bundleSettings.Size = new System.Drawing.Size(23, 22);
+            this.tsb_bundleSettings.Text = "Bundle Settings";
+            this.tsb_bundleSettings.Click += new System.EventHandler(this.tsb_bundleSettings_Click);
             // 
             // cms_bundleNodeRightClick
             // 
@@ -540,6 +540,7 @@ namespace Pixelaria.Views
             this.tv_bundleAnimations.HideSelection = false;
             this.tv_bundleAnimations.ImageIndex = 0;
             this.tv_bundleAnimations.ImageList = this.il_treeView;
+            this.tv_bundleAnimations.LoadedProjectTree = null;
             this.tv_bundleAnimations.Location = new System.Drawing.Point(0, 25);
             this.tv_bundleAnimations.Name = "tv_bundleAnimations";
             treeNode1.ImageIndex = 0;
