@@ -108,10 +108,10 @@ namespace Pixelaria.Data
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
         public Frame(Animation parentAnimation, int width, int height, bool initHash = true)
         {
-            this._id = -1;
-            this._width = width;
-            this._height = height;
-            this._animation = parentAnimation;
+            _id = -1;
+            _width = width;
+            _height = height;
+            _animation = parentAnimation;
 
             _frameTexture = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
@@ -154,12 +154,12 @@ namespace Pixelaria.Data
         /// <param name="newAnimation">The new animation</param>
         public void Added(Animation newAnimation)
         {
-            if (this._animation != null && this._animation != newAnimation)
+            if (_animation != null && _animation != newAnimation)
             {
                 throw new InvalidOperationException("The frame may not be added to another animation before being removed from the current one before");
             }
 
-            this._animation = newAnimation;
+            _animation = newAnimation;
         }
 
         /// <summary>
@@ -190,16 +190,16 @@ namespace Pixelaria.Data
             if (this == frame)
                 return;
 
-            if (_animation != null && frame._width != this._width && frame._width != _animation.Width && frame._height != this._height && frame._height != _animation.Height)
+            if (_animation != null && frame._width != _width && frame._width != _animation.Width && frame._height != _height && frame._height != _animation.Height)
             {
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
-            this._width = frame._width;
-            this._height = frame._height;
-            this._frameTexture = frame._frameTexture.Clone(new Rectangle(0, 0, frame._frameTexture.Width, frame._frameTexture.Height), frame._frameTexture.PixelFormat);
+            _width = frame._width;
+            _height = frame._height;
+            _frameTexture = frame._frameTexture.Clone(new Rectangle(0, 0, frame._frameTexture.Width, frame._frameTexture.Height), frame._frameTexture.PixelFormat);
 
-            this._hash = frame._hash;
+            _hash = frame._hash;
         }
 
         /// <summary>
@@ -209,16 +209,16 @@ namespace Pixelaria.Data
         /// <returns>Whether this frame's contents match another frame's</returns>
         public bool Equals(Frame frame)
         {
-            if (this._width != frame._width || this._height != frame._height)
+            if (_width != frame._width || _height != frame._height)
                 return false;
 
-            if (this._hash == null || frame._hash == null)
+            if (_hash == null || frame._hash == null)
                 return false;
 
-            int l = this._hash.Length;
+            int l = _hash.Length;
             for (int i = 0; i < l; i++)
             {
-                if (this._hash[i] != frame._hash[i])
+                if (_hash[i] != frame._hash[i])
                     return false;
             }
 
@@ -292,10 +292,10 @@ namespace Pixelaria.Data
                 }
                 else
                 {
-                    tx = (float)height / 2 - ((float)composed.Width * scaleX / 2);
+                    tx = (float)height / 2 - (composed.Width * scaleX / 2);
                 }
 
-                ty = (float)width / 2 - ((float)composed.Height * scaleY / 2);
+                ty = (float)width / 2 - (composed.Height * scaleY / 2);
             }
             else
             {
@@ -306,10 +306,10 @@ namespace Pixelaria.Data
                 }
                 else
                 {
-                    ty = (float)width / 2 - ((float)composed.Height * scaleY / 2);
+                    ty = (float)width / 2 - (composed.Height * scaleY / 2);
                 }
 
-                tx = (float)height / 2 - ((float)composed.Width * scaleX / 2);
+                tx = (float)height / 2 - (composed.Width * scaleX / 2);
             }
 
             if (!centered)
@@ -347,7 +347,7 @@ namespace Pixelaria.Data
                 throw new Exception("The dimensions of the Animation that owns this frame don't match the given new dimensions.");
             }
 
-            if(this._width == newWidth && this._height == newHeight)
+            if(_width == newWidth && _height == newHeight)
                 return;
 
             Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
@@ -356,8 +356,8 @@ namespace Pixelaria.Data
             _frameTexture.Dispose();
             _frameTexture = newTexture;
 
-            this._width = newWidth;
-            this._height = newHeight;
+            _width = newWidth;
+            _height = newHeight;
 
             // Update hash
             UpdateHash();
@@ -377,7 +377,7 @@ namespace Pixelaria.Data
         /// <param name="newHash">The new hash for the frame</param>
         public void SetHash(byte[] newHash)
         {
-            this._hash = newHash;
+            _hash = newHash;
         }
     }
 }
