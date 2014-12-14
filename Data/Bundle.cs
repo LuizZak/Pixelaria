@@ -205,7 +205,7 @@ namespace Pixelaria.Data
         {
             Animation dup = anim.Clone();
 
-            sheet = (sheet == null ? GetOwningAnimationSheet(anim) : sheet);
+            sheet = (sheet ?? GetOwningAnimationSheet(anim));
 
             AddAnimation(dup, sheet);
 
