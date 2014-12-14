@@ -412,7 +412,7 @@ namespace Pixelaria.Algorithms.Packers
             /// <summary>
             /// Gets the number of cached similar fragments currently stores
             /// </summary>
-            public int CachedSimilarCount { get { return _similarFramesMatrix.Sum((list) => list.Count) - _similarFramesMatrix.Count; } }
+            public int CachedSimilarCount { get { return _similarFramesMatrix.Sum(list => list.Count) - _similarFramesMatrix.Count; } }
 
             /// <summary>
             /// Creates a new instance of the FrameComparision class
@@ -424,7 +424,7 @@ namespace Pixelaria.Algorithms.Packers
                 _similarFramesMatrix = new List<List<Frame>>();
                 _similarMatrixIndexDictionary = new Dictionary<Frame, int>();
 
-                this._useMinimumTextureArea = useMinimumTextureArea;
+                _useMinimumTextureArea = useMinimumTextureArea;
             }
 
             /// <summary>
@@ -531,7 +531,7 @@ namespace Pixelaria.Algorithms.Packers
             /// <returns>The first frame inserted that is similar to the given frame. If the given frame is the original similar frame, null is returned. If no similar frames were stored, null is returned.</returns>
             public Frame GetOriginalSimilarFrame(Frame frame)
             {
-                int index = 0;
+                int index;
                 if (_similarMatrixIndexDictionary.TryGetValue(frame, out index))
                 {
                     return _similarFramesMatrix[index][0] == frame ? null : frame;
