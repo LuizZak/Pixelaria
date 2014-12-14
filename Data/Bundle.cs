@@ -33,27 +33,27 @@ namespace Pixelaria.Data
         /// <summary>
         /// List of animations on this Bundle
         /// </summary>
-        List<Animation> animations;
+        List<Animation> _animations;
 
         /// <summary>
         /// List of animation sheets on this bundle
         /// </summary>
-        List<AnimationSheet> animationSheets;
+        List<AnimationSheet> _animationSheets;
 
         /// <summary>
         /// A project tree that represents the tree visualization for the project contents
         /// </summary>
-        ProjectTree bundleProjectTree;
+        ProjectTree _bundleProjectTree;
 
         /// <summary>
         /// Gets the array of animations on this bundle
         /// </summary>
-        public Animation[] Animations { get { return animations.ToArray(); } }
+        public Animation[] Animations { get { return _animations.ToArray(); } }
 
         /// <summary>
         /// Gets the array of animation sheets on this bundle
         /// </summary>
-        public AnimationSheet[] AnimationSheets { get { return animationSheets.ToArray(); } }
+        public AnimationSheet[] AnimationSheets { get { return _animationSheets.ToArray(); } }
 
         /// <summary>
         /// Gets or sets the name of this bundle
@@ -74,7 +74,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the a project tree that represents the tree visualization for the project contents
         /// </summary>
-        public ProjectTree BundleProjectTree { get { return this.bundleProjectTree; } }
+        public ProjectTree BundleProjectTree { get { return this._bundleProjectTree; } }
 
         /// <summary>
         /// Initializes a new instance of the Bundle class
@@ -86,11 +86,11 @@ namespace Pixelaria.Data
             this.SaveFile = "";
             this.ExportPath = "";
 
-            this.animations = new List<Animation>();
-            this.animationSheets = new List<AnimationSheet>();
+            this._animations = new List<Animation>();
+            this._animationSheets = new List<AnimationSheet>();
 
             // Initialize the bundle tree
-            this.bundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
+            this._bundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
         }
 
         /// <summary>
@@ -99,20 +99,20 @@ namespace Pixelaria.Data
         public void Dispose()
         {
             // Animation clearing
-            foreach(Animation anim in animations)
+            foreach(Animation anim in _animations)
             {
                 anim.Dispose();
             }
-            animations.Clear();
-            animations = null;
+            _animations.Clear();
+            _animations = null;
 
             // Animation sheet clearing
-            foreach (AnimationSheet sheet in animationSheets)
+            foreach (AnimationSheet sheet in _animationSheets)
             {
                 sheet.ClearAnimationList();
             }
-            animationSheets.Clear();
-            animationSheets = null;
+            _animationSheets.Clear();
+            _animationSheets = null;
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Pixelaria.Data
         {
             Animation anim = new Animation(name, width, height);
 
-            animations.Add(anim);
+            _animations.Add(anim);
 
             return anim;
         }
@@ -141,7 +141,7 @@ namespace Pixelaria.Data
             if (anim.ID == -1)
                 anim.ID = GetNextValidAnimationID();
 
-            animations.Add(anim);
+            _animations.Add(anim);
             anim.OwnerBundle = this;
 
             // Iterate through the frames and check their ids
@@ -167,7 +167,7 @@ namespace Pixelaria.Data
         {
             AddAnimation(anim);
 
-            if (animationSheets.Contains(parentAnimationSheet))
+            if (_animationSheets.Contains(parentAnimationSheet))
             {
                 parentAnimationSheet.AddAnimation(anim);
             }
@@ -180,7 +180,7 @@ namespace Pixelaria.Data
         public void RemoveAnimation(Animation anim)
         {
             // Remove 
-            foreach (AnimationSheet bundleSheet in animationSheets)
+            foreach (AnimationSheet bundleSheet in _animationSheets)
             {
                 if (bundleSheet.RemoveAnimation(anim))
                 {
@@ -190,7 +190,7 @@ namespace Pixelaria.Data
 
             anim.OwnerBundle = null;
 
-            animations.Remove(anim);
+            _animations.Remove(anim);
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace Pixelaria.Data
 
             if (sheet == null)
             {
-                return animations.IndexOf(anim);
+                return _animations.IndexOf(anim);
             }
             else
             {
@@ -264,8 +264,8 @@ namespace Pixelaria.Data
 
             if (sheet == null)
             {
-                animations.Remove(anim);
-                animations.Insert(newIndex, anim);
+                _animations.Remove(anim);
+                _animations.Insert(newIndex, anim);
             }
             else
             {
@@ -282,7 +282,7 @@ namespace Pixelaria.Data
         /// <returns>An animation object inside this that matches the given ID. If no animation matches the passed ID, null is returned</returns>
         public Animation GetAnimationByID(int id)
         {
-            foreach (Animation anim in animations)
+            foreach (Animation anim in _animations)
             {
                 if (anim.ID == id)
                     return anim;
@@ -299,7 +299,7 @@ namespace Pixelaria.Data
         /// <returns>An animation object inside this that matches the given name. If no animation matches the passed name, null is returned</returns>
         public Animation GetAnimationByName(string name)
         {
-            foreach (Animation anim in animations)
+            foreach (Animation anim in _animations)
             {
                 if (anim.Name == name)
                     return anim;
@@ -316,7 +316,13 @@ namespace Pixelaria.Data
         {
             sheet.ID = GetNextValidAnimationSheetID();
 
-            animationSheets.Add(sheet);
+            _animationSheets.Add(sheet);
+            _animations.AddRange(sheet.Animations);
+
+            foreach (var animation in sheet.Animations)
+            {
+                animation.ID = GetNextValidAnimationID();
+            }
         }
 
         /// <summary>
@@ -341,7 +347,7 @@ namespace Pixelaria.Data
             // Decouple all animatins from the sheet
             sheet.ClearAnimationList();
 
-            animationSheets.Remove(sheet);
+            _animationSheets.Remove(sheet);
         }
 
         /// <summary>
@@ -390,7 +396,7 @@ namespace Pixelaria.Data
         /// <returns>The index of the sheet in its current parent container</returns>
         public int GetAnimationSheetIndex(AnimationSheet sheet)
         {
-            return animationSheets.IndexOf(sheet);
+            return _animationSheets.IndexOf(sheet);
         }
 
         /// <summary>
@@ -400,8 +406,8 @@ namespace Pixelaria.Data
         /// <param name="newIndex">The new index to place the sheet at</param>
         public void RearrangeAnimationSheetsPosition(AnimationSheet sheet, int newIndex)
         {
-            animationSheets.Remove(sheet);
-            animationSheets.Insert(newIndex, sheet);
+            _animationSheets.Remove(sheet);
+            _animationSheets.Insert(newIndex, sheet);
         }
 
         /// <summary>
@@ -412,7 +418,7 @@ namespace Pixelaria.Data
         /// <returns>The AnimationSheet that currently owns the given Animation object. If the Animation is not inside any AnimationSheet, null is returned</returns>
         public AnimationSheet GetOwningAnimationSheet(Animation anim)
         {
-            foreach (AnimationSheet sheet in animationSheets)
+            foreach (AnimationSheet sheet in _animationSheets)
             {
                 if (sheet.ContainsAnimation(anim))
                     return sheet;
@@ -461,7 +467,7 @@ namespace Pixelaria.Data
         /// <returns>An animation sheet object inside this that matches the given ID. If no animation sheet matches the passed ID, null is returned</returns>
         public AnimationSheet GetAnimationSheetByID(int id)
         {
-            foreach (AnimationSheet sheet in animationSheets)
+            foreach (AnimationSheet sheet in _animationSheets)
             {
                 if (sheet.ID == id)
                     return sheet;
@@ -478,7 +484,7 @@ namespace Pixelaria.Data
         /// <returns>An animation sheet object inside this that matches the given name. If no animation sheet matches the passed name, null is returned</returns>
         public AnimationSheet GetAnimationSheetByName(string name)
         {
-            foreach (AnimationSheet sheet in animationSheets)
+            foreach (AnimationSheet sheet in _animationSheets)
             {
                 if (sheet.Name == name)
                     return sheet;
@@ -500,7 +506,7 @@ namespace Pixelaria.Data
             {
                 id = 0;
 
-                foreach (Animation anim in animations)
+                foreach (Animation anim in _animations)
                 {
                     foreach (Frame frame in anim.Frames)
                     {
@@ -522,7 +528,7 @@ namespace Pixelaria.Data
         {
             int id = 0;
 
-            foreach (Animation anim in animations)
+            foreach (Animation anim in _animations)
             {
                 id = Math.Max(id, anim.ID + 1);
             }
@@ -538,7 +544,7 @@ namespace Pixelaria.Data
         {
             int id = 0;
 
-            foreach (AnimationSheet sheet in animationSheets)
+            foreach (AnimationSheet sheet in _animationSheets)
             {
                 id = Math.Max(id, sheet.ID + 1);
             }
