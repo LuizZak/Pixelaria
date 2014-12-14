@@ -135,7 +135,7 @@ namespace Pixelaria.Data.Persistence
             ////////
             if (bundleVersion >= 9)
             {
-                file = new PixelariaFile(path, new Bundle("Name"));
+                file = new PixelariaFile(new Bundle("Name"), path);
 
                 PixelariaFileLoader loader = new PixelariaFileLoader(file);
                 loader.Load();
@@ -145,7 +145,7 @@ namespace Pixelaria.Data.Persistence
 
             Bundle bundle = LoadBundleFromDisk(path);
 
-            file = new PixelariaFile(path, bundle);
+            file = new PixelariaFile(bundle, path);
             file.AddDefaultBlocks();
             file.PrepareBlocksWithBundle();
 
@@ -163,7 +163,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="path">The path to save the bundle to</param>
         public static void SaveBundleToDisk(Bundle bundle, string path)
         {
-            PixelariaFile file = new PixelariaFile(path, bundle);
+            PixelariaFile file = new PixelariaFile(bundle, path);
 
             file.AddDefaultBlocks();
 
@@ -453,13 +453,25 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// Initializes a new instance of the PixelariaFile class
         /// </summary>
-        /// <param name="filePath">The path to the .plx file to manipulate</param>
         /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
-        public PixelariaFile(string filePath, Bundle bundle)
+        /// <param name="filePath">The path to the .plx file to manipulate</param>
+        public PixelariaFile(Bundle bundle, string filePath)
         {
             this.filePath = filePath;
             this.bundle = bundle;
             blockList = new List<FileBlock>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the PixelariaFile class
+        /// </summary>
+        /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
+        /// <param name="stream">The stream used to load/save the PixelariaFile</param>
+        public PixelariaFile(Bundle bundle, Stream stream)
+        {
+            filePath = "";
+            this.bundle = bundle;
+            this.stream = stream;
         }
 
         /// <summary>
