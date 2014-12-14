@@ -83,22 +83,28 @@ namespace Pixelaria.Algorithms.Packers
 
             int minFrameWidth = int.MaxValue;
 
+
+            // TODO: Take the ForceMinimumDimensions flag in consideration when generating uniform grids to shrink their sizes
             foreach (Frame frame in frameList)
             {
-                if (frame.Width > maxFrameWidth)
+                int frameWidth = frame.Width;
+                int frameHeight = frame.Height;
+
+                if (frameWidth > maxFrameWidth)
                 {
-                    maxFrameWidth = frame.Width;
+                    maxFrameWidth = frameWidth;
                 }
-                if (frame.Height > maxFrameHeight)
+                
+                if (frameHeight > maxFrameHeight)
                 {
-                    maxFrameHeight = frame.Height;
+                    maxFrameHeight = frameHeight;
                 }
-                if (frame.Width < minFrameWidth)
+                if (frameWidth < minFrameWidth)
                 {
-                    minFrameWidth = frame.Width;
+                    minFrameWidth = frameWidth;
                 }
 
-                maxWidthReal += frame.Width;
+                maxWidthReal += frameWidth;
             }
 
             maxWidthCapped = Math.Min(4096, maxWidthReal);
