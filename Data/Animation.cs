@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 
 namespace Pixelaria.Data
 {
@@ -211,14 +212,7 @@ namespace Pixelaria.Data
         /// <returns>Total memory usage, in bytes</returns>
         public long CalculateMemoryUsageInBytes()
         {
-            long bytes = 0;
-
-            foreach (Frame frame in _frames)
-            {
-                bytes += frame.CalculateMemoryUsageInBytes();
-            }
-
-            return bytes;
+            return _frames.Sum(frame => frame.CalculateMemoryUsageInBytes());
         }
 
         /// <summary>
