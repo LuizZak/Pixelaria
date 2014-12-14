@@ -50,87 +50,87 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// The currently opened bundle
         /// </summary>
-        Bundle currentBundle;
+        Bundle _currentBundle;
 
         /// <summary>
         /// The list of currently opened files
         /// </summary>
-        List<PixelariaFile> files;
+        List<PixelariaFile> _files;
 
         /// <summary>
         /// The main application form
         /// </summary>
-        MainForm mainForm;
+        MainForm _mainForm;
 
         /// <summary>
         /// The default animation importer
         /// </summary>
-        IDefaultImporter defaultImporter;
+        IDefaultImporter _defaultImporter;
 
         /// <summary>
         /// The default animation exporter
         /// </summary>
-        IBundleExporter defaultExporter;
+        IBundleExporter _defaultExporter;
 
         /// <summary>
         /// The Animation fields validator
         /// </summary>
-        IAnimationValidator animationValidator;
+        IAnimationValidator _animationValidator;
 
         /// <summary>
         /// The AnimationSheet fields validator
         /// </summary>
-        IAnimationSheetValidator animationSheetValidator;
+        IAnimationSheetValidator _animationSheetValidator;
 
         /// <summary>
         /// The frame factory
         /// </summary>
-        IFrameFactory frameFactory;
+        IFrameFactory _frameFactory;
 
         /// <summary>
         /// Whether the current bundle has unsaved changes
         /// </summary>
-        bool unsavedChanges;
+        public bool unsavedChanges;
 
         /// <summary>
         /// Stores a list of the recently opened bundle files
         /// </summary>
-        RecentFileList recentFileList;
+        RecentFileList _recentFileList;
 
         /// <summary>
         /// Gets the current bundle opened on the application
         /// </summary>
-        public Bundle CurrentBundle { get { return currentBundle; } }
+        public Bundle CurrentBundle { get { return _currentBundle; } }
 
         /// <summary>
         /// Gets an array of the current files opened in the program
         /// </summary>
-        public PixelariaFile[] Files { get { return files.ToArray(); } }
+        public PixelariaFile[] Files { get { return _files.ToArray(); } }
 
         /// <summary>
         /// Gets the current IDefaultImporter of the program
         /// </summary>
-        public IDefaultImporter DefaultImporter { get { return defaultImporter; } }
+        public IDefaultImporter DefaultImporter { get { return _defaultImporter; } }
 
         /// <summary>
         /// Gets the current IDefaultExporter of the program
         /// </summary>
-        public IBundleExporter DefaultExporter { get { return defaultExporter; } }
+        public IBundleExporter DefaultExporter { get { return _defaultExporter; } }
 
         /// <summary>
         /// Gets the current IAnimationValidator of the program
         /// </summary>
-        public IAnimationValidator AnimationValidator { get { return animationValidator; } }
+        public IAnimationValidator AnimationValidator { get { return _animationValidator; } }
 
         /// <summary>
         /// Gets the current IAnimationSheetValidator of the program
         /// </summary>
-        public IAnimationSheetValidator AnimationSheetValidator { get { return animationSheetValidator; } }
+        public IAnimationSheetValidator AnimationSheetValidator { get { return _animationSheetValidator; } }
 
         /// <summary>
         /// Gets the current IFrameFactory of the program
         /// </summary>
-        public IFrameFactory FrameFactory { get { return frameFactory; } }
+        public IFrameFactory FrameFactory { get { return _frameFactory; } }
 
         /// <summary>
         /// Gets whether the current bundle has unsaved changes
@@ -140,7 +140,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the current RecentFileList for the program
         /// </summary>
-        public RecentFileList CurrentRecentFileList { get { return recentFileList; } }
+        public RecentFileList CurrentRecentFileList { get { return _recentFileList; } }
 
         /// <summary>
         /// Controller constructor
@@ -149,28 +149,28 @@ namespace Pixelaria.Controllers
         public Controller(MainForm mainForm)
         {
             // Initialize the basic fields
-            this.mainForm = mainForm;
-            this.mainForm.controller = this;
+            this._mainForm = mainForm;
+            this._mainForm.controller = this;
 
-            this.files = new List<PixelariaFile>();
+            this._files = new List<PixelariaFile>();
 
             // Initialize the factories
-            this.frameFactory = new DefaultFrameFactory(this);
+            this._frameFactory = new DefaultFrameFactory(this);
 
             // Initialize the validators and exporters
             DefaultValidator defValidator = new DefaultValidator(this);
 
-            this.animationValidator = defValidator;
-            this.animationSheetValidator = defValidator;
+            this._animationValidator = defValidator;
+            this._animationSheetValidator = defValidator;
 
-            this.defaultImporter = new DefaultPngImporter();
-            this.defaultExporter = new DefaultPngExporter();
+            this._defaultImporter = new DefaultPngImporter();
+            this._defaultExporter = new DefaultPngExporter();
 
             // Initialize the Settings singleton
             Settings.GetSettings(Path.GetDirectoryName(Application.ExecutablePath) + "\\settings.ini");
 
-            this.recentFileList = new RecentFileList(10);
-            this.mainForm.UpdateRecentFilesList();
+            this._recentFileList = new RecentFileList(10);
+            this._mainForm.UpdateRecentFilesList();
 
             // Start with a new empty bundle
             ShowNewBundle();
@@ -192,8 +192,8 @@ namespace Pixelaria.Controllers
         /// <param name="savePath">The path to save the currently bundle to</param>
         public void SaveBundle(string savePath)
         {
-            currentBundle.SaveFile = savePath;
-            PixelariaSaverLoader.SaveBundleToDisk(currentBundle, savePath);
+            _currentBundle.SaveFile = savePath;
+            PixelariaSaverLoader.SaveBundleToDisk(_currentBundle, savePath);
 
             MarkUnsavedChanges(false);
         }
@@ -205,9 +205,9 @@ namespace Pixelaria.Controllers
         public void LoadBundleFromFile(string savePath)
         {
             // Dispose of the current bundle if it's present
-            if (currentBundle != null)
+            if (_currentBundle != null)
             {
-                CloseBundle(currentBundle);
+                CloseBundle(_currentBundle);
             }
 
             PixelariaFile file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
@@ -224,8 +224,8 @@ namespace Pixelaria.Controllers
             LoadBundle(newBundle);
 
             // Store the file now
-            recentFileList.StoreFile(savePath);
-            mainForm.UpdateRecentFilesList();
+            _recentFileList.StoreFile(savePath);
+            _mainForm.UpdateRecentFilesList();
         }
 
         /// <summary>
@@ -235,9 +235,9 @@ namespace Pixelaria.Controllers
         /// <param name="newBundle">The new bundle to load</param>
         public void LoadBundle(Bundle newBundle)
         {
-            currentBundle = newBundle;
+            _currentBundle = newBundle;
 
-            mainForm.LoadBundle(currentBundle);
+            _mainForm.LoadBundle(_currentBundle);
 
             // Update the Unsaved Changes flag to false
             MarkUnsavedChanges(false);
@@ -249,12 +249,12 @@ namespace Pixelaria.Controllers
         /// <param name="index">The index to get the file path from</param>
         public void LoadBundleFromRecentFileList(int index)
         {
-            if (!File.Exists(recentFileList[index]))
+            if (!File.Exists(_recentFileList[index]))
             {
                 if (MessageBox.Show("The file does not exists. Remove from the file list?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    recentFileList.RemoveFromList(index);
-                    mainForm.UpdateRecentFilesList();
+                    _recentFileList.RemoveFromList(index);
+                    _mainForm.UpdateRecentFilesList();
                 }
 
                 return;
@@ -264,7 +264,7 @@ namespace Pixelaria.Controllers
             if (ShowConfirmSaveChanges() == DialogResult.Cancel)
                 return;
 
-            LoadBundleFromFile(recentFileList[index]);
+            LoadBundleFromFile(_recentFileList[index]);
         }
 
         /// <summary>
@@ -290,12 +290,12 @@ namespace Pixelaria.Controllers
         /// <param name="isUnsaved">The new value for the Unsaved Changes flag</param>
         public void MarkUnsavedChanges(bool isUnsaved)
         {
-            if (currentBundle == null || isUnsaved == unsavedChanges)
+            if (_currentBundle == null || isUnsaved == unsavedChanges)
                 return;
 
             unsavedChanges = isUnsaved;
 
-            mainForm.UnsavedChangesUpdated(isUnsaved);
+            _mainForm.UnsavedChangesUpdated(isUnsaved);
         }
 
         /// <summary>
@@ -333,16 +333,16 @@ namespace Pixelaria.Controllers
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
         public void AddAnimation(Animation anim, bool openOnForm, AnimationSheet parentSheet = null)
         {
-            currentBundle.AddAnimation(anim, parentSheet);
+            _currentBundle.AddAnimation(anim, parentSheet);
 
             if (openOnForm)
             {
-                mainForm.AddAnimation(anim, true);
-                mainForm.OpenViewForAnimation(anim);
+                _mainForm.AddAnimation(anim, true);
+                _mainForm.OpenViewForAnimation(anim);
             }
             else
             {
-                mainForm.AddAnimation(anim);
+                _mainForm.AddAnimation(anim);
             }
 
             MarkUnsavedChanges(true);
@@ -354,9 +354,9 @@ namespace Pixelaria.Controllers
         /// <param name="anim">The Animation to remove from the bundle</param>
         public void RemoveAnimation(Animation anim)
         {
-            currentBundle.RemoveAnimation(anim);
+            _currentBundle.RemoveAnimation(anim);
 
-            mainForm.RemoveAnimation(anim);
+            _mainForm.RemoveAnimation(anim);
 
             MarkUnsavedChanges(true);
 
@@ -370,7 +370,7 @@ namespace Pixelaria.Controllers
         /// <param name="anim">The Animation that was modified</param>
         public void UpdatedAnimation(Animation anim)
         {
-            mainForm.UpdateAnimation(anim);
+            _mainForm.UpdateAnimation(anim);
 
             MarkUnsavedChanges(true);
         }
@@ -382,7 +382,7 @@ namespace Pixelaria.Controllers
         /// <returns>The index of the animation in its current parent container</returns>
         public int GetAnimationIndex(Animation anim)
         {
-            return currentBundle.GetAnimationIndex(anim);
+            return _currentBundle.GetAnimationIndex(anim);
         }
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace Pixelaria.Controllers
         /// <param name="newIndex">The new index to place the animation at</param>
         public void RearrangeAnimationsPosition(Animation anim, int newIndex)
         {
-            currentBundle.RearrangeAnimationsPosition(anim, newIndex);
+            _currentBundle.RearrangeAnimationsPosition(anim, newIndex);
 
             MarkUnsavedChanges(true);
         }
@@ -418,16 +418,16 @@ namespace Pixelaria.Controllers
         /// <param name="openOnForm">Whether to open the newly added animation sheet on the main form</param>
         public void AddAnimationSheet(AnimationSheet sheet, bool openOnForm)
         {
-            currentBundle.AddAnimationSheet(sheet);
+            _currentBundle.AddAnimationSheet(sheet);
 
             if (openOnForm)
             {
-                mainForm.AddAnimationSheet(sheet, true);
-                mainForm.OpenViewForAnimationSheet(sheet);
+                _mainForm.AddAnimationSheet(sheet, true);
+                _mainForm.OpenViewForAnimationSheet(sheet);
             }
             else
             {
-                mainForm.AddAnimationSheet(sheet, false);
+                _mainForm.AddAnimationSheet(sheet, false);
             }
 
             MarkUnsavedChanges(true);
@@ -450,9 +450,9 @@ namespace Pixelaria.Controllers
             }
 
             // Remove the sheet
-            currentBundle.RemoveAnimationSheet(sheet, false);
+            _currentBundle.RemoveAnimationSheet(sheet, false);
 
-            mainForm.RemoveAnimationSheet(sheet);
+            _mainForm.RemoveAnimationSheet(sheet);
 
             MarkUnsavedChanges(true);
         }
@@ -463,7 +463,7 @@ namespace Pixelaria.Controllers
         /// <param name="sheet">The AnimationSheet that was modified</param>
         public void UpdatedAnimationSheet(AnimationSheet sheet)
         {
-            mainForm.UpdateAnimationSheet(sheet);
+            _mainForm.UpdateAnimationSheet(sheet);
 
             MarkUnsavedChanges(true);
         }
@@ -475,7 +475,7 @@ namespace Pixelaria.Controllers
         /// <returns>The index of the sheet in its current parent container</returns>
         public int GetAnimationSheetIndex(AnimationSheet sheet)
         {
-            return currentBundle.GetAnimationSheetIndex(sheet);
+            return _currentBundle.GetAnimationSheetIndex(sheet);
         }
 
         /// <summary>
@@ -485,7 +485,7 @@ namespace Pixelaria.Controllers
         /// <param name="newIndex">The new index to place the sheet at</param>
         public void RearrangeAnimationSheetsPosition(AnimationSheet sheet, int newIndex)
         {
-            currentBundle.RearrangeAnimationSheetsPosition(sheet, newIndex);
+            _currentBundle.RearrangeAnimationSheetsPosition(sheet, newIndex);
 
             MarkUnsavedChanges(true);
         }
@@ -498,7 +498,7 @@ namespace Pixelaria.Controllers
         /// <param name="sheet">The AnimationSheet to add the animation to</param>
         public void AddAnimationToAnimationSheet(Animation anim, AnimationSheet sheet)
         {
-            currentBundle.AddAnimationToAnimationSheet(anim, sheet);
+            _currentBundle.AddAnimationToAnimationSheet(anim, sheet);
 
             MarkUnsavedChanges(true);
         }
@@ -511,7 +511,7 @@ namespace Pixelaria.Controllers
         /// <returns>The AnimationSheet that currently owns the given Animation object. If the Animation is not inside any AnimationSheet, null is returned</returns>
         public AnimationSheet GetOwningAnimationSheet(Animation anim)
         {
-            return currentBundle.GetOwningAnimationSheet(anim);
+            return _currentBundle.GetOwningAnimationSheet(anim);
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -533,7 +533,7 @@ namespace Pixelaria.Controllers
         /// <returns>A PixelariaFile that has the given bundle loaded into it</returns>
         public PixelariaFile GetPixelariaFileByBundle(Bundle bundle)
         {
-            foreach (PixelariaFile file in files)
+            foreach (PixelariaFile file in _files)
             {
                 if (file.LoadedBundle == bundle)
                     return file;
@@ -582,7 +582,7 @@ namespace Pixelaria.Controllers
             ofd.Filter = "Pixelaria Bundle (*.pxl)|*.pxl";
 
             //ofd.FileName = @"C:\Users\Luiz Fernando\Desktop\asasdads.plx";
-            if (ofd.ShowDialog(mainForm) == DialogResult.OK)
+            if (ofd.ShowDialog(_mainForm) == DialogResult.OK)
             {
                 LoadBundleFromFile(ofd.FileName);
             }
@@ -595,7 +595,7 @@ namespace Pixelaria.Controllers
         public void ShowExportBundle()
         {
             // The bundle needs at least one valid animation sheet with one animation in it before exporting
-            if (currentBundle.AnimationSheets.Length == 0)
+            if (_currentBundle.AnimationSheets.Length == 0)
             {
                 MessageBox.Show("There are no animation sheets to export! Create a sheet with at least one animation in it before exporting.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -603,7 +603,7 @@ namespace Pixelaria.Controllers
             else
             {
                 bool validSheet = false;
-                foreach (AnimationSheet sheet in currentBundle.AnimationSheets)
+                foreach (AnimationSheet sheet in _currentBundle.AnimationSheets)
                 {
                     if (sheet.Animations.Length != 0)
                     {
@@ -620,13 +620,13 @@ namespace Pixelaria.Controllers
             }
 
             // The bundle path must be valid
-            if (currentBundle.ExportPath.Trim() == "" || !Directory.Exists(currentBundle.ExportPath))
+            if (_currentBundle.ExportPath.Trim() == "" || !Directory.Exists(_currentBundle.ExportPath))
             {
                 if (MessageBox.Show("The bundle's export path is not set or is not valid.\nDo you wish to edit the export path now?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    mainForm.OpenBundleSettings(currentBundle);
+                    _mainForm.OpenBundleSettings(_currentBundle);
 
-                    if (currentBundle.ExportPath.Trim() == "" || !Directory.Exists(currentBundle.ExportPath))
+                    if (_currentBundle.ExportPath.Trim() == "" || !Directory.Exists(_currentBundle.ExportPath))
                         return;
                 }
                 else
@@ -635,9 +635,9 @@ namespace Pixelaria.Controllers
                 }
             }
 
-            BundleExportProgressView progressForm = new BundleExportProgressView(currentBundle, defaultExporter);
+            BundleExportProgressView progressForm = new BundleExportProgressView(_currentBundle, _defaultExporter);
 
-            progressForm.ShowDialog(this.mainForm);
+            progressForm.ShowDialog(this._mainForm);
         }
 
         /// <summary>
@@ -649,7 +649,7 @@ namespace Pixelaria.Controllers
         /// <returns>The DialogResult of the SaveFileDialog</returns>
         public DialogResult ShowSaveBundle(bool forceNew = false)
         {
-            string savePath = currentBundle.SaveFile;
+            string savePath = _currentBundle.SaveFile;
 
             if (savePath == "" || forceNew)
             {
@@ -657,7 +657,7 @@ namespace Pixelaria.Controllers
 
                 svd.Filter = "Pixelaria Bundle (*.pxl)|*.pxl";
 
-                if (svd.ShowDialog(mainForm) == DialogResult.OK)
+                if (svd.ShowDialog(_mainForm) == DialogResult.OK)
                 {
                     savePath = svd.FileName;
                 }
@@ -667,8 +667,8 @@ namespace Pixelaria.Controllers
                 }
 
                 // Store the file now
-                recentFileList.StoreFile(savePath);
-                mainForm.UpdateRecentFilesList();
+                _recentFileList.StoreFile(savePath);
+                _mainForm.UpdateRecentFilesList();
             }
 
             SaveBundle(savePath);
@@ -707,7 +707,7 @@ namespace Pixelaria.Controllers
         {
             NewAnimationView nav = new NewAnimationView(this, parentSheet);
 
-            nav.ShowDialog(mainForm);
+            nav.ShowDialog(_mainForm);
         }
 
         /// <summary>
@@ -716,10 +716,10 @@ namespace Pixelaria.Controllers
         /// <param name="animation">The animation to duplicate</param>
         public void ShowDuplicateAnimation(Animation animation)
         {
-            Animation dup = currentBundle.DuplicateAnimation(animation, null);
+            Animation dup = _currentBundle.DuplicateAnimation(animation, null);
 
-            mainForm.AddAnimation(dup, true);
-            mainForm.OpenViewForAnimation(dup);
+            _mainForm.AddAnimation(dup, true);
+            _mainForm.OpenViewForAnimation(dup);
 
             MarkUnsavedChanges(true);
         }
@@ -732,7 +732,7 @@ namespace Pixelaria.Controllers
         {
             ImportAnimationView imp = new ImportAnimationView(this, parentSheet);
 
-            imp.ShowDialog(mainForm);
+            imp.ShowDialog(_mainForm);
         }
 
         /// <summary>
@@ -742,7 +742,7 @@ namespace Pixelaria.Controllers
         {
             AnimationSheetView ed = new AnimationSheetView(this);
 
-            if (ed.ShowDialog(mainForm) == DialogResult.OK)
+            if (ed.ShowDialog(_mainForm) == DialogResult.OK)
             {
                 AddAnimationSheet(ed.GenerateAnimationSheet(), true);
             }
@@ -754,15 +754,15 @@ namespace Pixelaria.Controllers
         /// <param name="sheet">The animation sheet to duplicate</param>
         public void ShowDuplicateAnimationSheet(AnimationSheet sheet)
         {
-            AnimationSheet dup = currentBundle.DuplicateAnimationSheet(sheet);
+            AnimationSheet dup = _currentBundle.DuplicateAnimationSheet(sheet);
 
-            mainForm.AddAnimationSheet(dup, true);
-            mainForm.OpenViewForAnimationSheet(dup);
+            _mainForm.AddAnimationSheet(dup, true);
+            _mainForm.OpenViewForAnimationSheet(dup);
 
             // Add the cloned animations as well
             foreach (Animation anim in dup.Animations)
             {
-                mainForm.AddAnimation(anim);
+                _mainForm.AddAnimation(anim);
             }
 
             MarkUnsavedChanges(true);
@@ -781,13 +781,13 @@ namespace Pixelaria.Controllers
             }
 
             // Get a file name
-            string saveName = ShowSaveImage(null, sheet.Name, mainForm);
+            string saveName = ShowSaveImage(null, sheet.Name, _mainForm);
 
             if (saveName != "")
             {
-                SheetExportProgressView exportView = new SheetExportProgressView(sheet, saveName, defaultExporter);
+                SheetExportProgressView exportView = new SheetExportProgressView(sheet, saveName, _defaultExporter);
 
-                exportView.ShowDialog(mainForm);
+                exportView.ShowDialog(_mainForm);
             }
         }
 
@@ -857,7 +857,7 @@ namespace Pixelaria.Controllers
         /// <returns>An Image that represents the exported image for the animation sheet</returns>
         public Image GenerateExportForAnimationSheet(AnimationSheet sheet)
         {
-            return defaultExporter.ExportAnimationSheet(sheet);
+            return _defaultExporter.ExportAnimationSheet(sheet);
         }
 
         /// <summary>
@@ -868,7 +868,7 @@ namespace Pixelaria.Controllers
         /// <returns>An image sheet representing the animations passed</returns>
         public Image GenerateExport(AnimationExportSettings exportSettings, params Animation[] anims)
         {
-            return defaultExporter.ExportAnimationSheet(exportSettings, anims);
+            return _defaultExporter.ExportAnimationSheet(exportSettings, anims);
         }
 
         /// <summary>
@@ -879,7 +879,7 @@ namespace Pixelaria.Controllers
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public BundleSheetExport GenerateBundleSheet(AnimationExportSettings exportSettings, params Animation[] anims)
         {
-            BundleSheetExport bse = defaultExporter.ExportBundleSheet(exportSettings, anims);
+            BundleSheetExport bse = _defaultExporter.ExportBundleSheet(exportSettings, anims);
 
             return bse;
         }
@@ -893,7 +893,7 @@ namespace Pixelaria.Controllers
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public BundleSheetExport GenerateBundleSheet(AnimationExportSettings exportSettings, BundleExportProgressEventHandler callback, params Animation[] anims)
         {
-            BundleSheetExport bse = defaultExporter.ExportBundleSheet(exportSettings, anims, callback);
+            BundleSheetExport bse = _defaultExporter.ExportBundleSheet(exportSettings, anims, callback);
 
             return bse;
         }
