@@ -316,7 +316,8 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="frame">The frame to add to this animation</param>
         /// <param name="index">The index to add the frame at. -1 adds the frame to the end of the frame list</param>
-        private void InternalAddFrame(Frame frame, int index, bool ignoreSize)
+        /// <param name="ignoreSize">Whether to ignore the size of the frame and add it even if it is in different dimensions than the rest of the animation</param>
+        private void InternalAddFrame(Frame frame, int index, bool ignoreSize = false)
         {
             if (_frames.Contains(frame))
             {
