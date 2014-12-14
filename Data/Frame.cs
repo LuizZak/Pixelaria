@@ -37,42 +37,42 @@ namespace Pixelaria.Data
         /// <summary>
         /// The width of this frame
         /// </summary>
-        private int width;
+        private int _width;
 
         /// <summary>
         /// The height of this frame
         /// </summary>
-        private int height;
+        private int _height;
 
         /// <summary>
         /// The animation this frames belongs to
         /// </summary>
-        private Animation animation;
+        private Animation _animation;
 
         /// <summary>
         /// The texture of this frame
         /// </summary>
-        private Bitmap frameTexture;
+        private Bitmap _frameTexture;
 
         /// <summary>
         /// This Frame's texture's hash
         /// </summary>
-        private byte[] hash;
+        private byte[] _hash;
 
         /// <summary>
         /// The unique identifier for this frame in the whole bundle
         /// </summary>
-        private int id;
+        private int _id;
 
         /// <summary>
         /// Gets the width of this frame
         /// </summary>
-        public int Width { get { return width; } }
+        public int Width { get { return _width; } }
 
         /// <summary>
         /// Gets the height of this frame
         /// </summary>
-        public int Height { get { return height; } }
+        public int Height { get { return _height; } }
 
         /// <summary>
         /// Gets the size of this animation's frames
@@ -82,22 +82,22 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the index of this frame on the parent animation
         /// </summary>
-        public int Index { get { return animation.GetFrameIndex(this); } }
+        public int Index { get { return _animation.GetFrameIndex(this); } }
 
         /// <summary>
         /// Gets the animation this frame belongs to
         /// </summary>
-        public Animation Animation { get { return animation; } }
+        public Animation Animation { get { return _animation; } }
 
         /// <summary>
         /// Gets the hash of this Frame texture
         /// </summary>
-        public byte[] Hash { get { return hash; } }
+        public byte[] Hash { get { return _hash; } }
 
         /// <summary>
         /// Gets or sets the ID of this frame
         /// </summary>
-        public int ID { get { return id; } set { id = value; } }
+        public int ID { get { return _id; } set { _id = value; } }
 
         /// <summary>
         /// Creates a new animation frame
@@ -108,12 +108,12 @@ namespace Pixelaria.Data
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
         public Frame(Animation parentAnimation, int width, int height, bool initHash = true)
         {
-            this.id = -1;
-            this.width = width;
-            this.height = height;
-            this.animation = parentAnimation;
+            this._id = -1;
+            this._width = width;
+            this._height = height;
+            this._animation = parentAnimation;
 
-            frameTexture = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            _frameTexture = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
             if (initHash)
             {
@@ -129,11 +129,11 @@ namespace Pixelaria.Data
         /// </summary>
         public void Dispose()
         {
-            animation = null;
-            if (frameTexture != null)
-                frameTexture.Dispose();
-            frameTexture = null;
-            hash = null;
+            _animation = null;
+            if (_frameTexture != null)
+                _frameTexture.Dispose();
+            _frameTexture = null;
+            _hash = null;
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Pixelaria.Data
         /// </summary>
         public void Removed()
         {
-            animation = null;
+            _animation = null;
         }
 
         /// <summary>
@@ -154,12 +154,12 @@ namespace Pixelaria.Data
         /// <param name="newAnimation">The new animation</param>
         public void Added(Animation newAnimation)
         {
-            if (this.animation != null && this.animation != newAnimation)
+            if (this._animation != null && this._animation != newAnimation)
             {
                 throw new InvalidOperationException("The frame may not be added to another animation before being removed from the current one before");
             }
 
-            this.animation = newAnimation;
+            this._animation = newAnimation;
         }
 
         /// <summary>
@@ -172,8 +172,8 @@ namespace Pixelaria.Data
         {
             Frame ret = new Frame(null, Width, Height, false);
 
-            ret.frameTexture = frameTexture.Clone(new Rectangle(0, 0, frameTexture.Width, frameTexture.Height), frameTexture.PixelFormat);
-            ret.hash = hash;
+            ret._frameTexture = _frameTexture.Clone(new Rectangle(0, 0, _frameTexture.Width, _frameTexture.Height), _frameTexture.PixelFormat);
+            ret._hash = _hash;
 
             return ret;
         }
@@ -190,16 +190,16 @@ namespace Pixelaria.Data
             if (this == frame)
                 return;
 
-            if (animation != null && frame.width != this.width && frame.width != animation.Width && frame.height != this.height && frame.height != animation.Height)
+            if (_animation != null && frame._width != this._width && frame._width != _animation.Width && frame._height != this._height && frame._height != _animation.Height)
             {
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
-            this.width = frame.width;
-            this.height = frame.height;
-            this.frameTexture = frame.frameTexture.Clone(new Rectangle(0, 0, frame.frameTexture.Width, frame.frameTexture.Height), frame.frameTexture.PixelFormat);
+            this._width = frame._width;
+            this._height = frame._height;
+            this._frameTexture = frame._frameTexture.Clone(new Rectangle(0, 0, frame._frameTexture.Width, frame._frameTexture.Height), frame._frameTexture.PixelFormat);
 
-            this.hash = frame.hash;
+            this._hash = frame._hash;
         }
 
         /// <summary>
@@ -209,16 +209,16 @@ namespace Pixelaria.Data
         /// <returns>Whether this frame's contents match another frame's</returns>
         public bool Equals(Frame frame)
         {
-            if (this.width != frame.width || this.height != frame.height)
+            if (this._width != frame._width || this._height != frame._height)
                 return false;
 
-            if (this.hash == null || frame.hash == null)
+            if (this._hash == null || frame._hash == null)
                 return false;
 
-            int l = this.hash.Length;
+            int l = this._hash.Length;
             for (int i = 0; i < l; i++)
             {
-                if (this.hash[i] != frame.hash[i])
+                if (this._hash[i] != frame._hash[i])
                     return false;
             }
 
@@ -231,7 +231,7 @@ namespace Pixelaria.Data
         /// <returns>Total memory usage, in bytes</returns>
         public long CalculateMemoryUsageInBytes()
         {
-            return Utilities.MemoryUsageOfImage(frameTexture);
+            return Utilities.MemoryUsageOfImage(_frameTexture);
         }
 
         /// <summary>
@@ -243,12 +243,12 @@ namespace Pixelaria.Data
         /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
         public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
         {
-            if (bitmap != frameTexture)
+            if (bitmap != _frameTexture)
             {
-                if (frameTexture != null)
-                    frameTexture.Dispose();
+                if (_frameTexture != null)
+                    _frameTexture.Dispose();
 
-                frameTexture = bitmap;
+                _frameTexture = bitmap;
             }
 
             if (updateHash)
@@ -261,7 +261,7 @@ namespace Pixelaria.Data
         /// <returns>The composed bitmap for this frame</returns>
         public Bitmap GetComposedBitmap()
         {
-            return frameTexture;
+            return _frameTexture;
         }
 
         /// <summary>
@@ -342,22 +342,22 @@ namespace Pixelaria.Data
         /// <param name="interpolationMode">The interpolation mode to use when drawing the new frame</param>
         public void Resize(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
         {
-            if (animation != null && (animation.Width != newWidth || animation.Height != newHeight))
+            if (_animation != null && (_animation.Width != newWidth || _animation.Height != newHeight))
             {
                 throw new Exception("The dimensions of the Animation that owns this frame don't match the given new dimensions.");
             }
 
-            if(this.width == newWidth && this.height == newHeight)
+            if(this._width == newWidth && this._height == newHeight)
                 return;
 
-            Bitmap newTexture = (Bitmap)ImageUtilities.Resize(frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
+            Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
 
             // Texture replacement
-            frameTexture.Dispose();
-            frameTexture = newTexture;
+            _frameTexture.Dispose();
+            _frameTexture = newTexture;
 
-            this.width = newWidth;
-            this.height = newHeight;
+            this._width = newWidth;
+            this._height = newHeight;
 
             // Update hash
             UpdateHash();
@@ -368,7 +368,7 @@ namespace Pixelaria.Data
         /// </summary>
         public void UpdateHash()
         {
-            hash = Utilities.GetHashForBitmap(frameTexture);
+            _hash = Utilities.GetHashForBitmap(_frameTexture);
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace Pixelaria.Data
         /// <param name="newHash">The new hash for the frame</param>
         public void SetHash(byte[] newHash)
         {
-            this.hash = newHash;
+            this._hash = newHash;
         }
     }
 }

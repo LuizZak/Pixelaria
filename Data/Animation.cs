@@ -35,12 +35,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// The frames of this animation
         /// </summary>
-        private List<Frame> frames;
+        private List<Frame> _frames;
 
         /// <summary>
         /// The unique identifier for this Animation object
         /// </summary>
-        private int id;
+        private int _id;
 
         /// <summary>
         /// Gets or sets the name of this animation
@@ -65,12 +65,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets or sets the ID for this Animation
         /// </summary>
-        public int ID { get { return id; } set { id = value; } }
+        public int ID { get { return _id; } set { _id = value; } }
 
         /// <summary>
         /// Gets the number of frames of this Animaion
         /// </summary>
-        public int FrameCount { get { return frames.Count; } }
+        public int FrameCount { get { return _frames.Count; } }
 
         /// <summary>
         /// The playbar settings for this Animation
@@ -85,7 +85,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the list of frames for this Animation
         /// </summary>
-        public Frame[] Frames { get { return frames.ToArray(); } }
+        public Frame[] Frames { get { return _frames.ToArray(); } }
 
         /// <summary>
         /// Gets a frame at the given index in this animation
@@ -107,8 +107,8 @@ namespace Pixelaria.Data
         /// <param name="height">The starting height of this Animation</param>
         public Animation(String name, int width, int height)
         {
-            id = -1;
-            frames = new List<Frame>();
+            _id = -1;
+            _frames = new List<Frame>();
 
             Name = name;
             Width = width;
@@ -124,17 +124,17 @@ namespace Pixelaria.Data
         /// </summary>
         public void Dispose()
         {
-            if (frames != null)
+            if (_frames != null)
             {
                 // Frames clearing
-                foreach (Frame frame in frames)
+                foreach (Frame frame in _frames)
                 {
                     frame.Dispose();
                 }
-                frames.Clear();
+                _frames.Clear();
             }
 
-            frames = null;
+            _frames = null;
         }
 
         /// <summary>
@@ -158,13 +158,13 @@ namespace Pixelaria.Data
         /// </summary>
         public void Clear()
         {
-            foreach (Frame frame in frames)
+            foreach (Frame frame in _frames)
             {
                 frame.Removed();
                 frame.Dispose();
             }
 
-            frames.Clear();
+            _frames.Clear();
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace Pixelaria.Data
         {
             long bytes = 0;
 
-            foreach (Frame frame in frames)
+            foreach (Frame frame in _frames)
             {
                 bytes += frame.CalculateMemoryUsageInBytes();
             }
@@ -231,7 +231,7 @@ namespace Pixelaria.Data
             this.Height = sizeMatchingSettings.NewHeight;
 
             // Resize the frames now
-            foreach (Frame frame in this.frames)
+            foreach (Frame frame in this._frames)
             {
                 frame.Resize(sizeMatchingSettings.NewWidth, sizeMatchingSettings.NewHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
@@ -290,7 +290,7 @@ namespace Pixelaria.Data
             }
 
             // Resize the frames now
-            foreach (Frame frame in this.frames)
+            foreach (Frame frame in this._frames)
             {
                 frame.Resize(newAnimWidth, newAnimHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
@@ -318,7 +318,7 @@ namespace Pixelaria.Data
         /// <param name="index">The index to add the frame at. -1 adds the frame to the end of the frame list</param>
         private void InternalAddFrame(Frame frame, int index, bool ignoreSize)
         {
-            if (frames.Contains(frame))
+            if (_frames.Contains(frame))
             {
                 return;
             }
@@ -335,11 +335,11 @@ namespace Pixelaria.Data
 
             if (index == -1)
             {
-                frames.Add(frame);
+                _frames.Add(frame);
             }
             else
             {
-                frames.Insert(index, frame);
+                _frames.Insert(index, frame);
             }
         }
 
@@ -351,19 +351,19 @@ namespace Pixelaria.Data
         /// <param name="frame">The frame to set</param>
         /// <param name="index">The index of the frame to set</param>
         /// <returns>The frame that was at that index</returns>
-        public Frame SwitchFrame(Frame frame, int index)
+        public Frame SetFrame(Frame frame, int index)
         {
             if ((frame.Width != Width || frame.Height != Height))
             {
                 throw new ArgumentException("The Frame's dimensions don't match the Animation's dimension", "frame");
             }
 
-            if (frames[index] == frame)
+            if (_frames[index] == frame)
                 return frame;
 
-            Frame oldFrame = frames[index];
+            Frame oldFrame = _frames[index];
 
-            frames[index] = frame;
+            _frames[index] = frame;
 
             frame.Added(this);
 
@@ -379,9 +379,9 @@ namespace Pixelaria.Data
         /// <param name="index2">The second index to swap</param>
         public void SwapFrameIndices(int index1, int index2)
         {
-            Frame temp = frames[index1];
-            frames[index1] = frames[index2];
-            frames[index2] = temp;
+            Frame temp = _frames[index1];
+            _frames[index1] = _frames[index2];
+            _frames[index2] = temp;
         }
 
         /// <summary>
@@ -392,15 +392,15 @@ namespace Pixelaria.Data
         /// <returns>The newly duplicated frame</returns>
         public Frame DuplicateFrame(int frameIndex, int newIndex = -1)
         {
-            Frame dup = frames[frameIndex].Clone();
+            Frame dup = _frames[frameIndex].Clone();
 
             if (newIndex == -1)
             {
-                frames.Insert(frameIndex + 1, dup);
+                _frames.Insert(frameIndex + 1, dup);
             }
             else
             {
-                frames.Insert(newIndex, dup);
+                _frames.Insert(newIndex, dup);
             }
 
             return dup;
@@ -422,11 +422,11 @@ namespace Pixelaria.Data
 
             if (position == -1)
             {
-                frames.Add(frame);
+                _frames.Add(frame);
             }
             else
             {
-                frames.Insert(position, frame);
+                _frames.Insert(position, frame);
             }
 
             return frame;
@@ -439,7 +439,7 @@ namespace Pixelaria.Data
         public void RemoveFrame(Frame frame)
         {
             frame.Removed();
-            frames.Remove(frame);
+            _frames.Remove(frame);
         }
 
         /// <summary>
@@ -458,7 +458,7 @@ namespace Pixelaria.Data
         /// <returns>An integer representing the index at which the frame resides, or -1 if the frame is not located inside this animation</returns>
         public int GetFrameIndex(Frame frame)
         {
-            return frames.IndexOf(frame);
+            return _frames.IndexOf(frame);
         }
 
         /// <summary>
@@ -468,7 +468,7 @@ namespace Pixelaria.Data
         /// <returns>The Frame at the given index</returns>
         public Frame GetFrameAtIndex(int index)
         {
-            return frames[index];
+            return _frames[index];
         }
 
         /// <summary>
@@ -478,7 +478,7 @@ namespace Pixelaria.Data
         /// <returns>A frame with the given ID, or null if none was found</returns>
         public Frame GetFrameByID(int id)
         {
-            foreach (Frame frame in frames)
+            foreach (Frame frame in _frames)
             {
                 if (frame.ID == id)
                     return frame;
