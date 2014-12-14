@@ -599,9 +599,11 @@ namespace Pixelaria.Data.Persistence
         {
             // Get the stream to load the file from
             Stream stream = file.CurrentStream;
+            bool closeStream = false;
             if(stream == null)
             {
                 file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
+                closeStream = true;
             }
 
             // Read the header
@@ -624,7 +626,10 @@ namespace Pixelaria.Data.Persistence
                 file.AddBlock(FileBlock.FromStream(stream, file));
             }
 
-            file.CurrentStream.Close();
+            if (closeStream)
+            {
+                stream.Close();
+            }
         }
     }
 
@@ -654,9 +659,11 @@ namespace Pixelaria.Data.Persistence
         {
             // Get the stream to load the file from
             Stream stream = file.CurrentStream;
+            bool closeStream = false;
             if (stream == null)
             {
                 file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                closeStream = true;
             }
 
             // Save the header
@@ -682,7 +689,10 @@ namespace Pixelaria.Data.Persistence
             // Truncate the stream so any unwanted extra data is not left pending, that can lead to potential crashes when reading the file back again
             stream.SetLength(stream.Position);
 
-            file.CurrentStream.Close();
+            if (closeStream)
+            {
+                stream.Close();
+            }
         }
     }
 }
