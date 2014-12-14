@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
@@ -242,8 +241,6 @@ namespace Pixelaria.Algorithms.Packers
 
             int x = exportSettings.XPadding;
             int y;
-            int width = 0;
-            int height = 0;
 
             for (int i = 0; i < frameList.Count; i++)
             {
@@ -277,8 +274,8 @@ namespace Pixelaria.Algorithms.Packers
                     originsList[i] = frameComparision.GetFrameArea(frame);
                 }
 
-                width = originsList[i].Width;
-                height = originsList[i].Height;
+                var width = originsList[i].Width;
+                var height = originsList[i].Height;
 
                 // X coordinate wrapping
                 if (x + width > maxWidth)
@@ -415,9 +412,9 @@ namespace Pixelaria.Algorithms.Packers
             /// <param name="useMinimumTextureArea">Whether to compute the minimum areas of the frames before comparing them</param>
             public FrameComparision(bool useMinimumTextureArea)
             {
-                this.fragDictionary = new Dictionary<Frame, CompareFrag>();
-                this.similarFramesMatrix = new List<List<Frame>>();
-                this.similarMatrixIndexDictionary = new Dictionary<Frame, int>();
+                fragDictionary = new Dictionary<Frame, CompareFrag>();
+                similarFramesMatrix = new List<List<Frame>>();
+                similarMatrixIndexDictionary = new Dictionary<Frame, int>();
 
                 this.useMinimumTextureArea = useMinimumTextureArea;
             }
@@ -501,7 +498,7 @@ namespace Pixelaria.Algorithms.Packers
             public void RegisterSimilarFrames(Frame frame1, Frame frame2)
             {
                 // Check existence of either frames in the matrix index dictionary
-                int index = -1;
+                int index;
                 if (!similarMatrixIndexDictionary.TryGetValue(frame1, out index) && !similarMatrixIndexDictionary.TryGetValue(frame2, out index))
                 {
                     similarFramesMatrix.Add(new List<Frame>());
