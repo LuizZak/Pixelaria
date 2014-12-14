@@ -83,8 +83,6 @@ namespace Pixelaria.Algorithms.Packers
 
             int minFrameWidth = int.MaxValue;
 
-
-            // TODO: Take the ForceMinimumDimensions flag in consideration when generating uniform grids to shrink their sizes
             foreach (Frame frame in frameList)
             {
                 int frameWidth = frame.Width;
