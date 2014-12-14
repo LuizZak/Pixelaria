@@ -75,6 +75,11 @@ namespace Pixelaria.Data
         public int Height { get { return height; } }
 
         /// <summary>
+        /// Gets the size of this animation's frames
+        /// </summary>
+        public Size Size { get { return new Size(_width, _height); } }
+
+        /// <summary>
         /// Gets the index of this frame on the parent animation
         /// </summary>
         public int Index { get { return animation.GetFrameIndex(this); } }

@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace Pixelaria.Data
@@ -55,6 +56,11 @@ namespace Pixelaria.Data
         /// Gets the height of this animation's frames
         /// </summary>
         public int Height { get; private set; }
+
+        /// <summary>
+        /// Gets the size of this animation's frames
+        /// </summary>
+        public Size Size { get { return new Size(Width, Height); } }
 
         /// <summary>
         /// Gets or sets the ID for this Animation
