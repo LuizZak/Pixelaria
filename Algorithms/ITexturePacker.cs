@@ -20,14 +20,9 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Pixelaria.Data.Exports;
 
-namespace Pixelaria.Algorithms.Packers
+namespace Pixelaria.Algorithms
 {
     /// <summary>
     /// Interface to be implemented by texture packers
