@@ -459,7 +459,7 @@ namespace Pixelaria.Data.Persistence
         {
             this.filePath = filePath;
             this.bundle = bundle;
-            this.blockList = new List<FileBlock>();
+            blockList = new List<FileBlock>();
         }
 
         /// <summary>
@@ -496,17 +496,17 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
-            if (this.GetBlocksByType(typeof(AnimationBlock)).Length == 0)
+            if (GetBlocksByType(typeof(AnimationBlock)).Length == 0)
             {
-                this.AddBlock(new AnimationBlock());
+                AddBlock(new AnimationBlock());
             }
-            if (this.GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
+            if (GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
             {
-                this.AddBlock(new AnimationSheetBlock());
+                AddBlock(new AnimationSheetBlock());
             }
-            if (this.GetBlocksByType(typeof(ProjectTreeBlock)).Length == 0)
+            if (GetBlocksByType(typeof(ProjectTreeBlock)).Length == 0)
             {
-                this.AddBlock(new ProjectTreeBlock());
+                AddBlock(new ProjectTreeBlock());
             }
         }
 
