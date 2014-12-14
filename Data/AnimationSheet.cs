@@ -137,14 +137,7 @@ namespace Pixelaria.Data
         /// <returns>The sum of the frames of all the animations in this AnimationSheet</returns>
         public int GetFrameCount()
         {
-            int frameCount = 0;
-
-            foreach (Animation anim in animations)
-            {
-                frameCount += anim.FrameCount;
-            }
-
-            return frameCount;
+            return _animations.Sum(anim => anim.FrameCount);
         }
     }
 }
