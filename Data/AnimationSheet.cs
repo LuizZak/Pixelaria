@@ -21,6 +21,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pixelaria.Data
 {
@@ -33,7 +34,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Animations inside this bundle
         /// </summary>
-        private List<Animation> animations;
+        private List<Animation> _animations;
 
         /// <summary>
         /// Gets or sets the unique identifier for this animation sheet
@@ -48,12 +49,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets an array of the animations currently in this animation sheet
         /// </summary>
-        public Animation[] Animations { get { return animations.ToArray(); } }
+        public Animation[] Animations { get { return _animations.ToArray(); } }
 
         /// <summary>
         /// Gets the number of animations in this AnimationSheet
         /// </summary>
-        public int AnimationCount { get { return animations.Count; } }
+        public int AnimationCount { get { return _animations.Count; } }
 
         /// <summary>
         /// Gets or sets the export settings for this animation sheet
@@ -66,8 +67,8 @@ namespace Pixelaria.Data
         /// <param name="name">The name for this animation sheet</param>
         public AnimationSheet(string name)
         {
-            this.Name = name;
-            animations = new List<Animation>();
+            Name = name;
+            _animations = new List<Animation>();
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace Pixelaria.Data
         /// <param name="animation">The animation to add to this animation sheet</param>
         public void AddAnimation(Animation animation)
         {
-            animations.Add(animation);
+            _animations.Add(animation);
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace Pixelaria.Data
         /// <param name="index">The index at which to place the animation</param>
         public void InsertAnimation(Animation animation, int index)
         {
-            animations.Insert(index, animation);
+            _animations.Insert(index, animation);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Pixelaria.Data
         /// <returns>Whether the animation was successfuly removed from this animation sheet</returns>
         public bool RemoveAnimation(Animation animation)
         {
-            return animations.Remove(animation);
+            return _animations.Remove(animation);
         }
 
         /// <summary>
@@ -117,7 +118,7 @@ namespace Pixelaria.Data
         /// <returns>Whether this AnimationSheet object contains the given Animation object</returns>
         public bool ContainsAnimation(Animation anim)
         {
-            return animations.Contains(anim);
+            return _animations.Contains(anim);
         }
 
         /// <summary>
@@ -128,7 +129,7 @@ namespace Pixelaria.Data
         /// <returns>The index of the animation in this sheet, or -1 if it's not owned by this sheet</returns>
         public int IndexOfAnimation(Animation anim)
         {
-            return animations.IndexOf(anim);
+            return _animations.IndexOf(anim);
         }
 
         /// <summary>
