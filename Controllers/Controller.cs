@@ -702,7 +702,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Shows the interface for new Animation creation
         /// </summary>
-        /// <param name="ownerSheet">Optional AnimationSheet that will own the newly created Animation</param>
+        /// <param name="parentSheet">Optional AnimationSheet that will own the newly created Animation</param>
         public void ShowCreateAnimation(AnimationSheet parentSheet = null)
         {
             NewAnimationView nav = new NewAnimationView(this, parentSheet);
@@ -727,7 +727,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Shows the interface for Animation import
         /// </summary>
-        /// <param name="ownerSheet">Optional AnimationSheet that will own the newly imported Animation</param>
+        /// <param name="parentSheet">Optional AnimationSheet that will own the newly imported Animation</param>
         public void ShowImportAnimation(AnimationSheet parentSheet = null)
         {
             ImportAnimationView imp = new ImportAnimationView(this, parentSheet);
