@@ -50,7 +50,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// Event handler for the recent file menu item list click
         /// </summary>
-        private EventHandler recentFileClick;
+        private EventHandler _recentFileClick;
 
         /// <summary>
         /// Creates a new instance of the MainForm class
@@ -74,7 +74,7 @@ namespace Pixelaria.Views
 
             this.il_treeView.Images.SetKeyName(2, "EMPTY");
 
-            this.recentFileClick = new EventHandler(mi_fileItem_Click);
+            this._recentFileClick = new EventHandler(mi_fileItem_Click);
 
             // Hook up the TreeView event handlers
             this.tv_bundleAnimations.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(AnimationNodeDoubleClickHandler);
@@ -210,7 +210,7 @@ namespace Pixelaria.Views
             // Remove the event listeners first
             foreach (MenuItem item in mi_recentFiles.MenuItems)
             {
-                item.Click -= recentFileClick;
+                item.Click -= _recentFileClick;
             }
 
             mi_recentFiles.MenuItems.Clear();
@@ -226,7 +226,7 @@ namespace Pixelaria.Views
                 MenuItem item = new MenuItem((i + 1) + " - " + (path == "" ? "--" : Path.GetFileName(path)));
 
                 item.Tag = i;
-                item.Click += recentFileClick;
+                item.Click += _recentFileClick;
 
                 mi_recentFiles.MenuItems.Add(item);
             }
