@@ -116,6 +116,49 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
+        /// Clones this bundle into a new bundle object that has all of this bundle's properties deep cloned
+        /// </summary>
+        public Bundle Clone()
+        {
+            Bundle newBundle = new Bundle(Name);
+
+            newBundle.ExportPath = ExportPath;
+            newBundle.SaveFile = SaveFile;
+
+            // Copy animations over
+            foreach (var animation in _animations)
+            {
+                Animation anim = animation.Clone();
+                anim.ID = animation.ID;
+
+                newBundle.AddAnimation(animation.Clone());
+
+                // Maintain frame IDs
+                for (int i = 0; i < anim.FrameCount; i++)
+                {
+                    anim[i].ID = animation[i].ID;
+                }
+            }
+
+            // Copy Animation Sheets over
+            foreach (var animationSheet in _animationSheets)
+            {
+                AnimationSheet newSheet = new AnimationSheet(animationSheet.Name);
+                newBundle.AddAnimationSheet(newSheet);
+
+                foreach (Animation anim in animationSheet.Animations)
+                {
+                    newBundle.AddAnimationToAnimationSheet(newBundle.GetAnimationByID(anim.ID), newSheet);
+                }
+            }
+
+            // Copy frame ID indexing for consistency
+            newBundle.nextFrameID = nextFrameID;
+
+            return newBundle;
+        }
+
+        /// <summary>
         /// Creates a new instance of an Animation class and stores it inside this bundle
         /// </summary>
         /// <param name="name">The name of the new animation</param>
@@ -550,6 +593,59 @@ namespace Pixelaria.Data
             }
 
             return id;
+        }
+
+        // Override object.Equals
+        public override bool Equals(object obj)
+        {
+            //       
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            if (Object.ReferenceEquals(this, obj))
+                return true;
+
+            Bundle other = (Bundle) obj;
+
+            if (Name != other.Name || ExportPath != other.ExportPath || SaveFile != other.SaveFile ||
+                _animations == null || other._animations == null || _animationSheets == null ||
+                other._animationSheets == null || _animations.Count != other._animations.Count ||
+                _animationSheets.Count != other._animationSheets.Count)
+                return false;
+
+            // Test equality of animation sheets
+            for (int i = 0; i < _animationSheets.Count; i++)
+            {
+                if (!_animationSheets[i].Equals(other._animationSheets[i]))
+                {
+                    return false;
+                }
+            }
+
+            // Test equality of animation
+            for (int i = 0; i < _animations.Count; i++)
+            {
+                if (!_animations[i].Equals(other._animations[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ ExportPath.GetHashCode() ^ SaveFile.GetHashCode() ^ _animations.Count ^ _animationSheets.Count;
         }
 
         /// <summary>
