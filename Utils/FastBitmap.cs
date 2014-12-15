@@ -159,6 +159,22 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Unlocks the bitmap and applies the changes made to it. If the bitmap was not locked
+        /// beforehand, an exception is thrown
+        /// </summary>
+        public void Unlock()
+        {
+            if (!locked)
+            {
+                throw new Exception("Lock must be called before an Unlock operation");
+            }
+
+            bitmap.UnlockBits(bitmapData);
+
+            locked = false;
+        }
+
+        /// <summary>
         /// Sets the pixel color at the given coordinates. If the bitmap was not locked beforehands,
         /// an exception is thrown
         /// </summary>
@@ -300,24 +316,37 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Unlocks the bitmap and applies the changes made to it. If the bitmap was not locked
-        /// beforehand, an exception is thrown
+        /// Copies a region of the source bitmap into this fast bitmap
         /// </summary>
-        public void Unlock()
+        /// <param name="source">The source image to copy</param>
+        /// <param name="srcRect">The region on the source bitmap that will be copied over</param>
+        /// <param name="destRect">The region on this fast bitmap that will be changed</param>
+        public void CopyRegion(Bitmap source, Rectangle srcRect, Rectangle destRect)
         {
-            if (!locked)
+            // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
+            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > width || destRect.Y > height)
+                return;
+
+            FastBitmap fastSource = new FastBitmap(source);
+            fastSource.Lock();
+
+            int copyWidth = Math.Min(srcRect.Width, destRect.Width);
+            int copyHeight = Math.Min(srcRect.Height, destRect.Height);
+
+            for (int y = 0; y < copyHeight; y++)
             {
-                throw new Exception("Lock must be called before an Unlock operation");
+                for (int x = 0; x < copyWidth; x++)
+                {
+                    SetPixel(destRect.X + x, destRect.Y + y, fastSource.GetPixelInt(x + srcRect.X, y + srcRect.Y));
+                }
             }
 
-            bitmap.UnlockBits(bitmapData);
-
-            locked = false;
+            fastSource.Unlock();
         }
 
         /// <summary>
         /// Performs a copy operation of the pixels from the Source bitmap to the Target bitmap.
-        /// If the dimensions or pixel depths don't match, the copy is not performed
+        /// If the dimensions or pixel depths of both images don't match, the copy is not performed
         /// </summary>
         /// <param name="source">The bitmap to copy the pixels from</param>
         /// <param name="target">The bitmap to copy the pixels to</param>
@@ -337,7 +366,7 @@ namespace Pixelaria.Utils
             int *s0s = fastSource.scan0;
             int *s0t = fastTarget.scan0;
 
-            int bpp = 1; // Bytes per pixel
+            const int bpp = 1; // Bytes per pixel
 
             int count = fastSource.width * fastSource.height * bpp;
             int rem = count % 8;
@@ -388,6 +417,27 @@ namespace Pixelaria.Utils
             fb.Lock();
             fb.Clear(color);
             fb.Unlock();
+        }
+
+        /// <summary>
+        /// Copies a region of the source bitmap to a target bitmap
+        /// </summary>
+        /// <param name="source">The source image to copy</param>
+        /// <param name="target">The target image to be altered</param>
+        /// <param name="srcRect">The region on the source bitmap that will be copied over</param>
+        /// <param name="destRect">The region on the target bitmap that will be changed</param>
+        public static void CopyRegion(Bitmap source, Bitmap target, Rectangle srcRect, Rectangle destRect)
+        {
+            // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
+            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > target.Width || destRect.Y > target.Height)
+                return;
+
+            FastBitmap fastTarget = new FastBitmap(target);
+            fastTarget.Lock();
+
+            fastTarget.CopyRegion(source, srcRect, destRect);
+
+            fastTarget.Unlock();
         }
     }
 }
