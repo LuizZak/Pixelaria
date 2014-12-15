@@ -435,6 +435,11 @@ namespace Pixelaria.Data
         /// <param name="frame">The frame to remove</param>
         public void RemoveFrame(Frame frame)
         {
+            if (!ReferenceEquals(frame.Animation, this))
+            {
+                throw new ArgumentException("The frame provided is not listed in this animation", "frame");
+            }
+
             frame.Removed();
             _frames.RemoveReference(frame);
         }
