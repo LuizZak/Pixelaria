@@ -22,13 +22,13 @@ namespace PixelariaTests.Generators
         /// <param name="frameCount">The number of frames to add to each animation generated</param>
         /// <param name="seed">The seed for the animations' frames, used to seed the random number generator that will generate each of the frame's contents</param>
         /// <returns>An animation sheet with the passed parameters</returns>
-        public static AnimationSheet GenerateAnimationSheet(string name, int animationCount, int animationWidth, int animationHeight, int frameCount, int seed)
+        public static AnimationSheet GenerateAnimationSheet(string name, int animationCount, int animationWidth, int animationHeight, int frameCount, int seed = -1)
         {
             AnimationSheet sheet = new AnimationSheet(name);
 
             for (int i = 0; i < animationCount; i++)
             {
-                sheet.AddAnimation(AnimationGenerator.GenerateAnimation(name + "Animation" + i, animationWidth, animationHeight, frameCount, seed + i * frameCount));
+                sheet.AddAnimation(AnimationGenerator.GenerateAnimation(name + "Animation" + i, animationWidth, animationHeight, frameCount, seed == -1 ? seed : seed + i * frameCount));
             }
 
             return sheet;
