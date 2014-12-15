@@ -178,13 +178,13 @@ namespace Pixelaria.Data
         /// <param name="moveFrames">Whether to remove the frames form the given animation and add them to this Animation. When set to false, instead of moving the frames, the methods clones the frames</param>
         public void CopyFrom(Animation anim, bool moveFrames)
         {
-            this.Name = anim.Name;
-            this.Width = anim.Width;
-            this.Height = anim.Height;
-            this.PlaybackSettings = anim.PlaybackSettings;
-            this.ExportSettings = anim.ExportSettings;
+            Name = anim.Name;
+            Width = anim.Width;
+            Height = anim.Height;
+            PlaybackSettings = anim.PlaybackSettings;
+            ExportSettings = anim.ExportSettings;
 
-            this.Clear();
+            Clear();
 
             // Copy frames now
             foreach (Frame frame in anim.Frames)
@@ -192,7 +192,7 @@ namespace Pixelaria.Data
                 if (moveFrames)
                 {
                     anim.RemoveFrame(frame);
-                    this.AddFrame(frame);
+                    AddFrame(frame);
                 }
                 else
                 {
@@ -201,7 +201,7 @@ namespace Pixelaria.Data
                     if (OwnerBundle != null)
                         cloneFrame.ID = OwnerBundle.GetNextValidFrameID();
 
-                    this.AddFrame(cloneFrame);
+                    AddFrame(cloneFrame);
                 }
             }
         }
