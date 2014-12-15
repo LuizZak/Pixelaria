@@ -58,11 +58,14 @@ namespace Pixelaria.Data.Validators
             if (name.Trim() == "")
                 return "The name of the animation cannot be empty";
 
-            foreach (Animation canim in controller.CurrentBundle.Animations)
+            if (controller.CurrentBundle != null)
             {
-                if (canim.Name == name && canim != anim)
+                foreach (Animation canim in controller.CurrentBundle.Animations)
                 {
-                    return "The name '" + name + "' conflicts with another animation in the project";
+                    if (canim.Name == name && canim != anim)
+                    {
+                        return "The name '" + name + "' conflicts with another animation in the project";
+                    }
                 }
             }
 
@@ -131,11 +134,14 @@ namespace Pixelaria.Data.Validators
             if (validate != "")
                 return validate;
 
-            foreach (AnimationSheet csheet in controller.CurrentBundle.AnimationSheets)
+            if (controller.CurrentBundle != null)
             {
-                if (csheet.Name == name && csheet != sheet)
+                foreach (AnimationSheet csheet in controller.CurrentBundle.AnimationSheets)
                 {
-                    return "The name '" + name + "' conflicts with another animation sheet in the project";
+                    if (csheet.Name == name && csheet != sheet)
+                    {
+                        return "The name '" + name + "' conflicts with another animation sheet in the project";
+                    }
                 }
             }
 
