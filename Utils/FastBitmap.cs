@@ -197,6 +197,32 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Sets the pixel color at the given coordinates. If the bitmap was not locked beforehands,
+        /// an exception is thrown
+        /// </summary>
+        /// <param name="x">The X coordinate of the pixel to set</param>
+        /// <param name="y">The Y coordinate of the pixel to set</param>
+        /// <param name="color">The new color of the pixel to set</param>
+        public void SetPixel(int x, int y, uint color)
+        {
+            if (!locked)
+            {
+                throw new Exception("The FastBitmap must be locked before any pixel operations are made");
+            }
+
+            if (x < 0 || x >= width)
+            {
+                throw new Exception("The X component must be >= 0 and < width");
+            }
+            if (y < 0 || y >= height)
+            {
+                throw new Exception("The Y component must be >= 0 and < height");
+            }
+
+            *(uint*)(scan0 + x + y * strideWidth) = color;
+        }
+
+        /// <summary>
         /// Gets the pixel color at the given coordinates. If the bitmap was not locked beforehands,
         /// an exception is thrown
         /// </summary>
