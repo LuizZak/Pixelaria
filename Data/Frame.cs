@@ -171,9 +171,8 @@ namespace Pixelaria.Data
         public Frame Clone()
         {
             Frame ret = new Frame(null, Width, Height, false);
-
-            ret._frameTexture = _frameTexture.Clone(new Rectangle(0, 0, _frameTexture.Width, _frameTexture.Height), _frameTexture.PixelFormat);
-            ret._hash = _hash;
+            
+            ret.CopyFrom(this);
 
             return ret;
         }
