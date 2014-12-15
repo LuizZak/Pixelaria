@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -69,6 +70,23 @@ namespace Pixelaria.Data
         {
             Name = name;
             _animations = new List<Animation>();
+        }
+
+        /// <summary>
+        /// Creates an exact copy of this AnimationSheet object, with all animations and their respective frames cloned as well
+        /// </summary>
+        public AnimationSheet Clone()
+        {
+            AnimationSheet sheetClone = new AnimationSheet(this.Name);
+
+            sheetClone.ExportSettings = ExportSettings;
+
+            foreach (var animation in _animations)
+            {
+                sheetClone.AddAnimation(animation.Clone());
+            }
+
+            return sheetClone;
         }
 
         /// <summary>
@@ -139,6 +157,47 @@ namespace Pixelaria.Data
         public int GetFrameCount()
         {
             return _animations.Sum(anim => anim.FrameCount);
+        }
+
+        // Override object.Equals
+        public override bool Equals(object obj)
+        {
+            //       
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            if (Object.ReferenceEquals(this, obj))
+                return true;
+
+            AnimationSheet other = (AnimationSheet) obj;
+
+            if (_animations == null || other._animations == null || _animations.Count != other._animations.Count || Name != other.Name || !ExportSettings.Equals(other.ExportSettings))
+                return false;
+            
+            // Iterate through each fo the animations and check for an inequality
+            for (int i = 0; i < _animations.Count; i++)
+            {
+                if (!_animations[i].Equals(other._animations[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ AnimationCount ^ ID;
         }
     }
 }
