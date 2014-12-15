@@ -233,6 +233,8 @@ namespace Pixelaria.Algorithms.Packers
             List<Rectangle> originsList = atlas.OriginsList;
             List<Rectangle> boundsList = atlas.BoundsList;
 
+            boundsList.Clear();
+
             int x = exportSettings.XPadding;
             int y;
 
@@ -251,10 +253,21 @@ namespace Pixelaria.Algorithms.Packers
                     {
                         int originalIndex = frameList.IndexOf(original);
 
-                        originsList[i] = originsList[originalIndex];
-                        boundsList[i] = boundsList[originalIndex];
+                        if (boundsList.Count > originalIndex)
+                        {
+                            originsList[i] = originsList[originalIndex];
 
-                        continue;
+                            if (boundsList.Count > i)
+                            {
+                                boundsList[i] = boundsList[originalIndex];
+                            }
+                            else
+                            {
+                                boundsList.Add(boundsList[originalIndex]);
+                            }
+
+                            continue;
+                        }
                     }
                 }
 
@@ -300,7 +313,14 @@ namespace Pixelaria.Algorithms.Packers
                 ////
                 //// 3. Calculate frame area on sheet
                 ////
-                boundsList[i] = new Rectangle(x, y, width, height);
+                if (boundsList.Count <= i)
+                {
+                    boundsList.Add(new Rectangle(x, y, width, height));
+                }
+                else
+                {
+                    boundsList[i] = new Rectangle(x, y, width, height);
+                }
 
                 atlasWidth = (uint)Math.Max(atlasWidth, boundsList[i].X + boundsList[i].Width + exportSettings.XPadding);
                 atlasHeight = (uint)Math.Max(atlasHeight, boundsList[i].Y + boundsList[i].Height + exportSettings.YPadding);
@@ -516,9 +536,9 @@ namespace Pixelaria.Algorithms.Packers
                 _similarMatrixIndexDictionary[frame1] = index;
                 _similarMatrixIndexDictionary[frame2] = index;
 
-                if(!_similarFramesMatrix[index].Contains(frame2))
+                if(!_similarFramesMatrix[index].ContainsReference(frame2))
                     _similarFramesMatrix[index].Add(frame2);
-                if (!_similarFramesMatrix[index].Contains(frame1))
+                if (!_similarFramesMatrix[index].ContainsReference(frame1))
                     _similarFramesMatrix[index].Add(frame1);
             }
 
@@ -534,7 +554,8 @@ namespace Pixelaria.Algorithms.Packers
                 int index;
                 if (_similarMatrixIndexDictionary.TryGetValue(frame, out index))
                 {
-                    return _similarFramesMatrix[index][0] == frame ? null : frame;
+                    //return _similarFramesMatrix[index][0] == frame ? null : frame;
+                    return _similarFramesMatrix[index][0];
                 }
 
                 return null;
