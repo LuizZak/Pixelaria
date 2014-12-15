@@ -35,19 +35,19 @@ namespace Pixelaria.Data
         /// <summary>
         /// The root node for this project tree
         /// </summary>
-        NestedProjectTreeNode rootNode;
+        NestedProjectTreeNode _rootNode;
 
         /// <summary>
         /// Gets the root node for this project tree
         /// </summary>
-        public NestedProjectTreeNode RootNode { get { return rootNode; } }
+        public NestedProjectTreeNode RootNode { get { return _rootNode; } }
 
         /// <summary>
         /// Initializes a new instance of the ProjectTree class
         /// </summary>
         public ProjectTree()
         {
-            rootNode = new NestedProjectTreeNode();
+            _rootNode = new NestedProjectTreeNode();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Pixelaria.Data
             // Start with the Bundle tree node
             BundleProjectTreeNode root = new BundleProjectTreeNode(bundle);
 
-            generatedTree.rootNode = root;
+            generatedTree._rootNode = root;
 
             // Fill in the animation sheets
             foreach (var sheet in bundle.AnimationSheets)
