@@ -23,6 +23,7 @@ Legend:
 * Fixed bug where similar frames that were reused in the export atlas sheet would accumulate their opacity, changing the generated transparency of the final frame on the sheet.
 
 . Improved sprite sheet image generation, now the pixel colors are guaranteed to be 100% similar to their original frame representations.
+. Now the animations on the exported sheet .xml are always in the order they appear in the program.
 
 -- v1.14.0b
 

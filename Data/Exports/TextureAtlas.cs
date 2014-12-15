@@ -41,6 +41,7 @@ namespace Pixelaria.Data.Exports
         /// <param name="name">An optional name for the TextureAtlas to be used on progress report</param>
         public TextureAtlas(AnimationExportSettings settings, string name = "")
         {
+            this.animationList = new List<Animation>();
             this.frameList = new List<Frame>();
             this.boundsList = new List<Rectangle>();
             this.originsList = new List<Rectangle>();
@@ -69,6 +70,11 @@ namespace Pixelaria.Data.Exports
         /// <param name="frame">The frame to pack</param>
         public void InsertFrame(Frame frame)
         {
+            if (frame.Animation != null && !animationList.Contains(frame.Animation))
+            {
+                animationList.Add(frame.Animation);
+            }
+
             frameList.Add(frame);
             boundsList.Add(new Rectangle());
             originsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
@@ -117,17 +123,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The array of animations on this TextureAtlas</returns>
         public Animation[] GetAnimationsOnAtlas()
         {
-            List<Animation> animations = new List<Animation>();
-
-            foreach (Frame frame in frameList)
-            {
-                if (!animations.Contains(frame.Animation))
-                {
-                    animations.Add(frame.Animation);
-                }
-            }
-
-            return animations.ToArray();
+            return animationList.ToArray();
         }
 
         /// <summary>
@@ -188,7 +184,12 @@ namespace Pixelaria.Data.Exports
         /// The name of this TextureAtlas. Used on progress reports
         /// </summary>
         private string name;
-        
+
+        /// <summary>
+        /// List of animations that have their frames placed on this texture atlas
+        /// </summary>
+        private List<Animation> animationList;
+
         /// <summary>
         /// List of frames to pack
         /// </summary>
