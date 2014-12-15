@@ -39,69 +39,69 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// The list of FrameRect objects inside this BundleSheetExport
         /// </summary>
-        FrameRect[] frameRects;
+        FrameRect[] _frameRects;
 
         /// <summary>
         /// The array of frames reused for all the frame rectangle bounds
         /// </summary>
-        int[] reuseCount;
+        int[] _reuseCount;
 
         /// <summary>
         /// The list of animations in this BundleSheet
         /// </summary>
-        Animation[] animations;
+        Animation[] _animations;
 
         /// <summary>
         /// Export settings to be used when exporting the Bundle Sheet
         /// </summary>
-        AnimationExportSettings exportSettings;
+        AnimationExportSettings _exportSettings;
 
         /// <summary>
         /// The frame sheet itself
         /// </summary>
-        Image sheet;
+        Image _sheet;
 
         /// <summary>
         /// The number of repeated frames
         /// </summary>
-        int reusedFrameCount;
+        int _reusedFrameCount;
 
         /// <summary>
         /// The frame sheet
         /// </summary>
-        public Image Sheet { get { return sheet; } }
+        public Image Sheet { get { return _sheet; } }
 
         /// <summary>
         /// Gets the number of frames on this BundleSheetExport
         /// </summary>
-        public int FrameCount { get { return frameRects.Length; } }
+        public int FrameCount { get { return _frameRects.Length; } }
 
         /// <summary>
         /// Gets the number of reused frames on this BundleSheetExport
         /// </summary>
-        public int ReusedFrameCount { get { return reusedFrameCount; } }
+        public int ReusedFrameCount { get { return _reusedFrameCount; } }
 
         /// <summary>
         /// Gets the FrameRect for the frame at the given index on this BundleSheetExport
         /// </summary>
         /// <param name="i">An index</param>
         /// <returns>The FrameRect stored at that index</returns>
-        public FrameRect this[int i] { get { return frameRects[i]; } }
+        public FrameRect this[int i] { get { return _frameRects[i]; } }
 
         /// <summary>
         /// Gets the array of FrameRect objects inside this BundleSheetExport
         /// </summary>
-        public FrameRect[] FrameRects { get { return frameRects; } }
+        public FrameRect[] FrameRects { get { return _frameRects; } }
 
         /// <summary>
         /// Gets the array of frames reused for all the frame rectangle bounds
         /// </summary>
-        public int[] ReuseCounts { get { return reuseCount; } }
+        public int[] ReuseCounts { get { return _reuseCount; } }
 
         /// <summary>
         /// Gets or sets the export settings to be used when exporting the Bundle Sheet
         /// </summary>
-        public AnimationExportSettings ExportSettings { get { return exportSettings; } }
+        public AnimationExportSettings ExportSettings { get { return _exportSettings; } }
 
         /// <summary>
         /// Default constructor for the BundleSheetExport class
@@ -116,7 +116,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         public void Dispose()
         {
-            this.sheet.Dispose();
+            _sheet.Dispose();
         }
 
         /// <summary>
@@ -137,10 +137,10 @@ namespace Pixelaria.Data.Exports
         public void SaveToDisk(string sheetPath, string xmlPath)
         {
             // Save the sprite sheet first
-            sheet.Save(sheetPath, ImageFormat.Png);
+            _sheet.Save(sheetPath, ImageFormat.Png);
 
             // Early quit - The xml generation is disabled
-            if (!exportSettings.ExportXml)
+            if (!_exportSettings.ExportXml)
                 return;
 
             // Compose the XML file now
@@ -153,7 +153,7 @@ namespace Pixelaria.Data.Exports
             rootNode.Attributes.Append(xml.CreateAttribute("file")).InnerText = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(xmlPath));
 
             // Append the animation sheets now
-            foreach (Animation anim in animations)
+            foreach (Animation anim in _animations)
             {
                 XmlNode animationNode = xml.CreateNode(XmlNodeType.Element, "anim", "");
 
@@ -176,13 +176,13 @@ namespace Pixelaria.Data.Exports
                     XmlNode frameNode = xml.CreateNode(XmlNodeType.Element, "frame", "");
 
                     frameNode.Attributes.Append(xml.CreateAttribute("index")).InnerText = frame.Index + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (exportSettings.UsePaddingOnXml ? exportSettings.XPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (exportSettings.UsePaddingOnXml ? exportSettings.YPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (exportSettings.UsePaddingOnXml ? exportSettings.XPadding : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (exportSettings.UsePaddingOnXml ? exportSettings.YPadding : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding : 0) + "";
 
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X - (exportSettings.UsePaddingOnXml ? exportSettings.XPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y - (exportSettings.UsePaddingOnXml ? exportSettings.YPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
+                    frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
                     frameNode.Attributes.Append(xml.CreateAttribute("frameW")).InnerText = rect.FrameArea.Width + "";
                     frameNode.Attributes.Append(xml.CreateAttribute("frameH")).InnerText = rect.FrameArea.Height + "";
 
@@ -204,7 +204,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>True whether the given frame is inside this BundleSheetExport, false otherwise</returns>
         public bool ContainsFrame(Frame frame)
         {
-            foreach (FrameRect frameRect in frameRects)
+            foreach (FrameRect frameRect in _frameRects)
             {
                 if (frameRect.Frame == frame)
                     return true;
@@ -221,7 +221,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The FrameRect object that represents the given Frame. If no FrameRect represents the given frame, null is returned.</returns>
         public FrameRect GetFrameRectForFrame(Frame frame)
         {
-            foreach (FrameRect frameRect in frameRects)
+            foreach (FrameRect frameRect in _frameRects)
             {
                 if (frameRect.Frame == frame)
                     return frameRect;
@@ -245,11 +245,11 @@ namespace Pixelaria.Data.Exports
             // Import the frame rects to a bundle sheet now
             BundleSheetExport export = new BundleSheetExport();
 
-            export.sheet = image;
-            export.exportSettings = atlas.ExportSettings;
-            export.animations = atlas.GetAnimationsOnAtlas();
-            export.reusedFrameCount = atlas.Information.ReusedFrameOriginsCount;
-            export.reuseCount = atlas.ReuseCount.ToArray();
+            export._sheet = image;
+            export._exportSettings = atlas.ExportSettings;
+            export._animations = atlas.GetAnimationsOnAtlas();
+            export._reusedFrameCount = atlas.Information.ReusedFrameOriginsCount;
+            export._reuseCount = atlas.ReuseCount.ToArray();
 
             List<FrameRect> frameRectList = new List<FrameRect>();
 
@@ -261,7 +261,7 @@ namespace Pixelaria.Data.Exports
                 frameRectList.Add(new FrameRect(atlas.GetFrame(i), atlas.GetFrameBoundsRectangle(i), atlas.GetFrameOriginsRectangle(i)));
             }
 
-            export.frameRects = frameRectList.ToArray();
+            export._frameRects = frameRectList.ToArray();
 
             return export;
         }
@@ -369,10 +369,10 @@ namespace Pixelaria.Data.Exports
         /// <param name="stageDescription">An optional description for the current stage</param>
         public BundleExportProgressEventArgs(BundleExportStage exportStage, int stageProgress, int totalProgress, string stageDescription = "")
         {
-            this.ExportStage = exportStage;
-            this.StageProgress = stageProgress;
-            this.TotalProgress = totalProgress;
-            this.StageDescription = stageDescription;
+            ExportStage = exportStage;
+            StageProgress = stageProgress;
+            TotalProgress = totalProgress;
+            StageDescription = stageDescription;
         }
     }
 
