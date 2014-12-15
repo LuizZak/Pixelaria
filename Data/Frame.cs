@@ -189,7 +189,7 @@ namespace Pixelaria.Data
             if (this == frame)
                 return;
 
-            if (_animation != null && frame._width != _width && frame._width != _animation.Width && frame._height != _height && frame._height != _animation.Height)
+            if (_animation != null && frame._width != _animation.Width && frame._height != _animation.Height)
             {
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
