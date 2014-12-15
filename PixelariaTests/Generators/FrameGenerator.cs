@@ -63,7 +63,7 @@ namespace PixelariaTests.Generators
             {
                 for (int x = 0; x < width; x++)
                 {
-                    int pixelColor = r.Next(0xFFFFFF);
+                    uint pixelColor = (uint)(r.NextDouble() * 0xFFFFFFFF);
                     fastBitmap.SetPixel(x, y, pixelColor);
                 }
             }
