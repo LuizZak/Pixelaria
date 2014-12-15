@@ -137,8 +137,7 @@ namespace Pixelaria.Data.Persistence
             {
                 file = new PixelariaFile(new Bundle("Name"), path);
 
-                PixelariaFileLoader loader = new PixelariaFileLoader(file);
-                loader.Load();
+                PixelariaFileLoader.Load(file);
 
                 return file;
             }
@@ -146,7 +145,6 @@ namespace Pixelaria.Data.Persistence
             Bundle bundle = LoadBundleFromDisk(path);
 
             file = new PixelariaFile(bundle, path);
-            file.AddDefaultBlocks();
             file.PrepareBlocksWithBundle();
 
             return file;
@@ -165,8 +163,6 @@ namespace Pixelaria.Data.Persistence
         {
             PixelariaFile file = new PixelariaFile(bundle, path);
 
-            file.AddDefaultBlocks();
-
             SaveFileToDisk(file);
 
             file.CurrentStream.Close();
@@ -178,8 +174,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="file">The file to save to disk</param>
         public static void SaveFileToDisk(PixelariaFile file)
         {
-            PixelariaFileSaver saver = new PixelariaFileSaver(file);
-            saver.Save();
+            PixelariaFileSaver.Save(file);
         }
 
         #endregion
@@ -460,6 +455,8 @@ namespace Pixelaria.Data.Persistence
             this.filePath = filePath;
             this.bundle = bundle;
             blockList = new List<FileBlock>();
+
+            AddDefaultBlocks();
         }
 
         /// <summary>
@@ -472,6 +469,9 @@ namespace Pixelaria.Data.Persistence
             filePath = "";
             this.bundle = bundle;
             this.stream = stream;
+            blockList = new List<FileBlock>();
+
+            AddDefaultBlocks();
         }
 
         /// <summary>
@@ -526,9 +526,27 @@ namespace Pixelaria.Data.Persistence
         /// Removes a block from this file's composition
         /// </summary>
         /// <param name="block">The block to remove</param>
-        public void RemoveBlock(FileBlock block)
+        /// <param name="dispose">Whether to dispose of the block after its removal</param>
+        public void RemoveBlock(FileBlock block, bool dispose = true)
         {
             blockList.Remove(block);
+            if (dispose)
+            {
+                block.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Removes all file blocks in this file's composition
+        /// </summary>
+        public void ClearBlockList()
+        {
+            foreach (var block in blockList)
+            {
+                block.Dispose();
+            }
+
+            blockList.Clear();
         }
 
         /// <summary>
@@ -581,15 +599,22 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The file to load
         /// </summary>
-        private PixelariaFile file;
+        private PixelariaFile _file;
+
+        /// <summary>
+        /// Whether to reset the bundle before loading contents from the stream
+        /// </summary>
+        private bool _resetBundle;
 
         /// <summary>
         /// Initializes a new instance of the PixelariaFileLoader class
         /// </summary>
         /// <param name="file">The file to load from the stream</param>
-        public PixelariaFileLoader(PixelariaFile file)
+        /// <param name="resetBundle">Whether to reset the bundle to a clear state before loading the new file</param>
+        public PixelariaFileLoader(PixelariaFile file, bool resetBundle)
         {
-            this.file = file;
+            _file = file;
+            _resetBundle = resetBundle;
         }
 
         /// <summary>
@@ -598,11 +623,11 @@ namespace Pixelaria.Data.Persistence
         public void Load()
         {
             // Get the stream to load the file from
-            Stream stream = file.CurrentStream;
+            Stream stream = _file.CurrentStream;
             bool closeStream = false;
             if(stream == null)
             {
-                file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
+                _file.CurrentStream = stream = new FileStream(_file.FilePath, FileMode.Open, FileAccess.Read);
                 closeStream = true;
             }
 
@@ -615,21 +640,40 @@ namespace Pixelaria.Data.Persistence
                 return;
             }
 
+            if (_resetBundle)
+            {
+                // Reset the bundle beforehands
+                _file.LoadedBundle.Clear();
+            }
+
             // Bundle Header block
-            file.Version = reader.ReadInt32();
-            file.LoadedBundle.Name = reader.ReadString();
-            file.LoadedBundle.ExportPath = reader.ReadString();
+            _file.Version = reader.ReadInt32();
+            _file.LoadedBundle.Name = reader.ReadString();
+            _file.LoadedBundle.ExportPath = reader.ReadString();
 
             // Load the blocks
             while (stream.Position < stream.Length)
             {
-                file.AddBlock(FileBlock.FromStream(stream, file));
+                _file.AddBlock(FileBlock.FromStream(stream, _file));
             }
 
             if (closeStream)
             {
                 stream.Close();
             }
+        }
+
+        /// <summary>
+        /// Loads a pixelaria file's contents from its stream or file path
+        /// </summary>
+        /// <param name="file">A valid PixelariaFile with a stream of valid file path set</param>
+        /// <param name="resetBundle">Whether to reset the bundle to a clear state before loading the new file</param>
+        public static void Load(PixelariaFile file, bool resetBundle = true)
+        {
+            // TODO: Verify correctess of clearing the pixelaria file's internal blocks list before loading the file from the stream again
+            file.ClearBlockList();
+            PixelariaFileLoader loader = new PixelariaFileLoader(file, resetBundle);
+            loader.Load();
         }
     }
 
@@ -666,6 +710,8 @@ namespace Pixelaria.Data.Persistence
                 closeStream = true;
             }
 
+            stream.SetLength(0);
+
             // Save the header
             BinaryWriter writer = new BinaryWriter(stream);
 
@@ -693,6 +739,16 @@ namespace Pixelaria.Data.Persistence
             {
                 stream.Close();
             }
+        }
+
+        /// <summary>
+        /// Saves a pixelaria file's contents to its stream or file path
+        /// </summary>
+        /// <param name="file">A valid PixelariaFile with a stream of valid file path set</param>
+        public static void Save(PixelariaFile file)
+        {
+            PixelariaFileSaver saver = new PixelariaFileSaver(file);
+            saver.Save();
         }
     }
 }
