@@ -726,20 +726,20 @@ namespace Pixelaria.Views
         {
             tv_bundleAnimations.SelectedNode = e.Node;
 
-            if (e.Button == MouseButtons.Right)
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            if (e.Node.Tag is Bundle)
             {
-                if (e.Node.Tag is Bundle)
-                {
-                    cms_bundleNodeRightClick.Show(MousePosition);
-                }
-                else if (e.Node.Tag is AnimationSheet)
-                {
-                    cms_sheetNodeRightClick.Show(MousePosition);
-                }
-                else if (e.Node.Tag is Animation)
-                {
-                    cms_animationNodeRightClick.Show(MousePosition);
-                }
+                cms_bundleNodeRightClick.Show(MousePosition);
+            }
+            else if (e.Node.Tag is AnimationSheet)
+            {
+                cms_sheetNodeRightClick.Show(MousePosition);
+            }
+            else if (e.Node.Tag is Animation)
+            {
+                cms_animationNodeRightClick.Show(MousePosition);
             }
         }
 
@@ -848,19 +848,19 @@ namespace Pixelaria.Views
         /// Specifies that the given TreeNode should not be expanded on the next call of the Before Expand/Collapse event handlers.
         /// The value is nullified once a matching Before Expand/Collapse event is fired
         /// </summary>
-        private TreeNode cancelExpandCollapseForNode = null;
-        private Point lastMousePoint = new Point();
+        private TreeNode _cancelExpandCollapseForNode = null;
+        private Point _lastMousePoint = new Point();
         // 
         // TreeView Mouse Down event handler
         // 
         private void TreeViewMouseDown(object sender, MouseEventArgs e)
         {
             //throw new NotImplementedException();
-            if (e.Clicks == 2 && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is AnimationSheet && tv_bundleAnimations.Bounds.Contains(e.Location) && Math.Sqrt((lastMousePoint.X - e.Location.X) * (lastMousePoint.X - e.Location.X) + (lastMousePoint.Y - e.Location.Y) * (lastMousePoint.Y - e.Location.Y)) < 5)
+            if (e.Clicks == 2 && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is AnimationSheet && tv_bundleAnimations.Bounds.Contains(e.Location) && Math.Sqrt((_lastMousePoint.X - e.Location.X) * (_lastMousePoint.X - e.Location.X) + (_lastMousePoint.Y - e.Location.Y) * (_lastMousePoint.Y - e.Location.Y)) < 5)
             {
-                cancelExpandCollapseForNode = tv_bundleAnimations.SelectedNode;
+                _cancelExpandCollapseForNode = tv_bundleAnimations.SelectedNode;
             }
-            lastMousePoint = e.Location;
+            _lastMousePoint = e.Location;
         }
 
         // 
@@ -868,10 +868,10 @@ namespace Pixelaria.Views
         // 
         private void tv_bundleAnimations_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
-            if (e.Node == cancelExpandCollapseForNode)
+            if (e.Node == _cancelExpandCollapseForNode)
             {
                 e.Cancel = true;
-                cancelExpandCollapseForNode = null;
+                _cancelExpandCollapseForNode = null;
             }
         }
         // 
@@ -879,10 +879,10 @@ namespace Pixelaria.Views
         // 
         private void tv_bundleAnimations_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            if (e.Node == cancelExpandCollapseForNode)
+            if (e.Node == _cancelExpandCollapseForNode)
             {
                 e.Cancel = true;
-                cancelExpandCollapseForNode = null;
+                _cancelExpandCollapseForNode = null;
             }
         }
 
