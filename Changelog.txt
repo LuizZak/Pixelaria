@@ -21,6 +21,7 @@ Legend:
 -- v1.14.0b
 
 * Fixed bug where the .plx bundle file could get corrupted after saving.
+* Made the bundle loading process slightly faster, should be much more noticeable when loading bundles that contain lots of animations.
 
 . FrameView
   * Fixed pencil not changing active color to the first when picking colors with middle mouse button.

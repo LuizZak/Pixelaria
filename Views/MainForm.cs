@@ -53,6 +53,11 @@ namespace Pixelaria.Views
         private EventHandler _recentFileClick;
 
         /// <summary>
+        /// The root tree node for the tree view
+        /// </summary>
+        private TreeNode _rootNode;
+
+        /// <summary>
         /// Creates a new instance of the MainForm class
         /// </summary>
         /// <param name="args">Command line arguments</param>
@@ -73,6 +78,8 @@ namespace Pixelaria.Views
             this.Menu = this.mm_menu;
 
             this.il_treeView.Images.SetKeyName(2, "EMPTY");
+
+            _rootNode = this.tv_bundleAnimations.Nodes[0];
 
             this._recentFileClick = new EventHandler(mi_fileItem_Click);
 
@@ -101,7 +108,7 @@ namespace Pixelaria.Views
             UpdateAnimationsTreeView(bundle);
 
             // Open the root node
-            tv_bundleAnimations.Nodes[0].Expand();
+            _rootNode.Expand();
         }
 
         /// <summary>
@@ -134,6 +141,8 @@ namespace Pixelaria.Views
             // Clear the nodes
             tv_bundleAnimations.Nodes.Clear();
 
+            _rootNode = null;
+
             // Clear the thumbnails
             while(il_treeView.Images.Count > 3)
             {
@@ -142,7 +151,7 @@ namespace Pixelaria.Views
             }
 
             // Start filling the tree view again
-            TreeNode bundleNode = tv_bundleAnimations.Nodes.Add("Bundle");
+            TreeNode bundleNode = _rootNode = new TreeNode("Bundle");
 
             bundleNode.Tag = bundle;
 
@@ -172,6 +181,8 @@ namespace Pixelaria.Views
                     sheetNode.Nodes.Add(animNode);
                 }
             }
+
+            tv_bundleAnimations.Nodes.Add(_rootNode);
         }
 
         /// <summary>
@@ -181,7 +192,7 @@ namespace Pixelaria.Views
         {
             Queue<TreeNode> nodeQueue = new Queue<TreeNode>();
 
-            nodeQueue.Enqueue(tv_bundleAnimations.Nodes[0]);
+            nodeQueue.Enqueue(_rootNode);
 
             while(nodeQueue.Count != 0)
             {
@@ -256,7 +267,7 @@ namespace Pixelaria.Views
         /// <param name="selectOnAdd">Whether to select the sheet's node after it's added to the interface</param>
         public void AddAnimation(Animation animation, bool selectOnAdd = false)
         {
-            TreeNode parentNode = tv_bundleAnimations.Nodes[0];
+            TreeNode parentNode = _rootNode;
 
             // If the animation is owned by a sheet, set the sheet's tree node as the parent for the animation node
             AnimationSheet sheet = controller.GetOwningAnimationSheet(animation);
@@ -273,7 +284,7 @@ namespace Pixelaria.Views
             // If the target node is the bundle root, add the index of the animation sheets to the target add index
             if (parentNode.Tag is Bundle)
             {
-                foreach (TreeNode node in tv_bundleAnimations.Nodes[0].Nodes)
+                foreach (TreeNode node in _rootNode.Nodes)
                 {
                     if (node.Tag is AnimationSheet)
                     {
@@ -395,7 +406,7 @@ namespace Pixelaria.Views
         /// <param name="selectOnAdd">Whether to select the sheet's node after it's added to the interface</param>
         public void AddAnimationSheet(AnimationSheet sheet, bool selectOnAdd = false)
         {
-            TreeNode bundleNode = tv_bundleAnimations.Nodes[0];
+            TreeNode bundleNode = _rootNode;
 
             // Find a new valid node position for the animation sheet
             int nodePos = 0;
@@ -591,7 +602,7 @@ namespace Pixelaria.Views
 
                             node.Remove();
 
-                            tv_bundleAnimations.Nodes[0].Nodes.Add(node);
+                            _rootNode.Nodes.Add(node);
                         }
                     }
                 }
@@ -603,7 +614,7 @@ namespace Pixelaria.Views
                 {
                     int index = 0;
 
-                    foreach (TreeNode node in tv_bundleAnimations.Nodes[0].Nodes)
+                    foreach (TreeNode node in _rootNode.Nodes)
                     {
                         if (node.Tag is Animation)
                         {
@@ -629,10 +640,10 @@ namespace Pixelaria.Views
         {
             // Do a breadth-first search on the tree-view
             List<TreeNode> traversalList = new List<TreeNode>();
-            TreeNode currentNode = tv_bundleAnimations.Nodes[0];
+            TreeNode currentNode = _rootNode;
             int i = 0;
 
-            foreach (TreeNode node in tv_bundleAnimations.Nodes)
+            foreach (TreeNode node in currentNode.Nodes)
             {
                 traversalList.Add(node);
             }
