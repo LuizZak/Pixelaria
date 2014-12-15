@@ -148,32 +148,35 @@ namespace Pixelaria.Controllers
         /// <param name="mainForm">The form to use as the main form of the application</param>
         public Controller(MainForm mainForm)
         {
-            // Initialize the basic fields
-            this._mainForm = mainForm;
-            this._mainForm.controller = this;
-
-            this._files = new List<PixelariaFile>();
+            _files = new List<PixelariaFile>();
 
             // Initialize the factories
-            this._frameFactory = new DefaultFrameFactory(this);
+            _frameFactory = new DefaultFrameFactory(this);
 
             // Initialize the validators and exporters
             DefaultValidator defValidator = new DefaultValidator(this);
 
-            this._animationValidator = defValidator;
-            this._animationSheetValidator = defValidator;
+            _animationValidator = defValidator;
+            _animationSheetValidator = defValidator;
 
-            this._defaultImporter = new DefaultPngImporter();
-            this._defaultExporter = new DefaultPngExporter();
+            _defaultImporter = new DefaultPngImporter();
+            _defaultExporter = new DefaultPngExporter();
 
             // Initialize the Settings singleton
             Settings.GetSettings(Path.GetDirectoryName(Application.ExecutablePath) + "\\settings.ini");
 
-            this._recentFileList = new RecentFileList(10);
-            this._mainForm.UpdateRecentFilesList();
+            _recentFileList = new RecentFileList(10);
 
-            // Start with a new empty bundle
-            ShowNewBundle();
+            if (mainForm != null)
+            {
+                // Initialize the basic fields
+                _mainForm = mainForm;
+                _mainForm.controller = this;
+                _mainForm.UpdateRecentFilesList();
+
+                // Start with a new empty bundle
+                ShowNewBundle();
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -637,7 +640,7 @@ namespace Pixelaria.Controllers
 
             BundleExportProgressView progressForm = new BundleExportProgressView(_currentBundle, _defaultExporter);
 
-            progressForm.ShowDialog(this._mainForm);
+            progressForm.ShowDialog(_mainForm);
         }
 
         /// <summary>
