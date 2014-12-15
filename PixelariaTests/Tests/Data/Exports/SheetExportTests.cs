@@ -36,9 +36,11 @@ namespace PixelariaTests.Tests.Data
         [TestMethod]
         public void TestSheetExportConsistency()
         {
+            // TODO: Modularize this test so it can be fed different export settings to test different setting types
+
             // In theory, if you export a sheet and import it back just the way it was described on the generated XML file, it will equal the original sheet completely
             OriginalSheet = new AnimationSheet("Sheet1");
-            OriginalSheet.ExportSettings = GenerateDefaultAnimationExportSettings();
+            OriginalSheet.ExportSettings = AnimationSheetGenerator.GenerateDefaultAnimationExportSettings();
 
             for (int i = 0; i < 10; i++)
             {
@@ -77,29 +79,6 @@ namespace PixelariaTests.Tests.Data
                 Directory.Delete(_tempExportPath);
             }
             catch (Exception) { }
-        }
-
-        /// <summary>
-        /// Generates a default AnimationExportSettings object to be used when exporting animation sheets
-        /// </summary>
-        /// <returns>A default AnimationExportSettings object to be used when exporting animation sheets</returns>
-        public AnimationExportSettings GenerateDefaultAnimationExportSettings()
-        {
-            AnimationExportSettings exportSettings;
-
-            exportSettings.FavorRatioOverArea = false;
-            exportSettings.ForcePowerOfTwoDimensions = false;
-            exportSettings.ForceMinimumDimensions = true;
-            exportSettings.ReuseIdenticalFramesArea = true;
-            exportSettings.HighPrecisionAreaMatching = false;
-            exportSettings.AllowUnorderedFrames = true;
-            exportSettings.UseUniformGrid = false;
-            exportSettings.UsePaddingOnXml = true;
-            exportSettings.ExportXml = true;
-            exportSettings.XPadding = 0;
-            exportSettings.YPadding = 0;
-
-            return exportSettings;
         }
 
         /// <summary>

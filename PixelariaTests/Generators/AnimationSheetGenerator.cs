@@ -33,5 +33,28 @@ namespace PixelariaTests.Generators
 
             return sheet;
         }
+
+        /// <summary>
+        /// Generates a default AnimationExportSettings object to be used when exporting animation sheets
+        /// </summary>
+        /// <returns>A default AnimationExportSettings object to be used when exporting animation sheets</returns>
+        public static AnimationExportSettings GenerateDefaultAnimationExportSettings()
+        {
+            AnimationExportSettings exportSettings;
+
+            exportSettings.FavorRatioOverArea = false;
+            exportSettings.ForcePowerOfTwoDimensions = false;
+            exportSettings.ForceMinimumDimensions = true;
+            exportSettings.ReuseIdenticalFramesArea = true;
+            exportSettings.HighPrecisionAreaMatching = false;
+            exportSettings.AllowUnorderedFrames = true;
+            exportSettings.UseUniformGrid = false;
+            exportSettings.UsePaddingOnXml = true;
+            exportSettings.ExportXml = true;
+            exportSettings.XPadding = 0;
+            exportSettings.YPadding = 0;
+
+            return exportSettings;
+        }
     }
 }
