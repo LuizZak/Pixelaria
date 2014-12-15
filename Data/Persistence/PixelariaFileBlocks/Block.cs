@@ -93,9 +93,6 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             switch (blockID)
             {
-                // Null block
-                case BLOCKID_NULL:
-                    return new FileBlock();
                 // Animation block
                 case BLOCKID_ANIMATION:
                     return new AnimationBlock();
@@ -105,9 +102,10 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 // Project Tree block
                 case BLOCKID_PROJECTTREE:
                     return new ProjectTreeBlock();
-            }
 
-            return new FileBlock();
+                default:
+                    return new FileBlock();
+            }
         }
 
         /// <summary>Represents a Null block</summary>
