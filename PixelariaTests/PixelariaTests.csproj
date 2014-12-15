@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Data\AnimationSheetTests.cs" />
     <Compile Include="Data\AnimationTests.cs" />
+    <Compile Include="Data\FrameTests.cs" />
     <Compile Include="Data\Persistence\PersistenceTests.cs" />
     <Compile Include="Data\BundleTests.cs" />
     <Compile Include="Generators\AnimationGenerator.cs" />

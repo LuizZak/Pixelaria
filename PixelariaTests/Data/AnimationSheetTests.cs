@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using PixelariaTests.Generators;
 
@@ -28,6 +29,21 @@ namespace PixelariaTests.Data
             sheet2.ExportSettings = new AnimationExportSettings {ExportXml = !sheet1.ExportSettings.ExportXml};
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's export settings, it must no longer be considered equal to the original");
+        }
+
+        [TestMethod]
+        public void TestAnimationSheetFrameCount()
+        {
+            Random r = new Random();
+
+            for (int i = 0; i < 10; i++)
+            {
+                int animCount = r.Next(1, 10);
+                int frameCount = r.Next(1, 10);
+                AnimationSheet sheet1 = AnimationSheetGenerator.GenerateAnimationSheet("TestSheet", animCount, 64, 64, frameCount, 0);
+
+                Assert.AreEqual(sheet1.GetFrameCount(), animCount * frameCount, "GetFrameCount() must return the frame count of all the animations in a sprite sheet");
+            }
         }
     }
 }

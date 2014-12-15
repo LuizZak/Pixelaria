@@ -44,7 +44,7 @@ namespace PixelariaTests.Data
         [TestMethod]
         public void TestAnimationDuplicate()
         {
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
+            Animation anim1 = AnimationGenerator.GenerateAnimation("TestAnimation1", 64, 64, 10);
             // Create an empty frame to test frame duplication
             anim1.CreateFrame();
 
@@ -58,7 +58,7 @@ namespace PixelariaTests.Data
             Assert.AreNotEqual(anim1, anim2, "Animations with different frame counts cannot be equal");
 
             // Remove the newly created frame from the second animation
-            anim2.RemoveFrameIndex(1);
+            anim2.RemoveFrameIndex(anim2.FrameCount - 1);
 
             Assert.AreEqual(anim1, anim2, "After a RemoveFrameIndex() call, the frame must be removed from the animation");
 
