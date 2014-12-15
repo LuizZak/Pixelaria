@@ -35,57 +35,57 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The Bitmap object encapsulated on this FastBitmap
         /// </summary>
-        private Bitmap bitmap;
+        private readonly Bitmap _bitmap;
 
         /// <summary>
         /// The BitmapData resulted from the lock operation
         /// </summary>
-        private BitmapData bitmapData;
+        private BitmapData _bitmapData;
 
         /// <summary>
         /// The stride of the bitmap
         /// </summary>
-        private int strideWidth;
+        private int _strideWidth;
 
         /// <summary>
         /// The first pixel of the bitmap
         /// </summary>
-        private int *scan0;
+        private int *_scan0;
 
         /// <summary>
         /// Whether the current bitmap is locked
         /// </summary>
-        private bool locked;
+        private bool _locked;
 
         /// <summary>
         /// The width of this FastBitmap
         /// </summary>
-        private int width;
+        private int _width;
 
         /// <summary>
         /// The height of this FastBitmap
         /// </summary>
-        private int height;
+        private int _height;
 
         /// <summary>
         /// Gets the width of this FastBitmap object
         /// </summary>
-        public int Width { get { return width; } }
+        public int Width { get { return _width; } }
 
         /// <summary>
         /// Gets the height of this FastBitmap object
         /// </summary>
-        public int Height { get { return height; } }
+        public int Height { get { return _height; } }
 
         /// <summary>
         /// Gets the pointer to the first pixel of the bitmap
         /// </summary>
-        public IntPtr Scan0 { get { return bitmapData.Scan0; } }
+        public IntPtr Scan0 { get { return _bitmapData.Scan0; } }
 
         /// <summary>
         /// Gets the stride width of the bitmap
         /// </summary>
-        public int Stride { get { return strideWidth; } }
+        public int Stride { get { return _strideWidth; } }
 
         /// <summary>
         /// Gets an array of 32-bit ARGB values that represent this FastBitmap
@@ -95,11 +95,11 @@ namespace Pixelaria.Utils
             get
             {
                 // Declare an array to hold the bytes of the bitmap
-                int bytes = Math.Abs(bitmapData.Stride) * bitmap.Height;
+                int bytes = Math.Abs(_bitmapData.Stride) * _bitmap.Height;
                 int[] argbValues = new int[bytes / 4];
 
                 // Copy the RGB values into the array
-                Marshal.Copy(bitmapData.Scan0, argbValues, 0, bytes / 4);
+                Marshal.Copy(_bitmapData.Scan0, argbValues, 0, bytes / 4);
 
                 return argbValues;
             }
@@ -111,10 +111,10 @@ namespace Pixelaria.Utils
         /// <param name="bitmap">The Bitmap object to encapsulate on this FastBitmap object</param>
         public FastBitmap(Bitmap bitmap)
         {
-            this.bitmap = bitmap;
+            this._bitmap = bitmap;
 
-            this.width = bitmap.Width;
-            this.height = bitmap.Height;
+            this._width = bitmap.Width;
+            this._height = bitmap.Height;
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Pixelaria.Utils
         /// </summary>
         public void Lock()
         {
-            if (locked)
+            if (_locked)
             {
                 throw new Exception("Unlock must be called before a Lock operation");
             }
@@ -137,7 +137,7 @@ namespace Pixelaria.Utils
         /// <param name="lockMode">The lock mode to use on the bitmap</param>
         private void Lock(ImageLockMode lockMode)
         {
-            Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            Rectangle rect = new Rectangle(0, 0, _bitmap.Width, _bitmap.Height);
 
             Lock(lockMode, rect);
         }
@@ -150,12 +150,12 @@ namespace Pixelaria.Utils
         private void Lock(ImageLockMode lockMode, Rectangle rect)
         {
             // Lock the bitmap's bits
-            bitmapData = bitmap.LockBits(rect, lockMode, bitmap.PixelFormat);
+            _bitmapData = _bitmap.LockBits(rect, lockMode, _bitmap.PixelFormat);
 
-            scan0 = (int*)bitmapData.Scan0;
-            strideWidth = bitmapData.Stride / 4;
+            _scan0 = (int*)_bitmapData.Scan0;
+            _strideWidth = _bitmapData.Stride / 4;
 
-            locked = true;
+            _locked = true;
         }
 
         /// <summary>
@@ -164,14 +164,14 @@ namespace Pixelaria.Utils
         /// </summary>
         public void Unlock()
         {
-            if (!locked)
+            if (!_locked)
             {
                 throw new Exception("Lock must be called before an Unlock operation");
             }
 
-            bitmap.UnlockBits(bitmapData);
+            _bitmap.UnlockBits(_bitmapData);
 
-            locked = false;
+            _locked = false;
         }
 
         /// <summary>
@@ -195,21 +195,21 @@ namespace Pixelaria.Utils
         /// <param name="color">The new color of the pixel to set</param>
         public void SetPixel(int x, int y, int color)
         {
-            if (!locked)
+            if (!_locked)
             {
                 throw new Exception("The FastBitmap must be locked before any pixel operations are made");
             }
 
-            if (x < 0 || x >= width)
+            if (x < 0 || x >= _width)
             {
                 throw new Exception("The X component must be >= 0 and < width");
             }
-            if (y < 0 || y >= height)
+            if (y < 0 || y >= _height)
             {
                 throw new Exception("The Y component must be >= 0 and < height");
             }
 
-            *(scan0 + x + y * strideWidth) = color;
+            *(_scan0 + x + y * _strideWidth) = color;
         }
 
         /// <summary>
@@ -221,21 +221,21 @@ namespace Pixelaria.Utils
         /// <param name="color">The new color of the pixel to set</param>
         public void SetPixel(int x, int y, uint color)
         {
-            if (!locked)
+            if (!_locked)
             {
                 throw new Exception("The FastBitmap must be locked before any pixel operations are made");
             }
 
-            if (x < 0 || x >= width)
+            if (x < 0 || x >= _width)
             {
                 throw new Exception("The X component must be >= 0 and < width");
             }
-            if (y < 0 || y >= height)
+            if (y < 0 || y >= _height)
             {
                 throw new Exception("The Y component must be >= 0 and < height");
             }
 
-            *(uint*)(scan0 + x + y * strideWidth) = color;
+            *(uint*)(_scan0 + x + y * _strideWidth) = color;
         }
 
         /// <summary>
@@ -257,21 +257,21 @@ namespace Pixelaria.Utils
         /// <param name="y">The Y coordinate of the pixel to get</param>
         public int GetPixelInt(int x, int y)
         {
-            if (!locked)
+            if (!_locked)
             {
                 throw new Exception("The FastBitmap must be locked before any pixel operations are made");
             }
 
-            if (x < 0 || x >= width)
+            if (x < 0 || x >= _width)
             {
                 throw new Exception("The X component must be >= 0 and < width");
             }
-            if (y < 0 || y >= height)
+            if (y < 0 || y >= _height)
             {
                 throw new Exception("The Y component must be >= 0 and < height");
             }
 
-            return *(scan0 + x + y * strideWidth);
+            return *(_scan0 + x + y * _strideWidth);
         }
 
         /// <summary>
@@ -290,8 +290,8 @@ namespace Pixelaria.Utils
         public void Clear(int color)
         {
             // Clear all the pixels
-            int count = width * height;
-            int* curScan = scan0;
+            int count = _width * _height;
+            int* curScan = _scan0;
 
             int rem = count % 8;
 
@@ -324,7 +324,7 @@ namespace Pixelaria.Utils
         public void CopyRegion(Bitmap source, Rectangle srcRect, Rectangle destRect)
         {
             // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
-            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > width || destRect.Y > height)
+            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > _width || destRect.Y > _height)
                 return;
 
             FastBitmap fastSource = new FastBitmap(source);
@@ -363,12 +363,12 @@ namespace Pixelaria.Utils
             fastTarget.Lock();
 
             // Simply copy the argb values array
-            int *s0s = fastSource.scan0;
-            int *s0t = fastTarget.scan0;
+            int *s0s = fastSource._scan0;
+            int *s0t = fastTarget._scan0;
 
             const int bpp = 1; // Bytes per pixel
 
-            int count = fastSource.width * fastSource.height * bpp;
+            int count = fastSource._width * fastSource._height * bpp;
             int rem = count % 8;
 
             count /= 8;
