@@ -19,7 +19,7 @@ namespace PixelariaTests.Data
             Assert.AreEqual(sheet1, sheet2, "Animation sheets copied with the Clone() method must be equal");
 
             // Modify one of the sheet's properties
-            sheet2.Animations[0].Frames[0].SetFrameBitmap(FrameImageGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+            sheet2.Animations[0].Frames[0].SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's animation's frame, it must no longer be considered equal to the original");
 

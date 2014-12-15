@@ -21,13 +21,13 @@ namespace PixelariaTests.Generators
         /// <param name="frameCount">The number of frames to add to the animation</param>
         /// <param name="seed">The seed for the animation's frames, used to seed the random number generator that will generate each of the frame's contents</param>
         /// <returns>An animation with the passed parameters</returns>
-        public static Animation GenerateAnimation(string name, int width, int height, int frameCount, int seed)
+        public static Animation GenerateAnimation(string name, int width, int height, int frameCount, int seed = -1)
         {
             Animation anim = new Animation(name, width, height);
 
             for (int i = 0; i < frameCount; i++)
             {
-                anim.CreateFrame().SetFrameBitmap(FrameImageGenerator.GenerateFrameImage(width, height, seed + i));
+                anim.CreateFrame().SetFrameBitmap(FrameGenerator.GenerateFrameImage(width, height, (seed == -1 ? seed : seed + i)));
             }
 
             return anim;

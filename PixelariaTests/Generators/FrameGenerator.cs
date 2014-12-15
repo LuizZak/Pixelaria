@@ -5,7 +5,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Pixelaria.Data;
 using Pixelaria.Utils;
 
 namespace PixelariaTests.Generators
@@ -13,18 +13,44 @@ namespace PixelariaTests.Generators
     /// <summary>
     /// Contains methods related to image generation used in unit tests
     /// </summary>
-    public static class FrameImageGenerator
+    public static class FrameGenerator
     {
         /// <summary>
-        /// Generates a frame image with a given set of parameters.
-        /// The seed is used to randomize the frame, and any call with the same width, height and seed will generate the same image
+        /// Random number generator used to randomize seeds for image generation when none are provided
+        /// </summary>
+        private static Random _seedRandom = new Random();
+
+        /// <summary>
+        /// Generates a frame with a given set of parameters.
+        /// The seed is used to randomize the frame, and any call with the same width, height and seed will generate the same frame
         /// </summary>
         /// <param name="width">The width of the frame to generate</param>
         /// <param name="height">The height of the frame to generate</param>
         /// <param name="seed">The seed for the frame's image, used to seed the random number generator that will generate the image contents</param>
-        /// <returns>An image with the passed parameters</returns>
-        public static Bitmap GenerateFrameImage(int width, int height, int seed)
+        /// <returns>A frame with the passed parameters</returns>
+        public static Frame GenerateFrame(int width, int height, int seed = -1)
         {
+            Frame frame = new Frame(null, width, height, false);
+            frame.SetFrameBitmap(GenerateFrameImage(width, height, seed));
+
+            return frame;
+        }
+
+        /// <summary>
+        /// Generates a frame image with a given set of parameters.
+        /// The seed is used to randomize the frame, and any call with the same width, height and seed will generate the same image
+        /// </summary>
+        /// <param name="width">The width of the image to generate</param>
+        /// <param name="height">The height of the image to generate</param>
+        /// <param name="seed">The seed for the image, used to seed the random number generator that will generate the image contents</param>
+        /// <returns>An image with the passed parameters</returns>
+        public static Bitmap GenerateFrameImage(int width, int height, int seed = -1)
+        {
+            if (seed == -1)
+            {
+                seed = _seedRandom.Next();
+            }
+
             Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
             FastBitmap fastBitmap = new FastBitmap(bitmap);

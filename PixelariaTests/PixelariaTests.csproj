@@ -58,7 +58,7 @@
     <Compile Include="Generators\AnimationGenerator.cs" />
     <Compile Include="Generators\AnimationSheetGenerator.cs" />
     <Compile Include="Generators\BundleGenerator.cs" />
-    <Compile Include="Generators\FrameImageGenerator.cs" />
+    <Compile Include="Generators\FrameGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
