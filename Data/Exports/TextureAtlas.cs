@@ -101,10 +101,13 @@ namespace Pixelaria.Data.Exports
             {
                 Frame frame = GetFrame(i);
 
-                if (renderedFrames.Contains(frame) && exportSettings.ReuseIdenticalFramesArea)
-                    continue;
+                if (exportSettings.ReuseIdenticalFramesArea)
+                {
+                    if (renderedFrames.Contains(frame))
+                        continue;
 
-                renderedFrames.Add(frame);
+                    renderedFrames.Add(frame);
+                }
 
                 Rectangle frameBounds = GetFrameBoundsRectangle(i);
                 Rectangle originBounds = GetFrameOriginsRectangle(i);
