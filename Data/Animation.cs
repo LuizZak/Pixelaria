@@ -497,9 +497,12 @@ namespace Pixelaria.Data
                 return false;
             }
 
+            if (Object.ReferenceEquals(this, obj))
+                return true;
+
             Animation other = (Animation) obj;
 
-            if (Name != other.Name || _frames.Count != other._frames.Count || Width != other.Width || Height != other.Height ||
+            if (Name != other.Name || _frames == null || other._frames == null || _frames.Count != other._frames.Count || Width != other.Width || Height != other.Height ||
                 !ExportSettings.Equals(other.ExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings))
                 return false;
 

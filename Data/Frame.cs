@@ -380,7 +380,7 @@ namespace Pixelaria.Data
             _hash = newHash;
         }
 
-        // override object.Equals
+        // Override object.Equals
         public override bool Equals(object obj)
         {
             //       
@@ -395,16 +395,16 @@ namespace Pixelaria.Data
                 return false;
             }
 
-            // TODO: write your implementation of Equals() here
-            //throw new NotImplementedException();
+            if (Object.ReferenceEquals(this, obj))
+                return true;
 
             Frame other = (Frame) obj;
 
-            return Utilities.ByteArrayCompare(_hash, other._hash) && _width == other._width &&
+            return _hash != null && other._hash != null && Utilities.ByteArrayCompare(_hash, other._hash) && _width == other._width &&
                    _height == other._height && _frameTexture != null && other._frameTexture != null;
         }
 
-        // override object.GetHashCode
+        // Override object.GetHashCode
         public override int GetHashCode()
         {
             return _width ^ _height ^ _id;
