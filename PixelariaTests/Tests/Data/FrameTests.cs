@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,6 +47,54 @@ namespace PixelariaTests.Tests.Data
             frame1.Resize(12, 16, PerFrameScalingMethod.PlaceAtTopLeft, InterpolationMode.NearestNeighbor);
 
             Assert.AreEqual(frame1, frame2, "After an empty frame is resized to the size of another empty frame, they are to be considered equal");
+        }
+
+        [TestMethod]
+        public void TestFrameCopyFrom()
+        {
+            Animation anim = new Animation("TestAnimation", 16, 16);
+
+            Frame frame1 = anim.CreateFrame();
+            Frame frame2 = FrameGenerator.GenerateRandomFrame(16, 16);
+            
+            frame1.CopyFrom(frame2);
+
+            Assert.AreEqual(frame1, frame2, "After a successful call to CopyFrom(), the frames must return true to .Equals()");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to copy a frame with different dimensions while inside an animation should raise an exception")]
+        public void TestFrameInvalidCopyFrom()
+        {
+            Animation anim = new Animation("TestAnimation", 16, 16);
+
+            Frame frame1 = anim.CreateFrame();
+            Frame frame2 = new Frame(null, 20, 20);
+
+            frame1.CopyFrom(frame2);
+        }
+
+        /// <summary>
+        /// Tests the Frame.Index property
+        /// </summary>
+        [TestMethod]
+        public void TestGetFrameIndex()
+        {
+            // Create an animation and an empty dummy frame
+            Animation anim1 = new Animation("TestAnimation1", 64, 64);
+            Frame frame1 = new Frame(null, 64, 64);
+            Frame frame2 = new Frame(null, 64, 64);
+            Frame frame3 = new Frame(null, 64, 64);
+
+            anim1.AddFrame(frame1);
+            anim1.AddFrame(frame2);
+            anim1.AddFrame(frame3);
+
+            Assert.AreEqual(0, frame1.Index, "The Inedx property of a frame must reflect the frame's own position in the Animation it is on");
+            Assert.AreEqual(1, frame2.Index, "The Inedx property of a frame must reflect the frame's own position in the Animation it is on");
+
+            Assert.AreEqual(frame1.Index, anim1.GetFrameIndex(frame1), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
+            Assert.AreEqual(frame2.Index, anim1.GetFrameIndex(frame2), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
         }
     }
 }

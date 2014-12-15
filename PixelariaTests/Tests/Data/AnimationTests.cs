@@ -173,6 +173,30 @@ namespace PixelariaTests.Tests.Data
         }
 
         /// <summary>
+        /// Tests the GetFrameAtIndex() method
+        /// </summary>
+        [TestMethod]
+        public void TestGetFrameAtIndex()
+        {
+            // Create an animation and an empty dummy frame
+            Animation anim1 = new Animation("TestAnimation1", 64, 64);
+            Frame frame1 = new Frame(null, 64, 64);
+            Frame frame2 = new Frame(null, 64, 64);
+            Frame frame3 = new Frame(null, 64, 64);
+
+            anim1.AddFrame(frame1);
+            anim1.AddFrame(frame2);
+            anim1.AddFrame(frame3);
+
+            Assert.AreEqual(frame3, anim1.GetFrameAtIndex(2), "Fetching a frame at an index should return the proper frame in the order it is listed inside the Animation object");
+
+            // Removing the second frame should lower the third frame's index by 1
+            anim1.RemoveFrame(frame2);
+
+            Assert.AreEqual(frame3, anim1.GetFrameAtIndex(1), "After removing a frame, all frames after it must have their indexes lowered by 1");
+        }
+
+        /// <summary>
         /// Tests multiple frame insertion and the behavior of frame rescaling with the 'UseNewSize' setting
         /// </summary>
         [TestMethod]
