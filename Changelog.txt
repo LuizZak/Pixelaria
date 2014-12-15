@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.14.0b
+                  v1.14.2b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -17,6 +17,12 @@ Legend:
 + Addition
 * Fix/Change
 . Note
+
+-- v1.14.2b
+
+* Fixed bug where similar frames that were reused in the export atlas sheet would accumulate their opacity, changing the generated transparency of the final frame on the sheet.
+
+. Improved sprite sheet image generation, now the pixel colors are guaranteed to be 100% similar to their original frame representations.
 
 -- v1.14.0b
 

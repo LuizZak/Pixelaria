@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 using Pixelaria.Utils;
 
@@ -83,26 +84,29 @@ namespace Pixelaria.Data.Exports
             //
             // 1. Create the sheet bitmap
             //
-            Bitmap image = new Bitmap(AtlasWidth, AtlasHeight);
-
-            Graphics graphics = Graphics.FromImage(image);
-            graphics.Clear(Color.Transparent);
+            Bitmap image = new Bitmap(AtlasWidth, AtlasHeight, PixelFormat.Format32bppArgb);
 
             //
             // 2. Draw the frames on the sheet image
             //
+            // Keep track of frames that were already drawn
+            List<Frame> renderedFrames = new List<Frame>();
             for (int i = 0; i < FrameCount; i++)
             {
                 Frame frame = GetFrame(i);
 
+                if (renderedFrames.Contains(frame))
+                    continue;
+
+                renderedFrames.Add(frame);
+
                 Rectangle frameBounds = GetFrameBoundsRectangle(i);
                 Rectangle originBounds = GetFrameOriginsRectangle(i);
 
-                graphics.DrawImage(frame.GetComposedBitmap(), frameBounds, originBounds, GraphicsUnit.Pixel);
-            }
+                Bitmap frameBitmap = frame.GetComposedBitmap();
 
-            graphics.Flush();
-            graphics.Dispose();
+                FastBitmap.CopyRegion(frameBitmap, image, originBounds, frameBounds);
+            }
 
             return image;
         }
