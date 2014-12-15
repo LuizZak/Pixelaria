@@ -724,7 +724,7 @@ namespace Pixelaria.Views.Controls
             // The user is dragging the timeline
             if (draggingTimeline)
             {
-                float eX = ((e.X + ScrollX - firstKnob.KnobThickness / 2) / ScrollScaleWidth) / ((float)(Width - firstKnob.KnobThickness / ScrollScaleWidth) / (maximum - minimum));
+                float eX = ((e.X + ScrollX - firstKnob.KnobThickness / 2) / ScrollScaleWidth) / ((Width - firstKnob.KnobThickness / ScrollScaleWidth) / (maximum - minimum));
                 int diff = (int)(eX - dragOffset.X);
 
                 // Clamp the movement delta
@@ -793,13 +793,9 @@ namespace Pixelaria.Views.Controls
                 float newValue = minimum + (float)Math.Round((float)(eX - drag.KnobThickness / 2) / ((Width * ScrollScaleWidth) - drag.KnobThickness - 1) * (maximum - minimum));
 
                 // Whether to redraw:
-                bool redraw = false;
+                bool redraw = newValue != drag.Value;
 
                 // Check for redrawing. Should only redraw when the new value is different from the last value in the knob:
-                if (newValue != drag.Value)
-                {
-                    redraw = true;
-                }
 
                 // Set the last X position of the knob. Used to set the redraw rectangle.
                 float lastX = drag.ScaledX;
@@ -844,15 +840,15 @@ namespace Pixelaria.Views.Controls
                 if (knobsEnabled)
                 {
                     // Get the distance between the mouse and the knobs:
-                    float fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2);
-                    float sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2);
+                    float fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2.0f);
+                    float sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2.0f);
                     bool overY = (behaviorType == TimelineBehaviorType.RangeSelector || e.Y > timelineHeight + 2);
 
                     // I tried optimizing this bit as much as I could, and right now, it behaves pretty fast:
                     if (fx < sx)
                     {
                         // If the mouse is near enough:
-                        if (fx <= firstKnob.KnobThickness / 2 && overY)
+                        if (fx <= firstKnob.KnobThickness / 2.0f && overY)
                         {
                             // Show the tooltip:
                             if (!firstKnob.MouseOver)
@@ -892,7 +888,7 @@ namespace Pixelaria.Views.Controls
                     else
                     {
                         // If the mouse is near enough:
-                        if (sx <= secondKnob.KnobThickness / 2 && overY)
+                        if (sx <= secondKnob.KnobThickness / 2.0f && overY)
                         {
                             // Show the tooltip:
                             if (!secondKnob.MouseOver)
@@ -1036,7 +1032,7 @@ namespace Pixelaria.Views.Controls
             if ((e.X > 0 && e.X < Width) &&
                 (e.Y > 0 && e.Y < Height))
             {
-                float oldX = (e.X * ((float)Width / (Width - firstKnob.KnobThickness)) - firstKnob.KnobThickness / 2) * ScrollScaleWidth;
+                float oldX = (e.X * ((float)Width / (Width - firstKnob.KnobThickness)) - firstKnob.KnobThickness / 2.0f) * ScrollScaleWidth;
 
                 ScrollScaleWidth += (float)e.Delta / 120 / 3;
 
@@ -1049,7 +1045,7 @@ namespace Pixelaria.Views.Controls
                     ScrollScaleWidth = 30f;
                 }
 
-                float newX = (e.X * ((float)Width / (Width - firstKnob.KnobThickness)) - firstKnob.KnobThickness / 2) * ScrollScaleWidth;
+                float newX = (e.X * ((float)Width / (Width - firstKnob.KnobThickness)) - firstKnob.KnobThickness / 2.0f) * ScrollScaleWidth;
 
                 ScrollX += (newX - oldX);
 
@@ -1103,7 +1099,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Changes the current frame being displayed
         /// </summary>
-        /// <param name="oldFrame">The new frame to display</param>
+        /// <param name="newFrame">The new frame to display</param>
         protected void ChangeFrame(int newFrame)
         {
             if (currentFrame == newFrame)
@@ -1143,7 +1139,7 @@ namespace Pixelaria.Views.Controls
         protected int GetFrameUnderMouse(bool clipOnRange = true)
         {
             float totalWidth = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
-            float mx = (this.PointToClient(MousePosition).X + ScrollX - firstKnob.KnobThickness / 2) / totalWidth;
+            float mx = (this.PointToClient(MousePosition).X + ScrollX - firstKnob.KnobThickness / 2.0f) / totalWidth;
 
 	        int f = Math.Max(minimum, Math.Min(maximum, minimum + (int)Math.Round(mx * (maximum - minimum))));
 
@@ -1167,7 +1163,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>Whether the mouse is currently over the timeline</returns>
         protected bool IsMouseOnTimeline()
         {
-            float x = firstKnob.KnobThickness / 2 - ScrollX;
+            float x = firstKnob.KnobThickness / 2.0f - ScrollX;
             float w = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
 
             int mx = this.PointToClient(MousePosition).X;
@@ -1297,7 +1293,7 @@ namespace Pixelaria.Views.Controls
         /// Initializes a new instance of the FrameChangedEventArgs class
         /// </summary>
         /// <param name="oldFrame">The previous frame selected</param>
-        /// <param name="oldFrame">The new frame selected</param>
+        /// <param name="newFrame">The new frame selected</param>
         public FrameChangedEventArgs(int oldFrame, int newFrame)
         {
             this.OldFrame = oldFrame;
@@ -1387,10 +1383,7 @@ namespace Pixelaria.Views.Controls
             get { return drawOffset; }
             set
             {
-                if (drawOffset != value)
-                {
-                    drawOffset = value;
-                }
+                drawOffset = value;
             }
         }
 
@@ -1412,10 +1405,10 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Initializes a new instance of the Knob control, binding it to a TimelineControl
         /// </summary>
-        /// <param name="Parent">A TimelineControl to bind to this KNob</param>
-        public Knob(TimelineControl Parent)
+        /// <param name="parent">A TimelineControl to bind to this KNob</param>
+        public Knob(TimelineControl parent)
         {
-            this.parent = Parent;
+            this.parent = parent;
 
             this.value = 0;
 
@@ -1452,7 +1445,7 @@ namespace Pixelaria.Views.Controls
 
             // Fill in the lines array:
             lines[0] = new PointF(0, 0);
-            lines[1] = new PointF(KnobThickness / 2, -3);
+            lines[1] = new PointF(KnobThickness / 2.0f, -3);
             lines[2] = new PointF(KnobThickness, 0);
             lines[3] = new PointF(KnobThickness, KnobHeigth);
             lines[4] = new PointF(0, KnobHeigth);
@@ -1493,7 +1486,7 @@ namespace Pixelaria.Views.Controls
         public void Update()
         {
             // Calculate the new position:
-            this.x = (KnobThickness / 2) + ((float)this.value / Math.Max(parent.Maximum - parent.Minimum, 1)) * (parent.Width - KnobThickness - 1);
+            this.x = (KnobThickness / 2.0f) + ((float)this.value / Math.Max(parent.Maximum - parent.Minimum, 1)) * (parent.Width - KnobThickness - 1);
 
             this.scaledX = GetRealX();
         }
