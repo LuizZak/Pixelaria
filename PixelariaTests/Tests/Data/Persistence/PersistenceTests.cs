@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
@@ -13,7 +8,7 @@ using PixelariaTests.Generators;
 
 // TODO: Derive unit tests for invalid files
 
-namespace PixelariaTests.Data.Persistence
+namespace PixelariaTests.Tests.Data.Persistence
 {
     /// <summary>
     /// Tests PixelariaFile, PixelariaFileLoader, and PixelariaFileSaver functionalities and related components

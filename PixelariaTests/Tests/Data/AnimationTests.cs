@@ -5,7 +5,7 @@ using Pixelaria.Data;
 using Pixelaria.Utils;
 using PixelariaTests.Generators;
 
-namespace PixelariaTests.Data
+namespace PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Test suite for the Animation and Frame classes and related components

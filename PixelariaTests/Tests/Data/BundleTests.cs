@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using PixelariaTests.Generators;
 
-namespace PixelariaTests.Data
+namespace PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Tests the Bundle class functionalities and their respective components

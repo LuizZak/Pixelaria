@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Controllers.Exporters;
@@ -12,7 +8,7 @@ using Pixelaria.Data;
 using Pixelaria.Utils;
 using PixelariaTests.Generators;
 
-namespace PixelariaTests.Data
+namespace PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Tests the DefaultPngExporter, BundleSheetExport, and TextureAtlas functionalities and related components

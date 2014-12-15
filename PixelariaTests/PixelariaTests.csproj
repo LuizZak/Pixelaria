@@ -52,12 +52,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Data\AnimationSheetTests.cs" />
-    <Compile Include="Data\AnimationTests.cs" />
-    <Compile Include="Data\FrameTests.cs" />
-    <Compile Include="Data\Persistence\PersistenceTests.cs" />
-    <Compile Include="Data\BundleTests.cs" />
-    <Compile Include="Data\SheetExportTests.cs" />
+    <Compile Include="Tests\Data\AnimationSheetTests.cs" />
+    <Compile Include="Tests\Data\AnimationTests.cs" />
+    <Compile Include="Tests\Data\FrameTests.cs" />
+    <Compile Include="Tests\Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="Tests\Data\BundleTests.cs" />
+    <Compile Include="Tests\Data\SheetExportTests.cs" />
     <Compile Include="Generators\AnimationGenerator.cs" />
     <Compile Include="Generators\AnimationSheetGenerator.cs" />
     <Compile Include="Generators\BundleGenerator.cs" />

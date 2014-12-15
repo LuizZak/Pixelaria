@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using PixelariaTests.Generators;
 
-namespace PixelariaTests.Data
+namespace PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Tests AnimationSheet class functionality and related components
