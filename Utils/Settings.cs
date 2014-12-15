@@ -159,7 +159,7 @@ namespace Pixelaria.Utils
                 File.Create(FilePath).Close();
 
             // Load the file line by line
-            StreamReader reader = new StreamReader(FilePath);
+            StreamReader reader = new StreamReader(FilePath, Encoding.UTF8);
 
             string currentPath = "";
             while (!reader.EndOfStream)
@@ -320,11 +320,16 @@ namespace Pixelaria.Utils
 
             baseNode.SaveToString(output);
 
-            // Save the settings to the settings file now
-            StreamWriter writer = new StreamWriter(FilePath);
-            writer.Write(output.ToString().Trim());
-            writer.Close();
-            writer.Dispose();
+            using (FileStream stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                stream.SetLength(0);
+
+                // Save the settings to the settings file now
+                StreamWriter writer = new StreamWriter(stream, Encoding.UTF8);
+                writer.Write(output.ToString().Trim());
+                writer.Close();
+                writer.Dispose();
+            }
         }
 
         /// <summary>
