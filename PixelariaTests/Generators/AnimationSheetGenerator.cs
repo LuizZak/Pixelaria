@@ -40,21 +40,104 @@ namespace PixelariaTests.Generators
         /// <returns>A default AnimationExportSettings object to be used when exporting animation sheets</returns>
         public static AnimationExportSettings GenerateDefaultAnimationExportSettings()
         {
-            AnimationExportSettings exportSettings;
+            return new AnimationExportSettings
+            {
+                FavorRatioOverArea = false,
+                ForcePowerOfTwoDimensions = false,
+                ForceMinimumDimensions = true,
+                ReuseIdenticalFramesArea = true,
+                HighPrecisionAreaMatching = false,
+                AllowUnorderedFrames = true,
+                UseUniformGrid = false,
+                UsePaddingOnXml = true,
+                ExportXml = true,
+                XPadding = 0,
+                YPadding = 0
+            };
+        }
 
-            exportSettings.FavorRatioOverArea = false;
-            exportSettings.ForcePowerOfTwoDimensions = false;
-            exportSettings.ForceMinimumDimensions = true;
-            exportSettings.ReuseIdenticalFramesArea = true;
-            exportSettings.HighPrecisionAreaMatching = false;
-            exportSettings.AllowUnorderedFrames = true;
-            exportSettings.UseUniformGrid = false;
-            exportSettings.UsePaddingOnXml = true;
-            exportSettings.ExportXml = true;
-            exportSettings.XPadding = 0;
-            exportSettings.YPadding = 0;
+        /// <summary>
+        /// Returns an array of value permutations for the AnimationExportSettings struct to use in tests
+        /// </summary>
+        /// <returns>An array of value permutations for the AnimationExportSettings struct to use in tests</returns>
+        public static AnimationExportSettings[] GetExportSettingsPermutations()
+        {
+            List<AnimationExportSettings> settingsList = new List<AnimationExportSettings>
+            {
+                GenerateDefaultAnimationExportSettings(),
+                new AnimationExportSettings
+                {
+                    FavorRatioOverArea = true,
+                    ForcePowerOfTwoDimensions = false,
+                    ForceMinimumDimensions = true,
+                    ReuseIdenticalFramesArea = true,
+                    HighPrecisionAreaMatching = false,
+                    AllowUnorderedFrames = true,
+                    UseUniformGrid = false,
+                    UsePaddingOnXml = false,
+                    ExportXml = true,
+                    XPadding = 0,
+                    YPadding = 0
+                },
+                new AnimationExportSettings
+                {
+                    FavorRatioOverArea = true,
+                    ForcePowerOfTwoDimensions = false,
+                    ForceMinimumDimensions = true,
+                    ReuseIdenticalFramesArea = false,
+                    HighPrecisionAreaMatching = false,
+                    AllowUnorderedFrames = true,
+                    UseUniformGrid = false,
+                    UsePaddingOnXml = false,
+                    ExportXml = true,
+                    XPadding = 0,
+                    YPadding = 0
+                },
+                new AnimationExportSettings
+                {
+                    FavorRatioOverArea = false,
+                    ForcePowerOfTwoDimensions = true,
+                    ForceMinimumDimensions = false,
+                    ReuseIdenticalFramesArea = false,
+                    HighPrecisionAreaMatching = false,
+                    AllowUnorderedFrames = false,
+                    UseUniformGrid = true,
+                    UsePaddingOnXml = false,
+                    ExportXml = true,
+                    XPadding = 2,
+                    YPadding = 1
+                },
+                new AnimationExportSettings
+                {
+                    FavorRatioOverArea = true,
+                    ForcePowerOfTwoDimensions = true,
+                    ForceMinimumDimensions = false,
+                    ReuseIdenticalFramesArea = false,
+                    HighPrecisionAreaMatching = true,
+                    AllowUnorderedFrames = true,
+                    UseUniformGrid = true,
+                    UsePaddingOnXml = false,
+                    ExportXml = true,
+                    XPadding = 2,
+                    YPadding = 1
+                },
+                new AnimationExportSettings
+                {
+                    FavorRatioOverArea = true,
+                    ForcePowerOfTwoDimensions = false,
+                    ForceMinimumDimensions = false,
+                    ReuseIdenticalFramesArea = false,
+                    HighPrecisionAreaMatching = true,
+                    AllowUnorderedFrames = true,
+                    UseUniformGrid = false,
+                    UsePaddingOnXml = false,
+                    ExportXml = true,
+                    XPadding = 15,
+                    YPadding = 10
+                }
+            };
 
-            return exportSettings;
+            return settingsList.ToArray();
         }
     }
 }

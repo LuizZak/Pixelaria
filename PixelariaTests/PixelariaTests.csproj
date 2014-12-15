@@ -54,10 +54,11 @@
   <ItemGroup>
     <Compile Include="Tests\Data\AnimationSheetTests.cs" />
     <Compile Include="Tests\Data\AnimationTests.cs" />
+    <Compile Include="Tests\Data\Exports\TextureAtlasTests.cs" />
     <Compile Include="Tests\Data\FrameTests.cs" />
     <Compile Include="Tests\Data\Persistence\PersistenceTests.cs" />
     <Compile Include="Tests\Data\BundleTests.cs" />
-    <Compile Include="Tests\Data\SheetExportTests.cs" />
+    <Compile Include="Tests\Data\Exports\SheetExportTests.cs" />
     <Compile Include="Generators\AnimationGenerator.cs" />
     <Compile Include="Generators\AnimationSheetGenerator.cs" />
     <Compile Include="Generators\BundleGenerator.cs" />

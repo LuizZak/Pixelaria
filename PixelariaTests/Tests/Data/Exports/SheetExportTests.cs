@@ -38,16 +38,33 @@ namespace PixelariaTests.Tests.Data
         {
             // TODO: Modularize this test so it can be fed different export settings to test different setting types
 
+            AnimationExportSettings[] permSettings = AnimationSheetGenerator.GetExportSettingsPermutations();
+
+            foreach (var settings in permSettings)
+            {
+                TestSheetExportWithSettings(settings);
+                TestTeardown();
+            }
+        }
+
+        /// <summary>
+        /// Tests a sheet export procedure with a given export settings struct
+        /// </summary>
+        /// <param name="settings">The export settings to use in this test</param>
+        /// <param name="failMessage">The message to print if the test fails</param>
+        private void TestSheetExportWithSettings(AnimationExportSettings settings, string failMessage = "Exported animation sheets should be equivalent to their original sheets")
+        {
             // In theory, if you export a sheet and import it back just the way it was described on the generated XML file, it will equal the original sheet completely
             OriginalSheet = new AnimationSheet("Sheet1");
-            OriginalSheet.ExportSettings = AnimationSheetGenerator.GenerateDefaultAnimationExportSettings();
+            OriginalSheet.ExportSettings = settings;
 
             for (int i = 0; i < 10; i++)
             {
                 int animationWidth = 12 + i / 2;
                 int animationHeight = 12 + i / 2;
 
-                OriginalSheet.AddAnimation(AnimationGenerator.GenerateAnimation("Anim" + OriginalSheet.AnimationCount, animationWidth, animationHeight, 10, OriginalSheet.AnimationCount * 2));
+                OriginalSheet.AddAnimation(AnimationGenerator.GenerateAnimation("Anim" + OriginalSheet.AnimationCount,
+                    animationWidth, animationHeight, 10, OriginalSheet.AnimationCount * 2));
             }
 
             // Generate export path
@@ -63,12 +80,10 @@ namespace PixelariaTests.Tests.Data
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
             // Import it back up
-            AnimationSheet loadedSheet = (AnimationSheet)ImportBundle(xmlPath);
-            loadedSheet.ExportSettings = OriginalSheet.ExportSettings;
-            
-            SheetFromDisk = loadedSheet;
+            SheetFromDisk = (AnimationSheet)ImportBundle(xmlPath);
+            SheetFromDisk.ExportSettings = OriginalSheet.ExportSettings;
 
-            Assert.AreEqual(OriginalSheet, loadedSheet, "Exported animation sheets should be equivalent to their original sheets");
+            Assert.AreEqual(OriginalSheet, SheetFromDisk, failMessage);
         }
 
         [TestCleanup]
@@ -76,7 +91,7 @@ namespace PixelariaTests.Tests.Data
         {
             try
             {
-                Directory.Delete(_tempExportPath);
+                Directory.Delete(_tempExportPath, true);
             }
             catch (Exception) { }
         }
@@ -99,7 +114,7 @@ namespace PixelariaTests.Tests.Data
                 {
                     string path = Path.GetDirectoryName(bundlePath) + "\\" + Path.GetFileName(childNode.Attributes["file"].InnerText);
 
-                    Bitmap texture = new Bitmap(path, true);
+                    Bitmap texture = (Bitmap)Image.FromFile(path);
 
                     return ImportAnimationSheet(texture, xml);
                 }
