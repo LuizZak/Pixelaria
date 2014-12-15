@@ -40,7 +40,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The version of this Pixelaria persistence handler
         /// </summary>
-        private static int version = 8;
+        private static int version = 9;
 
         /// <summary>
         /// Gets the version of this Pixelaria persistence handler
@@ -69,6 +69,14 @@ namespace Pixelaria.Data.Persistence
             int bundleVersion = reader.ReadInt32();
             string bundleName = reader.ReadString();
             string bundlePath = "";
+
+            // New pixelaria file format
+            if (bundleVersion >= 9)
+            {
+                stream.Close();
+
+                return PixelariaSaverLoader.LoadFileFromDisk(path).LoadedBundle;
+            }
 
             ////////
             //// Legacy file formats
