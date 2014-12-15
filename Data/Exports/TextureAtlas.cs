@@ -101,7 +101,7 @@ namespace Pixelaria.Data.Exports
             {
                 Frame frame = GetFrame(i);
 
-                if (renderedFrames.Contains(frame))
+                if (renderedFrames.Contains(frame) && exportSettings.ReuseIdenticalFramesArea)
                     continue;
 
                 renderedFrames.Add(frame);
