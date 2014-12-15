@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pixelaria.Data
 {
@@ -74,7 +75,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the a project tree that represents the tree visualization for the project contents
         /// </summary>
-        public ProjectTree BundleProjectTree { get { return this._bundleProjectTree; } }
+        public ProjectTree BundleProjectTree { get { return _bundleProjectTree; } }
 
         /// <summary>
         /// Initializes a new instance of the Bundle class
@@ -98,13 +99,27 @@ namespace Pixelaria.Data
         /// </summary>
         public void Dispose()
         {
+            Clear();
+
+            _animations = null;
+            _animationSheets = null;
+        }
+
+        /// <summary>
+        /// Clears this bundle back to an empty state
+        /// </summary>
+        public void Clear()
+        {
+            Name = "";
+            ExportPath = "";
+            SaveFile = "";
+
             // Animation clearing
-            foreach(Animation anim in _animations)
+            foreach (Animation anim in _animations)
             {
                 anim.Dispose();
             }
             _animations.Clear();
-            _animations = null;
 
             // Animation sheet clearing
             foreach (AnimationSheet sheet in _animationSheets)
@@ -112,7 +127,6 @@ namespace Pixelaria.Data
                 sheet.ClearAnimationList();
             }
             _animationSheets.Clear();
-            _animationSheets = null;
         }
 
         /// <summary>
@@ -360,7 +374,14 @@ namespace Pixelaria.Data
             sheet.ID = GetNextValidAnimationSheetID();
 
             _animationSheets.Add(sheet);
-            _animations.AddRange(sheet.Animations);
+
+            foreach (var animation in sheet.Animations)
+            {
+                if (!_animations.Contains(animation))
+                {
+                    _animations.Add(animation);
+                }
+            }
 
             foreach (var animation in sheet.Animations)
             {
