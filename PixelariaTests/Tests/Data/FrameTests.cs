@@ -16,7 +16,7 @@ namespace PixelariaTests.Tests.Data
         [TestMethod]
         public void TestframeClone()
         {
-            Frame frame1 = FrameGenerator.GenerateFrame(64, 64, 0);
+            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 64, 0);
             Frame frame2 = frame1.Clone();
         }
 
