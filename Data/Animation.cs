@@ -223,8 +223,8 @@ namespace Pixelaria.Data
         /// <param name="sizeMatchingSettings">The settings to apply to the frames when resizing</param>
         public void Resize(AnimationResizeSettings sizeMatchingSettings)
         {
-            this.Width = sizeMatchingSettings.NewWidth;
-            this.Height = sizeMatchingSettings.NewHeight;
+            Width = sizeMatchingSettings.NewWidth;
+            Height = sizeMatchingSettings.NewHeight;
 
             // Resize the frames now
             foreach (Frame frame in this._frames)
@@ -339,7 +339,7 @@ namespace Pixelaria.Data
                 _frames.Insert(index, frame);
             }
         }
-
+        
         /// <summary>
         /// Switches the frame at an index with the given one. This method returns the old frame that was
         /// at that index. If the Frame's dimensions don't match with the animation's,
