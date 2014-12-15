@@ -26,6 +26,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 
+using Pixelaria.Utils;
+
 namespace Pixelaria.Data
 {
     /// <summary>
@@ -274,8 +276,8 @@ namespace Pixelaria.Data
                 }
             }
 
-            this.Width = newAnimWidth;
-            this.Height = newAnimHeight;
+            Width = newAnimWidth;
+            Height = newAnimHeight;
 
             // Redimension each frame now
             foreach (Frame frame in frames)
@@ -299,7 +301,7 @@ namespace Pixelaria.Data
         /// <param name="index">The index to add the frame at. -1 adds the frame to the end of the frame list</param>
         public void AddFrame(Frame frame, int index = -1)
         {
-            InternalAddFrame(frame, index, false);
+            InternalAddFrame(frame, index);
         }
 
         /// <summary>
@@ -313,7 +315,7 @@ namespace Pixelaria.Data
         /// <param name="ignoreSize">Whether to ignore the size of the frame and add it even if it is in different dimensions than the rest of the animation</param>
         private void InternalAddFrame(Frame frame, int index, bool ignoreSize = false)
         {
-            if (_frames.Contains(frame))
+            if (_frames.ContainsReference(frame))
             {
                 return;
             }
@@ -434,7 +436,7 @@ namespace Pixelaria.Data
         public void RemoveFrame(Frame frame)
         {
             frame.Removed();
-            _frames.Remove(frame);
+            _frames.RemoveReference(frame);
         }
 
         /// <summary>
@@ -453,7 +455,7 @@ namespace Pixelaria.Data
         /// <returns>An integer representing the index at which the frame resides, or -1 if the frame is not located inside this animation</returns>
         public int GetFrameIndex(Frame frame)
         {
-            return _frames.IndexOf(frame);
+            return _frames.IndexOfReference(frame);
         }
 
         /// <summary>
