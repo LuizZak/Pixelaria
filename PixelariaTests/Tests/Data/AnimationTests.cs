@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
@@ -136,6 +138,20 @@ namespace PixelariaTests.Tests.Data
         }
 
         /// <summary>
+        /// Tests removal of frames from an animation
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Trying to remove a frame from an animation it does not belong to should raise an ArgumentException")]
+        public void TestFrameRemovalException()
+        {
+            // Create an animation and an empty dummy frame
+            Animation anim1 = new Animation("TestAnimation1", 64, 64);
+            Frame frame1 = new Frame(null, 64, 64);
+
+            anim1.RemoveFrame(frame1);
+        }
+
+        /// <summary>
         /// Tests frame index fetching
         /// </summary>
         [TestMethod]
@@ -146,12 +162,151 @@ namespace PixelariaTests.Tests.Data
             Frame frame1 = new Frame(null, 64, 64);
             Frame frame2 = new Frame(null, 64, 64);
             Frame frame3 = new Frame(null, 64, 64);
+            Frame frame4 = new Frame(null, 64, 64);
 
             anim1.AddFrame(frame1);
             anim1.AddFrame(frame2);
             anim1.AddFrame(frame3);
 
             Assert.AreEqual(2, anim1.GetFrameIndex(frame3), "Fetching a frame index should return the index of the frame by reference, not by value");
+            Assert.AreEqual(-1, anim1.GetFrameIndex(frame4), "Fetching a frame index for a frame that does not belongs to an animation should return -1");
+        }
+
+        /// <summary>
+        /// Tests multiple frame insertion and the behavior of frame rescaling with the 'UseNewSize' setting
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "When trying to add a series of frames through 'AddFrames' with different dimensions, an ArgumentException needs to be thrown")]
+        public void TestMultiSizedFrameInsertingException()
+        {
+            Animation anim = new Animation("TestAnim", 16, 16);
+
+            Frame firstFrame = new Frame(null, 16, 16);
+            Frame secondFrame = new Frame(null, 20, 16);
+            Frame thirdFrame = new Frame(null, 27, 21);
+
+            List<Frame> frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+
+            anim.AddFrames(frames);
+        }
+
+        /// <summary>
+        /// Tests multiple frame insertion and the behavior of frame rescaling with the 'UseLargestSize' setting
+        /// </summary>
+        [TestMethod]
+        public void TestMultiSizedFrameInsertingLargestSize()
+        {
+            Animation anim = new Animation("TestAnim", 16, 16);
+
+            Frame firstFrame = new Frame(null, 16, 16);
+
+            List<Frame> frames = new List<Frame> {firstFrame, new Frame(null, 20, 16)};
+
+            anim.AddFrames(frames,
+                new FrameSizeMatchingSettings()
+                {
+                    AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseLargestSize
+                });
+
+            Assert.AreEqual(new Size(20, 16), firstFrame.Size,
+                "After inserting frames into an animation with the 'UseLargestSize' flag on the frame size matching settings, the frames must take the largest dimensions");
+        }
+
+        /// <summary>
+        /// Tests multiple frame insertion and the behavior of frame rescaling with the 'KeepOriginal' setting
+        /// </summary>
+        [TestMethod]
+        public void TestMultiSizedFrameInsertingKeepOriginal()
+        {
+            Animation anim = new Animation("TestAnim", 16, 16);
+
+            Frame firstFrame = new Frame(null, 16, 16);
+            Frame secondFrame = new Frame(null, 20, 16);
+
+            List<Frame> frames = new List<Frame> { firstFrame, secondFrame };
+
+            anim.AddFrames(frames,
+                new FrameSizeMatchingSettings()
+                {
+                    AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.KeepOriginal
+                });
+
+            Assert.AreEqual(new Size(16, 16), firstFrame.Size,
+                "After inserting frames into an animation with the 'KeepOriginal' flag on the frame size matching settings, the frames must remain constant");
+            Assert.AreEqual(new Size(16, 16), secondFrame.Size,
+                "After inserting frames into an animation with the 'KeepOriginal' flag on the frame size matching settings, frames that have different dimensions should resize");
+        }
+
+        /// <summary>
+        /// Tests multiple frame insertion and the behavior of frame rescaling with the 'UseNewSize' setting
+        /// </summary>
+        [TestMethod]
+        public void TestMultiSizedFrameInsertingUseNewSize()
+        {
+            Animation anim = new Animation("TestAnim", 16, 16);
+
+            Frame firstFrame = new Frame(null, 16, 16);
+            Frame secondFrame = new Frame(null, 20, 16);
+            Frame thirdFrame = new Frame(null, 27, 21);
+
+            List<Frame> frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+
+            anim.AddFrames(frames,
+                new FrameSizeMatchingSettings()
+                {
+                    AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize
+                });
+
+            Assert.AreEqual(new Size(27, 21), firstFrame.Size,
+                "After inserting frames into an animation with the 'UseNewSize' flag on the frame size matching settings, the frames must match the largest size from the new frame set");
+
+            // Test now with a set of frames that are smaller than the animation's original size
+            anim = new Animation("TestAnim", 32, 32);
+
+            firstFrame = new Frame(null, 16, 16);
+            secondFrame = new Frame(null, 20, 16);
+            thirdFrame = new Frame(null, 27, 21);
+
+            frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+
+            anim.AddFrames(frames,
+                new FrameSizeMatchingSettings()
+                {
+                    AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize
+                });
+
+            Assert.AreEqual(new Size(27, 21), firstFrame.Size,
+                "After inserting frames into an animation with the 'UseNewSize' flag on the frame size matching settings, the frames must match the largest size from the new frame set, even if the animation is larger");
+        }
+
+        /// <summary>
+        /// Tests animation frame swapping
+        /// </summary>
+        [TestMethod]
+        public void TestFrameSwapping()
+        {
+            Animation anim = new Animation("TestAnim", 16, 16);
+
+            Frame frame1 = anim.CreateFrame();
+            Frame frame2 = anim.CreateFrame();
+
+            anim.SwapFrameIndices(0, 1);
+
+            Assert.AreEqual(1, anim.GetFrameIndex(frame1), "Swapping frame indices must be reflected in GetframeIndex()");
+            Assert.AreEqual(0, anim.GetFrameIndex(frame2), "Swapping frame indices must be reflected in GetframeIndex()");
+        }
+
+        /// <summary>
+        /// Tests memory usage information accumulated by frames that is returned by an animation
+        /// </summary>
+        [TestMethod]
+        public void TestMemoryUsage()
+        {
+            Animation anim1 = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+            Animation anim2 = AnimationGenerator.GenerateAnimation("TestAnim1", 32, 32, 16);
+
+            Assert.AreEqual(16 * 16 * 10 * 4, anim1.CalculateMemoryUsageInBytes(), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 10.240 bytes");
+            Assert.AreEqual(32 * 32 * 16 * 4, anim2.CalculateMemoryUsageInBytes(), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 65.536 bytes");
         }
     }
 }

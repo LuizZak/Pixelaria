@@ -27,14 +27,14 @@ namespace PixelariaTests.Tests.Data
 
             long memory = frame.CalculateMemoryUsageInBytes();
 
-            Assert.AreEqual(64 * 64 * 32 / 8, memory, "The memory usage for a 64 x 64 frame with 32bpp should be equal to 16,384 bytes");
+            Assert.AreEqual(64 * 64 * 32 / 8, memory, "The memory usage for a 64 x 64 frame with 32bpp should be equal to 16.384 bytes");
 
             // Test with a different resolution + bit depth
             frame.SetFrameBitmap(new Bitmap(128, 32, PixelFormat.Format24bppRgb));
 
             memory = frame.CalculateMemoryUsageInBytes();
 
-            Assert.AreEqual(128 * 32 * 24 / 8, memory, "The memory usage for a 128 x 32 frame with 32bpp should be equal to 12,288 bytes");
+            Assert.AreEqual(128 * 32 * 24 / 8, memory, "The memory usage for a 128 x 32 frame with 32bpp should be equal to 12.288 bytes");
         }
 
         [TestMethod]
