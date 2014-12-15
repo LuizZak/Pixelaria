@@ -161,6 +161,7 @@
     </Compile>
     <Compile Include="Utils\FastBitmap.cs" />
     <Compile Include="Utils\ImageUtilities.cs" />
+    <Compile Include="Utils\ListUtils.cs" />
     <Compile Include="Utils\RecentFileList.cs" />
     <Compile Include="Utils\Settings.cs" />
     <Compile Include="Utils\Utilities.cs" />
