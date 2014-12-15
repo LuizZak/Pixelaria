@@ -95,7 +95,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="index">The index of a frame to get. It must be between [0 - FrameCount[</param>
         /// <returns>The frame at the given index in this animation</returns>
-        public Frame this[int index] { get { return this.GetFrameAtIndex(index); } }
+        public Frame this[int index] { get { return GetFrameAtIndex(index); } }
 
         /// <summary>
         /// Gets or sets the bundle this animation is contained within
