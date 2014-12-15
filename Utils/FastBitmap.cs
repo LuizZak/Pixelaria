@@ -337,7 +337,16 @@ namespace Pixelaria.Utils
             {
                 for (int x = 0; x < copyWidth; x++)
                 {
-                    SetPixel(destRect.X + x, destRect.Y + y, fastSource.GetPixelInt(x + srcRect.X, y + srcRect.Y));
+                    int destX = destRect.X + x;
+                    int destY = destRect.Y + y;
+
+                    int srcX = x + srcRect.X;
+                    int srcY = y + srcRect.Y;
+
+                    if (destX >= 0 && destY >= 0 && destX < _width && destY < _height && srcX >= 0 && srcY >= 0 && srcX < fastSource._width && srcY < fastSource._height)
+                    {
+                        SetPixel(destX, destY, fastSource.GetPixelInt(srcX, srcY));
+                    }
                 }
             }
 
