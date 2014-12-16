@@ -125,7 +125,7 @@ namespace Pixelaria.Utils
         {
             if (_locked)
             {
-                throw new Exception("Unlock must be called before a Lock operation");
+                throw new InvalidOperationException("Unlock must be called before a Lock operation");
             }
 
             Lock(ImageLockMode.ReadWrite);
@@ -166,7 +166,7 @@ namespace Pixelaria.Utils
         {
             if (!_locked)
             {
-                throw new Exception("Lock must be called before an Unlock operation");
+                throw new InvalidOperationException("Lock must be called before an Unlock operation");
             }
 
             _bitmap.UnlockBits(_bitmapData);
@@ -195,21 +195,7 @@ namespace Pixelaria.Utils
         /// <param name="color">The new color of the pixel to set</param>
         public void SetPixel(int x, int y, int color)
         {
-            if (!_locked)
-            {
-                throw new Exception("The FastBitmap must be locked before any pixel operations are made");
-            }
-
-            if (x < 0 || x >= _width)
-            {
-                throw new Exception("The X component must be >= 0 and < width");
-            }
-            if (y < 0 || y >= _height)
-            {
-                throw new Exception("The Y component must be >= 0 and < height");
-            }
-
-            *(_scan0 + x + y * _strideWidth) = color;
+            SetPixel(x, y, (uint)color);
         }
 
         /// <summary>
@@ -223,16 +209,16 @@ namespace Pixelaria.Utils
         {
             if (!_locked)
             {
-                throw new Exception("The FastBitmap must be locked before any pixel operations are made");
+                throw new InvalidOperationException("The FastBitmap must be locked before any pixel operations are made");
             }
 
             if (x < 0 || x >= _width)
             {
-                throw new Exception("The X component must be >= 0 and < width");
+                throw new ArgumentException("The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new Exception("The Y component must be >= 0 and < height");
+                throw new ArgumentException("The Y component must be >= 0 and < height");
             }
 
             *(uint*)(_scan0 + x + y * _strideWidth) = color;
@@ -259,16 +245,16 @@ namespace Pixelaria.Utils
         {
             if (!_locked)
             {
-                throw new Exception("The FastBitmap must be locked before any pixel operations are made");
+                throw new InvalidOperationException("The FastBitmap must be locked before any pixel operations are made");
             }
 
             if (x < 0 || x >= _width)
             {
-                throw new Exception("The X component must be >= 0 and < width");
+                throw new ArgumentException("The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new Exception("The Y component must be >= 0 and < height");
+                throw new ArgumentException("The Y component must be >= 0 and < height");
             }
 
             return *(_scan0 + x + y * _strideWidth);

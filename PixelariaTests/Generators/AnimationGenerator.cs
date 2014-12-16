@@ -49,7 +49,7 @@ namespace PixelariaTests.Generators
 
             for (int i = 0; i < frameCount; i++)
             {
-                anim.CreateFrame().SetFrameBitmap(FrameGenerator.GenerateFrameImage(width, height, (seed == -1 ? seed : seed + i)));
+                anim.CreateFrame().SetFrameBitmap(FrameGenerator.GenerateRandomBitmap(width, height, (seed == -1 ? seed : seed + i)));
             }
 
             return anim;

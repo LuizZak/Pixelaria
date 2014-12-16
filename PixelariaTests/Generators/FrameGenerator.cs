@@ -53,7 +53,7 @@ namespace PixelariaTests.Generators
         public static Frame GenerateRandomFrame(int width, int height, int seed = -1)
         {
             Frame frame = new Frame(null, width, height, false);
-            frame.SetFrameBitmap(GenerateFrameImage(width, height, seed));
+            frame.SetFrameBitmap(GenerateRandomBitmap(width, height, seed));
 
             return frame;
         }
@@ -66,7 +66,7 @@ namespace PixelariaTests.Generators
         /// <param name="height">The height of the image to generate</param>
         /// <param name="seed">The seed for the image, used to seed the random number generator that will generate the image contents</param>
         /// <returns>An image with the passed parameters</returns>
-        public static Bitmap GenerateFrameImage(int width, int height, int seed = -1)
+        public static Bitmap GenerateRandomBitmap(int width, int height, int seed = -1)
         {
             if (seed == -1)
             {
