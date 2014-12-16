@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.ColorControls
 {
     partial class ColorPicker
     {
@@ -59,8 +59,8 @@ namespace Pixelaria.Views.Controls
             this.cs_green = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.cs_red = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.cs_alpha = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
-            this.pnl_secondColor = new Pixelaria.Views.Controls.ColorPanel();
-            this.pnl_firstColor = new Pixelaria.Views.Controls.ColorPanel();
+            this.pnl_secondColor = new ColorPanel();
+            this.pnl_firstColor = new ColorPanel();
             ((System.ComponentModel.ISupportInitialize)(this.pb_palette)).BeginInit();
             this.SuspendLayout();
             // 

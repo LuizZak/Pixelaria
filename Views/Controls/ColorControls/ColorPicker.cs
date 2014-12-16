@@ -24,10 +24,9 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-
 using Pixelaria.Utils;
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.ColorControls
 {
     /// <summary>
     /// A control where the user can pick colors

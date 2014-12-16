@@ -27,6 +27,7 @@ using System.IO;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
+using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Filters
 {

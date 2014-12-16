@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using Pixelaria.Views.Controls.ColorControls;
+
 namespace Pixelaria.Views.Controls.Filters
 {
     partial class FadeControl
@@ -51,7 +53,7 @@ namespace Pixelaria.Views.Controls.Filters
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.cp_color = new Pixelaria.Views.Controls.ColorPanel();
+            this.cp_color = new ColorPanel();
             this.anud_factor = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();

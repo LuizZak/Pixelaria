@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.PixelariaTests.Generators;
 using Pixelaria.Utils;
-using PixelariaTests.Generators;
 
-namespace PixelariaTests.Tests.Utils
+namespace Pixelaria.PixelariaTests.Tests.Utils
 {
     /// <summary>
     /// Contains tests for the FastBitmap class and related components

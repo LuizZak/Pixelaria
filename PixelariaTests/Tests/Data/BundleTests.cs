@@ -22,9 +22,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
-using PixelariaTests.Generators;
+using Pixelaria.PixelariaTests.Generators;
 
-namespace PixelariaTests.Tests.Data
+namespace Pixelaria.PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Tests the Bundle class functionalities and their respective components

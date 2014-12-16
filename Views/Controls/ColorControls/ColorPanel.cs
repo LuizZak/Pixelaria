@@ -23,7 +23,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.ColorControls
 {
     /// <summary>
     /// Describes a panel that can display an ARGB color

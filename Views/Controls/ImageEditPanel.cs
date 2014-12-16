@@ -31,6 +31,7 @@ using System.Windows.Forms;
 
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
+using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria.Views.Controls

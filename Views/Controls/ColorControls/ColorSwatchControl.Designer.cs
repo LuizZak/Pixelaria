@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.ColorControls
 {
     partial class ColorSwatchControl
     {

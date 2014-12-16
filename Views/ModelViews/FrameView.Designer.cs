@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using Pixelaria.Views.Controls.ColorControls;
+
 namespace Pixelaria.Views.ModelViews
 {
     partial class FrameView
@@ -73,9 +75,9 @@ namespace Pixelaria.Views.ModelViews
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorSwatchControl();
+            this.cs_colorSwatch = new ColorSwatchControl();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorPicker();
+            this.cp_mainColorPicker = new ColorPicker();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -434,7 +436,7 @@ namespace Pixelaria.Views.ModelViews
             this.cs_colorSwatch.Name = "cs_colorSwatch";
             this.cs_colorSwatch.Size = new System.Drawing.Size(171, 283);
             this.cs_colorSwatch.TabIndex = 4;
-            this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
+            this.cs_colorSwatch.ColorSelect += new ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
             // 
             // splitter1
             // 
@@ -453,10 +455,10 @@ namespace Pixelaria.Views.ModelViews
             this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
             this.cp_mainColorPicker.Name = "cp_mainColorPicker";
             this.cp_mainColorPicker.SecondColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorPickerColor.FirstColor;
+            this.cp_mainColorPicker.SelectedColor = ColorPickerColor.FirstColor;
             this.cp_mainColorPicker.Size = new System.Drawing.Size(172, 550);
             this.cp_mainColorPicker.TabIndex = 3;
-            this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
+            this.cp_mainColorPicker.ColorPick += new ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
             // 
             // panel1
             // 
@@ -1311,9 +1313,9 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripButton tsb_undo;
         private System.Windows.Forms.ToolStripButton tsb_redo;
         private System.Windows.Forms.RadioButton rb_zoom;
-        private Controls.ColorPicker cp_mainColorPicker;
+        private ColorPicker cp_mainColorPicker;
         private System.Windows.Forms.Panel panel2;
-        private Controls.ColorSwatchControl cs_colorSwatch;
+        private ColorSwatchControl cs_colorSwatch;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel4;

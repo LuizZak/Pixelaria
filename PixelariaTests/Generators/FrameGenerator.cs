@@ -21,16 +21,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Pixelaria.Data;
 using Pixelaria.Utils;
 
-namespace PixelariaTests.Generators
+namespace Pixelaria.PixelariaTests.Generators
 {
     /// <summary>
     /// Contains methods related to image generation used in unit tests

@@ -25,10 +25,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-
 using Pixelaria.Utils;
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.ColorControls
 {
     /// <summary>
     /// A control that is used to display a color swatch to the user and
@@ -40,47 +39,47 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The color swatch for this ColorSwatchControl
         /// </summary>
-        private ColorSwatch colorSwatch;
+        private ColorSwatch _colorSwatch;
 
         /// <summary>
         /// The last mouse cell area the mouse was hovering over
         /// </summary>
-        private Rectangle lastMouseCellArea;
+        private Rectangle _lastMouseCellArea;
 
         /// <summary>
         /// The horizontal cell the mouse is currently over at the moment
         /// </summary>
-        private int mouseCellX;
+        private int _mouseCellX;
 
         /// <summary>
         /// The vertical cell the mouse is currently over at the moment
         /// </summary>
-        private int mouseCellY;
+        private int _mouseCellY;
 
         /// <summary>
         /// The width of the color cells
         /// </summary>
-        private int cellWidth;
+        private int _cellWidth;
         /// <summary>
         /// The height of the color cells
         /// </summary>
-        private int cellHeight;
+        private int _cellHeight;
 
         /// <summary>
         /// The number of colors to place at each row
         /// before jumping to the next row
         /// </summary>
-        private int cellsPerRow;
+        private int _cellsPerRow;
 
         /// <summary>
         /// Whether the mouse is currently over this control
         /// </summary>
-        private bool mouseOver;
+        private bool _mouseOver;
 
         /// <summary>
         /// Whether the mouse is currently pressed down on this control
         /// </summary>
-        private bool mouseDown;
+        private bool _mouseDown;
 
         /// <summary>
         /// Delegate for a ColorSelect event
@@ -105,16 +104,16 @@ namespace Pixelaria.Views.Controls
             InitializeComponent();
 
             // Initialize with the default swatch
-            colorSwatch = ColorSwatch.MakeDefault();
+            _colorSwatch = ColorSwatch.MakeDefault();
 
-            mouseCellX = mouseCellY = 0;
+            _mouseCellX = _mouseCellY = 0;
 
-            cellWidth = 13;
-            cellHeight = 13;
+            _cellWidth = 13;
+            _cellHeight = 13;
 
-            cellsPerRow = 13;
+            _cellsPerRow = 13;
 
-            mouseOver = false;
+            _mouseOver = false;
 
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
         }
@@ -130,9 +129,9 @@ namespace Pixelaria.Views.Controls
             int x = 0;
             int y = 0;
 
-            foreach (Color color in colorSwatch.Colors)
+            foreach (Color color in _colorSwatch.Colors)
             {
-                Rectangle region = new Rectangle(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+                Rectangle region = new Rectangle(x * _cellWidth, y * _cellHeight, _cellWidth, _cellHeight);
 
                 if (e.ClipRectangle.IntersectsWith(region))
                 {
@@ -145,14 +144,14 @@ namespace Pixelaria.Views.Controls
 
                 x ++;
 
-                if (x >= cellsPerRow)
+                if (x >= _cellsPerRow)
                 {
                     x = 0;
                     y++;
                 }
             }
 
-            if (mouseOver)
+            if (_mouseOver)
             {
                 // Draw the mouse cell
                 Rectangle cellRect = GetMouseCellArea();
@@ -177,7 +176,7 @@ namespace Pixelaria.Views.Controls
                 ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
             }
 
-            mouseDown = true;
+            _mouseDown = true;
         }
 
         // 
@@ -188,15 +187,15 @@ namespace Pixelaria.Views.Controls
             base.OnMouseMove(e);
 
             // Keep track of the current mouse position so we can invalidate the region
-            mouseCellX = Math.Max(0, Math.Min(cellsPerRow - 1, e.X / cellWidth));
-            mouseCellY = Math.Max(0, Math.Min((int)Math.Ceiling(colorSwatch.ColorCount / (float)(cellsPerRow)) - 1, e.Y / cellHeight));
+            _mouseCellX = Math.Max(0, Math.Min(_cellsPerRow - 1, e.X / _cellWidth));
+            _mouseCellY = Math.Max(0, Math.Min((int)Math.Ceiling(_colorSwatch.ColorCount / (float)(_cellsPerRow)) - 1, e.Y / _cellHeight));
 
             // Invalidate the mouse region
             Rectangle newCellRect = GetMouseCellArea();
 
-            if (newCellRect != lastMouseCellArea)
+            if (newCellRect != _lastMouseCellArea)
             {
-                Rectangle oldRec = lastMouseCellArea;
+                Rectangle oldRec = _lastMouseCellArea;
                 Rectangle newRec = newCellRect;
 
                 oldRec.Inflate(2, 2);
@@ -205,7 +204,7 @@ namespace Pixelaria.Views.Controls
                 Invalidate(oldRec);
                 Invalidate(newRec);
 
-                if (mouseDown && mouseOver)
+                if (_mouseDown && _mouseOver)
                 {
                     // Gets the color the user clicked on
                     if (ColorSelect != null)
@@ -215,7 +214,7 @@ namespace Pixelaria.Views.Controls
                 }
             }
 
-            lastMouseCellArea = newCellRect;
+            _lastMouseCellArea = newCellRect;
         }
 
         // 
@@ -225,7 +224,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseEnter(e);
 
-            mouseOver = true;
+            _mouseOver = true;
 
             Invalidate();
         }
@@ -237,7 +236,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseLeave(e);
 
-            mouseOver = false;
+            _mouseOver = false;
 
             Rectangle newCellRect = GetMouseCellArea();
             newCellRect.Offset(-1, -1);
@@ -252,7 +251,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseUp(e);
 
-            mouseDown = false;
+            _mouseDown = false;
         }
 
         /// <summary>
@@ -261,7 +260,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>A Rectangle that represents the area of the cell the mouse is currently hovering over</returns>
         private Rectangle GetMouseCellArea()
         {
-            return new Rectangle(mouseCellX * cellWidth, mouseCellY * cellHeight, cellWidth, cellHeight);
+            return new Rectangle(_mouseCellX * _cellWidth, _mouseCellY * _cellHeight, _cellWidth, _cellHeight);
         }
 
         /// <summary>
@@ -270,14 +269,14 @@ namespace Pixelaria.Views.Controls
         /// <returns>The color currently under the mouse cursor</returns>
         private Color GetColorUnderMouse()
         {
-            int index = mouseCellX % 13 + 13 * (mouseCellY);
+            int index = _mouseCellX % 13 + 13 * (_mouseCellY);
 
-            if (index >= colorSwatch.ColorCount)
+            if (index >= _colorSwatch.ColorCount)
             {
                 return Color.Black;
             }
 
-            return colorSwatch[index];
+            return _colorSwatch[index];
         }
     }
 
@@ -522,7 +521,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Represents an HSL color with an alpha channel
     /// </summary>
-    public struct AHSL
+    public struct AHSL : IEquatable<AHSL>
     {
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
@@ -728,6 +727,36 @@ namespace Pixelaria.Views.Controls
         public int ToArgb(bool revertByteOrder = false)
         {
             return ColorSwatch.ArgbFromAHSL(this.Hf, this.Sf, this.Lf, this.Af, revertByteOrder);
+        }
+
+        /// <summary>
+        /// Returns whether this AHSL color object equals another AHSL color
+        /// </summary>
+        /// <param name="other">The other color to test</param>
+        /// <returns>Whether this AHSL color object equals another AHSL color</returns>
+        public bool Equals(AHSL other)
+        {
+            return Af.Equals(other.Af) && Hf.Equals(other.Hf) && Sf.Equals(other.Sf) && Lf.Equals(other.Lf);
+        }
+
+        // Override Equals
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is AHSL && Equals((AHSL)obj);
+        }
+
+        // Overrided GetHashCode
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Af.GetHashCode();
+                hashCode = (hashCode * 397) ^ Hf.GetHashCode();
+                hashCode = (hashCode * 397) ^ Sf.GetHashCode();
+                hashCode = (hashCode * 397) ^ Lf.GetHashCode();
+                return hashCode;
+            }
         }
 
         /// <summary>

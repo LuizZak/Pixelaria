@@ -32,6 +32,7 @@ using System.Security.Cryptography;
 
 using Pixelaria.Data;
 using Pixelaria.Views.Controls;
+using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Utils
 {

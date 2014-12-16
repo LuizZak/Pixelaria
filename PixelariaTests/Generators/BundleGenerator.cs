@@ -21,13 +21,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Pixelaria.Data;
 
-namespace PixelariaTests.Generators
+namespace Pixelaria.PixelariaTests.Generators
 {
     /// <summary>
     /// Contains methods related to bundle generation used in unit tests

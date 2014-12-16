@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using Pixelaria.Views.Controls.ColorControls;
+
 namespace Pixelaria.Views.Controls.Filters
 {
     partial class StrokeControl
@@ -54,7 +56,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.label1 = new System.Windows.Forms.Label();
             this.cb_knockout = new System.Windows.Forms.CheckBox();
             this.cb_smooth = new System.Windows.Forms.CheckBox();
-            this.cp_color = new Pixelaria.Views.Controls.ColorPanel();
+            this.cp_color = new ColorPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 

@@ -38,6 +38,7 @@ using Pixelaria.Filters;
 using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
+using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.Filters;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews.Miscs;

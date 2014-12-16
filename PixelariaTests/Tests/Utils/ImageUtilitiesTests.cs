@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
 
-namespace PixelariaTests.Tests.Utils
+namespace Pixelaria.PixelariaTests.Tests.Utils
 {
     /// <summary>
     /// Tests the functionalities of the ImageUtilities class and related components
