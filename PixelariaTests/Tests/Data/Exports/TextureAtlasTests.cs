@@ -55,5 +55,55 @@ namespace PixelariaTests.Tests.Data.Exports
             Assert.IsTrue(!anim.Frames.Where((t, i) => !ReferenceEquals(t, atlas.FrameList[i])).Any(),
                 "When adding frames to an atlas, all valid frames passed to the InsertFrame() should be counted in it");
         }
+
+        [TestMethod]
+        public void TestInsertDuplicatedFrames()
+        {
+            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+
+            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 5);
+
+            foreach (var frame in anim.Frames)
+            {
+                atlas.InsertFrame(frame);
+                atlas.InsertFrame(frame);
+            }
+
+            Assert.AreEqual(anim, atlas.GetAnimationsOnAtlas()[0], "Adding the same frames to an atlas twice should have no effect on its animation count");
+            Assert.AreEqual(anim.FrameCount, atlas.FrameCount, "Adding the same frames to an atlas twice should have no effect on its frame count");
+            Assert.IsTrue(!anim.Frames.Where((t, i) => !ReferenceEquals(t, atlas.FrameList[i])).Any(),
+                "Adding the same frames to an atlas twice should have no effect on its frame set");
+        }
+
+        [TestMethod]
+        public void TestInsertAnimation()
+        {
+            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+
+            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+
+            atlas.InsertFramesFromAnimation(anim);
+
+            Assert.AreEqual(anim, atlas.GetAnimationsOnAtlas()[0], "After adding an animation to an atlas, the animation should be listed on the atlas' GetAnimationsOnAtlas()");
+            Assert.AreEqual(anim.FrameCount, atlas.FrameCount, "When adding animations to an atlas, all valid frames on the animation should be counted in it");
+            Assert.IsTrue(!anim.Frames.Where((t, i) => !ReferenceEquals(t, atlas.FrameList[i])).Any(),
+                "When adding animations to an atlas, all valid frames on the animation should be counted in it");
+        }
+
+        [TestMethod]
+        public void TestInsertDuplicatedAnimation()
+        {
+            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+
+            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+
+            atlas.InsertFramesFromAnimation(anim);
+            atlas.InsertFramesFromAnimation(anim);
+
+            Assert.AreEqual(anim, atlas.GetAnimationsOnAtlas()[0], "Adding the same animation to an atlas twice should have no effect on its animation count");
+            Assert.AreEqual(anim.FrameCount, atlas.FrameCount, "Adding the same animation to an atlas twice should have no effect on its frame count");
+            Assert.IsTrue(!anim.Frames.Where((t, i) => !ReferenceEquals(t, atlas.FrameList[i])).Any(),
+                "Adding the same animation to an atlas twice should have no effect in its frame set");
+        }
     }
 }

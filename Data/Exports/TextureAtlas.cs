@@ -70,6 +70,11 @@ namespace Pixelaria.Data.Exports
         /// <param name="frame">The frame to pack</param>
         public void InsertFrame(Frame frame)
         {
+            if (frameList.ContainsReference(frame))
+            {
+                return;
+            }
+
             if (frame.Animation != null && !animationList.Contains(frame.Animation))
             {
                 animationList.Add(frame.Animation);
@@ -79,6 +84,18 @@ namespace Pixelaria.Data.Exports
             boundsList.Add(new Rectangle());
             originsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
             reuseCount.Add(0);
+        }
+
+        /// <summary>
+        /// Inserts the frames of a given animation into this texture atlas
+        /// </summary>
+        /// <param name="animation">The animatio to insert the frames to</param>
+        public void InsertFramesFromAnimation(Animation animation)
+        {
+            foreach (var frame in animation.Frames)
+            {
+                InsertFrame(frame);
+            }
         }
 
         /// <summary>
