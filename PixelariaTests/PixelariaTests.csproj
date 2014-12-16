@@ -52,6 +52,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Tests\Algorithms\Packers\DefaultTesturePackerTests.cs" />
     <Compile Include="Tests\Data\AnimationSheetTests.cs" />
     <Compile Include="Tests\Data\AnimationTests.cs" />
     <Compile Include="Tests\Data\Exports\TextureAtlasTests.cs" />

@@ -34,6 +34,6 @@ namespace Pixelaria.Algorithms
         /// </summary>
         /// <param name="atlas">The texture atlas to pack</param>
         /// <param name="handler">The event handler for the packing process</param>
-        void Pack(TextureAtlas atlas, BundleExportProgressEventHandler handler);
+        void Pack(TextureAtlas atlas, BundleExportProgressEventHandler handler = null);
     }
 }

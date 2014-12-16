@@ -34,7 +34,7 @@ namespace Pixelaria.Algorithms.Packers
     /// <summary>
     /// Defines the default texture packer for the program
     /// </summary>
-    class DefaultTexturePacker : ITexturePacker
+    public class DefaultTexturePacker : ITexturePacker
     {
         /// <summary>
         /// Packs a given atlas with a specified progress event handler
