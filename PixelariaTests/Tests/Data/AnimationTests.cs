@@ -356,6 +356,19 @@ namespace PixelariaTests.Tests.Data
             Assert.AreEqual(0, anim.GetFrameIndex(frame2), "Swapping frame indices must be reflected in GetframeIndex()");
         }
 
+        [TestMethod]
+        public void TestAnimationClearing()
+        {
+            Animation anim = new Animation("TestAnim", 16, 16);
+
+            Frame frame1 = anim.CreateFrame();
+
+            anim.Clear();
+
+            Assert.AreEqual(0, anim.FrameCount, "After a call to Clear(), the animation's frame count should be 0");
+            Assert.IsFalse(anim.ContainsFrame(frame1), "Immediately after a call to Clear(), no frame passed to ContainsFrame() should return true");
+        }
+
         /// <summary>
         /// Tests memory usage information accumulated by frames that is returned by an animation
         /// </summary>
