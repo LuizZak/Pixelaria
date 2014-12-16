@@ -43,25 +43,20 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="handler">The event handler for the packing process</param>
         public void Pack(TextureAtlas atlas, BundleExportProgressEventHandler handler = null)
         {
-            // Cache some fields as locals
-            AnimationExportSettings exportSettings = atlas.ExportSettings;
-            List<Frame> frameList = atlas.FrameList;
-
-            _progressHandler = handler;
-
             if (atlas.FrameCount == 0)
             {
                 atlas.AtlasRectangle = new Rectangle(0, 0, 1, 1);
                 return;
             }
 
-            uint atlasWidth;
-            uint atlasHeight;
+            // Cache some fields as locals
+            List<Frame> frameList = atlas.FrameList;
 
+            _progressHandler = handler;
             _frameComparision = new FrameComparision(atlas.ExportSettings.ForceMinimumDimensions);
 
             // 1. (Optional) Sort the frames from largest to smallest before packing
-            if (exportSettings.AllowUnorderedFrames)
+            if (atlas.ExportSettings.AllowUnorderedFrames)
             {
                 // Use a stable sort
                 frameList.AddRange(frameList.OrderBy(frame => frame, _frameComparision).ToList());
@@ -69,66 +64,39 @@ namespace Pixelaria.Algorithms.Packers
             }
 
             // 2. (Optional) Find identical frames and pack them to use the same sheet area
-            if (exportSettings.ReuseIdenticalFramesArea)
+            if (atlas.ExportSettings.ReuseIdenticalFramesArea)
             {
                 MarkIdenticalFramesFromList(frameList);
             }
 
             // 3. Find the maximum possible horizontal sheet size
-            int maxWidthCapped;
-            int maxWidthReal = 0;
+            CalculateMaximumSizes(frameList);
 
-            int maxFrameWidth = 0;
-            int maxFrameHeight = 0;
-
-            int minFrameWidth = int.MaxValue;
-
-            foreach (Frame frame in frameList)
-            {
-                int frameWidth = frame.Width;
-                int frameHeight = frame.Height;
-
-                if (frameWidth > maxFrameWidth)
-                {
-                    maxFrameWidth = frameWidth;
-                }
-                
-                if (frameHeight > maxFrameHeight)
-                {
-                    maxFrameHeight = frameHeight;
-                }
-                if (frameWidth < minFrameWidth)
-                {
-                    minFrameWidth = frameWidth;
-                }
-
-                maxWidthReal += frameWidth;
-            }
-
-            maxWidthCapped = Math.Min(4096, maxWidthReal);
-
-            int minAreaWidth = maxWidthCapped;
+            int minAreaWidth = _maxWidthCapped;
             float minRatio = 0;
             int minArea = int.MaxValue;
 
             // 4. Iterate through possible widths and match the smallest area to use as a maxWidth
-            uint curWidth = (uint)maxFrameWidth;
+            uint curWidth = (uint)_maxFrameWidth;
 
-            if (exportSettings.ForcePowerOfTwoDimensions)
+            if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
             {
                 curWidth = Utilities.SnapToNextPowerOfTwo(curWidth);
             }
 
-            for (; curWidth < maxWidthCapped; )
+            uint atlasWidth;
+            uint atlasHeight;
+
+            for ( ; curWidth < _maxWidthCapped; )
             {
                 atlasWidth = 0;
                 atlasHeight = 0;
-                InternalPack(atlas, ref atlasWidth, ref atlasHeight, (int)curWidth, exportSettings.UseUniformGrid ? maxFrameWidth : -1, exportSettings.UseUniformGrid ? maxFrameHeight : -1);
+                InternalPack(atlas, ref atlasWidth, ref atlasHeight, (int)curWidth, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
 
                 float ratio = (float)atlasWidth / atlasHeight;
 
                 // Round up to the closest power of two
-                if (exportSettings.ForcePowerOfTwoDimensions)
+                if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
                 {
                     atlasWidth = Utilities.SnapToNextPowerOfTwo(atlasWidth);
                     atlasHeight = Utilities.SnapToNextPowerOfTwo(atlasHeight);
@@ -137,22 +105,8 @@ namespace Pixelaria.Algorithms.Packers
                 // Calculate the area now
                 int area = (int)(atlasWidth * atlasHeight);
 
-                float areaDiff = (float)area / minArea;
-                float ratioDiff = (float)Math.Abs(ratio - 1) / Math.Abs(minRatio - 1);
-
-                bool swap = false;
-
-                // Decide whether to swap the best sheet target width with tue current one
-                if (exportSettings.FavorRatioOverArea && (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1)))
-                {
-                    swap = true;
-                }
-                else if (!exportSettings.FavorRatioOverArea && (area < minArea || (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1))))
-                {
-                    swap = true;
-                }
-
-                if (swap)
+                // Decide whether to swap the best sheet target width with the current one
+                if ((atlas.ExportSettings.FavorRatioOverArea && (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1))) || (!atlas.ExportSettings.FavorRatioOverArea && (area < minArea || (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1)))))
                 {
                     minArea = area;
                     minRatio = ratio;
@@ -160,21 +114,21 @@ namespace Pixelaria.Algorithms.Packers
                 }
 
                 // Iterate the width now
-                if (exportSettings.HighPrecisionAreaMatching)
+                if (atlas.ExportSettings.HighPrecisionAreaMatching)
                 {
                     curWidth++;
                 }
                 else
                 {
-                    curWidth += (uint)minFrameWidth / 2;
+                    curWidth += (uint)_minFrameWidth / 2;
                 }
 
                 // Report progress
                 if (_progressHandler != null)
                 {
-                    int progress = (int)((float)curWidth / maxWidthCapped * 100);
+                    int progress = (int)((float)curWidth / _maxWidthCapped * 100);
 
-                    if (exportSettings.FavorRatioOverArea)
+                    if (atlas.ExportSettings.FavorRatioOverArea)
                     {
                         progress = (int)((float)atlasWidth / atlasHeight * 100);
                     }
@@ -185,7 +139,7 @@ namespace Pixelaria.Algorithms.Packers
                 }
 
                 // Exit the loop if favoring ratio and no better ratio can be achieved
-                if (exportSettings.FavorRatioOverArea && atlasWidth > atlasHeight)
+                if (atlas.ExportSettings.FavorRatioOverArea && atlasWidth > atlasHeight)
                 {
                     break;
                 }
@@ -195,10 +149,10 @@ namespace Pixelaria.Algorithms.Packers
             atlasHeight = 0;
 
             // 5. Pack the texture atlas
-            InternalPack(atlas, ref atlasWidth, ref atlasHeight, minAreaWidth, exportSettings.UseUniformGrid ? maxFrameWidth : -1, exportSettings.UseUniformGrid ? maxFrameHeight : -1, true);
+            InternalPack(atlas, ref atlasWidth, ref atlasHeight, minAreaWidth, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1, true);
 
             // Round up to the closest power of two
-            if (exportSettings.ForcePowerOfTwoDimensions)
+            if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
             {
                 atlasWidth = Utilities.SnapToNextPowerOfTwo(atlasWidth);
                 atlasHeight = Utilities.SnapToNextPowerOfTwo(atlasHeight);
@@ -213,6 +167,44 @@ namespace Pixelaria.Algorithms.Packers
 
             // Assign the information on the texture atlas
             atlas.Information.ReusedFrameOriginsCount = _frameComparision.CachedSimilarCount;
+        }
+
+        /// <summary>
+        /// Calculates the information of the maximum sheet and frame size from a set of frames
+        /// </summary>
+        /// <param name="frameList">The list of frames to iterate over to calculate the maximum sheet and frame size</param>
+        private void CalculateMaximumSizes(List<Frame> frameList)
+        {
+            _maxWidthReal = 0;
+
+            _maxFrameWidth = 0;
+            _maxFrameHeight = 0;
+
+            _minFrameWidth = int.MaxValue;
+
+            foreach (Frame frame in frameList)
+            {
+                int frameWidth = frame.Width;
+                int frameHeight = frame.Height;
+
+                if (frameWidth > _maxFrameWidth)
+                {
+                    _maxFrameWidth = frameWidth;
+                }
+
+                if (frameHeight > _maxFrameHeight)
+                {
+                    _maxFrameHeight = frameHeight;
+                }
+                if (frameWidth < _minFrameWidth)
+                {
+                    _minFrameWidth = frameWidth;
+                }
+
+                _maxWidthReal += frameWidth;
+            }
+
+            _maxWidthCapped = Math.Min(4096, _maxWidthReal);
         }
 
         /// <summary>
@@ -388,6 +380,31 @@ namespace Pixelaria.Algorithms.Packers
         /// The current event handler to report progress to
         /// </summary>
         private BundleExportProgressEventHandler _progressHandler;
+
+        /// <summary>
+        /// The maximum possible width when tiling one frame next to another, capped at 4096 pixels
+        /// </summary>
+        private int _maxWidthCapped;
+
+        /// <summary>
+        /// The maximum possible width when tiling one frame next to another, uncapped
+        /// </summary>
+        private int _maxWidthReal;
+
+        /// <summary>
+        /// The maximum width between all the frames being computed with this texture packer
+        /// </summary>
+        private int _maxFrameWidth;
+
+        /// <summary>
+        /// The maximum height between all the frames being computed with this texture packer
+        /// </summary>
+        private int _maxFrameHeight;
+
+        /// <summary>
+        /// The smallest width between all the frames being computed with this texture packer
+        /// </summary>
+        private int _minFrameWidth;
 
         /// <summary>
         /// Default IComparer used to sort and store information about frames
