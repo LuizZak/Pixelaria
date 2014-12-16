@@ -95,7 +95,7 @@ namespace PixelariaTests.Tests.Utils
         [TestMethod]
         public void TestClearBitmap()
         {
-            Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(64, 64);
+            Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(63, 63); // Non-dibisible by 8 bitmap, used to test loop unrolling
             FastBitmap.ClearBitmap(bitmap, Color.Red);
 
             // Loop through the image checking the pixels now
