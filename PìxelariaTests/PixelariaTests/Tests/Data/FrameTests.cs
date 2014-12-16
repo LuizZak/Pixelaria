@@ -26,9 +26,9 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Data
+namespace PixelariaTests.PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Test suite for the Frame classes and related components

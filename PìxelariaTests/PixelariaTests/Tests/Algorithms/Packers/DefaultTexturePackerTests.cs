@@ -3,9 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Algorithms.Packers
+namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
 {
     /// <summary>
     /// Tests the functionality of the DefaultTexturePacker class and related components

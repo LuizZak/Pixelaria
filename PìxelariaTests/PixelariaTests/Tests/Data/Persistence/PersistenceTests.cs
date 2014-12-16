@@ -26,11 +26,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
 using Pixelaria.Utils;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
 // TODO: Derive unit tests for invalid files
 
-namespace PìxelariaTests.PixelariaTests.Tests.Data.Persistence
+namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
 {
     /// <summary>
     /// Tests PixelariaFile, PixelariaFileLoader, and PixelariaFileSaver functionalities and related components

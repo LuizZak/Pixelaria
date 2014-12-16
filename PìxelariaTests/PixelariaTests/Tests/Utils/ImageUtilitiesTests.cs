@@ -3,7 +3,7 @@ using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Utils
+namespace PixelariaTests.PixelariaTests.Tests.Utils
 {
     /// <summary>
     /// Tests the functionalities of the ImageUtilities class and related components
@@ -119,7 +119,7 @@ namespace PìxelariaTests.PixelariaTests.Tests.Utils
 
             // Test the resulting area rectangle
             Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
-            Assert.AreEqual(areaFilled, bitmapArea, "The minimum image area has to clip the minimum Y coordinate that is not opaque");
+            Assert.AreEqual(areaFilled, bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace PìxelariaTests.PixelariaTests.Tests.Utils
 
             // Test the resulting area rectangle
             Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
-            Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip the minimum Y coordinate that is not opaque");
+            Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
         [TestMethod]
@@ -166,7 +166,7 @@ namespace PìxelariaTests.PixelariaTests.Tests.Utils
 
             // Test the resulting area rectangle
             Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
-            Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip the minimum Y coordinate that is not opaque");
+            Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
         /// <summary>

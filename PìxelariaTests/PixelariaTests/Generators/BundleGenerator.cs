@@ -23,7 +23,7 @@
 using System;
 using Pixelaria.Data;
 
-namespace PìxelariaTests.PixelariaTests.Generators
+namespace PixelariaTests.PixelariaTests.Generators
 {
     /// <summary>
     /// Contains methods related to bundle generation used in unit tests

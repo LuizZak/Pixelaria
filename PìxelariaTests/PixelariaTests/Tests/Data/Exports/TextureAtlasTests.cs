@@ -24,9 +24,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Data.Exports
+namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
 {
     /// <summary>
     /// Tests the TextureAtlas class' functionality and related components

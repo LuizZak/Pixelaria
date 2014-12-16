@@ -3,9 +3,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Utils
+namespace PixelariaTests.PixelariaTests.Tests.Utils
 {
     /// <summary>
     /// Contains tests for the FastBitmap class and related components

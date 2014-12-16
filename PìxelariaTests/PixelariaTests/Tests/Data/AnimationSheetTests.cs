@@ -23,9 +23,9 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Data
+namespace PixelariaTests.PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Tests AnimationSheet class functionality and related components

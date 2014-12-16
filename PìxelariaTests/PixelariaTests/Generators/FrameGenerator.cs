@@ -26,7 +26,7 @@ using System.Drawing.Imaging;
 using Pixelaria.Data;
 using Pixelaria.Utils;
 
-namespace PìxelariaTests.PixelariaTests.Generators
+namespace PixelariaTests.PixelariaTests.Generators
 {
     /// <summary>
     /// Contains methods related to image generation used in unit tests

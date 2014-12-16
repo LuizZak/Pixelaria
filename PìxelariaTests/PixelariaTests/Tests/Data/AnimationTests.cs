@@ -27,9 +27,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Utils;
-using PìxelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Generators;
 
-namespace PìxelariaTests.PixelariaTests.Tests.Data
+namespace PixelariaTests.PixelariaTests.Tests.Data
 {
     /// <summary>
     /// Test suite for the Animation and Frame classes and related components
