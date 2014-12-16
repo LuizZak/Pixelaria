@@ -194,6 +194,20 @@ namespace PixelariaTests.Tests.Data
             Assert.AreEqual(-1, anim1.GetFrameIndex(frame4), "Fetching a frame index for a frame that does not belongs to an animation should return -1");
         }
 
+        [TestMethod]
+        public void TestContainsFrame()
+        {
+            // Create an animation and an empty dummy frame
+            Animation anim1 = new Animation("TestAnimation1", 64, 64);
+            Frame frame1 = new Frame(null, 64, 64);
+            Frame frame4 = new Frame(null, 64, 64);
+
+            anim1.AddFrame(frame1);
+
+            Assert.IsTrue(anim1.ContainsFrame(frame1), "Calling ContainsFrame() with a frame in the animation must return true");
+            Assert.IsFalse(anim1.ContainsFrame(frame4), "Calling ContainsFrame() with a frame that is not in the animation must return false");
+        }
+
         /// <summary>
         /// Tests the GetFrameAtIndex() method
         /// </summary>

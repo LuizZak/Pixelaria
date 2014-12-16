@@ -454,6 +454,16 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
+        /// Returns whether this Animation object contains a given Frame
+        /// </summary>
+        /// <param name="frame">A Frame object</param>
+        /// <returns>Whether the provided frame is listed in this animation</returns>
+        public bool ContainsFrame(Frame frame)
+        {
+            return GetFrameIndex(frame) > -1;
+        }
+
+        /// <summary>
         /// Gets the index of the given frame on this animation
         /// </summary>
         /// <param name="frame">The frame on this animation to get the index of</param>
