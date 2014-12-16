@@ -10,9 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Pixelaria</RootNamespace>
     <AssemblyName>Pixelaria</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -111,7 +110,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -162,20 +160,6 @@
     <Compile Include="Filters\TransparencyFilter.cs" />
     <Compile Include="Importers\DefaultPngImporter.cs" />
     <Compile Include="Importers\IDefaultImporter.cs" />
-    <Compile Include="PixelariaTests\Generators\AnimationGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\AnimationSheetGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\BundleGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\FrameGenerator.cs" />
-    <Compile Include="PixelariaTests\Tests\Algorithms\Packers\DefaultTexturePackerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\AnimationSheetTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\AnimationTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\BundleTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\SheetExportTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\TextureAtlasTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\FrameTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\FastBitmapTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
