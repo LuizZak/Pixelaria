@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Data
 {
@@ -115,7 +116,7 @@ namespace Pixelaria.Data
         /// <returns>Whether the animation was successfuly removed from this animation sheet</returns>
         public bool RemoveAnimation(Animation animation)
         {
-            return _animations.Remove(animation);
+            return _animations.RemoveReference(animation);
         }
 
         /// <summary>
@@ -136,7 +137,7 @@ namespace Pixelaria.Data
         /// <returns>Whether this AnimationSheet object contains the given Animation object</returns>
         public bool ContainsAnimation(Animation anim)
         {
-            return _animations.Contains(anim);
+            return _animations.ContainsReference(anim);
         }
 
         /// <summary>
@@ -147,7 +148,7 @@ namespace Pixelaria.Data
         /// <returns>The index of the animation in this sheet, or -1 if it's not owned by this sheet</returns>
         public int IndexOfAnimation(Animation anim)
         {
-            return _animations.IndexOf(anim);
+            return _animations.IndexOfReference(anim);
         }
 
         /// <summary>
@@ -174,7 +175,7 @@ namespace Pixelaria.Data
                 return false;
             }
 
-            if (Object.ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
                 return true;
 
             AnimationSheet other = (AnimationSheet) obj;

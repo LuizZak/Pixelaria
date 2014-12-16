@@ -67,5 +67,37 @@ namespace PixelariaTests.Tests.Data
                 Assert.AreEqual(sheet1.GetFrameCount(), animCount * frameCount, "GetFrameCount() must return the frame count of all the animations in a sprite sheet");
             }
         }
+
+        [TestMethod]
+        public void TestAnimationIndex()
+        {
+            AnimationSheet sheet = new AnimationSheet("TestSheet");
+            Animation anim1 = new Animation("TestAnim1", 16, 16);
+            Animation anim2 = new Animation("TestAnim2", 16, 16);
+            Animation anim3 = new Animation("TestAnim2", 16, 16);
+
+            sheet.AddAnimation(anim1);
+            sheet.AddAnimation(anim2);
+
+            Assert.AreEqual(0, sheet.IndexOfAnimation(anim1), "The IndexOfAnimation() must return the index at which the specified animation is on the sprite sheet's internal container");
+            Assert.AreEqual(1, sheet.IndexOfAnimation(anim2), "The IndexOfAnimation() must return the index at which the specified animation is on the sprite sheet's internal container");
+            Assert.AreEqual(-1, sheet.IndexOfAnimation(anim3), "The IndexOfAnimation() must return -1 to animations that the sheet doesn't contain");
+        }
+
+        [TestMethod]
+        public void TestAnimationInsert()
+        {
+            AnimationSheet sheet = new AnimationSheet("TestSheet");
+            Animation anim1 = new Animation("TestAnim1", 16, 16);
+            Animation anim2 = new Animation("TestAnim2", 16, 16);
+            Animation anim3 = new Animation("TestAnim3", 16, 16);
+
+            sheet.AddAnimation(anim1);
+            sheet.InsertAnimation(anim2, 0);
+            sheet.InsertAnimation(anim3, 0);
+
+            Assert.AreEqual(2, sheet.IndexOfAnimation(anim1), "The InsertAnimation() method must bump the animations forward one index");
+            Assert.AreEqual(0, sheet.IndexOfAnimation(anim3), "The InsertAnimation() method must insert animations in the specified position");
+        }
     }
 }
