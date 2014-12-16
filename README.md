@@ -1,6 +1,9 @@
 Pixelaria
 =========
 
+[![Build status](https://ci.appveyor.com/api/projects/status/bdnoic2p1pa074vx/branch/master?svg=true)](https://ci.appveyor.com/project/LuizZak/pixelaria/branch/master)
+--
+
 Software for creating and exporting pixel-art animations.
 The program also handles importing and grouping of animations.
 
