@@ -88,9 +88,15 @@ namespace Pixelaria.Utils
         public int Stride { get { return _strideWidth; } }
 
         /// <summary>
+        /// Gets a boolean value that states whether this FastBitmap is currently locked in memory
+        /// </summary>
+        public bool Locked { get { return _locked; } }
+
+        /// <summary>
         /// Gets an array of 32-bit color pixel values that represent this FastBitmap
         /// </summary>
-        /// <exception cref="System.Exception">The locking operation required to extract the values off from the underlying bitmap failed</exception>
+        /// <exception cref="Exception">The locking operation required to extract the values off from the underlying bitmap failed</exception>
+        /// <exception cref="InvalidOperationException">The bitmap is already locked outside this fast bitmap</exception>
         public int[] DataArray
         {
             get
@@ -143,6 +149,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <exception cref="InvalidOperationException">The bitmap is already locked</exception>
         /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
+        /// <exception cref="InvalidOperationException">The bitmap is already locked outside this fast bitmap</exception>
         public void Lock()
         {
             if (_locked)
@@ -158,6 +165,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="lockMode">The lock mode to use on the bitmap</param>
         /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
+        /// <exception cref="InvalidOperationException">The bitmap is already locked outside this fast bitmap</exception>
         private void Lock(ImageLockMode lockMode)
         {
             Rectangle rect = new Rectangle(0, 0, _bitmap.Width, _bitmap.Height);
@@ -172,6 +180,7 @@ namespace Pixelaria.Utils
         /// <param name="rect">The rectangle to lock</param>
         /// <exception cref="System.ArgumentException">The provided region is invalid</exception>
         /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
+        /// <exception cref="InvalidOperationException">The bitmap region is already locked</exception>
         private void Lock(ImageLockMode lockMode, Rectangle rect)
         {
             // Lock the bitmap's bits
@@ -356,11 +365,18 @@ namespace Pixelaria.Utils
         /// <param name="source">The source image to copy</param>
         /// <param name="srcRect">The region on the source bitmap that will be copied over</param>
         /// <param name="destRect">The region on this fast bitmap that will be changed</param>
+        /// <exception cref="ArgumentException">The provided source bitmap is the same bitmap locked in this FastBitmap</exception>
         public void CopyRegion(Bitmap source, Rectangle srcRect, Rectangle destRect)
         {
             // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
             if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > _width || destRect.Y > _height)
                 return;
+
+            // Throw exception when trying to copy same bitmap over
+            if (source == _bitmap)
+            {
+                throw new ArgumentException("Copying regions across the same bitmap is not supported", "source");
+            }
 
             FastBitmap fastSource = new FastBitmap(source);
             fastSource.Lock();
@@ -470,11 +486,18 @@ namespace Pixelaria.Utils
         /// <param name="target">The target image to be altered</param>
         /// <param name="srcRect">The region on the source bitmap that will be copied over</param>
         /// <param name="destRect">The region on the target bitmap that will be changed</param>
+        /// <exception cref="ArgumentException">The provided source and target bitmaps are the same bitmap</exception>
         public static void CopyRegion(Bitmap source, Bitmap target, Rectangle srcRect, Rectangle destRect)
         {
             // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
             if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > target.Width || destRect.Y > target.Height)
                 return;
+
+            // Throw exception when trying to copy same bitmap over
+            if (source == target)
+            {
+                throw new ArgumentException("Copying regions across the same bitmap is not supported", "source");
+            }
 
             FastBitmap fastTarget = new FastBitmap(target);
             fastTarget.Lock();

@@ -109,10 +109,14 @@ namespace Pixelaria.Utils
         /// <returns>A Rectangle that specifies the minimum image area, clipping out all the alpha pixels</returns>
         public static Rectangle FindMinimumImageArea(Bitmap image)
         {
-            int x = 0;
-            int y = 0;
-            int widthRange = image.Width - 1;
-            int heightRange = image.Height - 1;
+            int minImageX = 0;
+            int minImageY = 0;
+
+            int maxImageX = 0;
+            int maxImageY = 0;
+
+            int x;
+            int y;
 
             int width = image.Width;
             int height = image.Height;
@@ -121,69 +125,67 @@ namespace Pixelaria.Utils
 
             fastBitmap.Lock();
 
-            // Scan horizontally until the first non-0 alpha pixel is found
+            // Scan vertically - 1st pass
             for (x = 0; x < width; x++)
             {
-                for (int _y = 0; _y < height; _y++)
+                for (y = 0; y < height; y++)
                 {
-                    if (fastBitmap.GetPixelInt(x, _y) >> 24 != 0)
+                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
                     {
+                        minImageX = x;
                         goto skipx;
                     }
+                    // All pixels scanned, non are opaque
+                    else if (x == width - 1 && y == height - 1)
+                    {
+                        return new Rectangle(0, 0, 0, 0);
+                    }
                 }
-            }
+            } skipx:
 
-        skipx:
-
-            widthRange -= x;
-
-            // Scan vertically until the first non-0 alpha pixel is found
+            // Scan horizontally - 1st pass
             for (y = 0; y < height; y++)
             {
-                for (int _x = x; _x < width; _x++)
+                for (x = minImageX; x < width; x++)
                 {
-                    if (fastBitmap.GetPixelInt(_x, y) >> 24 != 0)
+                    minImageY = y;
+
+                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
                     {
                         goto skipy;
                     }
                 }
-            }
+            } skipy:
 
-        skipy:
-
-            heightRange -= y;
-
-            // Scan the width now and skip the empty pixels
-            for (; widthRange > x; widthRange--)
+            // Scan vertically - 2nd pass
+            for (x = width - 1; x >= minImageX; x--)
             {
-                for (int _y = y; _y < height; _y++)
+                for (y = height - 1; y >= minImageY; y--)
                 {
-                    if (fastBitmap.GetPixelInt(x + widthRange, _y) >> 24 != 0)
+                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
                     {
-                        goto skipwidth;
+                        maxImageX = x;
+                        goto skipw;
                     }
                 }
-            }
+            } skipw:
 
-        skipwidth:
-
-            // Scan the height now and skip the empty pixels
-            for (; heightRange > y; heightRange--)
+            // Scan horizontally - 2nd pass
+            for (y = height - 1; y >= minImageY; y--)
             {
-                for (int _x = x; _x < x + widthRange + 1; _x++)
+                for (x = minImageX; x < maxImageX; x++)
                 {
-                    if (fastBitmap.GetPixelInt(_x, heightRange + y) >> 24 != 0)
+                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
                     {
-                        goto skipheight;
+                        maxImageY = y;
+                        goto skiph;
                     }
                 }
-            }
-
-        skipheight:
+            } skiph:
 
             fastBitmap.Unlock();
 
-            return new Rectangle(x, y, widthRange + 1, heightRange + 1);
+            return new Rectangle(minImageX, minImageY, maxImageX - minImageX + 1, maxImageY - minImageY + 1);
         }
     }
 }

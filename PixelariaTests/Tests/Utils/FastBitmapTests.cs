@@ -30,9 +30,12 @@ namespace PixelariaTests.Tests.Utils
             // Try creating a FastBitmap with different 32bpp depths
             try
             {
-                fastBitmap = new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppArgb));
-                fastBitmap = new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppPArgb));
-                fastBitmap = new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppRgb));
+                // ReSharper disable once ObjectCreationAsStatement
+                new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppArgb));
+                // ReSharper disable once ObjectCreationAsStatement
+                new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppPArgb));
+                // ReSharper disable once ObjectCreationAsStatement
+                new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppRgb));
             }
             catch (ArgumentException)
             {
@@ -42,7 +45,8 @@ namespace PixelariaTests.Tests.Utils
             // Try creating a FastBitmap with a bitmap of a bit depth different from 32bpp
             Bitmap invalidBitmap = new Bitmap(64, 64, PixelFormat.Format4bppIndexed);
 
-            fastBitmap = new FastBitmap(invalidBitmap);
+            // ReSharper disable once ObjectCreationAsStatement
+            new FastBitmap(invalidBitmap);
         }
 
         /// <summary>
@@ -50,18 +54,44 @@ namespace PixelariaTests.Tests.Utils
         /// As long as all the operations pending on a fast bitmap are finished, the original bitmap can be used in as many future fast bitmaps as needed.
         /// </summary>
         [TestMethod]
-        public void TestSequentialFastBitmap()
+        public void TestSequentialFastBitmapLocking()
         {
             Bitmap bitmap = new Bitmap(64, 64);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
+
+            Assert.IsFalse(fastBitmap.Locked, "Immediately after creation, the FastBitmap.Locked property must be false");
+
             fastBitmap.Lock();
+
+            Assert.IsTrue(fastBitmap.Locked, "After a successful call to .Lock(), the .Locked property must be true");
+
             fastBitmap.Unlock();
+
+            Assert.IsFalse(fastBitmap.Locked, "After a successful call to .Lock(), the .Locked property must be false");
 
             fastBitmap = new FastBitmap(bitmap);
             fastBitmap.Lock();
             fastBitmap.Unlock();
         }
 
+        /// <summary>
+        /// Tests a failing scenario for fast bitmap creations where a sequential fast bitmap is created and locked while another fast bitmap is operating on the same bitmap
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to Lock() a bitmap while it is Locked() in another FastBitmap must raise an exception")]
+        public void TestFailedSequentialFastBitmapLocking()
+        {
+            Bitmap bitmap = new Bitmap(64, 64);
+            FastBitmap fastBitmap = new FastBitmap(bitmap);
+            fastBitmap.Lock();
+
+            fastBitmap = new FastBitmap(bitmap);
+            fastBitmap.Lock();
+        }
+
+        /// <summary>
+        /// Tests the behavior of the .Clear() instance and class methods by clearing a bitmap and checking the result pixel-by-pixel
+        /// </summary>
         [TestMethod]
         public void TestClearBitmap()
         {
@@ -100,6 +130,8 @@ namespace PixelariaTests.Tests.Utils
             // Test instance call
             FastBitmap fastBitmap = new FastBitmap(bitmap);
             fastBitmap.Clear(Color.FromArgb(25, 12, 0, 42));
+
+            Assert.IsFalse(fastBitmap.Locked, "After a successfull call to .Clear() on a fast bitmap previously unlocked, the .Locked property must be false");
 
             // Loop through the image checking the pixels now
             for (int y = 0; y < bitmap.Height; y++)
@@ -398,12 +430,33 @@ namespace PixelariaTests.Tests.Utils
             }
         }
 
+        /// <summary>
+        /// Tests sequential region copying across multiple bitmaps by copying regions between 4 bitmaps
+        /// </summary>
+        [TestMethod]
+        public void TestSequentialCopyRegion()
+        {
+            Bitmap bitmap1 = new Bitmap(64, 64);
+            Bitmap bitmap2 = new Bitmap(64, 64);
+            Bitmap bitmap3 = new Bitmap(64, 64);
+            Bitmap bitmap4 = new Bitmap(64, 64);
+
+            Rectangle region = new Rectangle(0, 0, 64, 64);
+
+            FastBitmap.CopyRegion(bitmap1, bitmap2, region, region);
+            FastBitmap.CopyRegion(bitmap3, bitmap4, region, region);
+            FastBitmap.CopyRegion(bitmap1, bitmap3, region, region);
+            FastBitmap.CopyRegion(bitmap4, bitmap2, region, region);
+        }
+
         [TestMethod]
         public void TestDataArray()
         {
-            // TODO: Devise a way to test the returned array better, because currently this test only deals with ARGB pixel values because Bitmap.GetPixel().ToArgb() only returns 0xAARRGGBB format values
+            // TODO: Devise a way to test the returned array in a more consistent way, because currently this test only deals with ARGB pixel values because Bitmap.GetPixel().ToArgb() only returns 0xAARRGGBB format values
             Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(64, 64);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
+
+            Assert.IsFalse(fastBitmap.Locked, "After accessing the .Data property on a fast bitmap previously unlocked, the .Locked property must be false");
 
             int[] pixels = fastBitmap.DataArray;
 
@@ -526,6 +579,18 @@ namespace PixelariaTests.Tests.Utils
             catch (ArgumentException) { }
 
             fastBitmap.SetPixel(fastBitmap.Width - 1, fastBitmap.Height - 1, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "An ArgumentException exception must be thrown when trying to copy regions across the same bitmap")]
+        public void TestSameBitmapCopyRegionException()
+        {
+            Bitmap bitmap = new Bitmap(64, 64);
+
+            Rectangle sourceRectangle = new Rectangle(0, 0, 64, 64);
+            Rectangle targetRectangle = new Rectangle(0, 0, 64, 64);
+
+            FastBitmap.CopyRegion(bitmap, bitmap, sourceRectangle, targetRectangle);
         }
 
         #endregion

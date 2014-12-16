@@ -65,6 +65,7 @@
     <Compile Include="Generators\FrameGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Utils\FastBitmapTests.cs" />
+    <Compile Include="Tests\Utils\ImageUtilitiesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pixelaria.csproj">
