@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,12 +18,31 @@ namespace PixelariaTests.Tests.Utils
     public class FastBitmapTests
     {
         [TestMethod]
+        [ExpectedException(typeof (ArgumentException),
+            "Providing a bitmap with a bitdepth different than 32bpp to a FastBitmap must return an ArgumentException")]
         public void TestFastBitmapCreation()
         {
             Bitmap bitmap = new Bitmap(64, 64);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
             fastBitmap.Lock();
             fastBitmap.Unlock();
+
+            // Try creating a FastBitmap with different 32bpp depths
+            try
+            {
+                fastBitmap = new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppArgb));
+                fastBitmap = new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppPArgb));
+                fastBitmap = new FastBitmap(new Bitmap(1, 1, PixelFormat.Format32bppRgb));
+            }
+            catch (ArgumentException)
+            {
+                Assert.Fail("The FastBitmap should accept any type of 32bpp pixel format bitmap");
+            }
+
+            // Try creating a FastBitmap with a bitmap of a bit depth different from 32bpp
+            Bitmap invalidBitmap = new Bitmap(64, 64, PixelFormat.Format4bppIndexed);
+
+            fastBitmap = new FastBitmap(invalidBitmap);
         }
 
         /// <summary>
@@ -55,7 +75,8 @@ namespace PixelariaTests.Tests.Utils
                 {
                     if (bitmap.GetPixel(x, y).ToArgb() != Color.Red.ToArgb())
                     {
-                        Assert.Fail("Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
+                        Assert.Fail(
+                            "Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
                     }
                 }
             }
@@ -70,7 +91,8 @@ namespace PixelariaTests.Tests.Utils
                 {
                     if (bitmap.GetPixel(x, y).ToArgb() != Color.FromArgb(25, 12, 0, 42).ToArgb())
                     {
-                        Assert.Fail("Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
+                        Assert.Fail(
+                            "Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
                     }
                 }
             }
@@ -86,7 +108,8 @@ namespace PixelariaTests.Tests.Utils
                 {
                     if (bitmap.GetPixel(x, y).ToArgb() != Color.FromArgb(25, 12, 0, 42).ToArgb())
                     {
-                        Assert.Fail("Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
+                        Assert.Fail(
+                            "Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
                     }
                 }
             }
@@ -142,16 +165,10 @@ namespace PixelariaTests.Tests.Utils
                 }
             }
 
-            for (int y = 0; y < bitmap1.Height; y++)
-            {
-                for (int x = 0; x < bitmap1.Width; x++)
-                {
-                    Assert.AreEqual(fastBitmap1.GetPixel(x, y).ToArgb(), bitmap2.GetPixel(x, y).ToArgb(),
-                        "Calls to FastBitmap.SetPixel() must be equivalent to calls to Bitmap.SetPixel()");
-                }
-            }
-
             fastBitmap1.Unlock();
+
+            AssertBitmapEquals(bitmap1, bitmap2,
+                "Calls to FastBitmap.SetPixel() must be equivalent to calls to Bitmap.SetPixel()");
         }
 
         /// <summary>
@@ -180,16 +197,223 @@ namespace PixelariaTests.Tests.Utils
                 }
             }
 
-            for (int y = 0; y < bitmap1.Height; y++)
+            fastBitmap1.Unlock();
+
+            AssertBitmapEquals(bitmap1, bitmap2,
+                "Calls to FastBitmap.SetPixel() with an integer overload must be equivalent to calls to Bitmap.SetPixel() with a Color with the same ARGB value as the interger");
+        }
+
+        /// <summary>
+        /// Tests a call to FastBitmap.CopyPixels() with valid provided bitmaps
+        /// </summary>
+        [TestMethod]
+        public void TestValidCopyPixels()
+        {
+            Bitmap bitmap1 = FrameGenerator.GenerateRandomBitmap(64, 64);
+            Bitmap bitmap2 = new Bitmap(64, 64);
+
+            FastBitmap.CopyPixels(bitmap1, bitmap2);
+
+            AssertBitmapEquals(bitmap1, bitmap2,
+                "After a successful call to CopyPixels(), both bitmaps must be equal down to the pixel level");
+        }
+
+        /// <summary>
+        /// Tests a call to FastBitmap.CopyPixels() with bitmaps of different sizes and different bitdepths
+        /// </summary>
+        [TestMethod]
+        public void TestInvalidCopyPixels()
+        {
+            Bitmap bitmap1 = new Bitmap(64, 64, PixelFormat.Format24bppRgb);
+            Bitmap bitmap2 = new Bitmap(64, 64, PixelFormat.Format1bppIndexed);
+
+            if (FastBitmap.CopyPixels(bitmap1, bitmap2))
             {
-                for (int x = 0; x < bitmap1.Width; x++)
-                {
-                    Assert.AreEqual(fastBitmap1.GetPixel(x, y).ToArgb(), bitmap2.GetPixel(x, y).ToArgb(),
-                        "Calls to FastBitmap.SetPixel() with an integer overload must be equivalent to calls to Bitmap.SetPixel() with a Color with the same ARGB value as the interger");
-                }
+                Assert.Fail("Trying to copy two bitmaps of different bitdepths should not be allowed");
             }
 
-            fastBitmap1.Unlock();
+            bitmap1 = new Bitmap(64, 64, PixelFormat.Format32bppArgb);
+            bitmap2 = new Bitmap(66, 64, PixelFormat.Format32bppArgb);
+
+            if (FastBitmap.CopyPixels(bitmap1, bitmap2))
+            {
+                Assert.Fail("Trying to copy two bitmaps of different sizes should not be allowed");
+            }
+        }
+
+        /// <summary>
+        /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities
+        /// </summary>
+        [TestMethod]
+        public void TestSimpleCopyRegion()
+        {
+            Bitmap canvasBitmap = new Bitmap(64, 64);
+            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+
+            Rectangle sourceRectangle = new Rectangle(0, 0, 32, 32);
+            Rectangle targetRectangle = new Rectangle(0, 0, 64, 64);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
+            {
+                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
+                {
+                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
+                        copyBitmap.GetPixel(x - targetRectangle.X, y - targetRectangle.Y).ToArgb(),
+                        "Pixels of the target region must fully match the pixels from the origin region");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities.
+        /// The source and target rectangles are moved around, and the source rectangle clips outside the bounds of the copy bitmap
+        /// </summary>
+        [TestMethod]
+        public void TestComplexCopyRegion()
+        {
+            Bitmap canvasBitmap = new Bitmap(64, 64);
+            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+
+            Rectangle sourceRectangle = new Rectangle(5, 5, 32, 32);
+            Rectangle targetRectangle = new Rectangle(9, 9, 23, 48);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
+            {
+                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
+                {
+                    // Ignore pixels out of range
+                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
+                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
+                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
+                        continue;
+
+                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
+                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
+                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
+                        "Pixels of the target region must fully match the pixels from the origin region");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities.
+        /// The copy region clips outside the target and source bitmap areas
+        /// </summary>
+        [TestMethod]
+        public void TestClippingCopyRegion()
+        {
+            Bitmap canvasBitmap = new Bitmap(64, 64);
+            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+
+            Rectangle sourceRectangle = new Rectangle(-5, 5, 32, 32);
+            Rectangle targetRectangle = new Rectangle(40, 9, 23, 48);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
+            {
+                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
+                {
+                    // Ignore pixels out of range
+                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
+                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
+                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
+                        continue;
+
+                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
+                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
+                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
+                        "Pixels of the target region must fully match the pixels from the origin region");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities.
+        /// The source region provided is out of the bounds of the copy image
+        /// </summary>
+        [TestMethod]
+        public void TestOutOfBoundsCopyRegion()
+        {
+            Bitmap canvasBitmap = new Bitmap(64, 64);
+            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+
+            Rectangle sourceRectangle = new Rectangle(32, 0, 32, 32);
+            Rectangle targetRectangle = new Rectangle(0, 0, 23, 48);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
+            {
+                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
+                {
+                    // Ignore pixels out of range
+                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
+                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
+                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
+                        continue;
+
+                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
+                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
+                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
+                        "Pixels of the target region must fully match the pixels from the origin region");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities.
+        /// The source region provided is invalid
+        /// </summary>
+        [TestMethod]
+        public void TestInvalidCopyRegion()
+        {
+            Bitmap canvasBitmap = new Bitmap(64, 64);
+            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+
+            Rectangle sourceRectangle = new Rectangle(0, 0, -1, 32);
+            Rectangle targetRectangle = new Rectangle(0, 0, 23, 48);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
+            {
+                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
+                {
+                    // Ignore pixels out of range
+                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
+                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
+                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
+                        continue;
+
+                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
+                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
+                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
+                        "Pixels of the target region must fully match the pixels from the origin region");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestDataArray()
+        {
+            // TODO: Devise a way to test the returned array better, because currently this test only deals with ARGB pixel values because Bitmap.GetPixel().ToArgb() only returns 0xAARRGGBB format values
+            Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(64, 64);
+            FastBitmap fastBitmap = new FastBitmap(bitmap);
+
+            int[] pixels = fastBitmap.DataArray;
+
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    Assert.AreEqual(bitmap.GetPixel(x, y).ToArgb(), pixels[y * bitmap.Width + x], "");
+                }
+            }
         }
 
         #region Exception Tests
@@ -305,5 +529,25 @@ namespace PixelariaTests.Tests.Utils
         }
 
         #endregion
+
+        /// <summary>
+        /// Helper method that tests the equality of two bitmaps and fails with a provided assert message when they are not pixel-by-pixel equal
+        /// </summary>
+        /// <param name="bitmap1">The first bitmap object to compare</param>
+        /// <param name="bitmap2">The second bitmap object to compare</param>
+        /// <param name="message">The message to display when the comparision fails</param>
+        public void AssertBitmapEquals(Bitmap bitmap1, Bitmap bitmap2, string message = "")
+        {
+            if(bitmap1.PixelFormat != bitmap2.PixelFormat)
+                Assert.Fail(message);
+
+            for (int y = 0; y < bitmap1.Height; y++)
+            {
+                for (int x = 0; x < bitmap1.Width; x++)
+                {
+                    Assert.AreEqual(bitmap1.GetPixel(x, y).ToArgb(), bitmap2.GetPixel(x, y).ToArgb(), message);
+                }
+            }
+        }
     }
 }

@@ -88,12 +88,20 @@ namespace Pixelaria.Utils
         public int Stride { get { return _strideWidth; } }
 
         /// <summary>
-        /// Gets an array of 32-bit ARGB values that represent this FastBitmap
+        /// Gets an array of 32-bit color pixel values that represent this FastBitmap
         /// </summary>
+        /// <exception cref="System.Exception">The locking operation required to extract the values off from the underlying bitmap failed</exception>
         public int[] DataArray
         {
             get
             {
+                bool unlockAfter = false;
+                if (!_locked)
+                {
+                    Lock();
+                    unlockAfter = true;
+                }
+
                 // Declare an array to hold the bytes of the bitmap
                 int bytes = Math.Abs(_bitmapData.Stride) * _bitmap.Height;
                 int[] argbValues = new int[bytes / 4];
@@ -101,26 +109,40 @@ namespace Pixelaria.Utils
                 // Copy the RGB values into the array
                 Marshal.Copy(_bitmapData.Scan0, argbValues, 0, bytes / 4);
 
+                if (unlockAfter)
+                {
+                    Unlock();
+                }
+
                 return argbValues;
             }
         }
 
         /// <summary>
-        /// Creates a new instance of the FastBitmap class
+        /// Creates a new instance of the FastBitmap class with a specified Bitmap.
+        /// The bitmap provided must have a 32bpp depth
         /// </summary>
         /// <param name="bitmap">The Bitmap object to encapsulate on this FastBitmap object</param>
+        /// <exception cref="ArgumentException">The bitmap provided does not have a 32bpp pixel format</exception>
         public FastBitmap(Bitmap bitmap)
         {
-            this._bitmap = bitmap;
+            if (Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
+            {
+                throw new ArgumentException("The provided bitmap must have a 32bpp depth", "bitmap");
+            }
 
-            this._width = bitmap.Width;
-            this._height = bitmap.Height;
+            _bitmap = bitmap;
+
+            _width = bitmap.Width;
+            _height = bitmap.Height;
         }
-
+        
         /// <summary>
         /// Locks the bitmap to start the bitmap operations. If the bitmap is already locked,
         /// an exception is thrown
         /// </summary>
+        /// <exception cref="InvalidOperationException">The bitmap is already locked</exception>
+        /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
         public void Lock()
         {
             if (_locked)
@@ -135,6 +157,7 @@ namespace Pixelaria.Utils
         /// Locks the bitmap to start the bitmap operations
         /// </summary>
         /// <param name="lockMode">The lock mode to use on the bitmap</param>
+        /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
         private void Lock(ImageLockMode lockMode)
         {
             Rectangle rect = new Rectangle(0, 0, _bitmap.Width, _bitmap.Height);
@@ -147,6 +170,8 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="lockMode">The lock mode to use on the bitmap</param>
         /// <param name="rect">The rectangle to lock</param>
+        /// <exception cref="System.ArgumentException">The provided region is invalid</exception>
+        /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
         private void Lock(ImageLockMode lockMode, Rectangle rect)
         {
             // Lock the bitmap's bits
@@ -162,6 +187,8 @@ namespace Pixelaria.Utils
         /// Unlocks the bitmap and applies the changes made to it. If the bitmap was not locked
         /// beforehand, an exception is thrown
         /// </summary>
+        /// <exception cref="InvalidOperationException">The bitmap is already unlocked</exception>
+        /// <exception cref="System.Exception">The unlocking operation in the underlying bitmap failed</exception>
         public void Unlock()
         {
             if (!_locked)
@@ -181,6 +208,8 @@ namespace Pixelaria.Utils
         /// <param name="x">The X coordinate of the pixel to set</param>
         /// <param name="y">The Y coordinate of the pixel to set</param>
         /// <param name="color">The new color of the pixel to set</param>
+        /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
+        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, Color color)
         {
             SetPixel(x, y, color.ToArgb());
@@ -193,6 +222,8 @@ namespace Pixelaria.Utils
         /// <param name="x">The X coordinate of the pixel to set</param>
         /// <param name="y">The Y coordinate of the pixel to set</param>
         /// <param name="color">The new color of the pixel to set</param>
+        /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
+        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, int color)
         {
             SetPixel(x, y, (uint)color);
@@ -205,6 +236,8 @@ namespace Pixelaria.Utils
         /// <param name="x">The X coordinate of the pixel to set</param>
         /// <param name="y">The Y coordinate of the pixel to set</param>
         /// <param name="color">The new color of the pixel to set</param>
+        /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
+        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, uint color)
         {
             if (!_locked)
@@ -230,6 +263,8 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="x">The X coordinate of the pixel to get</param>
         /// <param name="y">The Y coordinate of the pixel to get</param>
+        /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
+        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
         public Color GetPixel(int x, int y)
         {
             return Color.FromArgb(GetPixelInt(x, y));
@@ -241,6 +276,8 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="x">The X coordinate of the pixel to get</param>
         /// <param name="y">The Y coordinate of the pixel to get</param>
+        /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
+        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
         public int GetPixelInt(int x, int y)
         {
             if (!_locked)
