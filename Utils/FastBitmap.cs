@@ -275,6 +275,13 @@ namespace Pixelaria.Utils
         /// <param name="color">The color to clear the bitmap with</param>
         public void Clear(int color)
         {
+            bool unlockAfter = false;
+            if(!_locked)
+            {
+                Lock();
+                unlockAfter = true;
+            }
+
             // Clear all the pixels
             int count = _width * _height;
             int* curScan = _scan0;
@@ -298,6 +305,11 @@ namespace Pixelaria.Utils
             while (rem-- > 0)
             {
                 *(curScan++) = color;
+            }
+
+            if (unlockAfter)
+            {
+                Unlock();
             }
         }
 

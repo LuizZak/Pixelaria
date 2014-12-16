@@ -74,6 +74,22 @@ namespace PixelariaTests.Tests.Utils
                     }
                 }
             }
+
+            // Test instance call
+            FastBitmap fastBitmap = new FastBitmap(bitmap);
+            fastBitmap.Clear(Color.FromArgb(25, 12, 0, 42));
+
+            // Loop through the image checking the pixels now
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    if (bitmap.GetPixel(x, y).ToArgb() != Color.FromArgb(25, 12, 0, 42).ToArgb())
+                    {
+                        Assert.Fail("Immediately after a call to FastBitmap.Clear(), all of the bitmap's pixels must be of the provided color");
+                    }
+                }
+            }
         }
 
         /// <summary>
