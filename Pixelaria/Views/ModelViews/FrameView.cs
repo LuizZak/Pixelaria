@@ -24,14 +24,12 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
 
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
-using Pixelaria.Data.Undo;
 
 using Pixelaria.Filters;
 
@@ -39,7 +37,6 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
-using Pixelaria.Views.Controls.Filters;
 using Pixelaria.Views.Controls.PaintOperations;
 using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 using Pixelaria.Views.MiscViews;
@@ -55,42 +52,42 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The Controller that owns this FrameView instance
         /// </summary>
-        private Controller controller;
+        private Controller _controller;
 
         /// <summary>
         /// The frame to edit on this form
         /// </summary>
-        private Frame frameToEdit;
+        private Frame _frameToEdit;
 
         /// <summary>
         /// The copy of the frame that is actually edited by this form
         /// </summary>
-        private Frame viewFrame;
+        private Frame _viewFrame;
 
         /// <summary>
         /// Previous frame index
         /// </summary>
-        private int oldFrameIndex;
+        private int _oldFrameIndex;
 
         /// <summary>
         /// The current onion skin
         /// </summary>
-        private Bitmap onionSkin;
+        private Bitmap _onionSkin;
 
         /// <summary>
         /// Whether the frame preview is enabled
         /// </summary>
-        private bool framePreviewEnabled;
+        private bool _framePreviewEnabled;
 
         /// <summary>
         /// Event handler for a filter item click
         /// </summary>
-        private EventHandler filterClickEventHandler;
+        private EventHandler _filterClickEventHandler;
 
         /// <summary>
         /// Event handler for a filter preset item click
         /// </summary>
-        private EventHandler presetClickEventHandler;
+        private EventHandler _presetClickEventHandler;
 
         /// <summary>
         /// The first edit color
@@ -150,7 +147,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the frame currently loaded on this form
         /// </summary>
-        public Frame FrameLoaded { get { return frameToEdit; } }
+        public Frame FrameLoaded { get { return _frameToEdit; } }
 
         /// <summary>
         /// Delegate for the EdirFrameChanged event
@@ -193,56 +190,56 @@ namespace Pixelaria.Views.ModelViews
         {
             InitializeComponent();
 
-            this.oldFrameIndex = frameToEdit.Index;
+            _oldFrameIndex = frameToEdit.Index;
 
-            this.controller = controller;
+            _controller = controller;
 
-            this.filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
-            this.presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
+            _filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
+            _presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
 
-            this.UpdateFilterList();
-            this.UpdateFilterPresetList();
+            UpdateFilterList();
+            UpdateFilterPresetList();
 
             // Image editor panel
-            this.iepb_frame.Init();
-            this.iepb_frame.NotifyTo = this;
-            this.iepb_frame.PictureBox.ZoomChanged += new ZoomablePictureBox.ZoomChangedEventHandler(PictureBox_ZoomChanged);
-            this.iepb_frame.PictureBox.MouseMove += new MouseEventHandler(iepb_frame_MouseMove);
-            this.iepb_frame.PictureBox.MouseLeave += new EventHandler(iepb_frame_MouseLeave);
-            this.iepb_frame.PictureBox.MouseEnter += new EventHandler(iepb_frame_MouseEnter);
-            this.iepb_frame.UndoSystem.UndoRegistered += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoRegistered);
-            this.iepb_frame.UndoSystem.UndoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
-            this.iepb_frame.UndoSystem.RedoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
+            iepb_frame.Init();
+            iepb_frame.NotifyTo = this;
+            iepb_frame.PictureBox.ZoomChanged += new ZoomablePictureBox.ZoomChangedEventHandler(PictureBox_ZoomChanged);
+            iepb_frame.PictureBox.MouseMove += new MouseEventHandler(iepb_frame_MouseMove);
+            iepb_frame.PictureBox.MouseLeave += new EventHandler(iepb_frame_MouseLeave);
+            iepb_frame.PictureBox.MouseEnter += new EventHandler(iepb_frame_MouseEnter);
+            iepb_frame.UndoSystem.UndoRegistered += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoRegistered);
+            iepb_frame.UndoSystem.UndoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
+            iepb_frame.UndoSystem.RedoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
 
-            this.ChangePaintOperation(new PencilPaintOperation(FirstColor, SecondColor, BrushSize));
+            ChangePaintOperation(new PencilPaintOperation(FirstColor, SecondColor, BrushSize));
 
-            this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode;
+            iepb_frame.DefaultCompositingMode = CurrentCompositingMode;
 
-            this.cp_mainColorPicker.FirstColor = FirstColor;
-            this.cp_mainColorPicker.SecondColor = SecondColor;
+            cp_mainColorPicker.FirstColor = FirstColor;
+            cp_mainColorPicker.SecondColor = SecondColor;
 
-            this.rb_fillMode_2.Checked = true;
+            rb_fillMode_2.Checked = true;
 
             // Frame preview
-            this.framePreviewEnabled = false;
-            this.pnl_framePreview.Visible = this.framePreviewEnabled;
-            this.zpb_framePreview.HookToControl(this);
+            _framePreviewEnabled = false;
+            pnl_framePreview.Visible = _framePreviewEnabled;
+            zpb_framePreview.HookToControl(this);
 
-            this.tsb_onionSkin.Checked = OnionSkinEnabled;
-            this.tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
-            this.tsb_osShowCurrentFrame.Checked = OnionSkinShowCurrentFrame;
-            this.tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_onionSkin.Checked = OnionSkinEnabled;
+            tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_osShowCurrentFrame.Checked = OnionSkinShowCurrentFrame;
+            tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
 
-            this.OnionSkinDecorator = new OnionSkinDecorator(this, this.iepb_frame.PictureBox);
-            this.OnionSkinDecorator.OnionSkinDepth = OnionSkinDepth;
-            this.OnionSkinDecorator.OnionSkinMode = OnionSkinMode;
-            this.OnionSkinDecorator.OnionSkinShowCurrentFrame = OnionSkinShowCurrentFrame;
-            this.OnionSkinDecorator.OnionSkinTransparency = OnionSkinTransparency;
-            this.iepb_frame.PictureBox.AddDecorator(this.OnionSkinDecorator);
+            OnionSkinDecorator = new OnionSkinDecorator(this, iepb_frame.PictureBox);
+            OnionSkinDecorator.OnionSkinDepth = OnionSkinDepth;
+            OnionSkinDecorator.OnionSkinMode = OnionSkinMode;
+            OnionSkinDecorator.OnionSkinShowCurrentFrame = OnionSkinShowCurrentFrame;
+            OnionSkinDecorator.OnionSkinTransparency = OnionSkinTransparency;
+            iepb_frame.PictureBox.AddDecorator(OnionSkinDecorator);
 
             if (OnionSkinEnabled)
             {
-                this.ShowOnionSkin();
+                ShowOnionSkin();
             }
 
             if (CurrentCompositingMode == CompositingMode.SourceOver)
@@ -267,9 +264,9 @@ namespace Pixelaria.Views.ModelViews
             base.MarkModified();
 
             // Update the image preview if enabled
-            if (framePreviewEnabled)
+            if (_framePreviewEnabled)
             {
-                this.zpb_framePreview.Image = viewFrame.GetComposedBitmap();
+                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
             }
 
             RefreshTitleBar();
@@ -283,17 +280,17 @@ namespace Pixelaria.Views.ModelViews
             if (modified)
             {
                 // Update selection paint operations
-                if (this.iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (this.iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
+                if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
                 {
-                    (this.iepb_frame.CurrentPaintOperation as SelectionPaintOperation).FinishOperation(true);
+                    (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).FinishOperation(true);
                 }
 
                 ModifiedFrames = true;
 
-                viewFrame.UpdateHash();
+                _viewFrame.UpdateHash();
 
                 // Apply changes made to the frame
-                frameToEdit.CopyFrom(viewFrame);
+                _frameToEdit.CopyFrom(_viewFrame);
 
                 RefreshTitleBar();
             }
@@ -307,13 +304,13 @@ namespace Pixelaria.Views.ModelViews
         private void RefreshView()
         {
             // Update the enabled state of the Previous Frame and Next Frame buttons
-            tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = frameToEdit.Index > 0;
-            tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = frameToEdit.Index < frameToEdit.Animation.FrameCount - 1;
+            tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = _frameToEdit.Index > 0;
+            tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = _frameToEdit.Index < _frameToEdit.Animation.FrameCount - 1;
 
             // Update the frame display
             tc_currentFrame.Minimum = 1;
-            tc_currentFrame.Maximum = frameToEdit.Animation.FrameCount;
-            tc_currentFrame.CurrentFrame = (frameToEdit.Index + 1);
+            tc_currentFrame.Maximum = _frameToEdit.Animation.FrameCount;
+            tc_currentFrame.CurrentFrame = (_frameToEdit.Index + 1);
 
             // Refresh the undo and redo buttons
             RefreshUndoRedo();
@@ -324,28 +321,28 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshUndoRedo()
         {
-            this.tsm_undo.Enabled = this.tsb_undo.Enabled = this.iepb_frame.UndoSystem.CanUndo;
-            this.tsm_redo.Enabled = this.tsb_redo.Enabled = this.iepb_frame.UndoSystem.CanRedo;
+            tsm_undo.Enabled = tsb_undo.Enabled = iepb_frame.UndoSystem.CanUndo;
+            tsm_redo.Enabled = tsb_redo.Enabled = iepb_frame.UndoSystem.CanRedo;
 
-            if (this.tsb_undo.Enabled)
+            if (tsb_undo.Enabled)
             {
-                this.tsm_undo.Text = this.tsb_undo.ToolTipText = "Undo " + this.iepb_frame.UndoSystem.NextUndo.GetDescription();
+                tsm_undo.Text = tsb_undo.ToolTipText = "Undo " + iepb_frame.UndoSystem.NextUndo.GetDescription();
                 
             }
             else
             {
-                this.tsb_undo.ToolTipText = "";
-                this.tsm_undo.Text = "Undo";
+                tsb_undo.ToolTipText = "";
+                tsm_undo.Text = "Undo";
             }
 
-            if (this.tsb_redo.Enabled)
+            if (tsb_redo.Enabled)
             {
-                this.tsm_redo.Text = this.tsb_redo.ToolTipText = "Redo " + this.iepb_frame.UndoSystem.NextRedo.GetDescription();
+                tsm_redo.Text = tsb_redo.ToolTipText = "Redo " + iepb_frame.UndoSystem.NextRedo.GetDescription();
             }
             else
             {
-                this.tsb_redo.ToolTipText = "";
-                this.tsm_redo.Text = "Redo";
+                tsb_redo.ToolTipText = "";
+                tsm_redo.Text = "Redo";
             }
         }
 
@@ -354,7 +351,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshTitleBar()
         {
-            this.Text = "Frame Editor [" + (frameToEdit.Index + 1) + "/" + frameToEdit.Animation.FrameCount + "] - [" + frameToEdit.Animation.Name + "]" + (modified ? "*" : "");
+            Text = "Frame Editor [" + (_frameToEdit.Index + 1) + "/" + _frameToEdit.Animation.FrameCount + "] - [" + _frameToEdit.Animation.Name + "]" + (modified ? "*" : "");
         }
 
         /// <summary>
@@ -363,7 +360,7 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="paintOperation">The new paint operation to replace the current one</param>
         private void ChangePaintOperation(IPaintOperation paintOperation)
         {
-            this.iepb_frame.CurrentPaintOperation = paintOperation;
+            iepb_frame.CurrentPaintOperation = paintOperation;
 
             gb_sizeGroup.Visible = paintOperation is ISizedPaintOperation;
             gb_fillMode.Visible = paintOperation is IFillModePaintOperation;
@@ -376,37 +373,37 @@ namespace Pixelaria.Views.ModelViews
         private void LoadFrame(Frame frame)
         {
             // Dispose of the current view frame
-            if (viewFrame != null)
+            if (_viewFrame != null)
             {
-                viewFrame.Dispose();
+                _viewFrame.Dispose();
             }
 
-            if (onionSkin != null)
+            if (_onionSkin != null)
             {
-                onionSkin.Dispose();
+                _onionSkin.Dispose();
             }
 
-            frameToEdit = frame;
-            viewFrame = frameToEdit.Clone();
+            _frameToEdit = frame;
+            _viewFrame = _frameToEdit.Clone();
 
             RefreshTitleBar();
 
-            iepb_frame.LoadBitmap(viewFrame.GetComposedBitmap());
+            iepb_frame.LoadBitmap(_viewFrame.GetComposedBitmap());
 
             RefreshView();
 
             // Update the preview box if enabled
-            if (framePreviewEnabled)
+            if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = viewFrame.GetComposedBitmap();
+                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
             }
 
             if (EditFrameChanged != null)
             {
-                EditFrameChanged.Invoke(this, new EditFrameChangedEventArgs(oldFrameIndex, frame.Index));
+                EditFrameChanged.Invoke(this, new EditFrameChangedEventArgs(_oldFrameIndex, frame.Index));
             }
 
-            oldFrameIndex = frame.Index;
+            _oldFrameIndex = frame.Index;
         }
 
         /// <summary>
@@ -414,19 +411,19 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ExportFrame()
         {
-            Image img = viewFrame.GetComposedBitmap();
+            Image img = _viewFrame.GetComposedBitmap();
             string fileName = "";
 
-            if (frameToEdit.Animation.FrameCount > 1)
+            if (_frameToEdit.Animation.FrameCount > 1)
             {
-                fileName = frameToEdit.Animation.Name + "_" + frameToEdit.Index;
+                fileName = _frameToEdit.Animation.Name + "_" + _frameToEdit.Index;
             }
             else
             {
-                fileName = frameToEdit.Animation.Name;
+                fileName = _frameToEdit.Animation.Name;
             }
 
-            controller.ShowSaveImage(img, fileName, this);
+            _controller.ShowSaveImage(img, fileName, this);
         }
 
         /// <summary>
@@ -434,12 +431,12 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ImportFrame()
         {
-            Image img = controller.ShowLoadImage("", this);
+            Image img = _controller.ShowLoadImage("", this);
 
             if (img == null)
                 return;
 
-            if (img.Width > viewFrame.Width || img.Height > viewFrame.Height)
+            if (img.Width > _viewFrame.Width || img.Height > _viewFrame.Height)
             {
                 FramesRescaleSettingsView frs = new FramesRescaleSettingsView("The selected image is larger than the current image. Please select the scaling mode to apply to the new image:", FramesRescalingOptions.ShowFrameScale | FramesRescalingOptions.ShowDrawingMode);
 
@@ -447,17 +444,17 @@ namespace Pixelaria.Views.ModelViews
                 {
                     FrameSizeMatchingSettings settings = frs.GeneratedSettings;
 
-                    img = ImageUtilities.Resize(img, viewFrame.Width, viewFrame.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
+                    img = ImageUtilities.Resize(img, _viewFrame.Width, _viewFrame.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
                 }
             }
 
             ClearFrame();
 
-            if(!(this.iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
+            if(!(iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
                 ChangePaintOperation(new SelectionPaintOperation());
 
-            ((SelectionPaintOperation)this.iepb_frame.CurrentPaintOperation).CancelOperation(false);
-            ((SelectionPaintOperation)this.iepb_frame.CurrentPaintOperation).StartOperation(new Rectangle(0, 0, img.Width, img.Height), (Bitmap)img, SelectionPaintOperation.SelectionOperationType.Paste);
+            ((SelectionPaintOperation)iepb_frame.CurrentPaintOperation).CancelOperation(false);
+            ((SelectionPaintOperation)iepb_frame.CurrentPaintOperation).StartOperation(new Rectangle(0, 0, img.Width, img.Height), (Bitmap)img, SelectionPaintOperation.SelectionOperationType.Paste);
         }
 
         /// <summary>
@@ -468,7 +465,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                LoadFrame(frameToEdit.Animation.Frames[frameToEdit.Index - 1]);
+                LoadFrame(_frameToEdit.Animation.Frames[_frameToEdit.Index - 1]);
 
                 return true;
             }
@@ -484,7 +481,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                LoadFrame(frameToEdit.Animation.Frames[frameToEdit.Index + 1]);
+                LoadFrame(_frameToEdit.Animation.Frames[_frameToEdit.Index + 1]);
                 
                 return true;
             }
@@ -501,7 +498,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                LoadFrame(frameToEdit.Animation.Frames[index]);
+                LoadFrame(_frameToEdit.Animation.Frames[index]);
 
                 return true;
             }
@@ -516,13 +513,13 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                Frame frame = controller.FrameFactory.CloneFrame(frameToEdit);
+                Frame frame = _controller.FrameFactory.CloneFrame(_frameToEdit);
 
-                frameToEdit.Animation.AddFrame(frame, frameToEdit.Index + 1);
+                _frameToEdit.Animation.AddFrame(frame, _frameToEdit.Index + 1);
 
-                LoadFrame(frameToEdit.Animation[frameToEdit.Index + 1]);
+                LoadFrame(_frameToEdit.Animation[_frameToEdit.Index + 1]);
 
-                this.ModifiedFrames = true;
+                ModifiedFrames = true;
             }
         }
 
@@ -533,13 +530,13 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                Frame frame = controller.FrameFactory.CloneFrame(frameToEdit);
+                Frame frame = _controller.FrameFactory.CloneFrame(_frameToEdit);
 
-                frameToEdit.Animation.AddFrame(frame);
+                _frameToEdit.Animation.AddFrame(frame);
 
-                LoadFrame(frameToEdit.Animation[frameToEdit.Animation.FrameCount - 1]);
+                LoadFrame(_frameToEdit.Animation[_frameToEdit.Animation.FrameCount - 1]);
 
-                this.ModifiedFrames = true;
+                ModifiedFrames = true;
             }
         }
 
@@ -599,7 +596,7 @@ namespace Pixelaria.Views.ModelViews
         {
             OnionSkinEnabled = false;
 
-            this.OnionSkinDecorator.HideOnionSkin();
+            OnionSkinDecorator.HideOnionSkin();
 
             if (tsl_onionSkinDepth.Visible)
                 tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = false;
@@ -640,7 +637,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Undo()
         {
-            this.iepb_frame.UndoSystem.Undo();
+            iepb_frame.UndoSystem.Undo();
         }
 
         /// <summary>
@@ -648,7 +645,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Redo()
         {
-            this.iepb_frame.UndoSystem.Redo();
+            iepb_frame.UndoSystem.Redo();
         }
 
         /// <summary>
@@ -656,7 +653,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Copy()
         {
-            (this.iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Copy();
+            (iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Copy();
         }
 
         /// <summary>
@@ -664,7 +661,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Cut()
         {
-            (this.iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Cut();
+            (iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Cut();
         }
 
         /// <summary>
@@ -675,14 +672,14 @@ namespace Pixelaria.Views.ModelViews
             if (!Clipboard.ContainsData("PNG") && !Clipboard.ContainsImage())
                 return;
 
-            if (!(this.iepb_frame.CurrentPaintOperation is IClipboardPaintOperation))
+            if (!(iepb_frame.CurrentPaintOperation is IClipboardPaintOperation))
             {
-                this.rb_selection.Checked = true;
+                rb_selection.Checked = true;
             }
 
-            (this.iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Paste();
+            (iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Paste();
 
-            this.iepb_frame.PictureBox.Invalidate();
+            iepb_frame.PictureBox.Invalidate();
         }
 
         /// <summary>
@@ -690,14 +687,14 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void SelectAll()
         {
-            if (!(this.iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
+            if (!(iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
             {
-                this.rb_selection.Checked = true;
+                rb_selection.Checked = true;
             }
 
-            (this.iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectAll();
+            (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectAll();
             // Select the picture box so it receives keyboard input
-            this.FindForm().ActiveControl = this.iepb_frame.PictureBox;
+            FindForm().ActiveControl = iepb_frame.PictureBox;
         }
 
         /// <summary>
@@ -721,7 +718,7 @@ namespace Pixelaria.Views.ModelViews
                 ToolStripMenuItem tsm_filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
 
                 tsm_filterItem.Tag = filterNames[i];
-                tsm_filterItem.Click += filterClickEventHandler;
+                tsm_filterItem.Click += _filterClickEventHandler;
 
                 tsm_filters.DropDownItems.Add(tsm_filterItem);
             }
@@ -753,7 +750,7 @@ namespace Pixelaria.Views.ModelViews
                 ToolStripMenuItem tsm_presetItem = new ToolStripMenuItem(presets[i].Name, tsm_filterPresets.Image);
 
                 tsm_presetItem.Tag = presets[i].Name;
-                tsm_presetItem.Click += presetClickEventHandler;
+                tsm_presetItem.Click += _presetClickEventHandler;
 
                 tsm_filterPresets.DropDownItems.Add(tsm_presetItem);
             }
@@ -770,7 +767,7 @@ namespace Pixelaria.Views.ModelViews
 
             BitmapUndoTask but = null;
 
-            undoTarget = filterTarget = viewFrame.GetComposedBitmap();
+            undoTarget = filterTarget = _viewFrame.GetComposedBitmap();
 
             // Apply the filter to a selection
             if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
@@ -784,21 +781,21 @@ namespace Pixelaria.Views.ModelViews
                     
                     op.CancelOperation(true, false);
 
-                    but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
+                    but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
 
                     op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
                     op.SelectionArea = area;
                 }
                 else if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Paste)
                 {
-                    but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
+                    but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
                 }
 
                 filterTarget = op.SelectionBitmap;
             }
             else
             {
-                but = new BitmapUndoTask(this.iepb_frame.PictureBox, undoTarget, "Filter");
+                but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
             }
 
             ImageFilterView bfv = new ImageFilterView(filterPreset, filterTarget);
@@ -1026,7 +1023,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_blendingBlend.Checked)
             {
-                this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceOver;
+                iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceOver;
             }
         }
 
@@ -1037,7 +1034,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_blendingReplace.Checked)
             {
-                this.iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceCopy;
+                iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceCopy;
             }
         }
 
@@ -1050,9 +1047,9 @@ namespace Pixelaria.Views.ModelViews
         {
             BrushSize = (int)anud_brushSize.Value;
 
-            if (this.iepb_frame.CurrentPaintOperation is ISizedPaintOperation)
+            if (iepb_frame.CurrentPaintOperation is ISizedPaintOperation)
             {
-                (this.iepb_frame.CurrentPaintOperation as ISizedPaintOperation).Size = BrushSize;
+                (iepb_frame.CurrentPaintOperation as ISizedPaintOperation).Size = BrushSize;
             }
         }
 
@@ -1172,13 +1169,13 @@ namespace Pixelaria.Views.ModelViews
             iepb_frame.Dispose();
 
             // Dispose of the view frame
-            viewFrame.Dispose();
+            _viewFrame.Dispose();
 
             // Dispose of the onion skin
-            if (onionSkin != null)
+            if (_onionSkin != null)
             {
-                onionSkin.Dispose();
-                onionSkin = null;
+                _onionSkin.Dispose();
+                _onionSkin = null;
             }
 
             // Run garbage collector now
@@ -1312,7 +1309,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void iepb_frame_OperationStatusChanged(object sender, OperationStatusEventArgs eventArgs)
         {
-            this.tsl_operationLabel.Text = eventArgs.Status;
+            tsl_operationLabel.Text = eventArgs.Status;
         }
 
         // 
@@ -1354,7 +1351,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void PictureBox_ZoomChanged(object sender, ZoomChangedEventArgs e)
         {
-            this.anud_zoom.Value = (decimal)e.NewZoom;
+            anud_zoom.Value = (decimal)e.NewZoom;
         }
 
         // 
@@ -1362,7 +1359,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void anud_zoom_ValueChanged(object sender, EventArgs e)
         {
-            this.iepb_frame.PictureBox.Zoom = new PointF((float)anud_zoom.Value, (float)anud_zoom.Value);
+            iepb_frame.PictureBox.Zoom = new PointF((float)anud_zoom.Value, (float)anud_zoom.Value);
         }
 
         // 
@@ -1386,13 +1383,13 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_switchBlendingMode_Click(object sender, EventArgs e)
         {
-            if (this.iepb_frame.DefaultCompositingMode == CompositingMode.SourceCopy)
+            if (iepb_frame.DefaultCompositingMode == CompositingMode.SourceCopy)
             {
-                this.rb_blendingBlend.PerformClick();
+                rb_blendingBlend.PerformClick();
             }
             else
             {
-                this.rb_blendingReplace.PerformClick();
+                rb_blendingReplace.PerformClick();
             }
         }
 
@@ -1553,7 +1550,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsb_grid_Click(object sender, EventArgs e)
         {
-            this.iepb_frame.PictureBox.DisplayGrid = tsb_grid.Checked;
+            iepb_frame.PictureBox.DisplayGrid = tsb_grid.Checked;
         }
 
         // 
@@ -1563,12 +1560,12 @@ namespace Pixelaria.Views.ModelViews
         {
             tsb_previewFrame.Checked = !tsb_previewFrame.Checked;
 
-            this.pnl_framePreview.Visible = framePreviewEnabled = tsb_previewFrame.Checked;
+            pnl_framePreview.Visible = _framePreviewEnabled = tsb_previewFrame.Checked;
 
             // Update the image preview if enabled
-            if (framePreviewEnabled)
+            if (_framePreviewEnabled)
             {
-                this.zpb_framePreview.Image = viewFrame.GetComposedBitmap();
+                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
             }
         }
 
@@ -1588,19 +1585,19 @@ namespace Pixelaria.Views.ModelViews
             // Update the OnionSkinMode flag
             if (tsb_osPrevFrames.Checked && tsb_osNextFrames.Checked)
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.PreviousAndNextFrames;
+                OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
             }
             else if (tsb_osNextFrames.Checked)
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.NextFrames;
+                OnionSkinMode = OnionSkinMode.NextFrames;
             }
             else if (tsb_osPrevFrames.Checked)
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.PreviousFrames;
+                OnionSkinMode = OnionSkinMode.PreviousFrames;
             }
             else
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.None;
+                OnionSkinMode = OnionSkinMode.None;
             }
 
             ShowOnionSkin();
@@ -1622,19 +1619,19 @@ namespace Pixelaria.Views.ModelViews
             // Update the OnionSkinMode flag
             if (tsb_osPrevFrames.Checked && tsb_osNextFrames.Checked)
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.PreviousAndNextFrames;
+                OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
             }
             else if (tsb_osNextFrames.Checked)
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.NextFrames;
+                OnionSkinMode = OnionSkinMode.NextFrames;
             }
             else if (tsb_osPrevFrames.Checked)
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.PreviousFrames;
+                OnionSkinMode = OnionSkinMode.PreviousFrames;
             }
             else
             {
-                OnionSkinMode = ModelViews.OnionSkinMode.None;
+                OnionSkinMode = OnionSkinMode.None;
             }
 
             ShowOnionSkin();
@@ -1688,8 +1685,8 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="newIndex">The new frame index</param>
         public EditFrameChangedEventArgs(int oldIndex, int newIndex)
         {
-            this.OldFrameIndex = oldIndex;
-            this.NewFrameIndex = newIndex;
+            OldFrameIndex = oldIndex;
+            NewFrameIndex = newIndex;
         }
     }
 
