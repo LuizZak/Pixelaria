@@ -60,12 +60,12 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The width of this FastBitmap
         /// </summary>
-        private int _width;
+        private readonly int _width;
 
         /// <summary>
         /// The height of this FastBitmap
         /// </summary>
-        private int _height;
+        private readonly int _height;
 
         /// <summary>
         /// Gets the width of this FastBitmap object
