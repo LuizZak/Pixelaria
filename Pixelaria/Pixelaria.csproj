@@ -458,6 +458,12 @@
     <EmbeddedResource Include="Views\Controls\Filters\TransparencyControl.resx">
       <DependentUpon>TransparencyControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\MainForm.en.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MainForm.pt-BR.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -487,6 +493,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationPreviewPanel.resx">
       <DependentUpon>AnimationPreviewPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ModelViews\AnimationSheetView.en.resx">
+      <DependentUpon>AnimationSheetView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ModelViews\AnimationSheetView.pt-BR.resx">
+      <DependentUpon>AnimationSheetView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationSheetView.resx">
       <DependentUpon>AnimationSheetView.cs</DependentUpon>

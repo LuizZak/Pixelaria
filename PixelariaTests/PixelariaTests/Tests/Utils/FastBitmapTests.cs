@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
-using PixelariaTests.PixelariaTests.Generators;
 
 namespace PixelariaTests.PixelariaTests.Tests.Utils
 {
@@ -91,7 +90,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         [TestMethod]
         public void TestClearBitmap()
         {
-            Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(63, 63); // Non-dibisible by 8 bitmap, used to test loop unrolling
+            Bitmap bitmap = GenerateRandomBitmap(63, 63); // Non-dibisible by 8 bitmap, used to test loop unrolling
             FastBitmap.ClearBitmap(bitmap, Color.Red);
 
             // Loop through the image checking the pixels now
@@ -149,7 +148,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         [TestMethod]
         public void TestGetPixel()
         {
-            Bitmap original = FrameGenerator.GenerateRandomBitmap(64, 64);
+            Bitmap original = GenerateRandomBitmap(64, 64);
             Bitmap copy = original.Clone(new Rectangle(0, 0, 64, 64), original.PixelFormat);
 
             FastBitmap fastOriginal = new FastBitmap(original);
@@ -237,7 +236,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         [TestMethod]
         public void TestValidCopyPixels()
         {
-            Bitmap bitmap1 = FrameGenerator.GenerateRandomBitmap(64, 64);
+            Bitmap bitmap1 = GenerateRandomBitmap(64, 64);
             Bitmap bitmap2 = new Bitmap(64, 64);
 
             FastBitmap.CopyPixels(bitmap1, bitmap2);
@@ -278,7 +277,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         public void TestSimpleCopyRegion()
         {
             Bitmap canvasBitmap = new Bitmap(64, 64);
-            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+            Bitmap copyBitmap = GenerateRandomBitmap(32, 32);
 
             Rectangle sourceRectangle = new Rectangle(0, 0, 32, 32);
             Rectangle targetRectangle = new Rectangle(0, 0, 64, 64);
@@ -296,7 +295,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         public void TestComplexCopyRegion()
         {
             Bitmap canvasBitmap = new Bitmap(64, 64);
-            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+            Bitmap copyBitmap = GenerateRandomBitmap(32, 32);
 
             Rectangle sourceRectangle = new Rectangle(5, 5, 32, 32);
             Rectangle targetRectangle = new Rectangle(9, 9, 23, 48);
@@ -314,7 +313,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         public void TestClippingCopyRegion()
         {
             Bitmap canvasBitmap = new Bitmap(64, 64);
-            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+            Bitmap copyBitmap = GenerateRandomBitmap(32, 32);
 
             Rectangle sourceRectangle = new Rectangle(-5, 5, 32, 32);
             Rectangle targetRectangle = new Rectangle(40, 9, 23, 48);
@@ -332,7 +331,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         public void TestOutOfBoundsCopyRegion()
         {
             Bitmap canvasBitmap = new Bitmap(64, 64);
-            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+            Bitmap copyBitmap = GenerateRandomBitmap(32, 32);
 
             Rectangle sourceRectangle = new Rectangle(32, 0, 32, 32);
             Rectangle targetRectangle = new Rectangle(0, 0, 23, 48);
@@ -350,7 +349,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         public void TestInvalidCopyRegion()
         {
             Bitmap canvasBitmap = new Bitmap(64, 64);
-            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 32);
+            Bitmap copyBitmap = GenerateRandomBitmap(32, 32);
 
             Rectangle sourceRectangle = new Rectangle(0, 0, -1, 32);
             Rectangle targetRectangle = new Rectangle(0, 0, 23, 48);
@@ -396,7 +395,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             // 
 
             Bitmap canvasBitmap = new Bitmap(128, 32);
-            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 64);
+            Bitmap copyBitmap = GenerateRandomBitmap(32, 64);
 
             Rectangle sourceRectangle = new Rectangle(0, 0, 32, 64);
             Rectangle targetRectangle = new Rectangle(32, -16, 32, 64);
@@ -454,7 +453,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         public void TestDataArray()
         {
             // TODO: Devise a way to test the returned array in a more consistent way, because currently this test only deals with ARGB pixel values because Bitmap.GetPixel().ToArgb() only returns 0xAARRGGBB format values
-            Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(64, 64);
+            Bitmap bitmap = GenerateRandomBitmap(64, 64);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
 
             Assert.IsFalse(fastBitmap.Locked, "After accessing the .Data property on a fast bitmap previously unlocked, the .Locked property must be false");
@@ -597,6 +596,37 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         #endregion
 
         /// <summary>
+        /// Generates a frame image with a given set of parameters.
+        /// The seed is used to randomize the frame, and any call with the same width, height and seed will generate the same image
+        /// </summary>
+        /// <param name="width">The width of the image to generate</param>
+        /// <param name="height">The height of the image to generate</param>
+        /// <param name="seed">The seed for the image, used to seed the random number generator that will generate the image contents</param>
+        /// <returns>An image with the passed parameters</returns>
+        public static Bitmap GenerateRandomBitmap(int width, int height, int seed = -1)
+        {
+            if (seed == -1)
+            {
+                seed = _seedRandom.Next();
+            }
+            Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            FastBitmap fastBitmap = new FastBitmap(bitmap);
+            fastBitmap.Lock();
+            // Plot the image with random pixels now
+            Random r = new Random(seed);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    uint pixelColor = (uint)(r.NextDouble() * 0xFFFFFFFF);
+                    fastBitmap.SetPixel(x, y, pixelColor);
+                }
+            }
+            fastBitmap.Unlock();
+            return bitmap;
+        }
+
+        /// <summary>
         /// Helper method that tests the equality of two bitmaps and fails with a provided assert message when they are not pixel-by-pixel equal
         /// </summary>
         /// <param name="bitmap1">The first bitmap object to compare</param>
@@ -675,5 +705,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
                 }
             }
         }
+
+        /// <summary>
+        /// Random number generator used to randomize seeds for image generation when none are provided
+        /// </summary>
+        private static readonly Random _seedRandom = new Random();
     }
 }

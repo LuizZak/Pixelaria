@@ -117,461 +117,229 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="&gt;&gt;cmb_createNewAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;mm_menu.Name" xml:space="preserve">
-    <value>mm_menu</value>
-  </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="duplicateAnimationToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>183, 22</value>
-  </data>
-  <data name="&gt;&gt;mi_about.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;mi_addAnimation.Name" xml:space="preserve">
-    <value>mi_addAnimation</value>
-  </data>
-  <data name="&gt;&gt;cms_bundleNodeRightClick.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tv_bundleAnimations.Size" type="System.Drawing.Size, System.Drawing">
-    <value>275, 692</value>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="tv_bundleAnimations.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="createNewBundleSheetToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>235, 22</value>
-  </data>
-  <data name="tsb_importAnimation.Text" xml:space="preserve">
-    <value>Import Animation...</value>
-  </data>
-  <data name="&gt;&gt;tsb_open.Name" xml:space="preserve">
-    <value>tsb_open</value>
-  </data>
-  <data name="mi_addAnimation.Text" xml:space="preserve">
-    <value>Create &amp;Animation</value>
-  </data>
-  <data name="ts_mainStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1125, 25</value>
-  </data>
-  <data name="&gt;&gt;toolStripSeparator2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripSeparator, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="mi_quit.Shortcut" type="System.Windows.Forms.Shortcut, System.Windows.Forms">
-    <value>CtrlQ</value>
-  </data>
-  <data name="&gt;&gt;mi_save.Name" xml:space="preserve">
-    <value>mi_save</value>
-  </data>
-  <data name="tv_bundleAnimations.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Left</value>
-  </data>
-  <data name="&gt;&gt;tv_bundleAnimations.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;tsb_exportButton.Name" xml:space="preserve">
-    <value>tsb_exportButton</value>
-  </data>
-  <data name="&gt;&gt;tsm_sheetImportAnimation.Name" xml:space="preserve">
-    <value>tsm_sheetImportAnimation</value>
-  </data>
-  <data name="tsb_open.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="&gt;&gt;menuItem7.Name" xml:space="preserve">
-    <value>menuItem7</value>
-  </data>
-  <data name="&gt;&gt;mi_cascade.Name" xml:space="preserve">
-    <value>mi_cascade</value>
-  </data>
-  <data name="cmb_bundleSettings.Text" xml:space="preserve">
-    <value>Bundle Settings</value>
-  </data>
-  <data name="cmb_editAnimProperties.Size" type="System.Drawing.Size, System.Drawing">
-    <value>183, 22</value>
-  </data>
-  <data name="mi_arrangeIcons.Text" xml:space="preserve">
-    <value>Arrange Icons</value>
-  </data>
-  <data name="&gt;&gt;toolStripMenuItem1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripSeparator, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_save.Text" xml:space="preserve">
-    <value>Save...</value>
-  </data>
-  <data name="tsb_new.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="&gt;&gt;menuItem6.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="exportSheetImageToolStripMenuItem.Text" xml:space="preserve">
-    <value>Export Sheet Image...</value>
-  </data>
-  <data name="tsb_exportButton.Text" xml:space="preserve">
-    <value>Export Bundle</value>
-  </data>
-  <data name="&gt;&gt;mi_recentFiles.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;cms_sheetNodeRightClick.Name" xml:space="preserve">
-    <value>cms_sheetNodeRightClick</value>
-  </data>
-  <data name="&gt;&gt;splitter1.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;cmb_deleteSheet.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_deleteAnim.Size" type="System.Drawing.Size, System.Drawing">
-    <value>183, 22</value>
-  </data>
-  <data name="menuItem6.Text" xml:space="preserve">
-    <value>-</value>
-  </data>
-  <data name="&gt;&gt;menuItem6.Name" xml:space="preserve">
-    <value>menuItem6</value>
-  </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>Pixelaria</value>
-  </data>
-  <data name="&gt;&gt;createNewBundleSheetToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_importAnimation.Size" type="System.Drawing.Size, System.Drawing">
-    <value>235, 22</value>
-  </data>
-  <data name="&gt;&gt;cmb_importAnimation.Name" xml:space="preserve">
-    <value>cmb_importAnimation</value>
-  </data>
-  <data name="&gt;&gt;tsb_new.Name" xml:space="preserve">
-    <value>tsb_new</value>
-  </data>
-  <data name="&gt;&gt;cms_animationNodeRightClick.Name" xml:space="preserve">
-    <value>cms_animationNodeRightClick</value>
-  </data>
-  <data name="&gt;&gt;mi_open.Name" xml:space="preserve">
-    <value>mi_open</value>
-  </data>
-  <data name="tsm_editSheetProperties.Text" xml:space="preserve">
-    <value>Edit Properties</value>
-  </data>
-  <data name="mi_cascade.Text" xml:space="preserve">
-    <value>Cascade</value>
-  </data>
-  <data name="&gt;&gt;mi_quit.Name" xml:space="preserve">
-    <value>mi_quit</value>
-  </data>
-  <data name="toolStripSeparator2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>6, 25</value>
-  </data>
-  <data name="&gt;&gt;mi_recentFiles.Name" xml:space="preserve">
-    <value>mi_recentFiles</value>
-  </data>
-  <data name="mi_new.Text" xml:space="preserve">
-    <value>&amp;New</value>
-  </data>
-  <data name="mi_open.Shortcut" type="System.Windows.Forms.Shortcut, System.Windows.Forms">
-    <value>CtrlO</value>
-  </data>
-  <data name="&gt;&gt;cms_sheetNodeRightClick.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="menuItem8.Text" xml:space="preserve">
-    <value>File 0</value>
-  </data>
-  <data name="tsb_createAnimationSheet.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="cms_animationNodeRightClick.Size" type="System.Drawing.Size, System.Drawing">
-    <value>184, 76</value>
-  </data>
-  <data name="&gt;&gt;mi_fileBug.Name" xml:space="preserve">
-    <value>mi_fileBug</value>
-  </data>
-  <data name="toolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>232, 6</value>
-  </data>
-  <data name="cms_bundleNodeRightClick.Size" type="System.Drawing.Size, System.Drawing">
-    <value>236, 98</value>
-  </data>
-  <data name="menuItem7.Text" xml:space="preserve">
-    <value>Bundle</value>
-  </data>
-  <data name="&gt;&gt;cmb_createNewAnimation.Name" xml:space="preserve">
-    <value>cmb_createNewAnimation</value>
-  </data>
-  <data name="&gt;&gt;menuItem8.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_bundleSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="&gt;&gt;tsb_createAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_createAnimation.Text" xml:space="preserve">
-    <value>Create New Animation...</value>
-  </data>
-  <data name="&gt;&gt;mi_arrangeIcons.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_save.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="&gt;&gt;menuItem5.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;ts_mainStrip.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_bundleSettings.Text" xml:space="preserve">
-    <value>Bundle Settings</value>
-  </data>
-  <data name="&gt;&gt;menuItem2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="splitter1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>275, 25</value>
-  </data>
-  <data name="&gt;&gt;toolStripMenuItem2.Name" xml:space="preserve">
-    <value>toolStripMenuItem2</value>
-  </data>
-  <data name="&gt;&gt;mi_quit.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;ts_mainStrip.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="tsb_bundleSettings.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="&gt;&gt;mi_about.Name" xml:space="preserve">
-    <value>mi_about</value>
-  </data>
-  <data name="&gt;&gt;tsb_importAnimation.Name" xml:space="preserve">
-    <value>tsb_importAnimation</value>
-  </data>
-  <data name="tsb_importAnimation.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="&gt;&gt;menuItem9.Name" xml:space="preserve">
-    <value>menuItem9</value>
-  </data>
-  <data name="&gt;&gt;tv_bundleAnimations.Type" xml:space="preserve">
-    <value>Pixelaria.Views.Controls.ProjectTreeView, Pixelaria, Version=1.9.5.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;cmb_deleteAnim.Name" xml:space="preserve">
-    <value>cmb_deleteAnim</value>
-  </data>
-  <data name="&gt;&gt;toolStripMenuItem2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripSeparator, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_createAnimationSheet.Text" xml:space="preserve">
-    <value>Create New Animation Sheet...</value>
-  </data>
-  <data name="&gt;&gt;mi_open.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="toolStripMenuItem3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 6</value>
-  </data>
-  <data name="&gt;&gt;tsm_duplicateSheet.Name" xml:space="preserve">
-    <value>tsm_duplicateSheet</value>
-  </data>
-  <data name="mi_save.Shortcut" type="System.Windows.Forms.Shortcut, System.Windows.Forms">
-    <value>CtrlS</value>
-  </data>
-  <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>MainForm</value>
-  </data>
-  <data name="&gt;&gt;mi_addAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;toolStripSeparator2.Name" xml:space="preserve">
-    <value>toolStripSeparator2</value>
-  </data>
-  <data name="tsm_editSheetProperties.Size" type="System.Drawing.Size, System.Drawing">
-    <value>203, 22</value>
-  </data>
-  <data name="tsb_new.Text" xml:space="preserve">
-    <value>New</value>
-  </data>
-  <data name="tsb_importAnimation.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
   <data name="il_treeView.ImageStream" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAACI
-        CQAAAk1TRnQBSQFMAgEBAwEAAWgBAAGgAQABEAEAARABAAT/ASEBEAj/AUIBTQE2BwABNgMAASgDAAFA
+        CQAAAk1TRnQBSQFMAgEBAwEAAZQBAAGUAQABEAEAARABAAT/ASEBAAj/AUIBTQE2BwABNgMAASgDAAFA
         AwABEAMAAQEBAAEgBgABEFIAgP9EAAO1Af8CAAGPAf8CAAGPAf8CAAGPAf8CAAGPAf8CAAGPAf8CAAGP
         Af8CAAGPAf8CAAGPAf8CAAGPAf8CAAGPAf8CAAGPAf8CAAGPAf8BrwKwAf8EAAj/A8MB/wPDAf8DwwH/
         A8MB/wPDAf8DwwH/A8MB/wPDAf8DwwH/A8MB/wPDTf9GAAGPAf8BrAHVAe4B/wGeAc0B7AH/AZ4BzQHs
         Af8BngHNAewB/wGeAc0B7AH/AZ4BzQHsAf8BngHNAewB/wGeAc0B7AH/AZ4BzQHsAf8BnQHNAewB/wGe
         Ac0B7AH/AZ8BywHlAf8CAAGPAf8EAAj/A8Ml/wPDTf9GAAGPAf8BkgHHAegB/wEAAbYB5wH/AQABtgHn
         Af8BAAG2AecB/wEAAbYB5wH/AQABtgHnAf8BAAG2AecB/wEAAbYB5wH/AQABtgHnAf8BAAG2AecB/wEA
-        AbYB5wH/AYoBwAHjAf8CAAGPAf8EAAj/A8MF/wHuAaoBCAH/Ae4BqgEIAf8B7gGqAQgB/wHuAaoBCAH/
-        Ae4BqgEIAf8B7gGqAQgB/wHuAaoBCAX/A8NN/0YAAY8B/wGHAb4B4wH/AQABqAHdAf8BAAGoAd0B/wEA
+        AbYB5wH/AYoBwAHjAf8CAAGPAf8EAAj/A8MF/wHuAaoBAwH/Ae4BqgEDAf8B7gGqAQMB/wHuAaoBAwH/
+        Ae4BqgEDAf8B7gGqAQMB/wHuAaoBAwX/A8NN/0YAAY8B/wGHAb4B4wH/AQABqAHdAf8BAAGoAd0B/wEA
         AagB3QH/AQABqAHdAf8BAAGoAd0B/wEAAagB3QH/AQABqAHdAf8BAAGoAd0B/wEAAagB3QH/AQABqAHd
-        Af8BgwG7Ad8B/wIAAY8B/wQACP8DwwX/Ae4BqgEIAf8BtQHnAe4B/wG1AecB7gH/Ae4BqgEIAf8BygH0
-        AeIB/wHKAfQB4gH/Ae4BqgEIBf8Dw03/RgABjwH/AQABtwHdAf8BAAGaAdIB/wEAAZoB0gH/AQABmgHS
+        Af8BgwG7Ad8B/wIAAY8B/wQACP8DwwX/Ae4BqgEDAf8BtQHnAe4B/wG1AecB7gH/Ae4BqgEDAf8BygH0
+        AeIB/wHKAfQB4gH/Ae4BqgEDBf8Dw03/RgABjwH/AQABtwHdAf8BAAGaAdIB/wEAAZoB0gH/AQABmgHS
         Af8BAAGaAdIB/wEAAZoB0gH/AQABmgHSAf8BAAGaAdIB/wEAAZoB0gH/AQABmgHSAf8BAAGaAdIB/wEA
-        AbQB2gH/AgABjwH/BAAI/wPDBf8B7gGqAQgB/wG1AecB7gH/AbUB5wHuAf8B7gGqAQgB/wHKAfQB4gH/
-        AcoB9AHiAf8B7gGqAQgF/wPDTf9GAAGPAf8BAAGwAdcB/wEAAYwBxwH/AQABjAHHAf8BAAGMAccB/wEA
+        AbQB2gH/AgABjwH/BAAI/wPDBf8B7gGqAQMB/wG1AecB7gH/AbUB5wHuAf8B7gGqAQMB/wHKAfQB4gH/
+        AcoB9AHiAf8B7gGqAQMF/wPDTf9GAAGPAf8BAAGwAdcB/wEAAYwBxwH/AQABjAHHAf8BAAGMAccB/wEA
         AYwBxwH/AQABjAHHAf8BAAGMAccB/wEAAYwBxwH/AQABjAHHAf8BAAGMAccB/wEAAYwBxwH/AQABrgHV
-        Af8CAAGPAf8EAAj/A8MF/wHuAaoBCAH/Ae4BqgEIAf8B7gGqAQgB/wHuAaoBCAH/Ae4BqgEIAf8B7gGq
-        AQgB/wHuAaoBCAX/A8NN/0AAA8YB/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIA
-        AY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wPGCf8DwwX/Ae4BqgEI
-        Af8BzgH1AckB/wHOAfUByQH/Ae4BqgEIAf8BygH0AeIB/wG1AecB7gH/Ae4BqgEIBf8Dw03/QAACNQGR
-        Af8BZQKBAf8BrwHXAfAB/wGvAdcB8AH/Aa8B1wHwAf8BrwHXAfAB/wGvAdcB8AH/Aa4B1wHwAf8BrgHX
-        AfAB/wGuAdcB7wH/Aa4B1wHvAf8BrgHXAe8B/wGuAdYB7wH/Aa4B1gHvAf8BAAG1AdgB/wEAAU4BgQn/
-        A8MF/wHuAaoBCAH/Ac4B9QHJAf8BzgH1AckB/wHuAaoBCAH/AcoB9AHiAf8BtQHnAe4B/wHuAaoBCAX/
-        A8NN/0AAAUwBTQFoAf8BAAGFAa0B/wGtAdUB8AH/AaIB0QHwAf8BmQHOAfAB/wGXAc0B8AH/AZQBzAHv
+        Af8CAAGPAf8EAAj/A8MF/wHuAaoBAwH/Ae4BqgEDAf8B7gGqAQMB/wHuAaoBAwH/Ae4BqgEDAf8B7gGq
+        AQMB/wHuAaoBAwX/A8NN/0AAA8YB/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIA
+        AY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wPGCf8DwwX/Ae4BqgED
+        Af8BzgH1AckB/wHOAfUByQH/Ae4BqgEDAf8BygH0AeIB/wG1AecB7gH/Ae4BqgEDBf8Dw03/QAACMAGR
+        Af8BYAKBAf8BrwHXAfAB/wGvAdcB8AH/Aa8B1wHwAf8BrwHXAfAB/wGvAdcB8AH/Aa4B1wHwAf8BrgHX
+        AfAB/wGuAdcB7wH/Aa4B1wHvAf8BrgHXAe8B/wGuAdYB7wH/Aa4B1gHvAf8BAAG1AdgB/wEAAUkBgQn/
+        A8MF/wHuAaoBAwH/Ac4B9QHJAf8BzgH1AckB/wHuAaoBAwH/AcoB9AHiAf8BtQHnAe4B/wHuAaoBAwX/
+        A8NN/0AAAUcBSAFjAf8BAAGFAa0B/wGtAdUB8AH/AaIB0QHwAf8BmQHOAfAB/wGXAc0B8AH/AZQBzAHv
         Af8BkAHKAe8B/wGOAckB7gH/AYoBxwHuAf8BhwHFAe0B/wGHAcUB7QH/AYUBxAHtAf8BqAHTAe4B/wEA
-        AYQBrAH/AUwBXAFoCf8DwwX/Ae4BqgEIAf8B7gGqAQgB/wHuAaoBCAH/Ae4BqgEIAf8B7gGqAQgB/wHu
-        AaoBCAH/Ae4BqgEIBf8Dw03/QAACXAFlAf8DgQH/AQABpgHEAf8BqwHVAfAB/wGoAdQB8AH/AagB1AHw
+        AYQBrAH/AUcBVwFjCf8DwwX/Ae4BqgEDAf8B7gGqAQMB/wHuAaoBAwH/Ae4BqgEDAf8B7gGqAQMB/wHu
+        AaoBAwH/Ae4BqgEDBf8Dw03/QAACVwFgAf8DgQH/AQABpgHEAf8BqwHVAfAB/wGoAdQB8AH/AagB1AHw
         Af8BqAHUAfAB/wGoAdQB8AH/AagB1AHwAf8BqAHTAe8B/wGnAdMB7wH/AaEB0QHvAf8BqwHVAe8B/wEA
-        AaUBxAH/AQABqwHJAf8BXAFkAWUJ/wPDBf8B7gGqAQgB/wHKAfQB4gH/AcoB9AHiAf8B7gGqAQgB/wG9
-        AfEBsQH/AcoB9AHiAf8B7gGqAQgF/wPDTf9AAAFrAnAB/wOBAf8BwwHdAe0B/wIAAZUB/wIAAZUB/wIA
+        AaUBxAH/AQABqwHJAf8BVwFfAWAJ/wPDBf8B7gGqAQMB/wHKAfQB4gH/AcoB9AHiAf8B7gGqAQMB/wG9
+        AfEBsQH/AcoB9AHiAf8B7gGqAQMF/wPDTf9AAAFmAmsB/wOBAf8BwwHdAe0B/wIAAZUB/wIAAZUB/wIA
         AZUB/wIAAZsB/wIAAZsB/wIAAagB/wIAAagB/wIAAagB/wEAAaIBwgH/AdAB5wHzAf8BAAGuAcsB/wEA
-        AaMBxAH/AVwBZAFlCf8DwwX/Ae4BqgEIAf8BygH0AeIB/wHKAfQB4gH/Ae4BqgEIAf8BvQHxAbEB/wHK
-        AfQB4gH/Ae4BqgEIBf8Dw03/QAABmAKaAf8DIQH/A4EB/wEAAVMBgQH/AgABmQH/AgABmQH/AgABlAH/
+        AaMBxAH/AVcBXwFgCf8DwwX/Ae4BqgEDAf8BygH0AeIB/wHKAfQB4gH/Ae4BqgEDAf8BvQHxAbEB/wHK
+        AfQB4gH/Ae4BqgEDBf8Dw03/QAABmAKaAf8DHAH/A4EB/wEAAU4BgQH/AgABmQH/AgABmQH/AgABlAH/
         AgABmgH/AgABmwH/AgABoAH/AgABogH/AgABqAH/AeoB8wH5Af8BAAGuAc0B/wEAAZIBtwH/AZgCmgn/
-        A8MF/wHuAaoBCAH/Ae4BqgEIAf8B7gGqAQgB/wHuAaoBCAH/Ae4BqgEIAf8B7gGqAQgB/wHuAaoBCAX/
+        A8MF/wHuAaoBAwH/Ae4BqgEDAf8B7gGqAQMB/wHuAaoBAwH/Ae4BqgEDAf8B7gGqAQMB/wHuAaoBAwX/
         A8NN/0AAAZgCmgH/AgABjwH/A4EB/wOqAf8BsgHQAeMB/wGxAdAB4wH/AbEB0AHjAf8BsgHSAeUB/wGy
-        AdIB5QH/AbIB0wHnAf8BmQHFAeAB/wMhAf8BqAKqAf8BAAGYAboB/wIAAY8B/wPGCf8DwyX/A8NN/0QA
+        AdIB5QH/AbIB0wHnAf8BmQHFAeAB/wMcAf8BqAKqAf8BAAGYAboB/wIAAY8B/wPGCf8DwyX/A8NN/0QA
         A/AB/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIAAY8B/wIA
         AY8B/wIAAY8B/wIAAY8B/wPwAf8EAAj/A8MB/wPDAf8DwwH/A8MB/wPDAf8DwwH/A8MB/wPDAf8DwwH/
         A8MB/wPDTf+AAID/QAABQgFNAT4HAAE+AwABKAMAAUADAAEQAwABAQEAAQEFAAGAFwAD/wEAAv8GAAGA
-        AQEGAAGAAQEGAAGAAQEGAAGAAQEGAAGAAQEGAAGAAQE+AAGAAQEGAAL/HAAL
+        AQEGAAGAAQEGAAGAAQEGAAGAAQEGAAGAAQEGAAGAAQE+AAGAAQEGAAL/BgAL
 </value>
   </data>
-  <data name="&gt;&gt;exportSheetImageToolStripMenuItem.Name" xml:space="preserve">
-    <value>exportSheetImageToolStripMenuItem</value>
+  <data name="tsb_new.Text" xml:space="preserve">
+    <value>Novo</value>
+  </data>
+  <data name="tsb_open.Text" xml:space="preserve">
+    <value>Abrir...</value>
+  </data>
+  <data name="tsb_save.Text" xml:space="preserve">
+    <value>Salvar...</value>
+  </data>
+  <data name="tsb_createAnimation.Text" xml:space="preserve">
+    <value>Criar Nova Animação...</value>
+  </data>
+  <data name="tsb_createAnimation.ToolTipText" xml:space="preserve">
+    <value>Criar Nova Animação...</value>
+  </data>
+  <data name="tsb_importAnimation.Text" xml:space="preserve">
+    <value>Importar Animação...</value>
+  </data>
+  <data name="tsb_createAnimationSheet.Text" xml:space="preserve">
+    <value>Criar nova Folha de Animação...</value>
+  </data>
+  <data name="tsb_exportButton.Text" xml:space="preserve">
+    <value>Exportar Pacote</value>
+  </data>
+  <data name="tsb_bundleSettings.Text" xml:space="preserve">
+    <value>Configurações do Pacote</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="cms_bundleNodeRightClick.Size" type="System.Drawing.Size, System.Drawing">
+    <value>245, 98</value>
+  </data>
+  <data name="cmb_createNewAnimation.Size" type="System.Drawing.Size, System.Drawing">
+    <value>244, 22</value>
+  </data>
+  <data name="cmb_createNewAnimation.Text" xml:space="preserve">
+    <value>Criar Nova Animação...</value>
+  </data>
+  <data name="cmb_importAnimation.Size" type="System.Drawing.Size, System.Drawing">
+    <value>244, 22</value>
+  </data>
+  <data name="cmb_importAnimation.Text" xml:space="preserve">
+    <value>Importar Animação...</value>
+  </data>
+  <data name="createNewBundleSheetToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>244, 22</value>
   </data>
   <data name="createNewBundleSheetToolStripMenuItem.Text" xml:space="preserve">
-    <value>Create New Animation Sheet...</value>
+    <value>Criar Nova Folha de Animação...</value>
   </data>
-  <data name="&gt;&gt;cmb_deleteSheet.Name" xml:space="preserve">
-    <value>cmb_deleteSheet</value>
+  <data name="toolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>241, 6</value>
   </data>
-  <data name="duplicateAnimationToolStripMenuItem.Text" xml:space="preserve">
-    <value>Duplicate Animation</value>
+  <data name="cmb_bundleSettings.Size" type="System.Drawing.Size, System.Drawing">
+    <value>244, 22</value>
   </data>
-  <data name="&gt;&gt;il_treeView.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ImageList, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsb_importAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
-    <value>CenterScreen</value>
-  </data>
-  <data name="tv_bundleAnimations.SelectedImageIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;mi_save.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="mi_tileHorizontally.Text" xml:space="preserve">
-    <value>Tile Horizontally</value>
-  </data>
-  <data name="&gt;&gt;ts_mainStrip.Name" xml:space="preserve">
-    <value>ts_mainStrip</value>
-  </data>
-  <data name="&gt;&gt;cmb_editAnimProperties.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;toolStripSeparator1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripSeparator, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsm_sheetCreateAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="cmb_bundleSettings.Text" xml:space="preserve">
+    <value>Configurações do Pacote...</value>
   </data>
   <data name="menuItem1.Text" xml:space="preserve">
-    <value>File</value>
+    <value>Arquivo</value>
   </data>
-  <data name="splitter1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>3, 692</value>
+  <data name="mi_new.Text" xml:space="preserve">
+    <value>&amp;Novo</value>
   </data>
-  <data name="mi_about.Text" xml:space="preserve">
-    <value>About</value>
+  <data name="mi_open.Text" xml:space="preserve">
+    <value>Abrir</value>
   </data>
-  <data name="&gt;&gt;tsb_createAnimationSheet.Name" xml:space="preserve">
-    <value>tsb_createAnimationSheet</value>
-  </data>
-  <data name="&gt;&gt;mi_fileBug.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="mi_fileBug.Text" xml:space="preserve">
-    <value>File a Bug...</value>
-  </data>
-  <data name="cms_sheetNodeRightClick.Size" type="System.Drawing.Size, System.Drawing">
-    <value>204, 142</value>
-  </data>
-  <data name="&gt;&gt;toolStripMenuItem3.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripSeparator, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;il_treeView.Name" xml:space="preserve">
-    <value>il_treeView</value>
-  </data>
-  <data name="&gt;&gt;mi_new.Name" xml:space="preserve">
-    <value>mi_new</value>
-  </data>
-  <data name="&gt;&gt;mi_arrangeIcons.Name" xml:space="preserve">
-    <value>mi_arrangeIcons</value>
+  <data name="mi_recentFiles.Text" xml:space="preserve">
+    <value>Arquivos Recentes</value>
   </data>
   <data name="mi_save.Text" xml:space="preserve">
-    <value>&amp;Save</value>
-  </data>
-  <data name="tsb_exportButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="cmb_editAnimProperties.Text" xml:space="preserve">
-    <value>Edit Properties</value>
-  </data>
-  <data name="&gt;&gt;menuItem5.Name" xml:space="preserve">
-    <value>menuItem5</value>
-  </data>
-  <data name="tsb_createAnimationSheet.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="&gt;&gt;mi_cascade.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsm_sheetCreateAnimation.Name" xml:space="preserve">
-    <value>tsm_sheetCreateAnimation</value>
+    <value>&amp;Salvar</value>
   </data>
   <data name="mi_saveAs.Text" xml:space="preserve">
-    <value>Save As</value>
+    <value>Salvar Como...</value>
   </data>
-  <data name="&gt;&gt;mi_tileHorizontally.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="mi_quit.Text" xml:space="preserve">
+    <value>Sair</value>
   </data>
-  <data name="&gt;&gt;tsm_editSheetProperties.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="menuItem7.Text" xml:space="preserve">
+    <value>Pacote</value>
   </data>
-  <data name="ts_mainStrip.Text" xml:space="preserve">
-    <value>toolStrip1</value>
+  <data name="mi_addAnimation.Text" xml:space="preserve">
+    <value>Crair &amp;Animação</value>
   </data>
-  <data name="tsb_createAnimation.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
+  <data name="menuItem9.Text" xml:space="preserve">
+    <value>Janelas</value>
   </data>
-  <data name="&gt;&gt;tv_bundleAnimations.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="mi_cascade.Text" xml:space="preserve">
+    <value>Cascata</value>
   </data>
-  <data name="ts_mainStrip.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
+  <data name="mi_tileHorizontally.Text" xml:space="preserve">
+    <value>Organizar Horizontal</value>
+  </data>
+  <data name="mi_arrangeIcons.Text" xml:space="preserve">
+    <value>Organizar Ícones</value>
+  </data>
+  <data name="menuItem2.Text" xml:space="preserve">
+    <value>Ajuda</value>
+  </data>
+  <data name="mi_fileBug.Text" xml:space="preserve">
+    <value>Reportar um Bug...</value>
+  </data>
+  <data name="mi_about.Text" xml:space="preserve">
+    <value>Sobre</value>
+  </data>
+  <data name="cms_sheetNodeRightClick.Size" type="System.Drawing.Size, System.Drawing">
+    <value>222, 142</value>
+  </data>
+  <data name="cmb_deleteSheet.Size" type="System.Drawing.Size, System.Drawing">
+    <value>221, 22</value>
+  </data>
+  <data name="cmb_deleteSheet.Text" xml:space="preserve">
+    <value>Excluir Folha</value>
+  </data>
+  <data name="tsm_sheetCreateAnimation.Size" type="System.Drawing.Size, System.Drawing">
+    <value>221, 22</value>
+  </data>
+  <data name="tsm_sheetCreateAnimation.Text" xml:space="preserve">
+    <value>Criar Nova Animação...</value>
+  </data>
+  <data name="tsm_sheetImportAnimation.Size" type="System.Drawing.Size, System.Drawing">
+    <value>221, 22</value>
+  </data>
+  <data name="tsm_sheetImportAnimation.Text" xml:space="preserve">
+    <value>Importar Animação...</value>
+  </data>
+  <data name="tsm_duplicateSheet.Size" type="System.Drawing.Size, System.Drawing">
+    <value>221, 22</value>
+  </data>
+  <data name="tsm_duplicateSheet.Text" xml:space="preserve">
+    <value>Duplicar Folha</value>
+  </data>
+  <data name="exportSheetImageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>221, 22</value>
+  </data>
+  <data name="exportSheetImageToolStripMenuItem.Text" xml:space="preserve">
+    <value>Exportar Imagem da Folha...</value>
   </data>
   <data name="toolStripMenuItem2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>200, 6</value>
+    <value>218, 6</value>
+  </data>
+  <data name="tsm_editSheetProperties.Size" type="System.Drawing.Size, System.Drawing">
+    <value>221, 22</value>
+  </data>
+  <data name="tsm_editSheetProperties.Text" xml:space="preserve">
+    <value>Editar Propriedades</value>
+  </data>
+  <data name="cms_animationNodeRightClick.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 76</value>
+  </data>
+  <data name="cmb_deleteAnim.Size" type="System.Drawing.Size, System.Drawing">
+    <value>176, 22</value>
+  </data>
+  <data name="cmb_deleteAnim.Text" xml:space="preserve">
+    <value>Excluir Animação</value>
+  </data>
+  <data name="duplicateAnimationToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>176, 22</value>
+  </data>
+  <data name="duplicateAnimationToolStripMenuItem.Text" xml:space="preserve">
+    <value>Duplicar Animação</value>
+  </data>
+  <data name="toolStripMenuItem3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>173, 6</value>
+  </data>
+  <data name="cmb_editAnimProperties.Size" type="System.Drawing.Size, System.Drawing">
+    <value>176, 22</value>
+  </data>
+  <data name="cmb_editAnimProperties.Text" xml:space="preserve">
+    <value>Editar Propriedades</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="splitter1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="tv_bundleAnimations.Nodes" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
@@ -582,102 +350,6 @@
         aWxkQ291bnQBAQEAAAEAAQABCAgIAgAAAAYDAAAABkJ1bmRsZQYEAAAAAAYFAAAABU5vZGUwAP////8J
         BAAAAP////8JBAAAAAAAAAAL
 </value>
-  </data>
-  <data name="tsb_createAnimation.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="&gt;&gt;tsb_save.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tsb_save.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="&gt;&gt;duplicateAnimationToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;cms_bundleNodeRightClick.Name" xml:space="preserve">
-    <value>cms_bundleNodeRightClick</value>
-  </data>
-  <data name="tsb_open.Text" xml:space="preserve">
-    <value>Open...</value>
-  </data>
-  <data name="&gt;&gt;tsm_sheetImportAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_deleteAnim.Text" xml:space="preserve">
-    <value>Delete Animation</value>
-  </data>
-  <data name="mi_new.Shortcut" type="System.Windows.Forms.Shortcut, System.Windows.Forms">
-    <value>CtrlN</value>
-  </data>
-  <data name="cmb_bundleSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>235, 22</value>
-  </data>
-  <data name="tv_bundleAnimations.ImageIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="cmb_deleteSheet.Size" type="System.Drawing.Size, System.Drawing">
-    <value>203, 22</value>
-  </data>
-  <data name="&gt;&gt;cmb_bundleSettings.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;toolStripMenuItem3.Name" xml:space="preserve">
-    <value>toolStripMenuItem3</value>
-  </data>
-  <data name="toolStripSeparator1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>6, 25</value>
-  </data>
-  <data name="&gt;&gt;menuItem3.Name" xml:space="preserve">
-    <value>menuItem3</value>
-  </data>
-  <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_importAnimation.Text" xml:space="preserve">
-    <value>Import Animation...</value>
-  </data>
-  <data name="&gt;&gt;mi_saveAs.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsb_save.Name" xml:space="preserve">
-    <value>tsb_save</value>
-  </data>
-  <data name="&gt;&gt;tsb_new.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_createNewAnimation.Text" xml:space="preserve">
-    <value>Create New Animation...</value>
-  </data>
-  <data name="tsm_sheetCreateAnimation.Text" xml:space="preserve">
-    <value>Create New Animation...</value>
-  </data>
-  <data name="exportSheetImageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>203, 22</value>
-  </data>
-  <data name="mi_recentFiles.Text" xml:space="preserve">
-    <value>Recent Files</value>
-  </data>
-  <data name="tv_bundleAnimations.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 25</value>
-  </data>
-  <data name="mi_saveAs.Shortcut" type="System.Windows.Forms.Shortcut, System.Windows.Forms">
-    <value>CtrlShiftS</value>
-  </data>
-  <data name="&gt;&gt;toolStripMenuItem1.Name" xml:space="preserve">
-    <value>toolStripMenuItem1</value>
-  </data>
-  <data name="&gt;&gt;cms_animationNodeRightClick.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsb_createAnimation.Name" xml:space="preserve">
-    <value>tsb_createAnimation</value>
-  </data>
-  <data name="&gt;&gt;splitter1.Name" xml:space="preserve">
-    <value>splitter1</value>
-  </data>
-  <data name="tsm_sheetImportAnimation.Size" type="System.Drawing.Size, System.Drawing">
-    <value>203, 22</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -1795,178 +1467,7 @@
         PwAAwD8AAMA/AAD//wAA//8AAA==
 </value>
   </data>
-  <data name="&gt;&gt;cmb_importAnimation.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
-  <data name="&gt;&gt;menuItem2.Name" xml:space="preserve">
-    <value>menuItem2</value>
-  </data>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>6, 13</value>
-  </data>
-  <data name="&gt;&gt;ts_mainStrip.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="mi_quit.Text" xml:space="preserve">
-    <value>&amp;Quit</value>
-  </data>
-  <data name="tsb_open.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="&gt;&gt;exportSheetImageToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsb_createAnimationSheet.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;menuItem7.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="menuItem5.Text" xml:space="preserve">
-    <value>-</value>
-  </data>
-  <data name="&gt;&gt;cmb_deleteAnim.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_deleteSheet.Text" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="tsb_new.Size" type="System.Drawing.Size, System.Drawing">
-    <value>23, 22</value>
-  </data>
-  <data name="splitter1.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;tv_bundleAnimations.Name" xml:space="preserve">
-    <value>tv_bundleAnimations</value>
-  </data>
-  <data name="&gt;&gt;mi_tileHorizontally.Name" xml:space="preserve">
-    <value>mi_tileHorizontally</value>
-  </data>
-  <data name="tsm_duplicateSheet.Text" xml:space="preserve">
-    <value>Duplicate Sheet</value>
-  </data>
-  <data name="&gt;&gt;mm_menu.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MainMenu, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cmb_createNewAnimation.Size" type="System.Drawing.Size, System.Drawing">
-    <value>235, 22</value>
-  </data>
-  <data name="mi_open.Text" xml:space="preserve">
-    <value>&amp;Open...</value>
-  </data>
-  <data name="&gt;&gt;tsb_bundleSettings.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1125, 717</value>
-  </data>
-  <data name="&gt;&gt;menuItem1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;menuItem1.Name" xml:space="preserve">
-    <value>menuItem1</value>
-  </data>
-  <data name="menuItem2.Text" xml:space="preserve">
-    <value>Help</value>
-  </data>
-  <data name="tsm_sheetImportAnimation.Text" xml:space="preserve">
-    <value>Import Animation...</value>
-  </data>
-  <data name="ts_mainStrip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="&gt;&gt;cmb_bundleSettings.Name" xml:space="preserve">
-    <value>cmb_bundleSettings</value>
-  </data>
-  <data name="&gt;&gt;splitter1.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;toolStripSeparator1.Name" xml:space="preserve">
-    <value>toolStripSeparator1</value>
-  </data>
-  <data name="&gt;&gt;mi_new.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;splitter1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Splitter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;createNewBundleSheetToolStripMenuItem.Name" xml:space="preserve">
-    <value>createNewBundleSheetToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;tsm_editSheetProperties.Name" xml:space="preserve">
-    <value>tsm_editSheetProperties</value>
-  </data>
-  <data name="menuItem9.Text" xml:space="preserve">
-    <value>Windows</value>
-  </data>
-  <data name="&gt;&gt;mi_saveAs.Name" xml:space="preserve">
-    <value>mi_saveAs</value>
-  </data>
-  <data name="&gt;&gt;tsb_exportButton.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tsb_bundleSettings.Name" xml:space="preserve">
-    <value>tsb_bundleSettings</value>
-  </data>
-  <data name="tsm_duplicateSheet.Size" type="System.Drawing.Size, System.Drawing">
-    <value>203, 22</value>
-  </data>
-  <data name="tsm_sheetCreateAnimation.Size" type="System.Drawing.Size, System.Drawing">
-    <value>203, 22</value>
-  </data>
-  <data name="&gt;&gt;menuItem8.Name" xml:space="preserve">
-    <value>menuItem8</value>
-  </data>
-  <data name="menuItem3.Text" xml:space="preserve">
-    <value>-</value>
-  </data>
-  <data name="&gt;&gt;menuItem9.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;duplicateAnimationToolStripMenuItem.Name" xml:space="preserve">
-    <value>duplicateAnimationToolStripMenuItem</value>
-  </data>
-  <data name="tsb_exportButton.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="&gt;&gt;tsb_open.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;cmb_editAnimProperties.Name" xml:space="preserve">
-    <value>cmb_editAnimProperties</value>
-  </data>
-  <data name="&gt;&gt;tsm_duplicateSheet.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;menuItem3.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <metadata name="mm_menu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>432, 17</value>
-  </metadata>
-  <metadata name="cms_animationNodeRightClick.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>733, 17</value>
-  </metadata>
-  <metadata name="il_treeView.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>23, 17</value>
-  </metadata>
-  <metadata name="ts_mainStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>133, 17</value>
-  </metadata>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>64</value>
-  </metadata>
-  <metadata name="cms_bundleNodeRightClick.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>238, 17</value>
-  </metadata>
-  <metadata name="$this.Language" type="System.Globalization.CultureInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>en</value>
-  </metadata>
-  <metadata name="cms_sheetNodeRightClick.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>541, 17</value>
-  </metadata>
 </root>

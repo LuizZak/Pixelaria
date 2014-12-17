@@ -117,7 +117,456 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lbl_message.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="lbl_message.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 9</value>
+  </data>
+  <data name="lbl_message.Size" type="System.Drawing.Size, System.Drawing">
+    <value>232, 44</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="lbl_message.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="lbl_message.Text" xml:space="preserve">
+    <value>Some of the frames being pasted don't have a resolution that matchis this animation's. Please select the scaling options for these frames:</value>
+  </data>
+  <data name="&gt;&gt;lbl_message.Name" xml:space="preserve">
+    <value>lbl_message</value>
+  </data>
+  <data name="&gt;&gt;lbl_message.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lbl_message.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lbl_message.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="gb_animationSize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="rb_animSize_useNewSize.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_animSize_useNewSize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 65</value>
+  </data>
+  <data name="rb_animSize_useNewSize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>92, 17</value>
+  </data>
+  <data name="rb_animSize_useNewSize.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="rb_animSize_useNewSize.Text" xml:space="preserve">
+    <value>Use New Size</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useNewSize.Name" xml:space="preserve">
+    <value>rb_animSize_useNewSize</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useNewSize.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useNewSize.Parent" xml:space="preserve">
+    <value>gb_animationSize</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useNewSize.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="rb_animSize_useMaximumSize.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_animSize_useMaximumSize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 42</value>
+  </data>
+  <data name="rb_animSize_useMaximumSize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>114, 17</value>
+  </data>
+  <data name="rb_animSize_useMaximumSize.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="rb_animSize_useMaximumSize.Text" xml:space="preserve">
+    <value>Use Maximum Size</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useMaximumSize.Name" xml:space="preserve">
+    <value>rb_animSize_useMaximumSize</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useMaximumSize.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useMaximumSize.Parent" xml:space="preserve">
+    <value>gb_animationSize</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_useMaximumSize.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="rb_animSize_keepOriginal.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_animSize_keepOriginal.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 19</value>
+  </data>
+  <data name="rb_animSize_keepOriginal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 17</value>
+  </data>
+  <data name="rb_animSize_keepOriginal.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="rb_animSize_keepOriginal.Text" xml:space="preserve">
+    <value>Keep Original</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_keepOriginal.Name" xml:space="preserve">
+    <value>rb_animSize_keepOriginal</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_keepOriginal.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_keepOriginal.Parent" xml:space="preserve">
+    <value>gb_animationSize</value>
+  </data>
+  <data name="&gt;&gt;rb_animSize_keepOriginal.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="gb_animationSize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 3</value>
+  </data>
+  <data name="gb_animationSize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>226, 95</value>
+  </data>
+  <data name="gb_animationSize.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="gb_animationSize.Text" xml:space="preserve">
+    <value>Animation Size</value>
+  </data>
+  <data name="&gt;&gt;gb_animationSize.Name" xml:space="preserve">
+    <value>gb_animationSize</value>
+  </data>
+  <data name="&gt;&gt;gb_animationSize.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;gb_animationSize.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;gb_animationSize.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="gb_frameScaling.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="rb_frameScaling_zoom.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_frameScaling_zoom.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 88</value>
+  </data>
+  <data name="rb_frameScaling_zoom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>52, 17</value>
+  </data>
+  <data name="rb_frameScaling_zoom.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="rb_frameScaling_zoom.Text" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_zoom.Name" xml:space="preserve">
+    <value>rb_frameScaling_zoom</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_zoom.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_zoom.Parent" xml:space="preserve">
+    <value>gb_frameScaling</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_zoom.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="rb_frameScaling_stretch.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_frameScaling_stretch.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 65</value>
+  </data>
+  <data name="rb_frameScaling_stretch.Size" type="System.Drawing.Size, System.Drawing">
+    <value>59, 17</value>
+  </data>
+  <data name="rb_frameScaling_stretch.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="rb_frameScaling_stretch.Text" xml:space="preserve">
+    <value>Stretch</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_stretch.Name" xml:space="preserve">
+    <value>rb_frameScaling_stretch</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_stretch.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_stretch.Parent" xml:space="preserve">
+    <value>gb_frameScaling</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_stretch.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="rb_frameScaling_placeAtCenter.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_frameScaling_placeAtCenter.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 42</value>
+  </data>
+  <data name="rb_frameScaling_placeAtCenter.Size" type="System.Drawing.Size, System.Drawing">
+    <value>98, 17</value>
+  </data>
+  <data name="rb_frameScaling_placeAtCenter.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="rb_frameScaling_placeAtCenter.Text" xml:space="preserve">
+    <value>Place at Center</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtCenter.Name" xml:space="preserve">
+    <value>rb_frameScaling_placeAtCenter</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtCenter.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtCenter.Parent" xml:space="preserve">
+    <value>gb_frameScaling</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtCenter.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="rb_frameScaling_placeAtTopLeft.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_frameScaling_placeAtTopLeft.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 19</value>
+  </data>
+  <data name="rb_frameScaling_placeAtTopLeft.Size" type="System.Drawing.Size, System.Drawing">
+    <value>107, 17</value>
+  </data>
+  <data name="rb_frameScaling_placeAtTopLeft.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="rb_frameScaling_placeAtTopLeft.Text" xml:space="preserve">
+    <value>Place at Top Left</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtTopLeft.Name" xml:space="preserve">
+    <value>rb_frameScaling_placeAtTopLeft</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtTopLeft.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtTopLeft.Parent" xml:space="preserve">
+    <value>gb_frameScaling</value>
+  </data>
+  <data name="&gt;&gt;rb_frameScaling_placeAtTopLeft.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="gb_frameScaling.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 104</value>
+  </data>
+  <data name="gb_frameScaling.Size" type="System.Drawing.Size, System.Drawing">
+    <value>226, 113</value>
+  </data>
+  <data name="gb_frameScaling.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="gb_frameScaling.Text" xml:space="preserve">
+    <value>Frame Scaling Method</value>
+  </data>
+  <data name="&gt;&gt;gb_frameScaling.Name" xml:space="preserve">
+    <value>gb_frameScaling</value>
+  </data>
+  <data name="&gt;&gt;gb_frameScaling.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;gb_frameScaling.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;gb_frameScaling.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="rb_drawingMode_highQuality.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_drawingMode_highQuality.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 42</value>
+  </data>
+  <data name="rb_drawingMode_highQuality.Size" type="System.Drawing.Size, System.Drawing">
+    <value>85, 17</value>
+  </data>
+  <data name="rb_drawingMode_highQuality.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="rb_drawingMode_highQuality.Text" xml:space="preserve">
+    <value>Photography</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_highQuality.Name" xml:space="preserve">
+    <value>rb_drawingMode_highQuality</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_highQuality.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_highQuality.Parent" xml:space="preserve">
+    <value>gb_drawingMode</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_highQuality.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="rb_drawingMode_lowQuality.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="rb_drawingMode_lowQuality.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 19</value>
+  </data>
+  <data name="rb_drawingMode_lowQuality.Size" type="System.Drawing.Size, System.Drawing">
+    <value>62, 17</value>
+  </data>
+  <data name="rb_drawingMode_lowQuality.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="rb_drawingMode_lowQuality.Text" xml:space="preserve">
+    <value>Pixel art</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_lowQuality.Name" xml:space="preserve">
+    <value>rb_drawingMode_lowQuality</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_lowQuality.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_lowQuality.Parent" xml:space="preserve">
+    <value>gb_drawingMode</value>
+  </data>
+  <data name="&gt;&gt;rb_drawingMode_lowQuality.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="gb_drawingMode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 223</value>
+  </data>
+  <data name="gb_drawingMode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>226, 72</value>
+  </data>
+  <data name="gb_drawingMode.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="gb_drawingMode.Text" xml:space="preserve">
+    <value>Drawing Mode</value>
+  </data>
+  <data name="&gt;&gt;gb_drawingMode.Name" xml:space="preserve">
+    <value>gb_drawingMode</value>
+  </data>
+  <data name="&gt;&gt;gb_drawingMode.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;gb_drawingMode.Parent" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;gb_drawingMode.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="btn_ok.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="btn_ok.Location" type="System.Drawing.Point, System.Drawing">
+    <value>102, 365</value>
+  </data>
+  <data name="btn_ok.Size" type="System.Drawing.Size, System.Drawing">
+    <value>61, 23</value>
+  </data>
+  <data name="btn_ok.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="btn_ok.Text" xml:space="preserve">
+    <value>&amp;Ok</value>
+  </data>
+  <data name="btn_ok.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleRight</value>
+  </data>
+  <data name="btn_ok.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="&gt;&gt;btn_ok.Name" xml:space="preserve">
+    <value>btn_ok</value>
+  </data>
+  <data name="&gt;&gt;btn_ok.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btn_ok.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;btn_ok.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="btn_cancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="btn_cancel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>169, 365</value>
+  </data>
+  <data name="btn_cancel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="btn_cancel.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="btn_cancel.Text" xml:space="preserve">
+    <value>&amp;Cancel</value>
+  </data>
+  <data name="btn_cancel.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleRight</value>
+  </data>
+  <data name="btn_cancel.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="&gt;&gt;btn_cancel.Name" xml:space="preserve">
+    <value>btn_cancel</value>
+  </data>
+  <data name="&gt;&gt;btn_cancel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btn_cancel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;btn_cancel.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="flowLayoutPanel1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="flowLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 56</value>
+  </data>
+  <data name="flowLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>232, 301</value>
+  </data>
+  <data name="flowLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.Name" xml:space="preserve">
+    <value>flowLayoutPanel1</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;flowLayoutPanel1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>256, 400</value>
+  </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -145,5 +594,17 @@
         AQEBAgEAAAEBAQAAAAAAAAAAAQEBAI/xAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIAB
         AACAAQAAgAEAAIABAACAAQAAgAEAAI/xAAA=
 </value>
+  </data>
+  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
+    <value>CenterParent</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Frames Rescale Settings</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>FramesRescaleSettingsView</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
