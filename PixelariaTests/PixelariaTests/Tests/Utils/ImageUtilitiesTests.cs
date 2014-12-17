@@ -169,6 +169,28 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
+        [TestMethod]
+        public void TestFindMinimumAreaSinglePixel()
+        {
+            // Test a bitmap with only a single pixel
+            // ------------
+            // ------------
+            // ----[]------
+            // ------------
+            // ------------
+            // ------------
+
+            // Create the bitmap
+            Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+
+            // Add the three plots
+            bitmap.SetPixel(2, 2, Color.Red);
+
+            // Test the resulting area rectangle
+            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            Assert.AreEqual(new Rectangle(2, 2, 1, 1), bitmapArea, "The minimum image area has to clip around the opaque pixels");
+        }
+
         /// <summary>
         /// Fills a rectangle region of bitmap with a specified color
         /// </summary>

@@ -173,7 +173,7 @@ namespace Pixelaria.Utils
             // Scan horizontally - 2nd pass
             for (y = height - 1; y >= minImageY; y--)
             {
-                for (x = minImageX; x < maxImageX; x++)
+                for (x = minImageX; x <= maxImageX; x++)
                 {
                     if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
                     {
