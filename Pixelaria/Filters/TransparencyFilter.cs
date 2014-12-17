@@ -81,15 +81,31 @@ namespace Pixelaria.Filters
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
             byte* scan0b = (byte*)data.Scan0;
+
+            const int loopUnroll = 8;
             int count = bitmap.Width * bitmap.Height;
+            int rem = count % loopUnroll;
+            count /= loopUnroll;
 
             // Pre-align to the alpha offset
             scan0b += 3;
 
+            // Unrolled loop for faster operations
             while (count-- > 0)
             {
-                *scan0b = (byte)(*scan0b * Transparency);
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
 
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+            }
+            while (rem-- > 0)
+            {
+                *scan0b = (byte)(*scan0b * Transparency);
                 scan0b += 4;
             }
 
