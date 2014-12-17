@@ -407,6 +407,49 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         }
 
         #endregion
+
+        /// <summary>
+        /// Tests the FastBitmapLocker struct returned by lock calls
+        /// </summary>
+        [TestMethod]
+        public void TestFastBitmapLocker()
+        {
+            Bitmap bitmap = new Bitmap(64, 64);
+            FastBitmap fastBitmap = new FastBitmap(bitmap);
+
+            // Immediate lock and dispose
+            fastBitmap.Lock().Dispose();
+            Assert.IsFalse(fastBitmap.Locked, "After disposing of the FastBitmapLocker object, the underlying fast bitmap must be unlocked");
+
+            using (fastBitmap.Lock())
+            {
+                fastBitmap.SetPixel(0, 0, 0);
+            }
+
+            Assert.IsFalse(fastBitmap.Locked, "After disposing of the FastBitmapLocker object, the underlying fast bitmap must be unlocked");
+
+            // Test the conditional unlocking of the fast bitmap locker by unlocking the fast bitmap before exiting the 'using' block
+            using (fastBitmap.Lock())
+            {
+                fastBitmap.SetPixel(0, 0, 0);
+                fastBitmap.Unlock();
+            }
+        }
+
+        [TestMethod]
+        public void TestLockExtensionMethod()
+        {
+            Bitmap bitmap = new Bitmap(64, 64);
+
+            using (FastBitmap fast = bitmap.FastLock())
+            {
+                fast.SetPixel(0, 0, Color.Red);
+            }
+
+            // Test unlocking by trying to modify the bitmap
+            bitmap.SetPixel(0, 0, Color.Blue);
+        }
+
         [TestMethod]
         public void TestDataArray()
         {

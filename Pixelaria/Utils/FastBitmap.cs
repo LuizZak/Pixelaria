@@ -30,7 +30,7 @@ namespace Pixelaria.Utils
     /// <summary>
     /// Encapsulates a Bitmap for fast bitmap pixel operations using 32bpp images
     /// </summary>
-    public unsafe class FastBitmap
+    public unsafe class FastBitmap : IDisposable
     {
         /// <summary>
         /// Specifies the number of bytes available per pixel of the bitmap object being manipulated
@@ -147,35 +147,49 @@ namespace Pixelaria.Utils
             _width = bitmap.Width;
             _height = bitmap.Height;
         }
-        
+
+        /// <summary>
+        /// Disposes of this fast bitmap object and releases any pending resources.
+        /// The underlying bitmap is not disposes, and is unlocked, if currently locked
+        /// </summary>
+        public void Dispose()
+        {
+            if (_locked)
+            {
+                Unlock();
+            }
+        }
+
         /// <summary>
         /// Locks the bitmap to start the bitmap operations. If the bitmap is already locked,
         /// an exception is thrown
         /// </summary>
+        /// <returns>A fast bitmap locked struct that will unlock the underlying bitmap after disposal</returns>
         /// <exception cref="InvalidOperationException">The bitmap is already locked</exception>
         /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
         /// <exception cref="InvalidOperationException">The bitmap is already locked outside this fast bitmap</exception>
-        public void Lock()
+        public FastBitmapLocker Lock()
         {
             if (_locked)
             {
                 throw new InvalidOperationException("Unlock must be called before a Lock operation");
             }
 
-            Lock(ImageLockMode.ReadWrite);
+            return Lock(ImageLockMode.ReadWrite);
         }
 
         /// <summary>
         /// Locks the bitmap to start the bitmap operations
         /// </summary>
         /// <param name="lockMode">The lock mode to use on the bitmap</param>
+        /// <returns>A fast bitmap locked struct that will unlock the underlying bitmap after disposal</returns>
         /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
         /// <exception cref="InvalidOperationException">The bitmap is already locked outside this fast bitmap</exception>
-        private void Lock(ImageLockMode lockMode)
+        private FastBitmapLocker Lock(ImageLockMode lockMode)
         {
             Rectangle rect = new Rectangle(0, 0, _bitmap.Width, _bitmap.Height);
 
-            Lock(lockMode, rect);
+            return Lock(lockMode, rect);
         }
 
         /// <summary>
@@ -183,10 +197,11 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="lockMode">The lock mode to use on the bitmap</param>
         /// <param name="rect">The rectangle to lock</param>
+        /// <returns>A fast bitmap locked struct that will unlock the underlying bitmap after disposal</returns>
         /// <exception cref="System.ArgumentException">The provided region is invalid</exception>
         /// <exception cref="System.Exception">The locking operation in the underlying bitmap failed</exception>
         /// <exception cref="InvalidOperationException">The bitmap region is already locked</exception>
-        private void Lock(ImageLockMode lockMode, Rectangle rect)
+        private FastBitmapLocker Lock(ImageLockMode lockMode, Rectangle rect)
         {
             // Lock the bitmap's bits
             _bitmapData = _bitmap.LockBits(rect, lockMode, _bitmap.PixelFormat);
@@ -195,6 +210,8 @@ namespace Pixelaria.Utils
             _strideWidth = _bitmapData.Stride / BytesPerPixel;
 
             _locked = true;
+
+            return new FastBitmapLocker(this);
         }
 
         /// <summary>
@@ -507,5 +524,67 @@ namespace Pixelaria.Utils
         // .NET wrapper to native call of 'memcpy'. Requires Microsoft Visual C++ Runtime installed
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern IntPtr memcpy(IntPtr dest, IntPtr src, ulong count);
+
+        // .NET wrapper to native call of 'memcpy'. Requires Microsoft Visual C++ Runtime installed
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr memcpy(void* dest, void* src, ulong count);
+
+        /// <summary>
+        /// Represents a disposable structure that is returned during Lock() calls, and unlocks the bitmap on Dispose calls
+        /// </summary>
+        public struct FastBitmapLocker : IDisposable
+        {
+            /// <summary>
+            /// The fast bitmap instance attached to this locker
+            /// </summary>
+            private FastBitmap _fastBitmap;
+
+            /// <summary>
+            /// Gets the fast bitmap instance attached to this locker
+            /// </summary>
+            public FastBitmap FastBitmap
+            {
+                get { return _fastBitmap; }
+                private set { _fastBitmap = value; }
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the FastBitmapLocker struct with an initial fast bitmap object.
+            /// The fast bitmap object passed will be unlocked after calling Dispose() on this struct
+            /// </summary>
+            /// <param name="fastBitmap">A fast bitmap to attach to this locker which will be released after a call to Dispose</param>
+            public FastBitmapLocker(FastBitmap fastBitmap)
+            {
+                _fastBitmap = fastBitmap;
+            }
+
+            /// <summary>
+            /// Disposes of this FastBitmapLocker, essentially unlocking the underlying fast bitmap
+            /// </summary>
+            public void Dispose()
+            {
+                if(_fastBitmap._locked)
+                    _fastBitmap.Unlock();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Static class that contains fast bitmap extension methdos for the Bitmap class
+    /// </summary>
+    public static class FastBitmapExtensions
+    {
+        /// <summary>
+        /// Locks this bitmap into memory and returns a FastBitmap that can be used to manipulate its pixels
+        /// </summary>
+        /// <param name="bitmap">The bitmap to lock</param>
+        /// <returns>A locked FastBitmap</returns>
+        public static FastBitmap FastLock(this Bitmap bitmap)
+        {
+            FastBitmap fast = new FastBitmap(bitmap);
+            fast.Lock();
+
+            return fast;
+        }
     }
 }
