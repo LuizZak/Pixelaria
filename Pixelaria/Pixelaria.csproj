@@ -160,6 +160,11 @@
     <Compile Include="Filters\TransparencyFilter.cs" />
     <Compile Include="Importers\DefaultPngImporter.cs" />
     <Compile Include="Importers\IDefaultImporter.cs" />
+    <Compile Include="Localization\AnimationMessages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AnimationMessages.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -404,6 +409,10 @@
     <Compile Include="Views\SettingsViews\BundleSettingsView.Designer.cs">
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Localization\AnimationMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>AnimationMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\AssistedNumericUpDown.resx">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </EmbeddedResource>

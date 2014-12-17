@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            NullPaintOperation nullPaintOperation1 = new NullPaintOperation();
+            Pixelaria.Views.Controls.PaintOperations.NullPaintOperation nullPaintOperation1 = new Pixelaria.Views.Controls.PaintOperations.NullPaintOperation();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();

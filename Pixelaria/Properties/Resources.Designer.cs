@@ -271,6 +271,15 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Confirmation.
+        /// </summary>
+        internal static string Confirmation_Caption {
+            get {
+                return ResourceManager.GetString("Confirmation_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap document_new {
@@ -407,6 +416,33 @@ namespace Pixelaria.Properties {
             get {
                 object obj = ResourceManager.GetObject("eraser_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string Error_AlertTile {
+            get {
+                return ResourceManager.GetString("Error_AlertTile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was an error loading the file! It may be corrupted or not a valid Pixelaria file..
+        /// </summary>
+        internal static string ErrorLoadingFile {
+            get {
+                return ResourceManager.GetString("ErrorLoadingFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no animations on the sheet! Add at least one animation to the sheet before exporting an image..
+        /// </summary>
+        internal static string ExportSheetImage_NoAnimationsInSheet {
+            get {
+                return ResourceManager.GetString("ExportSheetImage_NoAnimationsInSheet", resourceCulture);
             }
         }
         
@@ -731,6 +767,25 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        internal static string Information_AlertTitle {
+            get {
+                return ResourceManager.GetString("Information_AlertTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bundle&apos;s export path is not set or is not valid.
+        ///Do you wish to edit the export path now?.
+        /// </summary>
+        internal static string InvalidBundleExportPathAlert_AskEdit {
+            get {
+                return ResourceManager.GetString("InvalidBundleExportPathAlert_AskEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to                     GNU GENERAL PUBLIC LICENSE
         ///                       Version 2, June 1991
         ///
@@ -771,6 +826,34 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete the selected animation?.
+        /// </summary>
+        internal static string MainForm_ConfirmDeleteAnimation {
+            get {
+                return ResourceManager.GetString("MainForm_ConfirmDeleteAnimation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the selected animation sheet?.
+        /// </summary>
+        internal static string MainForm_ConfirmDeleteAnimationShee {
+            get {
+                return ResourceManager.GetString("MainForm_ConfirmDeleteAnimationShee", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the sheet&apos;s animations as well?
+        ///Choosing &apos;No&apos; will move the sheet&apos;s animations to the bundle&apos;s root..
+        /// </summary>
+        internal static string MainForm_ConfirmDeleteAnimationSheet_ChildAnims {
+            get {
+                return ResourceManager.GetString("MainForm_ConfirmDeleteAnimationSheet_ChildAnims", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap minus_icon {
@@ -787,6 +870,24 @@ namespace Pixelaria.Properties {
             get {
                 object obj = ResourceManager.GetObject("new_sheet", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no animation sheets to export! Create a sheet with at least one animation in it before exporting..
+        /// </summary>
+        internal static string NoAnimationSheetsToExportInfo {
+            get {
+                return ResourceManager.GetString("NoAnimationSheetsToExportInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no animations in any of the animation sheets! Create a sheet with at least one animation in it before exporting..
+        /// </summary>
+        internal static string NoAnimationsInSheetsAlert {
+            get {
+                return ResourceManager.GetString("NoAnimationsInSheetsAlert", resourceCulture);
             }
         }
         
@@ -991,6 +1092,15 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Question.
+        /// </summary>
+        internal static string Question_AlertTitle {
+            get {
+                return ResourceManager.GetString("Question_AlertTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] rect_cursor {
@@ -1017,6 +1127,15 @@ namespace Pixelaria.Properties {
             get {
                 object obj = ResourceManager.GetObject("save_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Confirmation.
+        /// </summary>
+        internal static string SaveConfirmation_AlertTitle {
+            get {
+                return ResourceManager.GetString("SaveConfirmation_AlertTitle", resourceCulture);
             }
         }
         
@@ -1087,6 +1206,24 @@ namespace Pixelaria.Properties {
             get {
                 object obj = ResourceManager.GetObject("spray_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The file does not exists. Remove from the file list?.
+        /// </summary>
+        internal static string UnexistingFileInFileList_RemoveQuestion {
+            get {
+                return ResourceManager.GetString("UnexistingFileInFileList_RemoveQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are unsaved changes to the currently opened bundle. Save the current bundle first?.
+        /// </summary>
+        internal static string UnsavedChangesAlert_AskSave {
+            get {
+                return ResourceManager.GetString("UnsavedChangesAlert_AskSave", resourceCulture);
             }
         }
         

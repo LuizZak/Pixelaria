@@ -33,12 +33,13 @@ using Pixelaria.Data.Validators;
 
 using Pixelaria.Importers;
 using Pixelaria.Controllers.Exporters;
-
+using Pixelaria.Properties;
 using Pixelaria.Views;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
+using Settings = Pixelaria.Utils.Settings;
 
 namespace Pixelaria.Controllers
 {
@@ -171,7 +172,7 @@ namespace Pixelaria.Controllers
             {
                 // Initialize the basic fields
                 _mainForm = mainForm;
-                _mainForm.controller = this;
+                _mainForm.Controller = this;
                 _mainForm.UpdateRecentFilesList();
 
                 // Start with a new empty bundle
@@ -218,7 +219,7 @@ namespace Pixelaria.Controllers
 
             if (newBundle == null)
             {
-                MessageBox.Show("There was an error loading the file! It may be corrupted or not a valid Pixelaria file", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Resources.ErrorLoadingFile, Resources.Error_AlertTile, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -254,7 +255,7 @@ namespace Pixelaria.Controllers
         {
             if (!File.Exists(_recentFileList[index]))
             {
-                if (MessageBox.Show("The file does not exists. Remove from the file list?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show(Resources.UnexistingFileInFileList_RemoveQuestion, Resources.Question_AlertTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     _recentFileList.RemoveFromList(index);
                     _mainForm.UpdateRecentFilesList();
@@ -600,32 +601,30 @@ namespace Pixelaria.Controllers
             // The bundle needs at least one valid animation sheet with one animation in it before exporting
             if (_currentBundle.AnimationSheets.Length == 0)
             {
-                MessageBox.Show("There are no animation sheets to export! Create a sheet with at least one animation in it before exporting.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.NoAnimationSheetsToExportInfo, Resources.Information_AlertTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            else
-            {
-                bool validSheet = false;
-                foreach (AnimationSheet sheet in _currentBundle.AnimationSheets)
-                {
-                    if (sheet.Animations.Length != 0)
-                    {
-                        validSheet = true;
-                        break;
-                    }
-                }
 
-                if (!validSheet)
+            bool validSheet = false;
+            foreach (AnimationSheet sheet in _currentBundle.AnimationSheets)
+            {
+                if (sheet.Animations.Length != 0)
                 {
-                    MessageBox.Show("There are no animations in any of the animation sheets! Create a sheet with at least one animation in it before exporting.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
+                    validSheet = true;
+                    break;
                 }
+            }
+
+            if (!validSheet)
+            {
+                MessageBox.Show(Resources.NoAnimationsInSheetsAlert, Resources.Information_AlertTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
 
             // The bundle path must be valid
             if (_currentBundle.ExportPath.Trim() == "" || !Directory.Exists(_currentBundle.ExportPath))
             {
-                if (MessageBox.Show("The bundle's export path is not set or is not valid.\nDo you wish to edit the export path now?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show(Resources.InvalidBundleExportPathAlert_AskEdit, Resources.Question_AlertTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     _mainForm.OpenBundleSettings(_currentBundle);
 
@@ -692,7 +691,7 @@ namespace Pixelaria.Controllers
                 return DialogResult.Yes;
             }
 
-            DialogResult saveResult = MessageBox.Show("There are unsaved changes to the currently opened bundle. Save the current bundle first?", "Save Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            DialogResult saveResult = MessageBox.Show(Resources.UnsavedChangesAlert_AskSave, Resources.SaveConfirmation_AlertTitle, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
             if (saveResult == DialogResult.Yes)
             {
@@ -779,7 +778,7 @@ namespace Pixelaria.Controllers
         {
             if (sheet.AnimationCount == 0)
             {
-                MessageBox.Show("There are no animations on the sheet! Add at least one animation to the sheet before exporting an image.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.ExportSheetImage_NoAnimationsInSheet, Resources.Information_AlertTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

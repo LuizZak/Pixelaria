@@ -30,7 +30,7 @@ using System.Windows.Forms;
 using Pixelaria.Controllers;
 
 using Pixelaria.Data;
-
+using Pixelaria.Properties;
 using Pixelaria.Views.ModelViews;
 using Pixelaria.Views.SettingsViews;
 using Pixelaria.Views.Controls;
@@ -45,7 +45,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// The Controller instance that owns this MainForm
         /// </summary>
-        public Controller controller;
+        public Controller Controller;
 
         /// <summary>
         /// Event handler for the recent file menu item list click
@@ -66,34 +66,35 @@ namespace Pixelaria.Views
             InitializeComponent();
 
             // Enable double buffering on the MDI client to avoid flickering while redrawing
-            foreach (Control control in this.Controls)
+            foreach (Control control in Controls)
             {
-                if (control is MdiClient)
+                var client = control as MdiClient;
+                if (client != null)
                 {
-                    MethodInfo method = ((MdiClient)control).GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
-                    method.Invoke((MdiClient)control, new Object[] { ControlStyles.OptimizedDoubleBuffer, true });
+                    MethodInfo method = client.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
+                    method.Invoke(client, new Object[] { ControlStyles.OptimizedDoubleBuffer, true });
                 }
             }
 
-            this.Menu = this.mm_menu;
+            Menu = mm_menu;
 
-            this.il_treeView.Images.SetKeyName(2, "EMPTY");
+            il_treeView.Images.SetKeyName(2, "EMPTY");
 
-            _rootNode = this.tv_bundleAnimations.Nodes[0];
+            _rootNode = tv_bundleAnimations.Nodes[0];
 
-            this._recentFileClick = new EventHandler(mi_fileItem_Click);
+            _recentFileClick = mi_fileItem_Click;
 
             // Hook up the TreeView event handlers
-            this.tv_bundleAnimations.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(AnimationNodeDoubleClickHandler);
-            this.tv_bundleAnimations.NodeMouseClick += new TreeNodeMouseClickEventHandler(TreeViewNodeClickHandler);
-            this.tv_bundleAnimations.DragOperation += new RearrangeableTreeView.DragOperationHandler(TreeViewDragOperationHandler);
-            this.tv_bundleAnimations.MouseDown += new MouseEventHandler(TreeViewMouseDown);
+            tv_bundleAnimations.NodeMouseDoubleClick += AnimationNodeDoubleClickHandler;
+            tv_bundleAnimations.NodeMouseClick += TreeViewNodeClickHandler;
+            tv_bundleAnimations.DragOperation += TreeViewDragOperationHandler;
+            tv_bundleAnimations.MouseDown += TreeViewMouseDown;
 
-            this.controller = new Controller(this);
+            Controller = new Controller(this);
 
             if (args.Length > 0 && File.Exists(args[0]))
             {
-                this.controller.LoadBundleFromFile(args[0]);
+                Controller.LoadBundleFromFile(args[0]);
             }
         }
 
@@ -132,11 +133,11 @@ namespace Pixelaria.Views
             if (bundle.SaveFile != "")
             {
                 Text = string.Format("Pixelaria v1.14.0b [{0} - {1}]{2}", bundle.Name, bundle.SaveFile,
-                    (controller.UnsavedChanges ? "*" : ""));
+                    (Controller.UnsavedChanges ? "*" : ""));
             }
             else
             {
-                Text = string.Format("Pixelaria v1.14.0b [{0}]{1}", bundle.Name, (controller.UnsavedChanges ? "*" : ""));
+                Text = string.Format("Pixelaria v1.14.0b [{0}]{1}", bundle.Name, (Controller.UnsavedChanges ? "*" : ""));
             }
         }
 
@@ -235,9 +236,9 @@ namespace Pixelaria.Views
             mi_recentFiles.MenuItems.Clear();
             
             // Start adding the files now
-            for (int i = 0; i < controller.CurrentRecentFileList.FileCount; i++)
+            for (int i = 0; i < Controller.CurrentRecentFileList.FileCount; i++)
             {
-                string path = controller.CurrentRecentFileList[i];
+                string path = Controller.CurrentRecentFileList[i];
 
                 if (path == "")
                     continue;
@@ -265,7 +266,7 @@ namespace Pixelaria.Views
         /// <param name="isUnsaved">The current Unsaved Changes flag</param>
         public void UnsavedChangesUpdated(bool isUnsaved)
         {
-            UpdateTitleBar(controller.CurrentBundle);
+            UpdateTitleBar(Controller.CurrentBundle);
         }
 
         /// <summary>
@@ -278,7 +279,7 @@ namespace Pixelaria.Views
             TreeNode parentNode = _rootNode;
 
             // If the animation is owned by a sheet, set the sheet's tree node as the parent for the animation node
-            AnimationSheet sheet = controller.GetOwningAnimationSheet(animation);
+            AnimationSheet sheet = Controller.GetOwningAnimationSheet(animation);
             if (sheet != null)
             {
                 parentNode = GetTreeNodeFor(sheet);
@@ -287,7 +288,7 @@ namespace Pixelaria.Views
             // Create the tree node now
             il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White));
 
-            int addIndex = controller.GetAnimationIndex(animation);
+            int addIndex = Controller.GetAnimationIndex(animation);
 
             // If the target node is the bundle root, add the index of the animation sheets to the target add index
             if (parentNode.Tag is Bundle)
@@ -325,11 +326,13 @@ namespace Pixelaria.Views
         /// <param name="anim">The animation to remove</param>
         public void RemoveAnimation(Animation anim)
         {
-            foreach (Form curView in this.MdiChildren)
+            foreach (Form curView in MdiChildren)
             {
-                if (curView is AnimationView && ((AnimationView)curView).CurrentAnimation == anim)
+                var view = curView as AnimationView;
+
+                if (view != null && view.CurrentAnimation == anim)
                 {
-                    curView.Close();
+                    view.Close();
                     break;
                 }
             }
@@ -388,17 +391,19 @@ namespace Pixelaria.Views
         /// <returns>The created AnimationView</returns>
         public AnimationView OpenViewForAnimation(Animation animation)
         {
-            foreach (Form curView in this.MdiChildren)
+            foreach (Form curView in MdiChildren)
             {
-                if (curView is AnimationView && ((AnimationView)curView).CurrentAnimation == animation)
+                var forAnimation = curView as AnimationView;
+
+                if (forAnimation != null && forAnimation.CurrentAnimation == animation)
                 {
-                    curView.BringToFront();
-                    curView.Focus();
-                    return ((AnimationView)curView);
+                    forAnimation.BringToFront();
+                    forAnimation.Focus();
+                    return forAnimation;
                 }
             }
 
-            AnimationView view = new AnimationView(controller, animation);
+            AnimationView view = new AnimationView(Controller, animation);
 
             view.MdiParent = this;
             view.Show();
@@ -417,7 +422,7 @@ namespace Pixelaria.Views
             TreeNode bundleNode = _rootNode;
 
             // Find a new valid node position for the animation sheet
-            int nodePos = 0;
+            int nodePos;
 
             for (nodePos = 0; nodePos < bundleNode.Nodes.Count; nodePos++)
             {
@@ -448,11 +453,12 @@ namespace Pixelaria.Views
         /// <param name="sheet">The sheet to remove</param>
         public void RemoveAnimationSheet(AnimationSheet sheet)
         {
-            foreach (Form curView in this.MdiChildren)
+            foreach (Form curView in MdiChildren)
             {
-                if (curView is AnimationSheetView && ((AnimationSheetView)curView).CurrentSheet == sheet)
+                var view = curView as AnimationSheetView;
+                if (view != null && view.CurrentSheet == sheet)
                 {
-                    curView.Close();
+                    view.Close();
                     break;
                 }
             }
@@ -482,17 +488,18 @@ namespace Pixelaria.Views
         /// <returns>The created AnimationView</returns>
         public AnimationSheetView OpenViewForAnimationSheet(AnimationSheet sheet)
         {
-            foreach (Form curView in this.MdiChildren)
+            foreach (Form curView in MdiChildren)
             {
-                if (curView is AnimationSheetView && ((AnimationSheetView)curView).CurrentSheet == sheet)
+                var sheetView = curView as AnimationSheetView;
+                if (sheetView != null && sheetView.CurrentSheet == sheet)
                 {
-                    curView.BringToFront();
-                    curView.Focus();
-                    return ((AnimationSheetView)curView);
+                    sheetView.BringToFront();
+                    sheetView.Focus();
+                    return sheetView;
                 }
             }
 
-            AnimationSheetView view = new AnimationSheetView(controller, sheet);
+            AnimationSheetView view = new AnimationSheetView(Controller, sheet);
 
             view.MdiParent = this;
             view.Show();
@@ -506,7 +513,7 @@ namespace Pixelaria.Views
         /// </summary>
         public void OpenBundleSettings(Bundle bundle)
         {
-            BundleSettingsView bsv = new BundleSettingsView(controller, bundle);
+            BundleSettingsView bsv = new BundleSettingsView(Controller, bundle);
 
             if (bsv.ShowDialog(this) == DialogResult.OK)
             {
@@ -519,7 +526,7 @@ namespace Pixelaria.Views
         /// </summary>
         private void NewBundle()
         {
-            controller.ShowNewBundle();
+            Controller.ShowNewBundle();
         }
 
         /// <summary>
@@ -527,7 +534,7 @@ namespace Pixelaria.Views
         /// </summary>
         private void LoadBundle()
         {
-            controller.ShowLoadBundle();
+            Controller.ShowLoadBundle();
         }
 
         /// <summary>
@@ -537,12 +544,12 @@ namespace Pixelaria.Views
         private void SaveBundle(bool forceNew = false)
         {
             // Forces the currently opened windows to save their contents
-            foreach (ModifiableContentView view in this.MdiChildren)
+            foreach (ModifiableContentView view in MdiChildren)
             {
                 view.ApplyChanges();
             }
 
-            controller.ShowSaveBundle(forceNew);
+            Controller.ShowSaveBundle(forceNew);
         }
 
         /// <summary>
@@ -550,7 +557,7 @@ namespace Pixelaria.Views
         /// </summary>
         private void ExportBundle()
         {
-            controller.ShowExportBundle();
+            Controller.ShowExportBundle();
         }
 
         /// <summary>
@@ -579,9 +586,9 @@ namespace Pixelaria.Views
         /// <param name="anim">The animation to show the confirmation to delete</param>
         public void ConfirmDeleteAnimation(Animation anim)
         {
-            if (MessageBox.Show("Delete the selected animation?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show(Resources.MainForm_ConfirmDeleteAnimation, Resources.Confirmation_Caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                controller.RemoveAnimation(anim);
+                Controller.RemoveAnimation(anim);
             }
         }
 
@@ -591,7 +598,7 @@ namespace Pixelaria.Views
         /// <param name="sheet">The sheet to show the confirmation to delete</param>
         public void ConfirmDeleteAnimationSheet(AnimationSheet sheet)
         {
-            if (MessageBox.Show("Delete the selected animation sheet?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show(Resources.MainForm_ConfirmDeleteAnimationShee, Resources.Confirmation_Caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 // Whether the user has chosen to remove the animations as well
                 bool removeAnims = false;
@@ -599,7 +606,7 @@ namespace Pixelaria.Views
                 // Confirm nested animations removal
                 if (sheet.Animations.Length > 0)
                 {
-                    removeAnims = MessageBox.Show("Delete the sheet's animations as well?\nChoosing 'No' will move the sheet's animations to the bundle's root.", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+                    removeAnims = MessageBox.Show(Resources.MainForm_ConfirmDeleteAnimationSheet_ChildAnims, Resources.Confirmation_Caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
 
                     if (!removeAnims)
                     {
@@ -615,7 +622,7 @@ namespace Pixelaria.Views
                     }
                 }
 
-                controller.RemoveAnimationSheet(sheet, removeAnims);
+                Controller.RemoveAnimationSheet(sheet, removeAnims);
 
                 // Update the animations currently at the bundle root
                 if (!removeAnims)
@@ -628,7 +635,7 @@ namespace Pixelaria.Views
                         {
                             Animation anim = node.Tag as Animation;
 
-                            controller.RearrangeAnimationsPosition(anim, index++);
+                            Controller.RearrangeAnimationsPosition(anim, index++);
                         }
                     }
                 }
@@ -685,26 +692,13 @@ namespace Pixelaria.Views
         // 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (controller.UnsavedChanges)
+            if (Controller.UnsavedChanges)
             {
-                if (controller.ShowConfirmSaveChanges() == DialogResult.Cancel)
+                if (Controller.ShowConfirmSaveChanges() == DialogResult.Cancel)
                 {
                     e.Cancel = true;
                 }
             }
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-        }
-
-        // 
-        // OnPaintBackground event handler
-        // 
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            base.OnPaintBackground(e);
         }
 
         //
@@ -796,7 +790,7 @@ namespace Pixelaria.Views
                     AnimationSheet sheet = (AnimationSheet)eventArgs.TargetNode.Tag;
                     Animation anim = (Animation)eventArgs.DraggedNode.Tag;
 
-                    controller.AddAnimationToAnimationSheet(anim, sheet);
+                    Controller.AddAnimationToAnimationSheet(anim, sheet);
                 }
 
                 // Target is Bundle root and dragged node is an Animation:
@@ -805,7 +799,7 @@ namespace Pixelaria.Views
                 {
                     Animation anim = (Animation)eventArgs.DraggedNode.Tag;
 
-                    controller.AddAnimationToAnimationSheet(anim, null);
+                    Controller.AddAnimationToAnimationSheet(anim, null);
                 }
             }
 
@@ -818,9 +812,9 @@ namespace Pixelaria.Views
                     Animation targetAnim = (Animation)eventArgs.TargetNode.Tag;
                     Animation droppedAnim = (Animation)eventArgs.DraggedNode.Tag;
 
-                    AnimationSheet sheet = controller.GetOwningAnimationSheet(targetAnim);
+                    AnimationSheet sheet = Controller.GetOwningAnimationSheet(targetAnim);
 
-                    controller.AddAnimationToAnimationSheet(droppedAnim, sheet);
+                    Controller.AddAnimationToAnimationSheet(droppedAnim, sheet);
                         
                     // Swap the position of the animation on the container
                     TreeNode node = GetTreeNodeFor(droppedAnim);
@@ -836,18 +830,17 @@ namespace Pixelaria.Views
                         }
                     }
 
-                    controller.RearrangeAnimationsPosition(droppedAnim, actualIndex);
+                    Controller.RearrangeAnimationsPosition(droppedAnim, actualIndex);
                 }
                 // Target and dragged node are AnimationSheet nodes, rearrange them in the model level
                 if (eventArgs.TargetNode.Tag is AnimationSheet && eventArgs.DraggedNode.Tag is AnimationSheet)
                 {
-                    AnimationSheet targetSheet = (AnimationSheet)eventArgs.TargetNode.Tag;
                     AnimationSheet droppedSheet = (AnimationSheet)eventArgs.DraggedNode.Tag;
 
                     // Swap the position of the animation on the container
                     TreeNode node = GetTreeNodeFor(droppedSheet);
 
-                    controller.RearrangeAnimationSheetsPosition(droppedSheet, node.Index);
+                    Controller.RearrangeAnimationSheetsPosition(droppedSheet, node.Index);
                 }
             }
         }
@@ -856,8 +849,8 @@ namespace Pixelaria.Views
         /// Specifies that the given TreeNode should not be expanded on the next call of the Before Expand/Collapse event handlers.
         /// The value is nullified once a matching Before Expand/Collapse event is fired
         /// </summary>
-        private TreeNode _cancelExpandCollapseForNode = null;
-        private Point _lastMousePoint = new Point();
+        private TreeNode _cancelExpandCollapseForNode;
+        private Point _lastMousePoint;
         // 
         // TreeView Mouse Down event handler
         // 
@@ -963,7 +956,10 @@ namespace Pixelaria.Views
         // 
         private void mi_fileItem_Click(object sender, EventArgs e)
         {
-            controller.LoadBundleFromRecentFileList((int)((sender as MenuItem).Tag));
+            var menuItem = sender as MenuItem;
+
+            if (menuItem != null)
+                Controller.LoadBundleFromRecentFileList((int)(menuItem.Tag));
         }
 
         // 
@@ -971,7 +967,7 @@ namespace Pixelaria.Views
         // 
         private void mi_cascade_Click(object sender, EventArgs e)
         {
-            this.LayoutMdi(MdiLayout.Cascade);
+            LayoutMdi(MdiLayout.Cascade);
         }
 
         // 
@@ -979,7 +975,7 @@ namespace Pixelaria.Views
         // 
         private void mi_tileHorizontally_Click(object sender, EventArgs e)
         {
-            this.LayoutMdi(MdiLayout.TileHorizontal);
+            LayoutMdi(MdiLayout.TileHorizontal);
         }
 
         // 
@@ -987,7 +983,7 @@ namespace Pixelaria.Views
         // 
         private void mi_arrangeIcons_Click(object sender, EventArgs e)
         {
-            this.LayoutMdi(MdiLayout.ArrangeIcons);
+            LayoutMdi(MdiLayout.ArrangeIcons);
         }
 
         // 
@@ -995,7 +991,7 @@ namespace Pixelaria.Views
         // 
         private void tsb_bundleSettings_Click(object sender, EventArgs e)
         {
-            OpenBundleSettings(controller.CurrentBundle);
+            OpenBundleSettings(Controller.CurrentBundle);
         }
 
         // 
@@ -1003,7 +999,7 @@ namespace Pixelaria.Views
         // 
         private void cmb_bundleSettingsClick(object sender, EventArgs e)
         {
-            OpenBundleSettings(controller.CurrentBundle);
+            OpenBundleSettings(Controller.CurrentBundle);
         }
 
         // 
@@ -1016,10 +1012,10 @@ namespace Pixelaria.Views
 
             if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
-                sheet = controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                sheet = Controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
             }
 
-            controller.ShowCreateAnimation(sheet);
+            Controller.ShowCreateAnimation(sheet);
         }
 
         // 
@@ -1032,10 +1028,10 @@ namespace Pixelaria.Views
 
             if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
-                sheet = controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                sheet = Controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
             }
 
-            controller.ShowCreateAnimation(sheet);
+            Controller.ShowCreateAnimation(sheet);
         }
 
         // 
@@ -1043,7 +1039,7 @@ namespace Pixelaria.Views
         // 
         private void cmb_createNewAnimationClick(object sender, EventArgs e)
         {
-            controller.ShowCreateAnimation();
+            Controller.ShowCreateAnimation();
         }
 
         // 
@@ -1056,10 +1052,10 @@ namespace Pixelaria.Views
 
             if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
-                sheet = controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                sheet = Controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
             }
 
-            controller.ShowImportAnimation(sheet);
+            Controller.ShowImportAnimation(sheet);
         }
 
         // 
@@ -1067,7 +1063,7 @@ namespace Pixelaria.Views
         // 
         private void cmb_importAnimationClick(object sender, EventArgs e)
         {
-            controller.ShowImportAnimation();
+            Controller.ShowImportAnimation();
         }
 
         // 
@@ -1075,7 +1071,7 @@ namespace Pixelaria.Views
         // 
         private void createNewBundleSheetToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            controller.ShowCreateAnimationSheet();
+            Controller.ShowCreateAnimationSheet();
         }
 
         // 
@@ -1083,7 +1079,7 @@ namespace Pixelaria.Views
         // 
         private void tsb_createAnimationSheet_Click(object sender, EventArgs e)
         {
-            controller.ShowCreateAnimationSheet();
+            Controller.ShowCreateAnimationSheet();
         }
 
         // 
@@ -1110,7 +1106,7 @@ namespace Pixelaria.Views
 
             if (sheet != null)
             {
-                controller.ShowCreateAnimation(sheet);
+                Controller.ShowCreateAnimation(sheet);
             }
         }
 
@@ -1124,7 +1120,7 @@ namespace Pixelaria.Views
 
             if (sheet != null)
             {
-                controller.ShowImportAnimation(sheet);
+                Controller.ShowImportAnimation(sheet);
             }
         }
 
@@ -1138,7 +1134,7 @@ namespace Pixelaria.Views
 
             if (sheet != null)
             {
-                controller.ShowDuplicateAnimationSheet(sheet);
+                Controller.ShowDuplicateAnimationSheet(sheet);
             }
         }
 
@@ -1152,7 +1148,7 @@ namespace Pixelaria.Views
 
             if (sheet != null)
             {
-                controller.ShowExportAnimationSheetImage(sheet);
+                Controller.ShowExportAnimationSheetImage(sheet);
             }
         }
 
@@ -1194,7 +1190,7 @@ namespace Pixelaria.Views
 
             if (anim != null)
             {
-                controller.ShowDuplicateAnimation(anim);
+                Controller.ShowDuplicateAnimation(anim);
             }
         }
 

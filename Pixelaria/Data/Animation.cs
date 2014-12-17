@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-
+using Pixelaria.Localization;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -322,7 +322,7 @@ namespace Pixelaria.Data
 
             if (!ignoreSize && (frame.Width != Width || frame.Height != Height))
             {
-                throw new ArgumentException("The Frame's dimensions don't match the Animation's dimension", "frame");
+                throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, "frame");
             }
 
             frame.Added(this);
@@ -352,7 +352,7 @@ namespace Pixelaria.Data
         {
             if ((frame.Width != Width || frame.Height != Height))
             {
-                throw new ArgumentException("The Frame's dimensions don't match the Animation's dimension", "frame");
+                throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, "frame");
             }
 
             if (_frames[index] == frame)
@@ -437,7 +437,7 @@ namespace Pixelaria.Data
         {
             if (!ReferenceEquals(frame.Animation, this))
             {
-                throw new ArgumentException("The frame provided is not listed in this animation", "frame");
+                throw new ArgumentException(AnimationMessages.Exception_UnlistedFrameRemoval, "frame");
             }
 
             frame.Removed();
