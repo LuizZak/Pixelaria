@@ -2018,6 +2018,21 @@ namespace Pixelaria.Views.Controls
         public override Cursor OperationCursor { get; protected set; }
 
         /// <summary>
+        /// The minimum point that the trace bitmap occupies over the canvas image
+        /// </summary>
+        private Point minimumTraceBitmapPoint;
+
+        /// <summary>
+        /// The maximum point that the trace bitmap occupies over the canvas image
+        /// </summary>
+        private Point maximumTraceBitmapPoint;
+
+        /// <summary>
+        /// Whether the current trace bitmap area is invalid
+        /// </summary>
+        private bool invalidTraceArea;
+
+        /// <summary>
         /// Whether the pencil is visible
         /// </summary>
         protected bool visible;
@@ -2182,6 +2197,8 @@ namespace Pixelaria.Views.Controls
             this.pictureBox = pictureBox;
             this.lastMousePosition = new Point();
 
+            invalidTraceArea = true;
+
             RegeneratePenBitmap();
 
             ChangeBitmap(pictureBox.Bitmap);
@@ -2288,7 +2305,9 @@ namespace Pixelaria.Views.Controls
 
             if (mouseDown && CompositingMode == CompositingMode.SourceOver)
             {
-                gfx.DrawImage(currentTraceBitmap, new Rectangle(0, 0, currentTraceBitmap.Width, currentTraceBitmap.Height), 0, 0, currentTraceBitmap.Width, currentTraceBitmap.Height, GraphicsUnit.Pixel, attributes);
+                Rectangle traceRectangle = new Rectangle(minimumTraceBitmapPoint.X, minimumTraceBitmapPoint.Y, maximumTraceBitmapPoint.X - minimumTraceBitmapPoint.X + 1, maximumTraceBitmapPoint.Y - minimumTraceBitmapPoint.Y + 1);
+
+                gfx.DrawImage(currentTraceBitmap, traceRectangle, traceRectangle.X, traceRectangle.Y, traceRectangle.Width, traceRectangle.Height, GraphicsUnit.Pixel, attributes);
             }
             else if (CompositingMode == CompositingMode.SourceCopy)
             {
@@ -2360,6 +2379,7 @@ namespace Pixelaria.Views.Controls
                     Bitmap targetBitmap = CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap;
 
                     DrawPencil(absolutePencil, targetBitmap);
+                    ComputeTraceBitmapBounds(absolutePencil);
                 }
             }
         }
@@ -2437,6 +2457,7 @@ namespace Pixelaria.Views.Controls
                             if (WithinBounds(p) && p != pencilLast)
                             {
                                 DrawPencil(p, targetBitmap);
+                                ComputeTraceBitmapBounds(p);
                             }
 
                             error = error - deltay;
@@ -2476,6 +2497,7 @@ namespace Pixelaria.Views.Controls
             if (e.Button != MouseButtons.Middle)
             {
                 FinishOperation();
+                invalidTraceArea = true;
             }
 
             mouseDown = false;
@@ -2572,6 +2594,29 @@ namespace Pixelaria.Views.Controls
 
             PointF pf = GetRelativePoint(p);
             InvalidateRect(pf, pen.Width, pen.Height);
+        }
+
+        /// <summary>
+        /// Computes the minimum and maximum bounds of the trace bitmap by adding a point to its area
+        /// </summary>
+        /// <param name="p">The point to add to the trace bitmap area</param>
+        protected virtual void ComputeTraceBitmapBounds(Point p)
+        {
+            if (invalidTraceArea)
+            {
+                minimumTraceBitmapPoint = p;
+                maximumTraceBitmapPoint = p;
+
+                invalidTraceArea = false;
+            }
+            else
+            {
+                minimumTraceBitmapPoint.X = Math.Min(minimumTraceBitmapPoint.X, p.X);
+                minimumTraceBitmapPoint.Y = Math.Min(minimumTraceBitmapPoint.Y, p.Y);
+
+                maximumTraceBitmapPoint.X = Math.Max(maximumTraceBitmapPoint.X, p.X);
+                maximumTraceBitmapPoint.Y = Math.Max(maximumTraceBitmapPoint.Y, p.Y);
+            }
         }
 
         /// <summary>
