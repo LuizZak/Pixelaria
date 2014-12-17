@@ -106,5 +106,15 @@ namespace PixelariaTests.PixelariaTests.Generators
 
             return bit;
         }
+
+        /// <summary>
+        /// Randomizes the contents of this frame's bitmap based on a given seed
+        /// </summary>
+        /// <param name="frame">The frame to randomize</param>
+        /// <param name="seed">The seed to use when randomizing this frame. Leave -1 to use a random seed</param>
+        public static void RandomizeBitmap(this Frame frame, int seed = -1)
+        {
+            frame.SetFrameBitmap(GenerateRandomBitmap(frame.Width, frame.Height, seed));
+        }
     }
 }

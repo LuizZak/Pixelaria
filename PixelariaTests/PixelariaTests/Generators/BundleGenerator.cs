@@ -45,6 +45,18 @@ namespace PixelariaTests.PixelariaTests.Generators
             for (int i = 0; i < 5; i++)
             {
                 bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("Sheet" + i, 5, r.Next(10, 128), r.Next(10, 128), r.Next(2, 5), r.Next()));
+
+                // Add some repeated frames to a few animations
+                if (i % 2 == 0)
+                {
+                    bundle.AnimationSheets[0].Animations[0].CreateFrame();
+                    bundle.AnimationSheets[0].Animations[0].CreateFrame();
+                    bundle.AnimationSheets[0].Animations[0].CreateFrame();
+
+                    bundle.AnimationSheets[1].Animations[2].CreateFrame().RandomizeBitmap(1);
+                    bundle.AnimationSheets[1].Animations[2].CreateFrame().RandomizeBitmap(1);
+                    bundle.AnimationSheets[1].Animations[2].CreateFrame().RandomizeBitmap(1);
+                }
             }
 
             return bundle;
