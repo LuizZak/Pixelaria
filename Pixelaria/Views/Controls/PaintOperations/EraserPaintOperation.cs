@@ -22,9 +22,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="pencilSize">The size of the pencil</param>
         public EraserPaintOperation(Color firstColor, Color secondColor, int pencilSize)
         {
-            FirstColor = firstColor;
-            SecondColor = secondColor;
-            Size = 1;
+            this.firstColor = firstColor;
+            this.secondColor = secondColor;
+            size = 1;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Called to notify this PaintOperation that the control is being redrawn
         /// </summary>
-        /// <param name="e">The event args for this event</param>
+        /// <param name="pe">The event args for this event</param>
         public override void Paint(PaintEventArgs pe)
         {
             if (!visible)
@@ -252,7 +252,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
                         ystep = -1;
 
                     Point p = new Point();
-                    PointF pf = new PointF();
                     for (int x = x0; x <= x1; x++)
                     {
                         if (steep)
@@ -285,8 +284,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                             currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor, false);
 
-                            pf = GetRelativePoint(p);
-                            InvalidateRect(pf, pen.Width, pen.Height);
+                            InvalidateRect(GetRelativePoint(p), pen.Width, pen.Height);
                         }
 
                         error = error - deltay;
