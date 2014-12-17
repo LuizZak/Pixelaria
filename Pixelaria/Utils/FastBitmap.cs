@@ -376,40 +376,65 @@ namespace Pixelaria.Utils
         /// <exception cref="ArgumentException">The provided source bitmap is the same bitmap locked in this FastBitmap</exception>
         public void CopyRegion(Bitmap source, Rectangle srcRect, Rectangle destRect)
         {
-            // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
-            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > _width || destRect.Y > _height)
-                return;
-
             // Throw exception when trying to copy same bitmap over
             if (source == _bitmap)
             {
                 throw new ArgumentException("Copying regions across the same bitmap is not supported", "source");
             }
 
+            Rectangle srcBitmapRect = new Rectangle(0, 0, source.Width, source.Height);
+            Rectangle destBitmapRect = new Rectangle(0, 0, _width, _height);
+
+            // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
+            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 ||
+                !srcBitmapRect.IntersectsWith(srcRect) || !destRect.IntersectsWith(destBitmapRect))
+                return;
+
+            // Find the areas of the first and second bitmaps that are going to be affected
+            srcBitmapRect = Rectangle.Intersect(srcRect, srcBitmapRect);
+
+            // Clip the source rectangle on top of the destination rectangle in a way that clips out the regions of the original bitmap
+            // that will not be drawn on the destination bitmap for being out of bounds
+            srcBitmapRect = Rectangle.Intersect(srcBitmapRect, new Rectangle(srcRect.X, srcRect.Y, destRect.Width, destRect.Height));
+
+            destBitmapRect = Rectangle.Intersect(destRect, destBitmapRect);
+
+            // Clipt the source bitmap region yet again here
+            srcBitmapRect = Rectangle.Intersect(srcBitmapRect, new Rectangle(-destRect.X + srcRect.X, -destRect.Y + srcRect.Y, _width, _height));
+
+            // Calculate the rectangle containing the maximum possible area that is supposed to be affected by the copy region operation
+            int copyWidth = Math.Min(srcBitmapRect.Width, destBitmapRect.Width);
+            int copyHeight = Math.Min(srcBitmapRect.Height, destBitmapRect.Height);
+
+            if (copyWidth == 0 || copyHeight == 0)
+                return;
+
+            int srcStartX = srcBitmapRect.Left;
+            int srcStartY = srcBitmapRect.Top;
+
+            int destStartX = destBitmapRect.Left;
+            int destStartY = destBitmapRect.Top;
+
             FastBitmap fastSource = new FastBitmap(source);
-            fastSource.Lock();
 
-            int copyWidth = Math.Min(srcRect.Width, destRect.Width);
-            int copyHeight = Math.Min(srcRect.Height, destRect.Height);
-
-            for (int y = 0; y < copyHeight; y++)
+            using (fastSource.Lock())
             {
-                for (int x = 0; x < copyWidth; x++)
+                ulong strideWidth = (ulong)copyWidth * BytesPerPixel;
+
+                for (int y = 0; y < copyHeight; y++)
                 {
-                    int destX = destRect.X + x;
-                    int destY = destRect.Y + y;
+                    int destX = destStartX;
+                    int destY = destStartY + y;
 
-                    int srcX = x + srcRect.X;
-                    int srcY = y + srcRect.Y;
+                    int srcX = srcStartX;
+                    int srcY = srcStartY + y;
 
-                    if (destX >= 0 && destY >= 0 && destX < _width && destY < _height && srcX >= 0 && srcY >= 0 && srcX < fastSource._width && srcY < fastSource._height)
-                    {
-                        SetPixel(destX, destY, fastSource.GetPixelInt(srcX, srcY));
-                    }
+                    long offsetSrc = (srcX + srcY * fastSource._strideWidth);
+                    long offsetDest = (destX + destY * _strideWidth);
+
+                    memcpy(_scan0 + offsetDest, fastSource._scan0 + offsetSrc, strideWidth);
                 }
             }
-
-            fastSource.Unlock();
         }
 
         /// <summary>
@@ -471,22 +496,12 @@ namespace Pixelaria.Utils
         /// <exception cref="ArgumentException">The provided source and target bitmaps are the same bitmap</exception>
         public static void CopyRegion(Bitmap source, Bitmap target, Rectangle srcRect, Rectangle destRect)
         {
-            // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
-            if (srcRect.Width <= 0 || srcRect.Height <= 0 || destRect.Width <= 0 || destRect.Height <= 0 || destRect.X > target.Width || destRect.Y > target.Height)
-                return;
-
-            // Throw exception when trying to copy same bitmap over
-            if (source == target)
-            {
-                throw new ArgumentException("Copying regions across the same bitmap is not supported", "source");
-            }
-
             FastBitmap fastTarget = new FastBitmap(target);
-            fastTarget.Lock();
 
-            fastTarget.CopyRegion(source, srcRect, destRect);
-
-            fastTarget.Unlock();
+            using (fastTarget.Lock())
+            {
+                fastTarget.CopyRegion(source, srcRect, destRect);
+            }
         }
 
         // .NET wrapper to native call of 'memcpy'. Requires Microsoft Visual C++ Runtime installed

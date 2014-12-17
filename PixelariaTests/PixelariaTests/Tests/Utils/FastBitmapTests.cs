@@ -269,6 +269,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             }
         }
 
+        #region CopyRegion Tests
+
         /// <summary>
         /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities
         /// </summary>
@@ -283,15 +285,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
             FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
 
-            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
-            {
-                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
-                {
-                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
-                        copyBitmap.GetPixel(x - targetRectangle.X, y - targetRectangle.Y).ToArgb(),
-                        "Pixels of the target region must fully match the pixels from the origin region");
-                }
-            }
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
         }
 
         /// <summary>
@@ -309,22 +303,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
             FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
 
-            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
-            {
-                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
-                {
-                    // Ignore pixels out of range
-                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
-                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
-                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
-                        continue;
-
-                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
-                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
-                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
-                        "Pixels of the target region must fully match the pixels from the origin region");
-                }
-            }
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
         }
 
         /// <summary>
@@ -342,22 +321,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
             FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
 
-            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
-            {
-                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
-                {
-                    // Ignore pixels out of range
-                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
-                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
-                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
-                        continue;
-
-                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
-                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
-                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
-                        "Pixels of the target region must fully match the pixels from the origin region");
-                }
-            }
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
         }
 
         /// <summary>
@@ -375,27 +339,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
             FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
 
-            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
-            {
-                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
-                {
-                    // Ignore pixels out of range
-                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
-                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
-                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
-                        continue;
-
-                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
-                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
-                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
-                        "Pixels of the target region must fully match the pixels from the origin region");
-                }
-            }
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
         }
 
         /// <summary>
         /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities.
-        /// The source region provided is invalid
+        /// The source region provided is invalid, and no modifications are to be made
         /// </summary>
         [TestMethod]
         public void TestInvalidCopyRegion()
@@ -408,22 +357,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
             FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
 
-            for (int y = targetRectangle.Y; y < Math.Min(sourceRectangle.Height, targetRectangle.Height); y++)
-            {
-                for (int x = targetRectangle.X; x < Math.Min(sourceRectangle.Width, targetRectangle.Width); x++)
-                {
-                    // Ignore pixels out of range
-                    if (x < 0 || y < 0 || x >= canvasBitmap.Width ||
-                        x >= copyBitmap.Width + targetRectangle.X - sourceRectangle.X ||
-                        y >= canvasBitmap.Height || y >= copyBitmap.Height + targetRectangle.Y - sourceRectangle.Y)
-                        continue;
-
-                    Assert.AreEqual(canvasBitmap.GetPixel(x, y).ToArgb(),
-                        copyBitmap.GetPixel(x - targetRectangle.X + sourceRectangle.X,
-                            y - targetRectangle.Y + sourceRectangle.Y).ToArgb(),
-                        "Pixels of the target region must fully match the pixels from the origin region");
-                }
-            }
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
         }
 
         /// <summary>
@@ -445,6 +379,34 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             FastBitmap.CopyRegion(bitmap4, bitmap2, region, region);
         }
 
+        /// <summary>
+        /// Tests a copy region operation that is slices through the destination
+        /// </summary>
+        [TestMethod]
+        public void TestSlicedDestinationCopyRegion()
+        {
+            // Have a copy operation that goes:
+            //
+            //       -src---
+            // -dest-|-----|------
+            // |     |xxxxx|     |
+            // |     |xxxxx|     |
+            // ------|-----|------
+            //       -------
+            // 
+
+            Bitmap canvasBitmap = new Bitmap(128, 32);
+            Bitmap copyBitmap = FrameGenerator.GenerateRandomBitmap(32, 64);
+
+            Rectangle sourceRectangle = new Rectangle(0, 0, 32, 64);
+            Rectangle targetRectangle = new Rectangle(32, -16, 32, 64);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
+        }
+
+        #endregion
         [TestMethod]
         public void TestDataArray()
         {
@@ -597,7 +559,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         /// <param name="bitmap1">The first bitmap object to compare</param>
         /// <param name="bitmap2">The second bitmap object to compare</param>
         /// <param name="message">The message to display when the comparision fails</param>
-        public void AssertBitmapEquals(Bitmap bitmap1, Bitmap bitmap2, string message = "")
+        public static void AssertBitmapEquals(Bitmap bitmap1, Bitmap bitmap2, string message = "")
         {
             if(bitmap1.PixelFormat != bitmap2.PixelFormat)
                 Assert.Fail(message);
@@ -607,6 +569,66 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
                 for (int x = 0; x < bitmap1.Width; x++)
                 {
                     Assert.AreEqual(bitmap1.GetPixel(x, y).ToArgb(), bitmap2.GetPixel(x, y).ToArgb(), message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the result of a copy region operation was successfull by analysing the source and target regions for pixel-by-pixel equalities
+        /// </summary>
+        /// <param name="canvasBitmap">The bitmap that was drawn into</param>
+        /// <param name="copyBitmap">The bitmap that was copied from</param>
+        /// <param name="targetRectangle">The region on the canvas bitmap that was drawn into</param>
+        /// <param name="sourceRectangle">The region from the source rectangle that was drawn</param>
+        /// <param name="message">The message to display on assertion error</param>
+        public static void AssertCopyRegionEquals(Bitmap canvasBitmap, Bitmap copyBitmap, Rectangle targetRectangle,
+            Rectangle sourceRectangle, string message = "Pixels of the target region must fully match the pixels from the origin region")
+        {
+            Rectangle srcBitmapRect = new Rectangle(0, 0, copyBitmap.Width, copyBitmap.Height);
+            Rectangle destBitmapRect = new Rectangle(0, 0, canvasBitmap.Width, canvasBitmap.Height);
+
+            // Check if the rectangle configuration doesn't generate invalid states or does not affect the target image
+            if (sourceRectangle.Width <= 0 || sourceRectangle.Height <= 0 || targetRectangle.Width <= 0 || targetRectangle.Height <= 0 ||
+                !srcBitmapRect.IntersectsWith(sourceRectangle) || !targetRectangle.IntersectsWith(destBitmapRect))
+                return;
+
+            // Find the areas of the first and second bitmaps that are going to be affected
+            srcBitmapRect = Rectangle.Intersect(sourceRectangle, srcBitmapRect);
+
+            // Clip the source rectangle on top of the destination rectangle in a way that clips out the regions of the original bitmap
+            // that will not be drawn on the destination bitmap for being out of bounds
+            srcBitmapRect = Rectangle.Intersect(srcBitmapRect, new Rectangle(sourceRectangle.X, sourceRectangle.Y, targetRectangle.Width, targetRectangle.Height));
+
+            destBitmapRect = Rectangle.Intersect(targetRectangle, destBitmapRect);
+
+            // Clipt the source bitmap region yet again here, this time against the available canvas bitmap rectangle
+            // We transpose the second rectangle by the source's X and Y because we want to clip the target rectangle in the source rectangle's coordinates
+            srcBitmapRect = Rectangle.Intersect(srcBitmapRect, new Rectangle(-targetRectangle.X + sourceRectangle.X, -targetRectangle.Y + sourceRectangle.Y, canvasBitmap.Width, canvasBitmap.Height));
+
+            // Calculate the rectangle containing the maximum possible area that is supposed to be affected by the copy region operation
+            int copyWidth = Math.Min(srcBitmapRect.Width, destBitmapRect.Width);
+            int copyHeight = Math.Min(srcBitmapRect.Height, destBitmapRect.Height);
+
+            if (copyWidth == 0 || copyHeight == 0)
+                return;
+
+            int srcStartX = srcBitmapRect.Left;
+            int srcStartY = srcBitmapRect.Top;
+
+            int destStartX = destBitmapRect.Left;
+            int destStartY = destBitmapRect.Top;
+
+            for (int y = 0; y < copyHeight; y++)
+            {
+                for (int x = 0; x < copyWidth; x++)
+                {
+                    int destX = destStartX;
+                    int destY = destStartY + y;
+
+                    int srcX = srcStartX;
+                    int srcY = srcStartY + y;
+
+                    Assert.AreEqual(copyBitmap.GetPixel(srcX, srcY).ToArgb(), canvasBitmap.GetPixel(destX, destY).ToArgb(), message);
                 }
             }
         }
