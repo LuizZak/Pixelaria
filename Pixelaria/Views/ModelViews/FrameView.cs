@@ -194,8 +194,8 @@ namespace Pixelaria.Views.ModelViews
 
             _controller = controller;
 
-            _filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
-            _presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
+            _filterClickEventHandler = tsm_filterItem_Click;
+            _presetClickEventHandler = tsm_presetItem_Click;
 
             UpdateFilterList();
             UpdateFilterPresetList();
@@ -203,13 +203,13 @@ namespace Pixelaria.Views.ModelViews
             // Image editor panel
             iepb_frame.Init();
             iepb_frame.NotifyTo = this;
-            iepb_frame.PictureBox.ZoomChanged += new ZoomablePictureBox.ZoomChangedEventHandler(PictureBox_ZoomChanged);
-            iepb_frame.PictureBox.MouseMove += new MouseEventHandler(iepb_frame_MouseMove);
-            iepb_frame.PictureBox.MouseLeave += new EventHandler(iepb_frame_MouseLeave);
-            iepb_frame.PictureBox.MouseEnter += new EventHandler(iepb_frame_MouseEnter);
-            iepb_frame.UndoSystem.UndoRegistered += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoRegistered);
-            iepb_frame.UndoSystem.UndoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_UndoPerformed);
-            iepb_frame.UndoSystem.RedoPerformed += new Data.Undo.UndoSystem.UndoEventHandler(UndoSystem_RedoPerformed);
+            iepb_frame.PictureBox.ZoomChanged += PictureBox_ZoomChanged;
+            iepb_frame.PictureBox.MouseMove += iepb_frame_MouseMove;
+            iepb_frame.PictureBox.MouseLeave += iepb_frame_MouseLeave;
+            iepb_frame.PictureBox.MouseEnter += iepb_frame_MouseEnter;
+            iepb_frame.UndoSystem.UndoRegistered += UndoSystem_UndoRegistered;
+            iepb_frame.UndoSystem.UndoPerformed += UndoSystem_UndoPerformed;
+            iepb_frame.UndoSystem.RedoPerformed += UndoSystem_RedoPerformed;
 
             ChangePaintOperation(new PencilPaintOperation(FirstColor, SecondColor, BrushSize));
 
@@ -327,7 +327,6 @@ namespace Pixelaria.Views.ModelViews
             if (tsb_undo.Enabled)
             {
                 tsm_undo.Text = tsb_undo.ToolTipText = "Undo " + iepb_frame.UndoSystem.NextUndo.GetDescription();
-                
             }
             else
             {
@@ -412,7 +411,7 @@ namespace Pixelaria.Views.ModelViews
         private void ExportFrame()
         {
             Image img = _viewFrame.GetComposedBitmap();
-            string fileName = "";
+            string fileName;
 
             if (_frameToEdit.Animation.FrameCount > 1)
             {
@@ -578,9 +577,9 @@ namespace Pixelaria.Views.ModelViews
 
             if (tscb_osFrameCount.SelectedIndex != OnionSkinDepth - 1)
             {
-                ignoreOnionSkinDepthComboboxEvent = true;
+                _ignoreOnionSkinDepthComboboxEvent = true;
                 tscb_osFrameCount.SelectedIndex = OnionSkinDepth - 1;
-                ignoreOnionSkinDepthComboboxEvent = false;
+                _ignoreOnionSkinDepthComboboxEvent = false;
             }
 
             if (!tsl_onionSkinDepth.Visible)
@@ -653,7 +652,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Copy()
         {
-            (iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Copy();
+            var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
+
+            if (clipboardPaintOperation != null)
+                clipboardPaintOperation.Copy();
         }
 
         /// <summary>
@@ -661,7 +663,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Cut()
         {
-            (iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Cut();
+            var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
+
+            if (clipboardPaintOperation != null)
+                clipboardPaintOperation.Cut();
         }
 
         /// <summary>
@@ -677,7 +682,10 @@ namespace Pixelaria.Views.ModelViews
                 rb_selection.Checked = true;
             }
 
-            (iepb_frame.CurrentPaintOperation as IClipboardPaintOperation).Paste();
+            var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
+
+            if (clipboardPaintOperation != null)
+                clipboardPaintOperation.Paste();
 
             iepb_frame.PictureBox.Invalidate();
         }
@@ -692,9 +700,16 @@ namespace Pixelaria.Views.ModelViews
                 rb_selection.Checked = true;
             }
 
-            (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectAll();
+            var selectionPaintOperation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+
+            if (selectionPaintOperation != null)
+                selectionPaintOperation.SelectAll();
+
             // Select the picture box so it receives keyboard input
-            FindForm().ActiveControl = iepb_frame.PictureBox;
+            var findForm = FindForm();
+
+            if (findForm != null)
+                findForm.ActiveControl = iepb_frame.PictureBox;
         }
 
         /// <summary>
@@ -762,12 +777,11 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
         private void DisplayFilterPreset(FilterPreset filterPreset)
         {
-            Bitmap filterTarget = null;
-            Bitmap undoTarget = null;
+            Bitmap filterTarget;
 
             BitmapUndoTask but = null;
 
-            undoTarget = filterTarget = _viewFrame.GetComposedBitmap();
+            var undoTarget = filterTarget = _viewFrame.GetComposedBitmap();
 
             // Apply the filter to a selection
             if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
@@ -1141,7 +1155,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_filterItem_Click(object sender, EventArgs e)
         {
-            DisplayFilterPreset(new FilterPreset("New Preset", new IFilter[] { FilterStore.Instance.CreateFilter(((ToolStripMenuItem)sender).Tag as string) }));
+            DisplayFilterPreset(new FilterPreset("New Preset", new[] { FilterStore.Instance.CreateFilter(((ToolStripMenuItem)sender).Tag as string) }));
         }
 
         // 
@@ -1642,7 +1656,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tscb_osFrameCount_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (ignoreOnionSkinDepthComboboxEvent)
+            if (_ignoreOnionSkinDepthComboboxEvent)
                 return;
 
             int depth = int.Parse(tscb_osFrameCount.SelectedItem as string);
@@ -1658,7 +1672,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Whether to ignore the tscb_osFrameCount_SelectedIndexChanged event
         /// </summary>
-        private bool ignoreOnionSkinDepthComboboxEvent = false;
+        private bool _ignoreOnionSkinDepthComboboxEvent = false;
 
         #endregion
     }
