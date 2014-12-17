@@ -537,7 +537,7 @@ namespace Pixelaria.Utils
             /// <summary>
             /// The fast bitmap instance attached to this locker
             /// </summary>
-            private FastBitmap _fastBitmap;
+            private readonly FastBitmap _fastBitmap;
 
             /// <summary>
             /// Gets the fast bitmap instance attached to this locker
@@ -545,7 +545,6 @@ namespace Pixelaria.Utils
             public FastBitmap FastBitmap
             {
                 get { return _fastBitmap; }
-                private set { _fastBitmap = value; }
             }
 
             /// <summary>
