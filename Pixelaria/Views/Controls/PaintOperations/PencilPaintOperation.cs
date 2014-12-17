@@ -15,9 +15,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// Initializes a new instance of the PencilPaintOperation class
         /// </summary>
         public PencilPaintOperation()
-            : base()
         {
-            this.undoDecription = "Pencil";
+            undoDecription = "Pencil";
         }
 
         /// <summary>
@@ -30,9 +29,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
         public PencilPaintOperation(Color firstColor, Color secondColor, int pencilSize)
             : this()
         {
-            this.FirstColor = firstColor;
-            this.SecondColor = secondColor;
-            this.Size = 1;
+            this.firstColor = firstColor;
+            this.secondColor = secondColor;
+            size = 1;
         }
 
         /// <summary>

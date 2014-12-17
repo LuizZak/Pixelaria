@@ -22,17 +22,17 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// The minimum point that the trace bitmap occupies over the canvas image
         /// </summary>
-        private Point minimumTraceBitmapPoint;
+        private Point _minimumTraceBitmapPoint;
 
         /// <summary>
         /// The maximum point that the trace bitmap occupies over the canvas image
         /// </summary>
-        private Point maximumTraceBitmapPoint;
+        private Point _maximumTraceBitmapPoint;
 
         /// <summary>
         /// Whether the current trace bitmap area is invalid
         /// </summary>
-        private bool invalidTraceArea;
+        private bool _invalidTraceArea;
 
         /// <summary>
         /// Whether the pencil is visible
@@ -42,7 +42,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Whether the mouse is being held down on the form
         /// </summary>
-        protected bool mouseDown = false;
+        protected bool mouseDown;
 
         /// <summary>
         /// The pen which the user is currently drawing with
@@ -118,7 +118,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             set
             {
                 InvalidatePen();
-                this.pencilPoint = value;
+                pencilPoint = value;
                 InvalidatePen();
             }
         }
@@ -183,9 +183,9 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Initializes a new instance of the BasePencilPaintOperation class
         /// </summary>
-        public BasePencilPaintOperation()
+        protected BasePencilPaintOperation()
         {
-            this.size = 1;
+            size = 1;
         }
 
         /// <summary>
@@ -197,21 +197,21 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             base.Initialize(pictureBox);
 
             this.pictureBox = pictureBox;
-            this.lastMousePosition = new Point();
+            lastMousePosition = new Point();
 
-            invalidTraceArea = true;
+            _invalidTraceArea = true;
 
             RegeneratePenBitmap();
 
             ChangeBitmap(pictureBox.Bitmap);
 
-            this.currentTraceBitmap = new Bitmap(pictureBox.Bitmap.Width, pictureBox.Bitmap.Height);
+            currentTraceBitmap = new Bitmap(pictureBox.Bitmap.Width, pictureBox.Bitmap.Height);
 
-            this.CompositingMode = pictureBox.OwningPanel.DefaultCompositingMode;
+            CompositingMode = pictureBox.OwningPanel.DefaultCompositingMode;
 
-            this.visible = true;
+            visible = true;
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -226,15 +226,15 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             InvalidatePen();
 
-            this.pictureBox = null;
+            pictureBox = null;
 
-            this.graphics.Dispose();
-            this.firstPenBitmap.Dispose();
-            this.secondPenBitmap.Dispose();
+            graphics.Dispose();
+            firstPenBitmap.Dispose();
+            secondPenBitmap.Dispose();
 
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
 
-            this.Loaded = false;
+            Loaded = false;
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Called to notify this PaintOperation that the control is being redrawn
         /// </summary>
-        /// <param name="e">The event args for this event</param>
+        /// <param name="pe">The event args for this event</param>
         public override void Paint(PaintEventArgs pe)
         {
             if (!visible)
@@ -307,7 +307,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             if (mouseDown && CompositingMode == CompositingMode.SourceOver)
             {
-                Rectangle traceRectangle = new Rectangle(minimumTraceBitmapPoint.X, minimumTraceBitmapPoint.Y, maximumTraceBitmapPoint.X - minimumTraceBitmapPoint.X + 1, maximumTraceBitmapPoint.Y - minimumTraceBitmapPoint.Y + 1);
+                Rectangle traceRectangle = new Rectangle(_minimumTraceBitmapPoint.X, _minimumTraceBitmapPoint.Y, _maximumTraceBitmapPoint.X - _minimumTraceBitmapPoint.X + 1, _maximumTraceBitmapPoint.Y - _minimumTraceBitmapPoint.Y + 1);
 
                 gfx.DrawImage(currentTraceBitmap, traceRectangle, traceRectangle.X, traceRectangle.Y, traceRectangle.Width, traceRectangle.Height, GraphicsUnit.Pixel, attributes);
             }
@@ -499,7 +499,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             if (e.Button != MouseButtons.Middle)
             {
                 FinishOperation();
-                invalidTraceArea = true;
+                _invalidTraceArea = true;
             }
 
             mouseDown = false;
@@ -511,7 +511,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <param name="e">The event args for this event</param>
         public override void MouseLeave(EventArgs e)
         {
-            this.visible = false;
+            visible = false;
             InvalidatePen();
         }
 
@@ -521,7 +521,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <param name="e">The event args for this event</param>
         public override void MouseEnter(EventArgs e)
         {
-            this.visible = true;
+            visible = true;
         }
 
         /// <summary>
@@ -604,20 +604,20 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <param name="p">The point to add to the trace bitmap area</param>
         protected virtual void ComputeTraceBitmapBounds(Point p)
         {
-            if (invalidTraceArea)
+            if (_invalidTraceArea)
             {
-                minimumTraceBitmapPoint = p;
-                maximumTraceBitmapPoint = p;
+                _minimumTraceBitmapPoint = p;
+                _maximumTraceBitmapPoint = p;
 
-                invalidTraceArea = false;
+                _invalidTraceArea = false;
             }
             else
             {
-                minimumTraceBitmapPoint.X = Math.Min(minimumTraceBitmapPoint.X, p.X);
-                minimumTraceBitmapPoint.Y = Math.Min(minimumTraceBitmapPoint.Y, p.Y);
+                _minimumTraceBitmapPoint.X = Math.Min(_minimumTraceBitmapPoint.X, p.X);
+                _minimumTraceBitmapPoint.Y = Math.Min(_minimumTraceBitmapPoint.Y, p.Y);
 
-                maximumTraceBitmapPoint.X = Math.Max(maximumTraceBitmapPoint.X, p.X);
-                maximumTraceBitmapPoint.Y = Math.Max(maximumTraceBitmapPoint.Y, p.Y);
+                _maximumTraceBitmapPoint.X = Math.Max(_maximumTraceBitmapPoint.X, p.X);
+                _maximumTraceBitmapPoint.Y = Math.Max(_maximumTraceBitmapPoint.Y, p.Y);
             }
         }
 

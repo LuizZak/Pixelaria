@@ -12,7 +12,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
     /// <summary>
     /// Implements a Rectangle paint operation
     /// </summary>
-    public class RectanglePaintOperation : BaseShapeOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation, IFillModePaintOperation
+    public class RectanglePaintOperation : BaseShapeOperation, IColoredPaintOperation, ICompositingPaintOperation, IFillModePaintOperation
     {
         /// <summary>
         /// Initialies a new instance of the RectanglePaintOperation class, setting the two drawing colors
@@ -36,10 +36,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -49,13 +49,13 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             base.Destroy();
 
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
         }
 
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
@@ -189,43 +189,43 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <summary>
             /// The target InternalPictureBox of this RectangleUndoTask
             /// </summary>
-            ImageEditPanel.InternalPictureBox targetPictureBox;
+            readonly ImageEditPanel.InternalPictureBox _targetPictureBox;
 
             /// <summary>
             /// The area of the the image that was affected by the Rectangle operation
             /// </summary>
-            Rectangle area;
+            readonly Rectangle _area;
 
             /// <summary>
             /// The first color used to draw the Rectangle
             /// </summary>
-            Color firstColor;
+            readonly Color _firstColor;
 
             /// <summary>
             /// The second color used to draw the Rectangle
             /// </summary>
-            Color secondColor;
+            readonly Color _secondColor;
 
             /// <summary>
             /// The original slice of bitmap that represents the image region before the rectangle
             /// was drawn
             /// </summary>
-            Bitmap originalSlice;
+            readonly Bitmap _originalSlice;
 
             /// <summary>
             /// The bitmap where the Rectangle was drawn on
             /// </summary>
-            Bitmap bitmap;
+            Bitmap _bitmap;
 
             /// <summary>
             /// The compositing mode of the paint operation
             /// </summary>
-            CompositingMode compositingMode;
+            readonly CompositingMode _compositingMode;
 
             /// <summary>
             /// The fill mode for the paint operation
             /// </summary>
-            OperationFillMode fillMode;
+            readonly OperationFillMode _fillMode;
 
             /// <summary>
             /// Initializes a new instance of the RectangleUndoTask class
@@ -238,19 +238,19 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <param name="fillMode">The fill mode for this rectangle operation</param>
             public RectangleUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, Color firstColor, Color secondColor, Rectangle area, CompositingMode compositingMode, OperationFillMode fillMode)
             {
-                this.targetPictureBox = targetPictureBox;
-                this.firstColor = firstColor;
-                this.secondColor = secondColor;
-                this.area = area;
-                this.bitmap = targetPictureBox.Bitmap;
-                this.compositingMode = compositingMode;
-                this.fillMode = fillMode;
+                _targetPictureBox = targetPictureBox;
+                _firstColor = firstColor;
+                _secondColor = secondColor;
+                _area = area;
+                _bitmap = targetPictureBox.Bitmap;
+                _compositingMode = compositingMode;
+                _fillMode = fillMode;
 
                 // Take the image slide now
-                this.originalSlice = new Bitmap(area.Width, area.Height);
+                _originalSlice = new Bitmap(area.Width, area.Height);
                 
-                Graphics g = Graphics.FromImage(originalSlice);
-                g.DrawImage(bitmap, new Point(-area.X, -area.Y));
+                Graphics g = Graphics.FromImage(_originalSlice);
+                g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
                 g.Flush();
                 g.Dispose();
             }
@@ -260,8 +260,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// </summary>
             public void Clear()
             {
-                originalSlice.Dispose();
-                bitmap = null;
+                _originalSlice.Dispose();
+                _bitmap = null;
             }
 
             /// <summary>
@@ -270,18 +270,18 @@ namespace Pixelaria.Views.Controls.PaintOperations
             public void Undo()
             {
                 // Redraw the original slice back to the image
-                Graphics g = Graphics.FromImage(bitmap);
-                g.SetClip(area);
+                Graphics g = Graphics.FromImage(_bitmap);
+                g.SetClip(_area);
                 g.Clear(Color.Transparent);
                 g.CompositingMode = CompositingMode.SourceCopy;
                 
-                g.DrawImage(originalSlice, area);
+                g.DrawImage(_originalSlice, _area);
 
                 g.Flush();
                 g.Dispose();
 
                 // Invalidate the target box
-                targetPictureBox.Invalidate();
+                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
@@ -290,10 +290,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
             public void Redo()
             {
                 // Draw the rectangle again
-                RectanglePaintOperation.PerformRectangleOperation(firstColor, secondColor, area, bitmap, compositingMode, fillMode);
+                PerformRectangleOperation(_firstColor, _secondColor, _area, _bitmap, _compositingMode, _fillMode);
 
                 // Invalidate the target box
-                targetPictureBox.Invalidate();
+                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
