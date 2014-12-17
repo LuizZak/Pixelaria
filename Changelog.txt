@@ -24,6 +24,8 @@ Legend:
   * Fixed pencil operation being really slow on high-resolution images.
   * Fixed pasting something and deselecting right away undoing the paste operation.
 
+. Now the main window title bar displays the path of the file currently open
+
 -- v1.14.2b
 
 * Fixed bug where similar frames that were reused in the export atlas sheet would accumulate their opacity, changing the generated transparency of the final frame on the sheet.

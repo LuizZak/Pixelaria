@@ -90,6 +90,7 @@ namespace Pixelaria.Views
             this.mi_arrangeIcons = new System.Windows.Forms.MenuItem();
             this.menuItem2 = new System.Windows.Forms.MenuItem();
             this.mi_fileBug = new System.Windows.Forms.MenuItem();
+            this.menuItem3 = new System.Windows.Forms.MenuItem();
             this.mi_about = new System.Windows.Forms.MenuItem();
             this.cms_sheetNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_deleteSheet = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,7 +107,6 @@ namespace Pixelaria.Views
             this.cmb_editAnimProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.tv_bundleAnimations = new Pixelaria.Views.Controls.ProjectTreeView();
-            this.menuItem3 = new System.Windows.Forms.MenuItem();
             this.ts_mainStrip.SuspendLayout();
             this.cms_bundleNodeRightClick.SuspendLayout();
             this.cms_sheetNodeRightClick.SuspendLayout();
@@ -413,6 +413,11 @@ namespace Pixelaria.Views
             this.mi_fileBug.Text = "File a Bug...";
             this.mi_fileBug.Click += new System.EventHandler(this.mi_fileBug_Click);
             // 
+            // menuItem3
+            // 
+            this.menuItem3.Index = 1;
+            this.menuItem3.Text = "-";
+            // 
             // mi_about
             // 
             this.mi_about.Index = 2;
@@ -555,11 +560,6 @@ namespace Pixelaria.Views
             this.tv_bundleAnimations.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tv_bundleAnimations_BeforeExpand);
             this.tv_bundleAnimations.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tv_bundleAnimations_KeyDown);
             // 
-            // menuItem3
-            // 
-            this.menuItem3.Index = 1;
-            this.menuItem3.Text = "-";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -574,7 +574,7 @@ namespace Pixelaria.Views
             this.IsMdiContainer = true;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Pixelaria v1.7";
+            this.Text = "Pixelaria";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ts_mainStrip.ResumeLayout(false);
