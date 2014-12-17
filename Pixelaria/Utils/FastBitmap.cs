@@ -33,6 +33,11 @@ namespace Pixelaria.Utils
     public unsafe class FastBitmap
     {
         /// <summary>
+        /// Specifies the number of bytes available per pixel of the bitmap object being manipulated
+        /// </summary>
+        private const int BytesPerPixel = 4;
+
+        /// <summary>
         /// The Bitmap object encapsulated on this FastBitmap
         /// </summary>
         private readonly Bitmap _bitmap;
@@ -110,10 +115,10 @@ namespace Pixelaria.Utils
 
                 // Declare an array to hold the bytes of the bitmap
                 int bytes = Math.Abs(_bitmapData.Stride) * _bitmap.Height;
-                int[] argbValues = new int[bytes / 4];
+                int[] argbValues = new int[bytes / BytesPerPixel];
 
                 // Copy the RGB values into the array
-                Marshal.Copy(_bitmapData.Scan0, argbValues, 0, bytes / 4);
+                Marshal.Copy(_bitmapData.Scan0, argbValues, 0, bytes / BytesPerPixel);
 
                 if (unlockAfter)
                 {
@@ -187,7 +192,7 @@ namespace Pixelaria.Utils
             _bitmapData = _bitmap.LockBits(rect, lockMode, _bitmap.PixelFormat);
 
             _scan0 = (int*)_bitmapData.Scan0;
-            _strideWidth = _bitmapData.Stride / 4;
+            _strideWidth = _bitmapData.Stride / BytesPerPixel;
 
             _locked = true;
         }
@@ -332,9 +337,12 @@ namespace Pixelaria.Utils
             int count = _width * _height;
             int* curScan = _scan0;
 
-            int rem = count % 8;
+            // Defines the ammount of assignments that the main while() loop is performing per loop.
+            // The value specified here must match the number of assignment statements inside that loop
+            const int assignsPerLoop = 8;
 
-            count /= 8;
+            int rem = count % assignsPerLoop;
+            count /= assignsPerLoop;
 
             while (count-- > 0)
             {
@@ -422,33 +430,7 @@ namespace Pixelaria.Utils
             fastSource.Lock(ImageLockMode.ReadOnly);
             fastTarget.Lock();
 
-            // Simply copy the argb values array
-            int *s0s = fastSource._scan0;
-            int *s0t = fastTarget._scan0;
-
-            const int bpp = 1; // Bytes per pixel
-
-            int count = fastSource._width * fastSource._height * bpp;
-            int rem = count % 8;
-
-            count /= 8;
-
-            while (count-- > 0)
-            {
-                *(s0t++) = *(s0s++);
-                *(s0t++) = *(s0s++);
-                *(s0t++) = *(s0s++);
-                *(s0t++) = *(s0s++);
-
-                *(s0t++) = *(s0s++);
-                *(s0t++) = *(s0s++);
-                *(s0t++) = *(s0s++);
-                *(s0t++) = *(s0s++);
-            }
-            while (rem-- > 0)
-            {
-                *(s0t++) = *(s0s++);
-            }
+            memcpy(fastTarget.Scan0, fastSource.Scan0, (ulong)(fastSource.Height * fastSource._strideWidth * BytesPerPixel));
 
             fastSource.Unlock();
             fastTarget.Unlock();
@@ -506,5 +488,9 @@ namespace Pixelaria.Utils
 
             fastTarget.Unlock();
         }
+
+        // .NET wrapper to native call of 'memcpy'. Requires Microsoft Visual C++ Runtime installed
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr memcpy(IntPtr dest, IntPtr src, ulong count);
     }
 }
