@@ -125,6 +125,7 @@ namespace Pixelaria.Views.MiscViews
     /// <summary>
     /// Enumerates which properties should be visible for selection on a FramesRescaleSettingsView
     /// </summary>
+    [Flags]
     public enum FramesRescalingOptions
     {
         ShowAnimationSize = 0x1,
