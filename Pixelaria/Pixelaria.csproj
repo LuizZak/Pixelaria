@@ -177,6 +177,14 @@
     <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\PaintOperations\Abstracts\BasePencilPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Abstracts\BaseShapeOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\BucketPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\EllipsePaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\EraserPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\LinePaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Abstracts\BaseDraggingPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Abstracts\BasePaintOperation.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -264,9 +272,17 @@
     <Compile Include="Views\Controls\Filters\TransparencyControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Views\Controls\PaintOperations\Interfaces\IClipboardPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Interfaces\IFillModePaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\NullPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Interfaces\ICompositingPaintOperation.cs" />
     <Compile Include="Views\Controls\ImageEditPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\Controls\PaintOperations\Interfaces\ISizedPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\Interfaces\IPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\PencilPaintOperation.cs" />
     <Compile Include="Views\Controls\ProjectTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -276,15 +292,19 @@
     <Compile Include="Views\Controls\RearrangeableTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\Controls\PaintOperations\RectanglePaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\SelectionPaintOperation.cs" />
     <Compile Include="Views\Controls\SheetPreviewPictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\Controls\PaintOperations\SprayPaintOperation.cs" />
     <Compile Include="Views\Controls\TimelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\ZoomablePictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\Controls\PaintOperations\ZoomPaintOperation.cs" />
     <Compile Include="Views\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -678,6 +698,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

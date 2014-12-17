@@ -40,6 +40,8 @@ using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.Filters;
+using Pixelaria.Views.Controls.PaintOperations;
+using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews.Miscs;
 
@@ -925,7 +927,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_eraser.Checked)
             {
-                ChangePaintOperation(new EraserPaintOperation());
+                ChangePaintOperation(new EraserPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
             }
         }
 
