@@ -12,7 +12,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
     /// <summary>
     /// Implements a Bucket paint operation
     /// </summary>
-    public class BucketPaintOperation : BasePaintOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
+    public class BucketPaintOperation : BasePaintOperation, IColoredPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// The compositing mode for this paint operation
