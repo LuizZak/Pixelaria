@@ -227,7 +227,7 @@ namespace Pixelaria.Data
             Height = sizeMatchingSettings.NewHeight;
 
             // Resize the frames now
-            foreach (Frame frame in this._frames)
+            foreach (Frame frame in _frames)
             {
                 frame.Resize(sizeMatchingSettings.NewWidth, sizeMatchingSettings.NewHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
