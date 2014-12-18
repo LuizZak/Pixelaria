@@ -425,18 +425,15 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// </summary>
             public void Undo()
             {
-                FastBitmap bitmap = new FastBitmap(pictureBox.Bitmap);
-
-                bitmap.Lock();
-
-                foreach (PixelUndo pu in pixelList)
+                using (FastBitmap bitmap = _pictureBox.Bitmap.FastLock())
                 {
-                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.UndoColor);
+                    foreach (PixelUndo pu in _pixelList)
+                    {
+                        bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.UndoColor);
+                    }
                 }
 
-                bitmap.Unlock();
-
-                pictureBox.Invalidate();
+                _pictureBox.Invalidate();
             }
 
             /// <summary>
@@ -444,18 +441,15 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// </summary>
             public void Redo()
             {
-                FastBitmap bitmap = new FastBitmap(pictureBox.Bitmap);
-
-                bitmap.Lock();
-
-                foreach (PixelUndo pu in pixelList)
+                using (FastBitmap bitmap = _pictureBox.Bitmap.FastLock())
                 {
-                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.RedoColor);
+                    foreach (PixelUndo pu in _pixelList)
+                    {
+                        bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.RedoColor);
+                    }
                 }
 
-                bitmap.Unlock();
-
-                pictureBox.Invalidate();
+                _pictureBox.Invalidate();
             }
 
             /// <summary>

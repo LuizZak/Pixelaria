@@ -218,9 +218,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="compositingMode">The CompositingMode to use when drawing the line</param>
         public static void PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Bitmap bitmap, CompositingMode compositingMode)
         {
-            FastBitmap fastBitmap = new FastBitmap(bitmap);
-            fastBitmap.Lock();
-
+            // Implemented using the Bresenham's line algorithm
             int x0 = firstPoint.X;
             int y0 = firstPoint.Y;
             int x1 = secondPoint.X;
@@ -258,59 +256,46 @@ namespace Pixelaria.Views.Controls.PaintOperations
             else
                 ystep = -1;
 
-            Brush brush = new SolidBrush(color);
-
-            Point p = new Point();
-            for (int x = x0; x <= x1; x++)
+            using (FastBitmap fastBitmap = bitmap.FastLock())
             {
-                if (steep)
+                Point p = new Point();
+                for (int x = x0; x <= x1; x++)
                 {
-                    p.X = y;
-                    p.Y = x;
-                }
-                else
-                {
-                    p.X = x;
-                    p.Y = y;
-                }
+                    if (steep)
+                    {
+                        p.X = y;
+                        p.Y = x;
+                    }
+                    else
+                    {
+                        p.X = x;
+                        p.Y = y;
+                    }
 
-                if (p.X < 0 || p.X >= fastBitmap.Width || p.Y < 0 || p.Y >= fastBitmap.Height)
-                {
-                    continue;
-                }
+                    if (p.X < 0 || p.X >= fastBitmap.Width || p.Y < 0 || p.Y >= fastBitmap.Height)
+                    {
+                        continue;
+                    }
 
-                if (compositingMode == CompositingMode.SourceOver)
-                {
-                    Color newColor = color.Blend(fastBitmap.GetPixel(p.X, p.Y));
+                    if (compositingMode == CompositingMode.SourceOver)
+                    {
+                        Color newColor = color.Blend(fastBitmap.GetPixel(p.X, p.Y));
 
-                    fastBitmap.SetPixel(p.X, p.Y, newColor);
-                }
-                else
-                {
-                    fastBitmap.SetPixel(p.X, p.Y, color);
+                        fastBitmap.SetPixel(p.X, p.Y, newColor);
+                    }
+                    else
+                    {
+                        fastBitmap.SetPixel(p.X, p.Y, color);
+                    }
 
-                    //newColor = penColor;
-                }
-
-                error = error - deltay;
-                if (error < 0)
-                {
-                    y = y + ystep;
-                    error = error + deltax;
+                    error = error - deltay;
+                    if (error < 0)
+                    {
+                        y = y + ystep;
+                        error = error + deltax;
+                    }
                 }
             }
-
-            brush.Dispose();
-
-            fastBitmap.Unlock();
-
-            /*
-            Graphics graphics = Graphics.FromImage(bitmap);
-
-            PerformLineOperation(color, firstPoint, secondPoint, graphics, compositingMode);
-
-            graphics.Flush();
-            graphics.Dispose();*/
         }
 
         /// <summary>

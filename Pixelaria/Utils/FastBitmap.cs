@@ -432,9 +432,7 @@ namespace Pixelaria.Utils
             int destStartX = destBitmapRect.Left;
             int destStartY = destBitmapRect.Top;
 
-            FastBitmap fastSource = new FastBitmap(source);
-
-            using (fastSource.Lock())
+            using (FastBitmap fastSource = source.FastLock())
             {
                 ulong strideWidth = (ulong)copyWidth * BytesPerPixel;
 
@@ -466,16 +464,11 @@ namespace Pixelaria.Utils
             if (source.Width != target.Width || source.Height != target.Height || source.PixelFormat != target.PixelFormat)
                 return false;
 
-            FastBitmap fastSource = new FastBitmap(source);
-            FastBitmap fastTarget = new FastBitmap(target);
-
-            fastSource.Lock(ImageLockMode.ReadOnly);
-            fastTarget.Lock();
-
-            memcpy(fastTarget.Scan0, fastSource.Scan0, (ulong)(fastSource.Height * fastSource._strideWidth * BytesPerPixel));
-
-            fastSource.Unlock();
-            fastTarget.Unlock();
+            using (FastBitmap fastSource = source.FastLock(),
+                              fastTarget = target.FastLock())
+            {
+                memcpy(fastTarget.Scan0, fastSource.Scan0, (ulong)(fastSource.Height * fastSource._strideWidth * BytesPerPixel));
+            }
 
             return true;
         }
@@ -497,10 +490,10 @@ namespace Pixelaria.Utils
         /// <param name="color">The color to clear the bitmap with</param>
         public static void ClearBitmap(Bitmap bitmap, int color)
         {
-            FastBitmap fb = new FastBitmap(bitmap);
-            fb.Lock();
-            fb.Clear(color);
-            fb.Unlock();
+            using (var fb = bitmap.FastLock())
+            {
+                fb.Clear(color);
+            }
         }
 
         /// <summary>
