@@ -152,37 +152,37 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <summary>
             /// List of pixels stored on this per-pixel undo
             /// </summary>
-            private List<PixelUndo> pixelList;
+            private List<PixelUndo> _pixelList;
 
             /// <summary>
             /// Whether to index the pixels being added so they appear sequentially on the pixels list
             /// </summary>
-            private bool indexPixels;
+            private readonly bool _indexPixels;
 
             /// <summary>
             /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
             /// </summary>
-            private bool keepReplacedOriginals;
+            private readonly bool _keepReplacedOriginals;
 
             /// <summary>
             /// The width of the bitmap being affected
             /// </summary>
-            private int width;
+            private readonly int _width;
 
             /// <summary>
             /// The height of the bitmap being affected
             /// </summary>
-            private int height;
+            private int _height;
 
             /// <summary>
             /// The target InternalPictureBox to perform the undo operation on
             /// </summary>
-            private ImageEditPanel.InternalPictureBox pictureBox;
+            private ImageEditPanel.InternalPictureBox _pictureBox;
 
             /// <summary>
             /// The string that describes this PerPixelUndoTask
             /// </summary>
-            private string description;
+            private readonly string _description;
 
             /// <summary>
             /// Initializes a new instance of the PixelUndoTask
@@ -193,14 +193,14 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <param name="keepReplacedOriginals">Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.</param>
             public PerPixelUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, string description, bool indexPixels = false, bool keepReplacedOriginals = false)
             {
-                this.pixelList = new List<PixelUndo>();
-                this.pictureBox = targetPictureBox;
-                this.description = description;
-                this.indexPixels = indexPixels;
-                this.keepReplacedOriginals = keepReplacedOriginals;
+                _pixelList = new List<PixelUndo>();
+                _pictureBox = targetPictureBox;
+                _description = description;
+                _indexPixels = indexPixels;
+                _keepReplacedOriginals = keepReplacedOriginals;
 
-                this.width = targetPictureBox.Bitmap.Width;
-                this.height = targetPictureBox.Bitmap.Height;
+                _width = targetPictureBox.Bitmap.Width;
+                _height = targetPictureBox.Bitmap.Height;
             }
 
             /// <summary>
@@ -227,9 +227,9 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             public void RegisterPixel(int x, int y, int oldColor, int newColor, bool checkExisting = true)
             {
                 // Early out: don't register duplicated pixels
-                if (checkExisting && !indexPixels)
+                if (checkExisting && !_indexPixels)
                 {
-                    foreach (PixelUndo pu in pixelList)
+                    foreach (PixelUndo pu in _pixelList)
                     {
                         if (pu.PixelX == x && pu.PixelY == y)
                             return;
@@ -249,22 +249,22 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <param name="replaceExisting">Whether to allow relpacing existing pixels on the list</param>
             private void InternalRegisterPixel(int x, int y, int oldColor, int newColor, bool replaceExisting)
             {
-                int pixelIndex = x + y * width;
+                int pixelIndex = x + y * _width;
 
-                PixelUndo item = new PixelUndo() { PixelX = x, PixelY = y, PixelIndex = pixelIndex, UndoColor = oldColor, RedoColor = newColor };
+                PixelUndo item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
 
-                if (!indexPixels)
+                if (!_indexPixels)
                 {
-                    pixelList.Add(item);
+                    _pixelList.Add(item);
                     return;
                 }
 
-                int l = pixelList.Count;
+                int l = _pixelList.Count;
 
                 // Empty list: Add item directly
                 if (l == 0)
                 {
-                    pixelList.Add(item);
+                    _pixelList.Add(item);
                     return;
                 }
 
@@ -274,58 +274,58 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 {
                     int idC, idM, idF;
 
-                    idF = pixelList[e].PixelIndex;
+                    idF = _pixelList[e].PixelIndex;
 
                     // Pixel index of the item at the end of the interval is smaller than the current pixel index: Add
                     // item after the interval
                     if (idF < pixelIndex)
                     {
-                        pixelList.Insert(e + 1, item);
+                        _pixelList.Insert(e + 1, item);
                         return;
                     }
                     // Pixel index of the item at the end of the interval is equals to the item being added: Replace the pixel if replacing is allowed and quit
-                    else if (idF == pixelIndex)
+                    if (idF == pixelIndex)
                     {
                         if (replaceExisting)
                         {
-                            if (keepReplacedOriginals)
+                            if (_keepReplacedOriginals)
                             {
-                                item.UndoColor = pixelList[e].UndoColor;
+                                item.UndoColor = _pixelList[e].UndoColor;
                             }
 
-                            pixelList[e] = item;
+                            _pixelList[e] = item;
                         }
 
                         return;
                     }
 
-                    idC = pixelList[s].PixelIndex;
+                    idC = _pixelList[s].PixelIndex;
 
                     // Pixel index of the item at the start of the interval is larger than the current pixel index: Add
                     // item before the interval
                     if (idC > pixelIndex)
                     {
-                        pixelList.Insert(s, item);
+                        _pixelList.Insert(s, item);
                         return;
                     }
                     // Pixel index of the item at the start of the interval is equals to the item being added: Replace the pixel if replacing is allowed and quit
-                    else if (idC == pixelIndex)
+                    if (idC == pixelIndex)
                     {
                         if (replaceExisting)
                         {
-                            if (keepReplacedOriginals)
+                            if (_keepReplacedOriginals)
                             {
-                                item.UndoColor = pixelList[s].UndoColor;
+                                item.UndoColor = _pixelList[s].UndoColor;
                             }
 
-                            pixelList[s] = item;
+                            _pixelList[s] = item;
                         }
 
                         return;
                     }
 
                     int mid = s + (e - s) / 2;
-                    idM = pixelList[mid].PixelIndex;
+                    idM = _pixelList[mid].PixelIndex;
 
                     if (idM > pixelIndex)
                     {
@@ -341,12 +341,12 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                     {
                         if (replaceExisting)
                         {
-                            if (keepReplacedOriginals)
+                            if (_keepReplacedOriginals)
                             {
-                                item.UndoColor = pixelList[mid].UndoColor;
+                                item.UndoColor = _pixelList[mid].UndoColor;
                             }
 
-                            pixelList[mid] = item;
+                            _pixelList[mid] = item;
                         }
 
                         return;
@@ -355,7 +355,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                     // End of search: Add item at the current index
                     if (s > e)
                     {
-                        pixelList.Insert(s, item);
+                        _pixelList.Insert(s, item);
                         return;
                     }
                 }
@@ -367,7 +367,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <param name="x">The X coordinate of the pixel to search</param>
             /// <param name="y">The Y coordinate of the pixel to search</param>
             /// <returns>Whether this PerPixelUndoTask contains information about undoing the given pixel</returns>
-            private bool ContainsPixel(int x, int y)
+            public bool ContainsPixel(int x, int y)
             {
                 return IndexOfPixel(x, y) > -1;
             }
@@ -380,24 +380,25 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <returns>The index of a pixel in the pixel list</returns>
             private int IndexOfPixel(int x, int y)
             {
-                if (pixelList.Count == 0)
+                if (_pixelList.Count == 0)
                     return -1;
 
-                int id = x + y * width;
+                int id = x + y * _width;
 
                 int s = 0;
-                int e = pixelList.Count - 1;
+                int e = _pixelList.Count - 1;
 
                 while (s <= e)
                 {
                     int mid = s + (e - s) / 2;
-                    int idMid = pixelList[mid].PixelIndex;
+                    int idMid = _pixelList[mid].PixelIndex;
 
                     if (idMid == id)
                     {
                         return mid;
                     }
-                    else if (idMid > id)
+                    
+                    if (idMid > id)
                     {
                         e = mid - 1;
                     }
@@ -415,9 +416,9 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// </summary>
             public void Clear()
             {
-                pixelList.Clear();
-                pixelList = null;
-                pictureBox = null;
+                _pixelList.Clear();
+                _pixelList = null;
+                _pictureBox = null;
             }
 
             /// <summary>
@@ -458,7 +459,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <returns>The string description of this undo task</returns>
             public virtual string GetDescription()
             {
-                return description;
+                return _description;
             }
 
             /// <summary>
@@ -501,11 +502,11 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 /// <param name="newColor">The color to apply on a redo operation</param>
                 public PixelUndo(int x, int y, int pixelIndex, Color oldColor, Color newColor)
                 {
-                    this.PixelX = x;
-                    this.PixelY = y;
-                    this.PixelIndex = pixelIndex;
-                    this.UndoColor = oldColor.ToArgb();
-                    this.RedoColor = newColor.ToArgb();
+                    PixelX = x;
+                    PixelY = y;
+                    PixelIndex = pixelIndex;
+                    UndoColor = oldColor.ToArgb();
+                    RedoColor = newColor.ToArgb();
                 }
 
                 /// <summary>
@@ -518,11 +519,11 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 /// <param name="newColor">The color to apply on a redo operation</param>
                 public PixelUndo(int x, int y, int pixelIndex, int oldColor, int newColor)
                 {
-                    this.PixelX = x;
-                    this.PixelY = y;
-                    this.PixelIndex = pixelIndex;
-                    this.UndoColor = oldColor;
-                    this.RedoColor = newColor;
+                    PixelX = x;
+                    PixelY = y;
+                    PixelIndex = pixelIndex;
+                    UndoColor = oldColor;
+                    RedoColor = newColor;
                 }
             }
         }
