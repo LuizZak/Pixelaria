@@ -204,7 +204,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             }
 
             /// <summary>
-            /// Registers a pixel on this PixelUndoTask 
+            /// Registers a pixel on this PixelUndoTask
             /// </summary>
             /// <param name="x">The X coordinate of the pixel to store</param>
             /// <param name="y">The Y coordinate of the pixel to store</param>
@@ -217,7 +217,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             }
 
             /// <summary>
-            /// Registers a pixel on this PixelUndoTask 
+            /// Registers a pixel on this PixelUndoTask
             /// </summary>
             /// <param name="x">The X coordinate of the pixel to store</param>
             /// <param name="y">The Y coordinate of the pixel to store</param>
@@ -230,7 +230,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             }
 
             /// <summary>
-            /// Registers a pixel on this PixelUndoTask 
+            /// Registers a pixel on this PixelUndoTask
             /// </summary>
             /// <param name="x">The X coordinate of the pixel to store</param>
             /// <param name="y">The Y coordinate of the pixel to store</param>
@@ -250,6 +250,18 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 }
 
                 InternalRegisterPixel(x, y, oldColor, newColor, !checkExisting);
+            }
+
+            /// <summary>
+            /// Registers a pixel on this PixelUndoTask without the existance of a similar pixel priorly
+            /// </summary>
+            /// <param name="x">The X coordinate of the pixel to store</param>
+            /// <param name="y">The Y coordinate of the pixel to store</param>
+            /// <param name="oldColor">The old color of the pixel</param>
+            /// <param name="newColor">The new color of the pixel</param>
+            public void RegisterUncheckedPixel(int x, int y, uint oldColor, uint newColor)
+            {
+                InternalRegisterPixel(x, y, oldColor, newColor, false);
             }
 
             /// <summary>
