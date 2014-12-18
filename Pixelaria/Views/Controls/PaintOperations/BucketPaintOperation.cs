@@ -184,14 +184,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
             int width = fastBitmap.Width;
             int height = fastBitmap.Height;
 
-            stack.Push((((int)point.X << 16) | (int)point.Y));
+            stack.Push(((point.X << 16) | point.Y));
 
             // Do a floodfill using a vertical scanline algorithm
             while(stack.Count > 0)
             {
                 int v = stack.Pop();
-                int x = (int)(v >> 16);
-                int y = (int)(v & 0xFFFF);
+                int x = (v >> 16);
+                int y = (v & 0xFFFF);
 
                 y1 = y;
 
@@ -213,7 +213,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                         if (!spanLeft && pixel == pColorI)
                         {
-                            stack.Push((((int)(x - 1) << 16) | (int)y1));
+                            stack.Push((((x - 1) << 16) | y1));
 
                             spanLeft = true;
                         }
@@ -229,7 +229,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                         if (!spanRight && pixel == pColorI)
                         {
-                            stack.Push((((int)(x + 1) << 16) | (int)y1));
+                            stack.Push((((x + 1) << 16) | y1));
                             spanRight = true;
                         }
                         else if (spanRight && pixel != pColorI)
