@@ -81,10 +81,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.bucket_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -92,9 +92,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         public override void Destroy()
         {
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
 
-            this.Loaded = false;
+            Loaded = false;
         }
 
         /// <summary>
@@ -161,8 +161,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             Color newColor = (compositingMode == CompositingMode.SourceCopy ? color : color.Blend(pColor));
 
-            int pColorI = pColor.ToArgb();
-            int newColorI = newColor.ToArgb();
+            uint pColorI = unchecked((uint)pColor.ToArgb());
+            uint newColorI = unchecked((uint)newColor.ToArgb());
 
             if (pColorI == newColorI || pColor == color && (compositingMode == CompositingMode.SourceOver && pColor.A == 255 || compositingMode == CompositingMode.SourceCopy))
             {
@@ -195,21 +195,21 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                 y1 = y;
 
-                while (y1 >= 0 && fastBitmap.GetPixelInt(x, y1) == pColorI) y1--;
+                while (y1 >= 0 && fastBitmap.GetPixelUInt(x, y1) == pColorI) y1--;
 
                 y1++;
                 spanLeft = spanRight = false;
 
-                while (y1 < height && fastBitmap.GetPixelInt(x, y1) == pColorI)
+                while (y1 < height && fastBitmap.GetPixelUInt(x, y1) == pColorI)
                 {
                     fastBitmap.SetPixel(x, y1, newColorI);
                     undoTask.RegisterPixel(x, y1, pColorI, newColorI, false);
 
-                    int pixel;
+                    uint pixel;
 
                     if (x > 0)
                     {
-                        pixel = fastBitmap.GetPixelInt(x - 1, y1);
+                        pixel = fastBitmap.GetPixelUInt(x - 1, y1);
 
                         if (!spanLeft && pixel == pColorI)
                         {
@@ -225,7 +225,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                     if (x < width - 1)
                     {
-                        pixel = fastBitmap.GetPixelInt(x + 1, y1);
+                        pixel = fastBitmap.GetPixelUInt(x + 1, y1);
 
                         if (!spanRight && pixel == pColorI)
                         {
@@ -245,6 +245,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             pictureBox.Invalidate();
             pictureBox.MarkModified();
+
+            undoTask.PackData();
 
             pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
         }
