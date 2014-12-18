@@ -329,6 +329,33 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Gets the pixel color at the given coordinates as an unsigned integer value.
+        /// If the bitmap was not locked beforehands, an exception is thrown
+        /// </summary>
+        /// <param name="x">The X coordinate of the pixel to get</param>
+        /// <param name="y">The Y coordinate of the pixel to get</param>
+        /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
+        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        public uint GetPixelUInt(int x, int y)
+        {
+            if (!_locked)
+            {
+                throw new InvalidOperationException("The FastBitmap must be locked before any pixel operations are made");
+            }
+
+            if (x < 0 || x >= _width)
+            {
+                throw new ArgumentException("The X component must be >= 0 and < width");
+            }
+            if (y < 0 || y >= _height)
+            {
+                throw new ArgumentException("The Y component must be >= 0 and < height");
+            }
+
+            return *((uint*)_scan0 + x + y * _strideWidth);
+        }
+
+        /// <summary>
         /// Clears the bitmap with the given color
         /// </summary>
         /// <param name="color">The color to clear the bitmap with</param>
