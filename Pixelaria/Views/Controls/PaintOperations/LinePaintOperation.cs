@@ -308,6 +308,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="compositingMode">The CompositingMode to use when drawing the line</param>
         public static void PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Graphics graphics, CompositingMode compositingMode)
         {
+            // Implemented using the Bresenham's line algorithm
             int x0 = firstPoint.X;
             int y0 = firstPoint.Y;
             int x1 = secondPoint.X;
@@ -366,17 +367,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     Rectangle rec = new Rectangle(p.X, p.Y, 1, 1);
 
                     graphics.FillRectangle(brush, rec);
-                    graphics.Flush();
                 }
                 else
                 {
                     Rectangle rec = new Rectangle(p.X, p.Y, 1, 1);
 
                     graphics.FillRectangle(brush, rec);
-                    graphics.Flush();
-                    //image.SetPixel(p.X, p.Y, penColor);
-
-                    //newColor = penColor;
                 }
 
                 error = error - deltay;
@@ -386,6 +382,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     error = error + deltax;
                 }
             }
+
+            graphics.Flush();
 
             brush.Dispose();
         }
