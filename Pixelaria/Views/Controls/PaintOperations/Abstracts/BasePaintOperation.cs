@@ -226,6 +226,19 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
             public void RegisterPixel(int x, int y, int oldColor, int newColor, bool checkExisting = true)
             {
+                RegisterPixel(x, y, unchecked((uint)oldColor), unchecked((uint)newColor), !checkExisting);
+            }
+
+            /// <summary>
+            /// Registers a pixel on this PixelUndoTask 
+            /// </summary>
+            /// <param name="x">The X coordinate of the pixel to store</param>
+            /// <param name="y">The Y coordinate of the pixel to store</param>
+            /// <param name="oldColor">The old color of the pixel</param>
+            /// <param name="newColor">The new color of the pixel</param>
+            /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
+            public void RegisterPixel(int x, int y, uint oldColor, uint newColor, bool checkExisting = true)
+            {
                 // Early out: don't register duplicated pixels
                 if (checkExisting && !_indexPixels)
                 {
@@ -247,7 +260,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <param name="oldColor">The old color of the pixel</param>
             /// <param name="newColor">The new color of the pixel</param>
             /// <param name="replaceExisting">Whether to allow relpacing existing pixels on the list</param>
-            private void InternalRegisterPixel(int x, int y, int oldColor, int newColor, bool replaceExisting)
+            private void InternalRegisterPixel(int x, int y, uint oldColor, uint newColor, bool replaceExisting)
             {
                 int pixelIndex = x + y * _width;
 
@@ -412,6 +425,15 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             }
 
             /// <summary>
+            /// Packs any underlying data so it occupies memory more efficietly
+            /// </summary>
+            public void PackData()
+            {
+                // Trim pixel list capacity
+                _pixelList.Capacity = _pixelList.Count;
+            }
+
+            /// <summary>
             /// Clears this pencil undo task
             /// </summary>
             public void Clear()
@@ -485,12 +507,12 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 /// <summary>
                 /// The color to apply on a undo operation
                 /// </summary>
-                public int UndoColor;
+                public uint UndoColor;
 
                 /// <summary>
                 /// The color to apply on a redo operation
                 /// </summary>
-                public int RedoColor;
+                public uint RedoColor;
 
                 /// <summary>
                 /// Initializes a new instance of the PixelUndo struct
@@ -505,8 +527,8 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                     PixelX = x;
                     PixelY = y;
                     PixelIndex = pixelIndex;
-                    UndoColor = oldColor.ToArgb();
-                    RedoColor = newColor.ToArgb();
+                    UndoColor = unchecked((uint)oldColor.ToArgb());
+                    RedoColor = unchecked((uint)newColor.ToArgb());
                 }
 
                 /// <summary>
@@ -517,7 +539,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 /// <param name="pixelIndex">The absolute index of the pixel</param>
                 /// <param name="oldColor">The color to apply on a undo operation</param>
                 /// <param name="newColor">The color to apply on a redo operation</param>
-                public PixelUndo(int x, int y, int pixelIndex, int oldColor, int newColor)
+                public PixelUndo(int x, int y, int pixelIndex, uint oldColor, uint newColor)
                 {
                     PixelX = x;
                     PixelY = y;
