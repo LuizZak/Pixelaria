@@ -27,32 +27,32 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// The first color currently being used to paint on the InternalPictureBox
         /// </summary>
-        private Color firstColor = Color.Black;
+        private Color _firstColor = Color.Black;
 
         /// <summary>
         /// The second color currently being used to paint on the InternalPictureBox
         /// </summary>
-        private Color secondColor = Color.Black;
+        private Color _secondColor = Color.Black;
 
         /// <summary>
         /// The point at which the mouse is currently over
         /// </summary>
-        private Point mousePosition;
+        private Point _mousePosition;
 
         /// <summary>
         /// The last recorded mouse position
         /// </summary>
-        private Point lastMousePosition;
+        private Point _lastMousePosition;
 
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
         /// </summary>
-        public virtual Color FirstColor { get { return firstColor; } set { firstColor = value; } }
+        public virtual Color FirstColor { get { return _firstColor; } set { _firstColor = value; } }
 
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
         /// </summary>
-        public virtual Color SecondColor { get { return secondColor; } set { secondColor = value; } }
+        public virtual Color SecondColor { get { return _secondColor; } set { _secondColor = value; } }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
@@ -67,8 +67,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="secondColor">The second color for the paint operation</param>
         public BucketPaintOperation(Color firstColor, Color secondColor)
         {
-            this.firstColor = firstColor;
-            this.secondColor = secondColor;
+            this._firstColor = firstColor;
+            this._secondColor = secondColor;
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
-                Color color = e.Button == MouseButtons.Left ? firstColor : secondColor;
+                Color color = e.Button == MouseButtons.Left ? _firstColor : _secondColor;
 
                 if (WithinBounds(point))
                 {
@@ -116,9 +116,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
             }
             else if (e.Button == MouseButtons.Middle)
             {
-                firstColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
+                _firstColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
 
-                pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+                pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
             }
         }
 
@@ -130,22 +130,22 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             base.MouseMove(e);
 
-            mousePosition = e.Location;
+            _mousePosition = e.Location;
 
             if (e.Button == MouseButtons.Middle)
             {
-                Point mouse = GetAbsolutePoint(mousePosition);
-                Point mouseLast = GetAbsolutePoint(lastMousePosition);
+                Point mouse = GetAbsolutePoint(_mousePosition);
+                Point mouseLast = GetAbsolutePoint(_lastMousePosition);
 
                 if (mouse != mouseLast && WithinBounds(mouse))
                 {
-                    firstColor = pictureBox.Bitmap.GetPixel(mouse.X, mouse.Y);
+                    _firstColor = pictureBox.Bitmap.GetPixel(mouse.X, mouse.Y);
 
-                    pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+                    pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
                 }
             }
 
-            lastMousePosition = mousePosition;
+            _lastMousePosition = _mousePosition;
         }
 
         /// <summary>
@@ -179,7 +179,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
             Stack<int> stack = new Stack<int>();
 
             int y1;
-            bool spanLeft, spanRight;
 
             int width = fastBitmap.Width;
             int height = fastBitmap.Height;
@@ -198,12 +197,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 while (y1 >= 0 && fastBitmap.GetPixelUInt(x, y1) == pColorI) y1--;
 
                 y1++;
-                spanLeft = spanRight = false;
+                bool spanLeft = false, spanRight = false;
 
                 while (y1 < height && fastBitmap.GetPixelUInt(x, y1) == pColorI)
                 {
                     fastBitmap.SetPixel(x, y1, newColorI);
-                    undoTask.RegisterPixel(x, y1, pColorI, newColorI, false);
+                    undoTask.RegisterUncheckedPixel(x, y1, pColorI, newColorI);
 
                     uint pixel;
 
