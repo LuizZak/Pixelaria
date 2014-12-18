@@ -77,5 +77,41 @@ namespace Pixelaria.Localization {
                 return ResourceManager.GetString("Exception_UnmatchedFramedimensions", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animation Sheet.
+        /// </summary>
+        internal static string TextAnimationSheet {
+            get {
+                return ResourceManager.GetString("TextAnimationSheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Animation Sheet.
+        /// </summary>
+        internal static string TextNewAnimationSheet {
+            get {
+                return ResourceManager.GetString("TextNewAnimationSheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No animations on sheet to generate preview..
+        /// </summary>
+        internal static string TextNoAnimationInSheetToGeneratePreview {
+            get {
+                return ResourceManager.GetString("TextNoAnimationInSheetToGeneratePreview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sheet Preview: (generated in .
+        /// </summary>
+        internal static string TextSheetPreviewGenerated {
+            get {
+                return ResourceManager.GetString("TextSheetPreviewGenerated", resourceCulture);
+            }
+        }
     }
 }

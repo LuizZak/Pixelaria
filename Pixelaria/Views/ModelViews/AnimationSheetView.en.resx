@@ -118,6 +118,18 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="cb_forceMinimumDimensions.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 17</value>
+  </data>
+  <data name="cb_forceMinimumDimensions.Text" xml:space="preserve">
+    <value>Trim transparent space</value>
+  </data>
+  <data name="cb_useUniformGrid.ToolTip" xml:space="preserve">
+    <value>Whether to place the frames in a uniform grid that is sized
+according to the smallest dimensions capable of fitting all
+the frames. Setting this option overrides the
+'Trim transparenc space' option.</value>
+  </data>
   <data name="pictureBox2.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8

@@ -131,6 +131,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetHelpKeyword(this.btn_ok, resources.GetString("btn_ok.HelpKeyword"));
             this.helpProvider1.SetHelpNavigator(this.btn_ok, ((System.Windows.Forms.HelpNavigator)(resources.GetObject("btn_ok.HelpNavigator"))));
             this.helpProvider1.SetHelpString(this.btn_ok, resources.GetString("btn_ok.HelpString"));
+            this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
             this.btn_ok.Name = "btn_ok";
             this.helpProvider1.SetShowHelp(this.btn_ok, ((bool)(resources.GetObject("btn_ok.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.btn_ok, resources.GetString("btn_ok.ToolTip"));
@@ -144,6 +145,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetHelpKeyword(this.btn_cancel, resources.GetString("btn_cancel.HelpKeyword"));
             this.helpProvider1.SetHelpNavigator(this.btn_cancel, ((System.Windows.Forms.HelpNavigator)(resources.GetObject("btn_cancel.HelpNavigator"))));
             this.helpProvider1.SetHelpString(this.btn_cancel, resources.GetString("btn_cancel.HelpString"));
+            this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
             this.btn_cancel.Name = "btn_cancel";
             this.helpProvider1.SetShowHelp(this.btn_cancel, ((bool)(resources.GetObject("btn_cancel.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.btn_cancel, resources.GetString("btn_cancel.ToolTip"));
@@ -377,6 +379,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetHelpKeyword(this.btn_generatePreview, resources.GetString("btn_generatePreview.HelpKeyword"));
             this.helpProvider1.SetHelpNavigator(this.btn_generatePreview, ((System.Windows.Forms.HelpNavigator)(resources.GetObject("btn_generatePreview.HelpNavigator"))));
             this.helpProvider1.SetHelpString(this.btn_generatePreview, resources.GetString("btn_generatePreview.HelpString"));
+            this.btn_generatePreview.Image = global::Pixelaria.Properties.Resources.go_next;
             this.btn_generatePreview.Name = "btn_generatePreview";
             this.helpProvider1.SetShowHelp(this.btn_generatePreview, ((bool)(resources.GetObject("btn_generatePreview.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.btn_generatePreview, resources.GetString("btn_generatePreview.ToolTip"));
@@ -497,6 +500,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             resources.ApplyResources(this.zpb_sheetPreview, "zpb_sheetPreview");
             this.zpb_sheetPreview.AllowScrollbars = false;
+            this.zpb_sheetPreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_sheetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_sheetPreview.ClipBackgroundToImage = true;
             this.helpProvider1.SetHelpKeyword(this.zpb_sheetPreview, resources.GetString("zpb_sheetPreview.HelpKeyword"));
@@ -733,6 +737,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetHelpKeyword(this.btn_apply, resources.GetString("btn_apply.HelpKeyword"));
             this.helpProvider1.SetHelpNavigator(this.btn_apply, ((System.Windows.Forms.HelpNavigator)(resources.GetObject("btn_apply.HelpNavigator"))));
             this.helpProvider1.SetHelpString(this.btn_apply, resources.GetString("btn_apply.HelpString"));
+            this.btn_apply.Image = global::Pixelaria.Properties.Resources.download;
             this.btn_apply.Name = "btn_apply";
             this.helpProvider1.SetShowHelp(this.btn_apply, ((bool)(resources.GetObject("btn_apply.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.btn_apply, resources.GetString("btn_apply.ToolTip"));

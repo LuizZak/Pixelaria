@@ -1547,9 +1547,6 @@ exported.</value>
   <data name="cb_exportXml.HelpNavigator" type="System.Windows.Forms.HelpNavigator, System.Windows.Forms">
     <value>AssociateIndex</value>
   </data>
-  <data name="cb_highPrecision.HelpString" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
   <data name="cb_padFramesOnXml.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 187</value>
   </data>
@@ -2036,6 +2033,9 @@ the texture edges.</value>
   <data name="&gt;&gt;cb_highPrecision.Parent" xml:space="preserve">
     <value>flowLayoutPanel1</value>
   </data>
+  <data name="&gt;&gt;label7.Parent" xml:space="preserve">
+    <value>gb_exportSummary</value>
+  </data>
   <data name="&gt;&gt;label9.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -2255,8 +2255,8 @@ Marking this option may produce larger textures in size.</value>
   <data name="cb_showFrameBounds.ToolTip" xml:space="preserve">
     <value />
   </data>
-  <data name="&gt;&gt;label7.Parent" xml:space="preserve">
-    <value>gb_exportSummary</value>
+  <data name="cb_highPrecision.HelpString" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="pnl_errorPanel.HelpKeyword" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
@@ -2430,9 +2430,6 @@ Marking this option may produce larger textures in size.</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
-  </metadata>
-  <metadata name="$this.Language" type="System.Globalization.CultureInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>pt-BR</value>
   </metadata>
   <metadata name="helpProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>

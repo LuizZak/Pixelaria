@@ -104,4 +104,16 @@
   <data name="Exception_UnlistedFrameRemoval" xml:space="preserve">
     <value>The frame provided is not listed in this animation</value>
   </data>
+  <data name="TextNewAnimationSheet" xml:space="preserve">
+    <value>New Animation Sheet</value>
+  </data>
+  <data name="TextAnimationSheet" xml:space="preserve">
+    <value>Animation Sheet</value>
+  </data>
+  <data name="TextSheetPreviewGenerated" xml:space="preserve">
+    <value>Sheet Preview: (generated in </value>
+  </data>
+  <data name="TextNoAnimationInSheetToGeneratePreview" xml:space="preserve">
+    <value>No animations on sheet to generate preview.</value>
+  </data>
 </root>

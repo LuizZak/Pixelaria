@@ -117,83 +117,178 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="btn_cancel.Text" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="btn_ok.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29m
-        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC5SURBVDhPY/j//z9FGKsgKRirICkYzpizI4UY/B+K
-        yTLg/4n/jWAMYmM1AMZGxyANR/7UgfGDv5tJMwCkeP+PSjC++3sDQS+gmA5i7/xcDMY3f66Gy4HUwtQg
-        G/B/09tcMAaxkflXvy1HNxi7ARc/L/y/+kUaCgaJIWuGqoWzUQRBCs9+nPN/6eMEMAax0TXD1MLYGIIg
-        DafezQBjbJpBGKcBSBisGU0MBWMYQC7GKkgKxipIPP7PAADOF8r32dDpzAAAAABJRU5ErkJggg==
-</value>
+  <data name="nud_yPadding.Location" type="System.Drawing.Point, System.Drawing">
+    <value>103, 262</value>
   </data>
-  <data name="btn_cancel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29m
-        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC0SURBVDhPpYwxCoNQEEQ9qoXYWVnZCN7CwsYbCDa5
-        T5o0CQSbQBI2meVv2OH/oCbFg53ZmclE5C+S5h6S5h5IHIoCSMB05PsOCQSk6xQLB8j3nWjgOc/yaFsF
-        GpjGb21AR+7TJLemIeCFQeqQsCeCS10T8HzGIOEHzlVFbB5A8FSWyjKOimn81gbkmOfKdRisoLf50L4T
-        DVz6XvHBbz74HOD91HDAdOT7DolfSJp7SJrbkewFC47LCY73WmMAAAAASUVORK5CYII=
-</value>
+  <data name="nud_yPadding.ToolTip" xml:space="preserve">
+    <value>O espaçamento vertical para aplicar entre cada quadro
+e as bordas.</value>
   </data>
-  <data name="groupBox2.Text" xml:space="preserve">
-    <value>Configurações de Exportação</value>
+  <data name="nud_xPadding.Location" type="System.Drawing.Point, System.Drawing">
+    <value>104, 236</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="cb_favorRatioOverArea.AutoSize" type="System.Boolean, mscorlib">
-    <value>False</value>
+  <data name="nud_xPadding.ToolTip" xml:space="preserve">
+    <value>O espaçamento horizontal para aplicar entre cada quadro
+e as bordas.</value>
   </data>
   <data name="cb_favorRatioOverArea.Size" type="System.Drawing.Size, System.Drawing">
-    <value>183, 15</value>
+    <value>179, 17</value>
   </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="cb_favorRatioOverArea.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
   <data name="cb_favorRatioOverArea.Text" xml:space="preserve">
-    <value>Favorecer área sobre tamanho</value>
+    <value>Favorecer razão em vez de área</value>
   </data>
   <data name="cb_favorRatioOverArea.ToolTip" xml:space="preserve">
-    <value />
+    <value>Quando selecionado, faz o algoritmo de empacotamento
+de folha favorecer a razão do tamanho em vez da área tota.
+
+Escolher esta opção criará folhas mais quadradas e irá
+acelerar o processo de empacotamento.
+
+Esta opção pode aumentar o tamanho da folha.</value>
   </data>
-  <data name="cb_forcePowerOfTwoDimensions.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 24</value>
+  <data name="cb_forcePowerOfTwoDimensions.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 17</value>
   </data>
-  <data name="cb_forceMinimumDimensions.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 47</value>
+  <data name="cb_forcePowerOfTwoDimensions.Text" xml:space="preserve">
+    <value>Forçar dimensões com potência de 2</value>
   </data>
-  <data name="cb_reuseIdenticalFrames.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 70</value>
+  <data name="cb_forcePowerOfTwoDimensions.ToolTip" xml:space="preserve">
+    <value>Marque esta opção para criar folhas de quadros com tamanhos
+na potência de 2 (2, 4, 8, 16, 32, 64...).
+Marque esta opção para gerar folhas que pode ser utilizadas
+em dispositivos que requerem texturas em potência de 2.
+
+Esta opção aumentará significativamente o tamanho da folha.</value>
   </data>
-  <data name="cb_highPrecision.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 93</value>
+  <data name="cb_forceMinimumDimensions.Size" type="System.Drawing.Size, System.Drawing">
+    <value>158, 17</value>
   </data>
-  <data name="cb_allowUordering.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 116</value>
+  <data name="cb_forceMinimumDimensions.Text" xml:space="preserve">
+    <value>Recortar espaço em branco</value>
   </data>
-  <data name="cb_useUniformGrid.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 139</value>
+  <data name="cb_forceMinimumDimensions.ToolTip" xml:space="preserve">
+    <value>Escolher esta opção forçará o empacotador a cortar o espaço
+em branco que rodeia quadros.
+
+Escolher esta opção pode reduzir significativamente o
+tamanho da folha.</value>
   </data>
-  <data name="cb_exportXml.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 162</value>
+  <data name="cb_reuseIdenticalFrames.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 17</value>
   </data>
-  <data name="cb_padFramesOnXml.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 185</value>
+  <data name="cb_reuseIdenticalFrames.Text" xml:space="preserve">
+    <value>Reusar área de quadros idênticos</value>
   </data>
-  <data name="btn_generatePreview.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7O
-        HOkAAAAEZ0FNQQAAsY8L/GEFAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAhxJ
-        REFUOE+dk99Lk1EcxnfxZj+0aRDYReSdF0lkFF1sGmEReKGFqa1pirFSaimxNdYKbTLB9U6G3amvZbhc
-        7V2tH+DcprNtutKFkD8amknSTf/AO9OLPZ33hYmzcxFefOCc55zzfHnO9xwZgH9Q3mMmFTrmBm1tO1SR
-        HMZV29GEQs/wZJxF25OCKooGsVUv2nn1OjFZJfNjtH0iVFE0mPkVQGSZhyNqSZ4z5QhEo0aSkQq/xQNb
-        URqYtdjPYfRMtODdbDe88xzq7ScSSj3jJutpkaRqH787EV52YfLHa0RXPPi08laiO6SBPdSA/s86BBaf
-        wcyrNxT6XWmRJIOxxUF0+CrRGVCBHa0BO1YLW7AWXSFCWI3H4SrYIip45m3gIqbkhYcHNyNJBr44B71H
-        iWb3STS9KsBt93EYh4vRHiyFNXIJnRNlsIRL8Sh4Hn3Td+CasaLOXpgg7e6XDAanW1Hem7FJxcBuXHHu
-        Rc2bTNS/l+PmSC60/jy0+PPRFa3C0ykDqq35AtXgIpeBSsceqN2ZqPuwH9d9cmhGs6EdPwxuthFs4Fqy
-        xCRPjyAapHB8aYXzaxtcC2Y0eEn18Ry0xU7h5ZIRd4fOrJMObbtEShuLjMwa/80Mjf8AnsxV4EVch8vs
-        EaHIQGnj1kkK0YSPmzGwoAUbUiXP3t8nkEL0h0QTRYOhuQe49fz0H1J1Z0+5zHJIIHl39pn+/ztD9hew
-        N4Sg3kWV0gAAAABJRU5ErkJggg==
-</value>
+  <data name="cb_reuseIdenticalFrames.ToolTip" xml:space="preserve">
+    <value>Escolher esta opção para remover quadros com conteúdo duplicado
+e produzir arquivos .xml que referenciam os quadros duplicados no
+mesmo trecho da imagem.
+
+Note que quadros com conteúdo igual porém tamanhos diferentes
+não serão contados.
+
+Esta opção poderá reduzir significativamente o tamanho da folha.</value>
+  </data>
+  <data name="cb_highPrecision.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 17</value>
+  </data>
+  <data name="cb_highPrecision.Text" xml:space="preserve">
+    <value>Usar alta precisão de área</value>
+  </data>
+  <data name="cb_highPrecision.ToolTip" xml:space="preserve">
+    <value>Escolher esta opção irá forçar o empacotador a usar uma precisão maior
+na hora de empacotar os quadros na folha.
+
+Escolher esta opção torna o processo mais lento, porém pode resultar
+em folhas menores.
+
+Ao usar em conjunto com a opção 'Favorecer razão em vez de tamanho',
+folhas mais quadradas podem ser geradas.</value>
+  </data>
+  <data name="cb_allowUordering.Size" type="System.Drawing.Size, System.Drawing">
+    <value>167, 17</value>
+  </data>
+  <data name="cb_allowUordering.Text" xml:space="preserve">
+    <value>Ordenar quadros por tamanho</value>
+  </data>
+  <data name="cb_allowUordering.ToolTip" xml:space="preserve">
+    <value>Escolher esta opção ordenará os quadros na folha por ordem de
+tamanho, do maior para o menor.
+
+Esta opção quase sempre resulta em empacotamentos mais
+eficientes.</value>
+  </data>
+  <data name="cb_useUniformGrid.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 17</value>
+  </data>
+  <data name="cb_useUniformGrid.Text" xml:space="preserve">
+    <value>Usar grade uniforme</value>
+  </data>
+  <data name="cb_useUniformGrid.ToolTip" xml:space="preserve">
+    <value>Escolher esta opção força os quadros a serem dispostos
+numa grade uniforme cujo tamanho é o mesmo do maior
+quadro da folha. Escolher esta opção desativa a opção
+'Recortar espaço em branco'.</value>
+  </data>
+  <data name="cb_exportXml.Size" type="System.Drawing.Size, System.Drawing">
+    <value>85, 17</value>
+  </data>
+  <data name="cb_exportXml.Text" xml:space="preserve">
+    <value>Exportar Xml</value>
+  </data>
+  <data name="cb_exportXml.ToolTip" xml:space="preserve">
+    <value>Escolha esta opção para gerar um arquivo .xml que contém
+informações sobre a folha de animação durante a exportação
+do pacote. O arquivo .xml irá ser referenciado pelo xml
+principal do pacote.</value>
+  </data>
+  <data name="cb_padFramesOnXml.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 17</value>
+  </data>
+  <data name="cb_padFramesOnXml.Text" xml:space="preserve">
+    <value>Empurrar limites dos quadros no XML</value>
+  </data>
+  <data name="cb_padFramesOnXml.ToolTip" xml:space="preserve">
+    <value>Escolha esta opção para acomodar informações sobre
+espaçamento no XML também.
+Empurrar os quadros no XML significa inflar as coordenadas
+X e Y dos quadros pelo valor a baixo. Isso pode resolver alguns
+problemas de distorção nos quadros em algumas engines.</value>
+  </data>
+  <data name="flowLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>2, 19</value>
+  </data>
+  <data name="flowLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 209</value>
+  </data>
+  <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 264</value>
+  </data>
+  <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>85, 13</value>
+  </data>
+  <data name="label4.Text" xml:space="preserve">
+    <value>Espaçamento Y:</value>
+  </data>
+  <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 13</value>
+  </data>
+  <data name="label3.Text" xml:space="preserve">
+    <value>Espaçamento X::</value>
+  </data>
+  <data name="btn_generatePreview.Text" xml:space="preserve">
+    <value>Gerar Prévia</value>
+  </data>
+  <data name="groupBox2.Text" xml:space="preserve">
+    <value>Configurações de Exportação</value>
   </data>
   <data name="pictureBox2.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -244,18 +339,24 @@
         ya8RE5aa2e4AAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Nome:</value>
+  </data>
   <data name="groupBox1.Text" xml:space="preserve">
     <value>Informações da Folha</value>
+  </data>
+  <data name="lbl_sheetPreview.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 13</value>
+  </data>
+  <data name="lbl_sheetPreview.Text" xml:space="preserve">
+    <value>Prévia da Folha:</value>
   </data>
   <data name="zpb_sheetPreview.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAArSURBVDhPY7iOA/zHAUY1IAOoPAYgXQOUxgBQfRhgVAMy
+        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAArSURBVDhPY7iOA/zHAUY1IAOoPAYgXQOUxgBQfRhgVAMy
         gMpjABI1XL8OAMpJwR/ybF91AAAAAElFTkSuQmCC
 </value>
-  </data>
-  <data name="gb_sheetInfo.Text" xml:space="preserve">
-    <value>Informações da Folha</value>
   </data>
   <data name="lbl_frameCount.Location" type="System.Drawing.Point, System.Drawing">
     <value>217, 23</value>
@@ -272,14 +373,64 @@
   <data name="label2.Text" xml:space="preserve">
     <value>Animações:</value>
   </data>
-  <data name="btn_apply.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29m
-        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAACqSURBVDhPpdIhC4IxEMbx96MaxGYyWQS/h9UkgiiI
-        JovBKILBbLGIiCIG4eQvbNz2nm7M8GPcw3OXVonIX8xwsGhKLO44ZsjCRvpe0YH1q+cVHVg9u172AYrO
-        8tbxdK77CAYKh8dcpud2DXnyACjt7zMZnVoes7WMWgDKu+tEhsfG5/22DDMES9vL+OcyzNBJLSMYWEjR
-        fQQDBf0DY1kHUnQfwVDCDPNJ9QZALvirwoDGkQAAAABJRU5ErkJggg==
-</value>
+  <data name="gb_sheetInfo.Text" xml:space="preserve">
+    <value>Informações da Folha</value>
+  </data>
+  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>82, 13</value>
+  </data>
+  <data name="label11.Text" xml:space="preserve">
+    <value>Memória usada:</value>
+  </data>
+  <data name="lbl_reusedFrames.ToolTip" xml:space="preserve">
+    <value>O número de quadros que foram reusados na folha.</value>
+  </data>
+  <data name="lbl_framesOnSheet.ToolTip" xml:space="preserve">
+    <value>O número total de quadros visíveis na folha,
+excluindo os quadros reusados.</value>
+  </data>
+  <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 26</value>
+  </data>
+  <data name="label9.Text" xml:space="preserve">
+    <value>Quadros
+reusados:</value>
+  </data>
+  <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
+    <value>50, 13</value>
+  </data>
+  <data name="label8.Text" xml:space="preserve">
+    <value>Quadros:</value>
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 13</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>Nº de Píxels:</value>
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>62, 13</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Dimensões:</value>
+  </data>
+  <data name="gb_exportSummary.Text" xml:space="preserve">
+    <value>Sumário de Exportação</value>
+  </data>
+  <data name="cb_showFrameBounds.Size" type="System.Drawing.Size, System.Drawing">
+    <value>165, 17</value>
+  </data>
+  <data name="cb_showFrameBounds.Text" xml:space="preserve">
+    <value>Mostrar espaços dos quadros</value>
+  </data>
+  <data name="btn_apply.Text" xml:space="preserve">
+    <value>&amp;Aplicar</value>
+  </data>
+  <data name="cb_showReuseCount.Size" type="System.Drawing.Size, System.Drawing">
+    <value>146, 17</value>
+  </data>
+  <data name="cb_showReuseCount.Text" xml:space="preserve">
+    <value>Mostrar contagem de uso</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

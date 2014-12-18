@@ -29,7 +29,7 @@ using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
 using Pixelaria.Controllers;
-
+using Pixelaria.Localization;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews
@@ -42,27 +42,27 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The current AnimationSheet being edited
         /// </summary>
-        AnimationSheet sheetToEdit;
+        AnimationSheet _sheetToEdit;
 
         /// <summary>
         /// The controller that owns this form
         /// </summary>
-        Controller controller;
+        Controller _controller;
         
         /// <summary>
         /// The current export settings
         /// </summary>
-        AnimationExportSettings exportSettings;
+        AnimationExportSettings _exportSettings;
 
         /// <summary>
         /// The current bundle sheet export
         /// </summary>
-        BundleSheetExport bundleSheetExport;
+        BundleSheetExport _bundleSheetExport;
 
         /// <summary>
         /// Gets the current AnimationSheet being edited
         /// </summary>
-        public AnimationSheet CurrentSheet { get { return sheetToEdit; } }
+        public AnimationSheet CurrentSheet { get { return _sheetToEdit; } }
 
         /// <summary>
         /// Initializes a new instance of the AnimationSheetEditor class
@@ -75,11 +75,11 @@ namespace Pixelaria.Views.ModelViews
 
             zpb_sheetPreview.HookToControl(this);
 
-            this.controller = controller;
-            this.sheetToEdit = sheetToEdit;
+            _controller = controller;
+            _sheetToEdit = sheetToEdit;
 
             if (sheetToEdit != null)
-                exportSettings = sheetToEdit.ExportSettings;
+                _exportSettings = sheetToEdit.ExportSettings;
 
             InitializeFiends();
             ValidateFields();
@@ -91,41 +91,41 @@ namespace Pixelaria.Views.ModelViews
         public void InitializeFiends()
         {
             // If no sheet is present, disable sheet preview
-            if (this.sheetToEdit == null)
+            if (_sheetToEdit == null)
             {
-                this.btn_generatePreview.Visible = false;
-                this.lbl_sheetPreview.Visible = false;
-                this.zpb_sheetPreview.Visible = false;
+                btn_generatePreview.Visible = false;
+                lbl_sheetPreview.Visible = false;
+                zpb_sheetPreview.Visible = false;
 
-                this.gb_sheetInfo.Visible = false;
-                this.gb_exportSummary.Visible = false;
+                gb_sheetInfo.Visible = false;
+                gb_exportSummary.Visible = false;
 
-                this.lbl_zoomLevel.Visible = false;
-                this.cb_showFrameBounds.Visible = false;
-                this.btn_apply.Enabled = false;
+                lbl_zoomLevel.Visible = false;
+                cb_showFrameBounds.Visible = false;
+                btn_apply.Enabled = false;
 
-                this.Text = "New Animation Sheet";
+                Text = AnimationMessages.TextNewAnimationSheet;
 
                 return;
             }
 
-            this.txt_sheetName.Text = this.sheetToEdit.Name;
+            txt_sheetName.Text = _sheetToEdit.Name;
 
-            this.cb_favorRatioOverArea.Checked = this.sheetToEdit.ExportSettings.FavorRatioOverArea;
-            this.cb_forcePowerOfTwoDimensions.Checked = this.sheetToEdit.ExportSettings.ForcePowerOfTwoDimensions;
-            this.cb_forceMinimumDimensions.Checked = this.sheetToEdit.ExportSettings.ForceMinimumDimensions;
-            this.cb_reuseIdenticalFrames.Checked = this.sheetToEdit.ExportSettings.ReuseIdenticalFramesArea;
-            this.cb_highPrecision.Checked = this.sheetToEdit.ExportSettings.HighPrecisionAreaMatching;
-            this.cb_allowUordering.Checked = this.sheetToEdit.ExportSettings.AllowUnorderedFrames;
-            this.cb_useUniformGrid.Checked = this.sheetToEdit.ExportSettings.UseUniformGrid;
-            this.cb_padFramesOnXml.Checked = this.sheetToEdit.ExportSettings.UsePaddingOnXml;
-            this.cb_exportXml.Checked = this.sheetToEdit.ExportSettings.ExportXml;
-            this.nud_xPadding.Value = this.sheetToEdit.ExportSettings.XPadding;
-            this.nud_yPadding.Value = this.sheetToEdit.ExportSettings.YPadding;
+            cb_favorRatioOverArea.Checked = _sheetToEdit.ExportSettings.FavorRatioOverArea;
+            cb_forcePowerOfTwoDimensions.Checked = _sheetToEdit.ExportSettings.ForcePowerOfTwoDimensions;
+            cb_forceMinimumDimensions.Checked = _sheetToEdit.ExportSettings.ForceMinimumDimensions;
+            cb_reuseIdenticalFrames.Checked = _sheetToEdit.ExportSettings.ReuseIdenticalFramesArea;
+            cb_highPrecision.Checked = _sheetToEdit.ExportSettings.HighPrecisionAreaMatching;
+            cb_allowUordering.Checked = _sheetToEdit.ExportSettings.AllowUnorderedFrames;
+            cb_useUniformGrid.Checked = _sheetToEdit.ExportSettings.UseUniformGrid;
+            cb_padFramesOnXml.Checked = _sheetToEdit.ExportSettings.UsePaddingOnXml;
+            cb_exportXml.Checked = _sheetToEdit.ExportSettings.ExportXml;
+            nud_xPadding.Value = _sheetToEdit.ExportSettings.XPadding;
+            nud_yPadding.Value = _sheetToEdit.ExportSettings.YPadding;
 
-            this.modified = false;
+            modified = false;
 
-            this.Text = "Animation Sheet [" + sheetToEdit.Name + "]";
+            Text = AnimationMessages.TextAnimationSheet + " [" + _sheetToEdit.Name + "]";
 
             UpdateCountLabels();
         }
@@ -135,8 +135,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void UpdateCountLabels()
         {
-            lbl_animCount.Text = sheetToEdit.AnimationCount + "";
-            lbl_frameCount.Text = sheetToEdit.GetFrameCount() + "";
+            lbl_animCount.Text = _sheetToEdit.AnimationCount + "";
+            lbl_frameCount.Text = _sheetToEdit.GetFrameCount() + "";
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Pixelaria.Views.ModelViews
             string validation;
 
             // Animation name
-            validation = controller.AnimationSheetValidator.ValidateAnimationSheetName(txt_sheetName.Text, sheetToEdit);
+            validation = _controller.AnimationSheetValidator.ValidateAnimationSheetName(txt_sheetName.Text, _sheetToEdit);
             if (validation != "")
             {
                 txt_sheetName.BackColor = Color.LightPink;
@@ -166,7 +166,7 @@ namespace Pixelaria.Views.ModelViews
             pnl_alertPanel.Visible = alert;
 
             btn_ok.Enabled = valid;
-            btn_apply.Enabled = (valid && modified && sheetToEdit != null);
+            btn_apply.Enabled = (valid && modified && _sheetToEdit != null);
 
             return valid;
         }
@@ -179,13 +179,13 @@ namespace Pixelaria.Views.ModelViews
             if(!ValidateFields())
                 return;
 
-            sheetToEdit.Name = txt_sheetName.Text;
-            sheetToEdit.ExportSettings = RepopulateExportSettings();
+            _sheetToEdit.Name = txt_sheetName.Text;
+            _sheetToEdit.ExportSettings = RepopulateExportSettings();
 
-            controller.UpdatedAnimationSheet(sheetToEdit);
+            _controller.UpdatedAnimationSheet(_sheetToEdit);
 
-            this.Text = "Animation Sheet [" + sheetToEdit.Name + "]";
-            this.btn_apply.Enabled = false;
+            Text = AnimationMessages.TextAnimationSheet + " [" + _sheetToEdit.Name + "]";
+            btn_apply.Enabled = false;
 
             base.ApplyChanges();
         }
@@ -197,7 +197,7 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The DialogResult of the confirmation MessageBox displayed to the user</returns>
         public override DialogResult ConfirmChanges()
         {
-            if (sheetToEdit != null)
+            if (_sheetToEdit != null)
             {
                 return base.ConfirmChanges();
             }
@@ -212,10 +212,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public override void MarkModified()
         {
-            if (sheetToEdit != null)
+            if (_sheetToEdit != null)
             {
-                this.Text = "Animation Sheet [" + sheetToEdit.Name + "]*";
-                this.btn_apply.Enabled = true;
+                Text = AnimationMessages.TextAnimationSheet + " [" + _sheetToEdit.Name + "]*";
+                btn_apply.Enabled = true;
             }
 
             base.MarkModified();
@@ -227,19 +227,19 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The newly repopulated AnimationExportSettings</returns>
         public AnimationExportSettings RepopulateExportSettings()
         {
-            exportSettings.FavorRatioOverArea = cb_favorRatioOverArea.Checked;
-            exportSettings.ForcePowerOfTwoDimensions = cb_forcePowerOfTwoDimensions.Checked;
-            exportSettings.ForceMinimumDimensions = cb_forceMinimumDimensions.Checked;
-            exportSettings.ReuseIdenticalFramesArea = cb_reuseIdenticalFrames.Checked;
-            exportSettings.HighPrecisionAreaMatching = cb_highPrecision.Checked;
-            exportSettings.AllowUnorderedFrames = cb_allowUordering.Checked;
-            exportSettings.UseUniformGrid = cb_useUniformGrid.Checked;
-            exportSettings.UsePaddingOnXml = cb_padFramesOnXml.Checked;
-            exportSettings.ExportXml = cb_exportXml.Checked;
-            exportSettings.XPadding = (int)nud_xPadding.Value;
-            exportSettings.YPadding = (int)nud_yPadding.Value;
+            _exportSettings.FavorRatioOverArea = cb_favorRatioOverArea.Checked;
+            _exportSettings.ForcePowerOfTwoDimensions = cb_forcePowerOfTwoDimensions.Checked;
+            _exportSettings.ForceMinimumDimensions = cb_forceMinimumDimensions.Checked;
+            _exportSettings.ReuseIdenticalFramesArea = cb_reuseIdenticalFrames.Checked;
+            _exportSettings.HighPrecisionAreaMatching = cb_highPrecision.Checked;
+            _exportSettings.AllowUnorderedFrames = cb_allowUordering.Checked;
+            _exportSettings.UseUniformGrid = cb_useUniformGrid.Checked;
+            _exportSettings.UsePaddingOnXml = cb_padFramesOnXml.Checked;
+            _exportSettings.ExportXml = cb_exportXml.Checked;
+            _exportSettings.XPadding = (int)nud_xPadding.Value;
+            _exportSettings.YPadding = (int)nud_yPadding.Value;
 
-            return exportSettings;
+            return _exportSettings;
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace Pixelaria.Views.ModelViews
             // Dispose of current preview
             RemovePreview();
 
-            if (sheetToEdit.Animations.Length > 0)
+            if (_sheetToEdit.Animations.Length > 0)
             {
                 // Time the bundle export
                 pb_exportProgress.Visible = true;
@@ -266,31 +266,31 @@ namespace Pixelaria.Views.ModelViews
                     }
                 );
 
-                this.FindForm().Cursor = Cursors.WaitCursor;
+                FindForm().Cursor = Cursors.WaitCursor;
                 Stopwatch sw = Stopwatch.StartNew();
 
                 // Export the bundle
-                bundleSheetExport = controller.GenerateBundleSheet(exportSettings, handler, sheetToEdit.Animations);
+                _bundleSheetExport = _controller.GenerateBundleSheet(_exportSettings, handler, _sheetToEdit.Animations);
 
-                Image img = bundleSheetExport.Sheet;
+                Image img = _bundleSheetExport.Sheet;
 
                 sw.Stop();
-                this.FindForm().Cursor = Cursors.Default;
+                FindForm().Cursor = Cursors.Default;
 
                 zpb_sheetPreview.SetImage(img);
 
                 pb_exportProgress.Visible = false;
 
                 // Update labels
-                lbl_sheetPreview.Text = "Sheet Preview: (generated in " + sw.ElapsedMilliseconds + "ms)";
+                lbl_sheetPreview.Text = AnimationMessages.TextSheetPreviewGenerated + sw.ElapsedMilliseconds + "ms)";
 
                 lbl_dimensions.Text = img.Width + "x" + img.Height;
                 lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
-                lbl_framesOnSheet.Text = (bundleSheetExport.FrameCount - bundleSheetExport.ReusedFrameCount) + "";
-                lbl_reusedFrames.Text = (bundleSheetExport.ReusedFrameCount) + "";
+                lbl_framesOnSheet.Text = (_bundleSheetExport.FrameCount - _bundleSheetExport.ReusedFrameCount) + "";
+                lbl_reusedFrames.Text = (_bundleSheetExport.ReusedFrameCount) + "";
                 lbl_memoryUsage.Text = Utilities.FormatByteSize(Utilities.MemoryUsageOfImage(img));
 
-                if (pnl_alertPanel.Visible && lbl_alertLabel.Text == "No animations on sheet to generate preview.")
+                if (pnl_alertPanel.Visible && lbl_alertLabel.Text == AnimationMessages.TextNoAnimationInSheetToGeneratePreview)
                 {
                     pnl_alertPanel.Visible = false;
                 }
@@ -302,7 +302,7 @@ namespace Pixelaria.Views.ModelViews
             }
             else
             {
-                lbl_alertLabel.Text = "No animations on sheet to generate preview.";
+                lbl_alertLabel.Text = AnimationMessages.TextNoAnimationInSheetToGeneratePreview;
                 pnl_alertPanel.Visible = true;
             }
         }
@@ -312,9 +312,9 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void ShowFrameBounds()
         {
-            if (bundleSheetExport != null)
+            if (_bundleSheetExport != null)
             {
-                zpb_sheetPreview.LoadExportSheet(bundleSheetExport);
+                zpb_sheetPreview.LoadExportSheet(_bundleSheetExport);
             }
 
             cb_showReuseCount.Enabled = true;
@@ -343,7 +343,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void HideReuseCount()
         {
-            if (bundleSheetExport != null)
+            if (_bundleSheetExport != null)
             {
                 zpb_sheetPreview.DisplayReusedCount = false;
             }
@@ -360,9 +360,9 @@ namespace Pixelaria.Views.ModelViews
                 zpb_sheetPreview.Image = null;
             }
 
-            if (bundleSheetExport != null)
+            if (_bundleSheetExport != null)
             {
-                bundleSheetExport = null;
+                _bundleSheetExport = null;
             }
         }
 
@@ -462,12 +462,12 @@ namespace Pixelaria.Views.ModelViews
                 return;
             }
 
-            if (sheetToEdit != null && modified)
+            if (_sheetToEdit != null && modified)
             {
                 ApplyChanges();
             }
 
-            this.Close();
+            Close();
         }
 
         // 
