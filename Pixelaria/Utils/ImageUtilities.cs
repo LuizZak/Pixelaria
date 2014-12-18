@@ -136,7 +136,7 @@ namespace Pixelaria.Utils
                         goto skipx;
                     }
                     // All pixels scanned, non are opaque
-                    else if (x == width - 1 && y == height - 1)
+                    if (x == width - 1 && y == height - 1)
                     {
                         return new Rectangle(0, 0, 0, 0);
                     }
