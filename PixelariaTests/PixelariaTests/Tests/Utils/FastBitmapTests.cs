@@ -420,9 +420,11 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             fastBitmap.Lock().Dispose();
             Assert.IsFalse(fastBitmap.Locked, "After disposing of the FastBitmapLocker object, the underlying fast bitmap must be unlocked");
 
-            using (fastBitmap.Lock())
+            using (var locker = fastBitmap.Lock())
             {
                 fastBitmap.SetPixel(0, 0, 0);
+
+                Assert.AreEqual(fastBitmap, locker.FastBitmap, "The fast bitmap referenced in the fast bitmap locker must be the one that had the original Lock() call");
             }
 
             Assert.IsFalse(fastBitmap.Locked, "After disposing of the FastBitmapLocker object, the underlying fast bitmap must be unlocked");
