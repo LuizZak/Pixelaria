@@ -450,8 +450,10 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             {
                 using (FastBitmap bitmap = _pictureBox.Bitmap.FastLock())
                 {
-                    foreach (PixelUndo pu in _pixelList)
+                    int c = _pixelList.Count;
+                    for (int i = 0; i < c; i++)
                     {
+                        PixelUndo pu = _pixelList[i];
                         bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.UndoColor);
                     }
                 }
@@ -466,8 +468,10 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             {
                 using (FastBitmap bitmap = _pictureBox.Bitmap.FastLock())
                 {
-                    foreach (PixelUndo pu in _pixelList)
+                    int c = _pixelList.Count;
+                    for (int i = 0; i < c; i++)
                     {
+                        PixelUndo pu = _pixelList[i];
                         bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.RedoColor);
                     }
                 }
