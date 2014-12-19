@@ -655,7 +655,10 @@ namespace Pixelaria.Views.ModelViews
             var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
 
             if (clipboardPaintOperation != null)
+            {
+                ActiveControl = iepb_frame.PictureBox;
                 clipboardPaintOperation.Copy();
+            }
         }
 
         /// <summary>
@@ -666,7 +669,10 @@ namespace Pixelaria.Views.ModelViews
             var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
 
             if (clipboardPaintOperation != null)
+            {
+                ActiveControl = iepb_frame.PictureBox;
                 clipboardPaintOperation.Cut();
+            }
         }
 
         /// <summary>
@@ -685,7 +691,10 @@ namespace Pixelaria.Views.ModelViews
             var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
 
             if (clipboardPaintOperation != null)
+            {
+                ActiveControl = iepb_frame.PictureBox;
                 clipboardPaintOperation.Paste();
+            }
 
             iepb_frame.PictureBox.Invalidate();
         }
