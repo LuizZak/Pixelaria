@@ -77,11 +77,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         public OperationFillMode FillMode { get { return fillMode; } set { fillMode = value; if (Loaded) { pictureBox.Invalidate(); } } }
 
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
-        /// </summary>
-        public override Cursor OperationCursor { get; protected set; }
-
-        /// <summary>
         /// Initialies a new instance of the BaseShapeOperation class, setting the two drawing colors
         /// for the paint operation
         /// </summary>
@@ -96,10 +91,10 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);

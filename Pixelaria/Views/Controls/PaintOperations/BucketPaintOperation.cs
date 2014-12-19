@@ -20,11 +20,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
         protected CompositingMode compositingMode;
 
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
-        /// </summary>
-        public override Cursor OperationCursor { get; protected set; }
-
-        /// <summary>
         /// The first color currently being used to paint on the InternalPictureBox
         /// </summary>
         private Color _firstColor = Color.Black;
@@ -74,10 +69,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.bucket_cursor);

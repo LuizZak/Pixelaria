@@ -995,11 +995,6 @@ namespace Pixelaria.Views.Controls
         protected Point lastMousePointAbsolute;
 
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
-        /// </summary>
-        public override Cursor OperationCursor { get; protected set; }
-
-        /// <summary>
         /// Gets whether this Paint Operation has resources loaded
         /// </summary>
         public override bool Loaded { get; protected set; }
@@ -1007,10 +1002,10 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            this.pictureBox = pictureBox;
+            this.pictureBox = targetPictureBox;
 
             this.lastMousePointAbsolute = new Point(-1, -1);
 

@@ -30,10 +30,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Initializes this EraserPaintOperation
         /// </summary>
-        /// <param name="pictureBox">The target picture box</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The target picture box</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             undoDecription = "Eraser";
 

@@ -23,8 +23,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public void Initialize(ImageEditPanel.InternalPictureBox pictureBox) { }
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox) { }
 
         /// <summary>
         /// Finalizes this Paint Operation

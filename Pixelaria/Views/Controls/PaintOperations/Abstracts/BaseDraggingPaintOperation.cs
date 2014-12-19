@@ -52,10 +52,10 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             shiftDown = false;
         }
@@ -94,7 +94,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 mouseAbsolutePoint = GetAbsolutePoint(e.Location);
 
                 Rectangle newArea = GetCurrentRectangle(true);
-                Rectangle newAreaAbs = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, mouseAbsolutePoint }, false);
+                Rectangle newAreaAbs = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, false);
 
                 if (shiftDown)
                 {
@@ -167,11 +167,11 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected virtual Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             if (shiftDown)
             {
@@ -185,7 +185,8 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="pointList">An array of points that describe the corners of the rectangle</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected virtual Rectangle GetRectangleArea(Point[] pointList, bool relative)
         {
@@ -222,10 +223,10 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
+        /// Returns the smallest Rectangle object that encloses all points provided
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
-        /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
+        /// <param name="pointList">An array of points to convert</param>
+        /// <returns>The smallest Rectangle object that encloses all points provided</returns>
         public static Rectangle GetRectangleAreaAbsolute(Point[] pointList)
         {
             int minX = pointList[0].X;

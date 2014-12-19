@@ -19,9 +19,18 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         protected ImageEditPanel.InternalPictureBox pictureBox;
 
         /// <summary>
+        /// The cursor to use when hovering over the InternalPictureBox while this operation is up
+        /// </summary>
+        protected Cursor operationCursor;
+
+        /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
         /// </summary>
-        public virtual Cursor OperationCursor { get { return Cursors.Default; } protected set { } }
+        public Cursor OperationCursor
+        {
+            get { return operationCursor; }
+            protected set { operationCursor = value; }
+        }
 
         /// <summary>
         /// Gets whether this Paint Operation has resources loaded
@@ -31,10 +40,10 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public virtual void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public virtual void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            this.pictureBox = pictureBox;
+            pictureBox = targetPictureBox;
         }
 
         /// <summary>

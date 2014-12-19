@@ -37,10 +37,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Initializes this PencilPaintOperation
         /// </summary>
-        /// <param name="pictureBox"></param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox"></param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.pencil_cursor);

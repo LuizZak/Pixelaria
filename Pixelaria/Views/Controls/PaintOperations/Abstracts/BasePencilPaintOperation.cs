@@ -15,11 +15,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
     public abstract class BasePencilPaintOperation : BasePaintOperation, IPaintOperation
     {
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
-        /// </summary>
-        public override Cursor OperationCursor { get; protected set; }
-
-        /// <summary>
         /// The minimum point that the trace bitmap occupies over the canvas image
         /// </summary>
         private Point _minimumTraceBitmapPoint;
@@ -191,23 +186,23 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
-            this.pictureBox = pictureBox;
+            this.pictureBox = targetPictureBox;
             lastMousePosition = new Point();
 
             _invalidTraceArea = true;
 
             RegeneratePenBitmap();
 
-            ChangeBitmap(pictureBox.Bitmap);
+            ChangeBitmap(targetPictureBox.Bitmap);
 
-            currentTraceBitmap = new Bitmap(pictureBox.Bitmap.Width, pictureBox.Bitmap.Height);
+            currentTraceBitmap = new Bitmap(targetPictureBox.Bitmap.Width, targetPictureBox.Bitmap.Height);
 
-            CompositingMode = pictureBox.OwningPanel.DefaultCompositingMode;
+            CompositingMode = targetPictureBox.OwningPanel.DefaultCompositingMode;
 
             visible = true;
 

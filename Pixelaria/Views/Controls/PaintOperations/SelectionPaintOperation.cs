@@ -17,11 +17,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
     public class SelectionPaintOperation : BaseDraggingPaintOperation, IPaintOperation, IClipboardPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
-        /// </summary>
-        public override Cursor OperationCursor { get; protected set; }
-
-        /// <summary>
         /// Timer used to animate the selection area
         /// </summary>
         private Timer animTimer;
@@ -138,8 +133,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.sel_cursor);
@@ -153,13 +148,13 @@ namespace Pixelaria.Views.Controls.PaintOperations
             this.displaySelection = true;
             this.selected = false;
 
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             undoHandler = new UndoSystem.UndoEventHandler(UndoSystem_WillPerformUndo);
             redoHandler = new UndoSystem.UndoEventHandler(UndoSystem_WillPerformRedo);
 
-            pictureBox.OwningPanel.UndoSystem.WillPerformUndo += undoHandler;
-            pictureBox.OwningPanel.UndoSystem.WillPerformRedo += redoHandler;
+            targetPictureBox.OwningPanel.UndoSystem.WillPerformUndo += undoHandler;
+            targetPictureBox.OwningPanel.UndoSystem.WillPerformRedo += redoHandler;
 
             this.Loaded = true;
         }

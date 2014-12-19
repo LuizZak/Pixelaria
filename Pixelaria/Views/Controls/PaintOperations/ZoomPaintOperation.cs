@@ -13,11 +13,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
     public class ZoomPaintOperation : BaseDraggingPaintOperation, IPaintOperation
     {
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
-        /// </summary>
-        public override Cursor OperationCursor { get; protected set; }
-
-        /// <summary>
         /// The relative point where the mouse was held down, in control coordinates
         /// </summary>
         public Point mouseDownRelative;
@@ -30,10 +25,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
-        /// <param name="pictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
-            base.Initialize(pictureBox);
+            base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.zoom_cursor);
