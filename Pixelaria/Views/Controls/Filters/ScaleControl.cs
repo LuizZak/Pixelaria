@@ -35,14 +35,14 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Whether to ignore the next field updated event
         /// </summary>
-        private bool ignoreEvent;
+        private bool _ignoreEvent;
 
         /// <summary>
         /// Initializes a new class of the ScaleControl class
         /// </summary>
         public ScaleControl()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -53,35 +53,35 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new ScaleFilter();
-                (filter as ScaleFilter).ScaleX = 1;
-                (filter as ScaleFilter).ScaleY = 1;
+                filter = new ScaleFilter {ScaleX = 1, ScaleY = 1};
             }
 
-            this.ignoreEvent = false;
+            _ignoreEvent = false;
         }
 
         /// <summary>
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is ScaleFilter))
+            if (!(referenceFilter is ScaleFilter))
                 return;
 
-            ignoreEvent = true;
+            var castFilter = (ScaleFilter)referenceFilter;
 
-            anud_scaleX.Value = (decimal)(filter as ScaleFilter).ScaleX;
-            anud_scaleY.Value = (decimal)(filter as ScaleFilter).ScaleY;
+            _ignoreEvent = true;
 
-            cb_centered.Checked = (filter as ScaleFilter).Centered;
-            cb_pixelQuality.Checked = (filter as ScaleFilter).PixelQuality;
+            anud_scaleX.Value = (decimal)castFilter.ScaleX;
+            anud_scaleY.Value = (decimal)castFilter.ScaleY;
 
-            ignoreEvent = false;
+            cb_centered.Checked = castFilter.Centered;
+            cb_pixelQuality.Checked = castFilter.PixelQuality;
+
+            _ignoreEvent = false;
         }
 
         // 
@@ -89,18 +89,18 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_scaleX_ValueChanged(object sender, EventArgs e)
         {
-            if (ignoreEvent)
+            if (_ignoreEvent)
                 return;
 
             if (cb_keepAspect.Checked)
             {
-                ignoreEvent = true;
+                _ignoreEvent = true;
                 anud_scaleY.Value = anud_scaleX.Value;
-                (filter as ScaleFilter).ScaleY = (float)anud_scaleY.Value;
-                ignoreEvent = false;
+                ((ScaleFilter)filter).ScaleY = (float)anud_scaleY.Value;
+                _ignoreEvent = false;
             }
 
-            (filter as ScaleFilter).ScaleX = (float)anud_scaleX.Value;
+            ((ScaleFilter)filter).ScaleX = (float)anud_scaleX.Value;
 
             FireFilterUpdated();
         }
@@ -110,18 +110,18 @@ namespace Pixelaria.Views.Controls.Filters
         //
         private void anud_scaleY_ValueChanged(object sender, EventArgs e)
         {
-            if (ignoreEvent)
+            if (_ignoreEvent)
                 return;
 
             if (cb_keepAspect.Checked)
             {
-                ignoreEvent = true;
+                _ignoreEvent = true;
                 anud_scaleX.Value = anud_scaleY.Value;
-                (filter as ScaleFilter).ScaleX = (float)anud_scaleX.Value;
-                ignoreEvent = false;
+                ((ScaleFilter)filter).ScaleX = (float)anud_scaleX.Value;
+                _ignoreEvent = false;
             }
 
-            (filter as ScaleFilter).ScaleY = (float)anud_scaleY.Value;
+            ((ScaleFilter)filter).ScaleY = (float)anud_scaleY.Value;
 
             FireFilterUpdated();
         }
@@ -131,10 +131,10 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_centered_CheckedChanged(object sender, EventArgs e)
         {
-            if (ignoreEvent)
+            if (_ignoreEvent)
                 return;
 
-            (filter as ScaleFilter).Centered = cb_centered.Checked;
+            ((ScaleFilter)filter).Centered = cb_centered.Checked;
 
             FireFilterUpdated();
         }
@@ -146,12 +146,12 @@ namespace Pixelaria.Views.Controls.Filters
         {
             if (cb_keepAspect.Checked)
             {
-                ignoreEvent = true;
+                _ignoreEvent = true;
                 anud_scaleY.Value = anud_scaleX.Value;
-                ignoreEvent = false;
+                _ignoreEvent = false;
 
-                (filter as ScaleFilter).ScaleX = (float)anud_scaleX.Value;
-                (filter as ScaleFilter).ScaleY = (float)anud_scaleY.Value;
+                ((ScaleFilter)filter).ScaleX = (float)anud_scaleX.Value;
+                ((ScaleFilter)filter).ScaleY = (float)anud_scaleY.Value;
 
                 FireFilterUpdated();
             }
@@ -162,10 +162,10 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_pixelQuality_CheckedChanged(object sender, EventArgs e)
         {
-            if (ignoreEvent)
+            if (_ignoreEvent)
                 return;
 
-            (filter as ScaleFilter).PixelQuality = cb_pixelQuality.Checked;
+            ((ScaleFilter)filter).PixelQuality = cb_pixelQuality.Checked;
 
             FireFilterUpdated();
         }

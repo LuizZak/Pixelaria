@@ -22,7 +22,6 @@
 
 using System;
 using System.Drawing;
-using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -49,11 +48,9 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new HueFilter();
-                (filter as HueFilter).Hue = 0;
-                (filter as HueFilter).Relative = false;
+                filter = new HueFilter {Hue = 0, Relative = false};
             }
         }
 
@@ -61,14 +58,14 @@ namespace Pixelaria.Views.Controls.Filters
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is HueFilter))
+            if (!(referenceFilter is HueFilter))
                 return;
 
-            anud_hue.Value = (decimal)(filter as HueFilter).Hue * 100;
-            cb_relative.Checked = (filter as HueFilter).Relative;
+            anud_hue.Value = (decimal)(referenceFilter as HueFilter).Hue * 100;
+            cb_relative.Checked = (referenceFilter as HueFilter).Relative;
         }
 
         // 
@@ -76,7 +73,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_hue_ValueChanged(object sender, EventArgs e)
         {
-            (filter as HueFilter).Hue = (int)anud_hue.Value;
+            ((HueFilter)filter).Hue = (int)anud_hue.Value;
 
             FireFilterUpdated();
         }
@@ -86,7 +83,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_relative_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as HueFilter).Relative = cb_relative.Checked;
+            ((HueFilter)filter).Relative = cb_relative.Checked;
 
             FireFilterUpdated();
         }
