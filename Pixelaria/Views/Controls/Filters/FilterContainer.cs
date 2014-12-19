@@ -93,11 +93,11 @@ namespace Pixelaria.Views.Controls.Filters
             set
             {
                 // Adjust the buttons' colors
-                AHSL lightColor = value.ToAHSL();
-                AHSL darkColor = value.ToAHSL();
+                AhslColor lightColor = value.ToAHSL();
+                AhslColor darkColor = value.ToAHSL();
 
-                lightColor.L += 6;
-                darkColor.L -= 19;
+                lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
+                darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);
 
                 btn_remove.FlatAppearance.MouseOverBackColor = btn_enable.FlatAppearance.MouseOverBackColor = lightColor.ToColor();
                 btn_remove.FlatAppearance.MouseDownBackColor = btn_enable.FlatAppearance.MouseDownBackColor = darkColor.ToColor();
@@ -125,9 +125,9 @@ namespace Pixelaria.Views.Controls.Filters
                 {
                     btn_enable.Image = Properties.Resources.filter_disable_icon;
 
-                    AHSL newColor = Color.FromKnownColor(KnownColor.Control).ToAHSL();
+                    AhslColor newColor = Color.FromKnownColor(KnownColor.Control).ToAHSL();
 
-                    newColor.L -= 10;
+                    newColor = new AhslColor(newColor.Af, newColor.Hf, newColor.Sf, newColor.Lf - 10);
 
                     this.BackColor = newColor.ToColor();
                 }
@@ -329,11 +329,11 @@ namespace Pixelaria.Views.Controls.Filters
             base.OnPaint(e);
 
             // Draw the dragging region
-            AHSL lightColor = this.BackColor.ToAHSL();
-            AHSL darkColor = this.BackColor.ToAHSL();
+            AhslColor lightColor = BackColor.ToAHSL();
+            AhslColor darkColor = BackColor.ToAHSL();
 
-            lightColor.L += 6;
-            darkColor.L -= 19;
+            lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
+            darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);
 
             Pen lightPen = new Pen(lightColor.ToColor());
             Pen darkPen = new Pen(darkColor.ToColor());

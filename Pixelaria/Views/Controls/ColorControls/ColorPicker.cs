@@ -37,12 +37,12 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The first color of the control
         /// </summary>
-        private AHSL _firstColor;
+        private AhslColor _firstColor;
 
         /// <summary>
         /// The second color of the control
         /// </summary>
-        private AHSL _secondColor;
+        private AhslColor _secondColor;
 
         /// <summary>
         /// Gets or sets the currently selected color
@@ -108,8 +108,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the first color of the control in AHSL format
         /// </summary>
-        // ReSharper disable once InconsistentNaming
-        public AHSL FirstAHSLColor
+        public AhslColor FirstAhslColor
         {
             get { return _firstColor; }
             set
@@ -127,8 +126,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the second color of the control in AHSL format
         /// </summary>
-        // ReSharper disable once InconsistentNaming
-        public AHSL SecondAHSLColor
+        public AhslColor SecondAhslColor
         {
             get { return _secondColor; }
             set
@@ -205,24 +203,24 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         /// <param name="color">The new value for the currently selected color</param>
         /// <param name="keepTransparency">Whether to keep the current alpha channel unmodified</param>
-        public void SetCurrentColor(AHSL color, bool keepTransparency = false)
+        public void SetCurrentColor(AhslColor color, bool keepTransparency = false)
         {
-            AHSL oldColor = Color.White.ToAHSL();
+            AhslColor oldColor = Color.White.ToAHSL();
 
             if (keepTransparency)
             {
-                color.A = GetCurrentColor().A;
+                color = new AhslColor(GetCurrentColor().A, color.Hf, color.Sf, color.Lf);
             }
 
             switch (_selectedColor)
             {
                 case ColorPickerColor.FirstColor:
                     oldColor = _firstColor;
-                    FirstAHSLColor = color;
+                    FirstAhslColor = color;
                     break;
                 case ColorPickerColor.SecondColor:
                     oldColor = _secondColor;
-                    SecondAHSLColor = color;
+                    SecondAhslColor = color;
                     break;
             }
 
@@ -239,7 +237,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public void UpdateSliders()
         {
-            AHSL color = Color.White.ToAHSL();
+            AhslColor color = Color.White.ToAHSL();
 
             switch (_selectedColor)
             {

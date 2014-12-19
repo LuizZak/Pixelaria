@@ -20,13 +20,10 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-using Pixelaria.Utils;
-using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Filters
@@ -68,7 +65,7 @@ namespace Pixelaria.Filters
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
-            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+            if (!Modifying || bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
             // Lock the bitmap
@@ -77,17 +74,12 @@ namespace Pixelaria.Filters
             int* scan0 = (int*)data.Scan0;
             int count = bitmap.Width * bitmap.Height;
 
+            float hueF = Hue / 360.0f;
+
             while (count-- > 0)
             {
-                int c = *(scan0);
-
-                AHSL ahsl = AHSL.FromArgb(c);
-
-                ahsl.H = (Relative ? (ahsl.H + Hue) % 360 : Hue);
-
-                *scan0 = ahsl.ToArgb();
-
-                scan0++;
+                AhslColor ahsl = AhslColor.FromArgb(*scan0);
+                *(scan0++) = new AhslColor(ahsl.Af, (Relative ? (ahsl.Hf + hueF) % 1.0f : hueF), ahsl.Sf, ahsl.Lf).ToArgb();
             }
 
             bitmap.UnlockBits(data);
@@ -176,7 +168,7 @@ namespace Pixelaria.Filters
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
-            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+            if (!Modifying || bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
             // Lock the bitmap
@@ -185,27 +177,26 @@ namespace Pixelaria.Filters
             int* scan0 = (int*)data.Scan0;
             int count = bitmap.Width * bitmap.Height;
 
+            float satF = Saturation / 100.0f;
+
             while (count-- > 0)
             {
-                int c = *(scan0);
+                AhslColor ahsl = AhslColor.FromArgb(*scan0);
+                float s = ahsl.Sf;
 
-                AHSL ahsl = AHSL.FromArgb(c);
-
-                if (!KeepGrays || ahsl.S > 0)
+                if (!KeepGrays || ahsl.Sf > 0)
                 {
                     if (Multiply)
                     {
-                        ahsl.S = (int)(ahsl.S * (float)Math.Max(0, Saturation) / 100);
+                        s = ahsl.Sf * satF;
                     }
                     else
                     {
-                        ahsl.S = (Relative ? Math.Min(100, (ahsl.S + Saturation)) : Saturation);
+                        s = (Relative ? ahsl.Sf + satF : satF);
                     }
                 }
 
-                *scan0 = ahsl.ToArgb();
-
-                scan0++;
+                *(scan0++) = new AhslColor(ahsl.Af, ahsl.Hf, s, ahsl.Lf).ToArgb();
             }
 
             bitmap.UnlockBits(data);
@@ -290,7 +281,7 @@ namespace Pixelaria.Filters
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
-            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+            if (!Modifying || bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
             // Lock the bitmap
@@ -299,24 +290,23 @@ namespace Pixelaria.Filters
             int* scan0 = (int*)data.Scan0;
             int count = bitmap.Width * bitmap.Height;
 
+            float lightF = Lightness / 100.0f;
+
             while (count-- > 0)
             {
-                int c = *(scan0);
-
-                AHSL ahsl = AHSL.FromArgb(c);
+                AhslColor ahsl = AhslColor.FromArgb(*scan0);
+                float l;
 
                 if (Multiply)
                 {
-                    ahsl.L = (int)(ahsl.L * (float)Math.Max(0, Lightness) / 100);
+                    l = ahsl.Lf * lightF;
                 }
                 else
                 {
-                    ahsl.L = (Relative ? Math.Min(100, (ahsl.L + Lightness)) : Lightness);
+                    l = (Relative ? ahsl.Lf + lightF : lightF);
                 }
 
-                *scan0 = ahsl.ToArgb();
-
-                scan0++;
+                *(scan0++) = new AhslColor(ahsl.Af, ahsl.Hf, ahsl.Sf, l).ToArgb();
             }
 
             bitmap.UnlockBits(data);
