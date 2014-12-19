@@ -37,22 +37,22 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The first color of the control
         /// </summary>
-        private AHSL firstColor;
+        private AHSL _firstColor;
 
         /// <summary>
         /// The second color of the control
         /// </summary>
-        private AHSL secondColor;
+        private AHSL _secondColor;
 
         /// <summary>
         /// Gets or sets the currently selected color
         /// </summary>
-        private ColorPickerColor selectedColor;
+        private ColorPickerColor _selectedColor;
 
         /// <summary>
         /// Whether the mouse is currently held down on the palette bitmap
         /// </summary>
-        private bool mouseDown;
+        private bool _mouseDown;
 
         /// <summary>
         /// Delegate for a ColorPick event
@@ -74,13 +74,13 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public Color FirstColor
         {
-            get { return firstColor.ToColor(); }
+            get { return _firstColor.ToColor(); }
             set
             {
-                if (firstColor.ToColor() == value)
+                if (_firstColor.ToColor() == value)
                     return;
 
-                firstColor = value.ToAHSL();
+                _firstColor = value.ToAHSL();
                 pnl_firstColor.BackColor = value;
                 if (SelectedColor == ColorPickerColor.FirstColor)
                     UpdateSliders();
@@ -92,13 +92,13 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public Color SecondColor
         {
-            get { return secondColor.ToColor(); }
+            get { return _secondColor.ToColor(); }
             set
             {
-                if (secondColor.ToColor() == value)
+                if (_secondColor.ToColor() == value)
                     return;
 
-                secondColor = value.ToAHSL();
+                _secondColor = value.ToAHSL();
                 pnl_secondColor.BackColor = value;
                 if (SelectedColor == ColorPickerColor.SecondColor)
                     UpdateSliders();
@@ -108,15 +108,16 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the first color of the control in AHSL format
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public AHSL FirstAHSLColor
         {
-            get { return firstColor; }
+            get { return _firstColor; }
             set
             {
-                if (firstColor == value)
+                if (_firstColor == value)
                     return;
 
-                firstColor = value;
+                _firstColor = value;
                 pnl_firstColor.BackColor = value.ToColor();
                 if (SelectedColor == ColorPickerColor.FirstColor)
                     UpdateSliders();
@@ -126,15 +127,16 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the second color of the control in AHSL format
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public AHSL SecondAHSLColor
         {
-            get { return secondColor; }
+            get { return _secondColor; }
             set
             {
-                if (firstColor == value)
+                if (_firstColor == value)
                     return;
 
-                secondColor = value;
+                _secondColor = value;
                 pnl_secondColor.BackColor = value.ToColor();
                 if (SelectedColor == ColorPickerColor.SecondColor)
                     UpdateSliders();
@@ -146,24 +148,20 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public ColorPickerColor SelectedColor
         {
-            get { return selectedColor; }
+            get { return _selectedColor; }
             set
             {
-                selectedColor = value;
+                _selectedColor = value;
 
-                Color color = FirstColor;
-
-                switch (selectedColor)
+                switch (_selectedColor)
                 {
                     case ColorPickerColor.FirstColor:
                         pnl_firstColor.BorderStyle = BorderStyle.Fixed3D;
                         pnl_secondColor.BorderStyle = BorderStyle.FixedSingle;
-                        color = FirstColor;
                         break;
                     case ColorPickerColor.SecondColor:
                         pnl_firstColor.BorderStyle = BorderStyle.FixedSingle;
                         pnl_secondColor.BorderStyle = BorderStyle.Fixed3D;
-                        color = SecondColor;
                         break;
                 }
             }
@@ -176,20 +174,20 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             InitializeComponent();
 
-            firstColor = Color.Black.ToAHSL();
-            secondColor = Color.White.ToAHSL();
+            _firstColor = Color.Black.ToAHSL();
+            _secondColor = Color.White.ToAHSL();
 
             pnl_firstColor.BackColor = FirstColor;
             pnl_secondColor.BackColor = SecondColor;
 
             // Hookup the events
-            this.cs_alpha.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
-            this.cs_red.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
-            this.cs_green.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
-            this.cs_blue.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
-            this.cs_hue.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
-            this.cs_saturation.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
-            this.cs_lightness.ColorChanged += new ColorControls.ColorSlider.ColorChangedEventHandler(cs_colorChanged);
+            cs_alpha.ColorChanged += cs_colorChanged;
+            cs_red.ColorChanged += cs_colorChanged;
+            cs_green.ColorChanged += cs_colorChanged;
+            cs_blue.ColorChanged += cs_colorChanged;
+            cs_hue.ColorChanged += cs_colorChanged;
+            cs_saturation.ColorChanged += cs_colorChanged;
+            cs_lightness.ColorChanged += cs_colorChanged;
         }
 
         /// <summary>
@@ -216,14 +214,14 @@ namespace Pixelaria.Views.Controls.ColorControls
                 color.A = GetCurrentColor().A;
             }
 
-            switch (selectedColor)
+            switch (_selectedColor)
             {
                 case ColorPickerColor.FirstColor:
-                    oldColor = firstColor;
+                    oldColor = _firstColor;
                     FirstAHSLColor = color;
                     break;
                 case ColorPickerColor.SecondColor:
-                    oldColor = secondColor;
+                    oldColor = _secondColor;
                     SecondAHSLColor = color;
                     break;
             }
@@ -232,7 +230,7 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             if (ColorPick != null)
             {
-                ColorPick(this, new ColorPickEventArgs(oldColor.ToColor(), color.ToColor(), selectedColor));
+                ColorPick(this, new ColorPickEventArgs(oldColor.ToColor(), color.ToColor(), _selectedColor));
             }
         }
 
@@ -243,26 +241,26 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             AHSL color = Color.White.ToAHSL();
 
-            switch (selectedColor)
+            switch (_selectedColor)
             {
                 case ColorPickerColor.FirstColor:
-                    color = firstColor;
+                    color = _firstColor;
                     break;
                 case ColorPickerColor.SecondColor:
-                    color = secondColor;
+                    color = _secondColor;
                     break;
             }
 
             // Global alpha channel
-            this.cs_alpha.ActiveColor = color;
+            cs_alpha.ActiveColor = color;
             // RGB
-            this.cs_red.ActiveColor = color;
-            this.cs_green.ActiveColor = color;
-            this.cs_blue.ActiveColor = color;
+            cs_red.ActiveColor = color;
+            cs_green.ActiveColor = color;
+            cs_blue.ActiveColor = color;
             // HSL
-            this.cs_hue.ActiveColor = color;
-            this.cs_saturation.ActiveColor = color;
-            this.cs_lightness.ActiveColor = color;
+            cs_hue.ActiveColor = color;
+            cs_saturation.ActiveColor = color;
+            cs_lightness.ActiveColor = color;
         }
 
         /// <summary>
@@ -271,7 +269,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>The value for the currently selected color</returns>
         public Color GetCurrentColor()
         {
-            switch (selectedColor)
+            switch (_selectedColor)
             {
                 case ColorPickerColor.FirstColor:
                     return FirstColor;
@@ -287,7 +285,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         // 
         private void pnl_firstColor_MouseDown(object sender, MouseEventArgs e)
         {
-            this.SelectedColor = ColorPickerColor.FirstColor;
+            SelectedColor = ColorPickerColor.FirstColor;
         }
 
         // 
@@ -295,7 +293,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         // 
         private void pnl_secondColor_MouseDown(object sender, MouseEventArgs e)
         {
-            this.SelectedColor = ColorPickerColor.SecondColor;
+            SelectedColor = ColorPickerColor.SecondColor;
         }
 
         // 
@@ -303,7 +301,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         // 
         private void pb_palette_MouseDown(object sender, MouseEventArgs e)
         {
-            mouseDown = true;
+            _mouseDown = true;
 
             SelectColorOnPalette(e.Location);
         }
@@ -313,7 +311,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         // 
         private void pb_palette_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mouseDown)
+            if (_mouseDown)
             {
                 SelectColorOnPalette(e.Location);
             }
@@ -324,15 +322,15 @@ namespace Pixelaria.Views.Controls.ColorControls
         // 
         private void pb_palette_MouseUp(object sender, MouseEventArgs e)
         {
-            mouseDown = false;
+            _mouseDown = false;
         }
 
         //
         // Color Sliders component changed event handler
         //
-        private void cs_colorChanged(object sender, ColorControls.ColorChangedEventArgs eventArgs)
+        private void cs_colorChanged(object sender, ColorChangedEventArgs eventArgs)
         {
-            this.SetCurrentColor(eventArgs.NewColor);
+            SetCurrentColor(eventArgs.NewColor);
         }
 
         /// <summary>
@@ -347,9 +345,12 @@ namespace Pixelaria.Views.Controls.ColorControls
             point.X = (int)(point.X / ((float)pb_palette.Width / pb_palette.Image.Width));
             point.Y = (int)(point.Y / ((float)pb_palette.Height / pb_palette.Image.Height));
 
-            Color color = (pb_palette.Image as Bitmap).GetPixel(point.X, point.Y);
-
-            SetCurrentColor(color, true);
+            var bitmap = pb_palette.Image as Bitmap;
+            if (bitmap != null)
+            {
+                Color color = bitmap.GetPixel(point.X, point.Y);
+                SetCurrentColor(color, true);
+            }
         }
     }
 
@@ -377,13 +378,13 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Initializes a new instance of the using Pixelaria.Views.ModelViews;
         /// </summary>
         /// <param name="oldColor">Gets the color value before the change</param>
-        /// <param name="penColor">Gets the new color value</param>
+        /// <param name="newColor">Gets the new color value</param>
         /// <param name="targetColor">Gets the ColorPicker color index that was changed</param>
         public ColorPickEventArgs(Color oldColor, Color newColor, ColorPickerColor targetColor)
         {
-            this.OldColor = oldColor;
-            this.NewColor = newColor;
-            this.TargetColor = targetColor;
+            OldColor = oldColor;
+            NewColor = newColor;
+            TargetColor = targetColor;
         }
     }
 

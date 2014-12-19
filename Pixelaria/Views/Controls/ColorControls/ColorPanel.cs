@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public ColorPanel()
         {
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
         }
 
         // 
@@ -46,7 +46,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             base.OnPaintBackground(e);
 
             // Draw the background color on top of the current color
-            SolidBrush brush = new SolidBrush(this.BackColor);
+            SolidBrush brush = new SolidBrush(BackColor);
 
             e.Graphics.FillRectangle(brush, e.ClipRectangle);
 
