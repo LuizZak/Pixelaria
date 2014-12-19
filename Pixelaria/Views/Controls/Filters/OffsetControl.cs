@@ -48,36 +48,38 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new OffsetFilter();
-                (filter as OffsetFilter).OffsetX = 0;
-                (filter as OffsetFilter).OffsetY = 0;
-                (filter as OffsetFilter).WrapHorizontal = false;
-                (filter as OffsetFilter).WrapVertical = false;
+                filter = new OffsetFilter();
+                ((OffsetFilter)filter).OffsetX = 0;
+                ((OffsetFilter)filter).OffsetY = 0;
+                ((OffsetFilter)filter).WrapHorizontal = false;
+                ((OffsetFilter)filter).WrapVertical = false;
             }
 
-            this.anud_offsetX.Minimum = -bitmap.Width;
-            this.anud_offsetY.Minimum = -bitmap.Height;
+            anud_offsetX.Minimum = -bitmap.Width;
+            anud_offsetY.Minimum = -bitmap.Height;
 
-            this.anud_offsetX.Maximum = bitmap.Width;
-            this.anud_offsetY.Maximum = bitmap.Height;
+            anud_offsetX.Maximum = bitmap.Width;
+            anud_offsetY.Maximum = bitmap.Height;
         }
 
         /// <summary>
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is OffsetFilter))
+            if (!(referenceFilter is OffsetFilter))
                 return;
 
-            anud_offsetX.Value = (decimal)(filter as OffsetFilter).OffsetX;
-            anud_offsetY.Value = (decimal)(filter as OffsetFilter).OffsetY;
-            cb_wrapHorizontal.Checked = (filter as OffsetFilter).WrapHorizontal;
-            cb_wrapVertical.Checked = (filter as OffsetFilter).WrapVertical;
+            var offsetFilter = (referenceFilter as OffsetFilter);
+
+            anud_offsetX.Value = (decimal)offsetFilter.OffsetX;
+            anud_offsetY.Value = (decimal)offsetFilter.OffsetY;
+            cb_wrapHorizontal.Checked = offsetFilter.WrapHorizontal;
+            cb_wrapVertical.Checked = offsetFilter.WrapVertical;
         }
 
         // 
@@ -85,7 +87,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_offsetX_ValueChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).OffsetX = (float)anud_offsetX.Value;
+            ((OffsetFilter)filter).OffsetX = (float)anud_offsetX.Value;
 
             FireFilterUpdated();
         }
@@ -95,7 +97,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_offsetY_ValueChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).OffsetY = (float)anud_offsetY.Value;
+            ((OffsetFilter)filter).OffsetY = (float)anud_offsetY.Value;
 
             FireFilterUpdated();
         }
@@ -105,7 +107,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_wrapHorizontal_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).WrapHorizontal = cb_wrapHorizontal.Checked;
+            ((OffsetFilter)filter).WrapHorizontal = cb_wrapHorizontal.Checked;
 
             FireFilterUpdated();
         }
@@ -115,7 +117,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_wrapVertical_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as OffsetFilter).WrapVertical = cb_wrapVertical.Checked;
+            ((OffsetFilter)filter).WrapVertical = cb_wrapVertical.Checked;
 
             FireFilterUpdated();
         }

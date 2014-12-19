@@ -26,8 +26,6 @@ using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
-using Pixelaria.Utils;
-
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
@@ -66,7 +64,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="bitmap">The Bitmap to initialize the FilterControl with</param>
         public virtual void Initialize(Bitmap bitmap)
         {
-            this.originalBitmap = bitmap;
+            originalBitmap = bitmap;
         }
 
         /// <summary>
@@ -85,20 +83,20 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Swaps the filter currently loaded on this FilterControl with the given filter
         /// </summary>
-        /// <param name="filter">The new filter to load on this FilterControl</param>
-        public virtual void SetFilter(IFilter filter)
+        /// <param name="newFilter">The new filter to load on this FilterControl</param>
+        public virtual void SetFilter(IFilter newFilter)
         {
-            this.filter = filter;
+            filter = newFilter;
 
-            UpdateFieldsFromFilter(filter);
+            UpdateFieldsFromFilter(newFilter);
         }
 
         /// <summary>
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public virtual void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public virtual void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
 
         }

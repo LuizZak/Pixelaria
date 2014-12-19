@@ -22,7 +22,6 @@
 
 using System;
 using System.Drawing;
-using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -49,11 +48,11 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new LightnessFilter();
-                (filter as LightnessFilter).Lightness = 100;
-                (filter as LightnessFilter).Relative = false;
+                filter = new LightnessFilter();
+                ((LightnessFilter)filter).Lightness = 100;
+                ((LightnessFilter)filter).Relative = false;
             }
         }
 
@@ -61,15 +60,15 @@ namespace Pixelaria.Views.Controls.Filters
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is LightnessFilter))
+            if (!(referenceFilter is LightnessFilter))
                 return;
 
-            anud_lightness.Value = (decimal)(filter as LightnessFilter).Lightness * 100;
-            cb_relative.Checked = (filter as LightnessFilter).Relative;
-            cb_multiply.Checked = (filter as LightnessFilter).Multiply;
+            anud_lightness.Value = (decimal)((LightnessFilter)referenceFilter).Lightness * 100;
+            cb_relative.Checked = ((LightnessFilter)referenceFilter).Relative;
+            cb_multiply.Checked = ((LightnessFilter)referenceFilter).Multiply;
         }
 
         // 
@@ -77,7 +76,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_lightness_ValueChanged(object sender, EventArgs e)
         {
-            (filter as LightnessFilter).Lightness = (int)anud_lightness.Value;
+            ((LightnessFilter)filter).Lightness = (int)anud_lightness.Value;
 
             FireFilterUpdated();
         }
@@ -87,7 +86,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_relative_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as LightnessFilter).Relative = cb_relative.Checked;
+            ((LightnessFilter)filter).Relative = cb_relative.Checked;
 
             FireFilterUpdated();
         }
@@ -99,7 +98,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             cb_relative.Enabled = !cb_multiply.Checked;
 
-            (filter as LightnessFilter).Multiply = cb_multiply.Checked;
+            ((LightnessFilter)filter).Multiply = cb_multiply.Checked;
 
             FireFilterUpdated();
         }

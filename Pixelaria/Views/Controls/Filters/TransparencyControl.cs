@@ -39,7 +39,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public TransparencyControl()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -50,9 +50,9 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new TransparencyFilter();
+                filter = new TransparencyFilter();
                 (filter as TransparencyFilter).Transparency = 1;
             }
         }
@@ -61,13 +61,13 @@ namespace Pixelaria.Views.Controls.Filters
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is TransparencyFilter))
+            if (!(referenceFilter is TransparencyFilter))
                 return;
 
-            anud_transparency.Value = (decimal)(filter as TransparencyFilter).Transparency * 255;
+            anud_transparency.Value = (decimal)(referenceFilter as TransparencyFilter).Transparency * 255;
         }
 
         // 
@@ -75,7 +75,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_transparency_ValueChanged(object sender, EventArgs e)
         {
-            (filter as TransparencyFilter).Transparency = (float)anud_transparency.Value / 255;
+            ((TransparencyFilter)filter).Transparency = (float)anud_transparency.Value / 255;
 
             FireFilterUpdated();
         }

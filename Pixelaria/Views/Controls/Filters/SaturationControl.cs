@@ -22,7 +22,6 @@
 
 using System;
 using System.Drawing;
-using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -49,12 +48,9 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new SaturationFilter();
-                (filter as SaturationFilter).Saturation = 100;
-                (filter as SaturationFilter).Relative = false;
-                (filter as SaturationFilter).KeepGrays = true;
+                filter = new SaturationFilter {Saturation = 100, Relative = false, KeepGrays = true};
             }
         }
 
@@ -62,16 +58,16 @@ namespace Pixelaria.Views.Controls.Filters
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is SaturationFilter))
+            if (!(referenceFilter is SaturationFilter))
                 return;
 
-            anud_saturation.Value = (decimal)(filter as SaturationFilter).Saturation * 100;
-            cb_relative.Checked = (filter as SaturationFilter).Relative;
-            cb_keepGrays.Checked = (filter as SaturationFilter).KeepGrays;
-            cb_multiply.Checked = (filter as SaturationFilter).Multiply;
+            anud_saturation.Value = (decimal)(referenceFilter as SaturationFilter).Saturation * 100;
+            cb_relative.Checked = (referenceFilter as SaturationFilter).Relative;
+            cb_keepGrays.Checked = (referenceFilter as SaturationFilter).KeepGrays;
+            cb_multiply.Checked = (referenceFilter as SaturationFilter).Multiply;
         }
 
         // 
@@ -79,7 +75,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_saturation_ValueChanged(object sender, EventArgs e)
         {
-            (filter as SaturationFilter).Saturation = (int)anud_saturation.Value;
+            ((SaturationFilter)filter).Saturation = (int)anud_saturation.Value;
 
             FireFilterUpdated();
         }
@@ -89,7 +85,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_relative_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as SaturationFilter).Relative = cb_relative.Checked;
+            ((SaturationFilter)filter).Relative = cb_relative.Checked;
 
             FireFilterUpdated();
         }
@@ -99,7 +95,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_keepGrays_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as SaturationFilter).KeepGrays = cb_keepGrays.Checked;
+            ((SaturationFilter)filter).KeepGrays = cb_keepGrays.Checked;
 
             FireFilterUpdated();
         }
@@ -111,7 +107,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             cb_keepGrays.Enabled = cb_relative.Enabled = !cb_multiply.Checked;
 
-            (filter as SaturationFilter).Multiply = cb_multiply.Checked;
+            ((SaturationFilter)filter).Multiply = cb_multiply.Checked;
 
             FireFilterUpdated();
         }

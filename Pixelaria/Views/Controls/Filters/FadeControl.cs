@@ -49,12 +49,9 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new FadeFilter();
-                (filter as FadeFilter).FadeFactor = 0.5f;
-                (filter as FadeFilter).FadeColor = Color.White;
-                (filter as FadeFilter).FadeAlpha = false;
+                filter = new FadeFilter {FadeAlpha = false, FadeColor = Color.White, FadeFactor = 0.5f};
             }
         }
 
@@ -62,14 +59,14 @@ namespace Pixelaria.Views.Controls.Filters
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is FadeFilter))
+            if (!(referenceFilter is FadeFilter))
                 return;
 
-            cp_color.BackColor = (filter as FadeFilter).FadeColor;
-            anud_factor.Value = (decimal)(filter as FadeFilter).FadeFactor * 100;
+            cp_color.BackColor = ((FadeFilter)referenceFilter).FadeColor;
+            anud_factor.Value = (decimal)((FadeFilter)referenceFilter).FadeFactor * 100;
         }
 
         // 
@@ -80,13 +77,13 @@ namespace Pixelaria.Views.Controls.Filters
             ColorDialog cd = new ColorDialog();
             cd.AllowFullOpen = true;
 
-            if (cd.ShowDialog(this.FindForm()) == DialogResult.OK)
+            if (cd.ShowDialog(FindForm()) == DialogResult.OK)
             {
                 cp_color.BackColor = cd.Color;
 
-                (filter as FadeFilter).FadeColor = cd.Color;
+                ((FadeFilter)filter).FadeColor = cd.Color;
 
-                this.FireFilterUpdated();
+                FireFilterUpdated();
             }
         }
 
@@ -95,9 +92,9 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_factor_ValueChanged(object sender, EventArgs e)
         {
-            (filter as FadeFilter).FadeFactor = (float)(anud_factor.Value / 100);
+            ((FadeFilter)filter).FadeFactor = (float)(anud_factor.Value / 100);
 
-            this.FireFilterUpdated();
+            FireFilterUpdated();
         }
     }
 }

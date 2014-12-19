@@ -49,13 +49,15 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.Initialize(bitmap);
 
-            if (this.filter == null)
+            if (filter == null)
             {
-                this.filter = new StrokeFilter();
-                (filter as StrokeFilter).StrokeColor = Color.Red;
-                (filter as StrokeFilter).StrokeRadius = 1;
-                (filter as StrokeFilter).KnockoutImage = false;
-                (filter as StrokeFilter).Smooth = false;
+                filter = new StrokeFilter
+                {
+                    StrokeColor = Color.Red,
+                    StrokeRadius = 1,
+                    KnockoutImage = false,
+                    Smooth = false
+                };
             }
         }
 
@@ -63,16 +65,16 @@ namespace Pixelaria.Views.Controls.Filters
         /// Updates the fields from this FilterControl based on the data from the
         /// given IFilter instance
         /// </summary>
-        /// <param name="filter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter filter)
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(filter is StrokeFilter))
+            if (!(referenceFilter is StrokeFilter))
                 return;
 
-            anud_strokeSize.Value = (decimal)(filter as StrokeFilter).StrokeRadius;
-            cp_color.BackColor = (filter as StrokeFilter).StrokeColor;
-            cb_knockout.Checked = (filter as StrokeFilter).KnockoutImage;
-            cb_smooth.Checked = (filter as StrokeFilter).Smooth;
+            anud_strokeSize.Value = (referenceFilter as StrokeFilter).StrokeRadius;
+            cp_color.BackColor = (referenceFilter as StrokeFilter).StrokeColor;
+            cb_knockout.Checked = (referenceFilter as StrokeFilter).KnockoutImage;
+            cb_smooth.Checked = (referenceFilter as StrokeFilter).Smooth;
         }
 
         // 
@@ -83,13 +85,13 @@ namespace Pixelaria.Views.Controls.Filters
             ColorDialog cd = new ColorDialog();
             cd.AllowFullOpen = true;
 
-            if (cd.ShowDialog(this.FindForm()) == DialogResult.OK)
+            if (cd.ShowDialog(FindForm()) == DialogResult.OK)
             {
                 cp_color.BackColor = cd.Color;
 
-                (filter as StrokeFilter).StrokeColor = cd.Color;
+                ((StrokeFilter)filter).StrokeColor = cd.Color;
 
-                this.FireFilterUpdated();
+                FireFilterUpdated();
             }
         }
 
@@ -98,7 +100,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_strokeSize_ValueChanged(object sender, EventArgs e)
         {
-            (filter as StrokeFilter).StrokeRadius = (int)anud_strokeSize.Value;
+            ((StrokeFilter)filter).StrokeRadius = (int)anud_strokeSize.Value;
             FireFilterUpdated();
         }
 
@@ -107,7 +109,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_knockout_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as StrokeFilter).KnockoutImage = cb_knockout.Checked;
+            ((StrokeFilter)filter).KnockoutImage = cb_knockout.Checked;
             FireFilterUpdated();
         }
 
@@ -116,7 +118,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_smooth_CheckedChanged(object sender, EventArgs e)
         {
-            (filter as StrokeFilter).Smooth = cb_smooth.Checked;
+            ((StrokeFilter)filter).Smooth = cb_smooth.Checked;
             FireFilterUpdated();
         }
     }
