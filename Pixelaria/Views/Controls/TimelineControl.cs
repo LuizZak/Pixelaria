@@ -22,12 +22,8 @@
 
 using System;
 using System.ComponentModel;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Pixelaria.Views.Controls
@@ -55,6 +51,11 @@ namespace Pixelaria.Views.Controls
         protected TimelineFrameDisplayType frameDisplayType;
 
         /// <summary>
+        /// Whether to display the frame under the mouse when it hovers over the control
+        /// </summary>
+        protected bool displayFrameUnderMouse;
+
+        /// <summary>
         /// Whether to disable selection of frames that are out of range
         /// </summary>
         protected bool disableFrameSelectionOutOfRange;
@@ -62,16 +63,16 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// ToolTip instance associated with this timeline. Used to show the frames the knobs are pointing to
         /// </summary>
-        protected ToolTip ToolTip;
+        protected ToolTip toolTip;
 
         /// <summary>
         /// The control's X scroll
         /// </summary>
-        protected float scrollX = 0;
+        protected double scrollX;
         /// <summary>
         /// The control's Width scale modifier
         /// </summary>
-        protected float scrollScaleWidth = 1;
+        protected double scrollScaleWidth = 1;
 
         /// <summary>
         /// The knob currently being dragged
@@ -81,23 +82,31 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Whether the user is dragging the view
         /// </summary>
-        protected bool draggingView = false;
+        protected bool draggingView;
         /// <summary>
         /// Whether the user is dragging the current frame
         /// </summary>
-        protected bool draggingFrame = false;
+        protected bool draggingFrame;
         /// <summary>
         /// Whether the user is dragging the timeline
         /// </summary>
-        protected bool draggingTimeline = false;
+        protected bool draggingTimeline;
+        /// <summary>
+        /// Whether the user is hovering the mouse over the currently selected range
+        /// </summary>
+        protected bool mouseOverCurrentRange;
         /// <summary>
         /// Whether the user is hovering the mouse over the timeline
         /// </summary>
-        protected bool mouseOverTimeline = false;
+        protected bool mouseOverTimeline;
+        /// <summary>
+        /// Whether the mouse is currently inside the control
+        /// </summary>
+        protected bool mouseInsideControl;
         /// <summary>
         /// Point representing the range before the user started dragging the timeline
         /// </summary>
-        protected Point draggingTimelineRange = new Point();
+        protected Point draggingTimelineRange;
 
         /// <summary>
         /// States the current frame in the seekbar. Set to -1 to highlight no frame.
@@ -127,8 +136,8 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public Knob FirstKnob
         {
-            get { return this.firstKnob; }
-            protected set { this.firstKnob = value; }
+            get { return firstKnob; }
+            protected set { firstKnob = value; }
         }
 
         /// <summary>
@@ -137,8 +146,8 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public Knob SecondKnob
         {
-            get { return this.secondKnob; }
-            protected set { this.secondKnob = value; }
+            get { return secondKnob; }
+            protected set { secondKnob = value; }
         }
 
         /// <summary>
@@ -158,8 +167,8 @@ namespace Pixelaria.Views.Controls
                 if (value.Y > maximum - value.X)
                     value.Y = maximum - value.X;
 
-                this.firstKnob.Value = value.X;
-                this.secondKnob.Value = value.Y + value.X;
+                firstKnob.Value = value.X;
+                secondKnob.Value = value.Y + value.X;
 
                 Invalidate();
             }
@@ -192,22 +201,19 @@ namespace Pixelaria.Views.Controls
                 minimum = value;
 
                 // Caches the text size:
-                Graphics g = this.CreateGraphics();
+                Graphics g = CreateGraphics();
 
                 // Set a foramt flag:
-                TextFormatFlags flags = TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
+                const TextFormatFlags flags = TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
 
-                SizeF stringSize = TextRenderer.MeasureText(g, "" + (minimum), font, new Size(), flags);
-                minSize = stringSize.Width;
-
-                stringSize = TextRenderer.MeasureText(g, "" + (maximum), font, new Size(), flags);
-                maxSize = stringSize.Width;
+                SizeF stringSize = TextRenderer.MeasureText(g, "" + (maximum), _font, new Size(), flags);
+                _maxSize = stringSize.Width;
 
                 // Draw the middle frame (only if there are more than 1 frames):
                 if (maximum > 1)
                 {
-                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, font, new Size(), flags);
-                    medSize = stringSize.Width;
+                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, _font, new Size(), flags);
+                    _medSize = stringSize.Width;
                 }
 
                 if (DesignMode || firstKnob.Value < minimum)
@@ -237,19 +243,19 @@ namespace Pixelaria.Views.Controls
                 maximum = value;
 
                 // Caches the text size:
-                Graphics g = this.CreateGraphics();
+                Graphics g = CreateGraphics();
 
                 // Set a foramt flag:
-                TextFormatFlags flags = TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
+                const TextFormatFlags flags = TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
 
-                SizeF stringSize = TextRenderer.MeasureText(g, "" + (maximum), font, new Size(), flags);
-                maxSize = stringSize.Width;
+                SizeF stringSize = TextRenderer.MeasureText(g, "" + (maximum), _font, new Size(), flags);
+                _maxSize = stringSize.Width;
 
                 // Draw the middle frame (only if there are more than 1 frames):
                 if (maximum > 1)
                 {
-                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, font, new Size(), flags);
-                    medSize = stringSize.Width;
+                    stringSize = TextRenderer.MeasureText(g, "" + (maximum + minimum) / 2, _font, new Size(), flags);
+                    _medSize = stringSize.Width;
                 }
 
                 if (DesignMode || secondKnob.Value > maximum)
@@ -281,10 +287,10 @@ namespace Pixelaria.Views.Controls
         [Category("Appearance")]
         [DefaultValue(0)]
         [Description("The control's X scroll")]
-        public float ScrollX
+        public double ScrollX
         {
             get { return scrollX; }
-            set { if (scrollX != value) { scrollX = value; Invalidate(); } }
+            set { if (Math.Abs(scrollX - value) > float.Epsilon) { scrollX = value; Invalidate(); } }
         }
 
         /// <summary>
@@ -294,10 +300,10 @@ namespace Pixelaria.Views.Controls
         [Category("Appearance")]
         [DefaultValue(1)]
         [Description("The control's Width scale modifier")]
-        public float ScrollScaleWidth
+        public double ScrollScaleWidth
         {
             get { return scrollScaleWidth; }
-            set { if (scrollScaleWidth != value) { value = value < 0 ? 0.1f : value; scrollScaleWidth = value; Invalidate(); } }
+            set { if (Math.Abs(scrollScaleWidth - value) > float.Epsilon) { value = value < 0 ? 0.1f : value; scrollScaleWidth = value; Invalidate(); } }
         }
 
         /// <summary>
@@ -324,6 +330,27 @@ namespace Pixelaria.Views.Controls
         {
             get { return frameDisplayType; }
             set { if (frameDisplayType != value) { frameDisplayType = value; Invalidate(); } }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to display the frame under the mouse when it hovers over the control
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description("Whether to display the frame under the mouse when it hovers over the control")]
+        public bool DisplayFrameUnderMouse
+        {
+            get { return displayFrameUnderMouse; }
+            set
+            {
+                if (displayFrameUnderMouse != value)
+                {
+                    displayFrameUnderMouse = value;
+
+                    InvalidateUnderMouse();
+                }
+            }
         }
 
         /// <summary>
@@ -380,22 +407,22 @@ namespace Pixelaria.Views.Controls
             secondKnob = new Knob(this);
 
             // Set the bounds:
-            this.Minimum = 0;
-            this.Maximum = 1;
-            this.currentFrame = -1;
-            this.disableFrameSelectionOutOfRange = true;
+            Minimum = 0;
+            Maximum = 1;
+            currentFrame = -1;
+            disableFrameSelectionOutOfRange = true;
 
             // Set the knobs' values:
-            firstKnob.Value = this.minimum;
-            secondKnob.Value = this.maximum;
+            firstKnob.Value = minimum;
+            secondKnob.Value = maximum;
 
             // Set the control's style so it won't flicker at every draw call:
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer |
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
                           ControlStyles.AllPaintingInWmPaint |
                           ControlStyles.UserPaint, true);
 
             // Create the tooltip object:
-            ToolTip = new ToolTip();
+            toolTip = new ToolTip();
 
             drawLast = firstKnob;
 
@@ -410,14 +437,13 @@ namespace Pixelaria.Views.Controls
         public Point GetRange()
         {
             // Setup the knobs temps:
-            Knob firstKnob, secondKnob;
 
             // Select the knobs by checking which one is coming first in the timeline:
-            firstKnob = this.firstKnob.Value <= this.secondKnob.Value ? this.firstKnob : this.SecondKnob;
-            secondKnob = firstKnob == this.firstKnob ? this.secondKnob : this.firstKnob;
+            var firstKnobRange = firstKnob.Value <= secondKnob.Value ? firstKnob : SecondKnob;
+            var secondKnobRange = firstKnobRange == firstKnob ? secondKnob : firstKnob;
 
             // Return a newly created point:
-            return new Point(firstKnob.Value, secondKnob.Value - firstKnob.Value);
+            return new Point(firstKnobRange.Value, secondKnobRange.Value - firstKnobRange.Value);
         }
 
         /// <summary>
@@ -437,11 +463,10 @@ namespace Pixelaria.Views.Controls
             base.OnPaint(e);
 
             // Setup the knobs temps:
-            Knob firstKnob, secondKnob;
 
             // Select the knobs by checking which one is coming first in the timeline:
-            firstKnob = this.firstKnob.Value <= this.secondKnob.Value ? this.firstKnob : this.SecondKnob;
-            secondKnob = firstKnob == this.firstKnob ? this.secondKnob : this.firstKnob;
+            var firstKnobRange = firstKnob.Value <= secondKnob.Value ? firstKnob : SecondKnob;
+            var secondKnobRange = firstKnobRange == firstKnob ? secondKnob : firstKnob;
 
             // Calculate the timeline size to draw:
             Rectangle timelineRect = GetTimelineRect();
@@ -454,13 +479,13 @@ namespace Pixelaria.Views.Controls
 
             if (maximum - minimum > 0)
             {
-                float mult = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
+                double mult = ((Width * ScrollScaleWidth) - firstKnobRange.KnobThickness - 2);
 
                 // Draw ticks:
                 for (float i = 0; i <= (maximum - minimum); i++)
                 {
                     // Calculate the X portion of the line:
-                    float x1 = (i / (maximum - minimum)) * mult + firstKnob.KnobThickness / 2 - ScrollX;
+                    float x1 = (i / (maximum - minimum)) * (float)mult + firstKnobRange.KnobThickness / 2.0f - (float)ScrollX;
 
                     // Check to see if the newly calculated X portion is inside the clip rectangle:
                     if (e.ClipRectangle.X - 1 > x1)
@@ -475,17 +500,17 @@ namespace Pixelaria.Views.Controls
                         e.Graphics.DrawLine(Pens.DarkGray, x1, 2, x1, timelineHeight - 2);
 
                     // Draw the second line (outside the timeline):
-                    e.Graphics.DrawLine(Pens.DarkGray, x1, timelineHeight + 2, x1, timelineHeight + firstKnob.KnobHeigth);
+                    e.Graphics.DrawLine(Pens.DarkGray, x1, timelineHeight + 2, x1, timelineHeight + firstKnobRange.KnobHeigth);
                 }
 
                 if (rangeEnabled)
                 {
                     // Draw selected region:            
-                    int x = (int)firstKnob.GetRealX();
-                    int width = (int)secondKnob.GetRealX() - x;
+                    int x = (int)firstKnobRange.GetRealX();
+                    int width = (int)secondKnobRange.GetRealX() - x;
 
                     // Calculate the new size for the selected area:
-                    timelineRect = new Rectangle(firstKnob.KnobThickness / 2 + x + 2, 2, width - 3, timelineHeight - 3);
+                    timelineRect = new Rectangle(firstKnobRange.KnobThickness / 2 + x + 2, 2, width - 3, timelineHeight - 3);
 
                     Color baseColor = !Enabled ? Color.LightGray : (behaviorType == TimelineBehaviorType.TimelineWithRange ? Color.CornflowerBlue : Color.DarkCyan);
                     Color lightColor = Color.FromArgb(Math.Min(baseColor.R + 40, 255), Math.Min(baseColor.G + 40, 255), Math.Min(baseColor.B + 40, 255));
@@ -496,7 +521,7 @@ namespace Pixelaria.Views.Controls
                     // Draw out the new area:
                     if (draggingTimeline && behaviorType == TimelineBehaviorType.RangeSelector)
                         e.Graphics.FillRectangle(lightBrush, timelineRect);
-                    else if (mouseOverTimeline && behaviorType == TimelineBehaviorType.RangeSelector)
+                    else if (mouseOverCurrentRange && behaviorType == TimelineBehaviorType.RangeSelector)
                         e.Graphics.FillRectangle(lightBrush, timelineRect);
                     else
                         e.Graphics.FillRectangle(baseBrush, timelineRect);
@@ -510,79 +535,54 @@ namespace Pixelaria.Views.Controls
                     int textY = timelineHeight + 12;
 
                     // Draw the first frame:
-                    e.Graphics.DrawString(minimum + "", this.Font, Brushes.DarkGray, -ScrollX, textY);
+                    e.Graphics.DrawString(minimum + "", Font, Brushes.DarkGray, -(float)ScrollX, textY);
 
                     // Draw the last frame:
-                    e.Graphics.DrawString("" + (maximum), font, Brushes.DarkGray, ((Width * ScrollScaleWidth) - firstKnob.KnobThickness / 2 - 1) - (maxSize) - ScrollX, textY);
+                    e.Graphics.DrawString("" + (maximum), _font, Brushes.DarkGray, (float)((Width * ScrollScaleWidth) - firstKnobRange.KnobThickness / 2.0f - 1) - (_maxSize) - (float)ScrollX, textY);
 
                     // Draw the middle frame (only if there is more than 1 frame):
                     if ((maximum - minimum) > 1)
                     {
-                        e.Graphics.DrawString("" + (maximum + minimum) / 2, font, Brushes.DarkGray, ((Width * ScrollScaleWidth) / 2) - medSize / 2 - ScrollX, textY);
+                        e.Graphics.DrawString("" + (maximum + minimum) / 2, _font, Brushes.DarkGray, (float)((Width * ScrollScaleWidth) / 2) - _medSize / 2 - (float)ScrollX, textY);
                     }
                 }
 
                 if (knobsEnabled)
                 {
                     // Draw the indicators (black lines at the top of the knobs):
-                    firstKnob.DrawIndicator(e.Graphics);
-                    secondKnob.DrawIndicator(e.Graphics);
+                    firstKnobRange.DrawIndicator(e.Graphics);
+                    secondKnobRange.DrawIndicator(e.Graphics);
                 }
 
                 // Draw the frame playhead indicator:
                 if (currentFrame >= minimum)
                 {
-                    // Create the playhead translation point:
-                    Point playheadPos1 = Point.Empty;
+                    DrawFrameIndicator(e, CurrentFrame);
+                }
+            }
 
-                    // Set the playhead translation point:
-                    playheadPos1.X = (firstKnob.KnobThickness / 2) + (int)((float)(currentFrame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - (int)ScrollX;
-                    playheadPos1.Y = 0;
-
-                    if (frameDisplayType == TimelineFrameDisplayType.Tick)
-                    {
-                        // Create the playhead size point:
-                        Point playheadPos2 = new Point(playheadPos1.X, playheadPos1.Y);
-
-                        // Set the playhead size point:
-                        playheadPos2.Y = timelineHeight;
-
-                        // Draw the playhead:
-                        e.Graphics.DrawLine(new Pen(Color.White, 4), playheadPos1, playheadPos2);
-                    }
-                    else if (frameDisplayType == TimelineFrameDisplayType.FrameNumber)
-                    {
-                        string frameText = currentFrame + "";
-                        SizeF frameTextSize = e.Graphics.MeasureString(frameText, this.font);
-
-                        Brush brush = new SolidBrush(Color.White);
-
-                        e.Graphics.FillRectangle(brush, new RectangleF(playheadPos1.X - frameTextSize.Width / 2, playheadPos1.Y, frameTextSize.Width, timelineHeight + 1));
-
-                        brush.Dispose();
-
-                        e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
-                        e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-
-                        e.Graphics.DrawString(currentFrame + "", this.font, Brushes.Black, playheadPos1.X - frameTextSize.Width / 2, playheadPos1.Y - 1);
-                    }
+            if (mouseOverTimeline)
+            {
+                if (displayFrameUnderMouse)
+                {
+                    DrawFrameIndicator(e, currentFrameUnderMouse, 0.5f);
                 }
             }
 
             if (knobsEnabled)
             {
                 // Draw the knobs:
-                if (drawLast == secondKnob || drawLast == null)
+                if (drawLast == secondKnobRange || drawLast == null)
                 {
                     // First knob first:
-                    firstKnob.Draw(e.Graphics);
-                    secondKnob.Draw(e.Graphics);
+                    firstKnobRange.Draw(e.Graphics);
+                    secondKnobRange.Draw(e.Graphics);
                 }
                 else
                 {
                     // Second knob first:
-                    secondKnob.Draw(e.Graphics);
-                    firstKnob.Draw(e.Graphics);
+                    secondKnobRange.Draw(e.Graphics);
+                    firstKnobRange.Draw(e.Graphics);
                 }
             }
         }
@@ -610,11 +610,11 @@ namespace Pixelaria.Views.Controls
                 // Flag that specifies whether the next proceedure has sucessfully captured a knob under the mouse to drag
                 bool succeded = false;
 
-                if (knobsEnabled)
+                if (knobsEnabled || rangeEnabled)
                 {
                     // Get the distance between the mouse and the knobs:
-                    float fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2);
-                    float sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2);
+                    double fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2.0f);
+                    double sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2.0f);
 
                     bool overY = (behaviorType == TimelineBehaviorType.RangeSelector || e.Y > timelineHeight + 2);
 
@@ -622,7 +622,7 @@ namespace Pixelaria.Views.Controls
                     if (fx < sx)
                     {
                         // Drag only if in the range of the knob:
-                        if (fx <= firstKnob.KnobThickness / 2 && overY)
+                        if (fx <= firstKnob.KnobThickness / 2.0f && overY)
                         {
                             // Set this knob as the one currently being dragged:
                             drag = firstKnob;
@@ -633,7 +633,7 @@ namespace Pixelaria.Views.Controls
                     else
                     {
                         // Drag only if in the range of the knob:
-                        if (sx <= secondKnob.KnobThickness / 2 && overY)
+                        if (sx <= secondKnob.KnobThickness / 2.0f && overY)
                         {
                             // Set this knob as the one currently being dragged:
                             drag = secondKnob;
@@ -646,17 +646,17 @@ namespace Pixelaria.Views.Controls
                 // If a knob is being dragged
                 if (succeded)
                 {
-                    dragOffset.X = drag.ScaledX - e.X + drag.KnobThickness / 2;
+                    _dragOffset.X = (float)drag.ScaledX - e.X + drag.KnobThickness / 2.0f;
 
                     // Show the tooltip:
-                    ToolTip.Show("" + (drag.Value), this, (int)drag.ScaledX, -25, 1000);
+                    toolTip.Show("" + (drag.Value), this, (int)drag.ScaledX, -25, 1000);
                 }
                 // If no knob is being dragged, try grabbing the timeline instead
                 else if (rangeDrag)
                 {
                     if (e.X > Math.Min(firstKnob.ScaledX, secondKnob.ScaledX) && e.X < Math.Max(firstKnob.ScaledX, secondKnob.ScaledX) && e.Y < timelineHeight)
                     {
-                        dragOffset.X = ((e.X + ScrollX - firstKnob.KnobThickness / 2) / ScrollScaleWidth) / ((float)(Width - firstKnob.KnobThickness / ScrollScaleWidth) / (maximum - minimum));
+                        _dragOffset.X = (float)((e.X + ScrollX - firstKnob.KnobThickness / 2.0f) / ScrollScaleWidth) / (float)((Width - firstKnob.KnobThickness / ScrollScaleWidth) / (maximum - minimum));
                         drag = firstKnob;
                         draggingTimeline = true;
                         draggingTimelineRange = GetRange();
@@ -678,14 +678,14 @@ namespace Pixelaria.Views.Controls
             else if (e.Button == MouseButtons.Middle)
             {
                 bool redraw = false;
-
-                if (ScrollX != 0)
+                
+                if (Math.Abs(ScrollX) > float.Epsilon)
                 {
                     ScrollX = 0;
                     redraw = true;
                 }
 
-                if (ScrollScaleWidth != 1)
+                if (Math.Abs(ScrollScaleWidth - 1) > float.Epsilon)
                 {
                     ScrollScaleWidth = 1;
                     redraw = true;
@@ -699,7 +699,7 @@ namespace Pixelaria.Views.Controls
             // Start scrolling with the right mouse button
             else if (e.Button == MouseButtons.Right)
             {
-                dragOffset.X = (int)ScrollX + e.X;
+                _dragOffset.X = (int)ScrollX + e.X;
                 draggingView = true;
             }
         }
@@ -721,11 +721,20 @@ namespace Pixelaria.Views.Controls
             // Whether to redraw the knobs:
             bool redrawKnobs = false;
 
+            // If the currnet behavior is set to display under mouse, invalidate the old (and new) mouse position
+            if (displayFrameUnderMouse)
+            {
+                UpdateFrameUnderMouseDisplay();
+            }
+
+            // Check whether the mouse is currently over the timeline
+            UpdateMouseOverTimeline();
+
             // The user is dragging the timeline
             if (draggingTimeline)
             {
-                float eX = ((e.X + ScrollX - firstKnob.KnobThickness / 2) / ScrollScaleWidth) / ((Width - firstKnob.KnobThickness / ScrollScaleWidth) / (maximum - minimum));
-                int diff = (int)(eX - dragOffset.X);
+                double eX = ((e.X + ScrollX - firstKnob.KnobThickness / 2.0f) / ScrollScaleWidth) / ((Width - firstKnob.KnobThickness / ScrollScaleWidth) / (maximum - minimum));
+                int diff = (int)(eX - _dragOffset.X);
 
                 // Clamp the movement delta
                 int moveDelta = diff + draggingTimelineRange.X;
@@ -736,9 +745,9 @@ namespace Pixelaria.Views.Controls
                     moveDelta = maximum - draggingTimelineRange.Y;
 
                 // Change the range
-                if (moveDelta != temp)
+                if (moveDelta != _temp)
                 {
-                    temp = moveDelta;
+                    _temp = moveDelta;
 
                     // Move the knobs
                     firstKnob.Value = moveDelta;
@@ -767,11 +776,11 @@ namespace Pixelaria.Views.Controls
             // The user is dragging the view
             else if (draggingView)
             {
-                float lastScroll = ScrollX;
+                double lastScroll = ScrollX;
 
-                ScrollX = -(e.X - dragOffset.X);
+                ScrollX = -(e.X - _dragOffset.X);
 
-                if (lastScroll != ScrollX)
+                if (Math.Abs(lastScroll - ScrollX) > float.Epsilon)
                     Invalidate();
             }
             // The user is dragging the current frame
@@ -787,18 +796,18 @@ namespace Pixelaria.Views.Controls
             // The user is hovering the mouse over the control
             else if (drag != null)
             {
-                float eX = e.X + dragOffset.X + (int)ScrollX;
+                double eX = e.X + _dragOffset.X + (int)ScrollX;
 
                 // Calculate new value:
-                float newValue = minimum + (float)Math.Round((float)(eX - drag.KnobThickness / 2) / ((Width * ScrollScaleWidth) - drag.KnobThickness - 1) * (maximum - minimum));
+                double newValue = minimum + Math.Round((eX - drag.KnobThickness / 2.0f) / ((Width * ScrollScaleWidth) - drag.KnobThickness - 1) * (maximum - minimum));
 
                 // Whether to redraw:
-                bool redraw = newValue != drag.Value;
+                bool redraw = Math.Abs(newValue - drag.Value) > float.Epsilon;
 
                 // Check for redrawing. Should only redraw when the new value is different from the last value in the knob:
 
                 // Set the last X position of the knob. Used to set the redraw rectangle.
-                float lastX = drag.ScaledX;
+                double lastX = drag.ScaledX;
 
                 // Set the knob's new value:
                 drag.Value = (int)newValue;
@@ -819,14 +828,14 @@ namespace Pixelaria.Views.Controls
                     }
 
                     // Calculate the redraw rectangle:
-                    float x = Math.Min(drag.ScaledX, lastX) - drag.KnobThickness;
-                    float width = Math.Max(drag.ScaledX, lastX) - x + drag.KnobThickness * 2;
+                    double x = Math.Min(drag.ScaledX, lastX) - drag.KnobThickness;
+                    double width = Math.Max(drag.ScaledX, lastX) - x + drag.KnobThickness * 2;
 
                     // Set the redraw rectangle:
                     Invalidate(new Rectangle((int)x, 0, (int)width, timelineHeight + drag.KnobHeigth + 1 + (int)drag.DrawOffset.Y));
 
                     // Show the tooltip:
-                    ToolTip.Show("" + (drag.Value), this, (int)(drag.ScaledX), -25, 1000);
+                    toolTip.Show("" + (drag.Value), this, (int)(drag.ScaledX), -25, 1000);
 
                     if (RangeChanged != null)
                         RangeChanged.Invoke(this, new RangeChangedEventArgs(GetRange()));
@@ -840,8 +849,8 @@ namespace Pixelaria.Views.Controls
                 if (knobsEnabled)
                 {
                     // Get the distance between the mouse and the knobs:
-                    float fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2.0f);
-                    float sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2.0f);
+                    double fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2.0f);
+                    double sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2.0f);
                     bool overY = (behaviorType == TimelineBehaviorType.RangeSelector || e.Y > timelineHeight + 2);
 
                     // I tried optimizing this bit as much as I could, and right now, it behaves pretty fast:
@@ -852,7 +861,7 @@ namespace Pixelaria.Views.Controls
                         {
                             // Show the tooltip:
                             if (!firstKnob.MouseOver)
-                                ToolTip.Show("" + (firstKnob.Value), this, (int)firstKnob.ScaledX, -25, 1000);
+                                toolTip.Show("" + (firstKnob.Value), this, (int)firstKnob.ScaledX, -25, 1000);
 
                             // Change the state of the knobs:
                             firstKnob.MouseOver = true;
@@ -864,11 +873,11 @@ namespace Pixelaria.Views.Controls
                             // Set this knob to draw over the other knob:
                             drawLast = firstKnob;
 
-                            if (mouseOverTimeline)
+                            if (mouseOverCurrentRange)
                                 Invalidate();
 
                             // Reset the mouse over timeline flag
-                            mouseOverTimeline = false;
+                            mouseOverCurrentRange = false;
                         }
                         // If not, un-highlight it:
                         else if (firstKnob.MouseOver)
@@ -881,7 +890,7 @@ namespace Pixelaria.Views.Controls
                             redrawKnobs = true;
 
                             // Hide the tooltip:
-                            ToolTip.Hide(this);
+                            toolTip.Hide(this);
                         }
                     }
                     // Second knob check:
@@ -892,7 +901,7 @@ namespace Pixelaria.Views.Controls
                         {
                             // Show the tooltip:
                             if (!secondKnob.MouseOver)
-                                ToolTip.Show("" + (secondKnob.Value), this, (int)secondKnob.ScaledX, -25, 1000);
+                                toolTip.Show("" + (secondKnob.Value), this, (int)secondKnob.ScaledX, -25, 1000);
 
                             // Change the state of the knobs:
                             firstKnob.MouseOver = false;
@@ -904,11 +913,11 @@ namespace Pixelaria.Views.Controls
                             // Set this knob to draw over the other knob:
                             drawLast = secondKnob;
 
-                            if (mouseOverTimeline)
+                            if (mouseOverCurrentRange)
                                 Invalidate();
 
                             // Reset the mouse over timeline flag
-                            mouseOverTimeline = false;
+                            mouseOverCurrentRange = false;
                         }
                         // If not, un-highlight it:
                         else if (secondKnob.MouseOver)
@@ -921,7 +930,7 @@ namespace Pixelaria.Views.Controls
                             redrawKnobs = true;
 
                             // Hide the tooltip:
-                            ToolTip.Hide(this);
+                            toolTip.Hide(this);
                         }
                     }
                 }
@@ -930,16 +939,13 @@ namespace Pixelaria.Views.Controls
                 {
                     if (e.X > Math.Min(firstKnob.ScaledX, secondKnob.ScaledX) && e.X < Math.Max(firstKnob.ScaledX, secondKnob.ScaledX) && e.Y < timelineHeight)
                     {
-                        mouseOverTimeline = true;
+                        mouseOverCurrentRange = true;
                         Invalidate();
                     }
-                    else
+                    else if (mouseOverCurrentRange)
                     {
-                        if (mouseOverTimeline)
-                        {
-                            mouseOverTimeline = false;
-                            Invalidate();
-                        }
+                        mouseOverCurrentRange = false;
+                        Invalidate();
                     }
                 }
             }
@@ -948,8 +954,8 @@ namespace Pixelaria.Views.Controls
             if (redrawKnobs)
             {
                 // Redraw the knobs:
-                Invalidate(new Rectangle((int)firstKnob.ScaledX, timelineHeight - 3, (int)(firstKnob.KnobThickness * 2), timelineHeight * 2 + (int)firstKnob.DrawOffset.Y));
-                Invalidate(new Rectangle((int)secondKnob.ScaledX, timelineHeight - 3, (int)(secondKnob.KnobThickness * 2), timelineHeight * 2 + (int)secondKnob.DrawOffset.Y));
+                Invalidate(new Rectangle((int)firstKnob.ScaledX, timelineHeight - 3, (firstKnob.KnobThickness * 2), timelineHeight * 2 + (int)firstKnob.DrawOffset.Y));
+                Invalidate(new Rectangle((int)secondKnob.ScaledX, timelineHeight - 3, (secondKnob.KnobThickness * 2), timelineHeight * 2 + (int)secondKnob.DrawOffset.Y));
             }
         }
         /// <summary>
@@ -994,12 +1000,43 @@ namespace Pixelaria.Views.Controls
         /// OnMouseUp event called whenever the user leaves the mouse out of this control's bounds
         /// </summary>
         /// <param name="e">The MouseEventArgs for this event</param>
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+
+            if (!Enabled)
+                return;
+
+            mouseInsideControl = true;
+
+            // Check whether the mouse is currently over the timeline
+            UpdateMouseOverTimeline();
+
+            // If the currnet behavior is set to display under mouse, invalidate the old (and new) mouse position
+            if (displayFrameUnderMouse)
+            {
+                UpdateFrameUnderMouseDisplay();
+            }
+        }
+        /// <summary>
+        /// OnMouseUp event called whenever the user leaves the mouse out of this control's bounds
+        /// </summary>
+        /// <param name="e">The MouseEventArgs for this event</param>
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
 
             if (!Enabled)
                 return;
+
+            mouseInsideControl = false;
+            mouseOverTimeline = false;
+
+            // If the currnet behavior is set to display under mouse, invalidate the old (and new) mouse position
+            if (displayFrameUnderMouse)
+            {
+                UpdateFrameUnderMouseDisplay();
+            }
 
             // Redraw the knobs:
             if (firstKnob.MouseOver)
@@ -1011,9 +1048,9 @@ namespace Pixelaria.Views.Controls
             firstKnob.MouseOver = false;
             secondKnob.MouseOver = false;
 
-            if (mouseOverTimeline)
+            if (mouseOverCurrentRange)
             {
-                mouseOverTimeline = false;
+                mouseOverCurrentRange = false;
                 Invalidate();
             }
         }
@@ -1032,7 +1069,7 @@ namespace Pixelaria.Views.Controls
             if ((e.X > 0 && e.X < Width) &&
                 (e.Y > 0 && e.Y < Height))
             {
-                float oldX = (e.X * ((float)Width / (Width - firstKnob.KnobThickness)) - firstKnob.KnobThickness / 2.0f) * ScrollScaleWidth;
+                double oldX = (e.X * ((double)Width / (Width - firstKnob.KnobThickness)) - (double)firstKnob.KnobThickness / 2.0f) * ScrollScaleWidth;
 
                 ScrollScaleWidth += (float)e.Delta / 120 / 3;
 
@@ -1045,13 +1082,11 @@ namespace Pixelaria.Views.Controls
                     ScrollScaleWidth = 30f;
                 }
 
-                float newX = (e.X * ((float)Width / (Width - firstKnob.KnobThickness)) - firstKnob.KnobThickness / 2.0f) * ScrollScaleWidth;
+                double newX = (e.X * ((double)Width / (Width - firstKnob.KnobThickness)) - (double)firstKnob.KnobThickness / 2.0f) * ScrollScaleWidth;
 
                 ScrollX += (newX - oldX);
 
                 Invalidate();
-
-                return;
             }
         }
         /// <summary>
@@ -1066,9 +1101,9 @@ namespace Pixelaria.Views.Controls
             Invalidate();
 
             // Change the scroll position to match the new position
-            if (lastWidth != 0)
+            if (_lastWidth != 0)
             {
-                ScrollX /= ((float)lastWidth / Width);
+                ScrollX /= ((float)_lastWidth / Width);
             }
 
             // Set the knobs to calculate new X properties:
@@ -1076,7 +1111,7 @@ namespace Pixelaria.Views.Controls
             secondKnob.Update();
 
             // Update the lastWidth variable
-            lastWidth = Width;
+            _lastWidth = Width;
         }
 
         /// <summary>
@@ -1097,10 +1132,64 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Draws the frame indicator on the given frame with the given paint args
+        /// </summary>
+        /// <param name="e">The paint args to draw the frame indicator on</param>
+        /// <param name="frame">The frame index to draw</param>
+        /// <param name="alpha">The alpha modifier to use during the drawing process</param>
+        private void DrawFrameIndicator(PaintEventArgs e, int frame, float alpha = 1)
+        {
+            // Create the playhead translation point:
+            Point playheadPos1 = Point.Empty;
+
+            Color backColor = Color.FromArgb((int)(255 * alpha), 255, 255, 255);
+            Color textColor = Color.FromArgb((int)(255 * alpha), 0, 0, 0);
+
+            // Set the playhead translation point:
+            playheadPos1.X = (firstKnob.KnobThickness / 2) + (int)((float)(frame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - (int)ScrollX;
+            playheadPos1.Y = 0;
+
+            if (frameDisplayType == TimelineFrameDisplayType.Tick)
+            {
+                // Create the playhead size point:
+                Point playheadPos2 = new Point(playheadPos1.X, timelineHeight);
+
+                // Draw the playhead:
+                e.Graphics.DrawLine(new Pen(backColor, 4), playheadPos1, playheadPos2);
+            }
+            else if (frameDisplayType == TimelineFrameDisplayType.FrameNumber)
+            {
+                string frameText = frame + "";
+                SizeF frameTextSize = e.Graphics.MeasureString(frameText, _font);
+
+                Brush backBrush = new SolidBrush(backColor);
+                Brush textBrush = new SolidBrush(textColor);
+
+                e.Graphics.FillRectangle(backBrush, new RectangleF(playheadPos1.X - frameTextSize.Width / 2, playheadPos1.Y, frameTextSize.Width, timelineHeight + 1));
+                e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
+                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+
+                e.Graphics.DrawString(frame + "", _font, textBrush, playheadPos1.X - frameTextSize.Width / 2, playheadPos1.Y - 1);
+
+                backBrush.Dispose();
+                textBrush.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Gets a Rectangle that represents the timeline display area
+        /// </summary>
+        /// <returns>A Rectangle that represents the timeline display area</returns>
+        protected Rectangle GetTimelineRect()
+        {
+            return new Rectangle(firstKnob.KnobThickness / 2 - (int)ScrollX, 0, (int)(Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2, timelineHeight);
+        }
+
+        /// <summary>
         /// Changes the current frame being displayed
         /// </summary>
         /// <param name="newFrame">The new frame to display</param>
-        protected void ChangeFrame(int newFrame)
+        public void ChangeFrame(int newFrame)
         {
             if (currentFrame == newFrame)
                 return;
@@ -1121,14 +1210,6 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Gets a Rectangle that represents the timeline display area
-        /// </summary>
-        /// <returns>A Rectangle that represents the timeline display area</returns>
-        protected Rectangle GetTimelineRect()
-        {
-            return new Rectangle(firstKnob.KnobThickness / 2 - (int)ScrollX, 0, (int)(Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2, timelineHeight);
-        }
-        /// <summary>
         /// Gets the frame currently under the mouse pointer.
         /// If a range is currently visible to the user, the value is truncated
         /// between [MinimumRange - MaximumRange] incluse, if not, the value is
@@ -1138,23 +1219,39 @@ namespace Pixelaria.Views.Controls
         /// <returns>The frame under the mouse pointer</returns>
         protected int GetFrameUnderMouse(bool clipOnRange = true)
         {
-            float totalWidth = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
-            float mx = (this.PointToClient(MousePosition).X + ScrollX - firstKnob.KnobThickness / 2.0f) / totalWidth;
+            double totalWidth = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
+            double mx = (PointToClient(MousePosition).X + ScrollX - firstKnob.KnobThickness / 2.0f) / totalWidth;
 
-	        int f = Math.Max(minimum, Math.Min(maximum, minimum + (int)Math.Round(mx * (maximum - minimum))));
+            int f = Math.Max(minimum, Math.Min(maximum, minimum + (int)Math.Round(mx * (maximum - minimum))));
 
-            if (clipOnRange && behaviorType == TimelineBehaviorType.RangeSelector)
+            Point range = GetRange();
+
+            if ((clipOnRange && behaviorType == TimelineBehaviorType.RangeSelector) || (behaviorType == TimelineBehaviorType.TimelineWithRange && disableFrameSelectionOutOfRange))
             {
-                Point range = GetRange();
-                f = Math.Max(range.X, Math.Min(range.X + range.Y, f));
-            }
-            else if (behaviorType == TimelineBehaviorType.TimelineWithRange && disableFrameSelectionOutOfRange)
-            {
-                Point range = GetRange();
                 f = Math.Max(range.X, Math.Min(range.X + range.Y, f));
             }
 
             return f;
+        }
+
+        /// <summary>
+        /// Updates the mouseOverTimeline flag
+        /// </summary>
+        private void UpdateMouseOverTimeline()
+        {
+            mouseOverTimeline = IsMouseOnTimeline();
+        }
+
+        /// <summary>
+        /// Updates the display of the frame currently under the mouse
+        /// </summary>
+        protected void UpdateFrameUnderMouseDisplay()
+        {
+            InvalidateUnderMouse();
+
+            currentFrameUnderMouse = GetFrameUnderMouse();
+
+            InvalidateUnderMouse();
         }
 
         /// <summary>
@@ -1163,11 +1260,11 @@ namespace Pixelaria.Views.Controls
         /// <returns>Whether the mouse is currently over the timeline</returns>
         protected bool IsMouseOnTimeline()
         {
-            float x = firstKnob.KnobThickness / 2.0f - ScrollX;
-            float w = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
+            double x = firstKnob.KnobThickness / 2.0f - ScrollX;
+            double w = ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 2);
 
-            int mx = this.PointToClient(MousePosition).X;
-            int my = this.PointToClient(MousePosition).Y;
+            int mx = PointToClient(MousePosition).X;
+            int my = PointToClient(MousePosition).Y;
 
             return mx > x && mx < x + w && my < timelineHeight;
         }
@@ -1177,12 +1274,29 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         protected void InvalidatePlayhead()
         {
-            Graphics g = this.CreateGraphics();
+            Graphics g = CreateGraphics();
 
             string frameText = currentFrame + "";
-            SizeF frameTextSize = g.MeasureString(frameText, this.font);
+            SizeF frameTextSize = g.MeasureString(frameText, _font);
 
             Invalidate(new Rectangle((firstKnob.KnobThickness / 2) + (int)((float)(currentFrame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - (int)ScrollX - (int)frameTextSize.Width / 2 - 1, 0, (int)frameTextSize.Width + 2, timelineHeight + 1));
+
+            g.Dispose();
+        }
+
+        /// <summary>
+        /// Invalidates the region under the mouse. Utilized when the mouse is hovering over the control and DisplayFrameUnderMouse is set to true
+        /// </summary>
+        protected void InvalidateUnderMouse()
+        {
+            int frame = currentFrameUnderMouse;
+
+            Graphics g = CreateGraphics();
+
+            string frameText = frame + "";
+            SizeF frameTextSize = g.MeasureString(frameText, _font);
+
+            Invalidate(new Rectangle((firstKnob.KnobThickness / 2) + (int)((float)(frame - minimum) / Math.Max(1, maximum - minimum) * ((Width * ScrollScaleWidth) - firstKnob.KnobThickness - 1)) - (int)ScrollX - (int)frameTextSize.Width / 2 - 1, 0, (int)frameTextSize.Width + 2, timelineHeight + 1));
 
             g.Dispose();
         }
@@ -1199,17 +1313,21 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The minimum value this TimelineControl will display
         /// </summary>
-        protected int minimum = 0;
+        protected int minimum;
 
         /// <summary>
         /// The maximum value this TimelineControl will display
         /// </summary>
-        protected int maximum = 0;
+        protected int maximum;
 
         /// <summary>
         /// The current frame being displayed
         /// </summary>
         protected int currentFrame;
+        /// <summary>
+        /// The current frame under the mouse
+        /// </summary>
+        protected int currentFrameUnderMouse;
         /// <summary>
         /// The knob to draw the last
         /// </summary>
@@ -1218,35 +1336,31 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The mouse drag offset
         /// </summary>
-        private PointF dragOffset = PointF.Empty;
+        private PointF _dragOffset = PointF.Empty;
 
         /// <summary>
         /// This control's last width before resizing
         /// </summary>
-        private int lastWidth = 0;
+        private int _lastWidth;
 
-        /// <summary>
-        /// The pre-calculated start label width
-        /// </summary>
-        private float minSize = 0;
         /// <summary>
         /// The pre-calculated middle label width
         /// </summary>
-        private float medSize = 0;
+        private float _medSize;
         /// <summary>
         /// The pre-calculated end label width
         /// </summary>
-        private float maxSize = 0;
+        private float _maxSize;
 
         /// <summary>
         /// Create the font object this control will use to draw the texts:
         /// </summary>
-        private Font font = new System.Drawing.Font("Segoi UI", 8.1f);
+        private readonly Font _font = new Font("Segoi UI", 8.1f);
 
         /// <summary>
         /// Temporary integer used in various calculations
         /// </summary>
-        private int temp = 0;
+        private int _temp;
     }
 
     /// <summary>
@@ -1265,7 +1379,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="newRange">The new range for the timeline selection</param>
         public RangeChangedEventArgs(Point newRange)
         {
-            this.NewRange = newRange;
+            NewRange = newRange;
         }
     }
 
@@ -1296,8 +1410,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="newFrame">The new frame selected</param>
         public FrameChangedEventArgs(int oldFrame, int newFrame)
         {
-            this.OldFrame = oldFrame;
-            this.NewFrame = newFrame;
+            OldFrame = oldFrame;
+            NewFrame = newFrame;
         }
     }
 
@@ -1313,7 +1427,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// This knob'x value
         /// </summary>
-        protected int value = 0;
+        protected int value;
         /// <summary>
         /// The parent TimelineControl that's hosting this knob
         /// </summary>
@@ -1321,11 +1435,11 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// This knob's X position
         /// </summary>
-        protected float x;
+        protected double x;
         /// <summary>
         /// This knob's X scale
         /// </summary>
-        protected float scaledX;
+        protected double scaledX;
         /// <summary>
         /// This knob's drawing offset
         /// </summary>
@@ -1345,7 +1459,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public int Value
         {
-            get { return this.value; }
+            get { return value; }
             set { this.value = Math.Max(parent.Minimum, Math.Min(parent.Maximum, value)); Update(); }
         }
 
@@ -1355,24 +1469,24 @@ namespace Pixelaria.Views.Controls
         public TimelineControl Parent
         {
             get { return parent; }
-            protected set { this.parent = value; }
+            protected set { parent = value; }
         }
 
         /// <summary>
         /// Gets or sets this knob's X position
         /// </summary>
-        public float X
+        public double X
         {
             get { return x; }
-            set { this.x = X; }
+            set { x = value; }
         }
 
         /// <summary>
         /// Gets this knob's scaled X component based on the parent TimelineControl's size
         /// </summary>
-        public float ScaledX
+        public double ScaledX
         {
-            get { return (int)GetRealX(); }
+            get { return GetRealX(); }
         }
 
         /// <summary>
@@ -1400,7 +1514,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Whether the mouse is hovering over this knob
         /// </summary>
-        public bool MouseOver = false;
+        public bool MouseOver;
 
         /// <summary>
         /// Initializes a new instance of the Knob control, binding it to a TimelineControl
@@ -1410,9 +1524,9 @@ namespace Pixelaria.Views.Controls
         {
             this.parent = parent;
 
-            this.value = 0;
+            value = 0;
 
-            this.drawOffset = new PointF(0, 4);
+            drawOffset = new PointF(0, 4);
         }
 
         /// <summary>
@@ -1421,51 +1535,51 @@ namespace Pixelaria.Views.Controls
         /// <param name="e">The graphics to draw this knob on</param>
         public void Draw(Graphics e)
         {
-            PointF drawOffset = new PointF(this.drawOffset.X + ScaledX, this.drawOffset.Y + parent.TimelineHeight);
+            PointF realDrawOffset = new PointF(drawOffset.X + (float)ScaledX,drawOffset.Y + parent.TimelineHeight);
 
-            if (b != null)
-                b.Dispose();
+            if (_b != null)
+                _b.Dispose();
 
             // Fill it with a gray color if the parent is disabled
             if (!parent.Enabled)
             {
-                b = new SolidBrush(Color.LightGray);
+                _b = new SolidBrush(Color.LightGray);
             }
             // If the mouse is over the knob, fill it with a lighter color:
             else if (MouseOver)
             {
-                b = new LinearGradientBrush(drawOffset, new Point(KnobHeigth * 2 + (int)drawOffset.X, KnobThickness + (int)drawOffset.Y), Color.LightGray, Color.DarkGray);
+                _b = new LinearGradientBrush(realDrawOffset, new Point(KnobHeigth * 2 + (int)realDrawOffset.X, KnobThickness + (int)realDrawOffset.Y), Color.LightGray, Color.DarkGray);
             }
             else
             {
-                b = new LinearGradientBrush(drawOffset, new Point(KnobHeigth * 2 + (int)drawOffset.X, KnobThickness + (int)drawOffset.Y), Color.LightGray, Color.Gray);
+                _b = new LinearGradientBrush(realDrawOffset, new Point(KnobHeigth * 2 + (int)realDrawOffset.X, KnobThickness + (int)realDrawOffset.Y), Color.LightGray, Color.Gray);
             }
 
-            path.Reset();
+            _path.Reset();
 
             // Fill in the lines array:
-            lines[0] = new PointF(0, 0);
-            lines[1] = new PointF(KnobThickness / 2.0f, -3);
-            lines[2] = new PointF(KnobThickness, 0);
-            lines[3] = new PointF(KnobThickness, KnobHeigth);
-            lines[4] = new PointF(0, KnobHeigth);
-            lines[5] = lines[0];
+            _lines[0] = new PointF(0, 0);
+            _lines[1] = new PointF(KnobThickness / 2.0f, -3);
+            _lines[2] = new PointF(KnobThickness, 0);
+            _lines[3] = new PointF(KnobThickness, KnobHeigth);
+            _lines[4] = new PointF(0, KnobHeigth);
+            _lines[5] = _lines[0];
 
             // Offset all the lines:
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = 0; i < _lines.Length; i++)
             {
-                lines[i].X = (int)(lines[i].X + drawOffset.X);
-                lines[i].Y = (int)(lines[i].Y + drawOffset.Y);
+                _lines[i].X = (int)(_lines[i].X + realDrawOffset.X);
+                _lines[i].Y = (int)(_lines[i].Y + realDrawOffset.Y);
             }
 
             // Add the lines to the path:
-            path.AddLines(lines);
+            _path.AddLines(_lines);
 
             // Fill the path:
-            e.FillPath(b, path);
+            e.FillPath(_b, _path);
 
             // Draw the outline, and the line marker:
-            e.DrawPath(Pens.Black, path);
+            e.DrawPath(Pens.Black, _path);
         }
 
         /// <summary>
@@ -1474,10 +1588,10 @@ namespace Pixelaria.Views.Controls
         /// <param name="e">The graphics to draw the indicator on</param>
         public void DrawIndicator(Graphics e)
         {
-            PointF drawOffset = new PointF(this.drawOffset.X + ScaledX, this.drawOffset.Y + parent.TimelineHeight);
+            PointF realDrawOffset = new PointF(drawOffset.X + (float)ScaledX, drawOffset.Y + parent.TimelineHeight);
 
             // Draw the indicator:
-            e.DrawLine(Pens.Black, KnobThickness / 2 + (int)drawOffset.X, -3 + (int)drawOffset.Y, KnobThickness / 2 + (int)drawOffset.X, -(int)drawOffset.Y);
+            e.DrawLine(Pens.Black, KnobThickness / 2 + (int)realDrawOffset.X, -3 + (int)realDrawOffset.Y, KnobThickness / 2 + (int)realDrawOffset.X, -(int)realDrawOffset.Y);
         }
 
         /// <summary>
@@ -1486,32 +1600,32 @@ namespace Pixelaria.Views.Controls
         public void Update()
         {
             // Calculate the new position:
-            this.x = (KnobThickness / 2.0f) + ((float)this.value / Math.Max(parent.Maximum - parent.Minimum, 1)) * (parent.Width - KnobThickness - 1);
+            x = (KnobThickness / 2.0f) + ((float)value / Math.Max(parent.Maximum - parent.Minimum, 1)) * (parent.Width - KnobThickness - 1);
 
-            this.scaledX = GetRealX();
+            scaledX = GetRealX();
         }
 
         /// <summary>
         /// Gets the real X component of this knob
         /// </summary>
         /// <returns>The real X component of this knob, adjusted for the parent TimelineControl's scale</returns>
-        public float GetRealX()
+        public double GetRealX()
         {
-            return ((float)(value - parent.Minimum) / Math.Max(parent.Maximum - parent.Minimum, 1)) * ((parent.Width * parent.ScrollScaleWidth) - KnobThickness - 1) - parent.ScrollX;
+            return ((double)(value - parent.Minimum) / Math.Max(parent.Maximum - parent.Minimum, 1)) * ((parent.Width * parent.ScrollScaleWidth) - KnobThickness - 1) - parent.ScrollX;
         }
 
         /// <summary>
         /// Linear gradient brush, used to draw the knob: 
         /// </summary>
-        private Brush b;
+        private Brush _b;
         /// <summary>
         /// Create the graphics path used to fill out the knob:
         /// </summary>
-        private GraphicsPath path = new GraphicsPath();
+        private readonly GraphicsPath _path = new GraphicsPath();
         /// <summary>
         /// Create a bunch of lines used to fill out the knob:
         /// </summary>
-        private PointF[] lines = new PointF[6];
+        private readonly PointF[] _lines = new PointF[6];
     }
 
     /// <summary>

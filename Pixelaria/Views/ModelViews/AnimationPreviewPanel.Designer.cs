@@ -172,9 +172,8 @@ namespace Pixelaria.Views.ModelViews
             this.tlc_timeline.Minimum = 0;
             this.tlc_timeline.Name = "tlc_timeline";
             this.tlc_timeline.Range = new System.Drawing.Point(0, 10);
-            this.tlc_timeline.DisableFrameSelectionOutOfRange = true;
-            this.tlc_timeline.ScrollScaleWidth = 1F;
-            this.tlc_timeline.ScrollX = 0F;
+            this.tlc_timeline.ScrollScaleWidth = 1D;
+            this.tlc_timeline.ScrollX = 0D;
             this.tlc_timeline.Size = new System.Drawing.Size(197, 38);
             this.tlc_timeline.TabIndex = 16;
             this.tlc_timeline.Text = "timelineControl1";
