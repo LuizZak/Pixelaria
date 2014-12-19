@@ -240,7 +240,7 @@ namespace Pixelaria.Utils
         /// <param name="y">The Y coordinate of the pixel to set</param>
         /// <param name="color">The new color of the pixel to set</param>
         /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
-        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, Color color)
         {
             SetPixel(x, y, color.ToArgb());
@@ -254,7 +254,7 @@ namespace Pixelaria.Utils
         /// <param name="y">The Y coordinate of the pixel to set</param>
         /// <param name="color">The new color of the pixel to set</param>
         /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
-        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, int color)
         {
             SetPixel(x, y, (uint)color);
@@ -268,7 +268,7 @@ namespace Pixelaria.Utils
         /// <param name="y">The Y coordinate of the pixel to set</param>
         /// <param name="color">The new color of the pixel to set</param>
         /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
-        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, uint color)
         {
             if (!_locked)
@@ -278,11 +278,11 @@ namespace Pixelaria.Utils
 
             if (x < 0 || x >= _width)
             {
-                throw new ArgumentException("The X component must be >= 0 and < width");
+                throw new ArgumentOutOfRangeException("The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new ArgumentException("The Y component must be >= 0 and < height");
+                throw new ArgumentOutOfRangeException("The Y component must be >= 0 and < height");
             }
 
             *(uint*)(_scan0 + x + y * _strideWidth) = color;
@@ -295,7 +295,7 @@ namespace Pixelaria.Utils
         /// <param name="x">The X coordinate of the pixel to get</param>
         /// <param name="y">The Y coordinate of the pixel to get</param>
         /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
-        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public Color GetPixel(int x, int y)
         {
             return Color.FromArgb(GetPixelInt(x, y));
@@ -308,7 +308,7 @@ namespace Pixelaria.Utils
         /// <param name="x">The X coordinate of the pixel to get</param>
         /// <param name="y">The Y coordinate of the pixel to get</param>
         /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
-        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public int GetPixelInt(int x, int y)
         {
             if (!_locked)
@@ -318,11 +318,11 @@ namespace Pixelaria.Utils
 
             if (x < 0 || x >= _width)
             {
-                throw new ArgumentException("The X component must be >= 0 and < width");
+                throw new ArgumentOutOfRangeException("The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new ArgumentException("The Y component must be >= 0 and < height");
+                throw new ArgumentOutOfRangeException("The Y component must be >= 0 and < height");
             }
 
             return *(_scan0 + x + y * _strideWidth);
@@ -335,7 +335,7 @@ namespace Pixelaria.Utils
         /// <param name="x">The X coordinate of the pixel to get</param>
         /// <param name="y">The Y coordinate of the pixel to get</param>
         /// <exception cref="InvalidOperationException">The fast bitmap is not locked</exception>
-        /// <exception cref="ArgumentException">The provided coordinates are out of bounds of the bitmap</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public uint GetPixelUInt(int x, int y)
         {
             if (!_locked)
@@ -345,14 +345,74 @@ namespace Pixelaria.Utils
 
             if (x < 0 || x >= _width)
             {
-                throw new ArgumentException("The X component must be >= 0 and < width");
+                throw new ArgumentOutOfRangeException("The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new ArgumentException("The Y component must be >= 0 and < height");
+                throw new ArgumentOutOfRangeException("The Y component must be >= 0 and < height");
             }
 
             return *((uint*)_scan0 + x + y * _strideWidth);
+        }
+
+        /// <summary>
+        /// Copies the contents of the given array of colors into this FastBitmap.
+        /// Throws an ArgumentException if the count of colors on the array mismatches the pixel count from this FastBitmap
+        /// </summary>
+        /// <param name="colors">The array of colors to copy</param>
+        /// <param name="ignoreZeroes">Whether to ignore zeroes when copying the data</param>
+        public void CopyFromArray(int[] colors, bool ignoreZeroes = false)
+        {
+            if (colors.Length != _width * _height)
+            {
+                throw new ArgumentException("The number of colors of the given array mismatch the pixel count of the bitmap", "colors");
+            }
+
+            // Simply copy the argb values array
+            int* s0t = _scan0;
+
+            fixed (int* source = colors)
+            {
+                int* s0s = source;
+                int bpp = 1; // Bytes per pixel
+
+                int count = _width * _height * bpp;
+
+                if (!ignoreZeroes)
+                {
+                    // Unfold the loop
+                    const int sizeBlock = 8;
+                    int rem = count % sizeBlock;
+
+                    count /= sizeBlock;
+
+                    while (count-- > 0)
+                    {
+                        *(s0t++) = *(s0s++);
+                        *(s0t++) = *(s0s++);
+                        *(s0t++) = *(s0s++);
+                        *(s0t++) = *(s0s++);
+
+                        *(s0t++) = *(s0s++);
+                        *(s0t++) = *(s0s++);
+                        *(s0t++) = *(s0s++);
+                        *(s0t++) = *(s0s++);
+                    }
+
+                    while (rem-- > 0)
+                    {
+                        *(s0t++) = *(s0s++);
+                    }
+                }
+                else
+                {
+                    while (count-- > 0)
+                    {
+                        if (*(s0s) == 0) { s0t++; s0s++; continue; }
+                        *(s0t++) = *(s0s++);
+                    }
+                }
+            }
         }
 
         /// <summary>
