@@ -89,8 +89,8 @@ namespace Pixelaria.Views.Controls.Filters
             set
             {
                 // Adjust the buttons' colors
-                AhslColor lightColor = value.ToAHSL();
-                AhslColor darkColor = value.ToAHSL();
+                AhslColor lightColor = value.ToAhsl();
+                AhslColor darkColor = value.ToAhsl();
 
                 lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
                 darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);
@@ -123,7 +123,7 @@ namespace Pixelaria.Views.Controls.Filters
                 {
                     btn_enable.Image = Properties.Resources.filter_disable_icon;
 
-                    AhslColor newColor = Color.FromKnownColor(KnownColor.Control).ToAHSL();
+                    AhslColor newColor = Color.FromKnownColor(KnownColor.Control).ToAhsl();
 
                     newColor = new AhslColor(newColor.Af, newColor.Hf, newColor.Sf, newColor.Lf - 10);
 
@@ -327,8 +327,8 @@ namespace Pixelaria.Views.Controls.Filters
             base.OnPaint(e);
 
             // Draw the dragging region
-            AhslColor lightColor = BackColor.ToAHSL();
-            AhslColor darkColor = BackColor.ToAHSL();
+            AhslColor lightColor = BackColor.ToAhsl();
+            AhslColor darkColor = BackColor.ToAhsl();
 
             lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
             darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);

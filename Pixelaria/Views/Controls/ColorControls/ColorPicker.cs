@@ -80,7 +80,7 @@ namespace Pixelaria.Views.Controls.ColorControls
                 if (_firstColor.ToColor() == value)
                     return;
 
-                _firstColor = value.ToAHSL();
+                _firstColor = value.ToAhsl();
                 pnl_firstColor.BackColor = value;
                 if (SelectedColor == ColorPickerColor.FirstColor)
                     UpdateSliders();
@@ -98,7 +98,7 @@ namespace Pixelaria.Views.Controls.ColorControls
                 if (_secondColor.ToColor() == value)
                     return;
 
-                _secondColor = value.ToAHSL();
+                _secondColor = value.ToAhsl();
                 pnl_secondColor.BackColor = value;
                 if (SelectedColor == ColorPickerColor.SecondColor)
                     UpdateSliders();
@@ -172,8 +172,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             InitializeComponent();
 
-            _firstColor = Color.Black.ToAHSL();
-            _secondColor = Color.White.ToAHSL();
+            _firstColor = Color.Black.ToAhsl();
+            _secondColor = Color.White.ToAhsl();
 
             pnl_firstColor.BackColor = FirstColor;
             pnl_secondColor.BackColor = SecondColor;
@@ -195,7 +195,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="keepTransparency">Whether to keep the current alpha channel unmodified</param>
         public void SetCurrentColor(Color color, bool keepTransparency = false)
         {
-            SetCurrentColor(color.ToAHSL(), keepTransparency);
+            SetCurrentColor(color.ToAhsl(), keepTransparency);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="keepTransparency">Whether to keep the current alpha channel unmodified</param>
         public void SetCurrentColor(AhslColor color, bool keepTransparency = false)
         {
-            AhslColor oldColor = Color.White.ToAHSL();
+            AhslColor oldColor = Color.White.ToAhsl();
 
             if (keepTransparency)
             {
@@ -237,7 +237,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public void UpdateSliders()
         {
-            AhslColor color = Color.White.ToAHSL();
+            AhslColor color = Color.White.ToAhsl();
 
             switch (_selectedColor)
             {

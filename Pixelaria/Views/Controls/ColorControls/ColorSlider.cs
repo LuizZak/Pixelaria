@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The active color for this ColorSlider
         /// </summary>
-        private AhslColor _activeColor = Color.White.ToAHSL();
+        private AhslColor _activeColor = Color.White.ToAhsl();
 
         /// <summary>
         /// The color component this ColorSlider is currently manipulating

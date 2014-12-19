@@ -38,7 +38,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The color swatch for this ColorSwatchControl
         /// </summary>
-        private ColorSwatch _colorSwatch;
+        private readonly ColorSwatch _colorSwatch;
 
         /// <summary>
         /// The last mouse cell area the mouse was hovering over
@@ -343,22 +343,22 @@ namespace Pixelaria.Views.Controls.ColorControls
             ColorSwatch colorSwatches = new ColorSwatch();
 
             // Code generated swatch that fades a rainbow swatch darker as you go down the rows
-            uint[] colors = new uint[] { 0xFFFF0000, 0xFFFF7F00, 0xFFFFFF00, 0xFF7FFF00, 0xFF00FF00, 0xFF00FF7F, 0xFF00FFFF, 0xFF007FFF, 0xFF0000FF, 0xFF7F00FF, 0xFFFF00FF, 0xFFFF007F, 0xFFFF0000, 
-                                         0xFFE50000, 0xFFE57200, 0xFFE5E500, 0xFF72E500, 0xFF00E500, 0xFF00E572, 0xFF00E5E5, 0xFF0072E5, 0xFF0000E5, 0xFF7200E5, 0xFFE500E5, 0xFFE50072, 0xFFE50000, 
-                                         0xFFCC0000, 0xFFCC6600, 0xFFCCCC00, 0xFF66CC00, 0xFF00CC00, 0xFF00CC66, 0xFF00CCCC, 0xFF0066CC, 0xFF0000CC, 0xFF6600CC, 0xFFCC00CC, 0xFFCC0066, 0xFFCC0000, 
-                                         0xFFB20000, 0xFFB25900, 0xFFB2B200, 0xFF59B200, 0xFF00B200, 0xFF00B259, 0xFF00B2B2, 0xFF0059B2, 0xFF0000B2, 0xFF5900B2, 0xFFB200B2, 0xFFB20059, 0xFFB20000, 
-                                         0xFF990000, 0xFF994C00, 0xFF999900, 0xFF4C9900, 0xFF009900, 0xFF00994C, 0xFF009999, 0xFF004C99, 0xFF000099, 0xFF4C0099, 0xFF990099, 0xFF99004C, 0xFF990000, 
-                                         0xFF7F0000, 0xFF7F3F00, 0xFF7F7F00, 0xFF3F7F00, 0xFF007F00, 0xFF007F3F, 0xFF007F7F, 0xFF003F7F, 0xFF00007F, 0xFF3F007F, 0xFF7F007F, 0xFF7F003F, 0xFF7F0000, 
-                                         0xFF660000, 0xFF663300, 0xFF666600, 0xFF336600, 0xFF006600, 0xFF006633, 0xFF006666, 0xFF003366, 0xFF000066, 0xFF330066, 0xFF660066, 0xFF660033, 0xFF660000, 
-                                         0xFF4C0000, 0xFF4C2600, 0xFF4C4C00, 0xFF264C00, 0xFF004C00, 0xFF004C26, 0xFF004C4C, 0xFF00264C, 0xFF00004C, 0xFF26004C, 0xFF4C004C, 0xFF4C0026, 0xFF4C0000, 
-                                         0xFF330000, 0xFF331900, 0xFF333300, 0xFF193300, 0xFF003300, 0xFF003319, 0xFF003333, 0xFF001933, 0xFF000033, 0xFF190033, 0xFF330033, 0xFF330019, 0xFF330000, 
-                                         0xFF190000, 0xFF190C00, 0xFF191900, 0xFF0C1900, 0xFF001900, 0xFF00190C, 0xFF001919, 0xFF000C19, 0xFF000019, 0xFF0C0019, 0xFF190019, 0xFF19000C, 0xFF190000,
-                                         0xFF000000, 0xFF151515, 0xFF2A2A2A, 0xFF3F3F3F, 0xFF555555, 0xFF6A6A6A, 0xFF7F7F7F, 0xFF949494, 0xFFAAAAAA, 0xFFBFBFBF, 0xFFD4D4D4, 0xFFE9E9E9, 0xFFFFFFFF };
+            uint[] colors = { 0xFFFF0000, 0xFFFF7F00, 0xFFFFFF00, 0xFF7FFF00, 0xFF00FF00, 0xFF00FF7F, 0xFF00FFFF, 0xFF007FFF, 0xFF0000FF, 0xFF7F00FF, 0xFFFF00FF, 0xFFFF007F, 0xFFFF0000, 
+                              0xFFE50000, 0xFFE57200, 0xFFE5E500, 0xFF72E500, 0xFF00E500, 0xFF00E572, 0xFF00E5E5, 0xFF0072E5, 0xFF0000E5, 0xFF7200E5, 0xFFE500E5, 0xFFE50072, 0xFFE50000, 
+                              0xFFCC0000, 0xFFCC6600, 0xFFCCCC00, 0xFF66CC00, 0xFF00CC00, 0xFF00CC66, 0xFF00CCCC, 0xFF0066CC, 0xFF0000CC, 0xFF6600CC, 0xFFCC00CC, 0xFFCC0066, 0xFFCC0000, 
+                              0xFFB20000, 0xFFB25900, 0xFFB2B200, 0xFF59B200, 0xFF00B200, 0xFF00B259, 0xFF00B2B2, 0xFF0059B2, 0xFF0000B2, 0xFF5900B2, 0xFFB200B2, 0xFFB20059, 0xFFB20000, 
+                              0xFF990000, 0xFF994C00, 0xFF999900, 0xFF4C9900, 0xFF009900, 0xFF00994C, 0xFF009999, 0xFF004C99, 0xFF000099, 0xFF4C0099, 0xFF990099, 0xFF99004C, 0xFF990000, 
+                              0xFF7F0000, 0xFF7F3F00, 0xFF7F7F00, 0xFF3F7F00, 0xFF007F00, 0xFF007F3F, 0xFF007F7F, 0xFF003F7F, 0xFF00007F, 0xFF3F007F, 0xFF7F007F, 0xFF7F003F, 0xFF7F0000, 
+                              0xFF660000, 0xFF663300, 0xFF666600, 0xFF336600, 0xFF006600, 0xFF006633, 0xFF006666, 0xFF003366, 0xFF000066, 0xFF330066, 0xFF660066, 0xFF660033, 0xFF660000, 
+                              0xFF4C0000, 0xFF4C2600, 0xFF4C4C00, 0xFF264C00, 0xFF004C00, 0xFF004C26, 0xFF004C4C, 0xFF00264C, 0xFF00004C, 0xFF26004C, 0xFF4C004C, 0xFF4C0026, 0xFF4C0000, 
+                              0xFF330000, 0xFF331900, 0xFF333300, 0xFF193300, 0xFF003300, 0xFF003319, 0xFF003333, 0xFF001933, 0xFF000033, 0xFF190033, 0xFF330033, 0xFF330019, 0xFF330000, 
+                              0xFF190000, 0xFF190C00, 0xFF191900, 0xFF0C1900, 0xFF001900, 0xFF00190C, 0xFF001919, 0xFF000C19, 0xFF000019, 0xFF0C0019, 0xFF190019, 0xFF19000C, 0xFF190000,
+                              0xFF000000, 0xFF151515, 0xFF2A2A2A, 0xFF3F3F3F, 0xFF555555, 0xFF6A6A6A, 0xFF7F7F7F, 0xFF949494, 0xFFAAAAAA, 0xFFBFBFBF, 0xFFD4D4D4, 0xFFE9E9E9, 0xFFFFFFFF };
 
             // Add the colors to the swatch and return it
             foreach (uint color in colors)
             {
-                colorSwatches.AddColor(Color.FromArgb((int)((color >> 24) & 0xFF), (int)((color >> 16) & 0xFF), (int)((color >> 8) & 0xFF), (int)((color) & 0xFF)));
+                colorSwatches.AddColor(Color.FromArgb(unchecked((int)color)));
             }
 
             return colorSwatches;
@@ -394,14 +394,14 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="alpha">An optional alpha component</param>
         /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
         /// <returns>An ARGB color from the given HSL color components</returns>
-        public static int ArgbFromAHSL(int h, int s, int l, int alpha = 255, bool revertByteOrder = false)
+        public static int ArgbFromAhsl(int h, int s, int l, int alpha = 255, bool revertByteOrder = false)
         {
             float af = alpha / 255.0f;
             float hf = h / 360.0f;
             float sf = s / 100.0f;
             float lf = l / 100.0f;
 
-            return ArgbFromAHSL(hf, sf, lf, af, revertByteOrder);
+            return ArgbFromAhsl(hf, sf, lf, af, revertByteOrder);
         }
 
         /// <summary>
@@ -413,11 +413,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="alpha">An optional alpha component</param>
         /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
         /// <returns>An ARGB color from the given HSL color components</returns>
-        public static int ArgbFromAHSL(float h, float s, float l, float alpha = 1, bool revertByteOrder = false)
+        public static int ArgbFromAhsl(float h, float s, float l, float alpha = 1, bool revertByteOrder = false)
         {
-            float[] components = FloatArgbFromAHSL(h, s, l, alpha, revertByteOrder);
+            float[] components = FloatArgbFromAhsl(h, s, l, alpha, revertByteOrder);
 
-            return (int)(((int)(components[0] * 255) << 24) | ((int)(components[1] * 255) << 16) | ((int)(components[2] * 255) << 8) | ((int)(components[3] * 255)));
+            return (((int)(components[0] * 255) << 24) | ((int)(components[1] * 255) << 16) | ((int)(components[2] * 255) << 8) | ((int)(components[3] * 255)));
         }
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="alpha">An optional alpha component, ranging from 0-1</param>
         /// <param name="reverseColorOrder">Whether to revert the color order so the alpha component appearns last and the blue appears first</param>
         /// <returns>An ARGB color from the given HSL color components</returns>
-        public static float[] FloatArgbFromAHSL(float h, float s, float l, float alpha = 1, bool reverseColorOrder = false)
+        public static float[] FloatArgbFromAhsl(float h, float s, float l, float alpha = 1, bool reverseColorOrder = false)
         {
             if (h < 0) h = 0;
             if (s < 0) s = 0;
@@ -509,9 +509,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="l">The lightness</param>
         /// <param name="alpha">An optional alpha component</param>
         /// <returns>An ARGB color from the given HSL color components</returns>
-        public static Color ColorFromAHSL(float h, float s, float l, float alpha = 1)
+        public static Color ColorFromAhsl(float h, float s, float l, float alpha = 1)
         {
-            return Color.FromArgb(ArgbFromAHSL(h, s, l, alpha));
+            return Color.FromArgb(ArgbFromAhsl(h, s, l, alpha));
         }
 
         #endregion

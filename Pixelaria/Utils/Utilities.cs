@@ -31,8 +31,6 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 using Pixelaria.Data;
-using Pixelaria.Views.Controls;
-using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Utils
 {
@@ -262,96 +260,13 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Converts the given ARGB color to an AHSL color
-        /// </summary>
-        /// <param name="argb">The color to convert to AHSL</param>
-        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        public static AhslColor ToAHSL(int argb)
-        {
-            float a = (int)((uint)argb >> 24);
-            float r = (argb >> 16) & 0xFF;
-            float g = (argb >> 8) & 0xFF;
-            float b = argb & 0xFF;
-
-            a /= 255;
-            r /= 255;
-            g /= 255;
-            b /= 255;
-
-
-            return ToAHSL(a, r, g, b);
-        }
-
-        /// <summary>
-        /// Converts the given ARGB color to an AHSL color
-        /// </summary>
-        /// <param name="argb">The color to convert to AHSL</param>
-        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        public static AhslColor ToAHSL(float a, float r, float g, float b)
-        {
-            float M = b;
-            float m = b;
-
-            if (m > g)
-                m = g;
-            if (m > r)
-                m = r;
-
-            if (M < g)
-                M = g;
-            if (M < r)
-                M = r;
-
-            float d = M - m;
-
-            float h;
-            float s;
-            float l;
-
-            if (d == 0)
-            {
-                h = 0;
-            }
-            else if (M == r)
-            {
-                h = (((g - b) / d) % 6) * 60;
-            }
-            else if (M == g)
-            {
-                h = ((b - r) / d + 2) * 60;
-            }
-            else
-            {
-                h = ((r - g) / d + 4) * 60;
-            }
-
-            if (h < 0)
-            {
-                h += 360;
-            }
-
-            l = (M + m) / 2;
-
-            if (d == 0)
-            {
-                s = 0;
-            }
-            else
-            {
-                s = d / (1 - Math.Abs(2 * l - 1));
-            }
-
-            return new AhslColor(a, h / 360, s, l);
-        }
-
-        /// <summary>
         /// Converts a Color instance into an AHSL color
         /// </summary>
         /// <param name="color">The Color to convert to AHSL</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        public static AhslColor ToAHSL(this Color color)
+        public static AhslColor ToAhsl(this Color color)
         {
-            return ToAHSL(color.ToArgb());
+            return AhslColor.ToAhsl(color.ToArgb());
         }
 
         /// <summary>
@@ -361,7 +276,7 @@ namespace Pixelaria.Utils
         /// <returns>The lightness of this System.Drawing.Color. The lightness ranges from 0.0 through 1.0, where 0.0 is black and 1.0 is white.</returns>
         public static float GetLightness(this Color color)
         {
-            return color.ToAHSL().L / 100.0f;
+            return color.ToAhsl().L / 100.0f;
         }
 
         /// <summary>

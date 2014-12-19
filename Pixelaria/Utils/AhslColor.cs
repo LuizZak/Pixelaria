@@ -93,7 +93,7 @@ namespace Pixelaria.Utils
         /// </summary>
         public float Rf
         {
-            get { return ColorSwatch.FloatArgbFromAHSL(_hf, _sf, _lf, _af)[1]; }
+            get { return ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[1]; }
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Pixelaria.Utils
         /// </summary>
         public float Gf
         {
-            get { return ColorSwatch.FloatArgbFromAHSL(_hf, _sf, _lf, _af)[2]; }
+            get { return ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[2]; }
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Pixelaria.Utils
         /// </summary>
         public float Bf
         {
-            get { return ColorSwatch.FloatArgbFromAHSL(_hf, _sf, _lf, _af)[3]; }
+            get { return ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[3]; }
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace Pixelaria.Utils
         /// <returns>The ARGB color that represents this AHSL color</returns>
         public int ToArgb(bool revertByteOrder = false)
         {
-            return ColorSwatch.ArgbFromAHSL(_hf, _sf, _lf, _af, revertByteOrder);
+            return ColorSwatch.ArgbFromAhsl(_hf, _sf, _lf, _af, revertByteOrder);
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace Pixelaria.Utils
         /// <param name="l">The Lightness component, ranging from 0-100</param>
         /// <returns>The AHSL color representing the given AHSL value</returns>
         // ReSharper disable once InconsistentNaming
-        public static AhslColor FromAHSL(int a, int h, int s, int l)
+        public static AhslColor FromAhsl(int a, int h, int s, int l)
         {
             return new AhslColor(a, h, s, l);
         }
@@ -284,7 +284,7 @@ namespace Pixelaria.Utils
         /// <returns>The AHSL color representing the given ARGB value</returns>
         public static AhslColor FromArgb(int a, int r, int g, int b)
         {
-            return Utilities.ToAHSL((a << 24) | (r << 16) | (g << 8) | b);
+            return ToAhsl((a << 24) | (r << 16) | (g << 8) | b);
         }
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace Pixelaria.Utils
         /// <returns>The AHSL color representing the given ARGB value</returns>
         public static AhslColor FromArgb(float a, float r, float g, float b)
         {
-            return Utilities.ToAHSL(a, r, g, b);
+            return ToAhsl(a, r, g, b);
         }
 
         /// <summary>
@@ -307,7 +307,89 @@ namespace Pixelaria.Utils
         /// <returns>The AHSL color representing the given ARGB value</returns>
         public static AhslColor FromArgb(int argb)
         {
-            return Utilities.ToAHSL(argb);
+            return ToAhsl(argb);
+        }
+
+        /// <summary>
+        /// Converts the given ARGB color to an AHSL color
+        /// </summary>
+        /// <param name="argb">The color to convert to AHSL</param>
+        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        public static AhslColor ToAhsl(int argb)
+        {
+            float a = (int)((uint)argb >> 24);
+            float r = (argb >> 16) & 0xFF;
+            float g = (argb >> 8) & 0xFF;
+            float b = argb & 0xFF;
+
+            a /= 255;
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            return ToAhsl(a, r, g, b);
+        }
+
+        /// <summary>
+        /// Converts the given ARGB color to an AHSL color
+        /// </summary>
+        /// <param name="argb">The color to convert to AHSL</param>
+        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        public static AhslColor ToAhsl(float a, float r, float g, float b)
+        {
+            float M = b;
+            float m = b;
+
+            if (m > g)
+                m = g;
+            if (m > r)
+                m = r;
+
+            if (M < g)
+                M = g;
+            if (M < r)
+                M = r;
+
+            float d = M - m;
+
+            float h;
+            float s;
+            float l;
+
+            if (d == 0)
+            {
+                h = 0;
+            }
+            else if (M == r)
+            {
+                h = (((g - b) / d) % 6) * 60;
+            }
+            else if (M == g)
+            {
+                h = ((b - r) / d + 2) * 60;
+            }
+            else
+            {
+                h = ((r - g) / d + 4) * 60;
+            }
+
+            if (h < 0)
+            {
+                h += 360;
+            }
+
+            l = (M + m) / 2;
+
+            if (d == 0)
+            {
+                s = 0;
+            }
+            else
+            {
+                s = d / (1 - Math.Abs(2 * l - 1));
+            }
+
+            return new AhslColor(a, h / 360, s, l);
         }
     }
 }
