@@ -511,7 +511,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     movingSelection = false;
                     displaySelection = true;
 
-                    pictureBox.MarkModified();
+                    if(_operationMode != SelectionOperationType.Paste)
+                        pictureBox.MarkModified();
 
                     UpdateClipboardState();
                 }
@@ -557,9 +558,17 @@ namespace Pixelaria.Views.Controls.PaintOperations
             {
                 if (selected)
                 {
+                    if (_operationMode == SelectionOperationType.Paste)
+                    {
+                        CancelOperation(false);
+                    }
+                    else
+                    {
+                        FinishOperation(false);
+                        pictureBox.MarkModified();
+                    }
+
                     _operationMode = SelectionOperationType.Cut;
-                    FinishOperation(false);
-                    pictureBox.MarkModified();
                 }
             }
             // Selection moving
@@ -721,7 +730,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             pictureBox.Cursor = OperationCursor;
 
-            selectionBitmap.Dispose();
+            if (selectionBitmap != null)
+                selectionBitmap.Dispose();
             selectionBitmap = null;
 
             movingSelection = false;
@@ -812,7 +822,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
@@ -826,7 +836,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             p2.X = Math.Max(0, Math.Min(pictureBox.Image.Width - 1, p2.X));
             p2.Y = Math.Max(0, Math.Min(pictureBox.Image.Height - 1, p2.Y));
 
-            Rectangle rec = GetRectangleArea(new Point[] { p1, p2 }, relative);
+            Rectangle rec = GetRectangleArea(new [] { p1, p2 }, relative);
 
             if (relative)
             {

@@ -22,6 +22,8 @@ Legend:
 
 . FrameView
   * Now only the Alpha color component slider renders with modified transparency, all the other sliders are always fully opaque.
+  * Fixed deleting a selection that was just pasted on the canvas creating an undo task.
+  * Now an undo task for a selection pasting is only performed when the selection is effectively released and the image drawn on the canvas.
   * Fixed pencil operation being really slow on high-resolution images.
   * Fixed pasting something and deselecting right away undoing the paste operation.
 
