@@ -333,7 +333,10 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Converts the given ARGB color to an AHSL color
         /// </summary>
-        /// <param name="argb">The color to convert to AHSL</param>
+        /// <param name="a">The alpha component</param>
+        /// <param name="r">The red component</param>
+        /// <param name="g">The green component</param>
+        /// <param name="b">The blue component</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
         public static AhslColor ToAhsl(float a, float r, float g, float b)
         {
