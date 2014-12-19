@@ -81,7 +81,7 @@ namespace Pixelaria.Utils
         /// <returns>Total memory usage, in bytes</returns>
         public static long MemoryUsageOfImage(Image image)
         {
-            return image.Width * image.Height * Utilities.BitsPerPixelForFormat(image.PixelFormat) / 8;
+            return image.Width * image.Height * BitsPerPixelForFormat(image.PixelFormat) / 8;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Pixelaria.Utils
         public static string FormatByteSize(long bytes)
         {
             int magnitude = 0;
-            string[] sulfixes = new string[] { "b", "kb", "mb", "gb", "tb", "pt", "eb", "zb", "yb" };
+            string[] sulfixes = { "b", "kb", "mb", "gb", "tb", "pt", "eb", "zb", "yb" };
 
             float b = bytes;
 
@@ -175,16 +175,19 @@ namespace Pixelaria.Utils
 
             try
             {
-                bit1 = (image1 is Bitmap ? (Bitmap)image1 : new Bitmap(image1));
-                bit2 = (image2 is Bitmap ? (Bitmap)image2 : new Bitmap(image2));
+                var bitmap1 = image1 as Bitmap;
+                var bitmap2 = image2 as Bitmap;
+
+                bit1 = (bitmap1 ?? new Bitmap(image1));
+                bit2 = (bitmap2 ?? new Bitmap(image2));
 
                 return CompareMemCmp(bit1, bit2);
             }
             finally
             {
-                if (bit1 != image1)
+                if (bit1 != null && bit1 != image1)
                     bit1.Dispose();
-                if (bit2 != image2)
+                if (bit2 != null && bit2 != image2)
                     bit2.Dispose();
             }
         }
@@ -228,29 +231,18 @@ namespace Pixelaria.Utils
         /// <param name="b1">The first bitmap to compare</param>
         /// <param name="b2">The second bitmap to compare</param>
         /// <returns>Whether the two bitmaps are identical</returns>
-        private unsafe static bool CompareMemCmp(Bitmap b1, Bitmap b2)
+        private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
         {
-            if ((b1 == null) != (b2 == null)) return false;
+            if (b1 == null || b2 == null) return false;
 
             BitmapData bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             BitmapData bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
+            int len = b1.Width * b1.Height;
+
             try
             {
-                int* bd1scan0 = (int*)bd1.Scan0;
-                int* bd2scan0 = (int*)bd2.Scan0;
-
-                int len = b1.Width * b1.Height;
-
-                while (len-- > 0)
-                {
-                    if (*bd1scan0++ != *bd2scan0++)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                return memcmp(bd1.Scan0, bd2.Scan0, len * Image.GetPixelFormatSize(bd1.PixelFormat)) == 0;
             }
             finally
             {
@@ -286,8 +278,8 @@ namespace Pixelaria.Utils
         /// <returns>An inverted version of this Color object</returns>
         public static Color Invert(this Color color)
         {
-            const int RGBMAX = 255;
-            return Color.FromArgb(color.A, RGBMAX - color.R, RGBMAX - color.G, RGBMAX - color.B);
+            const int rgbmax = 255;
+            return Color.FromArgb(color.A, rgbmax - color.R, rgbmax - color.G, rgbmax - color.B);
         }
 
         /// <summary>
@@ -303,12 +295,12 @@ namespace Pixelaria.Utils
         {
             float from = 1 - factor;
 
-            int A = (int)(blendAlpha ? (color.A * from + fadeColor.A * factor) : color.A);
-            int R = (int)(color.R * from + fadeColor.R * factor);
-            int G = (int)(color.G * from + fadeColor.G * factor);
-            int B = (int)(color.B * from + fadeColor.B * factor);
+            int a = (int)(blendAlpha ? (color.A * from + fadeColor.A * factor) : color.A);
+            int r = (int)(color.R * from + fadeColor.R * factor);
+            int g = (int)(color.G * from + fadeColor.G * factor);
+            int b = (int)(color.B * from + fadeColor.B * factor);
 	        
-	        return Color.FromArgb(Math.Abs(A), Math.Abs(R), Math.Abs(G), Math.Abs(B));
+	        return Color.FromArgb(Math.Abs(a), Math.Abs(r), Math.Abs(g), Math.Abs(b));
         }
 
         /// <summary>
@@ -320,46 +312,48 @@ namespace Pixelaria.Utils
         /// <returns>The blended color</returns>
         public static Color Blend(this Color color, Color backColor, float factor = 0.5f)
         {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (factor == 1 || color.A == 0)
                 return backColor;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (factor == 0 || backColor.A == 0)
                 return color;
             if (color.A == 255)
                 return color;
             
-            int Alpha = color.A + 1;
+            int alpha = color.A + 1;
 
-            int B = Alpha * color.B + (255 - Alpha) * backColor.B >> 8;
-            int G = Alpha * color.G + (255 - Alpha) * backColor.G >> 8;
-            int R = Alpha * color.R + (255 - Alpha) * backColor.R >> 8;
+            int b = alpha * color.B + (255 - alpha) * backColor.B >> 8;
+            int g = alpha * color.G + (255 - alpha) * backColor.G >> 8;
+            int r = alpha * color.R + (255 - alpha) * backColor.R >> 8;
 
             float alphaFg = (float)color.A / 255;
             float alphaBg = (float)backColor.A / 255;
 
-            int A = (int)((alphaBg + alphaFg - alphaBg * alphaFg) * 255);
+            int a = (int)((alphaBg + alphaFg - alphaBg * alphaFg) * 255);
 
             if (backColor.A == 255)
             {
-                A = 255;
+                a = 255;
             }
-            if (A > 255)
+            if (a > 255)
             {
-                A = 255;
+                a = 255;
             }
-            if (R > 255)
+            if (r > 255)
             {
-                R = 255;
+                r = 255;
             }
-            if (G > 255)
+            if (g > 255)
             {
-                G = 255;
+                g = 255;
             }
-            if (B > 255)
+            if (b > 255)
             {
-                B = 255;
+                b = 255;
             }
 
-            return Color.FromArgb(Math.Abs(A), Math.Abs(R), Math.Abs(G), Math.Abs(B));
+            return Color.FromArgb(Math.Abs(a), Math.Abs(r), Math.Abs(g), Math.Abs(b));
         }
 
         /// <summary>
@@ -416,7 +410,7 @@ namespace Pixelaria.Utils
         {
             return (from frame in frames
                     select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
-                    ).ToArray<Bitmap>();
+                    ).ToArray();
         }
 
         /// <summary>
