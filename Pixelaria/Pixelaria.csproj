@@ -182,6 +182,7 @@
     <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
+    <Compile Include="Utils\AhslColor.cs" />
     <Compile Include="Views\Controls\PaintOperations\Abstracts\BasePencilPaintOperation.cs" />
     <Compile Include="Views\Controls\PaintOperations\Abstracts\BaseShapeOperation.cs" />
     <Compile Include="Views\Controls\PaintOperations\BucketPaintOperation.cs" />

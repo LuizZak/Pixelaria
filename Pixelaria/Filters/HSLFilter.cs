@@ -23,7 +23,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using Pixelaria.Utils;
 using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Filters
