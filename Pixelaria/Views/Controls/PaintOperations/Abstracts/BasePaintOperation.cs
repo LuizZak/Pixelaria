@@ -517,17 +517,17 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 /// <summary>
                 /// The X position of the pixel to draw
                 /// </summary>
-                public int PixelX;
+                public readonly int PixelX;
 
                 /// <summary>
                 /// The Y position of the pixel to draw
                 /// </summary>
-                public int PixelY;
+                public readonly int PixelY;
 
                 /// <summary>
                 /// The absolute index of the pixel
                 /// </summary>
-                public int PixelIndex;
+                public readonly int PixelIndex;
 
                 /// <summary>
                 /// The color to apply on a undo operation
@@ -537,24 +537,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 /// <summary>
                 /// The color to apply on a redo operation
                 /// </summary>
-                public uint RedoColor;
-
-                /// <summary>
-                /// Initializes a new instance of the PixelUndo struct
-                /// </summary>
-                /// <param name="x">The X position of the pixel to draw</param>
-                /// <param name="y">The Y position of the pixel to draw</param>
-                /// <param name="pixelIndex">The absolute index of the pixel</param>
-                /// <param name="oldColor">The color to apply on a undo operation</param>
-                /// <param name="newColor">The color to apply on a redo operation</param>
-                public PixelUndo(int x, int y, int pixelIndex, Color oldColor, Color newColor)
-                {
-                    PixelX = x;
-                    PixelY = y;
-                    PixelIndex = pixelIndex;
-                    UndoColor = unchecked((uint)oldColor.ToArgb());
-                    RedoColor = unchecked((uint)newColor.ToArgb());
-                }
+                public readonly uint RedoColor;
 
                 /// <summary>
                 /// Initializes a new instance of the PixelUndo struct
