@@ -4,15 +4,15 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 
 namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 {
     /// <summary>
     /// Base class for pencil-like paint operations
     /// </summary>
-    public abstract class BasePencilPaintOperation : BasePaintOperation, IPaintOperation
+    public abstract class BasePencilPaintOperation : BasePaintOperation
     {
         /// <summary>
         /// The minimum point that the trace bitmap occupies over the canvas image
@@ -135,9 +135,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
                 if (visible)
                 {
-                    PointF p = pencilPoint;
-
-                    p = GetRelativePoint(GetAbsolutePoint(pencilPoint));
+                    PointF p = GetRelativePoint(GetAbsolutePoint(pencilPoint));
 
                     Rectangle rec = new Rectangle((int)p.X, (int)p.Y, (int)(firstPenBitmap.Width * pictureBox.Zoom.Y), (int)(firstPenBitmap.Width * pictureBox.Zoom.Y));
 
@@ -191,7 +189,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         {
             base.Initialize(targetPictureBox);
 
-            this.pictureBox = targetPictureBox;
+            pictureBox = targetPictureBox;
             lastMousePosition = new Point();
 
             _invalidTraceArea = true;
@@ -372,7 +370,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 // Draw a single pixel now
                 if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                 {
-                    Color newColor = (penId == 0 ? firstColor : secondColor);
                     Bitmap targetBitmap = CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap;
 
                     DrawPencil(absolutePencil, targetBitmap);
@@ -567,10 +564,11 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         protected virtual void DrawPencil(Point p, Bitmap bitmap)
         {
             // Find the properties to draw the pen with
-            Color oldColor = pictureBox.Bitmap.GetPixel(p.X, p.Y);
-            Color newColor = Color.Black;
             Color penColor = (penId == 0 ? firstColor : secondColor);
             Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
+
+            Color oldColor = pictureBox.Bitmap.GetPixel(p.X, p.Y);
+            Color newColor = penColor;
 
             if (CompositingMode == CompositingMode.SourceOver)
             {
@@ -583,8 +581,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             else
             {
                 bitmap.SetPixel(p.X, p.Y, penColor);
-
-                newColor = penColor;
             }
 
             currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor);
