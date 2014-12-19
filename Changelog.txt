@@ -21,6 +21,7 @@ Legend:
 -- Current Version
 
 . FrameView
+  * Now only the Alpha color component slider renders with modified transparency, all the other sliders are always fully opaque.
   * Fixed pencil operation being really slow on high-resolution images.
   * Fixed pasting something and deselecting right away undoing the paste operation.
 

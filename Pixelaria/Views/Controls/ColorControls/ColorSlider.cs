@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Utils;
@@ -130,8 +131,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             }
             set
             {
-                _activeColor = value;
-                SetActiveColor(_activeColor);
+                SetActiveColor(value);
                 RecalculateValue();
             }
         }
@@ -348,6 +348,17 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="color">The color to set as the new active color for this ColorSlider</param>
         private void SetActiveColor(AHSL color)
         {
+            // Check if any redraw is required
+            if (IgnoreActiveColorAlpha())
+            {
+                if (Math.Abs(_activeColor.Hf - color.Hf) < float.Epsilon && Math.Abs(_activeColor.Sf - color.Sf) < float.Epsilon && Math.Abs(_activeColor.Lf - color.Lf) < float.Epsilon)
+                {
+                    _activeColor = color;
+
+                    return;
+                }
+            }
+
             _activeColor = color;
 
             Rectangle invalidateRect = GetSliderRectangleBounds();
@@ -626,16 +637,26 @@ namespace Pixelaria.Views.Controls.ColorControls
             // Get the fill brush
             LinearGradientBrush fillBrush = GenerateSliderGradient();
 
-            // Iterate through the colors and check if there's any that isn't fully opaque
-            foreach (Color color in fillBrush.InterpolationColors.Colors)
+            if (!IgnoreActiveColorAlpha())
             {
-                if (color.A != 255)
+                // Iterate through the colors and check if there's any that isn't fully opaque
+                // Draw the background image then
+                if (fillBrush.InterpolationColors.Colors.Any(color => color.A != 255))
                 {
-                    // Draw a background
                     Brush backBrush = new TextureBrush(ImageUtilities.GetDefaultTile());
+
+                    var compositingQuality = g.CompositingQuality;
+                    var interpolationMode = g.InterpolationMode;
+
+                    g.CompositingQuality = CompositingQuality.HighSpeed;
+                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+
                     g.FillPath(backBrush, path);
+
+                    g.CompositingQuality = compositingQuality;
+                    g.InterpolationMode = interpolationMode;
+
                     backBrush.Dispose();
-                    break;
                 }
             }
 
@@ -801,6 +822,11 @@ namespace Pixelaria.Views.Controls.ColorControls
                     break;
             }
 
+            if (IgnoreActiveColorAlpha())
+            {
+                retColor.Af = 1.0f;
+            }
+
             return retColor.ToColor();
         }
 
@@ -826,6 +852,15 @@ namespace Pixelaria.Views.Controls.ColorControls
         }
 
         #endregion
+
+        /// <summary>
+        /// Returns whether this color slider should ignore updates to the alpha transparency of the active color and always render it as 1.0
+        /// </summary>
+        /// <returns>Whether this color slider should ignore updates to the alpha transparency of the active color and always render it as 1.0</returns>
+        protected bool IgnoreActiveColorAlpha()
+        {
+            return _colorComponent != ColorSliderComponent.Alpha;
+        }
 
         //
         // SetBoundsCore override used to lock the control's height
