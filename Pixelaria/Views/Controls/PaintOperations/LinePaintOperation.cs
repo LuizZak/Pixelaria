@@ -13,37 +13,37 @@ namespace Pixelaria.Views.Controls.PaintOperations
     /// <summary>
     /// Implements a Line paint operation
     /// </summary>
-    public class LinePaintOperation : BaseDraggingPaintOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
+    public class LinePaintOperation : BaseDraggingPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// The compositing mode for this paint operation
         /// </summary>
-        private CompositingMode compositingMode;
+        private CompositingMode _compositingMode;
 
         /// <summary>
         /// Graphics used to draw on the bitmap
         /// </summary>
-        private Graphics graphics;
+        private Graphics _graphics;
 
         /// <summary>
         /// The first color currently being used to paint on the InternalPictureBox
         /// </summary>
-        private Color firstColor = Color.Black;
+        private Color _firstColor;
 
         /// <summary>
         /// The second color currently being used to paint on the InternalPictureBox
         /// </summary>
-        private Color secondColor = Color.Black;
+        private Color _secondColor;
 
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
         /// </summary>
         public virtual Color FirstColor
         {
-            get { return firstColor; }
+            get { return _firstColor; }
             set
             {
-                firstColor = value;
+                _firstColor = value;
             }
         }
 
@@ -52,17 +52,17 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         public virtual Color SecondColor
         {
-            get { return secondColor; }
+            get { return _secondColor; }
             set
             {
-                secondColor = value;
+                _secondColor = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
         /// </summary>
-        public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
+        public CompositingMode CompositingMode { get { return _compositingMode; } set { _compositingMode = value; } }
 
         /// <summary>
         /// Initialies a new instance of the LinePaintOperation class, setting the two drawing colors
@@ -72,8 +72,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="secondColor">The second color for the paint operation</param>
         public LinePaintOperation(Color firstColor, Color secondColor)
         {
-            this.firstColor = firstColor;
-            this.secondColor = secondColor;
+            _firstColor = firstColor;
+            _secondColor = secondColor;
         }
 
         /// <summary>
@@ -86,14 +86,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.line_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
             
-            this.mouseDown = false;
+            mouseDown = false;
 
-            this.graphics = Graphics.FromImage(targetPictureBox.Image);
+            _graphics = Graphics.FromImage(targetPictureBox.Image);
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -101,14 +101,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         public override void Destroy()
         {
-            this.pictureBox = null;
+            pictureBox = null;
 
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
 
-            this.graphics.Flush();
-            this.graphics.Dispose();
+            _graphics.Flush();
+            _graphics.Dispose();
 
-            this.Loaded = false;
+            Loaded = false;
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             if (mouseDown && (mouseButton == MouseButtons.Left || mouseButton == MouseButtons.Right))
             {
-                PerformLineOperation((mouseButton == MouseButtons.Left ? firstColor : secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, compositingMode);
+                PerformLineOperation((mouseButton == MouseButtons.Left ? _firstColor : _secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, _compositingMode);
             }
         }
 
@@ -133,9 +133,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             if (e.Button == MouseButtons.Middle)
             {
-                firstColor = pictureBox.Bitmap.GetPixel(mouseDownAbsolutePoint.X, mouseDownAbsolutePoint.Y);
+                _firstColor = pictureBox.Bitmap.GetPixel(mouseDownAbsolutePoint.X, mouseDownAbsolutePoint.Y);
 
-                pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+                pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
 
                 pictureBox.Invalidate();
 
@@ -147,15 +147,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                 pictureBox.Invalidate(rec);
             }
-        }
-
-        /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
-        /// </summary>
-        /// <param name="e">The event args for this event</param>
-        public override void MouseMove(MouseEventArgs e)
-        {
-            base.MouseMove(e);
         }
 
         /// <summary>
@@ -175,11 +166,11 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                 if (rectArea.Width > 0 && rectArea.Height > 0)
                 {
-                    Color color = (mouseButton == MouseButtons.Left ? firstColor : secondColor);
+                    Color color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
 
-                    pictureBox.OwningPanel.UndoSystem.RegisterUndo(new LineUndoTask(pictureBox, color, mouseDownAbsolutePoint, mouseAbsolutePoint, compositingMode));
+                    pictureBox.OwningPanel.UndoSystem.RegisterUndo(new LineUndoTask(pictureBox, color, mouseDownAbsolutePoint, mouseAbsolutePoint, _compositingMode));
 
-                    PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, compositingMode);
+                    PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, _compositingMode);
 
                     pictureBox.MarkModified();
                 }
@@ -191,11 +182,11 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             rec.Width += (int)(pictureBox.Zoom.X);
             rec.Height += (int)(pictureBox.Zoom.Y);
@@ -299,7 +290,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="color">The color to use when drawing the line</param>
         /// <param name="firstPoint">The first point of the line to draw</param>
         /// <param name="secondPoint">The second point of the line to draw</param>
-        /// <param name="bitmap">The Graphics to draw the line on</param>
+        /// <param name="graphics">The Graphics to draw the line on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the line</param>
         public static void PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Graphics graphics, CompositingMode compositingMode)
         {
@@ -391,70 +382,73 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <summary>
             /// The target InternalPictureBox of this RectangleUndoTask
             /// </summary>
-            ImageEditPanel.InternalPictureBox targetPictureBox;
+            readonly ImageEditPanel.InternalPictureBox _targetPictureBox;
 
             /// <summary>
             /// The area of the the image that was affected by the line operation
             /// </summary>
-            Rectangle area;
+            readonly Rectangle _area;
 
             /// <summary>
             /// The point of the start of the line
             /// </summary>
-            Point lineStart;
+            readonly Point _lineStart;
 
             /// <summary>
             /// The point of the end of the line
             /// </summary>
-            Point lineEnd;
+            readonly Point _lineEnd;
 
             /// <summary>
             /// The color used to draw the line
             /// </summary>
-            Color color;
+            readonly Color _color;
 
             /// <summary>
             /// The original slice of bitmap that represents the image region before the rectangle
             /// was drawn
             /// </summary>
-            Bitmap originalSlice;
+            readonly Bitmap _originalSlice;
 
             /// <summary>
             /// The bitmap where the line was drawn on
             /// </summary>
-            Bitmap bitmap;
+            readonly Bitmap _bitmap;
 
             /// <summary>
             /// The compositing mode of the paint operation
             /// </summary>
-            CompositingMode compositingMode;
+            readonly CompositingMode _compositingMode;
 
             /// <summary>
-            /// Initializes a new instance of the RectangleUndoTask class
+            /// Initializes a new instance of the LineUndoTask class
             /// </summary>
-            /// <param name="targetPictureBox">The target InternalPictureBox of this RectangleUndoTask</param>
-            /// <param name="color">The color to use when drawing the rectangle</param>
-            /// <param name="area">The area of the rectangle to draw</param>
+            /// <param name="targetPictureBox">The target InternalPictureBox of this LineUndoTask</param>
+            /// <param name="color">The color to use when drawing the line</param>
+            /// <param name="lineStart">The starting point of the line</param>
+            /// <param name="lineEnd">The ending point of the line</param>
             /// <param name="compositingMode">The CompositingMode to use when drawing the rectangle</param>
             public LineUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, Color color, Point lineStart, Point lineEnd, CompositingMode compositingMode)
             {
-                this.targetPictureBox = targetPictureBox;
-                this.color = color;
-                this.lineStart = lineStart;
-                this.lineEnd = lineEnd;
-                this.bitmap = targetPictureBox.Bitmap;
-                this.compositingMode = compositingMode;
+                _targetPictureBox = targetPictureBox;
+                _color = color;
+                _lineStart = lineStart;
+                _lineEnd = lineEnd;
+                _bitmap = targetPictureBox.Bitmap;
+                _compositingMode = compositingMode;
 
-                this.area = LinePaintOperation.GetRectangleAreaAbsolute(new Point[] { lineStart, lineEnd });
+                Rectangle rec = GetRectangleAreaAbsolute(new [] { lineStart, lineEnd });
 
-                area.Offset(-1, -1);
-                area.Inflate(2, 2);
+                rec.Offset(-1, -1);
+                rec.Inflate(2, 2);
+
+                _area = rec;
 
                 // Take the image slide now
-                this.originalSlice = new Bitmap(area.Width, area.Height);
+                _originalSlice = new Bitmap(_area.Width, _area.Height);
                 
-                Graphics g = Graphics.FromImage(originalSlice);
-                g.DrawImage(bitmap, new Point(-area.X, -area.Y));
+                Graphics g = Graphics.FromImage(_originalSlice);
+                g.DrawImage(_bitmap, new Point(-_area.X, -_area.Y));
                 g.Flush();
                 g.Dispose();
             }
@@ -464,8 +458,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// </summary>
             public void Clear()
             {
-                originalSlice.Dispose();
-                bitmap = null;
+                _originalSlice.Dispose();
             }
 
             /// <summary>
@@ -474,18 +467,18 @@ namespace Pixelaria.Views.Controls.PaintOperations
             public void Undo()
             {
                 // Redraw the original slice back to the image
-                Graphics g = Graphics.FromImage(bitmap);
-                g.SetClip(area);
+                Graphics g = Graphics.FromImage(_bitmap);
+                g.SetClip(_area);
                 g.Clear(Color.Transparent);
                 g.CompositingMode = CompositingMode.SourceCopy;
                 
-                g.DrawImage(originalSlice, area);
+                g.DrawImage(_originalSlice, _area);
 
                 g.Flush();
                 g.Dispose();
 
                 // Invalidate the target box
-                targetPictureBox.Invalidate();
+                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
@@ -494,10 +487,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
             public void Redo()
             {
                 // Draw the rectangle again
-                LinePaintOperation.PerformLineOperation(color, lineStart, lineEnd, bitmap, compositingMode);
+                PerformLineOperation(_color, _lineStart, _lineEnd, _bitmap, _compositingMode);
 
                 // Invalidate the target box
-                targetPictureBox.Invalidate();
+                _targetPictureBox.Invalidate();
             }
 
             /// <summary>

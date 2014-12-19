@@ -22,12 +22,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// The first color currently being used to paint on the InternalPictureBox
         /// </summary>
-        private Color _firstColor = Color.Black;
+        private Color _firstColor;
 
         /// <summary>
         /// The second color currently being used to paint on the InternalPictureBox
         /// </summary>
-        private Color _secondColor = Color.Black;
+        private Color _secondColor;
 
         /// <summary>
         /// The point at which the mouse is currently over
@@ -62,8 +62,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="secondColor">The second color for the paint operation</param>
         public BucketPaintOperation(Color firstColor, Color secondColor)
         {
-            this._firstColor = firstColor;
-            this._secondColor = secondColor;
+            _firstColor = firstColor;
+            _secondColor = secondColor;
         }
 
         /// <summary>
@@ -148,18 +148,18 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         /// <param name="color">The color of the fill operation</param>
         /// <param name="point">The point to start the fill operation at</param>
-        /// <param name="compositingMode">The CompositingMode of the bucket fill operation</param>
-        protected unsafe void PerformBucketOperaiton(Color color, Point point, CompositingMode compositingMode)
+        /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
+        protected void PerformBucketOperaiton(Color color, Point point, CompositingMode compMode)
         {
             // Start the fill operation by getting the color under the user's mouse
             Color pColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
 
-            Color newColor = (compositingMode == CompositingMode.SourceCopy ? color : color.Blend(pColor));
+            Color newColor = (compMode == CompositingMode.SourceCopy ? color : color.Blend(pColor));
 
             uint pColorI = unchecked((uint)pColor.ToArgb());
             uint newColorI = unchecked((uint)newColor.ToArgb());
 
-            if (pColorI == newColorI || pColor == color && (compositingMode == CompositingMode.SourceOver && pColor.A == 255 || compositingMode == CompositingMode.SourceCopy))
+            if (pColorI == newColorI || pColor == color && (compMode == CompositingMode.SourceOver && pColor.A == 255 || compMode == CompositingMode.SourceCopy))
             {
                 return;
             }
@@ -173,8 +173,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             Stack<int> stack = new Stack<int>();
 
-            int y1;
-
             int width = fastBitmap.Width;
             int height = fastBitmap.Height;
 
@@ -187,7 +185,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 int x = (v >> 16);
                 int y = (v & 0xFFFF);
 
-                y1 = y;
+                var y1 = y;
 
                 while (y1 >= 0 && fastBitmap.GetPixelUInt(x, y1) == pColorI) y1--;
 

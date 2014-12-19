@@ -12,7 +12,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
     /// <summary>
     /// Implements an Ellipse paint operation
     /// </summary>
-    public class EllipsePaintOperation : BaseShapeOperation, IPaintOperation, IColoredPaintOperation, ICompositingPaintOperation, IFillModePaintOperation
+    public class EllipsePaintOperation : BaseShapeOperation, IColoredPaintOperation, ICompositingPaintOperation, IFillModePaintOperation
     {
         /// <summary>
         /// Initialies a new instance of the RectanglePaintOperation class, setting the two drawing colors
@@ -23,7 +23,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         public EllipsePaintOperation(Color firstColor, Color secondColor)
             : base(firstColor, secondColor)
         {
-            
+
         }
 
         /// <summary>
@@ -36,10 +36,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.circle_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -49,17 +49,17 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             base.Destroy();
 
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
         }
 
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             if (shiftDown)
             {
@@ -73,34 +73,34 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Performs the shape paint operation with the given parameters
         /// </summary>
-        /// <param name="firstColor">The first color to use when drawing the shape</param>
-        /// <param name="secondColor">The second color to use when drawing the shape</param>
+        /// <param name="color1">The first color to use when drawing the shape</param>
+        /// <param name="color2">The second color to use when drawing the shape</param>
         /// <param name="area">The area of the shape to draw</param>
         /// <param name="bitmap">The Bitmap to draw the shape on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
-        /// <param name="fillMode">The fill mode for this shape operation</param>
+        /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
+        /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
+        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
             if (registerUndo)
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new EllipseUndoTask(pictureBox, firstColor, secondColor, area, compositingMode, fillMode));
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new EllipseUndoTask(pictureBox, color1, color2, area, compMode, opFillMode));
 
-            PerformEllipseOperation(firstColor, secondColor, area, bitmap, compositingMode, fillMode);
+            PerformEllipseOperation(color1, color2, area, bitmap, compMode, opFillMode);
         }
 
         /// <summary>
         /// Performs the shape paint operation with the given parameters
         /// </summary>
-        /// <param name="firstColor">The first color to use when drawing the shape</param>
-        /// <param name="secondColor">The second color to use when drawing the shape</param>
+        /// <param name="color1">The first color to use when drawing the shape</param>
+        /// <param name="color2">The second color to use when drawing the shape</param>
         /// <param name="area">The area of the shape to draw</param>
-        /// <param name="graphics">The Graphics to draw the shape on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
-        /// <param name="fillMode">The fill mode for this shape operation</param>
+        /// <param name="gph">The Graphics to draw the shape on</param>
+        /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
+        /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
+        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
-            PerformElipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
+            PerformElipseOperation(color1, color2, area, gph, compMode, opFillMode);
         }
 
         /// <summary>
@@ -192,8 +192,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
             {
                 Pen pen = new Pen(firstColor);
 
-                RectangleF nArea = area;
-
                 graphics.DrawEllipse(pen, area);
 
                 pen.Dispose();
@@ -210,43 +208,43 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <summary>
             /// The target InternalPictureBox of this EllipseUndoTask
             /// </summary>
-            ImageEditPanel.InternalPictureBox targetPictureBox;
+            readonly ImageEditPanel.InternalPictureBox _targetPictureBox;
 
             /// <summary>
             /// The area of the the image that was affected by the ellipse operation
             /// </summary>
-            Rectangle area;
+            Rectangle _area;
 
             /// <summary>
             /// The first color used to draw the ellipse
             /// </summary>
-            Color firstColor;
+            readonly Color _firstColor;
 
             /// <summary>
             /// The second color used to draw the ellipse
             /// </summary>
-            Color secondColor;
+            readonly Color _secondColor;
 
             /// <summary>
             /// The original slice of bitmap that represents the image region before the ellipse
             /// was drawn
             /// </summary>
-            Bitmap originalSlice;
+            readonly Bitmap _originalSlice;
 
             /// <summary>
             /// The bitmap where the ellipse was drawn on
             /// </summary>
-            Bitmap bitmap;
+            Bitmap _bitmap;
 
             /// <summary>
             /// The compositing mode of the paint operation
             /// </summary>
-            CompositingMode compositingMode;
+            readonly CompositingMode _compositingMode;
 
             /// <summary>
             /// The fill mode for the paint operation
             /// </summary>
-            OperationFillMode fillMode;
+            private readonly OperationFillMode _fillMode;
 
             /// <summary>
             /// Initializes a new instance of the EllipseUndoTask class
@@ -259,19 +257,19 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <param name="fillMode">The fill mode for this ellipse operation</param>
             public EllipseUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, Color firstColor, Color secondColor, Rectangle area, CompositingMode compositingMode, OperationFillMode fillMode)
             {
-                this.targetPictureBox = targetPictureBox;
-                this.firstColor = firstColor;
-                this.secondColor = secondColor;
-                this.area = area;
-                this.bitmap = targetPictureBox.Bitmap;
-                this.compositingMode = compositingMode;
-                this.fillMode = fillMode;
+                _targetPictureBox = targetPictureBox;
+                _firstColor = firstColor;
+                _secondColor = secondColor;
+                _area = area;
+                _bitmap = targetPictureBox.Bitmap;
+                _compositingMode = compositingMode;
+                _fillMode = fillMode;
 
                 // Take the image slide now
-                this.originalSlice = new Bitmap(area.Width + 1, area.Height + 1);
+                _originalSlice = new Bitmap(area.Width + 1, area.Height + 1);
                 
-                Graphics g = Graphics.FromImage(originalSlice);
-                g.DrawImage(bitmap, new Point(-area.X, -area.Y));
+                Graphics g = Graphics.FromImage(_originalSlice);
+                g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
                 g.Flush();
                 g.Dispose();
             }
@@ -281,8 +279,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// </summary>
             public void Clear()
             {
-                originalSlice.Dispose();
-                bitmap = null;
+                _originalSlice.Dispose();
+                _bitmap = null;
             }
 
             /// <summary>
@@ -291,18 +289,18 @@ namespace Pixelaria.Views.Controls.PaintOperations
             public void Undo()
             {
                 // Redraw the original slice back to the image
-                Graphics g = Graphics.FromImage(bitmap);
-                g.SetClip(new Rectangle(area.X, area.Y, originalSlice.Width, originalSlice.Height));
+                Graphics g = Graphics.FromImage(_bitmap);
+                g.SetClip(new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
                 g.Clear(Color.Transparent);
                 g.CompositingMode = CompositingMode.SourceCopy;
 
-                g.DrawImage(originalSlice, new Rectangle(area.X, area.Y, originalSlice.Width, originalSlice.Height));
+                g.DrawImage(_originalSlice, new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
 
                 g.Flush();
                 g.Dispose();
 
                 // Invalidate the target box
-                targetPictureBox.Invalidate();
+                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
@@ -311,10 +309,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
             public void Redo()
             {
                 // Draw the ellipse again
-                EllipsePaintOperation.PerformEllipseOperation(firstColor, secondColor, area, bitmap, compositingMode, fillMode);
+                PerformEllipseOperation(_firstColor, _secondColor, _area, _bitmap, _compositingMode, _fillMode);
 
                 // Invalidate the target box
-                targetPictureBox.Invalidate();
+                _targetPictureBox.Invalidate();
             }
 
             /// <summary>

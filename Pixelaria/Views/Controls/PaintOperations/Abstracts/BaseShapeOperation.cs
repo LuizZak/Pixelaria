@@ -3,14 +3,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 
 namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 {
     /// <summary>
     /// Base class for shape dragging paint operations
     /// </summary>
-    public abstract class BaseShapeOperation : BaseDraggingPaintOperation, IPaintOperation
+    public abstract class BaseShapeOperation : BaseDraggingPaintOperation
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -35,12 +34,12 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// The first color currently being used to paint on the InternalPictureBox
         /// </summary>
-        protected Color firstColor = Color.Black;
+        protected Color firstColor;
 
         /// <summary>
         /// The second color currently being used to paint on the InternalPictureBox
         /// </summary>
-        protected Color secondColor = Color.Black;
+        protected Color secondColor;
 
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
@@ -82,7 +81,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
         /// <param name="secondColor">The second color for the paint operation</param>
-        public BaseShapeOperation(Color firstColor, Color secondColor)
+        protected BaseShapeOperation(Color firstColor, Color secondColor)
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;
@@ -98,12 +97,12 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            this.mouseDown = false;
+            mouseDown = false;
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -115,21 +114,21 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             FinishOperation();
 
-            this.pictureBox = null;
+            pictureBox = null;
 
-            if (this.graphics != null)
+            if (graphics != null)
             {
-                this.graphics.Flush();
-                this.graphics.Dispose();
+                graphics.Flush();
+                graphics.Dispose();
             }
 
-            if (this.buffer != null)
+            if (buffer != null)
             {
                 buffer.Dispose();
-                this.buffer = null;
+                buffer = null;
             }
 
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
         }
 
         /// <summary>
@@ -167,15 +166,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             buffer = new Bitmap(pictureBox.Width, pictureBox.Height);
             graphics = Graphics.FromImage(buffer);
-        }
-
-        /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
-        /// </summary>
-        /// <param name="e">The event args for this event</param>
-        public override void MouseMove(MouseEventArgs e)
-        {
-            base.MouseMove(e);
         }
 
         /// <summary>
@@ -235,7 +225,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Returns a Rectangle object that represents the current rectangle area being dragged by the user
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
@@ -257,25 +247,25 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// Performs the shape paint operation with the given parameters
         /// </summary>
-        /// <param name="firstColor">The first color to use when drawing the shape</param>
-        /// <param name="secondColor">The second color to use when drawing the shape</param>
+        /// <param name="color1">The first color to use when drawing the shape</param>
+        /// <param name="color2">The second color to use when drawing the shape</param>
         /// <param name="area">The area of the shape to draw</param>
         /// <param name="bitmap">The Bitmap to draw the shape on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
-        /// <param name="fillMode">The fill mode for this shape operation</param>
+        /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
+        /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public abstract void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo);
+        public abstract void PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo);
 
         /// <summary>
         /// Performs the shape paint operation with the given parameters
         /// </summary>
-        /// <param name="firstColor">The first color to use when drawing the shape</param>
-        /// <param name="secondColor">The second color to use when drawing the shape</param>
+        /// <param name="color1">The first color to use when drawing the shape</param>
+        /// <param name="color2">The second color to use when drawing the shape</param>
         /// <param name="area">The area of the shape to draw</param>
-        /// <param name="graphics">The Graphics to draw the shape on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
-        /// <param name="fillMode">The fill mode for this shape operation</param>
+        /// <param name="gph">The Graphics to draw the shape on</param>
+        /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
+        /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public abstract void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo);
+        public abstract void PerformShapeOperation(Color color1, Color color2, Rectangle area, Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo);
     }
 }

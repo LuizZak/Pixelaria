@@ -59,7 +59,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Prepare the drawing operation to be performed
             Point absolutePencil = Point.Round(GetAbsolutePoint(pencilPoint));
-            Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
 
             if (!WithinBounds(absolutePencil))
                 return;
@@ -155,8 +154,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 }
 
                 // Mouse handling
-                Bitmap penBitmap = (penId == 0 ? firstPenBitmap : secondPenBitmap);
-
                 // Start drawing the pixels
                 if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                 {

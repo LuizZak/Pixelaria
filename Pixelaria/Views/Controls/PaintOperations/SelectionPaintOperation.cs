@@ -14,17 +14,17 @@ namespace Pixelaria.Views.Controls.PaintOperations
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    public class SelectionPaintOperation : BaseDraggingPaintOperation, IPaintOperation, IClipboardPaintOperation, ICompositingPaintOperation
+    public class SelectionPaintOperation : BaseDraggingPaintOperation, IClipboardPaintOperation, ICompositingPaintOperation
     {
         /// <summary>
         /// Timer used to animate the selection area
         /// </summary>
-        private Timer animTimer;
+        private Timer _animTimer;
 
         /// <summary>
         /// The dash offset to use when drawing the selection area
         /// </summary>
-        private float dashOffset;
+        private float _dashOffset;
 
         /// <summary>
         /// The currently selected area
@@ -84,16 +84,16 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// The mode of the current selection operation
         /// </summary>
-        private SelectionOperationType operationMode;
+        private SelectionOperationType _operationMode;
 
         /// <summary>
         /// The undo event handler
         /// </summary>
-        private UndoSystem.UndoEventHandler undoHandler;
+        private UndoSystem.UndoEventHandler _undoHandler;
         /// <summary>
         /// The redo event handler
         /// </summary>
-        private UndoSystem.UndoEventHandler redoHandler;
+        private UndoSystem.UndoEventHandler _redoHandler;
 
         /// <summary>
         /// Gets whether there's an area currently selected
@@ -118,7 +118,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Gets the operation currently being performed by this SelectionPaintOperation
         /// </summary>
-        public SelectionOperationType OperationType { get { return operationMode; } }
+        public SelectionOperationType OperationType { get { return _operationMode; } }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
@@ -138,25 +138,25 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.sel_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            this.animTimer = new Timer();
-            this.animTimer.Interval = 200;
-            this.animTimer.Tick += new EventHandler(animTimer_Tick);
+            _animTimer = new Timer();
+            _animTimer.Interval = 200;
+            _animTimer.Tick += animTimer_Tick;
 
-            this.displaySelection = true;
-            this.selected = false;
+            displaySelection = true;
+            selected = false;
 
             base.Initialize(targetPictureBox);
 
-            undoHandler = new UndoSystem.UndoEventHandler(UndoSystem_WillPerformUndo);
-            redoHandler = new UndoSystem.UndoEventHandler(UndoSystem_WillPerformRedo);
+            _undoHandler = UndoSystem_WillPerformUndo;
+            _redoHandler = UndoSystem_WillPerformRedo;
 
-            targetPictureBox.OwningPanel.UndoSystem.WillPerformUndo += undoHandler;
-            targetPictureBox.OwningPanel.UndoSystem.WillPerformRedo += redoHandler;
+            targetPictureBox.OwningPanel.UndoSystem.WillPerformUndo += _undoHandler;
+            targetPictureBox.OwningPanel.UndoSystem.WillPerformRedo += _redoHandler;
 
-            this.Loaded = true;
+            Loaded = true;
         }
 
         // 
@@ -164,7 +164,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         // 
         private void animTimer_Tick(object sender, EventArgs e)
         {
-            dashOffset += 1f;
+            _dashOffset += 1f;
             pictureBox.Invalidate(GetSelectionArea(true));
         }
 
@@ -192,10 +192,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
             FinishOperation(true);
 
             // Remove the event handler
-            pictureBox.OwningPanel.UndoSystem.WillPerformUndo -= undoHandler;
-            pictureBox.OwningPanel.UndoSystem.WillPerformRedo -= redoHandler;
+            pictureBox.OwningPanel.UndoSystem.WillPerformUndo -= _undoHandler;
+            pictureBox.OwningPanel.UndoSystem.WillPerformRedo -= _redoHandler;
 
-            this.pictureBox = null;
+            pictureBox = null;
 
             if (graphics != null)
             {
@@ -211,10 +211,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             OperationCursor.Dispose();
 
-            animTimer.Stop();
-            animTimer.Dispose();
+            _animTimer.Stop();
+            _animTimer.Dispose();
 
-            this.Loaded = false;
+            Loaded = false;
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         public void Cut()
         {
-            operationMode = SelectionOperationType.Cut;
+            _operationMode = SelectionOperationType.Cut;
 
             Copy();
 
@@ -280,11 +280,17 @@ namespace Pixelaria.Views.Controls.PaintOperations
         public void Paste()
         {
             Stream str = Clipboard.GetData("PNG") as Stream;
-            Bitmap bit = null;
+            Bitmap bit;
 
             if (str != null)
             {
-                bit = Bitmap.FromStream(str) as Bitmap;
+                bit = Image.FromStream(str) as Bitmap;
+
+                if (bit == null)
+                {
+                    str.Dispose();
+                    return;
+                }
 
                 Bitmap temp = new Bitmap(bit.Width, bit.Height, PixelFormat.Format32bppArgb);
 
@@ -304,7 +310,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             {
                 FinishOperation(true);
 
-                operationMode = SelectionOperationType.Paste;
+                _operationMode = SelectionOperationType.Paste;
 
                 // Get the top-left pixel to place the selection at
                 Point loc = GetAbsolutePoint(new PointF(0, 0));
@@ -385,8 +391,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     Pen p = new Pen(Color.Black);
 
                     p.DashStyle = DashStyle.Dash;
-                    p.DashOffset = dashOffset;
-                    p.DashPattern = new float[] { 2f, 2f };
+                    p.DashOffset = _dashOffset;
+                    p.DashPattern = new [] { 2f, 2f };
                     p.Alignment = PenAlignment.Inset;
                     p.Width = 1;
 
@@ -395,8 +401,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     p = new Pen(Color.White);
 
                     p.DashStyle = DashStyle.Dash;
-                    p.DashOffset = dashOffset + 1.99f;
-                    p.DashPattern = new float[] { 2f, 2f };
+                    p.DashOffset = _dashOffset + 1.99f;
+                    p.DashPattern = new [] { 2f, 2f };
                     p.Alignment = PenAlignment.Inset;
                     p.Width = 1;
 
@@ -422,7 +428,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             if (!selectedArea.Contains(p))
             {
-                if (selected && (selectedArea != selectedStartArea || ForceApplyChanges || operationMode == SelectionOperationType.Paste))
+                if (selected && (selectedArea != selectedStartArea || ForceApplyChanges || _operationMode == SelectionOperationType.Paste))
                 {
                     FinishOperation(true);
                 }
@@ -498,8 +504,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
         {
-            Point p = GetAbsolutePoint(e.Location);
-
             if (mouseDown)
             {
                 if (movingSelection)
@@ -519,9 +523,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     if (selectedArea.Width > 0 && selectedArea.Height > 0)
                     {
                         selected = true;
-                        animTimer.Start();
+                        _animTimer.Start();
 
-                        operationMode = SelectionOperationType.Moved;
+                        _operationMode = SelectionOperationType.Moved;
 
                         selectedStartArea = selectedArea;
 
@@ -534,7 +538,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             }
             else if (selected == false)
             {
-                animTimer.Stop();
+                _animTimer.Stop();
             }
 
             base.MouseUp(e);
@@ -553,7 +557,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             {
                 if (selected)
                 {
-                    operationMode = SelectionOperationType.Cut;
+                    _operationMode = SelectionOperationType.Cut;
                     FinishOperation(false);
                     pictureBox.MarkModified();
                 }
@@ -631,7 +635,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <param name="pasteBitmap">The bitmap to paste</param>
         public void StartOperation(Rectangle area, Bitmap pasteBitmap)
         {
-            StartOperation(area, pasteBitmap, operationMode);
+            StartOperation(area, pasteBitmap, _operationMode);
         }
 
         /// <summary>
@@ -644,7 +648,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             pictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection", true);
 
-            operationMode = operation;
+            _operationMode = operation;
 
             ForceApplyChanges = false;
 
@@ -653,10 +657,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 selectionBitmap.Dispose();
             }
 
-            this.selected = true;
-            this.selectedArea = area;
+            selected = true;
+            selectedArea = area;
 
-            this.selectedStartArea = area;
+            selectedStartArea = area;
 
             // Get the selected area
             if (pasteBitmap == null)
@@ -676,11 +680,11 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 UpdateClipboardState();
             }
 
-            this.selectionBitmap = pasteBitmap;
+            selectionBitmap = pasteBitmap;
 
             pictureBox.Invalidate(GetSelectionArea(true));
 
-            animTimer.Start();
+            _animTimer.Start();
         }
 
         /// <summary>
@@ -694,7 +698,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             if (!selected)
                 return;
 
-            if (operationMode == SelectionOperationType.Moved && drawOnCanvas)
+            if (_operationMode == SelectionOperationType.Moved && drawOnCanvas)
             {
                 if (selectionBitmap != null)
                 {
@@ -724,12 +728,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
             displaySelection = true;
 
             selected = false;
-            animTimer.Stop();
+            _animTimer.Stop();
 
             UpdateClipboardState();
 
             // Default the operation mode to 'Moved'
-            operationMode = SelectionOperationType.Moved;
+            _operationMode = SelectionOperationType.Moved;
         }
 
         /// <summary>
@@ -766,10 +770,10 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 graphics = null;
             }
 
-            if (selectedArea != selectedStartArea || operationMode != SelectionOperationType.Moved || ForceApplyChanges)
+            if (selectedArea != selectedStartArea || _operationMode != SelectionOperationType.Moved || ForceApplyChanges)
             {
                 // Record the undo operation
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(this, pictureBox, selectionBitmap, originalSlice, selectedStartArea, selectedArea, operationMode, compositingMode));
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(this, pictureBox, selectionBitmap, originalSlice, selectedStartArea, selectedArea, _operationMode, compositingMode));
 
                 pictureBox.MarkModified();
             }
@@ -787,12 +791,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
             displaySelection = true;
 
             selected = false;
-            animTimer.Stop();
+            _animTimer.Stop();
 
             UpdateClipboardState();
 
             // Default the operation mode to 'Moved'
-            operationMode = SelectionOperationType.Moved;
+            _operationMode = SelectionOperationType.Moved;
 
             pictureBox.OwningPanel.UndoSystem.FinishGroupUndo(false);
         }

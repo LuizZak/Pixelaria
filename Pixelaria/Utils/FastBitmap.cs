@@ -374,9 +374,8 @@ namespace Pixelaria.Utils
             fixed (int* source = colors)
             {
                 int* s0s = source;
-                int bpp = 1; // Bytes per pixel
 
-                int count = _width * _height * bpp;
+                int count = _width * _height;
 
                 if (!ignoreZeroes)
                 {

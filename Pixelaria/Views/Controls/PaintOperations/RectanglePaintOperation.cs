@@ -59,7 +59,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             if (relative)
             {
@@ -84,34 +84,34 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Performs the shape paint operation with the given parameters
         /// </summary>
-        /// <param name="firstColor">The first color to use when drawing the shape</param>
-        /// <param name="secondColor">The second color to use when drawing the shape</param>
+        /// <param name="color1">The first color to use when drawing the shape</param>
+        /// <param name="color2">The second color to use when drawing the shape</param>
         /// <param name="area">The area of the shape to draw</param>
         /// <param name="bitmap">The Bitmap to draw the shape on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
-        /// <param name="fillMode">The fill mode for this shape operation</param>
+        /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
+        /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
+        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
             if (registerUndo)
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new RectangleUndoTask(pictureBox, firstColor, secondColor, area, compositingMode, fillMode));
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new RectangleUndoTask(pictureBox, color1, color2, area, compMode, opFillMode));
 
-            PerformRectangleOperation(firstColor, secondColor, area, bitmap, compositingMode, fillMode);
+            PerformRectangleOperation(color1, color2, area, bitmap, compMode, opFillMode);
         }
 
         /// <summary>
         /// Performs the shape paint operation with the given parameters
         /// </summary>
-        /// <param name="firstColor">The first color to use when drawing the shape</param>
-        /// <param name="secondColor">The second color to use when drawing the shape</param>
+        /// <param name="color1">The first color to use when drawing the shape</param>
+        /// <param name="color2">The second color to use when drawing the shape</param>
         /// <param name="area">The area of the shape to draw</param>
-        /// <param name="graphics">The Graphics to draw the shape on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the shape</param>
-        /// <param name="fillMode">The fill mode for this shape operation</param>
+        /// <param name="gph">The Graphics to draw the shape on</param>
+        /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
+        /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override void PerformShapeOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode, bool registerUndo)
+        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
-            PerformRectangleOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
+            PerformRectangleOperation(color1, color2, area, gph, compMode, opFillMode);
         }
 
         /// <summary>

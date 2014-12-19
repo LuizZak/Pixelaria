@@ -358,8 +358,8 @@ namespace Pixelaria.Views.ModelViews
             this.tc_currentFrame.Minimum = 0;
             this.tc_currentFrame.Name = "tc_currentFrame";
             this.tc_currentFrame.Range = new System.Drawing.Point(0, 10);
-            this.tc_currentFrame.ScrollScaleWidth = 1F;
-            this.tc_currentFrame.ScrollX = 0F;
+            this.tc_currentFrame.ScrollScaleWidth = 1D;
+            this.tc_currentFrame.ScrollX = 0D;
             this.tc_currentFrame.Size = new System.Drawing.Size(544, 41);
             this.tc_currentFrame.TabIndex = 2;
             this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
