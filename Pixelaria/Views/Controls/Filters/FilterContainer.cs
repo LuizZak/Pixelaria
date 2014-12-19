@@ -26,7 +26,6 @@ using System.Windows.Forms;
 
 using Pixelaria.Filters;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria.Views.Controls.Filters
@@ -39,57 +38,54 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// The ImageFilterView that owns this FilterContainer
         /// </summary>
-        ImageFilterView owningView;
+        readonly ImageFilterView _owningView;
 
         /// <summary>
         /// The FilterSelector that owns this FilterContainer
         /// </summary>
-        FilterSelector owningSelector;
+        readonly FilterSelector _owningSelector;
 
         /// <summary>
         /// The FilterControl currently held by this FilterContainer
         /// </summary>
-        FilterControl filterControl;
+        FilterControl _filterControl;
 
         /// <summary>
         /// Whether the filter currently contained on this FilterContainer is enabled
         /// </summary>
-        bool filterEnabled;
+        bool _filterEnabled;
 
         /// <summary>
         /// Whether the mouse is currently held down on this control's drag area
         /// </summary>
-        bool mouseDown;
+        bool _mouseDown;
 
         /// <summary>
         /// Whether the user is currently dragging this FilterContainer
         /// </summary>
-        bool dragging;
+        bool _dragging;
 
         /// <summary>
         /// Where the mouse was held down on this control's drag area
         /// </summary>
-        Point mouseDownPoint;
+        Point _mouseDownPoint;
 
         /// <summary>
         /// This filter container's state
         /// </summary>
-        FilterContainerState containerState;
+        FilterContainerState _containerState;
 
         /// <summary>
         /// Gets the FilterControl currently held by this FilterContainer
         /// </summary>
-        public FilterControl FilterControl { get { return filterControl; } }
+        public FilterControl FilterControl { get { return _filterControl; } }
 
         /// <summary>
         /// Gets or sets the background color for the control.
         /// </summary>
         public override Color BackColor
         {
-            get
-            {
-                return base.BackColor;
-            }
+            get { return base.BackColor; }
             set
             {
                 // Adjust the buttons' colors
@@ -99,8 +95,10 @@ namespace Pixelaria.Views.Controls.Filters
                 lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
                 darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);
 
-                btn_remove.FlatAppearance.MouseOverBackColor = btn_enable.FlatAppearance.MouseOverBackColor = lightColor.ToColor();
-                btn_remove.FlatAppearance.MouseDownBackColor = btn_enable.FlatAppearance.MouseDownBackColor = darkColor.ToColor();
+                btn_remove.FlatAppearance.MouseOverBackColor =
+                    btn_enable.FlatAppearance.MouseOverBackColor = lightColor.ToColor();
+                btn_remove.FlatAppearance.MouseDownBackColor =
+                    btn_enable.FlatAppearance.MouseDownBackColor = darkColor.ToColor();
 
                 base.BackColor = value;
             }
@@ -111,15 +109,15 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public bool FilterEnabled
         {
-            get { return filterEnabled; }
+            get { return _filterEnabled; }
             set
             {
-                filterEnabled = value;
+                _filterEnabled = value;
 
-                if (filterEnabled)
+                if (_filterEnabled)
                 {
                     btn_enable.Image = Properties.Resources.filter_enable_icon;
-                    this.BackColor = Color.FromKnownColor(KnownColor.Control);
+                    BackColor = Color.FromKnownColor(KnownColor.Control);
                 }
                 else
                 {
@@ -129,22 +127,22 @@ namespace Pixelaria.Views.Controls.Filters
 
                     newColor = new AhslColor(newColor.Af, newColor.Hf, newColor.Sf, newColor.Lf - 10);
 
-                    this.BackColor = newColor.ToColor();
+                    BackColor = newColor.ToColor();
                 }
                 
-                filterControl.FireFilterUpdated();
+                _filterControl.FireFilterUpdated();
             }
         }
 
         /// <summary>
         /// Gets where the mouse was held down on this control's drag area
         /// </summary>
-        public Point MouseDownPoint { get { return mouseDownPoint; } }
+        public Point MouseDownPoint { get { return _mouseDownPoint; } }
 
         /// <summary>
         /// Gets this filter container's state
         /// </summary>
-        public FilterContainerState ContainerState { get { return containerState; } }
+        public FilterContainerState ContainerState { get { return _containerState; } }
 
         /// <summary>
         /// Occurs whenever the user starts dragging the FilterControl
@@ -165,10 +163,10 @@ namespace Pixelaria.Views.Controls.Filters
         {
             InitializeComponent();
 
-            this.containerState = FilterContainerState.Expanded;
-            this.mouseDown = false;
-            this.owningView = owningView;
-            this.filterEnabled = true;
+            _containerState = FilterContainerState.Expanded;
+            _mouseDown = false;
+            _owningView = owningView;
+            _filterEnabled = true;
 
             LoadFilter(filter);
         }
@@ -182,10 +180,10 @@ namespace Pixelaria.Views.Controls.Filters
         {
             InitializeComponent();
 
-            this.containerState = FilterContainerState.Expanded;
-            this.mouseDown = false;
-            this.owningSelector = owningSelector;
-            this.filterEnabled = true;
+            _containerState = FilterContainerState.Expanded;
+            _mouseDown = false;
+            _owningSelector = owningSelector;
+            _filterEnabled = true;
 
             LoadFilter(filter);
         }
@@ -196,7 +194,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="filter">The FilterControl to hold on this FilterContainer</param>
         public void LoadFilter(FilterControl filter)
         {
-            filterControl = filter;
+            _filterControl = filter;
 
             lbl_filterName.Text = filter.FilterName;
 
@@ -208,7 +206,7 @@ namespace Pixelaria.Views.Controls.Filters
 
             pb_filterIcon.Image = FilterStore.Instance.GetIconForFilter(filter.FilterName);
 
-            this.ClientSize = new Size(this.Width, this.pnl_container.Bounds.Bottom);
+            ClientSize = new Size(Width, pnl_container.Bounds.Bottom);
         }
 
         /// <summary>
@@ -217,8 +215,8 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="bitmap">The bitmap to apply the filter to</param>
         public void ApplyFilter(Bitmap bitmap)
         {
-            if (filterEnabled)
-                filterControl.ApplyFilter(bitmap);
+            if (_filterEnabled)
+                _filterControl.ApplyFilter(bitmap);
         }
 
         /// <summary>
@@ -226,11 +224,11 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public void Expand()
         {
-            containerState = FilterContainerState.Expanded;
+            _containerState = FilterContainerState.Expanded;
 
-            this.btn_collapse.Image = Pixelaria.Properties.Resources.minus_icon;
+            btn_collapse.Image = Properties.Resources.minus_icon;
 
-            this.ClientSize = new Size(this.ClientSize.Width, this.pnl_container.Bounds.Bottom);
+            ClientSize = new Size(ClientSize.Width, pnl_container.Bounds.Bottom);
         }
 
         /// <summary>
@@ -238,11 +236,11 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public void Collapse()
         {
-            containerState = FilterContainerState.Collapsed;
+            _containerState = FilterContainerState.Collapsed;
 
-            this.btn_collapse.Image = Pixelaria.Properties.Resources.plus_icon;
+            btn_collapse.Image = Properties.Resources.plus_icon;
 
-            this.ClientSize = new Size(this.ClientSize.Width, 20);
+            ClientSize = new Size(ClientSize.Width, 20);
         }
 
         /// <summary>
@@ -250,7 +248,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public void Toggle()
         {
-            if (containerState == FilterContainerState.Expanded)
+            if (_containerState == FilterContainerState.Expanded)
             {
                 Collapse();
             }
@@ -265,7 +263,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public void DisposeThis()
         {
-            filterControl.Dispose();
+            _filterControl.Dispose();
 
             base.Dispose();
         }
@@ -279,8 +277,8 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (e.Location.X < 17 && e.Location.Y < 17)
             {
-                mouseDownPoint = e.Location;
-                mouseDown = true;
+                _mouseDownPoint = e.Location;
+                _mouseDown = true;
             }
         }
 
@@ -291,14 +289,14 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.OnMouseMove(e);
 
-            if (mouseDown && mouseDownPoint.Distance(e.Location) > 5 && !dragging)
+            if (_mouseDown && _mouseDownPoint.Distance(e.Location) > 5 && !_dragging)
             {
                 if (ContainerDragStart != null)
                 {
                     ContainerDragStart.Invoke(this, new EventArgs());
                 }
 
-                dragging = true;
+                _dragging = true;
             }
         }
 
@@ -309,7 +307,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             base.OnMouseUp(e);
 
-            if (dragging)
+            if (_dragging)
             {
                 if (ContainerDragEnd != null)
                 {
@@ -317,8 +315,8 @@ namespace Pixelaria.Views.Controls.Filters
                 }
             }
 
-            mouseDown = false;
-            dragging = false;
+            _mouseDown = false;
+            _dragging = false;
         }
 
         // 
@@ -365,10 +363,10 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void btn_remove_Click(object sender, EventArgs e)
         {
-            if(owningView != null)
-                owningView.RemoveFilterControl(this);
-            else if(owningSelector != null)
-                owningSelector.RemoveFilterControl(this);
+            if(_owningView != null)
+                _owningView.RemoveFilterControl(this);
+            else if(_owningSelector != null)
+                _owningSelector.RemoveFilterControl(this);
         }
 
         // 
