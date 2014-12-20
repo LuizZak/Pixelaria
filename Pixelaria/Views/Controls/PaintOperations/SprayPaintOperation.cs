@@ -16,32 +16,27 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Instance of a Random class used to randomize the spray of this SprayPaintOperation
         /// </summary>
-        Random random;
+        readonly Random _random;
 
         /// <summary>
         /// The spray's timer, used to make the operation paint with the mouse held down at a stationary point
         /// </summary>
-        Timer sprayTimer;
+        readonly Timer _sprayTimer;
 
         /// <summary>
         /// Initializes a new instance of the SprayPaintOperation class
         /// </summary>
-        /// <param name="firstColor">The first pencil color</param>
-        /// <param name="secondColor">The second pencil color</param>
-        /// <param name="pencilSize">The size of the pencil</param>
         public SprayPaintOperation()
-            : base()
         {
-            random = new Random();
+            _random = new Random();
 
-            sprayTimer = new Timer();
-            sprayTimer.Interval = 10;
-            sprayTimer.Tick += new EventHandler(sprayTimer_Tick);
+            _sprayTimer = new Timer();
+            _sprayTimer.Interval = 10;
+            _sprayTimer.Tick += sprayTimer_Tick;
         }
         
         /// <summary>
-        /// Initializes a new instance of the SprayPaintOperation class, initializing the object
-        /// with the two spray colors to use
+        /// Initializes a new instance of the SprayPaintOperation class, initializing the object with the two spray colors to use
         /// </summary>
         /// <param name="firstColor">The first pencil color</param>
         /// <param name="secondColor">The second pencil color</param>
@@ -49,9 +44,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
         public SprayPaintOperation(Color firstColor, Color secondColor, int pencilSize)
             : this()
         {
-            this.FirstColor = firstColor;
-            this.SecondColor = secondColor;
-            this.Size = pencilSize;
+            this.firstColor = firstColor;
+            this.secondColor = secondColor;
+            size = pencilSize;
         }
 
         /// <summary>
@@ -59,8 +54,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         public override void Destroy()
         {
-            sprayTimer.Stop();
-            sprayTimer.Dispose();
+            _sprayTimer.Stop();
+            _sprayTimer.Dispose();
 
             base.Destroy();
         }
@@ -78,7 +73,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            this.undoDecription = "Spray";
+            undoDecription = "Spray";
         }
 
         /// <summary>
@@ -91,7 +86,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             if (mouseDown && e.Button != MouseButtons.Middle)
             {
-                sprayTimer.Start();
+                _sprayTimer.Start();
             }
         }
 
@@ -105,7 +100,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             if (!mouseDown)
             {
-                sprayTimer.Stop();
+                _sprayTimer.Stop();
             }
         }
 
@@ -117,8 +112,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
         protected override void DrawPencil(Point p, Bitmap bitmap)
         {
             // Randomize the point around a circle based on the current radius
-            double angle = random.NextDouble() * Math.PI * 2;
-            float radius = (float)((float)(random.Next(0, size) / 2));
+            double angle = _random.NextDouble() * Math.PI * 2;
+            float radius = (_random.Next(0, size) / 2.0f);
 
             p.X = p.X + (int)Math.Round(Math.Cos(angle) * radius);
             p.Y = p.Y + (int)Math.Round(Math.Sin(angle) * radius);

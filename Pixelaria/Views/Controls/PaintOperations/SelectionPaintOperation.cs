@@ -808,7 +808,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             // Default the operation mode to 'Moved'
             _operationMode = SelectionOperationType.Moved;
 
-            pictureBox.OwningPanel.UndoSystem.FinishGroupUndo(false);
+            pictureBox.OwningPanel.UndoSystem.FinishGroupUndo();
         }
 
         /// <summary>
@@ -861,7 +861,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// <summary>
         /// Returns a Rectangle object that represents the currently selected area
         /// </summary>
-        /// <param name="absolute">Whether to return a rectangle in relative coordinates</param>
+        /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the currently selected area</returns>
         protected Rectangle GetSelectionArea(bool relative)
         {
@@ -869,10 +869,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
             {
                 return selectedArea;
             }
-            else
-            {
-                return relativeSelectedArea = new Rectangle((int)Math.Floor(-pictureBox.Offset.X + selectedArea.X * pictureBox.Zoom.X) - 1, (int)Math.Floor(-pictureBox.Offset.Y + selectedArea.Y * pictureBox.Zoom.Y) - 1, (int)Math.Ceiling(selectedArea.Width * pictureBox.Zoom.X) + 2, (int)Math.Ceiling(selectedArea.Height * pictureBox.Zoom.Y) + 2);
-            }
+
+            return relativeSelectedArea = new Rectangle((int)Math.Floor(-pictureBox.Offset.X + selectedArea.X * pictureBox.Zoom.X) - 1, (int)Math.Floor(-pictureBox.Offset.Y + selectedArea.Y * pictureBox.Zoom.Y) - 1, (int)Math.Ceiling(selectedArea.Width * pictureBox.Zoom.X) + 2, (int)Math.Ceiling(selectedArea.Height * pictureBox.Zoom.Y) + 2);
         }
 
         /// <summary>
@@ -883,42 +881,42 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <summary>
             /// The owning paint operation
             /// </summary>
-            SelectionPaintOperation paintOperation;
+            SelectionPaintOperation _paintOperation;
 
             /// <summary>
             /// The target picture box for the undo task
             /// </summary>
-            ImageEditPanel.InternalPictureBox pictureBox;
+            readonly ImageEditPanel.InternalPictureBox _pictureBox;
 
             /// <summary>
             /// The selection bitmap
             /// </summary>
-            Bitmap selectionBitmap;
+            readonly Bitmap _selectionBitmap;
 
             /// <summary>
             /// The original image slice before a Move operation was made
             /// </summary>
-            Bitmap originalSlice;
+            readonly Bitmap _originalSlice;
 
             /// <summary>
             /// The area that the selection started at
             /// </summary>
-            Rectangle selectionStartArea;
+            readonly Rectangle _selectionStartArea;
 
             /// <summary>
             /// The area of the affected SelectionUndoTask
             /// </summary>
-            Rectangle area;
+            readonly Rectangle _area;
 
             /// <summary>
             /// The operation type of this SelectionUndoTask
             /// </summary>
-            SelectionOperationType operationType;
+            readonly SelectionOperationType _operationType;
 
             /// <summary>
             /// The compositing mode for the operation
             /// </summary>
-            CompositingMode compositingMode;
+            readonly CompositingMode _compositingMode;
 
             /// <summary>
             /// Initializes a new instance of the SelectionUndoTask class
@@ -933,14 +931,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <param name="compositingMode">The compositing mode for the operation</param>
             public SelectionUndoTask(SelectionPaintOperation paintOperation, ImageEditPanel.InternalPictureBox pictureBox, Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
             {
-                this.paintOperation = paintOperation;
-                this.pictureBox = pictureBox;
-                this.selectionBitmap = (Bitmap)selectionBitmap.Clone();
-                this.originalSlice = (originalSlice == null ? null : (Bitmap)originalSlice.Clone());
-                this.selectionStartArea = selectionStartArea;
-                this.area = area;
-                this.operationType = operationType;
-                this.compositingMode = compositingMode;
+                _paintOperation = paintOperation;
+                _pictureBox = pictureBox;
+                _selectionBitmap = (Bitmap)selectionBitmap.Clone();
+                _originalSlice = (originalSlice == null ? null : (Bitmap)originalSlice.Clone());
+                _selectionStartArea = selectionStartArea;
+                _area = area;
+                _operationType = operationType;
+                _compositingMode = compositingMode;
             }
 
             /// <summary>
@@ -948,18 +946,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// </summary>
             public void Clear()
             {
-                pictureBox = null;
-
-                if (originalSlice != null)
+                if (_originalSlice != null)
                 {
-                    originalSlice.Dispose();
-                    originalSlice = null;
+                    _originalSlice.Dispose();
                 }
 
-                if (selectionBitmap != null)
+                if (_selectionBitmap != null)
                 {
-                    selectionBitmap.Dispose();
-                    selectionBitmap = null;
+                    _selectionBitmap.Dispose();
                 }
             }
 
@@ -968,32 +962,32 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// </summary>
             public void Undo()
             {
-                Graphics gfx = Graphics.FromImage(pictureBox.Bitmap);
+                Graphics gfx = Graphics.FromImage(_pictureBox.Bitmap);
 
                 gfx.CompositingMode = CompositingMode.SourceCopy;
 
-                switch (operationType)
+                switch (_operationType)
                 {
                     case SelectionOperationType.Moved:
                         // Draw the original slice back
-                        gfx.DrawImage(originalSlice, area, new Rectangle(0, 0, originalSlice.Width, originalSlice.Height), GraphicsUnit.Pixel);
+                        gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
                         // Draw the selection back
-                        gfx.DrawImage(selectionBitmap, selectionStartArea, new Rectangle(0, 0, selectionBitmap.Width, selectionBitmap.Height), GraphicsUnit.Pixel);
+                        gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
                         break;
                     case SelectionOperationType.Cut:
                         // Draw the original slice back
-                        gfx.DrawImage(selectionBitmap, selectionStartArea, new Rectangle(0, 0, selectionBitmap.Width, selectionBitmap.Height), GraphicsUnit.Pixel);
+                        gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
                         break;
                     case SelectionOperationType.Paste:
                         // Draw the original slice back
-                        gfx.DrawImage(originalSlice, area, new Rectangle(0, 0, originalSlice.Width, originalSlice.Height), GraphicsUnit.Pixel);
+                        gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
                         break;
                 }
 
                 gfx.Flush();
                 gfx.Dispose();
 
-                pictureBox.Invalidate();
+                _pictureBox.Invalidate();
             }
 
             /// <summary>
@@ -1001,39 +995,39 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// </summary>
             public void Redo()
             {
-                Graphics gfx = Graphics.FromImage(pictureBox.Bitmap);
+                Graphics gfx = Graphics.FromImage(_pictureBox.Bitmap);
                 Region reg;
 
-                gfx.CompositingMode = compositingMode;
+                gfx.CompositingMode = _compositingMode;
 
-                switch (operationType)
+                switch (_operationType)
                 {
                     case SelectionOperationType.Moved:
                         // Clear the image background
                         reg = gfx.Clip;
-                        gfx.SetClip(selectionStartArea);
+                        gfx.SetClip(_selectionStartArea);
                         gfx.Clear(Color.Transparent);
                         gfx.Clip = reg;
                         //gfx.DrawImage(selectionBitmap, area.X, area.Y);
-                        gfx.DrawImage(selectionBitmap, area, new Rectangle(0, 0, selectionBitmap.Width, selectionBitmap.Height), GraphicsUnit.Pixel);
+                        gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
                         break;
                     case SelectionOperationType.Cut:
                         reg = gfx.Clip;
-                        gfx.SetClip(selectionStartArea);
+                        gfx.SetClip(_selectionStartArea);
                         gfx.Clear(Color.Transparent);
                         gfx.Clip = reg;
                         break;
                     case SelectionOperationType.Paste:
                         // Draw the original slice back
                         //gfx.DrawImage(selectionBitmap, area.X, area.Y);
-                        gfx.DrawImage(selectionBitmap, area, new Rectangle(0, 0, selectionBitmap.Width, selectionBitmap.Height), GraphicsUnit.Pixel);
+                        gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
                         break;
                 }
 
                 gfx.Flush();
                 gfx.Dispose();
 
-                pictureBox.Invalidate();
+                _pictureBox.Invalidate();
             }
 
             /// <summary>
@@ -1042,7 +1036,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <returns>A short string description of this UndoTask</returns>
             public string GetDescription()
             {
-                switch (operationType)
+                switch (_operationType)
                 {
                     case SelectionOperationType.Cut:
                         return "Cut";

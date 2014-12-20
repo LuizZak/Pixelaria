@@ -2,25 +2,25 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+
 using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 
 namespace Pixelaria.Views.Controls.PaintOperations
 {
     /// <summary>
     /// Implements a Zoom paint operation
     /// </summary>
-    public class ZoomPaintOperation : BaseDraggingPaintOperation, IPaintOperation
+    public class ZoomPaintOperation : BaseDraggingPaintOperation
     {
         /// <summary>
         /// The relative point where the mouse was held down, in control coordinates
         /// </summary>
-        public Point mouseDownRelative;
+        private Point _mouseDownRelative;
 
         /// <summary>
         /// The relative point where the mouse is currently at, in control coordinates
         /// </summary>
-        public Point mousePointRelative;
+        private Point _mousePointRelative;
 
         /// <summary>
         /// Initializes this Paint Operation
@@ -32,7 +32,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.zoom_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
+            OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
         }
 
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         /// </summary>
         public override void Destroy()
         {
-            this.OperationCursor.Dispose();
+            OperationCursor.Dispose();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             if (mouseDown)
             {
                 // Draw the zoom area
-                Rectangle rec = GetRectangleArea(new Point[] { mouseDownRelative, mousePointRelative }, false);
+                Rectangle rec = GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false);
 
                 e.Graphics.ResetTransform();
 
@@ -69,7 +69,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             base.MouseDown(e);
 
-            mousePointRelative = mouseDownRelative = e.Location;
+            _mousePointRelative = _mouseDownRelative = e.Location;
         }
 
         /// <summary>
@@ -82,11 +82,11 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             if (mouseDown)
             {
-                pictureBox.Invalidate(GetRectangleArea(new Point[] { mouseDownRelative, mousePointRelative }, false));
+                pictureBox.Invalidate(GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false));
 
-                mousePointRelative = e.Location;
+                _mousePointRelative = e.Location;
 
-                pictureBox.Invalidate(GetRectangleArea(new Point[] { mouseDownRelative, mousePointRelative }, false));
+                pictureBox.Invalidate(GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false));
             }
         }
 
@@ -109,7 +109,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             if (!mouseDown)
                 return;
 
-            Rectangle zoomArea = GetRectangleArea(new Point[] { mouseDownRelative, mousePointRelative }, false);
+            Rectangle zoomArea = GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false);
 
             pictureBox.Invalidate(zoomArea);
 
