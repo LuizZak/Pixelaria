@@ -41,6 +41,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         {
             Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 64, 0);
             Frame frame2 = frame1.Clone();
+
+            Assert.AreEqual(frame1, frame2, "Frames cloned using .Clone() should be exactly equivalent");
         }
 
         [TestMethod]
