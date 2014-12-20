@@ -86,15 +86,15 @@ namespace Pixelaria.Views.MiscViews
 
             if (args.ExportStage == BundleExportStage.TextureAtlasGeneration)
             {
-                lbl_progress.Text = "Exporting atlas for " + args.StageDescription + "...";
+                lbl_progress.Text = @"Exporting atlas for " + args.StageDescription + @"...";
             }
             else if (args.ExportStage == BundleExportStage.SavingToDisk)
             {
-                lbl_progress.Text = "Saving to disk...";
+                lbl_progress.Text = @"Saving to disk...";
             }
             else if (args.ExportStage == BundleExportStage.Ended)
             {
-                lbl_progress.Text = "Export successful!";
+                lbl_progress.Text = @"Export successful!";
             }
 
             Update();

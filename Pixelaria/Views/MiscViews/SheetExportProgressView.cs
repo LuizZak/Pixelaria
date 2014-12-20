@@ -82,11 +82,11 @@ namespace Pixelaria.Views.MiscViews
             Image img = _exporter.ExportAnimationSheet(_sheet, ExportHandler);
 
             // Save the image now
-            lbl_progress.Text = "Saving to disk...";
+            lbl_progress.Text = @"Saving to disk...";
 
             img.Save(_savePath);
 
-            lbl_progress.Text = "Export successful!";
+            lbl_progress.Text = @"Export successful!";
 
             _canClose = true;
             btn_ok.Visible = true;
@@ -101,15 +101,15 @@ namespace Pixelaria.Views.MiscViews
 
             if (args.ExportStage == BundleExportStage.TextureAtlasGeneration)
             {
-                lbl_progress.Text = "Exporting atlas for " + args.StageDescription + "...";
+                lbl_progress.Text = @"Exporting atlas for " + args.StageDescription + @"...";
             }
             else if (args.ExportStage == BundleExportStage.SavingToDisk)
             {
-                lbl_progress.Text = "Saving to disk...";
+                lbl_progress.Text = @"Saving to disk...";
             }
             else if (args.ExportStage == BundleExportStage.Ended)
             {
-                lbl_progress.Text = "Export successful!";
+                lbl_progress.Text = @"Export successful!";
             }
 
             Update();

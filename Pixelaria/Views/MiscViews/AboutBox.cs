@@ -26,7 +26,7 @@ using System.Windows.Forms;
 
 namespace Pixelaria.Views.MiscViews
 {
-    partial class AboutBox : Form
+    sealed partial class AboutBox : Form
     {
         public AboutBox()
         {

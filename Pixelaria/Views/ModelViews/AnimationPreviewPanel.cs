@@ -50,11 +50,6 @@ namespace Pixelaria.Views.ModelViews
         private int _currentFrame;
 
         /// <summary>
-        /// States whether the user is currently dragging the trackbar
-        /// </summary>
-        private bool _draggingTrackbar;
-
-        /// <summary>
         /// Whether the current animation is playing
         /// </summary>
         private bool _playing;
@@ -73,8 +68,6 @@ namespace Pixelaria.Views.ModelViews
 
             _animationTimer = new Timer();
             _animationTimer.Tick += animationTimer_Tick;
-
-            _draggingTrackbar = false;
 
             RefreshPreviewPanel();
         }
@@ -244,8 +237,8 @@ namespace Pixelaria.Views.ModelViews
                 pnl_preview.Width = 32;
                 pnl_preview.Height = 32;
 
-                lbl_currentFrame.Text = "0";
-                lbl_frameCount.Text = "0";
+                lbl_currentFrame.Text = @"0";
+                lbl_frameCount.Text = @"0";
 
                 tlc_timeline.Minimum = 0;
                 tlc_timeline.Maximum = 1;
@@ -297,7 +290,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         void animationTimer_Tick(object sender, EventArgs e)
         {
-            if (_draggingTrackbar || tlc_timeline.DraggingFrame || _currentAnimation == null || _currentAnimation.FrameCount == 0 || ParentForm == null)
+            if (tlc_timeline.DraggingFrame || _currentAnimation == null || _currentAnimation.FrameCount == 0 || ParentForm == null)
                 return;
 
             int newFrame = _currentFrame + 1;

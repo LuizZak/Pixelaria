@@ -785,9 +785,10 @@ namespace Pixelaria.Views.ModelViews
             var undoTarget = filterTarget = _viewFrame.GetComposedBitmap();
 
             // Apply the filter to a selection
-            if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
+            var operation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+            if (operation != null && operation.SelectionBitmap != null)
             {
-                SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
+                SelectionPaintOperation op = operation;
 
                 if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Moved)
                 {
@@ -824,9 +825,10 @@ namespace Pixelaria.Views.ModelViews
                     iepb_frame.PictureBox.Invalidate();
                     MarkModified();
 
-                    if (iepb_frame.CurrentPaintOperation is SelectionPaintOperation && (iepb_frame.CurrentPaintOperation as SelectionPaintOperation).SelectionBitmap != null)
+                    var paintOperation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+                    if (paintOperation != null && paintOperation.SelectionBitmap != null)
                     {
-                        SelectionPaintOperation op = (iepb_frame.CurrentPaintOperation as SelectionPaintOperation);
+                        SelectionPaintOperation op = paintOperation;
 
                         if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Moved)
                         {
@@ -1065,9 +1067,10 @@ namespace Pixelaria.Views.ModelViews
         {
             BrushSize = (int)anud_brushSize.Value;
 
-            if (iepb_frame.CurrentPaintOperation is ISizedPaintOperation)
+            var operation = iepb_frame.CurrentPaintOperation as ISizedPaintOperation;
+            if (operation != null)
             {
-                (iepb_frame.CurrentPaintOperation as ISizedPaintOperation).Size = BrushSize;
+                operation.Size = BrushSize;
             }
         }
 
@@ -1252,19 +1255,20 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cp_mainColorPicker_ColorPick(object sender, ColorPickEventArgs eventArgs)
         {
-            if (iepb_frame.CurrentPaintOperation is IColoredPaintOperation)
+            var operation = iepb_frame.CurrentPaintOperation as IColoredPaintOperation;
+            if (operation != null)
             {
                 switch (eventArgs.TargetColor)
                 {
                     // 
                     case ColorPickerColor.FirstColor:
                         FirstColor = eventArgs.NewColor;
-                        (iepb_frame.CurrentPaintOperation as IColoredPaintOperation).FirstColor = eventArgs.NewColor;
+                        operation.FirstColor = eventArgs.NewColor;
                         break;
                     // 
                     case ColorPickerColor.SecondColor:
                         SecondColor = eventArgs.NewColor;
-                        (iepb_frame.CurrentPaintOperation as IColoredPaintOperation).SecondColor = eventArgs.NewColor;
+                        operation.SecondColor = eventArgs.NewColor;
                         break;
                 }
             }

@@ -48,7 +48,7 @@ namespace Pixelaria.Views.MiscViews
 
             if (message == "")
             {
-                lbl_message.Text = "Some of the frames being pasted don't have a resolution that matchis this animation's. Please select the scaling options for these frames:";
+                lbl_message.Text = @"Some of the frames being pasted don't have a resolution that matchis this animation's. Please select the scaling options for these frames:";
             }
 
             gb_animationSize.Visible = false;
