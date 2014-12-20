@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Views.Controls.Filters;
@@ -38,12 +39,12 @@ namespace Pixelaria.Filters
         /// <summary>
         /// The list of filter items of the program
         /// </summary>
-        List<FilterItem> filterItems;
+        List<FilterItem> _filterItems;
 
         /// <summary>
         /// The list of filter presets of the program
         /// </summary>
-        List<FilterPreset> filterPresets;
+        List<FilterPreset> _filterPresets;
 
         /// <summary>
         /// Gets the list of filters of the program
@@ -58,7 +59,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets the list of filter presets of the program
         /// </summary>
-        public FilterPreset[] FilterPrests { get { return filterPresets.ToArray(); } }
+        public FilterPreset[] FilterPrests { get { return _filterPresets.ToArray(); } }
 
         /// <summary>
         /// Gets the singleton instance of the FilterStore for the program
@@ -67,13 +68,13 @@ namespace Pixelaria.Filters
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new FilterStore();
-                    instance.LoadFilterPresets();
+                    _instance = new FilterStore();
+                    _instance.LoadFilterPresets();
                 }
                 
-                return instance;
+                return _instance;
             }
         }
 
@@ -90,20 +91,20 @@ namespace Pixelaria.Filters
         /// </summary>
         private void InitList()
         {
-            filterItems = new List<FilterItem>();
-            filterPresets = new List<FilterPreset>();
+            _filterItems = new List<FilterItem>();
+            _filterPresets = new List<FilterPreset>();
 
-            RegisterFilter("Transparency", Pixelaria.Properties.Resources.filter_transparency_icon, typeof(TransparencyFilter), typeof(TransparencyControl));
-            RegisterFilter("Scale", Pixelaria.Properties.Resources.filter_scale_icon, typeof(ScaleFilter), typeof(ScaleControl));
-            RegisterFilter("Offset", Pixelaria.Properties.Resources.filter_offset_icon, typeof(OffsetFilter), typeof(OffsetControl));
-            RegisterFilter("Fade Color", Pixelaria.Properties.Resources.filter_fade_icon, typeof(FadeFilter), typeof(FadeControl));
-            RegisterFilter("Rotation", Pixelaria.Properties.Resources.filter_rotation_icon, typeof(RotationFilter), typeof(RotationControl));
+            RegisterFilter("Transparency", Properties.Resources.filter_transparency_icon, typeof(TransparencyFilter), typeof(TransparencyControl));
+            RegisterFilter("Scale", Properties.Resources.filter_scale_icon, typeof(ScaleFilter), typeof(ScaleControl));
+            RegisterFilter("Offset", Properties.Resources.filter_offset_icon, typeof(OffsetFilter), typeof(OffsetControl));
+            RegisterFilter("Fade Color", Properties.Resources.filter_fade_icon, typeof(FadeFilter), typeof(FadeControl));
+            RegisterFilter("Rotation", Properties.Resources.filter_rotation_icon, typeof(RotationFilter), typeof(RotationControl));
 
-            RegisterFilter("Hue", Pixelaria.Properties.Resources.filter_hue, typeof(HueFilter), typeof(HueControl));
-            RegisterFilter("Saturation", Pixelaria.Properties.Resources.filter_saturation, typeof(SaturationFilter), typeof(SaturationControl));
-            RegisterFilter("Lightness", Pixelaria.Properties.Resources.filter_lightness, typeof(LightnessFilter), typeof(LightnessControl));
+            RegisterFilter("Hue", Properties.Resources.filter_hue, typeof(HueFilter), typeof(HueControl));
+            RegisterFilter("Saturation", Properties.Resources.filter_saturation, typeof(SaturationFilter), typeof(SaturationControl));
+            RegisterFilter("Lightness", Properties.Resources.filter_lightness, typeof(LightnessFilter), typeof(LightnessControl));
 
-            RegisterFilter("Stroke", Pixelaria.Properties.Resources.filter_stroke, typeof(StrokeFilter), typeof(StrokeControl));
+            RegisterFilter("Stroke", Properties.Resources.filter_stroke, typeof(StrokeFilter), typeof(StrokeControl));
         }
 
         /// <summary>
@@ -115,8 +116,8 @@ namespace Pixelaria.Filters
         /// <param name="filterControlType">The type to use when creating an instance of the filter's control</param>
         public void RegisterFilter(string filterName, Image filterIcon, Type filterType, Type filterControlType)
         {
-            FilterItem item = new FilterItem() { FilterName = filterName, FilterIcon = filterIcon, FilterType = filterType, FilterControlType = filterControlType };
-            filterItems.Add(item);
+            FilterItem item = new FilterItem { FilterName = filterName, FilterIcon = filterIcon, FilterType = filterType, FilterControlType = filterControlType };
+            _filterItems.Add(item);
         }
 
         /// <summary>
@@ -128,11 +129,15 @@ namespace Pixelaria.Filters
         {
             IFilter filter = null;
 
-            foreach (FilterItem item in filterItems)
+            foreach (FilterItem item in _filterItems)
             {
                 if (item.FilterName == filterName)
                 {
-                    filter = item.FilterType.GetConstructor(Type.EmptyTypes).Invoke(null) as IFilter;
+                    var constructorInfo = item.FilterType.GetConstructor(Type.EmptyTypes);
+
+                    if (constructorInfo != null)
+                        filter = constructorInfo.Invoke(null) as IFilter;
+
                     break;
                 }
             }
@@ -149,11 +154,14 @@ namespace Pixelaria.Filters
         {
             FilterControl filterControl = null;
 
-            foreach (FilterItem item in filterItems)
+            foreach (FilterItem item in _filterItems)
             {
                 if (item.FilterName == filterName)
                 {
-                    filterControl = item.FilterControlType.GetConstructor(Type.EmptyTypes).Invoke(null) as FilterControl;
+                    var constructorInfo = item.FilterControlType.GetConstructor(Type.EmptyTypes);
+                    if (constructorInfo != null)
+                        filterControl = constructorInfo.Invoke(null) as FilterControl;
+
                     break;
                 }
             }
@@ -170,16 +178,16 @@ namespace Pixelaria.Filters
         public void RecordFilterPreset(string name, IFilter[] filters)
         {
             // Search for a filter preset with the given name
-            for (int i = 0; i < filterPresets.Count; i++)
+            for (int i = 0; i < _filterPresets.Count; i++)
             {
-                if (filterPresets[i].Name == name)
+                if (_filterPresets[i].Name == name)
                 {
-                    filterPresets[i] = new FilterPreset(name, filters);
+                    _filterPresets[i] = new FilterPreset(name, filters);
                     return;
                 }
             }
 
-            filterPresets.Add(new FilterPreset(name, filters));
+            _filterPresets.Add(new FilterPreset(name, filters));
 
             // Save automatically after each Record call
             SaveFilterPresets();
@@ -192,11 +200,11 @@ namespace Pixelaria.Filters
         /// <param name="name">The name of the FilterPreset to remove</param>
         public void RemoveFilterPresetByName(string name)
         {
-            foreach (FilterPreset preset in filterPresets)
+            foreach (FilterPreset preset in _filterPresets)
             {
                 if (preset.Name == name)
                 {
-                    filterPresets.Remove(preset);
+                    _filterPresets.Remove(preset);
 
                     SaveFilterPresets();
 
@@ -213,13 +221,7 @@ namespace Pixelaria.Filters
         /// <returns>A FilterPreset stored on this FilterStore that matches the given name. If no FilterPreset object is found, null is returned instead</returns>
         public FilterPreset GetFilterPresetByName(string name)
         {
-            foreach (FilterPreset preset in filterPresets)
-            {
-                if (preset.Name == name)
-                    return preset;
-            }
-
-            return null;
+            return _filterPresets.FirstOrDefault(preset => preset.Name == name);
         }
 
         /// <summary>
@@ -229,7 +231,8 @@ namespace Pixelaria.Filters
         /// <returns>An image, binded to the given filter name</returns>
         public Image GetIconForFilter(string name)
         {
-            foreach (FilterItem item in filterItems)
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (FilterItem item in _filterItems)
             {
                 if (item.FilterName == name)
                     return item.FilterIcon;
@@ -244,11 +247,11 @@ namespace Pixelaria.Filters
         /// <returns>An array of all the filter display names of the program</returns>
         private string[] GetFilterList()
         {
-            string[] filterNames = new string[filterItems.Count];
+            string[] filterNames = new string[_filterItems.Count];
 
-            for (int i = 0; i < filterItems.Count; i++)
+            for (int i = 0; i < _filterItems.Count; i++)
             {
-                filterNames[i] = filterItems[i].FilterName;
+                filterNames[i] = _filterItems[i].FilterName;
             }
 
             return filterNames;
@@ -260,11 +263,11 @@ namespace Pixelaria.Filters
         /// <returns>An array of all the filter icons of the program</returns>
         private Image[] GetFilterIconList()
         {
-            Image[] filterIcons = new Image[filterItems.Count];
+            Image[] filterIcons = new Image[_filterItems.Count];
 
-            for (int i = 0; i < filterItems.Count; i++)
+            for (int i = 0; i < _filterItems.Count; i++)
             {
-                filterIcons[i] = filterItems[i].FilterIcon;
+                filterIcons[i] = _filterItems[i].FilterIcon;
             }
 
             return filterIcons;
@@ -281,9 +284,9 @@ namespace Pixelaria.Filters
             {
                 BinaryWriter writer = new BinaryWriter(stream);
 
-                writer.Write(filterPresets.Count);
+                writer.Write(_filterPresets.Count);
 
-                foreach (FilterPreset preset in filterPresets)
+                foreach (FilterPreset preset in _filterPresets)
                 {
                     preset.SaveToStream(stream);
                 }
@@ -295,7 +298,7 @@ namespace Pixelaria.Filters
         /// </summary>
         private void LoadFilterPresets()
         {
-            filterPresets.Clear();
+            _filterPresets.Clear();
 
             string savePath = Path.GetDirectoryName(Application.ExecutablePath) + "\\filterpresets.bin";
 
@@ -311,7 +314,7 @@ namespace Pixelaria.Filters
 
                 for (int i = 0; i < count; i++)
                 {
-                    filterPresets.Add(FilterPreset.FromStream(stream));
+                    _filterPresets.Add(FilterPreset.FromStream(stream));
                 }
             }
         }
@@ -319,7 +322,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// The singleton instance for the main FilterStore
         /// </summary>
-        static FilterStore instance;
+        static FilterStore _instance;
 
         /// <summary>
         /// Provides a unified structure to store information about a filter
@@ -357,7 +360,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// The internal array of filter objects that compose this filter preset
         /// </summary>
-        IFilter[] filters;
+        IFilter[] _filters;
 
         /// <summary>
         /// Gets or sets the display name for this FilterPreset
@@ -380,8 +383,8 @@ namespace Pixelaria.Filters
         /// <param name="filters">An array of IFilter objects to utilize as a preset</param>
         public FilterPreset(string name, IFilter[] filters)
         {
-            this.Name = name;
-            this.filters = filters;
+            Name = name;
+            _filters = filters;
         }
 
         /// <summary>
@@ -390,12 +393,12 @@ namespace Pixelaria.Filters
         /// <returns>An array of filter controls based on the data stored on this FilterPreset</returns>
         public FilterControl[] MakeFilterControls()
         {
-            FilterControl[] filterControls = new FilterControl[filters.Length];
+            FilterControl[] filterControls = new FilterControl[_filters.Length];
 
-            for(int i = 0; i < filters.Length; i++)
+            for(int i = 0; i < _filters.Length; i++)
             {
-                filterControls[i] = FilterStore.Instance.CreateFilterControl(filters[i].Name);
-                filterControls[i].SetFilter(filters[i]);
+                filterControls[i] = FilterStore.Instance.CreateFilterControl(_filters[i].Name);
+                filterControls[i].SetFilter(_filters[i]);
             }
 
             return filterControls;
@@ -411,9 +414,9 @@ namespace Pixelaria.Filters
 
             writer.Write(Name);
 
-            writer.Write(filters.Length);
+            writer.Write(_filters.Length);
 
-            foreach (IFilter filter in filters)
+            foreach (IFilter filter in _filters)
             {
                 writer.Write(filter.Name);
                 filter.SaveToStream(stream);
@@ -432,12 +435,12 @@ namespace Pixelaria.Filters
 
             int count = reader.ReadInt32();
 
-            filters = new IFilter[count];
+            _filters = new IFilter[count];
 
             for (int i = 0; i < count; i++)
             {
-                filters[i] = FilterStore.Instance.CreateFilter(reader.ReadString());
-                filters[i].LoadFromStream(stream);
+                _filters[i] = FilterStore.Instance.CreateFilter(reader.ReadString());
+                _filters[i].LoadFromStream(stream);
             }
         }
 

@@ -20,11 +20,10 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-
-using Pixelaria.Utils;
 
 namespace Pixelaria.Filters
 {
@@ -37,7 +36,7 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return (Rotation % 360) != 0; } }
+        public bool Modifying { get { return Math.Abs((Rotation % 360)) > float.Epsilon; } }
 
         /// <summary>
         /// Gets the unique display name of this filter
@@ -65,10 +64,10 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this RotationFilter to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
-            if (Rotation % 360 == 0)
+            if (!Modifying)
                 return;
 
-            Bitmap bit = bitmap.Clone() as Bitmap;
+            Bitmap bit = (Bitmap)bitmap.Clone();
 
             Point pivot = new Point();
 
@@ -78,7 +77,7 @@ namespace Pixelaria.Filters
 
             if (RotateAroundCenter)
             {
-                gfx.TranslateTransform(bitmap.Width / 2, bitmap.Height / 2);
+                gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
             }
 
             gfx.InterpolationMode = (PixelQuality ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic);
@@ -87,7 +86,7 @@ namespace Pixelaria.Filters
 
             if (RotateAroundCenter)
             {
-                gfx.TranslateTransform(-bitmap.Width / 2, -bitmap.Height / 2);
+                gfx.TranslateTransform(-bitmap.Width / 2.0f, -bitmap.Height / 2.0f);
             }
 
             gfx.DrawImage(bit, pivot);

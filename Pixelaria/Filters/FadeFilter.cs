@@ -21,14 +21,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text;
-
-using Pixelaria.Utils;
 
 namespace Pixelaria.Filters
 {
@@ -93,6 +88,7 @@ namespace Pixelaria.Filters
             // Lock the bitmap
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
+            // ReSharper disable once InconsistentNaming
             byte* scan0b = (byte*)data.Scan0;
             int count = bitmap.Width * bitmap.Height;
 
@@ -104,7 +100,7 @@ namespace Pixelaria.Filters
             int fr = (int)(FadeColor.R * factor);
             int fg = (int)(FadeColor.G * factor);
             int fb = (int)(FadeColor.B * factor);
-            if (factor == 1)
+            if (Math.Abs(factor - 1) < float.Epsilon)
             {
                 // Apply the fade
                 while (count-- > 0)
@@ -148,7 +144,7 @@ namespace Pixelaria.Filters
         public void SaveToStream(Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
-
+            
             writer.Write(FadeColor.ToArgb());
             writer.Write(FadeFactor);
             writer.Write(FadeAlpha);

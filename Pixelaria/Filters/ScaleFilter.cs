@@ -36,7 +36,7 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return ScaleX != 1 || ScaleY != 1; } }
+        public bool Modifying { get { return Math.Abs(ScaleX - 1) > float.Epsilon || Math.Abs(ScaleY - 1) > float.Epsilon; } }
 
         /// <summary>
         /// Gets the unique display name of this filter
@@ -78,10 +78,10 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
-            if (ScaleX == 1 && ScaleY == 1)
+            if (!Modifying)
                 return;
 
-            Bitmap bit = bitmap.Clone() as Bitmap;
+            Bitmap bit = (Bitmap)bitmap.Clone();
 
             Graphics g = Graphics.FromImage(bitmap);
 
@@ -103,8 +103,8 @@ namespace Pixelaria.Filters
 
             if (Centered)
             {
-                rec.X = (float)Math.Round(bitmap.Width / 2 - rec.Width / 2);
-                rec.Y = (float)Math.Round(bitmap.Height / 2 - rec.Height / 2);
+                rec.X = (float)Math.Round(bitmap.Width / 2.0f - rec.Width / 2);
+                rec.Y = (float)Math.Round(bitmap.Height / 2.0f - rec.Height / 2);
             }
 
             g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);

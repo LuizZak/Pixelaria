@@ -21,12 +21,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 using Pixelaria.Utils;
 
@@ -73,10 +70,10 @@ namespace Pixelaria.Filters
         /// </summary>
         public StrokeFilter()
         {
-            this.StrokeColor = Color.Red;
-            this.StrokeRadius = 1;
-            this.KnockoutImage = false;
-            this.Smooth = false;
+            StrokeColor = Color.Red;
+            StrokeRadius = 1;
+            KnockoutImage = false;
+            Smooth = false;
         }
 
         /// <summary>
@@ -114,9 +111,12 @@ namespace Pixelaria.Filters
                     if (a == 0)
                         continue;
 
-                    for (int sy = Math.Max(y - strokeRadius, 0); sy <= Math.Min(y + strokeRadius, h - 1); sy++)
+                    int minY = Math.Max(y - strokeRadius, 0), maxY = Math.Min(y + strokeRadius, h - 1);
+                    int minX = Math.Max(x - strokeRadius, 0), maxX = Math.Min(x + strokeRadius, w - 1);
+
+                    for (int sy = minY; sy <= maxY; sy++)
                     {
-                        for (int sx = Math.Max(x - strokeRadius, 0); sx <= Math.Min(x + strokeRadius, w - 1); sx++)
+                        for (int sx = minX; sx <= maxX; sx++)
                         {
                             // Don't apply any stroke on top of fully opaque pixels
                             if ((sx == x && sy == y) || ((fbi.GetPixelInt(sx, sy) >> 24) & 0xFF) == 255)
@@ -129,17 +129,12 @@ namespace Pixelaria.Filters
                             if (dis > strokeRadius)
                                 continue;
 
-                            dx = 1 - dx / strokeRadius;
-                            dy = 1 - dy / strokeRadius;
-
-                            dx = Math.Max(0, Math.Min(1, dx));
-
-                            int outA = 255;
+                            const int outA = 255;
                             int outC = (outA << 24) + (strokeColorInt & 0xFFFFFF);
 
                             if(Smooth)
-					        {
-						        float oldA = ((fbo.GetPixelInt(sx, sy) >> 24) & 0xFF) / 255.0f;
+                            {
+                                float oldA = ((fbo.GetPixelInt(sx, sy) >> 24) & 0xFF) / 255.0f;
 
                                 outC = (Math.Min(255, (int)((oldA + (1 - (dis) / strokeRadius)) * 0xFF)) << 24) + (strokeColorInt & 0xFFFFFF);
 					        }

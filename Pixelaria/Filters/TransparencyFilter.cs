@@ -21,11 +21,8 @@
 */
 
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-
-using Pixelaria.Utils;
 
 namespace Pixelaria.Filters
 {
@@ -38,7 +35,7 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return Transparency != 1; } }
+        public bool Modifying { get { return Transparency < 1; } }
 
         /// <summary>
         /// Gets the unique display name of this filter
@@ -69,10 +66,7 @@ namespace Pixelaria.Filters
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
-            if (Transparency >= 1)
-                return;
-
-            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+            if (!Modifying || bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
             if (Transparency <= 0)
@@ -80,6 +74,7 @@ namespace Pixelaria.Filters
 
             BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
+            // ReSharper disable once InconsistentNaming
             byte* scan0b = (byte*)data.Scan0;
 
             const int loopUnroll = 8;

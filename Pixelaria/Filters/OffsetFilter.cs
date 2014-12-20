@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.IO;
 
@@ -34,7 +35,7 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return OffsetX != 0 || OffsetY != 0; } }
+        public bool Modifying { get { return Math.Abs(OffsetX) > float.Epsilon || Math.Abs(OffsetY) > float.Epsilon; } }
 
         /// <summary>
         /// Gets the unique display name of this filter
@@ -67,10 +68,10 @@ namespace Pixelaria.Filters
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
-            if (OffsetX == 0 && OffsetY == 0)
+            if (!Modifying)
                 return;
 
-            Bitmap bit = bitmap.Clone() as Bitmap;
+            Bitmap bit = (Bitmap)bitmap.Clone();
 
             Graphics g = Graphics.FromImage(bitmap);
 
@@ -84,7 +85,7 @@ namespace Pixelaria.Filters
             g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
 
             // Draw wrap-arounds
-            if (WrapHorizontal && OffsetX != 0)
+            if (WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon)
             {
                 RectangleF wrapRec = rec;
 
@@ -100,7 +101,7 @@ namespace Pixelaria.Filters
                 g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
             }
 
-            if (WrapVertical && OffsetY != 0)
+            if (WrapVertical && Math.Abs(OffsetY) > float.Epsilon)
             {
                 RectangleF wrapRec = rec;
 
@@ -117,7 +118,7 @@ namespace Pixelaria.Filters
             }
 
             // Diagonal wrap-arounds
-            if (WrapVertical && WrapHorizontal && OffsetX != 0 && OffsetY != 0)
+            if (WrapVertical && WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon && Math.Abs(OffsetY) > float.Epsilon)
             {
                 RectangleF wrapRec = rec;
 
