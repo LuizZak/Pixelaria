@@ -331,7 +331,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             if (!mouseDown)
             {
-                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription, true);
+                currentUndoTask = new PerPixelUndoTask(pictureBox, undoDecription, true, true);
 
                 // Mouse down
                 if (e.Button == MouseButtons.Left)
@@ -572,8 +572,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 Color c = Color.FromArgb(penColor.ToArgb() | (0xFF << 24));
                 bitmap.SetPixel(p.X, p.Y, c);
 
-                Color backPixel = oldColor;
-                newColor = penColor.Blend(backPixel);
+                newColor = penColor.Blend(oldColor);
             }
             else
             {

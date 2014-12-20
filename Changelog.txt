@@ -26,6 +26,7 @@ Legend:
   * Now an undo task for a selection pasting is only performed when the selection is effectively released and the image drawn on the canvas.
   * Fixed pencil operation being really slow on high-resolution images.
   * Fixed pasting something and deselecting right away undoing the paste operation.
+  * Fixed drawing with a Replace blend mode with the pencil not undoing correctly sometimes.
 
 . Now the main window title bar displays the path of the file currently open
 
