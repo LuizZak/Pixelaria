@@ -181,7 +181,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <summary>
             /// The target InternalPictureBox to perform the undo operation on
             /// </summary>
-            private ImageEditPanel.InternalPictureBox _pictureBox;
+            private PictureBox _pictureBox;
 
             /// <summary>
             /// The string that describes this PerPixelUndoTask
@@ -191,19 +191,19 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// <summary>
             /// Initializes a new instance of the PixelUndoTask
             /// </summary>
-            /// <param name="targetPictureBox">The target for the undo operation</param>
+            /// <param name="pictureBox">The target for the undo operation</param>
             /// <param name="description">A description to use for this UndoTask</param>
             /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
             /// <param name="keepReplacedOriginals">Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.</param>
-            public PerPixelUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, string description, bool indexPixels = false, bool keepReplacedOriginals = false)
+            public PerPixelUndoTask(PictureBox pictureBox, string description, bool indexPixels = false, bool keepReplacedOriginals = false)
             {
                 _pixelList = new List<PixelUndo>();
-                _pictureBox = targetPictureBox;
+                _pictureBox = pictureBox;
                 _description = description;
                 _indexPixels = indexPixels;
                 _keepReplacedOriginals = keepReplacedOriginals;
 
-                _width = targetPictureBox.Bitmap.Width;
+                _width = pictureBox.Image.Width;
             }
 
             /// <summary>
@@ -461,7 +461,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// </summary>
             public void Undo()
             {
-                using (FastBitmap bitmap = _pictureBox.Bitmap.FastLock())
+                using (FastBitmap bitmap = (_pictureBox.Image as Bitmap).FastLock())
                 {
                     int c = _pixelList.Count;
                     for (int i = 0; i < c; i++)
@@ -479,7 +479,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             /// </summary>
             public void Redo()
             {
-                using (FastBitmap bitmap = _pictureBox.Bitmap.FastLock())
+                using (FastBitmap bitmap = (_pictureBox.Image as Bitmap).FastLock())
                 {
                     int c = _pixelList.Count;
                     for (int i = 0; i < c; i++)
