@@ -36,22 +36,17 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The items currently being dragged
         /// </summary>
-        private List<ListViewItem> draggedItems;
+        private List<ListViewItem> _draggedItems;
 
         /// <summary>
         /// The ListViewItem currently being hovered with the currently dragged item
         /// </summary>
-        private ListViewItem tempDropItem;
-
-        /// <summary>
-        /// Image list used for the drag operation
-        /// </summary>
-        private ImageList imageListDrag;
+        private ListViewItem _tempDropItem;
 
         /// <summary>
         /// Timer for scrolling
         /// </summary>
-        private Timer timer;
+        private readonly Timer _timer;
 
         /// <summary>
         /// Event handler fired when a drag operation has started or ended
@@ -71,15 +66,19 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public RearrangeableListView()
         {
-            imageListDrag = new ImageList();
-            timer = new Timer();
-            timer.Interval = 1;
-            timer.Tick += new EventHandler(timer_Tick);
+            _timer = new Timer();
+            _timer.Interval = 1;
+            _timer.Tick += timer_Tick;
 
-            this.AllowDrop = true;
+            ShowGroups = false;
+            InsertionMark.AppearsAfterItem = true;
+        }
 
-            this.ShowGroups = false;
-            this.InsertionMark.AppearsAfterItem = true;
+        protected override void OnCreateControl()
+        {
+            base.OnCreateControl();
+
+            AllowDrop = true;
         }
 
         // 
@@ -87,7 +86,7 @@ namespace Pixelaria.Views.Controls
         // 
         private void timer_Tick(object sender, EventArgs e)
         {
-            this.InsertionMark.Index = -1;
+            InsertionMark.Index = -1;
             ((Timer)sender).Stop();
         }
 
@@ -100,14 +99,14 @@ namespace Pixelaria.Views.Controls
 
             base.OnItemDrag(e);
 
-            draggedItems = new List<ListViewItem>();
+            _draggedItems = new List<ListViewItem>();
 
             foreach (ListViewItem item in SelectedItems)
             {
-                draggedItems.Add(item);
+                _draggedItems.Add(item);
             }
 
-            ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragStart, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, draggedItems, null);
+            ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragStart, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, null);
 
             if (DragOperation != null)
             {
@@ -120,9 +119,9 @@ namespace Pixelaria.Views.Controls
                 }
             }
 
-            this.DoDragDrop(draggedItems, DragDropEffects.Move);
+            DoDragDrop(_draggedItems, DragDropEffects.Move);
 
-            this.InsertionMark.Index = 0;
+            InsertionMark.Index = 0;
         }
 
         // 
@@ -135,7 +134,7 @@ namespace Pixelaria.Views.Controls
             DragHelper.ImageList_DragEnter(Handle, drgevent.X - Left, drgevent.Y - Top);
 
             // Enable timer for scrolling dragged item
-            this.timer.Enabled = true;
+            _timer.Enabled = true;
 
             drgevent.Effect = DragDropEffects.Move;
         }
@@ -148,11 +147,11 @@ namespace Pixelaria.Views.Controls
             base.OnDragLeave(e);
 
             // Disable timer for scrolling dragged item
-            this.timer.Enabled = false;
+            _timer.Enabled = false;
 
-            this.InsertionMark.Index = -1;
+            InsertionMark.Index = -1;
 
-            timer.Start();
+            _timer.Start();
         }
 
         // 
@@ -163,21 +162,21 @@ namespace Pixelaria.Views.Controls
             base.OnDragOver(drgevent);
 
             // Cancel if no node is being dragged
-            if (draggedItems == null)
+            if (_draggedItems == null)
                 return;
 
             // Get actual drop item
             Point controlP = PointToClient(new Point(drgevent.X, drgevent.Y));
-            int index = this.InsertionMark.NearestIndex(controlP);
+            int index = InsertionMark.NearestIndex(controlP);
 
             if (index == -1)
                 return;
 
             ListViewItem dropItem = Items[index];//GetItemAt(controlP.X, controlP.Y);
 
-            if (dropItem != tempDropItem)
+            if (dropItem != _tempDropItem)
             {
-                ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragOver, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, draggedItems, dropItem);
+                ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragOver, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, dropItem);
 
                 if (DragOperation != null)
                 {
@@ -204,10 +203,10 @@ namespace Pixelaria.Views.Controls
                     drgevent.Effect = DragDropEffects.None;
                 }
 
-                tempDropItem = dropItem;
+                _tempDropItem = dropItem;
             }
 
-            this.InsertionMark.Index = index;
+            InsertionMark.Index = index;
         }
 
         // 
@@ -237,9 +236,9 @@ namespace Pixelaria.Views.Controls
             base.OnDragDrop(drgevent);
 
             // Cancel if no node is being dragged
-            if (draggedItems == null)
+            if (_draggedItems == null)
             {
-                timer.Start();
+                _timer.Start();
 
                 return;
             }
@@ -247,30 +246,29 @@ namespace Pixelaria.Views.Controls
             if (drgevent.Effect == DragDropEffects.None)
             {
                 // Set drag node and temp drop node to null
-                draggedItems = null;
-                tempDropItem = null;
+                _draggedItems = null;
+                _tempDropItem = null;
 
                 // Disable scroll timer
-                this.timer.Enabled = false;
+                _timer.Enabled = false;
 
-                timer.Start();
+                _timer.Start();
 
                 return;
             }
 
-            if (this.InsertionMark.Index == -1)
+            if (InsertionMark.Index == -1)
             {
-                timer.Start();
+                _timer.Start();
 
                 return;
             }
 
             // Get drop item
-            Point controlP = PointToClient(new Point(drgevent.X, drgevent.Y));
-            ListViewItem dropItem = Items[this.InsertionMark.Index];
+            ListViewItem dropItem = Items[InsertionMark.Index];
 
             // Launch the feedback for the drag operation
-            ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragEnd, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, draggedItems, dropItem);
+            ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragEnd, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, dropItem);
 
             if (DragOperation != null)
             {
@@ -279,23 +277,23 @@ namespace Pixelaria.Views.Controls
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
                 {
-                    timer.Start();
+                    _timer.Start();
 
                     return;
                 }
             }
 
             // If drop node isn't equal to drag node, add drag node as child of drop node
-            if (draggedItems[0] != dropItem)
+            if (_draggedItems[0] != dropItem)
             {
                 int index = InsertionMark.Index;
 
-                this.SelectedItems.Clear();
+                SelectedItems.Clear();
 
-                foreach (ListViewItem item in draggedItems)
+                foreach (ListViewItem item in _draggedItems)
                 {
-                    this.Items.Remove(item);
-                    this.Items.Add(item);
+                    Items.Remove(item);
+                    Items.Add(item);
 
                     item.Selected = true;
                 }
@@ -303,16 +301,16 @@ namespace Pixelaria.Views.Controls
                 // Deal with a bug from the framework that adds all items to the end even though you insert
                 // them at other indexes by also pushing all items after the current selection to the end
 
-                for(int i = index; i < Items.Count - this.SelectedItems.Count; i++)
+                for(int i = index; i < Items.Count - SelectedItems.Count; i++)
                 {
                     ListViewItem item = Items[index];
 
-                    this.Items.Remove(item);
-                    this.Items.Add(item);
+                    Items.Remove(item);
+                    Items.Add(item);
                 }
 
                 // Launch the feedback for the drag operation
-                evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.AfterDragEnd, evArgs.EventBehavior, draggedItems, dropItem);
+                evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.AfterDragEnd, evArgs.EventBehavior, _draggedItems, dropItem);
 
                 if (DragOperation != null)
                 {
@@ -320,14 +318,14 @@ namespace Pixelaria.Views.Controls
                 }
 
                 // Set drag node and temp drop node to null
-                draggedItems = null;
-                tempDropItem = null;
+                _draggedItems = null;
+                _tempDropItem = null;
 
                 // Disable scroll timer
-                this.timer.Enabled = false;
+                _timer.Enabled = false;
             }
 
-            timer.Start();
+            _timer.Start();
         }
     }
 
@@ -346,79 +344,64 @@ namespace Pixelaria.Views.Controls
         public ListViewItemDragEventArgs(ListViewItemDragEventType eventType, ListViewItemDragEventBehavior eventBehavior, List<ListViewItem> draggedItems, ListViewItem targetItem)
         {
             // The Cancel and Allow flags are set by the user and start with their default values
-            this.cancel = false;
-            this.allow = true;
+            Cancel = false;
+            Allow = true;
 
-            this.eventType = eventType;
-            this.eventBehavior = eventBehavior;
-            this.draggedItems = draggedItems;
-            this.targetItem = (eventType == ListViewItemDragEventType.DragStart ? null : targetItem);
+            _eventType = eventType;
+            EventBehavior = eventBehavior;
+            _draggedItems = draggedItems;
+            _targetItem = (eventType == ListViewItemDragEventType.DragStart ? null : targetItem);
         }
 
         /// <summary>
         /// The type of this event
         /// </summary>
-        private ListViewItemDragEventType eventType;
-
-        /// <summary>
-        /// The behavior of this event
-        /// </summary>
-        private ListViewItemDragEventBehavior eventBehavior;
+        private readonly ListViewItemDragEventType _eventType;
 
         /// <summary>
         /// The items being dragged
         /// </summary>
-        private List<ListViewItem> draggedItems;
+        private readonly List<ListViewItem> _draggedItems;
 
         /// <summary>
         /// The item that the dragged item was dropped at.
         /// If the EventType is set to ListViewItemDragEventType.DragEnd, this
         /// value is null
         /// </summary>
-        private ListViewItem targetItem;
-
-        /// <summary>
-        /// Value that specifies whether the drag operation is to be canceled
-        /// </summary>
-        private bool cancel;
-
-        /// <summary>
-        /// Value that specifies whether the drag operation is currently set to be allowed
-        /// </summary>
-        private bool allow;
+        private readonly ListViewItem _targetItem;
 
         /// <summary>
         /// Gets the type of this event
         /// </summary>
-        public ListViewItemDragEventType EventType { get { return eventType; } }
+        public ListViewItemDragEventType EventType { get { return _eventType; } }
 
         /// <summary>
         /// Gets or sets the behavior of this event.
         /// This value will only be used when the EventType is TreeViewNodeDragEventType.DragEnd
         /// </summary>
-        public ListViewItemDragEventBehavior EventBehavior { get { return eventBehavior; } set { eventBehavior = value; } }
+        public ListViewItemDragEventBehavior EventBehavior { get; set; }
 
         /// <summary>
         /// Gets the items being dragged
         /// </summary>
-        public List<ListViewItem> DraggedItems { get { return draggedItems; } }
+        public List<ListViewItem> DraggedItems { get { return _draggedItems; } }
 
         /// <summary>
         /// Gets the item that the dragged node was dropped at.
         /// If the EventType is set to TreeViewNodeDragEventType.DragEnd, this
         /// value is null
         /// </summary>
-        public ListViewItem TargetItem { get { return targetItem; } }
+        public ListViewItem TargetItem { get { return _targetItem; } }
 
         /// <summary>
         /// Gets or sets a value that specifies whether the drag operation is to be canceled
         /// </summary>
-        public bool Cancel { get { return cancel; } set { cancel = value; } }
+        public bool Cancel { get; set; }
 
         /// <summary>
         /// Gets or sets a value that specifies whether the drag operation is currently set to be allowed
         /// </summary>
-        public bool Allow { get { return allow; } set { allow = value; } }
+        public bool Allow { get; set; }
     }
 
     /// <summary>

@@ -289,6 +289,7 @@
     <Compile Include="Views\Controls\PaintOperations\Interfaces\ISizedPaintOperation.cs" />
     <Compile Include="Views\Controls\PaintOperations\Interfaces\IPaintOperation.cs" />
     <Compile Include="Views\Controls\PaintOperations\PencilPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintOperations\PickerPaintOperation.cs" />
     <Compile Include="Views\Controls\ProjectTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
