@@ -32,7 +32,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Describes an animation frame
     /// </summary>
-    public class Frame : IDisposable, IDObject
+    public class Frame : IFrame
     {
         /// <summary>
         /// The width of this frame
