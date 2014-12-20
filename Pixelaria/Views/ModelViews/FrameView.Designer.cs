@@ -313,7 +313,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_framePreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pnl_framePreview.Controls.Add(this.zpb_framePreview);
-            this.pnl_framePreview.Location = new System.Drawing.Point(345, 49);
+            this.pnl_framePreview.Location = new System.Drawing.Point(397, 49);
             this.pnl_framePreview.Name = "pnl_framePreview";
             this.pnl_framePreview.Size = new System.Drawing.Size(249, 318);
             this.pnl_framePreview.TabIndex = 7;

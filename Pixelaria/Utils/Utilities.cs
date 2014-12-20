@@ -395,7 +395,7 @@ namespace Pixelaria.Utils
         {
             return new List<Bitmap>(
                                 from frame in frameList
-                                select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
+                                select (clone ? frame.GetComposedBitmap().DeepClone() : frame.GetComposedBitmap())
                                 );
         }
 

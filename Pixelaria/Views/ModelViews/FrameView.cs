@@ -610,7 +610,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (registerUndo)
             {
-                bud.RegisterNewBitmap(iepb_frame.PictureBox.Bitmap);
+                bud.SetNewBitmap(iepb_frame.PictureBox.Bitmap);
             }
 
             iepb_frame.PictureBox.Invalidate();
@@ -731,9 +731,11 @@ namespace Pixelaria.Views.ModelViews
             // Create and add all the new filter items
             for (int i = 0; i < iconList.Length; i++)
             {
-                ToolStripMenuItem tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
+                ToolStripMenuItem tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
+                {
+                    Tag = filterNames[i]
+                };
 
-                tsmFilterItem.Tag = filterNames[i];
                 tsmFilterItem.Click += _filterClickEventHandler;
 
                 tsm_filters.DropDownItems.Add(tsmFilterItem);
@@ -753,19 +755,19 @@ namespace Pixelaria.Views.ModelViews
 
             if (presets.Length == 0)
             {
-                ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty");
-
-                tsmEmptyItem.Enabled = false;
+                ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
 
                 tsm_filterPresets.DropDownItems.Add(tsmEmptyItem);
             }
 
             // Create and add all the new filter items
-            for (int i = 0; i < presets.Length; i++)
+            foreach (FilterPreset preset in presets)
             {
-                ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(presets[i].Name, tsm_filterPresets.Image);
+                ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
+                {
+                    Tag = preset.Name
+                };
 
-                tsmPresetItem.Tag = presets[i].Name;
                 tsmPresetItem.Click += _presetClickEventHandler;
 
                 tsm_filterPresets.DropDownItems.Add(tsmPresetItem);
@@ -830,22 +832,23 @@ namespace Pixelaria.Views.ModelViews
                     {
                         SelectionPaintOperation op = paintOperation;
 
-                        if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Moved)
+                        switch (op.OperationType)
                         {
-                            Rectangle area = op.SelectionArea;
-                            Rectangle startArea = op.SelectionStartArea;
+                            case SelectionPaintOperation.SelectionOperationType.Moved:
+                                Rectangle area = op.SelectionArea;
+                                Rectangle startArea = op.SelectionStartArea;
 
-                            op.CancelOperation(true, false);
+                                op.CancelOperation(true, false);
 
-                            if (but != null)
-                                but.RegisterNewBitmap(undoTarget);
+                                if (but != null)
+                                    but.SetNewBitmap(undoTarget);
 
-                            op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
-                            op.SelectionArea = area;
-                        }
-                        else if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Paste)
-                        {
-                            registerUndo = false;
+                                op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
+                                op.SelectionArea = area;
+                                break;
+                            case SelectionPaintOperation.SelectionOperationType.Paste:
+                                registerUndo = false;
+                                break;
                         }
 
                         op.ForceApplyChanges = true;
@@ -853,7 +856,7 @@ namespace Pixelaria.Views.ModelViews
                     else
                     {
                         if (but != null)
-                            but.RegisterNewBitmap(undoTarget);
+                            but.SetNewBitmap(undoTarget);
                     }
 
                     if (registerUndo)
