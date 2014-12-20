@@ -142,6 +142,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             }
         }
 
+        #region GetPixel / SetPixel tests
+
         /// <summary>
         /// Tests the behavior of the GetPixel() method by comparing the results from it to the results of the native Bitmap.GetPixel()
         /// </summary>
@@ -230,6 +232,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
                 "Calls to FastBitmap.SetPixel() with an integer overload must be equivalent to calls to Bitmap.SetPixel() with a Color with the same ARGB value as the interger");
         }
 
+        #endregion
+
+        #region CopyPixel tests
+
         /// <summary>
         /// Tests a call to FastBitmap.CopyPixels() with valid provided bitmaps
         /// </summary>
@@ -267,6 +273,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
                 Assert.Fail("Trying to copy two bitmaps of different sizes should not be allowed");
             }
         }
+
+        #endregion
 
         #region CopyRegion Tests
 
@@ -426,6 +434,50 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
         #endregion
 
+        #region SlideBitmap tests
+
+        /// <summary>
+        /// Tests the SliceBitmap by slicing a quarter of a bitmap off
+        /// </summary>
+        [TestMethod]
+        public void TestSliceBitmapSimple()
+        {
+            Rectangle sliceRegion = new Rectangle(0, 0, 32, 32);
+
+            Bitmap originalBitmap = GenerateRandomBitmap(64, 64);
+            Bitmap slicedBitmap = FastBitmap.SliceBitmap(originalBitmap, sliceRegion);
+
+            Rectangle sliceRectangle = Rectangle.Intersect(new Rectangle(Point.Empty, originalBitmap.Size), sliceRegion);
+
+            Assert.AreEqual(new Rectangle(Point.Empty, sliceRectangle.Size),
+                            new Rectangle(Point.Empty, slicedBitmap.Size),
+                            "The sliced bitmap must have the same size as the slice region");
+            AssertCopyRegionEquals(slicedBitmap, originalBitmap,
+                                   new Rectangle(0, 0, sliceRegion.Width, sliceRegion.Height), sliceRegion,
+                                   "The sliced region must match the original bitmap's region");
+        }
+
+        /// <summary>
+        /// Tests the SliceBitmap by slicing the whole bitmap, but with an offset that makes the slicing region clip off from the bitmap
+        /// </summary>
+        [TestMethod]
+        public void TestSliceBitmapClipping()
+        {
+            Rectangle sliceRegion = new Rectangle(32, 32, 64, 64);
+
+            Bitmap originalBitmap = GenerateRandomBitmap(64, 64);
+            Bitmap slicedBitmap = FastBitmap.SliceBitmap(originalBitmap, sliceRegion);
+
+            Rectangle sliceRectangle = Rectangle.Intersect(new Rectangle(Point.Empty, originalBitmap.Size), sliceRegion);
+
+            Assert.AreEqual(new Rectangle(Point.Empty, sliceRectangle.Size),
+                            new Rectangle(Point.Empty, slicedBitmap.Size),
+                            "The sliced bitmap must have the same size as the slice region, after clipping on the original bitmap");
+            AssertCopyRegionEquals(slicedBitmap, originalBitmap, new Rectangle(0, 0, sliceRegion.Width, sliceRegion.Height), sliceRegion);
+        }
+
+        #endregion
+
         /// <summary>
         /// Tests the FastBitmapLocker struct returned by lock calls
         /// </summary>
@@ -490,6 +542,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             }
         }
 
+        #region CopyFromArray tests
+
         [TestMethod]
         public void TestCopyFromArray()
         {
@@ -549,7 +603,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
                     int arrayColor = colors[index];
                     int bitmapColor = bitmap.GetPixel(x, y).ToArgb();
 
-                    if(arrayColor != 0)
+                    if (arrayColor != 0)
                     {
                         Assert.AreEqual(arrayColor, bitmapColor,
                             "After a call to CopyFromArray(_, true), the non-zeroes values provided on the on the array must match the values in the bitmap pixels");
@@ -562,6 +616,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
                 }
             }
         }
+
+        #endregion
 
         #region Exception Tests
 
@@ -699,7 +755,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
 
         [TestMethod]
         [ExpectedException(typeof (ArgumentException),
-            "an ArgumentException exception must be raised when calling CopyFromArray() with an array of colors that does not match the pixel count of the bitmap")]
+            "An ArgumentException exception must be raised when calling CopyFromArray() with an array of colors that does not match the pixel count of the bitmap")]
         public void TestCopyFromArrayMismatchedLengthException()
         {
             Bitmap bitmap = new Bitmap(4, 4);
@@ -719,6 +775,20 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             {
                 fastBitmap.CopyFromArray(colors, true);
             }
+        }
+
+        /// <summary>
+        /// Tests the SliceBitmap by slicing the whole bitmap, but with a slice region that is completely out of the source bitmap
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException),
+            "An ArgumentException must be thrown when trying to slice a bitmap with a region that lies outside of the bitmap's region")]
+        public void TestSliceBitmapOffRegion()
+        {
+            Rectangle sliceRegion = new Rectangle(64, 64, 64, 64);
+
+            Bitmap originalBitmap = GenerateRandomBitmap(64, 64);
+            FastBitmap.SliceBitmap(originalBitmap, sliceRegion);
         }
 
         #endregion

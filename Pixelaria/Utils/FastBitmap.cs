@@ -616,6 +616,35 @@ namespace Pixelaria.Utils
             }
         }
 
+        /// <summary>
+        /// Returns a bitmap that is a slice of the original provided 32bpp Bitmap.
+        /// The region must have a width and a height > 0, and must lie inside the source bitmap's area
+        /// </summary>
+        /// <param name="source">The source bitmap to slice</param>
+        /// <param name="region">The region of the source bitmap to slice</param>
+        /// <returns>A Bitmap that represents the rectangle region slice of the source bitmap</returns>
+        /// <exception cref="ArgumentException">The provided bimap is not 32bpp</exception>
+        /// <exception cref="ArgumentException">The provided region is invalid</exception>
+        public static Bitmap SliceBitmap(Bitmap source, Rectangle region)
+        {
+            if (region.Width <= 0 || region.Height <= 0)
+            {
+                throw new ArgumentException(@"The provided region must have a width and a height > 0", "region");
+            }
+
+            Rectangle sliceRectangle = Rectangle.Intersect(new Rectangle(Point.Empty, source.Size), region);
+
+            if (sliceRectangle.Width <= 0 || sliceRectangle.Height <= 0)
+            {
+                throw new ArgumentException(@"The provided region must not lie outside of the bitmap's region completely", "region");
+            }
+
+            Bitmap slicedBitmap = new Bitmap(sliceRectangle.Width, sliceRectangle.Height);
+            CopyRegion(source, slicedBitmap, sliceRectangle, new Rectangle(0, 0, sliceRectangle.Width, sliceRectangle.Height));
+
+            return slicedBitmap;
+        }
+
         // .NET wrapper to native call of 'memcpy'. Requires Microsoft Visual C++ Runtime installed
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern IntPtr memcpy(IntPtr dest, IntPtr src, ulong count);
@@ -679,6 +708,17 @@ namespace Pixelaria.Utils
             fast.Lock();
 
             return fast;
+        }
+
+        /// <summary>
+        /// Returns a deep clone of this Bitmap object, with all the data copied over.
+        /// After a deep clone, the new bitmap is completely independent from the original
+        /// </summary>
+        /// <param name="bitmap">The bitmap to clone</param>
+        /// <returns>A deep clone of this Bitmap object, with all the data copied over</returns>
+        public static Bitmap DeepClone(this Bitmap bitmap)
+        {
+            return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), bitmap.PixelFormat);
         }
     }
 }
