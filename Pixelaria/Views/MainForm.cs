@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -50,7 +51,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// Event handler for the recent file menu item list click
         /// </summary>
-        private EventHandler _recentFileClick;
+        private readonly EventHandler _recentFileClick;
 
         /// <summary>
         /// The root tree node for the tree view
@@ -207,9 +208,10 @@ namespace Pixelaria.Views
             {
                 TreeNode node = nodeQueue.Dequeue();
 
-                if(node.Tag is Animation)
+                var animation = node.Tag as Animation;
+                if(animation != null)
                 {
-                    Animation tag = node.Tag as Animation;
+                    Animation tag = animation;
 
                     node.ImageKey = node.SelectedImageKey = (tag.Name + tag.ID);
                 }
@@ -243,9 +245,11 @@ namespace Pixelaria.Views
                 if (path == "")
                     continue;
 
-                MenuItem item = new MenuItem((i + 1) + " - " + (path == "" ? "--" : Path.GetFileName(path)));
+                MenuItem item = new MenuItem((i + 1) + " - " + (path == "" ? "--" : Path.GetFileName(path)))
+                {
+                    Tag = i
+                };
 
-                item.Tag = i;
                 item.Click += _recentFileClick;
 
                 mi_recentFiles.MenuItems.Add(item);
@@ -253,8 +257,10 @@ namespace Pixelaria.Views
 
             if (mi_recentFiles.MenuItems.Count == 0)
             {
-                MenuItem item = new MenuItem("No recent files");
-                item.Enabled = false;
+                MenuItem item = new MenuItem("No recent files")
+                {
+                    Enabled = false
+                };
 
                 mi_recentFiles.MenuItems.Add(item);
             }
@@ -330,7 +336,7 @@ namespace Pixelaria.Views
             {
                 var view = curView as AnimationView;
 
-                if (view != null && view.CurrentAnimation == anim)
+                if (view != null && ReferenceEquals(view.CurrentAnimation, anim))
                 {
                     view.Close();
                     break;
@@ -378,7 +384,7 @@ namespace Pixelaria.Views
             }
             else
             {
-                animNode.ImageKey = animNode.SelectedImageKey = "EMPTY";
+                animNode.ImageKey = animNode.SelectedImageKey = @"EMPTY";
             }
 
             UpdateTreeViewIcons();
@@ -395,7 +401,7 @@ namespace Pixelaria.Views
             {
                 var forAnimation = curView as AnimationView;
 
-                if (forAnimation != null && forAnimation.CurrentAnimation == animation)
+                if (forAnimation != null && ReferenceEquals(forAnimation.CurrentAnimation, animation))
                 {
                     forAnimation.BringToFront();
                     forAnimation.Focus();
@@ -403,9 +409,8 @@ namespace Pixelaria.Views
                 }
             }
 
-            AnimationView view = new AnimationView(Controller, animation);
+            AnimationView view = new AnimationView(Controller, animation) { MdiParent = this };
 
-            view.MdiParent = this;
             view.Show();
             view.BringToFront();
 
@@ -456,7 +461,7 @@ namespace Pixelaria.Views
             foreach (Form curView in MdiChildren)
             {
                 var view = curView as AnimationSheetView;
-                if (view != null && view.CurrentSheet == sheet)
+                if (view != null && ReferenceEquals(view.CurrentSheet, sheet))
                 {
                     view.Close();
                     break;
@@ -491,7 +496,7 @@ namespace Pixelaria.Views
             foreach (Form curView in MdiChildren)
             {
                 var sheetView = curView as AnimationSheetView;
-                if (sheetView != null && sheetView.CurrentSheet == sheet)
+                if (sheetView != null && ReferenceEquals(sheetView.CurrentSheet, sheet))
                 {
                     sheetView.BringToFront();
                     sheetView.Focus();
@@ -499,9 +504,8 @@ namespace Pixelaria.Views
                 }
             }
 
-            AnimationSheetView view = new AnimationSheetView(Controller, sheet);
+            AnimationSheetView view = new AnimationSheetView(Controller, sheet) { MdiParent = this };
 
-            view.MdiParent = this;
             view.Show();
             view.BringToFront();
 
@@ -538,15 +542,20 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Displays an interface to save the currently loaded bundle to disk
+        /// Displays an interface to save the currently loaded bundle to disk. If the bundle is already saved in disk, it doesn't display the interface.
+        /// Changes made in any opened window are saved as if the user clicked 'Accept' on each one prior to saving
         /// </summary>
         /// <param name="forceNew">Whether to force the display of a file dialog even if the bundle is already saved on disk</param>
         private void SaveBundle(bool forceNew = false)
         {
             // Forces the currently opened windows to save their contents
-            foreach (ModifiableContentView view in MdiChildren)
+            foreach (var form in MdiChildren)
             {
-                view.ApplyChanges();
+                var view = (ModifiableContentView)form;
+                if(view != null)
+                {
+                    view.ApplyChanges();
+                }
             }
 
             Controller.ShowSaveBundle(forceNew);
@@ -568,13 +577,18 @@ namespace Pixelaria.Views
             if (tv_bundleAnimations.SelectedNode == null)
                 return;
 
-            if (tv_bundleAnimations.SelectedNode.Tag is Animation)
+            var animation = tv_bundleAnimations.SelectedNode.Tag as Animation;
+            if (animation != null)
             {
-                OpenViewForAnimation(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                OpenViewForAnimation(animation);
             }
-            else if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet)
+            else
             {
-                OpenViewForAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as AnimationSheet);
+                var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
+                if (sheet != null)
+                {
+                    OpenViewForAnimationSheet(sheet);
+                }
             }
         }
 
@@ -631,10 +645,10 @@ namespace Pixelaria.Views
 
                     foreach (TreeNode node in _rootNode.Nodes)
                     {
-                        if (node.Tag is Animation)
+                        var animation = node.Tag as Animation;
+                        if (animation != null)
                         {
-                            Animation anim = node.Tag as Animation;
-
+                            Animation anim = animation;
                             Controller.RearrangeAnimationsPosition(anim, index++);
                         }
                     }
@@ -654,14 +668,10 @@ namespace Pixelaria.Views
         public TreeNode GetTreeNodeFor(Object tag)
         {
             // Do a breadth-first search on the tree-view
-            List<TreeNode> traversalList = new List<TreeNode>();
             TreeNode currentNode = _rootNode;
             int i = 0;
 
-            foreach (TreeNode node in currentNode.Nodes)
-            {
-                traversalList.Add(node);
-            }
+            List<TreeNode> traversalList = currentNode.Nodes.Cast<TreeNode>().ToList();
 
             while (true)
             {
@@ -671,10 +681,7 @@ namespace Pixelaria.Views
                     return currentNode;
 
                 // Add the node's children nodes as well
-                foreach (TreeNode node in currentNode.Nodes)
-                {
-                    traversalList.Add(node);
-                }
+                traversalList.AddRange(currentNode.Nodes.Cast<TreeNode>());
 
                 i++;
 
@@ -785,9 +792,10 @@ namespace Pixelaria.Views
 
                 // Target is an AnimationSheet and dragged node is an Animation:
                 // Add the dragged Animation into the target AnimationSheet
-                if (eventArgs.TargetNode.Tag is AnimationSheet && eventArgs.DraggedNode.Tag is Animation)
+                var tag = eventArgs.TargetNode.Tag as AnimationSheet;
+                if (tag != null && eventArgs.DraggedNode.Tag is Animation)
                 {
-                    AnimationSheet sheet = (AnimationSheet)eventArgs.TargetNode.Tag;
+                    AnimationSheet sheet = tag;
                     Animation anim = (Animation)eventArgs.DraggedNode.Tag;
 
                     Controller.AddAnimationToAnimationSheet(anim, sheet);
@@ -807,9 +815,10 @@ namespace Pixelaria.Views
             if (eventArgs.EventType == TreeViewNodeDragEventType.AfterDragEnd)
             {
                 // Target and dragged node are Animation nodes, rearrange them in the model level
-                if (eventArgs.TargetNode.Tag is Animation && eventArgs.DraggedNode.Tag is Animation)
+                var tag = eventArgs.TargetNode.Tag as Animation;
+                if (tag != null && eventArgs.DraggedNode.Tag is Animation)
                 {
-                    Animation targetAnim = (Animation)eventArgs.TargetNode.Tag;
+                    Animation targetAnim = tag;
                     Animation droppedAnim = (Animation)eventArgs.DraggedNode.Tag;
 
                     AnimationSheet sheet = Controller.GetOwningAnimationSheet(targetAnim);
@@ -1012,7 +1021,7 @@ namespace Pixelaria.Views
 
             if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
-                sheet = Controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                sheet = Controller.GetOwningAnimationSheet((Animation)tv_bundleAnimations.SelectedNode.Tag);
             }
 
             Controller.ShowCreateAnimation(sheet);
@@ -1028,7 +1037,7 @@ namespace Pixelaria.Views
 
             if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
-                sheet = Controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                sheet = Controller.GetOwningAnimationSheet((Animation)tv_bundleAnimations.SelectedNode.Tag);
             }
 
             Controller.ShowCreateAnimation(sheet);
@@ -1052,7 +1061,7 @@ namespace Pixelaria.Views
 
             if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
             {
-                sheet = Controller.GetOwningAnimationSheet(tv_bundleAnimations.SelectedNode.Tag as Animation);
+                sheet = Controller.GetOwningAnimationSheet((Animation)tv_bundleAnimations.SelectedNode.Tag);
             }
 
             Controller.ShowImportAnimation(sheet);

@@ -39,12 +39,12 @@ namespace Pixelaria.Views.SettingsViews
         /// <summary>
         /// The controller that owns this form
         /// </summary>
-        Controller controller;
+        readonly Controller _controller;
 
         /// <summary>
         /// The bundle being edited
         /// </summary>
-        Bundle bundle;
+        readonly Bundle _bundle;
 
         /// <summary>
         /// Creates a new instance of the BundleSettingsView, and starts editing the given bundle
@@ -55,11 +55,11 @@ namespace Pixelaria.Views.SettingsViews
         {
             InitializeComponent();
 
-            this.controller = controller;
-            this.bundle = bundle;
+            _controller = controller;
+            _bundle = bundle;
 
-            this.txt_bundleName.Text = bundle.Name;
-            this.txt_exportPath.Text = bundle.ExportPath;
+            txt_bundleName.Text = bundle.Name;
+            txt_exportPath.Text = bundle.ExportPath;
 
             ValidateFields();
         }
@@ -70,10 +70,10 @@ namespace Pixelaria.Views.SettingsViews
         private void ValidateFields()
         {
             bool valid = true;
-            bool alert = false;
+            const bool alert = false;
 
             // Bundle name
-            if (txt_bundleName.Text.Trim() == "" || controller.AnimationValidator.ValidateAnimationName(txt_bundleName.Text) != "")
+            if (txt_bundleName.Text.Trim() == "" || _controller.AnimationValidator.ValidateAnimationName(txt_bundleName.Text) != "")
             {
                 txt_bundleName.BackColor = Color.LightPink;
                 lbl_error.Text = (txt_bundleName.Text.Trim() == "" ? "The bundle name cannot be empty" : "The bundle name is not valid");
@@ -88,7 +88,7 @@ namespace Pixelaria.Views.SettingsViews
             if (txt_exportPath.Text != "" && !Directory.Exists(txt_exportPath.Text))
             {
                 txt_exportPath.BackColor = Color.LightPink;
-                lbl_error.Text = "The export path is not valid";
+                lbl_error.Text = @"The export path is not valid";
                 valid = false;
             }
             else
@@ -128,10 +128,10 @@ namespace Pixelaria.Views.SettingsViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            bundle.Name = this.txt_bundleName.Text;
-            bundle.ExportPath = this.txt_exportPath.Text;
+            _bundle.Name = txt_bundleName.Text;
+            _bundle.ExportPath = txt_exportPath.Text;
 
-            controller.MarkUnsavedChanges(true);
+            _controller.MarkUnsavedChanges(true);
         }
 
         // 
