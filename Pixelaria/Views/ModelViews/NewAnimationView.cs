@@ -38,21 +38,22 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Controller owning this form
         /// </summary>
-        Controller controller;
+        readonly Controller _controller;
 
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
         /// </summary>
-        AnimationSheet parentSheet;
+        readonly AnimationSheet _parentSheet;
 
         /// <summary>
         /// Creates a new NewAnimationView form
         /// </summary>
-        /// <param name="ownerSheet">Optional AnimationSheet that will own the newly created Animation</param>
+        /// <param name="controller">The controller that owns this view</param>
+        /// <param name="parentSheet">Optional AnimationSheet that will own the newly created Animation</param>
         public NewAnimationView(Controller controller, AnimationSheet parentSheet = null)
         {
-            this.controller = controller;
-            this.parentSheet = parentSheet;
+            _controller = controller;
+            _parentSheet = parentSheet;
 
             InitializeComponent();
 
@@ -65,11 +66,10 @@ namespace Pixelaria.Views.ModelViews
         private void ValidateFields()
         {
             bool valid = true;
-            bool alert = false;
-            string validation;
+            const bool alert = false;
 
             // Animation name
-            validation = controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
+            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
             if (validation != "")
             {
                 txt_animationName.BackColor = Color.LightPink;
@@ -100,7 +100,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            controller.CreateAnimation(txt_animationName.Text, (int)nud_width.Value, (int)nud_height.Value, (int)nud_fps.Value, cb_frameskip.Checked, true, parentSheet);
+            _controller.CreateAnimation(txt_animationName.Text, (int)nud_width.Value, (int)nud_height.Value, (int)nud_fps.Value, cb_frameskip.Checked, true, _parentSheet);
         }
     }
 }

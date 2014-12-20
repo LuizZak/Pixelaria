@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -23,7 +18,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The animation to modify
         /// </summary>
-        private Animation animation;
+        private readonly Animation _animation;
 
         /// <summary>
         /// Initializes a new instance of the AnimationFilterView class
@@ -33,25 +28,25 @@ namespace Pixelaria.Views.ModelViews
         {
             InitializeComponent();
 
-            this.animation = animation;
+            _animation = animation;
 
-            this.tc_timeline.Minimum = 1;
-            this.tc_timeline.Maximum = animation.FrameCount;
+            tc_timeline.Minimum = 1;
+            tc_timeline.Maximum = animation.FrameCount;
 
-            this.tc_timeline.Range = new Point(0, animation.FrameCount);
+            tc_timeline.Range = new Point(0, animation.FrameCount);
 
-            this.fs_filters.SetImage(animation.GetFrameAtIndex(0).GetComposedBitmap());
+            fs_filters.SetImage(animation.GetFrameAtIndex(0).GetComposedBitmap());
 
-            this.pnl_errorPanel.Visible = false;
+            pnl_errorPanel.Visible = false;
 
-            this.btn_ok.Enabled = true;
+            btn_ok.Enabled = true;
         }
 
         /// <summary>
         /// Initializes a new instance of the BaseFilterView class
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
-        /// <param name="bitmap">A bitmap to apply the filter to</param>
+        /// <param name="animation">The animation to apply the filter to</param>
         public AnimationFilterView(FilterControl[] filters, Animation animation)
             : this(animation)
         {
@@ -62,7 +57,7 @@ namespace Pixelaria.Views.ModelViews
         /// Initializes a new instance of the BaseFilterView class
         /// </summary>
         /// <param name="preset">A FilterPreset that contains data about filters to load on this BaseFilterView</param>
-        /// <param name="bitmap">A bitmap to apply the filter to</param>
+        /// <param name="animation">The animation to apply the filter to</param>
         public AnimationFilterView(FilterPreset preset, Animation animation)
             : this(animation)
         {
@@ -89,7 +84,7 @@ namespace Pixelaria.Views.ModelViews
 
                 for (int i = range.X - 1; i < range.X + range.Y; i++)
                 {
-                    Frame frame = animation[i];
+                    Frame frame = _animation[i];
 
                     foreach (FilterContainer container in fs_filters.FilterContainers)
                     {
@@ -106,7 +101,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tc_timeline_FrameChanged(object sender, FrameChangedEventArgs eventArgs)
         {
-            this.fs_filters.SetImage(animation.GetFrameAtIndex(eventArgs.NewFrame - 1).GetComposedBitmap());
+            fs_filters.SetImage(_animation.GetFrameAtIndex(eventArgs.NewFrame - 1).GetComposedBitmap());
         }
 
         // 
@@ -116,8 +111,8 @@ namespace Pixelaria.Views.ModelViews
         {
             ApplyFilter();
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }

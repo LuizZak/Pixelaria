@@ -42,12 +42,12 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The current AnimationSheet being edited
         /// </summary>
-        AnimationSheet _sheetToEdit;
+        readonly AnimationSheet _sheetToEdit;
 
         /// <summary>
         /// The controller that owns this form
         /// </summary>
-        Controller _controller;
+        readonly Controller _controller;
         
         /// <summary>
         /// The current export settings
@@ -125,7 +125,7 @@ namespace Pixelaria.Views.ModelViews
 
             modified = false;
 
-            Text = AnimationMessages.TextAnimationSheet + " [" + _sheetToEdit.Name + "]";
+            Text = AnimationMessages.TextAnimationSheet + @" [" + _sheetToEdit.Name + @"]";
 
             UpdateCountLabels();
         }
@@ -146,11 +146,10 @@ namespace Pixelaria.Views.ModelViews
         public bool ValidateFields()
         {
             bool valid = true;
-            bool alert = false;
-            string validation;
+            const bool alert = false;
 
             // Animation name
-            validation = _controller.AnimationSheetValidator.ValidateAnimationSheetName(txt_sheetName.Text, _sheetToEdit);
+            var validation = _controller.AnimationSheetValidator.ValidateAnimationSheetName(txt_sheetName.Text, _sheetToEdit);
             if (validation != "")
             {
                 txt_sheetName.BackColor = Color.LightPink;
@@ -184,7 +183,7 @@ namespace Pixelaria.Views.ModelViews
 
             _controller.UpdatedAnimationSheet(_sheetToEdit);
 
-            Text = AnimationMessages.TextAnimationSheet + " [" + _sheetToEdit.Name + "]";
+            Text = AnimationMessages.TextAnimationSheet + @" [" + _sheetToEdit.Name + @"]";
             btn_apply.Enabled = false;
 
             base.ApplyChanges();
@@ -201,10 +200,8 @@ namespace Pixelaria.Views.ModelViews
             {
                 return base.ConfirmChanges();
             }
-            else
-            {
-                return DialogResult.OK;
-            }
+
+            return DialogResult.OK;
         }
 
         /// <summary>
@@ -214,7 +211,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_sheetToEdit != null)
             {
-                Text = AnimationMessages.TextAnimationSheet + " [" + _sheetToEdit.Name + "]*";
+                Text = AnimationMessages.TextAnimationSheet + @" [" + _sheetToEdit.Name + @"]*";
                 btn_apply.Enabled = true;
             }
 
@@ -258,13 +255,16 @@ namespace Pixelaria.Views.ModelViews
                 // Time the bundle export
                 pb_exportProgress.Visible = true;
 
-                BundleExportProgressEventHandler handler = (BundleExportProgressEventArgs args) =>
+                BundleExportProgressEventHandler handler = args =>
                 {
                     pb_exportProgress.Value = args.StageProgress;
                     pb_exportProgress.Refresh();
                 };
 
-                FindForm().Cursor = Cursors.WaitCursor;
+                var form = FindForm();
+                if (form != null)
+                    form.Cursor = Cursors.WaitCursor;
+
                 Stopwatch sw = Stopwatch.StartNew();
 
                 // Export the bundle
@@ -273,16 +273,18 @@ namespace Pixelaria.Views.ModelViews
                 Image img = _bundleSheetExport.Sheet;
 
                 sw.Stop();
-                FindForm().Cursor = Cursors.Default;
+
+                if (form != null)
+                    form.Cursor = Cursors.Default;
 
                 zpb_sheetPreview.SetImage(img);
 
                 pb_exportProgress.Visible = false;
 
                 // Update labels
-                lbl_sheetPreview.Text = AnimationMessages.TextSheetPreviewGenerated + sw.ElapsedMilliseconds + "ms)";
+                lbl_sheetPreview.Text = AnimationMessages.TextSheetPreviewGenerated + sw.ElapsedMilliseconds + @"ms)";
 
-                lbl_dimensions.Text = img.Width + "x" + img.Height;
+                lbl_dimensions.Text = img.Width + @"x" + img.Height;
                 lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
                 lbl_framesOnSheet.Text = (_bundleSheetExport.FrameCount - _bundleSheetExport.ReusedFrameCount) + "";
                 lbl_reusedFrames.Text = (_bundleSheetExport.ReusedFrameCount) + "";
@@ -358,10 +360,7 @@ namespace Pixelaria.Views.ModelViews
                 zpb_sheetPreview.Image = null;
             }
 
-            if (_bundleSheetExport != null)
-            {
-                _bundleSheetExport = null;
-            }
+            _bundleSheetExport = null;
         }
 
         /// <summary>
@@ -370,9 +369,8 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The new AnimationSheet object</returns>
         public AnimationSheet GenerateAnimationSheet()
         {
-            AnimationSheet sheet = new AnimationSheet(txt_sheetName.Text);
+            AnimationSheet sheet = new AnimationSheet(txt_sheetName.Text) { ExportSettings = RepopulateExportSettings() };
 
-            sheet.ExportSettings = RepopulateExportSettings();
 
             return sheet;
         }
@@ -390,7 +388,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Common event for all checkboxes on the form
         // 
-        private void checkboxesChange(object sender, EventArgs e)
+        private void checkboxes_Change(object sender, EventArgs e)
         {
             MarkModified();
         }
@@ -398,7 +396,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Common event for all nuds on the form
         // 
-        private void nudsCommon(object sender, EventArgs e)
+        private void nuds_Common(object sender, EventArgs e)
         {
             MarkModified();
         }
@@ -489,7 +487,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void zpb_sheetPreview_ZoomChanged(object sender, Controls.ZoomChangedEventArgs e)
         {
-            lbl_zoomLevel.Text = "Zoom: " + (Math.Ceiling(e.NewZoom * 100) / 100) + "x";
+            lbl_zoomLevel.Text = @"Zoom: " + (Math.Ceiling(e.NewZoom * 100) / 100) + @"x";
         }
     }
 }

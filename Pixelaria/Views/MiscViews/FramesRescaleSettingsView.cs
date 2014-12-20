@@ -118,7 +118,7 @@ namespace Pixelaria.Views.MiscViews
 
             DialogResult = DialogResult.OK;
 
-            this.Close();
+            Close();
         }
     }
 

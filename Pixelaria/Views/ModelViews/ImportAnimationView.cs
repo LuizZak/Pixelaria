@@ -39,27 +39,27 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The main controller owning this form
         /// </summary>
-        Controller controller;
+        readonly Controller _controller;
 
         /// <summary>
         /// The loaded image sheet
         /// </summary>
-        Image spriteSheet;
+        Image _spriteSheet;
 
         /// <summary>
         /// The current SheetSettings being edited on the form
         /// </summary>
-        SheetSettings sheetSettings;
+        SheetSettings _sheetSettings;
 
         /// <summary>
         /// The current preview animation
         /// </summary>
-        Animation currentPreviewAnimation;
+        Animation _currentPreviewAnimation;
 
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
         /// </summary>
-        AnimationSheet parentSheet;
+        readonly AnimationSheet _parentSheet;
 
         /// <summary>
         /// Intiializes a new instance of the ImportAnimationView class
@@ -68,17 +68,17 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
         public ImportAnimationView(Controller controller, AnimationSheet parentSheet = null)
         {
-            this.controller = controller;
-            this.parentSheet = parentSheet;
+            _controller = controller;
+            _parentSheet = parentSheet;
 
             InitializeComponent();
             cpb_sheetPreview.HookToControl(this);
 
-            this.cpb_sheetPreview.Importer = controller.DefaultImporter;
+            cpb_sheetPreview.Importer = controller.DefaultImporter;
 
-            spriteSheet = null;
+            _spriteSheet = null;
 
-            sheetSettings = new SheetSettings(false, 32, 32);
+            _sheetSettings = new SheetSettings(false, 32, 32);
 
             ValidateFields();
         }
@@ -89,12 +89,11 @@ namespace Pixelaria.Views.ModelViews
         private void ValidateFields()
         {
             bool valid = true;
-            bool alert = false;
-            string validation;
+            const bool alert = false;
 
-            if (spriteSheet == null)
+            if (_spriteSheet == null)
             {
-                lbl_alertLabel.Text = "Start by loading an image clicking the 'Browse...' button";
+                lbl_alertLabel.Text = @"Start by loading an image clicking the 'Browse...' button";
 
                 pnl_alertPanel.Visible = true;
 
@@ -104,7 +103,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Animation name
-            validation = controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
+            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
             if (validation != "")
             {
                 txt_animationName.BackColor = Color.LightPink;
@@ -129,34 +128,34 @@ namespace Pixelaria.Views.ModelViews
         {
             OpenFileDialog ofd = new OpenFileDialog();
 
-            ofd.Filter = "All Images (*.png, *.jpg, *jpeg, *.bmp, *.gif, *.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|Png Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|Jpeg Images (*.jpg, *.jpeg)|*.jpg;*.jpeg|Gif Images (*.gif)|*.giff|Tiff Images (*.tiff)|*.tiff";
+            ofd.Filter = @"All Images (*.png, *.jpg, *jpeg, *.bmp, *.gif, *.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|Png Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|Jpeg Images (*.jpg, *.jpeg)|*.jpg;*.jpeg|Gif Images (*.gif)|*.giff|Tiff Images (*.tiff)|*.tiff";
 
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 try
                 {
                     // Dispose of the current sprite sheet if it's loaded
-                    if (spriteSheet != null)
+                    if (_spriteSheet != null)
                     {
-                        spriteSheet.Dispose();
+                        _spriteSheet.Dispose();
                     }
 
                     txt_fileName.Text = ofd.FileName;
 
-                    spriteSheet = Image.FromFile(ofd.FileName);
+                    _spriteSheet = Image.FromFile(ofd.FileName);
 
-                    cpb_sheetPreview.LoadPreview(spriteSheet, sheetSettings);
+                    cpb_sheetPreview.LoadPreview(_spriteSheet, _sheetSettings);
 
                     txt_animationName.Text = Path.GetFileNameWithoutExtension(ofd.FileName);
 
                     // Setup the boundaries for the numeric up downs
-                    nud_width.Maximum = spriteSheet.Width;
-                    nud_height.Maximum = spriteSheet.Height;
+                    nud_width.Maximum = _spriteSheet.Width;
+                    nud_height.Maximum = _spriteSheet.Height;
 
-                    nud_startX.Maximum = spriteSheet.Width - 1;
-                    nud_startY.Maximum = spriteSheet.Height - 1;
+                    nud_startX.Maximum = _spriteSheet.Width - 1;
+                    nud_startY.Maximum = _spriteSheet.Height - 1;
 
-                    tssl_dimensions.Text = spriteSheet.Width + " x " + spriteSheet.Height;
+                    tssl_dimensions.Text = _spriteSheet.Width + @" x " + _spriteSheet.Height;
 
                     // Enable the width/height fitting buttons
                     btn_fitWidthLeft.Enabled = btn_fitWidthRight.Enabled = btn_fitHeightLeft.Enabled = btn_fitHeightRight.Enabled = true;
@@ -169,7 +168,7 @@ namespace Pixelaria.Views.ModelViews
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Error loading image: " + e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Error loading image: " + e.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -179,22 +178,22 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void GenerateAnimationPreview()
         {
-            if (spriteSheet != null)
+            if (_spriteSheet != null)
             {
-                if (currentPreviewAnimation != null)
+                if (_currentPreviewAnimation != null)
                 {
-                    currentPreviewAnimation.Dispose();
-                    currentPreviewAnimation = null;
+                    _currentPreviewAnimation.Dispose();
+                    _currentPreviewAnimation = null;
                 }
 
                 if (nud_frameCount.Value != 0)
                 {
-                    currentPreviewAnimation = controller.DefaultImporter.ImportAnimationFromImage(txt_animationName.Text, spriteSheet, sheetSettings);
-                    currentPreviewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
-                    currentPreviewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
+                    _currentPreviewAnimation = _controller.DefaultImporter.ImportAnimationFromImage(txt_animationName.Text, _spriteSheet, _sheetSettings);
+                    _currentPreviewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
+                    _currentPreviewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
                 }
 
-                ap_animationPreview.LoadAnimation(currentPreviewAnimation);
+                ap_animationPreview.LoadAnimation(_currentPreviewAnimation);
             }
         }
 
@@ -203,18 +202,18 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshSheetSettings()
         {
-            if (spriteSheet == null)
+            if (_spriteSheet == null)
                 return;
 
-            sheetSettings.FrameWidth = (int)nud_width.Value;
-            sheetSettings.FrameHeight = (int)nud_height.Value;
-            sheetSettings.FrameCount = (int)nud_frameCount.Value;
-            sheetSettings.FirstFrame = (int)nud_skipCount.Value;
-            sheetSettings.FlipFrames = cb_reverseFrameOrder.Checked;
-            sheetSettings.OffsetX = (int)nud_startX.Value;
-            sheetSettings.OffsetY = (int)nud_startY.Value;
+            _sheetSettings.FrameWidth = (int)nud_width.Value;
+            _sheetSettings.FrameHeight = (int)nud_height.Value;
+            _sheetSettings.FrameCount = (int)nud_frameCount.Value;
+            _sheetSettings.FirstFrame = (int)nud_skipCount.Value;
+            _sheetSettings.FlipFrames = cb_reverseFrameOrder.Checked;
+            _sheetSettings.OffsetX = (int)nud_startX.Value;
+            _sheetSettings.OffsetY = (int)nud_startY.Value;
 
-            cpb_sheetPreview.SheetSettings = sheetSettings;
+            cpb_sheetPreview.SheetSettings = _sheetSettings;
 
             GenerateAnimationPreview();
         }
@@ -224,13 +223,13 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ImportAnimation()
         {
-            if (currentPreviewAnimation != null && currentPreviewAnimation.FrameCount > 0)
+            if (_currentPreviewAnimation != null && _currentPreviewAnimation.FrameCount > 0)
             {
-                currentPreviewAnimation.Name = txt_animationName.Text;
+                _currentPreviewAnimation.Name = txt_animationName.Text;
 
-                controller.AddAnimation(currentPreviewAnimation, true, parentSheet);
+                _controller.AddAnimation(_currentPreviewAnimation, true, _parentSheet);
 
-                currentPreviewAnimation = null;
+                _currentPreviewAnimation = null;
                 ap_animationPreview.LoadAnimation(null);
             }
         }
@@ -240,11 +239,11 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void ImportAnimationView_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (spriteSheet != null)
+            if (_spriteSheet != null)
             {
-                spriteSheet.Dispose();
+                _spriteSheet.Dispose();
             }
-            currentPreviewAnimation = null;
+            _currentPreviewAnimation = null;
             ap_animationPreview.LoadAnimation(null);
         }
 
@@ -341,9 +340,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void nud_fps_ValueChanged(object sender, EventArgs e)
         {
-            if (currentPreviewAnimation != null)
+            if (_currentPreviewAnimation != null)
             {
-                currentPreviewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
+                _currentPreviewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
             }
         }
 
@@ -352,9 +351,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cb_frameskip_CheckedChanged(object sender, EventArgs e)
         {
-            if (currentPreviewAnimation != null)
+            if (_currentPreviewAnimation != null)
             {
-                currentPreviewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
+                _currentPreviewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
             }
         }
 
@@ -364,24 +363,25 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_fitWidthLeft_Click(object sender, EventArgs e)
         {
-            float cw = (float)spriteSheet.Width / sheetSettings.FrameWidth;
+            float cw = (float)_spriteSheet.Width / _sheetSettings.FrameWidth;
 
-            if ((int)cw != cw)
+            if (Math.Abs((int)cw - cw) > float.Epsilon)
             {
                 cw = (float)Math.Floor(cw);
             }
 
-            while (cw < spriteSheet.Width)
+            while (cw < _spriteSheet.Width)
             {
                 cw++;
 
-                if (spriteSheet.Width / cw == (int)(spriteSheet.Width / cw))
+                if (Math.Abs(_spriteSheet.Width / cw - (int)(_spriteSheet.Width / cw)) < float.Epsilon)
                 {
                     break;
                 }
             }
 
-            nud_width.Value = spriteSheet.Width / (int)cw;
+            // ReSharper disable once PossibleLossOfFraction
+            nud_width.Value = _spriteSheet.Width / (int)cw;
 
             RefreshSheetSettings();
         }
@@ -390,9 +390,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_fitWidthRight_Click(object sender, EventArgs e)
         {
-            float cw = (float)spriteSheet.Width / sheetSettings.FrameWidth;
+            float cw = (float)_spriteSheet.Width / _sheetSettings.FrameWidth;
 
-            if ((int)cw != cw)
+            if (Math.Abs((int)cw - cw) > float.Epsilon)
             {
                 cw = (float)Math.Ceiling(cw);
             }
@@ -401,13 +401,14 @@ namespace Pixelaria.Views.ModelViews
             {
                 cw--;
 
-                if (spriteSheet.Width / cw == (int)(spriteSheet.Width / cw))
+                if (Math.Abs(_spriteSheet.Width / cw - (int)(_spriteSheet.Width / cw)) < float.Epsilon)
                 {
                     break;
                 }
             }
 
-            nud_width.Value = spriteSheet.Width / (int)cw;
+            // ReSharper disable once PossibleLossOfFraction
+            nud_width.Value = _spriteSheet.Width / (int)cw;
 
             RefreshSheetSettings();   
         }
@@ -417,24 +418,25 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_fitHeightLeft_Click(object sender, EventArgs e)
         {
-            float ch = (float)spriteSheet.Height / sheetSettings.FrameHeight;
+            float ch = (float)_spriteSheet.Height / _sheetSettings.FrameHeight;
 
-            if ((int)ch != ch)
+            if (Math.Abs((int)ch - ch) > float.Epsilon)
             {
                 ch = (float)Math.Floor(ch);
             }
 
-            while (ch < spriteSheet.Height)
+            while (ch < _spriteSheet.Height)
             {
                 ch++;
 
-                if (spriteSheet.Height / ch == (int)(spriteSheet.Height / ch))
+                if (Math.Abs(_spriteSheet.Height / ch - (int)(_spriteSheet.Height / ch)) < float.Epsilon)
                 {
                     break;
                 }
             }
 
-            nud_height.Value = spriteSheet.Height / (int)ch;
+            // ReSharper disable once PossibleLossOfFraction
+            nud_height.Value = _spriteSheet.Height / (int)ch;
 
             RefreshSheetSettings();
         }
@@ -443,9 +445,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_fitHeightRight_Click(object sender, EventArgs e)
         {
-            float ch = (float)spriteSheet.Height / sheetSettings.FrameHeight;
+            float ch = (float)_spriteSheet.Height / _sheetSettings.FrameHeight;
 
-            if ((int)ch != ch)
+            if (Math.Abs((int)ch - ch) > float.Epsilon)
             {
                 ch = (float)Math.Ceiling(ch);
             }
@@ -454,13 +456,14 @@ namespace Pixelaria.Views.ModelViews
             {
                 ch--;
 
-                if (spriteSheet.Height / ch == (int)(spriteSheet.Height / ch))
+                if (Math.Abs(_spriteSheet.Height / ch - (int)(_spriteSheet.Height / ch)) < float.Epsilon)
                 {
                     break;
                 }
             }
 
-            nud_height.Value = spriteSheet.Height / (int)ch;
+            // ReSharper disable once PossibleLossOfFraction
+            nud_height.Value = _spriteSheet.Height / (int)ch;
 
             RefreshSheetSettings();
         }

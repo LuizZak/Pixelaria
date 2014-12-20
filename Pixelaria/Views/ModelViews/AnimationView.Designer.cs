@@ -530,6 +530,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_copy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
             this.tsm_copy.Size = new System.Drawing.Size(152, 22);
             this.tsm_copy.Text = "Copy";
+            this.tsm_copy.Click += new System.EventHandler(this.tsm_copy_Click);
             // 
             // tsm_cut
             // 
@@ -538,6 +539,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_cut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
             this.tsm_cut.Size = new System.Drawing.Size(152, 22);
             this.tsm_cut.Text = "Cut";
+            this.tsm_cut.Click += new System.EventHandler(this.tsm_cut_Click);
             // 
             // tsm_paste
             // 
@@ -546,6 +548,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_paste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
             this.tsm_paste.Size = new System.Drawing.Size(152, 22);
             this.tsm_paste.Text = "Paste";
+            this.tsm_paste.Click += new System.EventHandler(this.tsm_paste_Click);
             // 
             // framesToolStripMenuItem
             // 
@@ -572,6 +575,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_addNewFrame.Name = "tsm_addNewFrame";
             this.tsm_addNewFrame.Size = new System.Drawing.Size(164, 22);
             this.tsm_addNewFrame.Text = "&Add New Frame";
+            this.tsm_addNewFrame.Click += new System.EventHandler(this.tsm_addNewFrame_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -616,20 +620,21 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
             this.tsm_emptyFilter.Text = "Empty";
+            this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
             // tsm_filterPresets
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
             this.tsm_filterPresets.Text = "Presets";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
             // 
             // statusStrip1
             // 

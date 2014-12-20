@@ -33,6 +33,8 @@ using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews
 {
+    // TODO: Implement usage of the FilterSelector control instead of laying all the code on the form
+
     /// <summary>
     /// Implements an interface that the user can use to tweak settings of and apply a filter to an image
     /// </summary>

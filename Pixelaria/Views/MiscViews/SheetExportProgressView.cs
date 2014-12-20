@@ -21,15 +21,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-
-using Pixelaria.Controllers;
 
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
@@ -46,22 +39,22 @@ namespace Pixelaria.Views.MiscViews
         /// <summary>
         /// The animation sheet to export
         /// </summary>
-        private AnimationSheet sheet;
+        private readonly AnimationSheet _sheet;
 
         /// <summary>
         /// The save path to save the animation sheet to
         /// </summary>
-        private string savePath;
+        private readonly string _savePath;
 
         /// <summary>
         /// The exporter to use when exporting the animation sheet
         /// </summary>
-        private IBundleExporter exporter;
+        private readonly IBundleExporter _exporter;
 
         /// <summary>
         /// Whether the user can close this form
         /// </summary>
-        private bool canClose = true;
+        private bool _canClose = true;
 
         /// <summary>
         /// Initializes a new instance of the SheetExportProgressView class
@@ -73,9 +66,9 @@ namespace Pixelaria.Views.MiscViews
         {
             InitializeComponent();
 
-            this.sheet = sheet;
-            this.savePath = savePath;
-            this.exporter = exporter;
+            _sheet = sheet;
+            _savePath = savePath;
+            _exporter = exporter;
         }
 
         /// <summary>
@@ -84,18 +77,18 @@ namespace Pixelaria.Views.MiscViews
         public void StartExport()
         {
             btn_ok.Visible = false;
-            canClose = false;
+            _canClose = false;
 
-            Image img = exporter.ExportAnimationSheet(sheet, ExportHandler);
+            Image img = _exporter.ExportAnimationSheet(_sheet, ExportHandler);
 
             // Save the image now
             lbl_progress.Text = "Saving to disk...";
 
-            img.Save(savePath);
+            img.Save(_savePath);
 
             lbl_progress.Text = "Export successful!";
 
-            canClose = true;
+            _canClose = true;
             btn_ok.Visible = true;
         }
 
@@ -119,7 +112,7 @@ namespace Pixelaria.Views.MiscViews
                 lbl_progress.Text = "Export successful!";
             }
 
-            this.Update();
+            Update();
             Application.DoEvents();
         }
 
@@ -138,7 +131,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && !canClose)
+            if (e.CloseReason == CloseReason.UserClosing && !_canClose)
             {
                 System.Media.SystemSounds.Beep.Play();
 
@@ -153,7 +146,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
     }
 }

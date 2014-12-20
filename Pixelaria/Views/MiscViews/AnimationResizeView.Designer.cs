@@ -106,7 +106,7 @@ namespace Pixelaria.Views.MiscViews
             this.rb_drawingMode_highQuality.TabIndex = 1;
             this.rb_drawingMode_highQuality.Text = "Photography";
             this.rb_drawingMode_highQuality.UseVisualStyleBackColor = true;
-            this.rb_drawingMode_highQuality.CheckedChanged += new System.EventHandler(this.radioButtonsChange);
+            this.rb_drawingMode_highQuality.CheckedChanged += new System.EventHandler(this.radioButtons_Change);
             // 
             // rb_drawingMode_lowQuality
             // 
@@ -119,7 +119,7 @@ namespace Pixelaria.Views.MiscViews
             this.rb_drawingMode_lowQuality.TabStop = true;
             this.rb_drawingMode_lowQuality.Text = "Pixel art";
             this.rb_drawingMode_lowQuality.UseVisualStyleBackColor = true;
-            this.rb_drawingMode_lowQuality.CheckedChanged += new System.EventHandler(this.radioButtonsChange);
+            this.rb_drawingMode_lowQuality.CheckedChanged += new System.EventHandler(this.radioButtons_Change);
             // 
             // rb_frameScaling_stretch
             // 
@@ -130,7 +130,7 @@ namespace Pixelaria.Views.MiscViews
             this.rb_frameScaling_stretch.TabIndex = 2;
             this.rb_frameScaling_stretch.Text = "Stretch";
             this.rb_frameScaling_stretch.UseVisualStyleBackColor = true;
-            this.rb_frameScaling_stretch.CheckedChanged += new System.EventHandler(this.radioButtonsChange);
+            this.rb_frameScaling_stretch.CheckedChanged += new System.EventHandler(this.radioButtons_Change);
             // 
             // rb_frameScaling_placeAtCenter
             // 
@@ -141,7 +141,7 @@ namespace Pixelaria.Views.MiscViews
             this.rb_frameScaling_placeAtCenter.TabIndex = 1;
             this.rb_frameScaling_placeAtCenter.Text = "Place at Center";
             this.rb_frameScaling_placeAtCenter.UseVisualStyleBackColor = true;
-            this.rb_frameScaling_placeAtCenter.CheckedChanged += new System.EventHandler(this.radioButtonsChange);
+            this.rb_frameScaling_placeAtCenter.CheckedChanged += new System.EventHandler(this.radioButtons_Change);
             // 
             // rb_frameScaling_placeAtTopLeft
             // 
@@ -154,7 +154,7 @@ namespace Pixelaria.Views.MiscViews
             this.rb_frameScaling_placeAtTopLeft.TabStop = true;
             this.rb_frameScaling_placeAtTopLeft.Text = "Place at Top Left";
             this.rb_frameScaling_placeAtTopLeft.UseVisualStyleBackColor = true;
-            this.rb_frameScaling_placeAtTopLeft.CheckedChanged += new System.EventHandler(this.radioButtonsChange);
+            this.rb_frameScaling_placeAtTopLeft.CheckedChanged += new System.EventHandler(this.radioButtons_Change);
             // 
             // groupBox2
             // 

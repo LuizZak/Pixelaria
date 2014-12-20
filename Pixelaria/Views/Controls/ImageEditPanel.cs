@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls
     /// Defines a panel that is used specifically for displaying a Bitmap object and allowing
     /// the user to make changes to it
     /// </summary>
-    public class ImageEditPanel : Control, Modifiable
+    public class ImageEditPanel : Control, IModifiable
     {
         /// <summary>
         /// The PictureBox that displays the bitmap being edited
@@ -128,7 +128,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the modifiable to notify when changes are made to the bitmap
         /// </summary>
-        public Modifiable NotifyTo { get; set; }
+        public IModifiable NotifyTo { get; set; }
 
         /// <summary>
         /// Gets or sets the current paint operation to perform on this ImageEditPanel
@@ -375,7 +375,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Specifies the modifiable to notify when changes are made to the bitmap
             /// </summary>
-            public Modifiable NotifyTo;
+            public IModifiable NotifyTo;
 
             /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox

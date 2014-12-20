@@ -388,23 +388,25 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     rec.Width--;
                     rec.Height--;
 
-                    Pen p = new Pen(Color.Black);
-
-                    p.DashStyle = DashStyle.Dash;
-                    p.DashOffset = _dashOffset;
-                    p.DashPattern = new [] { 2f, 2f };
-                    p.Alignment = PenAlignment.Inset;
-                    p.Width = 1;
+                    Pen p = new Pen(Color.Black)
+                    {
+                        DashStyle = DashStyle.Dash,
+                        DashOffset = _dashOffset,
+                        DashPattern = new[] {2f, 2f},
+                        Alignment = PenAlignment.Inset,
+                        Width = 1
+                    };
 
                     gfx.DrawRectangle(p, rec);
 
-                    p = new Pen(Color.White);
-
-                    p.DashStyle = DashStyle.Dash;
-                    p.DashOffset = _dashOffset + 1.99f;
-                    p.DashPattern = new [] { 2f, 2f };
-                    p.Alignment = PenAlignment.Inset;
-                    p.Width = 1;
+                    p = new Pen(Color.White)
+                    {
+                        DashStyle = DashStyle.Dash,
+                        DashOffset = _dashOffset + 1.99f,
+                        DashPattern = new[] {2f, 2f},
+                        Alignment = PenAlignment.Inset,
+                        Width = 1
+                    };
 
                     gfx.DrawRectangle(p, rec);
 

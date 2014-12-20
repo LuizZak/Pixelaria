@@ -37,17 +37,17 @@ namespace Pixelaria.Views.MiscViews
         /// <summary>
         /// The bundle to export
         /// </summary>
-        private Bundle bundle;
+        private readonly Bundle _bundle;
 
         /// <summary>
         /// The exporter to use when exporting the bundle
         /// </summary>
-        private IBundleExporter exporter;
+        private readonly IBundleExporter _exporter;
 
         /// <summary>
         /// Whether the user can close this form
         /// </summary>
-        private bool canClose = true;
+        private bool _canClose = true;
 
         /// <summary>
         /// Initializes a new instance of the BundleExportProgressView class
@@ -58,8 +58,8 @@ namespace Pixelaria.Views.MiscViews
         {
             InitializeComponent();
 
-            this.bundle = bundle;
-            this.exporter = exporter;
+            _bundle = bundle;
+            _exporter = exporter;
         }
 
         /// <summary>
@@ -68,11 +68,11 @@ namespace Pixelaria.Views.MiscViews
         public void StartExport()
         {
             btn_ok.Visible = false;
-            canClose = false;
+            _canClose = false;
             
-            exporter.ExportBundle(bundle, ExportHandler);
+            _exporter.ExportBundle(_bundle, ExportHandler);
 
-            canClose = true;
+            _canClose = true;
             btn_ok.Visible = true;
         }
 
@@ -97,7 +97,7 @@ namespace Pixelaria.Views.MiscViews
                 lbl_progress.Text = "Export successful!";
             }
 
-            this.Update();
+            Update();
             Application.DoEvents();
         }
 
@@ -116,7 +116,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && !canClose)
+            if (e.CloseReason == CloseReason.UserClosing && !_canClose)
             {
                 System.Media.SystemSounds.Beep.Play();
 
@@ -131,7 +131,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
     }
 }

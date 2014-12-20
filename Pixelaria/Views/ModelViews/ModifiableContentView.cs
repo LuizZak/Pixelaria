@@ -28,7 +28,7 @@ namespace Pixelaria.Views.ModelViews
     /// Specifies a view that can store modifiable data, and warns the user
     /// when closing the form without saving the changes
     /// </summary>
-    public class ModifiableContentView : Form, Modifiable
+    public class ModifiableContentView : Form, IModifiable
     {
         /// <summary>
         /// Whether the data on this view has been modified
@@ -66,7 +66,7 @@ namespace Pixelaria.Views.ModelViews
         {
             ApplyChanges();
 
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -74,8 +74,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public virtual void DiscardChangesAndClose()
         {
-            this.modified = false;
-            this.Close();
+            modified = false;
+            Close();
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (modified)
             {
-                diag = MessageBox.Show(this, "There are unsaved changes. Do you wish to save before closing?", "Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                diag = MessageBox.Show(this, @"There are unsaved changes. Do you wish to save before closing?", @"Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 if (diag == DialogResult.Yes)
                 {
@@ -129,7 +129,7 @@ namespace Pixelaria.Views.ModelViews
     /// Specifies an object that can be marked as modified through a method
     /// MarkModified
     /// </summary>
-    public interface Modifiable
+    public interface IModifiable
     {
         /// <summary>
         /// Marks this object as modified

@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 
-using Pixelaria.Data;
 using Pixelaria.Views.Controls;
-using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
 
@@ -58,7 +51,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
         /// <summary>
         /// The event handler for the frame changed event
         /// </summary>
-        FrameView.EditFrameChangedEventHandler frameChangedEventHandler;
+        readonly FrameView.EditFrameChangedEventHandler _frameChangedEventHandler;
 
         /// <summary>
         /// Initializes a new instance of the OnionSkinDecorator class
@@ -70,9 +63,9 @@ namespace Pixelaria.Views.ModelViews.Miscs
         {
             this.frameView = frameView;
 
-            frameChangedEventHandler = frameView_EditFrameChanged;
+            _frameChangedEventHandler = frameView_EditFrameChanged;
 
-            this.frameView.EditFrameChanged += frameChangedEventHandler;
+            this.frameView.EditFrameChanged += _frameChangedEventHandler;
         }
 
         // 
@@ -100,14 +93,12 @@ namespace Pixelaria.Views.ModelViews.Miscs
         /// </summary>
         public override void Destroy()
         {
-            this.pictureBox = null;
-
-            if (this.onionSkin != null)
+            if (onionSkin != null)
             {
-                this.onionSkin.Dispose();
+                onionSkin.Dispose();
             }
 
-            this.frameView.EditFrameChanged -= frameChangedEventHandler;
+            frameView.EditFrameChanged -= _frameChangedEventHandler;
         }
 
         /// <summary>
@@ -117,7 +108,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
         {
             OnionSkinEnabled = true;
 
-            if (this.frameView.FrameLoaded == null)
+            if (frameView.FrameLoaded == null)
                 return;
 
             if (onionSkin != null && (onionSkin.Width != frameView.FrameLoaded.Width || onionSkin.Height != frameView.FrameLoaded.Height))
@@ -152,7 +143,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
             float multDecay = 0.5f + (OnionSkinDepth / 50.0f);
 
             // Draw the previous frames
-            if (OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == ModelViews.OnionSkinMode.PreviousAndNextFrames)
+            if (OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
             {
                 int fi = frameView.FrameLoaded.Index;
                 float mult = 1;
@@ -166,7 +157,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
                 }
             }
             // Draw the next frames
-            if (OnionSkinMode == ModelViews.OnionSkinMode.NextFrames || OnionSkinMode == ModelViews.OnionSkinMode.PreviousAndNextFrames)
+            if (OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
             {
                 int fi = frameView.FrameLoaded.Index;
                 float mult = 1;

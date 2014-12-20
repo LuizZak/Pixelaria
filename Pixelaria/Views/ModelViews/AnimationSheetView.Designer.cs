@@ -195,7 +195,7 @@ namespace Pixelaria.Views.ModelViews
             this.nud_yPadding.Name = "nud_yPadding";
             this.helpProvider1.SetShowHelp(this.nud_yPadding, ((bool)(resources.GetObject("nud_yPadding.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.nud_yPadding, resources.GetString("nud_yPadding.ToolTip"));
-            this.nud_yPadding.ValueChanged += new System.EventHandler(this.nudsCommon);
+            this.nud_yPadding.ValueChanged += new System.EventHandler(this.nuds_Common);
             // 
             // nud_xPadding
             // 
@@ -211,7 +211,7 @@ namespace Pixelaria.Views.ModelViews
             this.nud_xPadding.Name = "nud_xPadding";
             this.helpProvider1.SetShowHelp(this.nud_xPadding, ((bool)(resources.GetObject("nud_xPadding.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.nud_xPadding, resources.GetString("nud_xPadding.ToolTip"));
-            this.nud_xPadding.ValueChanged += new System.EventHandler(this.nudsCommon);
+            this.nud_xPadding.ValueChanged += new System.EventHandler(this.nuds_Common);
             // 
             // flowLayoutPanel1
             // 
@@ -253,7 +253,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_forcePowerOfTwoDimensions, ((bool)(resources.GetObject("cb_forcePowerOfTwoDimensions.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_forcePowerOfTwoDimensions, resources.GetString("cb_forcePowerOfTwoDimensions.ToolTip"));
             this.cb_forcePowerOfTwoDimensions.UseVisualStyleBackColor = true;
-            this.cb_forcePowerOfTwoDimensions.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_forcePowerOfTwoDimensions.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_forceMinimumDimensions
             // 
@@ -268,7 +268,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_forceMinimumDimensions, ((bool)(resources.GetObject("cb_forceMinimumDimensions.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_forceMinimumDimensions, resources.GetString("cb_forceMinimumDimensions.ToolTip"));
             this.cb_forceMinimumDimensions.UseVisualStyleBackColor = true;
-            this.cb_forceMinimumDimensions.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_forceMinimumDimensions.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_reuseIdenticalFrames
             // 
@@ -283,7 +283,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_reuseIdenticalFrames, ((bool)(resources.GetObject("cb_reuseIdenticalFrames.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_reuseIdenticalFrames, resources.GetString("cb_reuseIdenticalFrames.ToolTip"));
             this.cb_reuseIdenticalFrames.UseVisualStyleBackColor = true;
-            this.cb_reuseIdenticalFrames.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_reuseIdenticalFrames.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_highPrecision
             // 
@@ -295,7 +295,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_highPrecision, ((bool)(resources.GetObject("cb_highPrecision.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_highPrecision, resources.GetString("cb_highPrecision.ToolTip"));
             this.cb_highPrecision.UseVisualStyleBackColor = true;
-            this.cb_highPrecision.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_highPrecision.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_allowUordering
             // 
@@ -310,7 +310,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_allowUordering, ((bool)(resources.GetObject("cb_allowUordering.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_allowUordering, resources.GetString("cb_allowUordering.ToolTip"));
             this.cb_allowUordering.UseVisualStyleBackColor = true;
-            this.cb_allowUordering.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_allowUordering.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_useUniformGrid
             // 
@@ -323,7 +323,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_useUniformGrid, ((bool)(resources.GetObject("cb_useUniformGrid.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_useUniformGrid, resources.GetString("cb_useUniformGrid.ToolTip"));
             this.cb_useUniformGrid.UseVisualStyleBackColor = true;
-            this.cb_useUniformGrid.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_useUniformGrid.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_exportXml
             // 
@@ -338,7 +338,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_exportXml, ((bool)(resources.GetObject("cb_exportXml.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_exportXml, resources.GetString("cb_exportXml.ToolTip"));
             this.cb_exportXml.UseVisualStyleBackColor = true;
-            this.cb_exportXml.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_exportXml.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_padFramesOnXml
             // 
@@ -351,7 +351,7 @@ namespace Pixelaria.Views.ModelViews
             this.helpProvider1.SetShowHelp(this.cb_padFramesOnXml, ((bool)(resources.GetObject("cb_padFramesOnXml.ShowHelp"))));
             this.tt_mainTooltip.SetToolTip(this.cb_padFramesOnXml, resources.GetString("cb_padFramesOnXml.ToolTip"));
             this.cb_padFramesOnXml.UseVisualStyleBackColor = true;
-            this.cb_padFramesOnXml.CheckedChanged += new System.EventHandler(this.checkboxesChange);
+            this.cb_padFramesOnXml.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // label4
             // 
