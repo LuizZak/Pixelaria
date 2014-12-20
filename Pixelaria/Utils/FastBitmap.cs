@@ -547,8 +547,14 @@ namespace Pixelaria.Utils
         /// <param name="source">The bitmap to copy the pixels from</param>
         /// <param name="target">The bitmap to copy the pixels to</param>
         /// <returns>Whether the copy proceedure was successful</returns>
+        /// <exception cref="ArgumentException">The provided source and target bitmaps are the same</exception>
         public static bool CopyPixels(Bitmap source, Bitmap target)
         {
+            if (source == target)
+            {
+                throw new ArgumentException(@"Copying pixels across the same bitmap is not supported", "source");
+            }
+
             if (source.Width != target.Width || source.Height != target.Height || source.PixelFormat != target.PixelFormat)
                 return false;
 

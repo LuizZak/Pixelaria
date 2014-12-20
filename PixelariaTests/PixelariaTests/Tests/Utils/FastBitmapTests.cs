@@ -658,6 +658,15 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "An ArgumentException exception must be thrown when trying to copy pixels across the same bitmap")]
+        public void TestSameBitmapCopyPixelsException()
+        {
+            Bitmap bitmap = new Bitmap(64, 64);
+
+            FastBitmap.CopyPixels(bitmap, bitmap);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentException), "An ArgumentException exception must be thrown when trying to copy regions across the same bitmap")]
         public void TestSameBitmapCopyRegionException()
         {
