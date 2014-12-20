@@ -26,14 +26,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Windows.Forms;
 
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintOperations;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
 using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 using Pixelaria.Views.ModelViews;
 
@@ -48,34 +46,34 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The PictureBox that displays the bitmap being edited
         /// </summary>
-        private InternalPictureBox internalPictureBox;
+        private readonly InternalPictureBox _internalPictureBox;
 
         /// <summary>
         /// The Panel that will own the InternalPictureBox
         /// </summary>
-        private Panel owningPanel;
+        private readonly Panel _owningPanel;
 
         /// <summary>
         /// The undo system that handles undoing/redoing of tasks
         /// </summary>
-        private UndoSystem undoSystem;
+        private readonly UndoSystem _undoSystem;
 
         /// <summary>
         /// The default compositing mode to use on paint operations that have a compositing operation
         /// </summary>
-        private CompositingMode defaultCompositingMode;
+        private CompositingMode _defaultCompositingMode;
 
         /// <summary>
         /// The default fill mode to use on paint operations that have a fill mode
         /// </summary>
-        private OperationFillMode defaultFillMode;
+        private OperationFillMode _defaultFillMode;
 
         /// <summary>
         /// Gets or sets this panel's picture box's background image
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
-        public Image PictureBoxBackgroundImage { get { return internalPictureBox.BackgroundImage; } set { this.internalPictureBox.BackgroundImage = value; } }
+        public Image PictureBoxBackgroundImage { get { return _internalPictureBox.BackgroundImage; } set { _internalPictureBox.BackgroundImage = value; } }
 
         /// <summary>
         /// Delegate for a ColorSelect event
@@ -125,7 +123,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the internal picture box currently loaded into this ImageEditPanel
         /// </summary>
-        public InternalPictureBox PictureBox { get { return internalPictureBox; } }
+        public InternalPictureBox PictureBox { get { return _internalPictureBox; } }
 
         /// <summary>
         /// Gets or sets the modifiable to notify when changes are made to the bitmap
@@ -138,17 +136,18 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public IPaintOperation CurrentPaintOperation
         {
-            get { return internalPictureBox.CurrentPaintOperation; }
+            get { return _internalPictureBox.CurrentPaintOperation; }
             set
             {
                 if (IsDisposed) 
                     return;
                 
-                internalPictureBox.CurrentPaintOperation = value;
+                _internalPictureBox.CurrentPaintOperation = value;
 
-                if (value is IClipboardPaintOperation)
+                var operation = value as IClipboardPaintOperation;
+                if (operation != null)
                 {
-                    FireClipboardStateEvent((value as IClipboardPaintOperation).CanCopy(), (value as IClipboardPaintOperation).CanCut(), (value as IClipboardPaintOperation).CanPaste());
+                    FireClipboardStateEvent(operation.CanCopy(), operation.CanCut(), operation.CanPaste());
                 }
                 else
                 {
@@ -160,21 +159,22 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the undo system that handles the undo/redo tasks of this ImageEditPanel
         /// </summary>
-        public UndoSystem UndoSystem { get { return undoSystem; } }
+        public UndoSystem UndoSystem { get { return _undoSystem; } }
 
         /// <summary>
         /// Gets or sets the default compositing mode to use on paint operations that have a compositing component
         /// </summary>
         public CompositingMode DefaultCompositingMode
         {
-            get { return defaultCompositingMode; }
+            get { return _defaultCompositingMode; }
             set
             {
-                defaultCompositingMode = value;
+                _defaultCompositingMode = value;
 
-                if (internalPictureBox.CurrentPaintOperation is ICompositingPaintOperation)
+                var operation = _internalPictureBox.CurrentPaintOperation as ICompositingPaintOperation;
+                if (operation != null)
                 {
-                    (internalPictureBox.CurrentPaintOperation as ICompositingPaintOperation).CompositingMode = value;
+                    operation.CompositingMode = value;
                 }
             }
         }
@@ -184,13 +184,14 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public OperationFillMode DefaultFillMode
         {
-            get { return defaultFillMode; }
+            get { return _defaultFillMode; }
             set
             {
-                defaultFillMode = value;
-                if (internalPictureBox.CurrentPaintOperation is IFillModePaintOperation)
+                _defaultFillMode = value;
+                var operation = _internalPictureBox.CurrentPaintOperation as IFillModePaintOperation;
+                if (operation != null)
                 {
-                    (internalPictureBox.CurrentPaintOperation as IFillModePaintOperation).FillMode = value;
+                    operation.FillMode = value;
                 }
             }
         }
@@ -201,32 +202,36 @@ namespace Pixelaria.Views.Controls
         public ImageEditPanel()
         {
             // Create the controls
-            this.SuspendLayout();
+            SuspendLayout();
 
-            this.internalPictureBox = new InternalPictureBox(this);
-            this.internalPictureBox.MinimumZoom = new PointF(0.25f, 0.25f);
-            this.internalPictureBox.MaximumZoom = new PointF(160, 160);
-            this.internalPictureBox.ShowImageArea = false;
-            this.internalPictureBox.ClipBackgroundToImage = true;
-            this.internalPictureBox.AllowDrag = false;
-            this.internalPictureBox.notifyTo = this;
-            this.internalPictureBox.Dock = DockStyle.Fill;
+            _internalPictureBox = new InternalPictureBox(this)
+            {
+                MinimumZoom = new PointF(0.25f, 0.25f),
+                MaximumZoom = new PointF(160, 160),
+                ShowImageArea = false,
+                ClipBackgroundToImage = true,
+                AllowDrag = false,
+                NotifyTo = this,
+                Dock = DockStyle.Fill
+            };
 
-            this.owningPanel = new Panel();
-            this.owningPanel.Dock = DockStyle.Fill;
-            this.owningPanel.AutoScroll = true;
-            this.owningPanel.BorderStyle = BorderStyle.FixedSingle;
+            _owningPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BorderStyle = BorderStyle.FixedSingle
+            };
 
             // Add controls
-            this.owningPanel.Controls.Add(this.internalPictureBox);
-            this.Controls.Add(this.owningPanel);
+            _owningPanel.Controls.Add(_internalPictureBox);
+            Controls.Add(_owningPanel);
 
-            this.ResumeLayout(true);
+            ResumeLayout(true);
 
-            this.undoSystem = new UndoSystem();
+            _undoSystem = new UndoSystem();
 
-            this.defaultCompositingMode = CompositingMode.SourceOver;
-            this.defaultFillMode = OperationFillMode.SolidFillFirstColor;
+            _defaultCompositingMode = CompositingMode.SourceOver;
+            _defaultFillMode = OperationFillMode.SolidFillFirstColor;
         }
 
         /// <summary>
@@ -234,7 +239,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Init()
         {
-            internalPictureBox.HookToControl(this.FindForm());
+            _internalPictureBox.HookToControl(FindForm());
         }
 
         /// <summary>
@@ -242,7 +247,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public new void Dispose()
         {
-            this.internalPictureBox.Dispose();
+            _internalPictureBox.Dispose();
 
             base.Dispose();
         }
@@ -254,11 +259,11 @@ namespace Pixelaria.Views.Controls
         public void LoadBitmap(Bitmap bitmap)
         {
             // Clear the undo system
-            this.undoSystem.Clear();
+            _undoSystem.Clear();
 
-            this.internalPictureBox.SetBitmap(bitmap);
-            this.internalPictureBox.Width = owningPanel.Width;
-            this.internalPictureBox.Height = owningPanel.Height;
+            _internalPictureBox.SetBitmap(bitmap);
+            _internalPictureBox.Width = _owningPanel.Width;
+            _internalPictureBox.Height = _owningPanel.Height;
         }
 
         /// <summary>
@@ -276,6 +281,7 @@ namespace Pixelaria.Views.Controls
         /// Fires the color change event with the given color
         /// </summary>
         /// <param name="color">The color to fire the event with</param>
+        /// <param name="colorIndex">Which color index to fire the event fore. Defaults to the current color</param>
         public void FireColorChangeEvent(Color color, ColorPickerColor colorIndex = ColorPickerColor.CurrentColor)
         {
             if(ColorSelect != null)
@@ -319,107 +325,107 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// The ImageEditPanel that owns this InternalPictureBox
             /// </summary>
-            private ImageEditPanel owningPanel;
+            private readonly ImageEditPanel _owningPanel;
 
             /// <summary>
             /// The current paint operation
             /// </summary>
-            private IPaintOperation currentPaintOperation;
+            private IPaintOperation _currentPaintOperation;
 
             /// <summary>
             /// The buffer bitmap that the paint operations will use in order to buffer screen previews
             /// </summary>
-            private Bitmap buffer;
+            private Bitmap _buffer;
 
             /// <summary>
             /// The image to display under the current image
             /// </summary>
-            private Image underImage;
+            private Image _underImage;
 
             /// <summary>
             /// The image to display over the current image
             /// </summary>
-            private Image overImage;
+            private Image _overImage;
 
             /// <summary>
             /// Whether to display the current image
             /// </summary>
-            private bool displayImage;
+            private bool _displayImage;
 
             /// <summary>
             /// The coordinate of the mouse, in absolute image pixels
             /// </summary>
-            private Point mousePoint;
+            private Point _mousePoint;
 
             /// <summary>
             /// Whether the mouse is currently over the image on the panel
             /// </summary>
-            private bool mouseOverImage;
+            private bool _mouseOverImage;
 
             /// <summary>
             /// Whether to display a grid over the image
             /// </summary>
-            private bool displayGrid;
+            private bool _displayGrid;
 
             /// <summary>
             /// The list of picture box decorators
             /// </summary>
-            private List<PictureBoxDecorator> pictureBoxDecorators;
+            private readonly List<PictureBoxDecorator> _pictureBoxDecorators;
 
             /// <summary>
             /// Specifies the modifiable to notify when changes are made to the bitmap
             /// </summary>
-            public Modifiable notifyTo;
+            public Modifiable NotifyTo;
 
             /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox
             /// </summary>
-            public IPaintOperation CurrentPaintOperation { get { return currentPaintOperation; } set { if (IsDisposed) return; SetPaintOperation(value); } }
+            public IPaintOperation CurrentPaintOperation { get { return _currentPaintOperation; } set { if (IsDisposed) return; SetPaintOperation(value); } }
 
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
             /// </summary>
-            public ImageEditPanel OwningPanel { get { return owningPanel; } }
+            public ImageEditPanel OwningPanel { get { return _owningPanel; } }
 
             /// <summary>
             /// Gets the Bitmap associated with this InternalPictureBox
             /// </summary>
-            public Bitmap Bitmap { get { return (Image == null ? null : Image as Bitmap); } }
+            public Bitmap Bitmap { get { return Image as Bitmap; } }
 
             /// <summary>
             /// Gets the buffer bitmap that the paint operations will use in order to buffer screen previews
             /// </summary>
-            public Bitmap Buffer { get { return buffer; } }
+            public Bitmap Buffer { get { return _buffer; } }
 
             /// <summary>
             /// Gets or sets the image to display under the current image
             /// </summary>
-            public Image UnderImage { get { return underImage; } set { underImage = value; Invalidate(); } }
+            public Image UnderImage { get { return _underImage; } set { _underImage = value; Invalidate(); } }
 
             /// <summary>
             /// Gets or sets the image to display over the current image
             /// </summary>
-            public Image OverImage { get { return overImage; } set { overImage = value; Invalidate(); } }
+            public Image OverImage { get { return _overImage; } set { _overImage = value; Invalidate(); } }
 
             /// <summary>
             /// Gets or sets whether to display the current image
             /// </summary>
-            public bool DisplayImage { get { return displayImage; } set { if (displayImage != value) { displayImage = value; Invalidate(); } } }
+            public bool DisplayImage { get { return _displayImage; } set { if (_displayImage != value) { _displayImage = value; Invalidate(); } } }
 
             /// <summary>
             /// Gets the coordinate of the mouse, in absolute image pixels 
             /// </summary>
-            public Point MousePoint { get { return mousePoint; } }
+            public Point MousePoint { get { return _mousePoint; } }
 
             /// <summary>
             /// Gets whether the mouse is currently over the image on the panel
             /// </summary>
-            public bool MouseOverImage { get { return mouseOverImage; } }
+            public bool MouseOverImage { get { return _mouseOverImage; } }
 
             /// <summary>
             /// Gets or sets whether to display a grid over the image
             /// </summary>
-            public bool DisplayGrid { get { return displayGrid; } set { this.displayGrid = value; Invalidate(); } }
+            public bool DisplayGrid { get { return _displayGrid; } set { _displayGrid = value; Invalidate(); } }
 
             /// <summary>
             /// Initializes a new instance of the InternalPictureBox class
@@ -427,15 +433,15 @@ namespace Pixelaria.Views.Controls
             /// <param name="owningPanel">The ImageEditPanel that will own this InternalPictureBox</param>
             public InternalPictureBox(ImageEditPanel owningPanel)
             {
-                this.owningPanel = owningPanel;
+                _owningPanel = owningPanel;
 
-                this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-                this.ZoomFactor = 2;
-                this.displayImage = true;
-                this.displayGrid = false;
-                this.mousePoint = new Point();
-                this.mouseOverImage = false;
-                this.pictureBoxDecorators = new List<PictureBoxDecorator>();
+                SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+                ZoomFactor = 2;
+                _displayImage = true;
+                _displayGrid = false;
+                _mousePoint = new Point();
+                _mouseOverImage = false;
+                _pictureBoxDecorators = new List<PictureBoxDecorator>();
 
                 SetPaintOperation(new PencilPaintOperation());
             }
@@ -445,31 +451,31 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public new void Dispose()
             {
-                if (currentPaintOperation != null)
+                if (_currentPaintOperation != null)
                 {
-                    currentPaintOperation.Destroy();
+                    _currentPaintOperation.Destroy();
                 }
 
-                foreach(PictureBoxDecorator decorator in pictureBoxDecorators)
+                foreach(PictureBoxDecorator decorator in _pictureBoxDecorators)
                 {
                     decorator.Destroy();
                 }
 
                 // Create the under and over images
-                if (overImage != null)
+                if (_overImage != null)
                 {
-                    overImage.Dispose();
-                    overImage = null;
+                    _overImage.Dispose();
+                    _overImage = null;
                 }
-                if (underImage != null)
+                if (_underImage != null)
                 {
-                    underImage.Dispose();
-                    underImage = null;
+                    _underImage.Dispose();
+                    _underImage = null;
                 }
 
-                pictureBoxDecorators.Clear();
+                _pictureBoxDecorators.Clear();
 
-                buffer.Dispose();
+                _buffer.Dispose();
 
                 base.Dispose();
             }
@@ -480,37 +486,37 @@ namespace Pixelaria.Views.Controls
             /// <param name="bitmap">The bitmap to edit</param>
             public void SetBitmap(Bitmap bitmap)
             {
-                this.Image = bitmap;
+                Image = bitmap;
 
-                if (buffer != null)
-                    buffer.Dispose();                
+                if (_buffer != null)
+                    _buffer.Dispose();                
 
-                buffer = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+                _buffer = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
 
                 // Create the under and over images
-                if (overImage != null)
+                if (_overImage != null)
                 {
-                    overImage.Dispose();
+                    _overImage.Dispose();
                 }
-                if (underImage != null)
+                if (_underImage != null)
                 {
-                    underImage.Dispose();
+                    _underImage.Dispose();
                 }
 
-                overImage = new Bitmap(buffer.Width, buffer.Height, PixelFormat.Format32bppArgb);
-                underImage = new Bitmap(buffer.Width, buffer.Height, PixelFormat.Format32bppArgb);
+                _overImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
+                _underImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
 
-                if (currentPaintOperation != null)
+                if (_currentPaintOperation != null)
                 {
                     // Initialize the paint operation
-                    if (!currentPaintOperation.Loaded)
+                    if (!_currentPaintOperation.Loaded)
                     {
-                        currentPaintOperation.Initialize(this);
+                        _currentPaintOperation.Initialize(this);
 
-                        this.Cursor = currentPaintOperation.OperationCursor;
+                        Cursor = _currentPaintOperation.OperationCursor;
                     }
 
-                    currentPaintOperation.ChangeBitmap(bitmap);
+                    _currentPaintOperation.ChangeBitmap(bitmap);
                 }
             }
 
@@ -520,34 +526,35 @@ namespace Pixelaria.Views.Controls
             /// <param name="newPaintOperation"></param>
             public void SetPaintOperation(IPaintOperation newPaintOperation)
             {
-                if (currentPaintOperation != null)
+                if (_currentPaintOperation != null)
                 {
-                    owningPanel.FireOperationStatusEvent(currentPaintOperation, "");
+                    _owningPanel.FireOperationStatusEvent(_currentPaintOperation, "");
 
-                    currentPaintOperation.Destroy();
+                    _currentPaintOperation.Destroy();
                 }
 
-                currentPaintOperation = newPaintOperation;
+                _currentPaintOperation = newPaintOperation;
 
                 if (Image != null)
                 {
-                    currentPaintOperation.Initialize(this);
+                    _currentPaintOperation.Initialize(this);
 
-                    if (!mouseOverImage)
+                    if (!_mouseOverImage)
                     {
-                        currentPaintOperation.MouseLeave(new EventArgs());
+                        _currentPaintOperation.MouseLeave(new EventArgs());
                     }
 
-                    this.Cursor = currentPaintOperation.OperationCursor;
+                    Cursor = _currentPaintOperation.OperationCursor;
                 }
 
-                if (currentPaintOperation is ICompositingPaintOperation)
+                var operation = _currentPaintOperation as ICompositingPaintOperation;
+                if (operation != null)
                 {
-                    (currentPaintOperation as ICompositingPaintOperation).CompositingMode = owningPanel.defaultCompositingMode;
+                    operation.CompositingMode = _owningPanel._defaultCompositingMode;
                 }
-                if (currentPaintOperation is IFillModePaintOperation)
+                if (_currentPaintOperation is IFillModePaintOperation)
                 {
-                    (currentPaintOperation as IFillModePaintOperation).FillMode = owningPanel.defaultFillMode;
+                    (_currentPaintOperation as IFillModePaintOperation).FillMode = _owningPanel._defaultFillMode;
                 }
             }
 
@@ -556,9 +563,9 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public void MarkModified()
             {
-                if (notifyTo != null)
+                if (NotifyTo != null)
                 {
-                    notifyTo.MarkModified();
+                    NotifyTo.MarkModified();
                 }
             }
 
@@ -577,9 +584,9 @@ namespace Pixelaria.Views.Controls
             /// <param name="decorator">The decorator to add to this picture box</param>
             public void AddDecorator(PictureBoxDecorator decorator)
             {
-                this.pictureBoxDecorators.Add(decorator);
+                _pictureBoxDecorators.Add(decorator);
                 decorator.AddedToPictureBox(this);
-                this.Invalidate();
+                Invalidate();
             }
 
             /// <summary>
@@ -588,18 +595,17 @@ namespace Pixelaria.Views.Controls
             /// <param name="decorator">The decorator to remove from this picture box</param>
             public void RemoveDecorator(PictureBoxDecorator decorator)
             {
-                this.pictureBoxDecorators.Remove(decorator);
-                this.Invalidate();
+                _pictureBoxDecorators.Remove(decorator);
+                Invalidate();
             }
 
             /// <summary>
             /// Removes a decorator from this picture box
             /// </summary>
-            /// <param name="decorator">The decorator to remove from this picture box</param>
             public void ClearDecorators()
             {
-                this.pictureBoxDecorators.Clear();
-                this.Invalidate();
+                _pictureBoxDecorators.Clear();
+                Invalidate();
             }
 
             // 
@@ -608,7 +614,7 @@ namespace Pixelaria.Views.Controls
             protected override void OnPaint(PaintEventArgs pe)
             {
                 // Draw the under image
-                if (underImage != null)
+                if (_underImage != null)
                 {
                     pe.Graphics.TranslateTransform(-offsetPoint.X, -offsetPoint.Y);
                     pe.Graphics.ScaleTransform(scale.X, scale.Y);
@@ -617,13 +623,13 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.InterpolationMode = ImageInterpolationMode;
 
                     // Apply the decorators
-                    Image copy = underImage;
+                    Image copy = _underImage;
 
-                    if (pictureBoxDecorators.Count > 0)
+                    if (_pictureBoxDecorators.Count > 0)
                     {
-                        copy = ((Bitmap)underImage).Clone(new Rectangle(0, 0, underImage.Width, underImage.Height), underImage.PixelFormat);
+                        copy = ((Bitmap)_underImage).Clone(new Rectangle(0, 0, _underImage.Width, _underImage.Height), _underImage.PixelFormat);
 
-                        foreach (PictureBoxDecorator decorator in pictureBoxDecorators)
+                        foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
                             decorator.DecorateUnderImage(copy);
                         }
@@ -634,42 +640,42 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.ResetTransform();
                 }
 
-                if (this.Image != null)
+                if (Image != null)
                 {
                     UpdateGraphicsTransform(pe.Graphics);
 
                     // Reset the buffer back to the original input bitmap state
-                    FastBitmap.CopyPixels(Bitmap, buffer);
+                    FastBitmap.CopyPixels(Bitmap, _buffer);
 
                     // Clip to the image's boundaries
                     pe.Graphics.IntersectClip(new RectangleF(0, 0, Image.Width, Image.Height));
                     Region clip = pe.Graphics.Clip;
 
                     // Start painting now
-                    currentPaintOperation.Paint(pe);
+                    _currentPaintOperation.Paint(pe);
 
-                    if (displayImage)
+                    if (_displayImage)
                     {
-                        foreach (PictureBoxDecorator decorator in pictureBoxDecorators)
+                        foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
-                            decorator.DecorateMainImage(buffer);
+                            decorator.DecorateMainImage(_buffer);
                         }
 
                         // Draw the buffer now
-                        pe.Graphics.DrawImage(buffer, 0, 0);
+                        pe.Graphics.DrawImage(_buffer, 0, 0);
                     }
 
                     // Draw the over image
-                    if (overImage != null)
+                    if (_overImage != null)
                     {
                         // Apply the decorators
-                        Image copy = overImage;
+                        Image copy = _overImage;
 
-                        if (pictureBoxDecorators.Count > 0)
+                        if (_pictureBoxDecorators.Count > 0)
                         {
-                            copy = ((Bitmap)overImage).Clone(new Rectangle(0, 0, overImage.Width, overImage.Height), overImage.PixelFormat);
+                            copy = ((Bitmap)_overImage).Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
 
-                            foreach (PictureBoxDecorator decorator in pictureBoxDecorators)
+                            foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                             {
                                 decorator.DecorateFrontImage(copy);
                             }
@@ -679,7 +685,7 @@ namespace Pixelaria.Views.Controls
                     }
 
                     // Reset the clipping and draw the grid
-                    if (displayGrid && scale.X > 4 && scale.Y > 4)
+                    if (_displayGrid && scale.X > 4 && scale.Y > 4)
                     {
                         pe.Graphics.Clip = clip;
                         pe.Graphics.ResetTransform();
@@ -690,30 +696,30 @@ namespace Pixelaria.Views.Controls
                         float yOff = (-offsetPoint.Y) % scale.Y;
 
                         // Draw the horizontal lines
-                        for (float y = yOff; y < Math.Min(this.Height, (this.Image.Height * scale.Y)); y += scale.Y)
+                        for (float y = yOff; y < Math.Min(Height, (Image.Height * scale.Y)); y += scale.Y)
                         {
-                            pe.Graphics.DrawLine(pen, 0, y, (int)(this.Image.Width * scale.X), y);
+                            pe.Graphics.DrawLine(pen, 0, y, (int)(Image.Width * scale.X), y);
                         }
 
                         // Draw the vertical lines
-                        for (float x = xOff; x < Math.Min(this.Width, (this.Image.Width * scale.X)); x += scale.X)
+                        for (float x = xOff; x < Math.Min(Width, (Image.Width * scale.X)); x += scale.X)
                         {
-                            pe.Graphics.DrawLine(pen, x, 0, x, (int)(this.Image.Height * scale.Y));
+                            pe.Graphics.DrawLine(pen, x, 0, x, (int)(Image.Height * scale.Y));
                         }
                     }
                 }
                 else
                 {
                     // Draw the over image
-                    if (overImage != null)
+                    if (_overImage != null)
                     {
-                        Image copy = overImage;
+                        Image copy = _overImage;
 
-                        if (pictureBoxDecorators.Count > 0)
+                        if (_pictureBoxDecorators.Count > 0)
                         {
-                            copy = ((Bitmap)overImage).Clone(new Rectangle(0, 0, overImage.Width, overImage.Height), overImage.PixelFormat);
+                            copy = ((Bitmap)_overImage).Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
 
-                            foreach (PictureBoxDecorator decorator in pictureBoxDecorators)
+                            foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                             {
                                 decorator.DecorateUnderImage(copy);
                             }
@@ -739,10 +745,12 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseDown(e);
 
-                this.FindForm().ActiveControl = this;
+                var findForm = FindForm();
+                if (findForm != null)
+                    findForm.ActiveControl = this;
 
-                if (this.Image != null)
-                    currentPaintOperation.MouseDown(e);
+                if (Image != null)
+                    _currentPaintOperation.MouseDown(e);
             }
 
             // 
@@ -752,13 +760,13 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseMove(e);
 
-                if (this.Image != null)
+                if (Image != null)
                 {
-                    currentPaintOperation.MouseMove(e);
+                    _currentPaintOperation.MouseMove(e);
 
-                    mousePoint = GetAbsolutePoint(e.Location);
+                    _mousePoint = GetAbsolutePoint(e.Location);
 
-                    mouseOverImage = mousePoint.X >= 0 && mousePoint.Y >= 0 && mousePoint.X < Image.Width && mousePoint.Y < Image.Height;
+                    _mouseOverImage = _mousePoint.X >= 0 && _mousePoint.Y >= 0 && _mousePoint.X < Image.Width && _mousePoint.Y < Image.Height;
                 }
             }
 
@@ -769,8 +777,8 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseUp(e);
 
-                if (this.Image != null)
-                    currentPaintOperation.MouseUp(e);
+                if (Image != null)
+                    _currentPaintOperation.MouseUp(e);
             }
 
             // 
@@ -780,10 +788,10 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseLeave(e);
 
-                mouseOverImage = false;
+                _mouseOverImage = false;
 
-                if (this.Image != null)
-                    currentPaintOperation.MouseLeave(e);
+                if (Image != null)
+                    _currentPaintOperation.MouseLeave(e);
             }
 
             // 
@@ -793,8 +801,8 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseEnter(e);
 
-                if (this.Image != null)
-                    currentPaintOperation.MouseEnter(e);
+                if (Image != null)
+                    _currentPaintOperation.MouseEnter(e);
             }
 
             // 
@@ -804,8 +812,8 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnKeyDown(e);
 
-                if (this.Image != null)
-                    currentPaintOperation.KeyDown(e);
+                if (Image != null)
+                    _currentPaintOperation.KeyDown(e);
             }
 
             // 
@@ -815,8 +823,8 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnKeyDown(e);
 
-                if (this.Image != null)
-                    currentPaintOperation.KeyUp(e);
+                if (Image != null)
+                    _currentPaintOperation.KeyUp(e);
             }
         }
     }
@@ -849,9 +857,9 @@ namespace Pixelaria.Views.Controls
         /// <param name="canPaste">Whether there's content to be pasted on the object</param>
         public ClipboardStateEventArgs(bool canCopy, bool canCut, bool canPaste)
         {
-            this.CanCopy = canCopy;
-            this.CanCut = canCut;
-            this.CanPaste = canPaste;
+            CanCopy = canCopy;
+            CanCut = canCut;
+            CanPaste = canPaste;
         }
     }
 
@@ -877,8 +885,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="status">The operation status</param>
         public OperationStatusEventArgs(IPaintOperation operation, string status)
         {
-            this.Operation = operation;
-            this.Status = status;
+            Operation = operation;
+            Status = status;
         }
     }
 
@@ -890,27 +898,27 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The target picture box that will be invalidated
         /// </summary>
-        PictureBox targetPictureBox;
+        readonly PictureBox _targetPictureBox;
 
         /// <summary>
         /// The bitmap that will be the target for the changes
         /// </summary>
-        Bitmap targetBitmap;
+        readonly Bitmap _targetBitmap;
 
         /// <summary>
         /// The bitmap that contains the pixels for the undoing of the task
         /// </summary>
-        Bitmap oldBitmap;
+        readonly Bitmap _oldBitmap;
 
         /// <summary>
         /// The bitmap that contains the pixels for the redoing of the task
         /// </summary>
-        Bitmap newBitmap;
+        Bitmap _newBitmap;
 
         /// <summary>
         /// The string description for this BitmapUndoTask
         /// </summary>
-        string description;
+        readonly string _description;
 
         /// <summary>
         /// Initializes a new instance of the BitmapUndoTask, with a 
@@ -920,11 +928,11 @@ namespace Pixelaria.Views.Controls
         /// <param name="description">A short description for this BitmapUndoTask</param>
         public BitmapUndoTask(PictureBox targetPictureBox, Bitmap targetBitmap, string description)
         {
-            this.targetPictureBox = targetPictureBox;
-            this.targetBitmap = targetBitmap;
-            this.description = description;
+            _targetPictureBox = targetPictureBox;
+            _targetBitmap = targetBitmap;
+            _description = description;
 
-            oldBitmap = targetBitmap.Clone() as Bitmap;
+            _oldBitmap = targetBitmap.Clone() as Bitmap;
         }
 
         /// <summary>
@@ -933,14 +941,14 @@ namespace Pixelaria.Views.Controls
         /// <param name="newBitmap">The bitmap whose pixels will be used as the redo bitmap</param>
         public void RegisterNewBitmap(Bitmap newBitmap)
         {
-            if (this.newBitmap != null)
+            if (_newBitmap != null)
             {
-                this.newBitmap.Dispose();
+                _newBitmap.Dispose();
             }
 
-            this.newBitmap = new Bitmap(newBitmap.Width, newBitmap.Height, PixelFormat.Format32bppArgb);
+            _newBitmap = new Bitmap(newBitmap.Width, newBitmap.Height, PixelFormat.Format32bppArgb);
 
-            FastBitmap.CopyPixels(newBitmap, this.newBitmap);
+            FastBitmap.CopyPixels(newBitmap, _newBitmap);
         }
 
         /// <summary>
@@ -948,11 +956,11 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Clear()
         {
-            oldBitmap.Dispose();
+            _oldBitmap.Dispose();
 
-            if (newBitmap != null)
+            if (_newBitmap != null)
             {
-                newBitmap.Dispose();
+                _newBitmap.Dispose();
             }
         }
 
@@ -961,8 +969,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Undo()
         {
-            FastBitmap.CopyPixels(oldBitmap, targetBitmap);
-            targetPictureBox.Invalidate();
+            FastBitmap.CopyPixels(_oldBitmap, _targetBitmap);
+            _targetPictureBox.Invalidate();
         }
 
         /// <summary>
@@ -970,8 +978,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Redo()
         {
-            FastBitmap.CopyPixels(newBitmap, targetBitmap);
-            targetPictureBox.Invalidate();
+            FastBitmap.CopyPixels(_newBitmap, _targetBitmap);
+            _targetPictureBox.Invalidate();
         }
 
         /// <summary>
@@ -980,86 +988,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>A short string description of this UndoTask</returns>
         public string GetDescription()
         {
-            return description;
-        }
-    }
-
-    /// <summary>
-    /// Implements a Picker paint operation
-    /// </summary>
-    public class PickerPaintOperation : BasePaintOperation, IPaintOperation
-    {
-        /// <summary>
-        /// The last absolute position of the mouse
-        /// </summary>
-        protected Point lastMousePointAbsolute;
-
-        /// <summary>
-        /// Gets whether this Paint Operation has resources loaded
-        /// </summary>
-        public override bool Loaded { get; protected set; }
-
-        /// <summary>
-        /// Initializes this Paint Operation
-        /// </summary>
-        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
-        {
-            this.pictureBox = targetPictureBox;
-
-            this.lastMousePointAbsolute = new Point(-1, -1);
-
-            // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.picker_cursor);
-            this.OperationCursor = new Cursor(cursorMemoryStream);
-            cursorMemoryStream.Dispose();
-
-            Loaded = true;
-        }
-
-        /// <summary>
-        /// Finalizes this Paint Operation
-        /// </summary>
-        public override void Destroy()
-        {
-            pictureBox = null;
-
-            this.OperationCursor.Dispose();
-
-            Loaded = false;
-        }
-
-        /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
-        /// </summary>
-        /// <param name="e">The event args for this event</param>
-        public override void MouseDown(MouseEventArgs e)
-        {
-            MouseMove(e);
-        }
-
-        /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
-        /// </summary>
-        /// <param name="e">The event args for this event</param>
-        public override void MouseMove(MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
-            {
-                Point absolute = GetAbsolutePoint(e.Location);
-
-                if (absolute != lastMousePointAbsolute)
-                {
-                    if (WithinBounds(absolute))
-                    {
-                        Color color = pictureBox.Bitmap.GetPixel(absolute.X, absolute.Y);
-
-                        pictureBox.OwningPanel.FireColorChangeEvent(color, e.Button == MouseButtons.Left ? ColorPickerColor.FirstColor : ColorPickerColor.SecondColor);
-                    }
-                }
-
-                lastMousePointAbsolute = absolute;
-            }
+            return _description;
         }
     }
 
@@ -1108,7 +1037,7 @@ namespace Pixelaria.Views.Controls
         /// Initializes a new instance of the PictureBoxDecorator class
         /// </summary>
         /// <param name="pictureBox">The picture box to decorate</param>
-        public PictureBoxDecorator(ImageEditPanel.InternalPictureBox pictureBox)
+        protected PictureBoxDecorator(ImageEditPanel.InternalPictureBox pictureBox)
         {
             this.pictureBox = pictureBox;
         }
@@ -1121,8 +1050,8 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Called to notify this picture box decorator that it has been added to a picture box
         /// </summary>
-        /// <param name="pictureBox">The picture box this decorator has been added to</param>
-        public void AddedToPictureBox(ImageEditPanel.InternalPictureBox pictureBox)
+        /// <param name="pictBox">The picture box this decorator has been added to</param>
+        public void AddedToPictureBox(ImageEditPanel.InternalPictureBox pictBox)
         {
             Initialize();
         }
@@ -1132,7 +1061,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public virtual void Destroy()
         {
-            this.pictureBox = null;
+            pictureBox = null;
         }
 
         /// <summary>

@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
@@ -21,57 +17,57 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The Bitmap the filter will be applied on when the user clicks 'Ok'
         /// </summary>
-        Bitmap bitmapOriginal;
+        Bitmap _bitmapOriginal;
 
         /// <summary>
         /// The bitmap that will be used as a preview for the filters
         /// </summary>
-        Bitmap bitmapPreview;
+        Bitmap _bitmapPreview;
 
         /// <summary>
         /// The FilterContainer objects that are currently applying filters to the bitmap
         /// </summary>
-        List<FilterContainer> filterContainers;
+        List<FilterContainer> _filterContainers;
 
         /// <summary>
         /// Event handler for the FilterUpdated event
         /// </summary>
-        EventHandler filterUpdatedHandler;
+        EventHandler _filterUpdatedHandler;
 
         /// <summary>
         /// Event handler for a filter item click event
         /// </summary>
-        EventHandler filterItemClick;
+        EventHandler _filterItemClick;
 
         /// <summary>
         /// Event handler for the ContainerDragStart event
         /// </summary>
-        EventHandler containerDraggedHandler;
+        EventHandler _containerDraggedHandler;
 
         /// <summary>
         /// Event handler for the ContainerDragEnd event
         /// </summary>
-        EventHandler containerDroppedHandler;
+        EventHandler _containerDroppedHandler;
 
         /// <summary>
         /// Event handler for the ContainerDragMove event
         /// </summary>
-        EventHandler containerDraggingHandler;
+        EventHandler _containerDraggingHandler;
 
         /// <summary>
         /// Form used to display the current FilterContainer being dragged
         /// </summary>
-        ContainerDragForm dragForm;
+        ContainerDragForm _dragForm;
 
         /// <summary>
         /// Panel used to temporarely replace the current FilterContainer being dragged
         /// </summary>
-        Panel containerReplacePanel;
+        Panel _containerReplacePanel;
 
         /// <summary>
         /// Gets the list of FilterContainer objects that are currently applying filters to the bitmap
         /// </summary>
-        public FilterContainer[] FilterContainers { get { return filterContainers.ToArray(); } }
+        public FilterContainer[] FilterContainers { get { return _filterContainers.ToArray(); } }
 
         /// <summary>
         /// Initializes a new instance of the FilterSelector class
@@ -88,29 +84,29 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Init()
         {
-            this.btn_addFilter.Click += new System.EventHandler(this.btn_addFilter_Click);
-            this.cb_filterPresets.TextChanged += new System.EventHandler(this.cb_filterPresets_TextChanged);
-            this.btn_savePreset.Click += new System.EventHandler(this.btn_savePreset_Click);
-            this.btn_deletePreset.Click += new System.EventHandler(this.btn_deletePreset_Click);
-            this.btn_loadPreset.Click += new System.EventHandler(this.btn_loadPreset_Click);
-            this.zpb_preview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_preview_ZoomChanged);
-            this.zpb_original.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_original_ZoomChanged);
+            btn_addFilter.Click += btn_addFilter_Click;
+            cb_filterPresets.TextChanged += cb_filterPresets_TextChanged;
+            btn_savePreset.Click += btn_savePreset_Click;
+            btn_deletePreset.Click += btn_deletePreset_Click;
+            btn_loadPreset.Click += btn_loadPreset_Click;
+            zpb_preview.ZoomChanged += zpb_preview_ZoomChanged;
+            zpb_original.ZoomChanged += zpb_original_ZoomChanged;
 
-            this.filterContainers = new List<FilterContainer>();
+            _filterContainers = new List<FilterContainer>();
 
-            this.filterUpdatedHandler = new EventHandler(FilterUpdated);
-            this.filterItemClick = new EventHandler(tsm_filterItem_Click);
-            this.containerDraggedHandler = new EventHandler(ContainerDragged);
-            this.containerDroppedHandler = new EventHandler(ContainerDropped);
-            this.containerDraggingHandler = new EventHandler(ContainerDragging);
+            _filterUpdatedHandler = FilterUpdated;
+            _filterItemClick = tsm_filterItem_Click;
+            _containerDraggedHandler = ContainerDragged;
+            _containerDroppedHandler = ContainerDropped;
+            _containerDraggingHandler = ContainerDragging;
 
-            this.zpb_original.Image = this.bitmapOriginal;
-            this.zpb_preview.Image = this.bitmapPreview;
+            zpb_original.Image = _bitmapOriginal;
+            zpb_preview.Image = _bitmapPreview;
 
-            this.zpb_original.HookToControl(this);
-            this.zpb_preview.HookToControl(this);
+            zpb_original.HookToControl(this);
+            zpb_preview.HookToControl(this);
 
-            this.ignoreZoomEvents = false;
+            _ignoreZoomEvents = false;
 
             UpdateFilterList();
             UpdateFilterPresetList();
@@ -123,28 +119,28 @@ namespace Pixelaria.Views.Controls
         /// <param name="bitmap">The new bitmap to apply the filters to</param>
         public void SetImage(Bitmap bitmap)
         {
-            if(this.bitmapPreview != null)
-                this.bitmapPreview.Dispose();
+            if(_bitmapPreview != null)
+                _bitmapPreview.Dispose();
 
-            this.bitmapOriginal = bitmap;
-            this.bitmapPreview = bitmap.Clone() as Bitmap;
+            _bitmapOriginal = bitmap;
+            _bitmapPreview = bitmap.Clone() as Bitmap;
 
-            ignoreZoomEvents = true;
+            _ignoreZoomEvents = true;
 
-            this.zpb_original.SetImage(this.bitmapOriginal, false);
-            this.zpb_preview.SetImage(this.bitmapPreview, false);
+            zpb_original.SetImage(_bitmapOriginal);
+            zpb_preview.SetImage(_bitmapPreview);
 
-            ignoreZoomEvents = false;
+            _ignoreZoomEvents = false;
 
-            if (bitmapOriginal.Width >= this.zpb_preview.Width || bitmapOriginal.Height >= this.zpb_preview.Height)
+            if (_bitmapOriginal.Width >= zpb_preview.Width || _bitmapOriginal.Height >= zpb_preview.Height)
             {
-                this.zpb_original.ImageLayout = ImageLayout.None;
-                this.zpb_preview.ImageLayout = ImageLayout.None;
+                zpb_original.ImageLayout = ImageLayout.None;
+                zpb_preview.ImageLayout = ImageLayout.None;
             }
 
-            foreach (FilterContainer container in filterContainers)
+            foreach (FilterContainer container in _filterContainers)
             {
-                container.FilterControl.Initialize(this.bitmapOriginal);
+                container.FilterControl.Initialize(_bitmapOriginal);
             }
 
             UpdateVisualization();
@@ -155,9 +151,9 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void ApplyFilter()
         {
-            foreach (FilterContainer container in filterContainers)
+            foreach (FilterContainer container in _filterContainers)
             {
-                container.ApplyFilter(bitmapOriginal);
+                container.ApplyFilter(_bitmapOriginal);
             }
         }
 
@@ -169,7 +165,7 @@ namespace Pixelaria.Views.Controls
         {
             bool changes = false;
 
-            foreach (FilterContainer container in filterContainers)
+            foreach (FilterContainer container in _filterContainers)
             {
                 if (container.FilterEnabled && container.FilterControl.Filter.Modifying)
                 {
@@ -197,12 +193,12 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Loads the given FilterPreset on this BaseFilterView
         /// </summary>
-        /// <param name="preset">A filter preset that contains data about filters to load on this BaseFilterView<</param>
+        /// <param name="preset">A filter preset that contains data about filters to load on this BaseFilterView</param>
         public void LoadFilterPreset(FilterPreset preset)
         {
             RemoveAllFilterControls(false);
 
-            this.cb_filterPresets.Text = preset.Name;
+            cb_filterPresets.Text = preset.Name;
 
             LoadFilters(preset.MakeFilterControls());
         }
@@ -214,15 +210,15 @@ namespace Pixelaria.Views.Controls
         /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
         public void LoadFilterControl(FilterControl filterControl, bool updateVisualization = true)
         {
-            filterControl.Initialize(this.bitmapOriginal);
+            filterControl.Initialize(_bitmapOriginal);
 
             FilterContainer filterContainer = new FilterContainer(this, filterControl);
 
-            this.filterContainers.Add(filterContainer);
+            _filterContainers.Add(filterContainer);
 
-            filterControl.FilterUpdated += filterUpdatedHandler;
-            filterContainer.ContainerDragStart += containerDraggedHandler;
-            filterContainer.ContainerDragEnd += containerDroppedHandler;
+            filterControl.FilterUpdated += _filterUpdatedHandler;
+            filterContainer.ContainerDragStart += _containerDraggedHandler;
+            filterContainer.ContainerDragEnd += _containerDroppedHandler;
 
             UpdateLayout();
             UpdateFilterPresetButtons();
@@ -252,10 +248,10 @@ namespace Pixelaria.Views.Controls
         /// <param name="updateAfterRemoval">Whether to update the layout after this method call</param>
         private void RemoveFilterControl(FilterContainer filterContainer, bool updateAfterRemoval)
         {
-            filterContainer.ContainerDragStart -= containerDraggedHandler;
-            filterContainer.ContainerDragEnd -= containerDroppedHandler;
+            filterContainer.ContainerDragStart -= _containerDraggedHandler;
+            filterContainer.ContainerDragEnd -= _containerDroppedHandler;
 
-            filterContainers.Remove(filterContainer);
+            _filterContainers.Remove(filterContainer);
 
             filterContainer.DisposeThis();
 
@@ -275,9 +271,9 @@ namespace Pixelaria.Views.Controls
         /// <param name="updateAfterRemoval">Whether to update the layout after this method call</param>
         public void RemoveAllFilterControls(bool updateAfterRemoval)
         {
-            while (filterContainers.Count > 0)
+            while (_filterContainers.Count > 0)
             {
-                RemoveFilterControl(filterContainers[0], false);
+                RemoveFilterControl(_filterContainers[0], false);
             }
 
             if (updateAfterRemoval)
@@ -312,7 +308,7 @@ namespace Pixelaria.Views.Controls
             if (cb_filterPresets.Text.Trim() == "")
                 return;
 
-            if (filterContainers.Count == 0)
+            if (_filterContainers.Count == 0)
                 return;
 
             FilterStore.Instance.RecordFilterPreset(cb_filterPresets.Text, GetFilterArray());
@@ -340,12 +336,12 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void UpdateLayout()
         {
-            foreach (FilterContainer filterContainer in filterContainers)
+            foreach (FilterContainer filterContainer in _filterContainers)
             {
                 if (!pnl_container.Controls.Contains(filterContainer))
                     pnl_container.Controls.Add(filterContainer);
 
-                filterContainer.Width = this.pnl_container.Width - 23;
+                filterContainer.Width = pnl_container.Width - 23;
                 filterContainer.Anchor = AnchorStyles.Right | AnchorStyles.Left;
             }
         }
@@ -355,17 +351,17 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void UpdateVisualization()
         {
-            if (bitmapOriginal == null)
+            if (_bitmapOriginal == null)
                 return;
 
-            FastBitmap.CopyPixels(bitmapOriginal, bitmapPreview);
+            FastBitmap.CopyPixels(_bitmapOriginal, _bitmapPreview);
 
-            foreach (FilterContainer container in filterContainers)
+            foreach (FilterContainer container in _filterContainers)
             {
-                container.ApplyFilter(bitmapPreview);
+                container.ApplyFilter(_bitmapPreview);
             }
 
-            this.zpb_preview.Invalidate();
+            zpb_preview.Invalidate();
         }
 
         /// <summary>
@@ -382,12 +378,12 @@ namespace Pixelaria.Views.Controls
             //foreach (string filter in filterNames)
             for (int i = 0; i < iconList.Length; i++)
             {
-                ToolStripMenuItem tsm_filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
+                ToolStripMenuItem filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
 
-                tsm_filterItem.Tag = filterNames[i];
-                tsm_filterItem.Click += filterItemClick;
+                filterItem.Tag = filterNames[i];
+                filterItem.Click += _filterItemClick;
 
-                cms_filters.Items.Add(tsm_filterItem);
+                cms_filters.Items.Add(filterItem);
             }
         }
 
@@ -415,7 +411,7 @@ namespace Pixelaria.Views.Controls
                 return;
             }
 
-            if (filterContainers.Count == 0)
+            if (_filterContainers.Count == 0)
             {
                 btn_loadPreset.Enabled = true;
                 btn_savePreset.Enabled = false;
@@ -432,11 +428,11 @@ namespace Pixelaria.Views.Controls
         /// <returns>An array of IFilter objects that represent the filters currently loaded on this BaseFilterView</returns>
         private IFilter[] GetFilterArray()
         {
-            IFilter[] filters = new IFilter[filterContainers.Count];
+            IFilter[] filters = new IFilter[_filterContainers.Count];
 
             for (int i = 0; i < filters.Length; i++)
             {
-                filters[i] = filterContainers[i].FilterControl.Filter;
+                filters[i] = _filterContainers[i].FilterControl.Filter;
             }
 
             return filters;
@@ -459,23 +455,23 @@ namespace Pixelaria.Views.Controls
 
             int scroll = pnl_container.VerticalScroll.Value;
 
-            containerReplacePanel = new Panel();
-            containerReplacePanel.BorderStyle = BorderStyle.FixedSingle;
-            containerReplacePanel.Size = fc.Size;
-            containerReplacePanel.PerformLayout();
+            _containerReplacePanel = new Panel();
+            _containerReplacePanel.BorderStyle = BorderStyle.FixedSingle;
+            _containerReplacePanel.Size = fc.Size;
+            _containerReplacePanel.PerformLayout();
 
             pnl_container.SuspendLayout();
-            pnl_container.Controls.Add(containerReplacePanel);
-            pnl_container.Controls.SetChildIndex(containerReplacePanel, pnl_container.Controls.GetChildIndex(fc));
+            pnl_container.Controls.Add(_containerReplacePanel);
+            pnl_container.Controls.SetChildIndex(_containerReplacePanel, pnl_container.Controls.GetChildIndex(fc));
             pnl_container.Controls.Remove(fc);
             pnl_container.ResumeLayout();
 
             pnl_container.VerticalScroll.Value = scroll;
             pnl_container.PerformLayout();
 
-            dragForm = new ContainerDragForm(fc);
-            dragForm.ContainerDragging += containerDraggingHandler;
-            dragForm.Show();
+            _dragForm = new ContainerDragForm(fc);
+            _dragForm.ContainerDragging += _containerDraggingHandler;
+            _dragForm.Show();
         }
 
         // 
@@ -505,9 +501,9 @@ namespace Pixelaria.Views.Controls
 
             if (control is FilterContainer)
             {
-                int pnlIndex = pnl_container.Controls.GetChildIndex(containerReplacePanel);
+                int pnlIndex = pnl_container.Controls.GetChildIndex(_containerReplacePanel);
 
-                pnl_container.Controls.SetChildIndex(containerReplacePanel, pnl_container.Controls.GetChildIndex(control));
+                pnl_container.Controls.SetChildIndex(_containerReplacePanel, pnl_container.Controls.GetChildIndex(control));
                 pnl_container.Controls.SetChildIndex(control, pnlIndex);
             }
         }
@@ -520,31 +516,31 @@ namespace Pixelaria.Views.Controls
             FilterContainer fc = (FilterContainer)sender;
 
             // Close the dragging form
-            dragForm.ContainerDragging -= containerDraggingHandler;
-            dragForm.End();
-            dragForm.Dispose();
+            _dragForm.ContainerDragging -= _containerDraggingHandler;
+            _dragForm.End();
+            _dragForm.Dispose();
 
             // Re-add the filter container to the panel
-            int index = pnl_container.Controls.GetChildIndex(containerReplacePanel);
+            int index = pnl_container.Controls.GetChildIndex(_containerReplacePanel);
 
             int scroll = pnl_container.VerticalScroll.Value;
 
             pnl_container.SuspendLayout();
             pnl_container.Controls.Add(fc);
             pnl_container.Controls.SetChildIndex(fc, index);
-            pnl_container.Controls.Remove(containerReplacePanel);
+            pnl_container.Controls.Remove(_containerReplacePanel);
 
             pnl_container.VerticalScroll.Value = scroll;
             pnl_container.ResumeLayout(true);
 
             // Re-sort the filter's index
-            filterContainers.Remove(fc);
-            filterContainers.Insert(index, fc);
+            _filterContainers.Remove(fc);
+            _filterContainers.Insert(index, fc);
 
             UpdateVisualization();
 
-            this.Focus();
-            this.BringToFront();
+            Focus();
+            BringToFront();
         }
 
         // 
@@ -567,27 +563,27 @@ namespace Pixelaria.Views.Controls
         // 
         // Original ZPB zoom changed
         // 
-        private void zpb_original_ZoomChanged(object sender, Controls.ZoomChangedEventArgs e)
+        private void zpb_original_ZoomChanged(object sender, ZoomChangedEventArgs e)
         {
-            if (ignoreZoomEvents)
+            if (_ignoreZoomEvents)
                 return;
 
-            ignoreZoomEvents = true;
+            _ignoreZoomEvents = true;
             zpb_preview.Zoom = new PointF(e.NewZoom, e.NewZoom);
-            ignoreZoomEvents = false;
+            _ignoreZoomEvents = false;
         }
 
         // 
         // Preview ZPB zoom changed
         // 
-        private void zpb_preview_ZoomChanged(object sender, Controls.ZoomChangedEventArgs e)
+        private void zpb_preview_ZoomChanged(object sender, ZoomChangedEventArgs e)
         {
-            if (ignoreZoomEvents)
+            if (_ignoreZoomEvents)
                 return;
 
-            ignoreZoomEvents = true;
+            _ignoreZoomEvents = true;
             zpb_original.Zoom = new PointF(e.NewZoom, e.NewZoom);
-            ignoreZoomEvents = false;
+            _ignoreZoomEvents = false;
         }
 
         // 
@@ -623,7 +619,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Settings this flag to true ignores any zoom event fired by the zoomable picture boxes on the form
         /// </summary>
-        bool ignoreZoomEvents;
+        bool _ignoreZoomEvents;
 
         /// <summary>
         /// Form used to illustrate the drag operation
@@ -633,17 +629,17 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// The FilterContainer being displayed on this ContainerDragForm instance
             /// </summary>
-            FilterContainer container;
+            readonly FilterContainer _container;
 
             /// <summary>
             /// Timer used to drag this form
             /// </summary>
-            Timer dragTimer;
+            readonly Timer _dragTimer;
 
             /// <summary>
             /// The size the container had when it was fed to this ContainerDragForm object
             /// </summary>
-            Size containerStartSize;
+            Size _containerStartSize;
 
             /// <summary>
             /// Occurs during the dragging operation whenever the container has been moved
@@ -656,7 +652,8 @@ namespace Pixelaria.Views.Controls
             /// <param name="container">The container to display on this ContainerDragForm</param>
             public ContainerDragForm(FilterContainer container)
             {
-                this.container = container;
+                _container = container;
+                _dragTimer = new Timer();
             }
 
             /// <summary>
@@ -664,11 +661,11 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public void End()
             {
-                this.Controls.Remove(container);
-                this.container.Dock = DockStyle.None;
-                this.container.Size = this.containerStartSize;
+                Controls.Remove(_container);
+                _container.Dock = DockStyle.None;
+                _container.Size = _containerStartSize;
 
-                this.dragTimer.Stop();
+                _dragTimer.Stop();
             }
 
             /// <summary>
@@ -676,11 +673,11 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             private void UpdateDrag()
             {
-                Point newPos = new Point(MousePosition.X - container.MouseDownPoint.X, MousePosition.Y - container.MouseDownPoint.Y);
+                Point newPos = new Point(MousePosition.X - _container.MouseDownPoint.X, MousePosition.Y - _container.MouseDownPoint.Y);
 
                 //if(this.Location.X != newPos.X || this.Location.Y != newPos.Y)
                 {
-                    this.Location = newPos;
+                    Location = newPos;
 
                     if (ContainerDragging != null)
                     {
@@ -696,24 +693,23 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnLoad(e);
 
-                this.SuspendLayout();
+                SuspendLayout();
 
-                this.containerStartSize = container.Size;
-                this.ShowInTaskbar = false;
+                _containerStartSize = _container.Size;
+                ShowInTaskbar = false;
 
-                this.AutoScaleMode = AutoScaleMode.None;
-                this.MinimumSize = new Size(0, 0);
-                this.ClientSize = new Size(this.container.Width + 1, this.container.ClientSize.Height + 1);
-                this.FormBorderStyle = FormBorderStyle.None;
-                this.container.Dock = DockStyle.Fill;
-                this.Controls.Add(container);
+                AutoScaleMode = AutoScaleMode.None;
+                MinimumSize = new Size(0, 0);
+                ClientSize = new Size(_container.Width + 1, _container.ClientSize.Height + 1);
+                FormBorderStyle = FormBorderStyle.None;
+                _container.Dock = DockStyle.Fill;
+                Controls.Add(_container);
 
-                this.ResumeLayout();
+                ResumeLayout();
 
-                this.dragTimer = new Timer();
-                this.dragTimer.Interval = 10;
-                this.dragTimer.Tick += new EventHandler(dragTimer_Tick);
-                this.dragTimer.Start();
+                _dragTimer.Interval = 10;
+                _dragTimer.Tick += dragTimer_Tick;
+                _dragTimer.Start();
             }
 
             // 

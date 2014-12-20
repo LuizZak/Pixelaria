@@ -67,11 +67,11 @@ namespace Pixelaria.Views.Controls
             {
                 pe.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                Rectangle rec = CalculateBackgroundImageRectangle(this.ClientRectangle, this.Image, ImageLayout);
+                Rectangle rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
 
                 pe.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
-                pe.Graphics.DrawImage(this.Image, rec);
+                pe.Graphics.DrawImage(Image, rec);
             }
         }
 
@@ -80,7 +80,7 @@ namespace Pixelaria.Views.Controls
         // 
         protected override void OnPaintBackground(PaintEventArgs pevent)
         {
-            pevent.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            pevent.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
             base.OnPaintBackground(pevent);
         }
@@ -123,8 +123,8 @@ namespace Pixelaria.Views.Controls
                     case ImageLayout.Zoom:
                         {
                             Size size2 = backgroundImage.Size;
-                            float num = ((float)bounds.Width) / ((float)size2.Width);
-                            float num2 = ((float)bounds.Height) / ((float)size2.Height);
+                            float num = bounds.Width / ((float)size2.Width);
+                            float num2 = bounds.Height / ((float)size2.Height);
                             if (num >= num2)
                             {
                                 rectangle.Height = bounds.Height;

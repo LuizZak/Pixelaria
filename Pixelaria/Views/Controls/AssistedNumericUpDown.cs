@@ -39,12 +39,12 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Whether the mouse is currently being held down on this control
         /// </summary>
-        private bool mouseDown;
+        private bool _mouseDown;
 
         /// <summary>
         /// The color to fill the assist bar with
         /// </summary>
-        private Color assistBarColor;
+        private Color _assistBarColor;
         
         /// <summary>
         /// Gets or sets the minimum value for the assisted numeric up down
@@ -97,9 +97,9 @@ namespace Pixelaria.Views.Controls
 
                     value = Math.Min(Maximum, Math.Max(Minimum, value));
 
-                    mouseDown = true;
+                    _mouseDown = true;
                     nud_controlNud.Value = value;
-                    mouseDown = false;
+                    _mouseDown = false;
 
                     if (oldValue > value)
                     {
@@ -109,7 +109,8 @@ namespace Pixelaria.Views.Controls
                     }
 
                     Rectangle invalidateBox = new Rectangle((int)((oldValue - Minimum) / (Maximum - Minimum) * Width) - 1, nud_controlNud.Height, (int)((value - Minimum) / (Maximum - Minimum) * Width) + 1, Height - nud_controlNud.Height);
-                    this.Invalidate(invalidateBox);
+
+                    Invalidate(invalidateBox);
                 }
             }
         }
@@ -138,7 +139,7 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The color to fill the assist bar with")]
-        public Color AssistBarColor { get { return assistBarColor; } set { if(assistBarColor != value) { assistBarColor = value; Invalidate(); } } }
+        public Color AssistBarColor { get { return _assistBarColor; } set { if(_assistBarColor != value) { _assistBarColor = value; Invalidate(); } } }
 
         /// <summary>
         /// Occurs when the Value property has been changed in some way
@@ -166,7 +167,7 @@ namespace Pixelaria.Views.Controls
         {
             InitializeComponent();
 
-            assistBarColor = Color.CornflowerBlue;
+            _assistBarColor = Color.CornflowerBlue;
         }
 
         // 
@@ -174,7 +175,7 @@ namespace Pixelaria.Views.Controls
         // 
         private void nud_controlNud_ValueChanged(object sender, EventArgs e)
         {
-            if (!mouseDown)
+            if (!_mouseDown)
                 Invalidate();
         }
 
@@ -190,9 +191,7 @@ namespace Pixelaria.Views.Controls
 
             if (rangeBox.Width > 0)
             {
-                Brush drawBrush = Brushes.CornflowerBlue;
-
-                LinearGradientBrush gradientBrush = new LinearGradientBrush(rangeBox, assistBarColor, assistBarColor, 90);
+                LinearGradientBrush gradientBrush = new LinearGradientBrush(rangeBox, _assistBarColor, _assistBarColor, 90);
 
                 e.Graphics.FillRectangle(gradientBrush, rangeBox);
             }
@@ -203,7 +202,7 @@ namespace Pixelaria.Views.Controls
         // 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            mouseDown = true;
+            _mouseDown = true;
 
             decimal value = Minimum + ((Maximum - Minimum) * ((decimal)Math.Max(0, Math.Min(Width, e.X)) / Width));
 
@@ -231,7 +230,8 @@ namespace Pixelaria.Views.Controls
             }
 
             Rectangle invalidateBox = new Rectangle((int)((oldValue - Minimum) / (Maximum - Minimum) * Width) - 1, nud_controlNud.Height, (int)((value - Minimum) / (Maximum - Minimum) * Width) + 1, Height - nud_controlNud.Height);
-            this.Invalidate(invalidateBox);
+
+            Invalidate(invalidateBox);
         }
 
         // 
@@ -241,7 +241,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseMove(e);
 
-            if (mouseDown)
+            if (_mouseDown)
             {
                 decimal value = Minimum + ((Maximum - Minimum) * ((decimal)Math.Max(0, Math.Min(Width, e.X)) / Width));
                 decimal oldValue = nud_controlNud.Value;
@@ -268,7 +268,8 @@ namespace Pixelaria.Views.Controls
                 }
 
                 Rectangle invalidateBox = new Rectangle((int)((oldValue - Minimum) / (Maximum - Minimum) * Width) - 1, nud_controlNud.Height, (int)((value - Minimum) / (Maximum - Minimum) * Width) + 1, Height - nud_controlNud.Height);
-                this.Invalidate(invalidateBox);
+
+                Invalidate(invalidateBox);
             }
         }
 
@@ -279,7 +280,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseUp(e);
 
-            mouseDown = false;
+            _mouseDown = false;
         }
     }
 }
