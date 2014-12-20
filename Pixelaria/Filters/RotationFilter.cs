@@ -94,6 +94,8 @@ namespace Pixelaria.Filters
 
             gfx.Flush();
             gfx.Dispose();
+
+            bit.Dispose();
         }
 
         /// <summary>
