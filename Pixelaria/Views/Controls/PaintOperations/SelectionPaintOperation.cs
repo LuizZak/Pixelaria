@@ -141,8 +141,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             OperationCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            _animTimer = new Timer();
-            _animTimer.Interval = 200;
+            _animTimer = new Timer { Interval = 200 };
             _animTimer.Tick += animTimer_Tick;
 
             displaySelection = true;
@@ -482,14 +481,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     }
                 }
 
-                if (selectedArea.Contains(p))
-                {
-                    pictureBox.Cursor = Cursors.SizeAll;
-                }
-                else
-                {
-                    pictureBox.Cursor = OperationCursor;
-                }
+                pictureBox.Cursor = selectedArea.Contains(p) ? Cursors.SizeAll : OperationCursor;
             }
             else if (mouseDown)
             {

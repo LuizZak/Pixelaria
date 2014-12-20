@@ -87,14 +87,7 @@ namespace Pixelaria.Filters
 
             g.Clear(Color.Transparent);
 
-            if (PixelQuality)
-            {
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-            }
-            else
-            {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            }
+            g.InterpolationMode = PixelQuality ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
 
             RectangleF rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
 

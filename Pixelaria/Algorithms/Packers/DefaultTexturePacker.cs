@@ -414,17 +414,17 @@ namespace Pixelaria.Algorithms.Packers
             /// <summary>
             /// Dictionary of internal compare fragments
             /// </summary>
-            Dictionary<Frame, CompareFrag> _fragDictionary;
+            readonly Dictionary<Frame, CompareFrag> _fragDictionary;
 
             /// <summary>
             /// Matrix of similar frames stored in a multi-dimensional list
             /// </summary>
-            private List<List<Frame>> _similarFramesMatrix;
+            private readonly List<List<Frame>> _similarFramesMatrix;
 
             /// <summary>
             /// Dictionary of indexes assigned to similar frames used to store the index of the corresponding frame in the similarMatrix field
             /// </summary>
-            private Dictionary<Frame, int> _similarMatrixIndexDictionary;
+            private readonly Dictionary<Frame, int> _similarMatrixIndexDictionary;
 
             /// <summary>
             /// Gets the matrix of similar frames stored in a multi-dimensional list
@@ -439,7 +439,7 @@ namespace Pixelaria.Algorithms.Packers
             /// <summary>
             /// Whether to compute the minimum areas of the frames before comparing them
             /// </summary>
-            bool _useMinimumTextureArea;
+            readonly bool _useMinimumTextureArea;
 
             /// <summary>
             /// Gets the number of cached compare fragments currently stores
@@ -521,14 +521,12 @@ namespace Pixelaria.Algorithms.Packers
                 if (frag != null)
                     return frag.FrameRectangle;
 
-                CompareFrag newFrag = new CompareFrag();
-
-                newFrag.Frame = frame;
-
-                if (_useMinimumTextureArea)
-                    newFrag.FrameRectangle = ImageUtilities.FindMinimumImageArea(frame.GetComposedBitmap());
-                else
-                    newFrag.FrameRectangle = new Rectangle(0, 0, frame.Width, frame.Height);
+                CompareFrag newFrag = new CompareFrag
+                {
+                    FrameRectangle = _useMinimumTextureArea
+                        ? ImageUtilities.FindMinimumImageArea(frame.GetComposedBitmap())
+                        : new Rectangle(0, 0, frame.Width, frame.Height)
+                };
 
                 _fragDictionary[frame] = newFrag;
 
@@ -585,11 +583,6 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             class CompareFrag
             {
-                /// <summary>
-                /// The frame of this fragment
-                /// </summary>
-                public Frame Frame;
-
                 /// <summary>
                 /// The frame's rectangle
                 /// </summary>

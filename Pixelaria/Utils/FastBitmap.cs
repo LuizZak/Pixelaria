@@ -139,7 +139,7 @@ namespace Pixelaria.Utils
         {
             if (Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
             {
-                throw new ArgumentException("The provided bitmap must have a 32bpp depth", "bitmap");
+                throw new ArgumentException(@"The provided bitmap must have a 32bpp depth", "bitmap");
             }
 
             _bitmap = bitmap;
@@ -278,11 +278,11 @@ namespace Pixelaria.Utils
 
             if (x < 0 || x >= _width)
             {
-                throw new ArgumentOutOfRangeException("The X component must be >= 0 and < width");
+                throw new ArgumentOutOfRangeException("x", @"The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new ArgumentOutOfRangeException("The Y component must be >= 0 and < height");
+                throw new ArgumentOutOfRangeException("y", @"The Y component must be >= 0 and < height");
             }
 
             *(uint*)(_scan0 + x + y * _strideWidth) = color;
@@ -318,11 +318,11 @@ namespace Pixelaria.Utils
 
             if (x < 0 || x >= _width)
             {
-                throw new ArgumentOutOfRangeException("The X component must be >= 0 and < width");
+                throw new ArgumentOutOfRangeException("x", @"The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new ArgumentOutOfRangeException("The Y component must be >= 0 and < height");
+                throw new ArgumentOutOfRangeException("y", @"The Y component must be >= 0 and < height");
             }
 
             return *(_scan0 + x + y * _strideWidth);
@@ -345,11 +345,11 @@ namespace Pixelaria.Utils
 
             if (x < 0 || x >= _width)
             {
-                throw new ArgumentOutOfRangeException("The X component must be >= 0 and < width");
+                throw new ArgumentOutOfRangeException("x", @"The X component must be >= 0 and < width");
             }
             if (y < 0 || y >= _height)
             {
-                throw new ArgumentOutOfRangeException("The Y component must be >= 0 and < height");
+                throw new ArgumentOutOfRangeException("y", @"The Y component must be >= 0 and < height");
             }
 
             return *((uint*)_scan0 + x + y * _strideWidth);
@@ -365,14 +365,16 @@ namespace Pixelaria.Utils
         {
             if (colors.Length != _width * _height)
             {
-                throw new ArgumentException("The number of colors of the given array mismatch the pixel count of the bitmap", "colors");
+                throw new ArgumentException(@"The number of colors of the given array mismatch the pixel count of the bitmap", "colors");
             }
 
             // Simply copy the argb values array
+            // ReSharper disable once InconsistentNaming
             int* s0t = _scan0;
 
             fixed (int* source = colors)
             {
+                // ReSharper disable once InconsistentNaming
                 int* s0s = source;
 
                 int count = _width * _height;
@@ -482,7 +484,7 @@ namespace Pixelaria.Utils
             // Throw exception when trying to copy same bitmap over
             if (source == _bitmap)
             {
-                throw new ArgumentException("Copying regions across the same bitmap is not supported", "source");
+                throw new ArgumentException(@"Copying regions across the same bitmap is not supported", "source");
             }
 
             Rectangle srcBitmapRect = new Rectangle(0, 0, source.Width, source.Height);

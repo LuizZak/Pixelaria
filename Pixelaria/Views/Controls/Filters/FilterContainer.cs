@@ -26,7 +26,6 @@ using System.Windows.Forms;
 
 using Pixelaria.Filters;
 using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria.Views.Controls.Filters
 {

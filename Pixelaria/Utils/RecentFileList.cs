@@ -32,7 +32,7 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The list of files
         /// </summary>
-        private string[] fileList;
+        private readonly string[] fileList;
 
         /// <summary>
         /// Returns the list of files currently in this RecentFileList object

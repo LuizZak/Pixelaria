@@ -326,7 +326,7 @@ namespace Pixelaria.Views.Controls
 
             FilterStore.Instance.RemoveFilterPresetByName(cb_filterPresets.Text);
 
-            cb_filterPresets.Text = "New Preset";
+            cb_filterPresets.Text = @"New Preset";
 
             UpdateFilterPresetList();
         }
@@ -378,9 +378,11 @@ namespace Pixelaria.Views.Controls
             //foreach (string filter in filterNames)
             for (int i = 0; i < iconList.Length; i++)
             {
-                ToolStripMenuItem filterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
+                ToolStripMenuItem filterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
+                {
+                    Tag = filterNames[i]
+                };
 
-                filterItem.Tag = filterNames[i];
                 filterItem.Click += _filterItemClick;
 
                 cms_filters.Items.Add(filterItem);
@@ -455,9 +457,7 @@ namespace Pixelaria.Views.Controls
 
             int scroll = pnl_container.VerticalScroll.Value;
 
-            _containerReplacePanel = new Panel();
-            _containerReplacePanel.BorderStyle = BorderStyle.FixedSingle;
-            _containerReplacePanel.Size = fc.Size;
+            _containerReplacePanel = new Panel { BorderStyle = BorderStyle.FixedSingle, Size = fc.Size };
             _containerReplacePanel.PerformLayout();
 
             pnl_container.SuspendLayout();

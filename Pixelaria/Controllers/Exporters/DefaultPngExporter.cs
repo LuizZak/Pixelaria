@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Xml;
 
 using Pixelaria.Algorithms;
@@ -49,36 +50,31 @@ namespace Pixelaria.Controllers.Exporters
         public void ExportBundle(Bundle bundle, BundleExportProgressEventHandler progressHandler = null)
         {
             // Create a proxy handler to handle total progress
-            float totalProgress = 0;
+            float totalProgress;
             float stages = 0;
             float currentStage = 0;
 
             BundleExportProgressEventHandler proxyHandler = null;
-
-            if(progressHandler != null)
-            {
-                proxyHandler = (BundleExportProgressEventArgs args) => {
-                                                                           totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
-
-                                                                           // Calculate total progress
-                                                                           progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));
-                };
-            }
 
             // Create the lists needed for the export
             List<string> xmls = new List<string>();
             List<BundleSheetExport> bundleSheetList = new List<BundleSheetExport>();
 
             // The total final stage count is two times the sheet array size (one stage for atlasses, and another stage for saving to disk, for each sheet)
-            int totalStages = 0;
-            foreach (AnimationSheet sheet in bundle.AnimationSheets)
-            {
-                if (sheet.Animations.Length > 0)
-                {
-                    totalStages++;
-                }
-            }
+            int totalStages = bundle.AnimationSheets.Count(sheet => sheet.Animations.Length > 0);
+
             stages = totalStages * 2 + 1;
+
+            if (progressHandler != null)
+            {
+                proxyHandler = args =>
+                {
+                    totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
+
+                    // Calculate total progress
+                    progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));
+                };
+            }
 
             // Export all the animation sheets now
 
@@ -140,7 +136,8 @@ namespace Pixelaria.Controllers.Exporters
 
                 XmlNode sheetNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
-                sheetNode.Attributes.Append(xml.CreateAttribute("path")).InnerText = Utilities.GetRelativePath(sheetXml + ".xml", bundle.ExportPath);
+                if (sheetNode.Attributes != null)
+                    sheetNode.Attributes.Append(xml.CreateAttribute("path")).InnerText = Utilities.GetRelativePath(sheetXml + ".xml", bundle.ExportPath);
 
                 rootNode.AppendChild(sheetNode);
             }

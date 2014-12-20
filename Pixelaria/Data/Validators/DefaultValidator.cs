@@ -135,7 +135,7 @@ namespace Pixelaria.Data.Validators
             // Check any case of repeated animation sheet name
             if (_controller.CurrentBundle != null)
             {
-                if (_controller.CurrentBundle.AnimationSheets.Any(csheet => csheet.Name == name && csheet != sheet))
+                if (_controller.CurrentBundle.AnimationSheets.Any(csheet => csheet.Name == name && !ReferenceEquals(csheet, sheet)))
                 {
                     return "The name '" + name + "' conflicts with another animation sheet in the project";
                 }

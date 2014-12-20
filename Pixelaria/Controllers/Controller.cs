@@ -640,9 +640,7 @@ namespace Pixelaria.Controllers
 
             if (savePath == "" || forceNew)
             {
-                SaveFileDialog svd = new SaveFileDialog();
-
-                svd.Filter = @"Pixelaria Bundle (*.pxl)|*.pxl";
+                SaveFileDialog svd = new SaveFileDialog { Filter = @"Pixelaria Bundle (*.pxl)|*.pxl" };
 
                 if (svd.ShowDialog(_mainForm) == DialogResult.OK)
                 {
@@ -787,10 +785,11 @@ namespace Pixelaria.Controllers
         /// <returns>The selected save path, or an empty string if the user has not chosen a save path</returns>
         public string ShowSaveImage(Image imageToSave = null, string fileName = "", IWin32Window owner = null)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-
-            sfd.Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
-            sfd.FileName = fileName;
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
+                FileName = fileName
+            };
 
             if (sfd.ShowDialog(owner) == DialogResult.OK)
             {
@@ -815,10 +814,11 @@ namespace Pixelaria.Controllers
         /// <returns>The selected load path, or an empty string if the user has not chosen a load path</returns>
         public Image ShowLoadImage(string fileName = "", IWin32Window owner = null)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-
-            ofd.Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
-            ofd.FileName = fileName;
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
+                FileName = fileName
+            };
 
             if (ofd.ShowDialog(owner) == DialogResult.OK)
             {

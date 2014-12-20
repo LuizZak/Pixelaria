@@ -494,13 +494,7 @@ namespace Pixelaria.Data
         // ReSharper disable once InconsistentNaming
         public Frame GetFrameByID(int id)
         {
-            foreach (Frame frame in _frames)
-            {
-                if (frame.ID == id)
-                    return frame;
-            }
-
-            return null;
+            return _frames.FirstOrDefault(frame => frame.ID == id);
         }
 
         // Override object.Equals

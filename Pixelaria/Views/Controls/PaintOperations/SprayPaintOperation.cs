@@ -30,8 +30,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             _random = new Random();
 
-            _sprayTimer = new Timer();
-            _sprayTimer.Interval = 10;
+            _sprayTimer = new Timer { Interval = 10 };
             _sprayTimer.Tick += sprayTimer_Tick;
         }
         

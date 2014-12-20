@@ -454,9 +454,11 @@ namespace Pixelaria.Views.ModelViews
             // Create and add all the new filter items
             for (int i = 0; i < iconList.Length; i++)
             {
-                ToolStripMenuItem tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i]);
+                ToolStripMenuItem tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
+                {
+                    Tag = filterNames[i]
+                };
 
-                tsmFilterItem.Tag = filterNames[i];
                 tsmFilterItem.Click += _filterClickEventHandler;
 
                 tsm_filters.DropDownItems.Add(tsmFilterItem);
@@ -476,19 +478,19 @@ namespace Pixelaria.Views.ModelViews
 
             if (presets.Length == 0)
             {
-                ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty");
-
-                tsmEmptyItem.Enabled = false;
+                ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
 
                 tsm_filterPresets.DropDownItems.Add(tsmEmptyItem);
             }
 
             // Create and add all the new filter items
-            for (int i = 0; i < presets.Length; i++)
+            foreach (FilterPreset preset in presets)
             {
-                ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(presets[i].Name, tsm_filterPresets.Image);
+                ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
+                {
+                    Tag = preset.Name
+                };
 
-                tsmPresetItem.Tag = presets[i].Name;
                 tsmPresetItem.Click += _presetClickEventHandler;
 
                 tsm_filterPresets.DropDownItems.Add(tsmPresetItem);
@@ -796,8 +798,7 @@ namespace Pixelaria.Views.ModelViews
                 // Gets the index to position the frames
                 int index = -1;
 
-                List<Frame> copiedFrames = new List<Frame>();
-                copiedFrames.Add(frame);
+                List<Frame> copiedFrames = new List<Frame> { frame };
 
                 FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Add, "Frames Pasted");
 
@@ -926,9 +927,11 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddFrameFromFile()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-
-            ofd.Filter = @"All Images (*.png, *.jpg, *jpeg, *.bmp, *.gif, *.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|Png Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|Jpeg Images (*.jpg, *.jpeg)|*.jpg;*.jpeg|Gif Images (*.gif)|*.giff|Tiff Images (*.tiff)|*.tiff";
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter =
+                    @"All Images (*.png, *.jpg, *jpeg, *.bmp, *.gif, *.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|Png Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|Jpeg Images (*.jpg, *.jpeg)|*.jpg;*.jpeg|Gif Images (*.gif)|*.giff|Tiff Images (*.tiff)|*.tiff"
+            };
 
             if(ofd.ShowDialog(this) == DialogResult.OK)
             {
@@ -1164,7 +1167,7 @@ namespace Pixelaria.Views.ModelViews
         {
             ApplyChanges();
         }
-
+        /*
         // 
         // Discard Changes And Close toolbar button click
         // 
@@ -1172,7 +1175,7 @@ namespace Pixelaria.Views.ModelViews
         {
             DiscardChangesAndClose();
         }
-
+        */
         // 
         // Edit Frame toolbar button click
         // 
@@ -1923,8 +1926,7 @@ namespace Pixelaria.Views.ModelViews
                 // Register the animation resize operation
                 if (_oldAnimation.Width != _animation.Width || _oldAnimation.Height != _animation.Height)
                 {
-                    GroupUndoTask wrapTask = new GroupUndoTask(_compoundTask.GetDescription());
-                    wrapTask.ReverseOnUndo = true;
+                    GroupUndoTask wrapTask = new GroupUndoTask(null, _compoundTask.GetDescription());
 
                     AnimationResizeSettings settings = new AnimationResizeSettings();
                     settings.NewWidth = _animation.Width;

@@ -134,10 +134,7 @@ namespace Pixelaria.Data
         /// </summary>
         public Bundle Clone()
         {
-            Bundle newBundle = new Bundle(Name);
-
-            newBundle.ExportPath = ExportPath;
-            newBundle.SaveFile = SaveFile;
+            Bundle newBundle = new Bundle(Name) { ExportPath = ExportPath, SaveFile = SaveFile };
 
             // Copy animations over
             foreach (var animation in _animations)

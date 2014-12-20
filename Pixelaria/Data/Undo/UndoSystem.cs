@@ -413,7 +413,9 @@ namespace Pixelaria.Data.Undo
         public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description, bool discardOnOperation = false, bool reverseOnUndo = true)
             : this(description)
         {
-            AddTasks(tasks);
+            if(tasks != null)
+                AddTasks(tasks);
+
             DiscardOnOperation = discardOnOperation;
             ReverseOnUndo = reverseOnUndo;
         }

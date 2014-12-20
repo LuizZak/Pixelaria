@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Xml;
 
 using Pixelaria.Utils;
@@ -211,13 +212,8 @@ namespace Pixelaria.Data.Exports
         /// <returns>True whether the given frame is inside this BundleSheetExport, false otherwise</returns>
         public bool ContainsFrame(Frame frame)
         {
-            foreach (FrameRect frameRect in _frameRects)
-            {
-                if (ReferenceEquals(frameRect.Frame, frame))
-                    return true;
-            }
-
-            return false;
+            // Returns true if any of the sequence's frames returns true to an expression
+            return _frameRects.Any(frameRect => ReferenceEquals(frameRect.Frame, frame));
         }
 
         /// <summary>
@@ -228,13 +224,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The FrameRect object that represents the given Frame. If no FrameRect represents the given frame, null is returned.</returns>
         public FrameRect GetFrameRectForFrame(Frame frame)
         {
-            foreach (FrameRect frameRect in _frameRects)
-            {
-                if (ReferenceEquals(frameRect.Frame, frame))
-                    return frameRect;
-            }
-
-            return null;
+            return _frameRects.FirstOrDefault(frameRect => ReferenceEquals(frameRect.Frame, frame));
         }
 
         /// <summary>
@@ -249,28 +239,24 @@ namespace Pixelaria.Data.Exports
             //
             Image image = atlas.GenerateSheet();
 
-            // Import the frame rects to a bundle sheet now
-            BundleSheetExport export = new BundleSheetExport();
-
-            export._sheet = image;
-            export._exportSettings = atlas.ExportSettings;
-            export._animations = atlas.GetAnimationsOnAtlas();
-            export._reusedFrameCount = atlas.Information.ReusedFrameOriginsCount;
-            export._reuseCount = atlas.ReuseCount.ToArray();
-
-            List<FrameRect> frameRectList = new List<FrameRect>();
-
             //
             // 2. Copy the frame bounds from the atlas to the bundle sheet
             //
+            List<FrameRect> frameRectList = new List<FrameRect>();
             for (int i = 0; i < atlas.FrameCount; i++)
             {
                 frameRectList.Add(new FrameRect(atlas.GetFrame(i), atlas.GetFrameBoundsRectangle(i), atlas.GetFrameOriginsRectangle(i)));
             }
 
-            export._frameRects = frameRectList.ToArray();
-
-            return export;
+            return new BundleSheetExport
+            {
+                _sheet = image,
+                _exportSettings = atlas.ExportSettings,
+                _animations = atlas.GetAnimationsOnAtlas(),
+                _reusedFrameCount = atlas.Information.ReusedFrameOriginsCount,
+                _reuseCount = atlas.ReuseCount.ToArray(),
+                _frameRects = frameRectList.ToArray()
+            };
         }
 
         /// <summary>

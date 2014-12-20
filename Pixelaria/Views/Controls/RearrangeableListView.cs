@@ -66,8 +66,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public RearrangeableListView()
         {
-            _timer = new Timer();
-            _timer.Interval = 1;
+            _timer = new Timer { Interval = 1 };
             _timer.Tick += timer_Tick;
 
             ShowGroups = false;

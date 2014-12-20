@@ -340,6 +340,7 @@ namespace Pixelaria.Utils
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
         public static AhslColor ToAhsl(float a, float r, float g, float b)
         {
+            // ReSharper disable once InconsistentNaming
             float M = b;
             float m = b;
 
@@ -357,7 +358,8 @@ namespace Pixelaria.Utils
 
             float h;
             float s;
-            float l;
+
+            // ReSharper disable CompareOfFloatsByEqualityOperator
 
             if (d == 0)
             {
@@ -381,7 +383,7 @@ namespace Pixelaria.Utils
                 h += 360;
             }
 
-            l = (M + m) / 2;
+            var l = (M + m) / 2;
 
             if (d == 0)
             {
@@ -391,6 +393,8 @@ namespace Pixelaria.Utils
             {
                 s = d / (1 - Math.Abs(2 * l - 1));
             }
+
+            // ReSharper restore CompareOfFloatsByEqualityOperator
 
             return new AhslColor(a, h / 360, s, l);
         }

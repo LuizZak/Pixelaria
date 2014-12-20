@@ -20,8 +20,6 @@
     base directory of this project.
 */
 
-using System.Windows.Forms;
-
 using Pixelaria.Data;
 
 namespace Pixelaria.Views.Controls
@@ -32,18 +30,10 @@ namespace Pixelaria.Views.Controls
     public class ProjectTreeView : RearrangeableTreeView
     {
         /// <summary>
-        /// The project tree this project tree view is currently representing
-        /// </summary>
-        ProjectTree _loadedProjectTree;
-
-        /// <summary>
         /// Gets or sets the project tree this project tree view is currently representing
         /// </summary>
-        public ProjectTree LoadedProjectTree
-        {
-            get { return _loadedProjectTree; }
-            set { _loadedProjectTree = value; }
-        }
+        public ProjectTree LoadedProjectTree { get; set; }
+
         /*
         /// <summary>
         /// Loads the given ProjectTree object into this ProjectTreeView

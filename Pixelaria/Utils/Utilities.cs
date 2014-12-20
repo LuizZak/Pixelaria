@@ -42,7 +42,7 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The hashing algorithm used for hashing the bitmaps
         /// </summary>
-        private static HashAlgorithm shaM = new SHA256Managed();
+        private static readonly HashAlgorithm ShaM = new SHA256Managed();
 
         /// <summary>
         /// Returns a hash for the given Bitmap object
@@ -72,7 +72,7 @@ namespace Pixelaria.Utils
         public static byte[] GetHashForStream(Stream stream)
         {
             // Compute a hash for the image
-            return shaM.ComputeHash(stream);
+            return ShaM.ComputeHash(stream);
         }
 
         /// <summary>

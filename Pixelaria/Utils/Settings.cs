@@ -36,25 +36,25 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The main configuration file reference
         /// </summary>
-        private IniReader IniFile;
+        private readonly IniReader _iniFile;
 
         /// <summary>
         /// Initializes the Settings class
         /// </summary>
         private Settings(string settingsFile)
         {
-            IniFile = new IniReader(settingsFile);
-            IniFile.LoadSettings();
+            _iniFile = new IniReader(settingsFile);
+            _iniFile.LoadSettings();
         }
 
         /// <summary>
-        /// Asserts that a specific value is present on the Settings object, and initializes it with a default value it of doesn't
+        /// Ensures that a specific value is present on the Settings object, and initializes it with a default value it of doesn't
         /// </summary>
         /// <param name="value">The path to the settings value</param>
         /// <param name="type">The type the value must have in order to be valid</param>
         /// <param name="defaultValue">The default value to be set if the value does not exists or does not matches the provided type</param>
         /// <returns>True when the value was asserted, false if it was not present or not valid</returns>
-        public bool Assert(string value, AssertType type, string defaultValue)
+        public bool EnsureValue(string value, EnsureValueType type, string defaultValue)
         {
             if (GetValue(value) == null)
             {
@@ -64,14 +64,14 @@ namespace Pixelaria.Utils
 
             switch (type)
             {
-                case AssertType.Boolean:
+                case EnsureValueType.Boolean:
                     if (GetValue(value) != "true" && GetValue(value) != "false")
                     {
                         SetValue(value, defaultValue);
                         return false;
                     }
                     break;
-                case AssertType.Int:
+                case EnsureValueType.Int:
                     int a;
                     if (!int.TryParse(GetValue(value), out a))
                     {
@@ -89,16 +89,16 @@ namespace Pixelaria.Utils
         /// </summary>
         public void SaveSettings()
         {
-            IniFile.SaveSettings();
+            _iniFile.SaveSettings();
         }
 
         /// <summary>
         /// Gets the given value from the values list
         /// </summary>
-        /// <param name="value">A string representing the value saved. Returns null if the value is not currently present</param>
+        /// <param name="valueName">A string representing the value saved. Returns null if the value is not currently present</param>
         public string GetValue(string valueName)
         {
-            return IniFile.GetValue(valueName);
+            return _iniFile.GetValue(valueName);
         }
 
         /// <summary>
@@ -108,8 +108,8 @@ namespace Pixelaria.Utils
         /// <param name="value">The value to save</param>
         public void SetValue(string valueName, string value)
         {
-            IniFile.SetValue(valueName, value);
-            IniFile.SaveSettings();
+            _iniFile.SetValue(valueName, value);
+            _iniFile.SaveSettings();
         }
 
         /// <summary>
@@ -119,16 +119,16 @@ namespace Pixelaria.Utils
         /// <returns>The current settings singleton class</returns>
         public static Settings GetSettings(string path = "settings.ini")
         {
-            if (settings == null)
-                return settings = new Settings(path);
-            else
-                return settings;
+            if (_settings == null)
+                return _settings = new Settings(path);
+
+            return _settings;
         }
 
         /// <summary>
         /// The main settings singleton class
         /// </summary>
-        private static Settings settings;
+        private static Settings _settings;
     }
 
     /// <summary>
@@ -142,8 +142,8 @@ namespace Pixelaria.Utils
         /// <param name="path">A path to a .ini file</param>
         public IniReader(string path)
         {
-            FilePath = path;
-            Values = new Dictionary<string, string>();
+            _filePath = path;
+            _values = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -152,19 +152,22 @@ namespace Pixelaria.Utils
         public void LoadSettings()
         {
             // Clear the values before adding the new ones
-            Values.Clear();
+            _values.Clear();
 
             // Create the file if it does not exists
-            if (!File.Exists(FilePath))
-                File.Create(FilePath).Close();
+            if (!File.Exists(_filePath))
+                File.Create(_filePath).Close();
 
             // Load the file line by line
-            StreamReader reader = new StreamReader(FilePath, Encoding.UTF8);
+            StreamReader reader = new StreamReader(_filePath, Encoding.UTF8);
 
             string currentPath = "";
             while (!reader.EndOfStream)
             {
                 string line = reader.ReadLine();
+                
+                if (line == null)
+                    break;
 
                 if (line.Trim() != "")
                 {
@@ -188,49 +191,47 @@ namespace Pixelaria.Utils
                                 currentPath = localPath;
                                 break;
                             }
+
+                            if (parser.Peek() == '\\')
+                            {
+                                parser.Next();
+                                afterSeparator = true;
+                            }
                             else
                             {
-                                if (parser.Peek() == '\\')
+                                try
                                 {
-                                    parser.Next();
-                                    afterSeparator = true;
-                                }
-                                else
-                                {
-                                    try
+                                    if (afterSeparator)
+                                        localPath += "\\";
+
+                                    afterSeparator = false;
+
+                                    // Buffer the path until a '\' sign
+                                    while (!parser.EOF())
                                     {
-                                        if (afterSeparator)
-                                            localPath += "\\";
-
-                                        afterSeparator = false;
-
-                                        // Buffer the path until a '\' sign
-                                        while (!parser.EOF())
+                                        if (parser.Peek() != '\\' && parser.Peek() != ']')
                                         {
-                                            if (parser.Peek() != '\\' && parser.Peek() != ']')
-                                            {
-                                                localPath += parser.Next();
-                                            }
-                                            else
-                                            {
-                                                break;
-                                            }
+                                            localPath += parser.Next();
+                                        }
+                                        else
+                                        {
+                                            break;
                                         }
                                     }
-                                    catch (Exception)
-                                    {
-                                        continue;
-                                    }
                                 }
-
-                                parser.SkipWhiteSpace();
+                                catch (Exception)
+                                {
+                                    continue;
+                                }
                             }
+
+                            parser.SkipWhiteSpace();
                         }
                     }
                     // Comment line, ignore
                     else if (line.Trim()[0] == '\'')
                     {
-                        continue;
+                        
                     }
                     // Normal line, read the settings
                     else
@@ -263,12 +264,10 @@ namespace Pixelaria.Utils
                             string value = builder.ToString();
 
                             // 
-                            Values[currentPath + "\\" + valueName] = value;
+                            _values[currentPath + "\\" + valueName] = value;
                         }
-                        catch (Exception)
-                        {
-                            continue;
-                        }
+                        // ReSharper disable once EmptyGeneralCatchClause
+                        catch (Exception) { }
                     }
                 }
             }
@@ -285,14 +284,14 @@ namespace Pixelaria.Utils
             // Start by organizing the values into a tree
             SettingsNode baseNode = new SettingsNode();
 
-            foreach (string value in Values.Keys)
+            foreach (string value in _values.Keys)
             {
                 string path = value;
 
                 // Base settings, create values at the base node
-                if (path.IndexOf("\\") == -1)
+                if (path.IndexOf("\\", StringComparison.Ordinal) == -1)
                 {
-                    baseNode[value] = Values[value];
+                    baseNode[value] = _values[value];
                 }
                 else
                 {
@@ -308,7 +307,7 @@ namespace Pixelaria.Utils
                             path += "\\" + subPath[i];
                     }
 
-                    baseNode.CreateNode(path)[subPath[subPath.Length - 1]] = Values[value];
+                    baseNode.CreateNode(path)[subPath[subPath.Length - 1]] = _values[value];
                 }
             }
 
@@ -320,7 +319,7 @@ namespace Pixelaria.Utils
 
             baseNode.SaveToString(output);
 
-            using (FileStream stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write))
+            using (FileStream stream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 stream.SetLength(0);
 
@@ -330,17 +329,19 @@ namespace Pixelaria.Utils
                 writer.Close();
                 writer.Dispose();
             }
+
+            baseNode.Clear();
         }
 
         /// <summary>
         /// Gets the given value from the values list
         /// </summary>
-        /// <param name="value">A string representing the value saved. Returns null if the value is not currently present</param>
+        /// <param name="valueName">A string representing the value saved. Returns null if the value is not currently present</param>
         public string GetValue(string valueName)
         {
-            if (Values.ContainsKey(valueName))
+            if (_values.ContainsKey(valueName))
             {
-                return Values[valueName];
+                return _values[valueName];
             }
 
             return null;
@@ -353,18 +354,18 @@ namespace Pixelaria.Utils
         /// <param name="value">The value to save</param>
         public void SetValue(string valueName, string value)
         {
-            Values[valueName] = value;
+            _values[valueName] = value;
         }
 
         /// <summary>
         /// The values stored in the .ini file
         /// </summary>
-        Dictionary<string, string> Values;
+        readonly Dictionary<string, string> _values;
 
         /// <summary>
         /// The filepath to the .ini file
         /// </summary>
-        string FilePath = "";
+        readonly string _filePath;
 
         /// <summary>
         /// Specifies a node that contains settings and subnodes
@@ -374,22 +375,22 @@ namespace Pixelaria.Utils
             /// <summary>
             /// The name of this SettingsNode
             /// </summary>
-            string Name = "";
+            string _name = "";
 
             /// <summary>
             /// List of subnodes
             /// </summary>
-            List<SettingsNode> SubNodes = new List<SettingsNode>();
+            readonly List<SettingsNode> _subNodes = new List<SettingsNode>();
 
             /// <summary>
             /// The parent node that owns this node
             /// </summary>
-            SettingsNode ParentNode = null;
+            SettingsNode _parentNode;
 
             /// <summary>
             /// Dictionary of settings and their respective values
             /// </summary>
-            Dictionary<string, string> Values = new Dictionary<string, string>();
+            readonly Dictionary<string, string> _values = new Dictionary<string, string>();
 
             /// <summary>
             /// Gets or sets a value from this SettingsNode
@@ -398,8 +399,8 @@ namespace Pixelaria.Utils
             /// <returns>The string contents of the value</returns>
             public string this[string valueName]
             {
-                get { return Values[valueName]; }
-                set { Values[valueName] = value; }
+                get { return _values[valueName]; }
+                set { _values[valueName] = value; }
             }
 
             /// <summary>
@@ -416,14 +417,14 @@ namespace Pixelaria.Utils
                 SettingsNode returnNode = null;
                 string[] nodes = new string[1];
 
-                if (path.IndexOf("\\") != -1)
+                if (path.IndexOf("\\", StringComparison.Ordinal) != -1)
                     nodes = path.Split('\\');
                 else
                     nodes[0] = path;
 
-                foreach (SettingsNode node in SubNodes)
+                foreach (SettingsNode node in _subNodes)
                 {
-                    if (node.Name == nodes[0])
+                    if (node._name == nodes[0])
                     {
                         if (nodes.Length == 0)
                         {
@@ -458,20 +459,11 @@ namespace Pixelaria.Utils
                             nextPath += "\\" + nodes[i];
                     }
 
-                    SettingsNode newNode = new SettingsNode();
-                    newNode.ParentNode = this;
-                    newNode.Name = nodes[0];
+                    SettingsNode newNode = new SettingsNode { _parentNode = this, _name = nodes[0] };
 
-                    SubNodes.Add(newNode);
+                    _subNodes.Add(newNode);
 
-                    if (nextPath == "")
-                    {
-                        returnNode = newNode;
-                    }
-                    else
-                    {
-                        returnNode = newNode.CreateNode(nextPath);
-                    }
+                    returnNode = nextPath == "" ? newNode : newNode.CreateNode(nextPath);
                 }
 
                 return returnNode;
@@ -483,31 +475,31 @@ namespace Pixelaria.Utils
             /// <param name="builder">The StringBuilder to save the data to</param>
             public void SaveToString(StringBuilder builder)
             {
-                string path = Name;
-                SettingsNode curNode = ParentNode;
+                string path = _name;
+                SettingsNode curNode = _parentNode;
                 while (curNode != null)
                 {
-                    if (curNode.Name != "")
-                        path = curNode.Name + "\\" + path;
+                    if (curNode._name != "")
+                        path = curNode._name + "\\" + path;
 
-                    curNode = curNode.ParentNode;
+                    curNode = curNode._parentNode;
                 }
 
-                if (path != "" && Values.Count > 0)
+                if (path != "" && _values.Count > 0)
                 {
                     builder.Append("["); builder.Append(path); builder.AppendLine("]");
                 }
 
                 // Save the values now
-                foreach (string value in Values.Keys)
+                foreach (string value in _values.Keys)
                 {
-                    builder.Append(value); builder.Append(" = "); builder.AppendLine(Values[value]);
+                    builder.Append(value); builder.Append(" = "); builder.AppendLine(_values[value]);
                 }
 
-                if (Values.Count > 0)
+                if (_values.Count > 0)
                     builder.AppendLine();
 
-                foreach (SettingsNode childNode in SubNodes)
+                foreach (SettingsNode childNode in _subNodes)
                 {
                     childNode.SaveToString(builder);
                 }
@@ -519,17 +511,17 @@ namespace Pixelaria.Utils
             public void Clear()
             {
                 // Start by clearing all the children nodes
-                foreach (SettingsNode node in SubNodes)
+                foreach (SettingsNode node in _subNodes)
                 {
                     node.Clear();
                 }
 
                 // Clear the lists
-                SubNodes.Clear();
-                Values.Clear();
+                _subNodes.Clear();
+                _values.Clear();
 
                 // Clear the parent node reference
-                ParentNode = null;
+                _parentNode = null;
             }
 
             /// <summary>
@@ -538,21 +530,21 @@ namespace Pixelaria.Utils
             public void Sort()
             {
                 // Sort the subnodes
-                for (int i = 0; i < SubNodes.Count; i++)
+                for (int i = 0; i < _subNodes.Count; i++)
                 {
-                    for (int j = 0; j < SubNodes.Count - i - 1; j++)
+                    for (int j = 0; j < _subNodes.Count - i - 1; j++)
                     {
-                        if (SubNodes[j].Name.ToLower().CompareTo(SubNodes[j + 1].Name) > 0)
+                        if (String.Compare(_subNodes[j]._name.ToLower(), _subNodes[j + 1]._name, StringComparison.Ordinal) > 0)
                         {
-                            SettingsNode aux = SubNodes[j];
-                            SubNodes[j] = SubNodes[j + 1];
-                            SubNodes[j + 1] = aux;
+                            SettingsNode aux = _subNodes[j];
+                            _subNodes[j] = _subNodes[j + 1];
+                            _subNodes[j + 1] = aux;
                         }
                     }
                 }
 
                 // Sort children nodes now
-                foreach (SettingsNode node in SubNodes)
+                foreach (SettingsNode node in _subNodes)
                 {
                     node.Sort();
                 }
@@ -572,10 +564,10 @@ namespace Pixelaria.Utils
             /// <param name="offset">The offset to start reading the buffer string from</param>
             public MiniParser(string text, int offset = 0)
             {
-                buffer = text;
+                _buffer = text;
 
-                length = buffer.Length;
-                curChar = offset;
+                _length = _buffer.Length;
+                _curChar = offset;
             }
 
             /// <summary>
@@ -588,7 +580,6 @@ namespace Pixelaria.Utils
                 if (failSilently && EOF())
                     return null;
 
-                int charStart = curChar;
                 char peek = Next();
 
                 StringBuilder ident = new StringBuilder();
@@ -600,7 +591,7 @@ namespace Pixelaria.Utils
 
                     throw new Exception("Expected identifier");
                 }
-                curChar--;
+                _curChar--;
                 ident.Append(Next());
 
                 // Read all alphanumeric character until a non-alphanumeric character is hit
@@ -614,7 +605,7 @@ namespace Pixelaria.Utils
                     }
 
                     ident.Append(peek);
-                    curChar++; // Move to the next character
+                    _curChar++; // Move to the next character
                 }
 
                 return ident.ToString();
@@ -628,7 +619,7 @@ namespace Pixelaria.Utils
                 char c;
                 while (!EOF() && ((c = Peek()) == ' ' || c == '\t' || c == '\r' || c == '\n' || c == 160))
                 {
-                    curChar++;
+                    _curChar++;
                 }
             }
 
@@ -636,9 +627,10 @@ namespace Pixelaria.Utils
             /// Returns whether the buffer position is at the end of the buffer length
             /// </summary>
             /// <returns>Whether the buffer position is at the end of the buffer length</returns>
+            // ReSharper disable once InconsistentNaming
             public bool EOF()
             {
-                return (curChar >= length);
+                return (_curChar >= _length);
             }
 
             /// <summary>
@@ -653,7 +645,7 @@ namespace Pixelaria.Utils
                     throw new Exception("Unexpected end of file reached");
                 }
 
-                return buffer[curChar++];
+                return _buffer[_curChar++];
             }
 
             /// <summary>
@@ -668,33 +660,42 @@ namespace Pixelaria.Utils
                     throw new Exception("Unexpected end of file reached");
                 }
 
-                return buffer[curChar];
+                return _buffer[_curChar];
             }
 
             /// <summary>
             /// The input string's length
             /// </summary>
-            int length = 0;
+            readonly int _length;
 
             /// <summary>
             /// The current character being processed
             /// </summary>
-            public int curChar = 0;
+            private int _curChar;
 
             /// <summary>
             /// The scene script
             /// </summary>
-            string buffer;
+            readonly string _buffer;
         }
     }
 
     /// <summary>
     /// Enumerator used to specify a type when asserting initial values
     /// </summary>
-    public enum AssertType
+    public enum EnsureValueType
     {
+        /// <summary>
+        /// Specifies a string value type
+        /// </summary>
         String,
+        /// <summary>
+        /// Specifies an integer value type
+        /// </summary>
         Int,
+        /// <summary>
+        /// Specifies a boolean value type, that can either be 'true' or 'false'
+        /// </summary>
         Boolean
     }
 }

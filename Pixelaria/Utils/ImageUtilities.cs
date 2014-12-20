@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
 
 using Pixelaria.Data;
 using Pixelaria.Properties;
@@ -54,8 +51,6 @@ namespace Pixelaria.Utils
                 // If the target size is smaller than the image
                 if (newBounds.Width < currentBounds.Width || newBounds.Height < currentBounds.Height)
                 {
-                    Size size = image.Size;
-
                     Rectangle rec = newBounds;
 
                     float num = Math.Min((float)newBounds.Width / currentBounds.Width, (float)newBounds.Height / currentBounds.Height);

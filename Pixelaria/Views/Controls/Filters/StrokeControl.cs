@@ -84,8 +84,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cp_color_Click(object sender, EventArgs e)
         {
-            ColorDialog cd = new ColorDialog();
-            cd.AllowFullOpen = true;
+            ColorDialog cd = new ColorDialog { AllowFullOpen = true };
 
             if (cd.ShowDialog(FindForm()) == DialogResult.OK)
             {
