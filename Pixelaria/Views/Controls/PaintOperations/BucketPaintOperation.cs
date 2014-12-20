@@ -153,23 +153,32 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             // Start the fill operation by getting the color under the user's mouse
             Color pColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
-
-            Color newColor = (compMode == CompositingMode.SourceCopy ? color : color.Blend(pColor));
+            // Do a pre-blend of the color, if the composition mode is SourceOver
+            Color newColor = (compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color);
 
             uint pColorI = unchecked((uint)pColor.ToArgb());
             uint newColorI = unchecked((uint)newColor.ToArgb());
 
+            // Don't do anything if the fill operation doesn't ends up changing any pixel color
             if (pColorI == newColorI || pColor == color && (compMode == CompositingMode.SourceOver && pColor.A == 255 || compMode == CompositingMode.SourceCopy))
             {
                 return;
             }
+
+            // Clone the bitmap to be used on undo/redo
+            Bitmap originalBitmap = new Bitmap(pictureBox.Bitmap);
+
+            int minX = point.X;
+            int minY = point.Y;
+            int maxX = point.X;
+            int maxY = point.Y;
 
             // Lock the bitmap
             FastBitmap fastBitmap = new FastBitmap(pictureBox.Bitmap);
             fastBitmap.Lock();
 
             // Initialize the undo task
-            PerPixelUndoTask undoTask = new PerPixelUndoTask(pictureBox, "Flood fill");
+            BitmapUndoTask undoTask = new BitmapUndoTask(pictureBox, pictureBox.Bitmap, "Flood fill");
 
             Stack<int> stack = new Stack<int>();
 
@@ -194,8 +203,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
                 while (y1 < height && fastBitmap.GetPixelUInt(x, y1) == pColorI)
                 {
+                    // Expand affected region boundaries
+                    minX = x < minX ? x : minX;
+                    maxX = x > maxX ? x : maxX;
+
+                    minY = y1 < minY ? y1 : minY;
+                    maxY = y1 > maxY ? y1 : maxY;
+
                     fastBitmap.SetPixel(x, y1, newColorI);
-                    undoTask.RegisterUncheckedPixel(x, y1, pColorI, newColorI);
 
                     uint pixel;
 
@@ -235,12 +250,21 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             fastBitmap.Unlock();
 
-            pictureBox.Invalidate();
-            pictureBox.MarkModified();
+            // Generate the undo now
+            Rectangle affectedRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
 
-            undoTask.PackData();
+            undoTask.DrawPoint = affectedRectangle.Location;
+            // Slice and persist the undo/redo bitmap regions
+            undoTask.SetOldBitmap(FastBitmap.SliceBitmap(originalBitmap, affectedRectangle));
+            undoTask.SetNewBitmap(FastBitmap.SliceBitmap(pictureBox.Bitmap, affectedRectangle));
+
+            originalBitmap.Dispose();
 
             pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
+
+            // Finish the operation by updating the picture box
+            pictureBox.Invalidate();
+            pictureBox.MarkModified();
         }
     }
 }

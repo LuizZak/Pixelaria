@@ -27,6 +27,7 @@ Legend:
   * Fixed pencil operation being really slow on high-resolution images.
   * Fixed pasting something and deselecting right away undoing the paste operation.
   * Fixed drawing with a Replace blend mode with the pencil not undoing correctly sometimes.
+  * Increased speed and decreased memory footprint of the bucket tool.
 
 . Now the main window title bar displays the path of the file currently open
 
