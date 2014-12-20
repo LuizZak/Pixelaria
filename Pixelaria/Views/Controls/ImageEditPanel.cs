@@ -908,7 +908,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The bitmap that contains the pixels for the undoing of the task
         /// </summary>
-        readonly Bitmap _oldBitmap;
+        Bitmap _oldBitmap;
 
         /// <summary>
         /// The bitmap that contains the pixels for the redoing of the task
@@ -916,35 +916,75 @@ namespace Pixelaria.Views.Controls
         Bitmap _newBitmap;
 
         /// <summary>
+        /// The point at which to draw the bitmaps when undoing/redoing the operation
+        /// </summary>
+        Point _drawPoint;
+
+        /// <summary>
         /// The string description for this BitmapUndoTask
         /// </summary>
         readonly string _description;
 
         /// <summary>
-        /// Initializes a new instance of the BitmapUndoTask, with a 
+        /// Gets or sets the point at which to draw the bitmaps when undoing/redoing the operation
+        /// </summary>
+        public Point DrawPoint
+        {
+            get { return _drawPoint; }
+            set { _drawPoint = value; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BitmapUndoTask, with a target picture box
+        /// </summary>
+        /// <param name="targetPictureBox">The target picture box that will be invalidated</param>
+        /// <param name="description">A short description for this BitmapUndoTask</param>
+        /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
+        public BitmapUndoTask(PictureBox targetPictureBox, string description, Point drawPoint = new Point())
+            : this(targetPictureBox, (Bitmap)targetPictureBox.Image, description, drawPoint)
+        {
+            
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BitmapUndoTask, with a target picture box and bitmap
         /// </summary>
         /// <param name="targetPictureBox">The target picture box that will be invalidated</param>
         /// <param name="targetBitmap">The target bitmap for this BitmapUndoTask</param>
         /// <param name="description">A short description for this BitmapUndoTask</param>
-        public BitmapUndoTask(PictureBox targetPictureBox, Bitmap targetBitmap, string description)
+        /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
+        public BitmapUndoTask(PictureBox targetPictureBox, Bitmap targetBitmap, string description, Point drawPoint = new Point())
         {
             _targetPictureBox = targetPictureBox;
             _targetBitmap = targetBitmap;
             _description = description;
+            _drawPoint = drawPoint;
 
             _oldBitmap = targetBitmap.Clone() as Bitmap;
+        }
+
+        /// <summary>
+        /// Registers the pixels of the given bitmap as the undo bitmap
+        /// </summary>
+        /// <param name="oldBitmap">The bitmap whose pixels will be used as the undo bitmap</param>
+        public void SetOldBitmap(Bitmap oldBitmap)
+        {
+            if (_oldBitmap != null)
+                _oldBitmap.Dispose();
+
+            _oldBitmap = new Bitmap(oldBitmap.Width, oldBitmap.Height, PixelFormat.Format32bppArgb);
+
+            FastBitmap.CopyPixels(oldBitmap, _oldBitmap);
         }
 
         /// <summary>
         /// Registers the pixels of the given bitmap as the redo bitmap
         /// </summary>
         /// <param name="newBitmap">The bitmap whose pixels will be used as the redo bitmap</param>
-        public void RegisterNewBitmap(Bitmap newBitmap)
+        public void SetNewBitmap(Bitmap newBitmap)
         {
             if (_newBitmap != null)
-            {
                 _newBitmap.Dispose();
-            }
 
             _newBitmap = new Bitmap(newBitmap.Width, newBitmap.Height, PixelFormat.Format32bppArgb);
 
@@ -956,12 +996,11 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Clear()
         {
-            _oldBitmap.Dispose();
+            if (_oldBitmap != null)
+                _oldBitmap.Dispose();
 
             if (_newBitmap != null)
-            {
                 _newBitmap.Dispose();
-            }
         }
 
         /// <summary>
@@ -969,7 +1008,10 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Undo()
         {
-            FastBitmap.CopyPixels(_oldBitmap, _targetBitmap);
+            FastBitmap.CopyRegion(_oldBitmap, _targetBitmap,
+                new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height),
+                new Rectangle(_drawPoint, new Size(_oldBitmap.Width, _oldBitmap.Height)));
+            
             _targetPictureBox.Invalidate();
         }
 
@@ -978,7 +1020,10 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Redo()
         {
-            FastBitmap.CopyPixels(_newBitmap, _targetBitmap);
+            FastBitmap.CopyRegion(_newBitmap, _targetBitmap,
+                new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height),
+                new Rectangle(_drawPoint, new Size(_targetBitmap.Width, _targetBitmap.Height)));
+            
             _targetPictureBox.Invalidate();
         }
 
