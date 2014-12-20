@@ -134,7 +134,18 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                 {
                     string path = Path.GetDirectoryName(bundlePath) + "\\" + Path.GetFileName(childNode.Attributes["file"].InnerText);
 
-                    Bitmap texture = (Bitmap)Image.FromFile(path);
+                    byte[] bytes = File.ReadAllBytes(path);
+
+                    Bitmap texture = null;
+
+                    using(MemoryStream stream = new MemoryStream(bytes))
+                    {
+                        Image original = Image.FromStream(stream);
+
+                        texture = (Bitmap)original.Clone();
+
+                        original.Dispose();
+                    }
 
                     return ImportAnimationSheet(texture, xml);
                 }
