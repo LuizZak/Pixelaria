@@ -57,14 +57,12 @@ namespace Pixelaria.Controllers.Exporters
 
             if(progressHandler != null)
             {
-                proxyHandler = new BundleExportProgressEventHandler(
-                    (BundleExportProgressEventArgs args) => {
-                        totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
+                proxyHandler = (BundleExportProgressEventArgs args) => {
+                                                                           totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
 
-                        // Calculate total progress
-                        progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));
-                    }
-                );
+                                                                           // Calculate total progress
+                                                                           progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));
+                };
             }
 
             // Create the lists needed for the export

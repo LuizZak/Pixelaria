@@ -261,8 +261,8 @@ namespace Pixelaria.Views.Controls
             this.vScrollBar.Visible = false;
             this.vScrollBar.Cursor = Cursors.Arrow;
 
-            this.hScrollBar.Scroll += new ScrollEventHandler(hScrollBar_Scroll);
-            this.vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
+            this.hScrollBar.Scroll += hScrollBar_Scroll;
+            this.vScrollBar.Scroll += vScrollBar_Scroll;
 
             this.Controls.Add(this.hScrollBar);
             this.Controls.Add(this.vScrollBar);
@@ -294,7 +294,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="boundsControl">The control to use the bounds of to clip the mouse wheel event. Setting to null uses this control as bounds</param>
         public void HookToControl(Control owningControl, Control boundsControl = null)
         {
-            owningControl.MouseWheel += new MouseEventHandler(ZoomablePictureBox_MouseWheel);
+            owningControl.MouseWheel += ZoomablePictureBox_MouseWheel;
             this.boundsControl = (boundsControl == null ? this : boundsControl);
         }
 

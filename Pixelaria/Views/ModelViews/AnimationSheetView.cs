@@ -258,13 +258,11 @@ namespace Pixelaria.Views.ModelViews
                 // Time the bundle export
                 pb_exportProgress.Visible = true;
 
-                BundleExportProgressEventHandler handler = new BundleExportProgressEventHandler(
-                    (BundleExportProgressEventArgs args) =>
-                    {
-                        pb_exportProgress.Value = args.StageProgress;
-                        pb_exportProgress.Refresh();
-                    }
-                );
+                BundleExportProgressEventHandler handler = (BundleExportProgressEventArgs args) =>
+                {
+                    pb_exportProgress.Value = args.StageProgress;
+                    pb_exportProgress.Refresh();
+                };
 
                 FindForm().Cursor = Cursors.WaitCursor;
                 Stopwatch sw = Stopwatch.StartNew();

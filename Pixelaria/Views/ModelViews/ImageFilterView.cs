@@ -106,11 +106,11 @@ namespace Pixelaria.Views.ModelViews
             this.bitmapOriginal = bitmap;
             this.bitmapPreview = bitmap.Clone() as Bitmap;
 
-            this.filterUpdatedHandler = new EventHandler(FilterUpdated);
-            this.filterItemClick = new EventHandler(tsm_filterItem_Click);
-            this.containerDraggedHandler = new EventHandler(ContainerDragged);
-            this.containerDroppedHandler = new EventHandler(ContainerDropped);
-            this.containerDraggingHandler = new EventHandler(ContainerDragging);
+            this.filterUpdatedHandler = FilterUpdated;
+            this.filterItemClick = tsm_filterItem_Click;
+            this.containerDraggedHandler = ContainerDragged;
+            this.containerDroppedHandler = ContainerDropped;
+            this.containerDraggingHandler = ContainerDragging;
 
             this.pnl_errorPanel.Visible = false;
 
@@ -770,7 +770,7 @@ namespace Pixelaria.Views.ModelViews
 
                 this.dragTimer = new Timer();
                 this.dragTimer.Interval = 10;
-                this.dragTimer.Tick += new EventHandler(dragTimer_Tick);
+                this.dragTimer.Tick += dragTimer_Tick;
                 this.dragTimer.Start();
             }
 

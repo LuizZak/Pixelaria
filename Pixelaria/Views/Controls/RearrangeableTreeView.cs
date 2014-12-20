@@ -74,7 +74,7 @@ namespace Pixelaria.Views.Controls
         {
             imageListDrag = new ImageList();
             timer = new Timer();
-            timer.Tick += new EventHandler(timer_Tick);
+            timer.Tick += timer_Tick;
 
             this.AllowDrop = true;
         }

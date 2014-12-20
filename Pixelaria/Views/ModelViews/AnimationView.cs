@@ -110,8 +110,8 @@ namespace Pixelaria.Views.ModelViews
         {
             InitializeComponent();
 
-            this.filterClickEventHandler = new EventHandler(tsm_filterItem_Click);
-            this.presetClickEventHandler = new EventHandler(tsm_presetItem_Click);
+            this.filterClickEventHandler = tsm_filterItem_Click;
+            this.presetClickEventHandler = tsm_presetItem_Click;
 
             this.UpdateFilterList();
             this.UpdateFilterPresetList();
@@ -126,10 +126,10 @@ namespace Pixelaria.Views.ModelViews
                 this.viewAnimation[i].ID = animation[i].ID;
             }
 
-            clipboardHandler = new DataClipboard.ClipboardEventHandler(clipboard_ClipboardChanged);
+            clipboardHandler = clipboard_ClipboardChanged;
             Clipboard.ClipboardChanged += clipboardHandler;
 
-            this.undoSystem.UndoRegistered += new UndoSystem.UndoEventHandler(undoSystem_UndoRegistered);
+            this.undoSystem.UndoRegistered += undoSystem_UndoRegistered;
 
             RefreshView();
 

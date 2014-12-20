@@ -70,7 +70,7 @@ namespace Pixelaria.Views.MiscViews
             btn_ok.Visible = false;
             canClose = false;
             
-            exporter.ExportBundle(bundle, new BundleExportProgressEventHandler(ExportHandler));
+            exporter.ExportBundle(bundle, ExportHandler);
 
             canClose = true;
             btn_ok.Visible = true;

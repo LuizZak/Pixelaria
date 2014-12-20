@@ -86,7 +86,7 @@ namespace Pixelaria.Views.MiscViews
             btn_ok.Visible = false;
             canClose = false;
 
-            Image img = exporter.ExportAnimationSheet(sheet, new BundleExportProgressEventHandler(ExportHandler));
+            Image img = exporter.ExportAnimationSheet(sheet, ExportHandler);
 
             // Save the image now
             lbl_progress.Text = "Saving to disk...";

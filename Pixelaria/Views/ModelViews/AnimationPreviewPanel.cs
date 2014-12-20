@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ModelViews
             InitializeComponent();
 
             animationTimer = new Timer();
-            animationTimer.Tick += new EventHandler(animationTimer_Tick);
+            animationTimer.Tick += animationTimer_Tick;
 
             draggingTrackbar = false;
 

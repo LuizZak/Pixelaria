@@ -70,7 +70,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
         {
             this.frameView = frameView;
 
-            frameChangedEventHandler = new FrameView.EditFrameChangedEventHandler(frameView_EditFrameChanged);
+            frameChangedEventHandler = frameView_EditFrameChanged;
 
             this.frameView.EditFrameChanged += frameChangedEventHandler;
         }
