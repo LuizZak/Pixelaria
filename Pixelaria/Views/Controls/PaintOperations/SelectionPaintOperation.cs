@@ -783,7 +783,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
             if (selectedArea != selectedStartArea || _operationMode != SelectionOperationType.Moved || ForceApplyChanges)
             {
                 // Record the undo operation
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(this, pictureBox, selectionBitmap, originalSlice, selectedStartArea, selectedArea, _operationMode, compositingMode));
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(pictureBox, selectionBitmap, originalSlice, selectedStartArea, selectedArea, _operationMode, compositingMode));
 
                 pictureBox.MarkModified();
             }
@@ -879,11 +879,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
         protected class SelectionUndoTask : IUndoTask
         {
             /// <summary>
-            /// The owning paint operation
-            /// </summary>
-            SelectionPaintOperation _paintOperation;
-
-            /// <summary>
             /// The target picture box for the undo task
             /// </summary>
             readonly ImageEditPanel.InternalPictureBox _pictureBox;
@@ -921,7 +916,6 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <summary>
             /// Initializes a new instance of the SelectionUndoTask class
             /// </summary>
-            /// <param name="paintOperation">The owning SelectionPaintOperation object</param>
             /// <param name="pictureBox">The target picture box for the undo task</param>
             /// <param name="selectionBitmap">The selection bitmap</param>
             /// <param name="originalSlice">The original image slice before a Move operation was made</param>
@@ -929,9 +923,8 @@ namespace Pixelaria.Views.Controls.PaintOperations
             /// <param name="area">The area of the affected SelectionUndoTask</param>
             /// <param name="operationType">The operation type of this SelectionUndoTask</param>
             /// <param name="compositingMode">The compositing mode for the operation</param>
-            public SelectionUndoTask(SelectionPaintOperation paintOperation, ImageEditPanel.InternalPictureBox pictureBox, Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
+            public SelectionUndoTask(ImageEditPanel.InternalPictureBox pictureBox, Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
             {
-                _paintOperation = paintOperation;
                 _pictureBox = pictureBox;
                 _selectionBitmap = (Bitmap)selectionBitmap.Clone();
                 _originalSlice = (originalSlice == null ? null : (Bitmap)originalSlice.Clone());

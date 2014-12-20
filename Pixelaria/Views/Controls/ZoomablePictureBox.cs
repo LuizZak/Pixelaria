@@ -35,11 +35,6 @@ namespace Pixelaria.Views.Controls
     public class ZoomablePictureBox : CPictureBox
     {
         /// <summary>
-        /// Whether to allow the display of scrollbars when the image bounds is largest than the control's size
-        /// </summary>
-        private bool allowScrollbars;
-
-        /// <summary>
         /// This control's horizontal scrollbar
         /// </summary>
         protected HScrollBar hScrollBar;
@@ -134,7 +129,7 @@ namespace Pixelaria.Views.Controls
         [Category("Behavior")]
         [DefaultValue(true)]
         [Description("Whether to allow the display of scrollbars when the image bounds is largest than the control's size")]
-        public bool AllowScrollbars { get { return allowScrollbars; } set { allowScrollbars = value; } }
+        public bool AllowScrollbars { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum zoom scale
@@ -154,22 +149,21 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public PointF Zoom
         {
-            get { return this.scale; }
+            get { return scale; }
             set
             {
                 float oldZoom = scale.X;
 
-                this.scale = value;
+                scale = value;
 
-                Point pivot = offsetPoint;
                 Point currentOffset = offsetPoint;
 
-                this.ClipTransform();
+                ClipTransform();
 
                 // Zoom around the mouse
-                pivot = this.PointToClient(MousePosition);
+                var pivot = PointToClient(MousePosition);
 
-                if (!this.ClientRectangle.Contains(pivot))
+                if (!ClientRectangle.Contains(pivot))
                 {
                     pivot = Point.Empty;
                 }
@@ -185,8 +179,8 @@ namespace Pixelaria.Views.Controls
 
                 offsetPoint = currentOffset;
 
-                this.ClipTransform();
-                this.Invalidate();
+                ClipTransform();
+                Invalidate();
 
                 // Fire the zoom changed event
                 if (ZoomChanged != null)
@@ -221,51 +215,53 @@ namespace Pixelaria.Views.Controls
         [Category("Appearance")]
         [DefaultValue(typeof(Point), "0, 0")]
         [Description("The offset of the image")]
-        public Point Offset { get { return this.offsetPoint; } set { this.offsetPoint = value; this.ClipTransform(); this.Invalidate(); } }
+        public Point Offset { get { return offsetPoint; } set { offsetPoint = value; ClipTransform(); Invalidate(); } }
 
         /// <summary>
         /// Default constructor for the ZoomablePictureBox
         /// </summary>
         public ZoomablePictureBox()
         {
-            this.offsetPoint = new Point();
-            this.scale = new PointF(1, 1);
-            this.ZoomFactor = (float)Math.Sqrt(2);
-            this.ZoomFactorMode = Views.Controls.ZoomFactorMode.Multiply;
+            offsetPoint = new Point();
+            scale = new PointF(1, 1);
+            ZoomFactor = (float)Math.Sqrt(2);
+            ZoomFactorMode = Views.Controls.ZoomFactorMode.Multiply;
 
-            this.MinimumZoom = new PointF(0.125f, 0.125f);
-            this.MaximumZoom = new PointF(15, 15);
+            MinimumZoom = new PointF(0.125f, 0.125f);
+            MaximumZoom = new PointF(15, 15);
 
-            this.AllowDrag = true;
+            AllowDrag = true;
 
             // Scrollbar creation
-            this.hScrollBar = new HScrollBar();
-            this.hScrollBar.Dock = DockStyle.Bottom;
-            this.hScrollBar.Visible = true;
-            this.hScrollBar.Value = 0;
-            this.hScrollBar.Minimum = 0;
-            this.hScrollBar.Maximum = 150;
-            this.hScrollBar.SmallChange = 1;
-            this.hScrollBar.LargeChange = 300;
-            this.hScrollBar.Visible = false;
-            this.hScrollBar.Cursor = Cursors.Arrow;
+            hScrollBar = new HScrollBar
+            {
+                Dock = DockStyle.Bottom,
+                Value = 0,
+                Minimum = 0,
+                Maximum = 150,
+                SmallChange = 1,
+                LargeChange = 300,
+                Visible = false,
+                Cursor = Cursors.Arrow
+            };
 
-            this.vScrollBar = new VScrollBar();
-            this.vScrollBar.Dock = DockStyle.Right;
-            this.vScrollBar.Visible = true;
-            this.vScrollBar.Value = 0;
-            this.vScrollBar.Minimum = 0;
-            this.vScrollBar.Maximum = 150;
-            this.vScrollBar.SmallChange = 1;
-            this.vScrollBar.LargeChange = 300;
-            this.vScrollBar.Visible = false;
-            this.vScrollBar.Cursor = Cursors.Arrow;
+            vScrollBar = new VScrollBar
+            {
+                Dock = DockStyle.Right,
+                Value = 0,
+                Minimum = 0,
+                Maximum = 150,
+                SmallChange = 1,
+                LargeChange = 300,
+                Visible = false,
+                Cursor = Cursors.Arrow
+            };
 
-            this.hScrollBar.Scroll += hScrollBar_Scroll;
-            this.vScrollBar.Scroll += vScrollBar_Scroll;
+            hScrollBar.Scroll += hScrollBar_Scroll;
+            vScrollBar.Scroll += vScrollBar_Scroll;
 
-            this.Controls.Add(this.hScrollBar);
-            this.Controls.Add(this.vScrollBar);
+            Controls.Add(hScrollBar);
+            Controls.Add(vScrollBar);
         }
 
         /// <summary>
@@ -273,15 +269,15 @@ namespace Pixelaria.Views.Controls
         /// Optionally specify to reset zoom and offset transformations
         /// </summary>
         /// <param name="image">The new image to display on this form</param>
-        /// <param name="resetZoom">Whether to reset</param>
+        /// <param name="resetTransform">Whether to reset the transformation after setting the new image</param>
         public void SetImage(Image image, bool resetTransform = false)
         {
-            this.Image = image;
+            Image = image;
 
             if (resetTransform)
             {
-                this.offsetPoint = new Point();
-                this.Zoom = new PointF(1, 1);
+                offsetPoint = new Point();
+                Zoom = new PointF(1, 1);
             }
 
             ClipTransform();
@@ -291,11 +287,11 @@ namespace Pixelaria.Views.Controls
         /// Hooks the mouse wheel event listener to the given control
         /// </summary>
         /// <param name="owningControl">The control that owns this SheetPreviewPictureBox. Used to hook the mouse wheel listener</param>
-        /// <param name="boundsControl">The control to use the bounds of to clip the mouse wheel event. Setting to null uses this control as bounds</param>
-        public void HookToControl(Control owningControl, Control boundsControl = null)
+        /// <param name="wheelClipBoundsControl">The control to use the bounds of to clip the mouse wheel event. Setting to null uses this control as bounds</param>
+        public void HookToControl(Control owningControl, Control wheelClipBoundsControl = null)
         {
             owningControl.MouseWheel += ZoomablePictureBox_MouseWheel;
-            this.boundsControl = (boundsControl == null ? this : boundsControl);
+            boundsControl = (wheelClipBoundsControl ?? this);
         }
 
         /// <summary>
@@ -312,7 +308,7 @@ namespace Pixelaria.Views.Controls
             m.Scale(1 / scale.X, 1 / scale.Y);
             m.Translate(offsetPoint.X, offsetPoint.Y);
 
-            PointF[] p = new PointF[] { controlPoint };
+            PointF[] p = { controlPoint };
 
             m.TransformPoints(p);
 
@@ -333,7 +329,7 @@ namespace Pixelaria.Views.Controls
             m.Translate(-offsetPoint.X, -offsetPoint.Y);
             m.Scale(scale.X, scale.Y);
 
-            PointF[] p = new PointF[] { pixelPoint };
+            PointF[] p = { pixelPoint };
 
             m.TransformPoints(p);
 
@@ -355,7 +351,7 @@ namespace Pixelaria.Views.Controls
             {
                 if (AutomaticallyResize)
                 {
-                    this.Size = new Size((int)(Image.Width * scale.X), (int)(Image.Height * scale.X));
+                    Size = new Size((int)(Image.Width * scale.X), (int)(Image.Height * scale.X));
                 }
                 else
                 {
@@ -374,7 +370,7 @@ namespace Pixelaria.Views.Controls
             graphics.PixelOffsetMode = PixelOffsetMode.Half;
             graphics.InterpolationMode = ImageInterpolationMode;
 
-            if (this.ImageLayout != ImageLayout.Center)
+            if (ImageLayout != ImageLayout.Center)
             {
                 graphics.TranslateTransform(-offsetPoint.X, -offsetPoint.Y);
                 graphics.ScaleTransform(scale.X, scale.Y);
@@ -442,13 +438,12 @@ namespace Pixelaria.Views.Controls
         {
             if (Image != null)
             {
-                Rectangle rec = new Rectangle(0, 0, Image.Width, Image.Height);
-                rec = CalculateBackgroundImageRectangle(this.ClientRectangle, this.Image, this.ImageLayout);
+                Rectangle rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
 
-                if (this.ImageLayout == ImageLayout.Center)
+                if (ImageLayout == ImageLayout.Center)
                 {
-                    rec.X = (int)((this.ClientRectangle.Width / 2 - (rec.Width * scale.X) / 2));
-                    rec.Y = (int)((this.ClientRectangle.Height / 2 - (rec.Height * scale.Y) / 2));
+                    rec.X = (int)((ClientRectangle.Width / 2.0f - (rec.Width * scale.X) / 2));
+                    rec.Y = (int)((ClientRectangle.Height / 2.0f - (rec.Height * scale.Y) / 2));
                     rec.Width = (int)(rec.Width * scale.X);
                     rec.Height = (int)(rec.Height * scale.Y);
                 }
@@ -479,25 +474,23 @@ namespace Pixelaria.Views.Controls
         {
             if (ClipBackgroundToImage && Image != null)
             {
-                if (this.BackgroundImage == null)
+                if (BackgroundImage == null)
                     return;
                 
-                pevent.Graphics.Clear(this.BackColor);
+                pevent.Graphics.Clear(BackColor);
 
-                Rectangle rec = new Rectangle(-offsetPoint.X, -offsetPoint.Y, (int)(this.Image.Width * scale.X), (int)(this.Image.Height * scale.Y));
-                rec = CPictureBox.CalculateBackgroundImageRectangle(rec, this.BackgroundImage, this.BackgroundImageLayout);
+                Rectangle rec = new Rectangle(-offsetPoint.X, -offsetPoint.Y, (int)(Image.Width * scale.X), (int)(Image.Height * scale.Y));
+                rec = CalculateBackgroundImageRectangle(rec, BackgroundImage, BackgroundImageLayout);
 
-                if (this.ImageLayout == ImageLayout.Center)
+                if (ImageLayout == ImageLayout.Center)
                 {
-                    rec.X = (int)((this.ClientRectangle.Width / 2 - (this.Image.Width * scale.X) / 2));
-                    rec.Y = (int)((this.ClientRectangle.Height / 2 - (this.Image.Height * scale.Y) / 2));
+                    rec.X = (int)((ClientRectangle.Width / 2.0f - (Image.Width * scale.X) / 2));
+                    rec.Y = (int)((ClientRectangle.Height / 2.0f - (Image.Height * scale.Y) / 2));
                 }
 
-                if (this.BackgroundImageLayout == ImageLayout.Tile)
+                if (BackgroundImageLayout == ImageLayout.Tile)
                 {
-                    TextureBrush tex = new TextureBrush(this.BackgroundImage);
-
-                    tex.WrapMode = WrapMode.Tile;
+                    TextureBrush tex = new TextureBrush(BackgroundImage) { WrapMode = WrapMode.Tile };
 
                     pevent.Graphics.FillRectangle(tex, rec);
 
@@ -505,7 +498,7 @@ namespace Pixelaria.Views.Controls
                 }
                 else
                 {
-                    pevent.Graphics.DrawImage(this.BackgroundImage, rec);
+                    pevent.Graphics.DrawImage(BackgroundImage, rec);
                 }
             }
             else
@@ -548,7 +541,10 @@ namespace Pixelaria.Views.Controls
             if (AllowDrag && e.Button == MouseButtons.Left)
             {
                 // Steal the focus from the current control so the mouse wheel event handler funcions correctly
-                this.FindForm().ActiveControl = this;
+                var findForm = FindForm();
+                if (findForm != null)
+                    findForm.ActiveControl = this;
+
                 draggingViewport = true;
                 mouseOffset = new Point(MousePosition.X + offsetPoint.X, MousePosition.Y + offsetPoint.Y);
             }
@@ -588,12 +584,17 @@ namespace Pixelaria.Views.Controls
         // 
         private void ZoomablePictureBox_MouseWheel(object sender, MouseEventArgs e)
         {
-            Point p = this.FindForm().PointToScreen(e.Location);
+            var form = FindForm();
+
+            if (form == null)
+                return;
+
+            Point p = form.PointToScreen(e.Location);
 
             p = boundsControl.PointToClient(p);
 
             // Test if the mouse is not over another control
-            Control target = this.FindForm().GetChildAtPoint(e.Location);
+            Control target = form.GetChildAtPoint(e.Location);
             if (target != null && target != this && !IsControlChildOf(this, target))
             {
                 return;
@@ -601,8 +602,6 @@ namespace Pixelaria.Views.Controls
 
             if (boundsControl.ClientRectangle.Contains(p))
             {
-                float oldZoom = scale.X;
-
                 PointF newZoom = scale;
 
                 if (ZoomFactorMode == ZoomFactorMode.Multiply)
@@ -678,8 +677,8 @@ namespace Pixelaria.Views.Controls
         /// <param name="newZoom">The new zoom after the event</param>
         public ZoomChangedEventArgs(float oldZoom, float newZoom)
         {
-            this.OldZoom = oldZoom;
-            this.NewZoom = newZoom;
+            OldZoom = oldZoom;
+            NewZoom = newZoom;
         }
     }
 

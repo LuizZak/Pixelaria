@@ -20,10 +20,6 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -38,24 +34,24 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The project tree this project tree view is currently representing
         /// </summary>
-        ProjectTree loadedProjectTree;
+        ProjectTree _loadedProjectTree;
 
         /// <summary>
         /// Gets or sets the project tree this project tree view is currently representing
         /// </summary>
         public ProjectTree LoadedProjectTree
         {
-            get { return loadedProjectTree; }
-            set { loadedProjectTree = value; }
+            get { return _loadedProjectTree; }
+            set { _loadedProjectTree = value; }
         }
-
+        /*
         /// <summary>
         /// Loads the given ProjectTree object into this ProjectTreeView
         /// </summary>
         /// <param name="tree">The project tree to load on this ProjectTreeView</param>
         private void LoadProjectTree(ProjectTree tree)
         {
-            this.loadedProjectTree = tree;
+            _loadedProjectTree = tree;
         }
 
         // 
@@ -66,6 +62,6 @@ namespace Pixelaria.Views.Controls
             TreeNode node = e.Item as TreeNode;
 
             base.OnItemDrag(e);
-        }
+        }*/
     }
 }

@@ -64,10 +64,12 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is SaturationFilter))
                 return;
 
-            anud_saturation.Value = (decimal)(referenceFilter as SaturationFilter).Saturation * 100;
-            cb_relative.Checked = (referenceFilter as SaturationFilter).Relative;
-            cb_keepGrays.Checked = (referenceFilter as SaturationFilter).KeepGrays;
-            cb_multiply.Checked = (referenceFilter as SaturationFilter).Multiply;
+            var saturationFilter = (SaturationFilter)referenceFilter;
+
+            anud_saturation.Value = (decimal)saturationFilter.Saturation * 100;
+            cb_relative.Checked = saturationFilter.Relative;
+            cb_keepGrays.Checked = saturationFilter.KeepGrays;
+            cb_multiply.Checked = saturationFilter.Multiply;
         }
 
         // 

@@ -64,8 +64,8 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is HueFilter))
                 return;
 
-            anud_hue.Value = (decimal)(referenceFilter as HueFilter).Hue * 100;
-            cb_relative.Checked = (referenceFilter as HueFilter).Relative;
+            anud_hue.Value = (decimal)((HueFilter)referenceFilter).Hue * 100;
+            cb_relative.Checked = ((HueFilter)referenceFilter).Relative;
         }
 
         // 

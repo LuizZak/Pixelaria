@@ -375,8 +375,6 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>A float value ranging from [0 - 1] that indicates the value represented by a given X offset of the slider</returns>
         private float GetValueForXOffset(int xOffset)
         {
-            float value;
-
             // Get the slider rectangle and move it to offset 0
             Rectangle rect = GetSliderRectangleBounds();
 
@@ -386,7 +384,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             rect.X = 0;
             rect.Width -= rect.Height;
 
-            value = (float)(xOffset) / rect.Width;
+            var value = (float)(xOffset) / rect.Width;
 
             return Math.Max(0, Math.Min(1, value));
         }
@@ -736,7 +734,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             // Hue is a special case
             if (_colorComponent == ColorSliderComponent.Hue)
             {
-                int steps = 54;
+                const int steps = 54;
 
                 // Create the color blends for the brush
                 blend = new ColorBlend(steps);
@@ -756,9 +754,11 @@ namespace Pixelaria.Views.Controls.ColorControls
                 blend.Positions = positions.ToArray();
 
                 // Create the brush
-                brush = new LinearGradientBrush(rec, Color.White, Color.White, LinearGradientMode.Horizontal);
-                brush.InterpolationColors = blend;
-                brush.WrapMode = WrapMode.TileFlipXY;
+                brush = new LinearGradientBrush(rec, Color.White, Color.White, LinearGradientMode.Horizontal)
+                {
+                    InterpolationColors = blend,
+                    WrapMode = WrapMode.TileFlipXY
+                };
 
                 return brush;
             }
@@ -771,14 +771,18 @@ namespace Pixelaria.Views.Controls.ColorControls
             rec.Width -= 14;
 
             // Create the color blends for the brush
-            blend = new ColorBlend(3);
-            blend.Colors = new [] { zeroColor, halfColor, fullColor };
-            blend.Positions = new [] { 0.0f, 0.5f, 1.0f };
+            blend = new ColorBlend(3)
+            {
+                Colors = new[] {zeroColor, halfColor, fullColor},
+                Positions = new[] {0.0f, 0.5f, 1.0f}
+            };
 
             // Create the brush
-            brush = new LinearGradientBrush(rec, zeroColor, fullColor, LinearGradientMode.Horizontal);
-            brush.InterpolationColors = blend;
-            brush.WrapMode = WrapMode.TileFlipXY;
+            brush = new LinearGradientBrush(rec, zeroColor, fullColor, LinearGradientMode.Horizontal)
+            {
+                InterpolationColors = blend,
+                WrapMode = WrapMode.TileFlipXY
+            };
 
             return brush;
         }

@@ -245,14 +245,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             if (graphics != null)
                 graphics.Dispose();
 
-            if (newBitmap != null)
-            {
-                graphics = Graphics.FromImage(newBitmap);
-            }
-            else
-            {
-                graphics = null;
-            }
+            graphics = newBitmap != null ? Graphics.FromImage(newBitmap) : null;
         }
 
         /// <summary>
@@ -284,10 +277,12 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             if (compositingMode == CompositingMode.SourceOver)
             {
                 // Create a color matrix object
-                ColorMatrix matrix = new ColorMatrix();
+                ColorMatrix matrix = new ColorMatrix
+                {
+                    Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255)
+                };
 
                 // Set the opacity
-                matrix.Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255);
 
                 // Set the color(opacity) of the image
                 attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
@@ -529,10 +524,12 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 // Draw the buffered trace bitmap now
 
                 // Create a color matrix object  
-                ColorMatrix matrix = new ColorMatrix();
+                ColorMatrix matrix = new ColorMatrix
+                {
+                    Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255)
+                };
 
                 // Set the opacity  
-                matrix.Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255);
 
                 // Create image attributes  
                 ImageAttributes attributes = new ImageAttributes();

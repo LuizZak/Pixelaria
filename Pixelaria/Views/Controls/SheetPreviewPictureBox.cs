@@ -40,27 +40,27 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
-        private SheetSettings sheetSettings;
+        private SheetSettings _sheetSettings;
 
         /// <summary>
         /// The curre sheet export this SheetPreviewPictureBox is displaying
         /// </summary>
-        private BundleSheetExport sheetExport;
+        private BundleSheetExport _sheetExport;
 
         /// <summary>
         /// The array of rectangle areas for each frame
         /// </summary>
-        private Rectangle[] frameRects;
+        private Rectangle[] _frameRects;
 
         /// <summary>
         /// Whether to display the number of frames that have been reused when drawing the frame bounds
         /// </summary>
-        private bool displayReusedCount = false;
+        private bool _displayReusedCount;
 
         /// <summary>
         /// The array of images used to represent the pixel digits
         /// </summary>
-        private Image[] pixelDigitsImages;
+        private Image[] _pixelDigitsImages;
         
         /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
@@ -70,12 +70,12 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
-        public SheetSettings SheetSettings { get { return sheetSettings; } set { sheetSettings = value; frameRects = Importer.GenerateFrameBounds(Image, sheetSettings); Invalidate(); } }
+        public SheetSettings SheetSettings { get { return _sheetSettings; } set { _sheetSettings = value; _frameRects = Importer.GenerateFrameBounds(Image, _sheetSettings); Invalidate(); } }
 
         /// <summary>
         /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
-        public BundleSheetExport SheetExport { get { return sheetExport; } set { sheetExport = value; Invalidate(); } }
+        public BundleSheetExport SheetExport { get { return _sheetExport; } set { _sheetExport = value; Invalidate(); } }
 
         /// <summary>
         /// Gets or sets whether to display the number of frames that have been reused when drawing the frame bounds
@@ -83,15 +83,15 @@ namespace Pixelaria.Views.Controls
         [DefaultValue(false)]
         public bool DisplayReusedCount
         {
-            get { return displayReusedCount; }
+            get { return _displayReusedCount; }
             set
             {
-                if (pixelDigitsImages == null)
+                if (_pixelDigitsImages == null)
                 {
                     LoadPixelDigitImages();
                 }
 
-                displayReusedCount = value;
+                _displayReusedCount = value;
                 Invalidate();
             }
         }
@@ -101,18 +101,18 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void LoadPixelDigitImages()
         {
-            pixelDigitsImages = new Image[10];
+            _pixelDigitsImages = new Image[10];
 
-            pixelDigitsImages[0] = Pixelaria.Properties.Resources.Numbers_0;
-            pixelDigitsImages[1] = Pixelaria.Properties.Resources.Numbers_1;
-            pixelDigitsImages[2] = Pixelaria.Properties.Resources.Numbers_2;
-            pixelDigitsImages[3] = Pixelaria.Properties.Resources.Numbers_3;
-            pixelDigitsImages[4] = Pixelaria.Properties.Resources.Numbers_4;
-            pixelDigitsImages[5] = Pixelaria.Properties.Resources.Numbers_5;
-            pixelDigitsImages[6] = Pixelaria.Properties.Resources.Numbers_6;
-            pixelDigitsImages[7] = Pixelaria.Properties.Resources.Numbers_7;
-            pixelDigitsImages[8] = Pixelaria.Properties.Resources.Numbers_8;
-            pixelDigitsImages[9] = Pixelaria.Properties.Resources.Numbers_9;
+            _pixelDigitsImages[0] = Properties.Resources.Numbers_0;
+            _pixelDigitsImages[1] = Properties.Resources.Numbers_1;
+            _pixelDigitsImages[2] = Properties.Resources.Numbers_2;
+            _pixelDigitsImages[3] = Properties.Resources.Numbers_3;
+            _pixelDigitsImages[4] = Properties.Resources.Numbers_4;
+            _pixelDigitsImages[5] = Properties.Resources.Numbers_5;
+            _pixelDigitsImages[6] = Properties.Resources.Numbers_6;
+            _pixelDigitsImages[7] = Properties.Resources.Numbers_7;
+            _pixelDigitsImages[8] = Properties.Resources.Numbers_8;
+            _pixelDigitsImages[9] = Properties.Resources.Numbers_9;
         }
 
         /// <summary>
@@ -128,10 +128,10 @@ namespace Pixelaria.Views.Controls
             scale = new PointF(1, 1);
             offsetPoint = Point.Empty;
 
-            this.Image = previewImage;
-            this.sheetSettings = sheetSettings;
+            Image = previewImage;
+            _sheetSettings = sheetSettings;
 
-            frameRects = Importer.GenerateFrameBounds(Image, sheetSettings);
+            _frameRects = Importer.GenerateFrameBounds(Image, sheetSettings);
 
             Invalidate();
 
@@ -147,8 +147,8 @@ namespace Pixelaria.Views.Controls
             UnloadExportSheet();
 
             // Reset the transformations
-            this.Image = bundleSheetExport.Sheet;
-            this.sheetExport = bundleSheetExport;
+            Image = bundleSheetExport.Sheet;
+            _sheetExport = bundleSheetExport;
 
             Invalidate();
 
@@ -160,8 +160,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void UnloadExportSheet()
         {
-            sheetExport = null;
-            frameRects = null;
+            _sheetExport = null;
+            _frameRects = null;
 
             Invalidate();
         }
@@ -178,15 +178,15 @@ namespace Pixelaria.Views.Controls
                 RectangleF[] rects = null;
                 int[] reuseCont = null;
 
-                if (sheetExport != null)
+                if (_sheetExport != null)
                 {
-                    rects = (from frameRect in sheetExport.FrameRects select (RectangleF)frameRect.SheetArea).ToArray();
-                    reuseCont = sheetExport.ReuseCounts;
+                    rects = (from frameRect in _sheetExport.FrameRects select (RectangleF)frameRect.SheetArea).ToArray();
+                    reuseCont = _sheetExport.ReuseCounts;
                 }
-                else if (Importer != null && frameRects != null)
+                else if (Importer != null && _frameRects != null)
                 {
-                    rects = (from frameRect in frameRects select (RectangleF)frameRect).ToArray();
-                    reuseCont = (from i in frameRects select 1).ToArray();
+                    rects = (from frameRect in _frameRects select (RectangleF)frameRect).ToArray();
+                    reuseCont = (from i in _frameRects select 1).ToArray();
                 }
 
                 pe.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
@@ -214,15 +214,15 @@ namespace Pixelaria.Views.Controls
                         // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
                         Point pixelPoint = new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f));
 
-                        if (this.displayReusedCount)
+                        if (_displayReusedCount)
                         {
-                            int scale = 3;
+                            int digitsScale = 3;
                             int frameCount = reuseCont[i] + 1;
 
-                            while ((r.Size.Width < SizeForImageNumber(frameCount, scale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, scale).Height * 2) && scale > 1)
-                                scale--;
+                            while ((r.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2) && digitsScale > 1)
+                                digitsScale--;
 
-                            RenderPixelNumber(pe.Graphics, pixelPoint, frameCount, scale);
+                            RenderPixelNumber(pe.Graphics, pixelPoint, frameCount, digitsScale);
                         }
                     }
                 }
@@ -233,11 +233,11 @@ namespace Pixelaria.Views.Controls
         /// Returns the size of a number to be rendered using pixel image digits
         /// </summary>
         /// <param name="number">The number to measure</param>
-        /// <param name="scale">The scale of the number to produce</param>
+        /// <param name="digitScale">The scale of the number to produce</param>
         /// <returns>The size of the number, in pixels</returns>
-        Size SizeForImageNumber(int number, int scale)
+        Size SizeForImageNumber(int number, int digitScale)
         {
-            return new Size(((int)Math.Floor(Math.Log10(number)) + 1) * 5 * scale, 5 * scale);
+            return new Size(((int)Math.Floor(Math.Log10(number)) + 1) * 5 * digitScale, 5 * digitScale);
         }
 
         /// <summary>
@@ -246,17 +246,17 @@ namespace Pixelaria.Views.Controls
         /// <param name="g">The graphics object to render the number to</param>
         /// <param name="point">The point to render the number at</param>
         /// <param name="number">The number to render</param>
-        /// <param name="scale">The scaling to use. Set to 1 to pass the default scale</param>
-        void RenderPixelNumber(Graphics g, Point point, int number, int scale = 1)
+        /// <param name="digitsScale">The scaling to use. Set to 1 to pass the default scale</param>
+        void RenderPixelNumber(Graphics g, Point point, int number, int digitsScale = 1)
         {
             string numberString = Math.Abs(number).ToString();
             int x = 0;
-            for (int i = 0; i < numberString.Length; i++)
+            foreach (char digitChar in numberString)
             {
-                int digit = int.Parse(numberString[i] + "");
+                int digitNum = int.Parse(digitChar + "");
 
-                Image frameImage = ImageForDigit(digit);
-                Rectangle rect = new Rectangle(point.X + x, point.Y, frameImage.Width * scale, frameImage.Height * scale);
+                Image frameImage = ImageForDigit(digitNum);
+                Rectangle rect = new Rectangle(point.X + x, point.Y, frameImage.Width * digitsScale, frameImage.Height * digitsScale);
 
                 // Ignore if outside the visible area of the graphics object
                 RectangleF re = g.ClipBounds;
@@ -280,10 +280,10 @@ namespace Pixelaria.Views.Controls
         /// <returns>An image that represents the given digit</returns>
         Image ImageForDigit(int digit)
         {
-            if (digit < 0 || digit >= pixelDigitsImages.Length)
-                return pixelDigitsImages[0];
+            if (digit < 0 || digit >= _pixelDigitsImages.Length)
+                return _pixelDigitsImages[0];
 
-            return pixelDigitsImages[digit];
+            return _pixelDigitsImages[digit];
         }
     }
 }

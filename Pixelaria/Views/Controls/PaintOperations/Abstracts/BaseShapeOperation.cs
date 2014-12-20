@@ -233,7 +233,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             point.Offset(1, 1);
 
-            Rectangle rec = GetRectangleArea(new Point[] { mouseDownAbsolutePoint, point }, relative);
+            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, point }, relative);
 
             if (shiftDown)
             {

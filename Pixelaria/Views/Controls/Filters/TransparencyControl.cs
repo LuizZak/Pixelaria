@@ -53,7 +53,7 @@ namespace Pixelaria.Views.Controls.Filters
             if (filter == null)
             {
                 filter = new TransparencyFilter();
-                (filter as TransparencyFilter).Transparency = 1;
+                ((TransparencyFilter)filter).Transparency = 1;
             }
         }
 
@@ -67,7 +67,7 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is TransparencyFilter))
                 return;
 
-            anud_transparency.Value = (decimal)(referenceFilter as TransparencyFilter).Transparency * 255;
+            anud_transparency.Value = (decimal)((TransparencyFilter)referenceFilter).Transparency * 255;
         }
 
         // 

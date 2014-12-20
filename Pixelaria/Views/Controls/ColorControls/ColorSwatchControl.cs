@@ -58,17 +58,17 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The width of the color cells
         /// </summary>
-        private int _cellWidth;
+        private readonly int _cellWidth;
         /// <summary>
         /// The height of the color cells
         /// </summary>
-        private int _cellHeight;
+        private readonly int _cellHeight;
 
         /// <summary>
         /// The number of colors to place at each row
         /// before jumping to the next row
         /// </summary>
-        private int _cellsPerRow;
+        private readonly int _cellsPerRow;
 
         /// <summary>
         /// Whether the mouse is currently over this control
@@ -438,8 +438,10 @@ namespace Pixelaria.Views.Controls.ColorControls
             if (s > 1) s = 1;
             if (l > 1) l = 1;
 
+            // ReSharper disable once InconsistentNaming
             float C = (1 - Math.Abs(2 * l - 1)) * s;
             float hh = h / (60 / 360.0f);
+            // ReSharper disable once InconsistentNaming
             float X = C * (1 - Math.Abs(hh % 2 - 1));
 
             float r = 0, g = 0, b = 0;

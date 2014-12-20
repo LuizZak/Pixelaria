@@ -74,7 +74,7 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is OffsetFilter))
                 return;
 
-            var offsetFilter = (referenceFilter as OffsetFilter);
+            var offsetFilter = ((OffsetFilter)referenceFilter);
 
             anud_offsetX.Value = (decimal)offsetFilter.OffsetX;
             anud_offsetY.Value = (decimal)offsetFilter.OffsetY;

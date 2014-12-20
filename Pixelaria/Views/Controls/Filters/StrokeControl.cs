@@ -71,10 +71,12 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is StrokeFilter))
                 return;
 
-            anud_strokeSize.Value = (referenceFilter as StrokeFilter).StrokeRadius;
-            cp_color.BackColor = (referenceFilter as StrokeFilter).StrokeColor;
-            cb_knockout.Checked = (referenceFilter as StrokeFilter).KnockoutImage;
-            cb_smooth.Checked = (referenceFilter as StrokeFilter).Smooth;
+            var strokeFilter = ((StrokeFilter)referenceFilter);
+
+            anud_strokeSize.Value = strokeFilter.StrokeRadius;
+            cp_color.BackColor = strokeFilter.StrokeColor;
+            cb_knockout.Checked = strokeFilter.KnockoutImage;
+            cb_smooth.Checked = strokeFilter.Smooth;
         }
 
         // 

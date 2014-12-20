@@ -64,10 +64,10 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is RotationFilter))
                 return;
 
-            anud_angle.Value = (decimal)(referenceFilter as RotationFilter).Rotation;
+            anud_angle.Value = (decimal)((RotationFilter)referenceFilter).Rotation;
 
-            cb_rotateAroundCenter.Checked = (referenceFilter as RotationFilter).RotateAroundCenter;
-            cb_pixelQuality.Checked = (referenceFilter as RotationFilter).PixelQuality;
+            cb_rotateAroundCenter.Checked = ((RotationFilter)referenceFilter).RotateAroundCenter;
+            cb_pixelQuality.Checked = ((RotationFilter)referenceFilter).PixelQuality;
         }
 
         // 

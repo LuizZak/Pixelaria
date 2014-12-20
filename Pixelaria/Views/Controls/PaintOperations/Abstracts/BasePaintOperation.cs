@@ -179,11 +179,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             private readonly int _width;
 
             /// <summary>
-            /// The height of the bitmap being affected
-            /// </summary>
-            private int _height;
-
-            /// <summary>
             /// The target InternalPictureBox to perform the undo operation on
             /// </summary>
             private ImageEditPanel.InternalPictureBox _pictureBox;
@@ -209,7 +204,6 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 _keepReplacedOriginals = keepReplacedOriginals;
 
                 _width = targetPictureBox.Bitmap.Width;
-                _height = targetPictureBox.Bitmap.Height;
             }
 
             /// <summary>
@@ -306,9 +300,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 int e = l - 1;
                 while (true)
                 {
-                    int idC, idM, idF;
-
-                    idF = _pixelList[e].PixelIndex;
+                    var idF = _pixelList[e].PixelIndex;
 
                     // Pixel index of the item at the end of the interval is smaller than the current pixel index: Add
                     // item after the interval
@@ -333,7 +325,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                         return;
                     }
 
-                    idC = _pixelList[s].PixelIndex;
+                    var idC = _pixelList[s].PixelIndex;
 
                     // Pixel index of the item at the start of the interval is larger than the current pixel index: Add
                     // item before the interval
@@ -359,7 +351,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                     }
 
                     int mid = s + (e - s) / 2;
-                    idM = _pixelList[mid].PixelIndex;
+                    var idM = _pixelList[mid].PixelIndex;
 
                     if (idM > pixelIndex)
                     {
