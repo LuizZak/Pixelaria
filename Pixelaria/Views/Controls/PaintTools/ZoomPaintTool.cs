@@ -2,15 +2,14 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
-    /// Implements a Zoom paint operation
+    /// Implements a Zoom paint tool
     /// </summary>
-    public class ZoomPaintOperation : BaseDraggingPaintOperation
+    public class ZoomPaintTool : BaseDraggingPaintTool
     {
         /// <summary>
         /// The relative point where the mouse was held down, in control coordinates
@@ -23,29 +22,29 @@ namespace Pixelaria.Views.Controls.PaintOperations
         private Point _mousePointRelative;
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
-        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        /// <param name="targetPictureBox">The picture box to initialize the paint tool on</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 
-            // Initialize the operation cursor
+            // Initialize the tool cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.zoom_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the control is being redrawn
+        /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void Paint(PaintEventArgs e)
@@ -62,7 +61,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -73,7 +72,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
+        /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseMove(MouseEventArgs e)
@@ -91,7 +90,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being released
+        /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
@@ -102,7 +101,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Finishes this ZoomOperation's current operation
+        /// Finishes this ZoomTool's current operation
         /// </summary>
         public void FinishOperation()
         {

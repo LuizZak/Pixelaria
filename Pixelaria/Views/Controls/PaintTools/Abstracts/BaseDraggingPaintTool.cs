@@ -2,12 +2,12 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
+namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
     /// <summary>
     /// Implements a basic functionality for paint operations that require 'dragging to draw' features
     /// </summary>
-    public abstract class BaseDraggingPaintOperation : BasePaintOperation
+    public abstract class BaseDraggingPaintTool : BasePaintTool
     {
         /// <summary>
         /// Whether the mouse is currently being held down

@@ -3,18 +3,18 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
     /// Implements a Spray paint operation
     /// </summary>
-    public class SprayPaintOperation : BasePencilPaintOperation, IColoredPaintOperation, ISizedPaintOperation, ICompositingPaintOperation
+    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool
     {
         /// <summary>
-        /// Instance of a Random class used to randomize the spray of this SprayPaintOperation
+        /// Instance of a Random class used to randomize the spray of this SprayPaintTool
         /// </summary>
         readonly Random _random;
 
@@ -24,9 +24,9 @@ namespace Pixelaria.Views.Controls.PaintOperations
         readonly Timer _sprayTimer;
 
         /// <summary>
-        /// Initializes a new instance of the SprayPaintOperation class
+        /// Initializes a new instance of the SprayPaintTool class
         /// </summary>
-        public SprayPaintOperation()
+        public SprayPaintTool()
         {
             _random = new Random();
 
@@ -35,12 +35,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
         
         /// <summary>
-        /// Initializes a new instance of the SprayPaintOperation class, initializing the object with the two spray colors to use
+        /// Initializes a new instance of the SprayPaintTool class, initializing the object with the two spray colors to use
         /// </summary>
         /// <param name="firstColor">The first pencil color</param>
         /// <param name="secondColor">The second pencil color</param>
         /// <param name="pencilSize">The size of the pencil</param>
-        public SprayPaintOperation(Color firstColor, Color secondColor, int pencilSize)
+        public SprayPaintTool(Color firstColor, Color secondColor, int pencilSize)
             : this()
         {
             this.firstColor = firstColor;
@@ -49,7 +49,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
@@ -60,7 +60,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Initializes this PencilPaintOperation
+        /// Initializes this PencilPaintTool
         /// </summary>
         /// <param name="targetPictureBox"></param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -69,14 +69,14 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.spray_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
             undoDecription = "Spray";
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -90,7 +90,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being released
+        /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)

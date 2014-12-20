@@ -1,11 +1,11 @@
 using System.Drawing.Drawing2D;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Interfaces
+namespace Pixelaria.Views.Controls.PaintTools.Interfaces
 {
     /// <summary>
     /// Specifies a Paint Operation that has a compositing mode
     /// </summary>
-    public interface ICompositingPaintOperation
+    public interface ICompositingPaintTool
     {
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation

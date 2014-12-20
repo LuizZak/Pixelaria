@@ -1,32 +1,32 @@
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
     /// Implements a Pencil paint operation
     /// </summary>
-    public class PencilPaintOperation : BasePencilPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
+    public class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool
     {
         /// <summary>
-        /// Initializes a new instance of the PencilPaintOperation class
+        /// Initializes a new instance of the PencilPaintTool class
         /// </summary>
-        public PencilPaintOperation()
+        public PencilPaintTool()
         {
             undoDecription = "Pencil";
         }
 
         /// <summary>
-        /// Initializes a new instance of the PencilPaintOperation class, initializing the object
+        /// Initializes a new instance of the PencilPaintTool class, initializing the object
         /// with the two pencil colors to use
         /// </summary>
         /// <param name="firstColor">The first pencil color</param>
         /// <param name="secondColor">The second pencil color</param>
         /// <param name="pencilSize">The size of the pencil</param>
-        public PencilPaintOperation(Color firstColor, Color secondColor, int pencilSize)
+        public PencilPaintTool(Color firstColor, Color secondColor, int pencilSize)
             : this()
         {
             this.firstColor = firstColor;
@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Initializes this PencilPaintOperation
+        /// Initializes this PencilPaintTool
         /// </summary>
         /// <param name="targetPictureBox"></param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -44,7 +44,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.pencil_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
         }
     }

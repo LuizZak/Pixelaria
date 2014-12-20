@@ -6,15 +6,15 @@ using System.IO;
 using System.Windows.Forms;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    public class SelectionPaintOperation : BaseDraggingPaintOperation, IClipboardPaintOperation, ICompositingPaintOperation
+    public class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool
     {
         /// <summary>
         /// Timer used to animate the selection area
@@ -138,7 +138,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         {
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.sel_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
             _animTimer = new Timer { Interval = 200 };
@@ -208,7 +208,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
                 selectionBitmap = null;
             }
 
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
 
             _animTimer.Stop();
             _animTimer.Dispose();
@@ -481,7 +481,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
                     }
                 }
 
-                pictureBox.Cursor = selectedArea.Contains(p) ? Cursors.SizeAll : OperationCursor;
+                pictureBox.Cursor = selectedArea.Contains(p) ? Cursors.SizeAll : ToolCursor;
             }
             else if (mouseDown)
             {
@@ -722,7 +722,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             pictureBox.Invalidate(GetSelectionArea(true));
 
-            pictureBox.Cursor = OperationCursor;
+            pictureBox.Cursor = ToolCursor;
 
             if (selectionBitmap != null)
                 selectionBitmap.Dispose();
@@ -786,7 +786,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             pictureBox.Invalidate(rec);
 
-            pictureBox.Cursor = OperationCursor;
+            pictureBox.Cursor = ToolCursor;
 
             selectionBitmap.Dispose();
             selectionBitmap = null;

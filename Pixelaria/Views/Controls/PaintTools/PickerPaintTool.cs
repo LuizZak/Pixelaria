@@ -25,14 +25,14 @@ using System.IO;
 using System.Windows.Forms;
 
 using Pixelaria.Views.Controls.ColorControls;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
     /// Implements a Picker paint operation
     /// </summary>
-    public class PickerPaintOperation : BasePaintOperation
+    public class PickerPaintTool : BasePaintTool
     {
         /// <summary>
         /// The last absolute position of the mouse
@@ -40,12 +40,12 @@ namespace Pixelaria.Views.Controls.PaintOperations
         protected Point lastMousePointAbsolute;
 
         /// <summary>
-        /// Gets whether this Paint Operation has resources loaded
+        /// Gets whether this Paint Tool has resources loaded
         /// </summary>
         public override bool Loaded { get; protected set; }
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -56,26 +56,26 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.picker_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
             Loaded = true;
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
             pictureBox = null;
 
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
 
             Loaded = false;
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -84,7 +84,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
+        /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseMove(MouseEventArgs e)

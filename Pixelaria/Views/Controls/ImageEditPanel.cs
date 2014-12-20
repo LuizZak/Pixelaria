@@ -31,8 +31,8 @@ using System.Windows.Forms;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.ColorControls;
-using Pixelaria.Views.Controls.PaintOperations;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria.Views.Controls
@@ -134,17 +134,17 @@ namespace Pixelaria.Views.Controls
         /// Gets or sets the current paint operation to perform on this ImageEditPanel
         /// </summary>
         [Browsable(false)]
-        public IPaintOperation CurrentPaintOperation
+        public IPaintTool CurrentPaintTool
         {
-            get { return _internalPictureBox.CurrentPaintOperation; }
+            get { return _internalPictureBox.CurrentPaintTool; }
             set
             {
                 if (IsDisposed) 
                     return;
                 
-                _internalPictureBox.CurrentPaintOperation = value;
+                _internalPictureBox.CurrentPaintTool = value;
 
-                var operation = value as IClipboardPaintOperation;
+                var operation = value as IClipboardPaintTool;
                 if (operation != null)
                 {
                     FireClipboardStateEvent(operation.CanCopy(), operation.CanCut(), operation.CanPaste());
@@ -171,7 +171,7 @@ namespace Pixelaria.Views.Controls
             {
                 _defaultCompositingMode = value;
 
-                var operation = _internalPictureBox.CurrentPaintOperation as ICompositingPaintOperation;
+                var operation = _internalPictureBox.CurrentPaintTool as ICompositingPaintTool;
                 if (operation != null)
                 {
                     operation.CompositingMode = value;
@@ -188,7 +188,7 @@ namespace Pixelaria.Views.Controls
             set
             {
                 _defaultFillMode = value;
-                var operation = _internalPictureBox.CurrentPaintOperation as IFillModePaintOperation;
+                var operation = _internalPictureBox.CurrentPaintTool as IFillModePaintTool;
                 if (operation != null)
                 {
                     operation.FillMode = value;
@@ -307,13 +307,13 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Fires the OperationStatusChanged event with the given parameters
         /// </summary>
-        /// <param name="operation">The operation that fired the event</param>
+        /// <param name="tool">The operation that fired the event</param>
         /// <param name="status">The status for the event</param>
-        public void FireOperationStatusEvent(IPaintOperation operation, string status)
+        public void FireOperationStatusEvent(IPaintTool tool, string status)
         {
             if (OperationStatusChanged != null)
             {
-                OperationStatusChanged.Invoke(this, new OperationStatusEventArgs(operation, status));
+                OperationStatusChanged.Invoke(this, new OperationStatusEventArgs(tool, status));
             }
         }
 
@@ -330,7 +330,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// The current paint operation
             /// </summary>
-            private IPaintOperation _currentPaintOperation;
+            private IPaintTool _currentPaintTool;
 
             /// <summary>
             /// The buffer bitmap that the paint operations will use in order to buffer screen previews
@@ -380,7 +380,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox
             /// </summary>
-            public IPaintOperation CurrentPaintOperation { get { return _currentPaintOperation; } set { if (IsDisposed) return; SetPaintOperation(value); } }
+            public IPaintTool CurrentPaintTool { get { return _currentPaintTool; } set { if (IsDisposed) return; SetPaintOperation(value); } }
 
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
@@ -443,7 +443,7 @@ namespace Pixelaria.Views.Controls
                 _mouseOverImage = false;
                 _pictureBoxDecorators = new List<PictureBoxDecorator>();
 
-                SetPaintOperation(new PencilPaintOperation());
+                SetPaintOperation(new PencilPaintTool());
             }
 
             /// <summary>
@@ -451,9 +451,9 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public new void Dispose()
             {
-                if (_currentPaintOperation != null)
+                if (_currentPaintTool != null)
                 {
-                    _currentPaintOperation.Destroy();
+                    _currentPaintTool.Destroy();
                 }
 
                 foreach(PictureBoxDecorator decorator in _pictureBoxDecorators)
@@ -506,55 +506,55 @@ namespace Pixelaria.Views.Controls
                 _overImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
                 _underImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
 
-                if (_currentPaintOperation != null)
+                if (_currentPaintTool != null)
                 {
                     // Initialize the paint operation
-                    if (!_currentPaintOperation.Loaded)
+                    if (!_currentPaintTool.Loaded)
                     {
-                        _currentPaintOperation.Initialize(this);
+                        _currentPaintTool.Initialize(this);
 
-                        Cursor = _currentPaintOperation.OperationCursor;
+                        Cursor = _currentPaintTool.ToolCursor;
                     }
 
-                    _currentPaintOperation.ChangeBitmap(bitmap);
+                    _currentPaintTool.ChangeBitmap(bitmap);
                 }
             }
 
             /// <summary>
             /// Sets the current paint operation of this InternalPictureBox to be of the given type
             /// </summary>
-            /// <param name="newPaintOperation"></param>
-            public void SetPaintOperation(IPaintOperation newPaintOperation)
+            /// <param name="newPaintTool"></param>
+            public void SetPaintOperation(IPaintTool newPaintTool)
             {
-                if (_currentPaintOperation != null)
+                if (_currentPaintTool != null)
                 {
-                    _owningPanel.FireOperationStatusEvent(_currentPaintOperation, "");
+                    _owningPanel.FireOperationStatusEvent(_currentPaintTool, "");
 
-                    _currentPaintOperation.Destroy();
+                    _currentPaintTool.Destroy();
                 }
 
-                _currentPaintOperation = newPaintOperation;
+                _currentPaintTool = newPaintTool;
 
                 if (Image != null)
                 {
-                    _currentPaintOperation.Initialize(this);
+                    _currentPaintTool.Initialize(this);
 
                     if (!_mouseOverImage)
                     {
-                        _currentPaintOperation.MouseLeave(new EventArgs());
+                        _currentPaintTool.MouseLeave(new EventArgs());
                     }
 
-                    Cursor = _currentPaintOperation.OperationCursor;
+                    Cursor = _currentPaintTool.ToolCursor;
                 }
 
-                var operation = _currentPaintOperation as ICompositingPaintOperation;
+                var operation = _currentPaintTool as ICompositingPaintTool;
                 if (operation != null)
                 {
                     operation.CompositingMode = _owningPanel._defaultCompositingMode;
                 }
-                if (_currentPaintOperation is IFillModePaintOperation)
+                if (_currentPaintTool is IFillModePaintTool)
                 {
-                    (_currentPaintOperation as IFillModePaintOperation).FillMode = _owningPanel._defaultFillMode;
+                    (_currentPaintTool as IFillModePaintTool).FillMode = _owningPanel._defaultFillMode;
                 }
             }
 
@@ -652,7 +652,7 @@ namespace Pixelaria.Views.Controls
                     Region clip = pe.Graphics.Clip;
 
                     // Start painting now
-                    _currentPaintOperation.Paint(pe);
+                    _currentPaintTool.Paint(pe);
 
                     if (_displayImage)
                     {
@@ -750,7 +750,7 @@ namespace Pixelaria.Views.Controls
                     findForm.ActiveControl = this;
 
                 if (Image != null)
-                    _currentPaintOperation.MouseDown(e);
+                    _currentPaintTool.MouseDown(e);
             }
 
             // 
@@ -762,7 +762,7 @@ namespace Pixelaria.Views.Controls
 
                 if (Image != null)
                 {
-                    _currentPaintOperation.MouseMove(e);
+                    _currentPaintTool.MouseMove(e);
 
                     _mousePoint = GetAbsolutePoint(e.Location);
 
@@ -778,7 +778,7 @@ namespace Pixelaria.Views.Controls
                 base.OnMouseUp(e);
 
                 if (Image != null)
-                    _currentPaintOperation.MouseUp(e);
+                    _currentPaintTool.MouseUp(e);
             }
 
             // 
@@ -791,7 +791,7 @@ namespace Pixelaria.Views.Controls
                 _mouseOverImage = false;
 
                 if (Image != null)
-                    _currentPaintOperation.MouseLeave(e);
+                    _currentPaintTool.MouseLeave(e);
             }
 
             // 
@@ -802,7 +802,7 @@ namespace Pixelaria.Views.Controls
                 base.OnMouseEnter(e);
 
                 if (Image != null)
-                    _currentPaintOperation.MouseEnter(e);
+                    _currentPaintTool.MouseEnter(e);
             }
 
             // 
@@ -813,7 +813,7 @@ namespace Pixelaria.Views.Controls
                 base.OnKeyDown(e);
 
                 if (Image != null)
-                    _currentPaintOperation.KeyDown(e);
+                    _currentPaintTool.KeyDown(e);
             }
 
             // 
@@ -824,7 +824,7 @@ namespace Pixelaria.Views.Controls
                 base.OnKeyDown(e);
 
                 if (Image != null)
-                    _currentPaintOperation.KeyUp(e);
+                    _currentPaintTool.KeyUp(e);
             }
         }
     }
@@ -876,16 +876,16 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the operation that fired the status change
         /// </summary>
-        public IPaintOperation Operation { get; private set; }
+        public IPaintTool Tool { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the OperationStatusChange event
         /// </summary>
-        /// <param name="operation">The operation that fired the status change</param>
+        /// <param name="tool">The operation that fired the status change</param>
         /// <param name="status">The operation status</param>
-        public OperationStatusEventArgs(IPaintOperation operation, string status)
+        public OperationStatusEventArgs(IPaintTool tool, string status)
         {
-            Operation = operation;
+            Tool = tool;
             Status = status;
         }
     }

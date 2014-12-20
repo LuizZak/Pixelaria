@@ -1,11 +1,11 @@
 using System.Drawing;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Interfaces
+namespace Pixelaria.Views.Controls.PaintTools.Interfaces
 {
     /// <summary>
     /// Specifies a Paint Operation that has a color component
     /// </summary>
-    public interface IColoredPaintOperation
+    public interface IColoredPaintTool
     {
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox

@@ -1,87 +1,88 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Interfaces
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
-    /// Specifies a Paint Operation to be performed on the InternalPictureBox
+    /// Specifies an empty paint operation
     /// </summary>
-    public interface IPaintOperation
+    public class NullPaintTool : IPaintTool
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
         /// </summary>
-        Cursor OperationCursor { get; }
+        public Cursor ToolCursor { get { return Cursors.Default; } }
 
         /// <summary>
-        /// Gets whether this Paint Operation has resources loaded
+        /// Gets whether this Paint Tool has resources loaded
         /// </summary>
-        bool Loaded { get; }
+        public bool Loaded { get; protected set; }
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox);
+        public void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox) { }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
-        void Destroy();
+        public void Destroy() { }
 
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
         /// <param name="newBitmap">The new bitmap being edited</param>
-        void ChangeBitmap(Bitmap newBitmap);
+        public void ChangeBitmap(Bitmap newBitmap) { }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the control is being redrawn
+        /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void Paint(PaintEventArgs e);
+        public void Paint(PaintEventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void MouseDown(MouseEventArgs e);
+        public void MouseDown(MouseEventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
+        /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void MouseMove(MouseEventArgs e);
+        public void MouseMove(MouseEventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being released
+        /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void MouseUp(MouseEventArgs e);
+        public void MouseUp(MouseEventArgs e) { }
 
         /// <summary>
         /// Called to notify this PaintOperaiton that the mouse left the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void MouseLeave(EventArgs e);
+        public void MouseLeave(EventArgs e) { }
 
         /// <summary>
         /// Called to notify this PaintOperaiton that the mouse entered the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void MouseEnter(EventArgs e);
+        public void MouseEnter(EventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperation that a keyboard key was pressed down
+        /// Called to notify this PaintTool that a keyboard key was pressed down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void KeyDown(KeyEventArgs e);
+        public void KeyDown(KeyEventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperation that a keyboard key was released
+        /// Called to notify this PaintTool that a keyboard key was released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        void KeyUp(KeyEventArgs e);
+        public void KeyUp(KeyEventArgs e) { }
     }
 }

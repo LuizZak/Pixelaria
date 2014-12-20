@@ -5,15 +5,15 @@ using System.IO;
 using System.Windows.Forms;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
     /// Implements a Line paint operation
     /// </summary>
-    public class LinePaintOperation : BaseDraggingPaintOperation, IColoredPaintOperation, ICompositingPaintOperation
+    public class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -65,19 +65,19 @@ namespace Pixelaria.Views.Controls.PaintOperations
         public CompositingMode CompositingMode { get { return _compositingMode; } set { _compositingMode = value; } }
 
         /// <summary>
-        /// Initialies a new instance of the LinePaintOperation class, setting the two drawing colors
+        /// Initialies a new instance of the LinePaintTool class, setting the two drawing colors
         /// for the paint operation
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
         /// <param name="secondColor">The second color for the paint operation</param>
-        public LinePaintOperation(Color firstColor, Color secondColor)
+        public LinePaintTool(Color firstColor, Color secondColor)
         {
             _firstColor = firstColor;
             _secondColor = secondColor;
         }
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -86,7 +86,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.line_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
             
             mouseDown = false;
@@ -97,13 +97,13 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
             pictureBox = null;
 
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
 
             _graphics.Flush();
             _graphics.Dispose();
@@ -112,7 +112,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the control is being redrawn
+        /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void Paint(PaintEventArgs e)
@@ -124,7 +124,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -150,7 +150,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being released
+        /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)

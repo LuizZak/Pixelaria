@@ -4,12 +4,12 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
+namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
     /// <summary>
     /// Base class for shape dragging paint operations
     /// </summary>
-    public abstract class BaseShapeOperation : BaseDraggingPaintOperation
+    public abstract class BaseShapeTool : BaseDraggingPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -76,19 +76,19 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         public OperationFillMode FillMode { get { return fillMode; } set { fillMode = value; if (Loaded) { pictureBox.Invalidate(); } } }
 
         /// <summary>
-        /// Initialies a new instance of the BaseShapeOperation class, setting the two drawing colors
+        /// Initialies a new instance of the BaseShapeTool class, setting the two drawing colors
         /// for the paint operation
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
         /// <param name="secondColor">The second color for the paint operation</param>
-        protected BaseShapeOperation(Color firstColor, Color secondColor)
+        protected BaseShapeTool(Color firstColor, Color secondColor)
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;
         }
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -97,7 +97,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
             mouseDown = false;
@@ -106,7 +106,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
@@ -128,11 +128,11 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
                 buffer = null;
             }
 
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the control is being redrawn
+        /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void Paint(PaintEventArgs e)
@@ -157,7 +157,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -169,7 +169,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being released
+        /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
@@ -189,7 +189,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Finishes this BaseShapeOperation's current drawing operation
+        /// Finishes this BaseShapeTool's current drawing operation
         /// </summary>
         public virtual void FinishOperation()
         {

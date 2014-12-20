@@ -3,24 +3,24 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
     /// Implements an Eraser paint operation
     /// </summary>
-    public class EraserPaintOperation : BasePencilPaintOperation, IColoredPaintOperation
+    public class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool
     {
         /// <summary>
-        /// Initializes a new instance of the PencilPaintOperation class, initializing the object
+        /// Initializes a new instance of the PencilPaintTool class, initializing the object
         /// with the two pencil colors to use
         /// </summary>
         /// <param name="firstColor">The first pencil color</param>
         /// <param name="secondColor">The second pencil color</param>
         /// <param name="pencilSize">The size of the pencil</param>
-        public EraserPaintOperation(Color firstColor, Color secondColor, int pencilSize)
+        public EraserPaintTool(Color firstColor, Color secondColor, int pencilSize)
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;
@@ -28,7 +28,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Initializes this EraserPaintOperation
+        /// Initializes this EraserPaintTool
         /// </summary>
         /// <param name="targetPictureBox">The target picture box</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.eraser_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
             FirstColor = Color.FromArgb(0, 0, 0, 0);
@@ -49,7 +49,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the control is being redrawn
+        /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="pe">The event args for this event</param>
         public override void Paint(PaintEventArgs pe)
@@ -106,7 +106,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -187,7 +187,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
+        /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseMove(MouseEventArgs e)

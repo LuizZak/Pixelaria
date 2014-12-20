@@ -37,8 +37,8 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
-using Pixelaria.Views.Controls.PaintOperations;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews.Miscs;
 
@@ -211,7 +211,7 @@ namespace Pixelaria.Views.ModelViews
             iepb_frame.UndoSystem.UndoPerformed += UndoSystem_UndoPerformed;
             iepb_frame.UndoSystem.RedoPerformed += UndoSystem_RedoPerformed;
 
-            ChangePaintOperation(new PencilPaintOperation(FirstColor, SecondColor, BrushSize));
+            ChangePaintOperation(new PencilPaintTool(FirstColor, SecondColor, BrushSize));
 
             iepb_frame.DefaultCompositingMode = CurrentCompositingMode;
 
@@ -283,7 +283,7 @@ namespace Pixelaria.Views.ModelViews
             if (modified)
             {
                 // Update selection paint operations
-                var operation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+                var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
                 if (operation != null && operation.SelectionBitmap != null)
                 {
                     operation.FinishOperation(true);
@@ -360,13 +360,13 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Changes the paint operation with the given one
         /// </summary>
-        /// <param name="paintOperation">The new paint operation to replace the current one</param>
-        private void ChangePaintOperation(IPaintOperation paintOperation)
+        /// <param name="paintTool">The new paint operation to replace the current one</param>
+        private void ChangePaintOperation(IPaintTool paintTool)
         {
-            iepb_frame.CurrentPaintOperation = paintOperation;
+            iepb_frame.CurrentPaintTool = paintTool;
 
-            gb_sizeGroup.Visible = paintOperation is ISizedPaintOperation;
-            gb_fillMode.Visible = paintOperation is IFillModePaintOperation;
+            gb_sizeGroup.Visible = paintTool is ISizedPaintTool;
+            gb_fillMode.Visible = paintTool is IFillModePaintTool;
         }
 
         /// <summary>
@@ -453,11 +453,11 @@ namespace Pixelaria.Views.ModelViews
 
             ClearFrame();
 
-            if(!(iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
-                ChangePaintOperation(new SelectionPaintOperation());
+            if(!(iepb_frame.CurrentPaintTool is SelectionPaintTool))
+                ChangePaintOperation(new SelectionPaintTool());
 
-            ((SelectionPaintOperation)iepb_frame.CurrentPaintOperation).CancelOperation(false);
-            ((SelectionPaintOperation)iepb_frame.CurrentPaintOperation).StartOperation(new Rectangle(0, 0, img.Width, img.Height), (Bitmap)img, SelectionPaintOperation.SelectionOperationType.Paste);
+            ((SelectionPaintTool)iepb_frame.CurrentPaintTool).CancelOperation(false);
+            ((SelectionPaintTool)iepb_frame.CurrentPaintTool).StartOperation(new Rectangle(0, 0, img.Width, img.Height), (Bitmap)img, SelectionPaintTool.SelectionOperationType.Paste);
         }
 
         /// <summary>
@@ -644,7 +644,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Copy()
         {
-            var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
+            var clipboardPaintOperation = iepb_frame.CurrentPaintTool as IClipboardPaintTool;
 
             if (clipboardPaintOperation != null)
             {
@@ -658,7 +658,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Cut()
         {
-            var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
+            var clipboardPaintOperation = iepb_frame.CurrentPaintTool as IClipboardPaintTool;
 
             if (clipboardPaintOperation != null)
             {
@@ -675,12 +675,12 @@ namespace Pixelaria.Views.ModelViews
             if (!Clipboard.ContainsData("PNG") && !Clipboard.ContainsImage())
                 return;
 
-            if (!(iepb_frame.CurrentPaintOperation is IClipboardPaintOperation))
+            if (!(iepb_frame.CurrentPaintTool is IClipboardPaintTool))
             {
                 rb_selection.Checked = true;
             }
 
-            var clipboardPaintOperation = iepb_frame.CurrentPaintOperation as IClipboardPaintOperation;
+            var clipboardPaintOperation = iepb_frame.CurrentPaintTool as IClipboardPaintTool;
 
             if (clipboardPaintOperation != null)
             {
@@ -696,12 +696,12 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void SelectAll()
         {
-            if (!(iepb_frame.CurrentPaintOperation is SelectionPaintOperation))
+            if (!(iepb_frame.CurrentPaintTool is SelectionPaintTool))
             {
                 rb_selection.Checked = true;
             }
 
-            var selectionPaintOperation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+            var selectionPaintOperation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
 
             if (selectionPaintOperation != null)
                 selectionPaintOperation.SelectAll();
@@ -787,12 +787,12 @@ namespace Pixelaria.Views.ModelViews
             var undoTarget = filterTarget = _viewFrame.GetComposedBitmap();
 
             // Apply the filter to a selection
-            var operation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+            var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
             if (operation != null && operation.SelectionBitmap != null)
             {
-                SelectionPaintOperation op = operation;
+                SelectionPaintTool op = operation;
 
-                if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Moved)
+                if (op.OperationType == SelectionPaintTool.SelectionOperationType.Moved)
                 {
                     Rectangle area = op.SelectionArea;
                     Rectangle startArea = op.SelectionStartArea;
@@ -801,10 +801,10 @@ namespace Pixelaria.Views.ModelViews
 
                     but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
 
-                    op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
+                    op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
                     op.SelectionArea = area;
                 }
-                else if (op.OperationType == SelectionPaintOperation.SelectionOperationType.Paste)
+                else if (op.OperationType == SelectionPaintTool.SelectionOperationType.Paste)
                 {
                     but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
                 }
@@ -827,14 +827,14 @@ namespace Pixelaria.Views.ModelViews
                     iepb_frame.PictureBox.Invalidate();
                     MarkModified();
 
-                    var paintOperation = iepb_frame.CurrentPaintOperation as SelectionPaintOperation;
+                    var paintOperation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
                     if (paintOperation != null && paintOperation.SelectionBitmap != null)
                     {
-                        SelectionPaintOperation op = paintOperation;
+                        SelectionPaintTool op = paintOperation;
 
                         switch (op.OperationType)
                         {
-                            case SelectionPaintOperation.SelectionOperationType.Moved:
+                            case SelectionPaintTool.SelectionOperationType.Moved:
                                 Rectangle area = op.SelectionArea;
                                 Rectangle startArea = op.SelectionStartArea;
 
@@ -843,10 +843,10 @@ namespace Pixelaria.Views.ModelViews
                                 if (but != null)
                                     but.SetNewBitmap(undoTarget);
 
-                                op.StartOperation(startArea, SelectionPaintOperation.SelectionOperationType.Moved);
+                                op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
                                 op.SelectionArea = area;
                                 break;
-                            case SelectionPaintOperation.SelectionOperationType.Paste:
+                            case SelectionPaintTool.SelectionOperationType.Paste:
                                 registerUndo = false;
                                 break;
                         }
@@ -936,7 +936,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_pencil.Checked)
             {
-                ChangePaintOperation(new PencilPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
+                ChangePaintOperation(new PencilPaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
             }
         }
 
@@ -947,7 +947,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_eraser.Checked)
             {
-                ChangePaintOperation(new EraserPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
+                ChangePaintOperation(new EraserPaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
             }
         }
 
@@ -958,7 +958,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_picker.Checked)
             {
-                ChangePaintOperation(new PickerPaintOperation());
+                ChangePaintOperation(new PickerPaintTool());
             }
         }
 
@@ -969,7 +969,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_sprayPaint.Checked)
             {
-                ChangePaintOperation(new SprayPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
+                ChangePaintOperation(new SprayPaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
             }
         }
 
@@ -980,7 +980,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_line.Checked)
             {
-                ChangePaintOperation(new LinePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+                ChangePaintOperation(new LinePaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
             }
         }
 
@@ -991,7 +991,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_rectangle.Checked)
             {
-                ChangePaintOperation(new RectanglePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+                ChangePaintOperation(new RectanglePaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
             }
         }
 
@@ -1002,7 +1002,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_circle.Checked)
             {
-                ChangePaintOperation(new EllipsePaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+                ChangePaintOperation(new EllipsePaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
             }
         }
 
@@ -1013,7 +1013,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_bucket.Checked)
             {
-                ChangePaintOperation(new BucketPaintOperation(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+                ChangePaintOperation(new BucketPaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
             }
         }
 
@@ -1024,7 +1024,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_selection.Checked)
             {
-                ChangePaintOperation(new SelectionPaintOperation());
+                ChangePaintOperation(new SelectionPaintTool());
             }
         }
 
@@ -1035,7 +1035,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_zoom.Enabled && rb_zoom.Checked)
             {
-                ChangePaintOperation(new ZoomPaintOperation());
+                ChangePaintOperation(new ZoomPaintTool());
             }
         }
 
@@ -1070,7 +1070,7 @@ namespace Pixelaria.Views.ModelViews
         {
             BrushSize = (int)anud_brushSize.Value;
 
-            var operation = iepb_frame.CurrentPaintOperation as ISizedPaintOperation;
+            var operation = iepb_frame.CurrentPaintTool as ISizedPaintTool;
             if (operation != null)
             {
                 operation.Size = BrushSize;
@@ -1258,7 +1258,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cp_mainColorPicker_ColorPick(object sender, ColorPickEventArgs eventArgs)
         {
-            var operation = iepb_frame.CurrentPaintOperation as IColoredPaintOperation;
+            var operation = iepb_frame.CurrentPaintTool as IColoredPaintTool;
             if (operation != null)
             {
                 switch (eventArgs.TargetColor)

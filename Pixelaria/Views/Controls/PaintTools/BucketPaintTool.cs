@@ -4,18 +4,19 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.PaintOperations.Abstracts;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
+
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
-    /// Implements a Bucket paint operation
+    /// Implements a Bucket paint tool
     /// </summary>
-    public class BucketPaintOperation : BasePaintOperation, IColoredPaintOperation, ICompositingPaintOperation
+    public class BucketPaintTool : BasePaintTool, IColoredPaintTool, ICompositingPaintTool
     {
         /// <summary>
-        /// The compositing mode for this paint operation
+        /// The compositing mode for this paint Tool
         /// </summary>
         protected CompositingMode compositingMode;
 
@@ -50,24 +51,24 @@ namespace Pixelaria.Views.Controls.PaintOperations
         public virtual Color SecondColor { get { return _secondColor; } set { _secondColor = value; } }
 
         /// <summary>
-        /// Gets or sets the compositing mode for this paint operation
+        /// Gets or sets the compositing mode for this paint tool
         /// </summary>
         public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
 
         /// <summary>
-        /// Initialies a new instance of the BucketPaintOperation class, setting the two drawing colors
-        /// for the paint operation
+        /// Initialies a new instance of the BucketPaintTool class, setting the two drawing colors
+        /// for the paint tool
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
         /// <param name="secondColor">The second color for the paint operation</param>
-        public BucketPaintOperation(Color firstColor, Color secondColor)
+        public BucketPaintTool(Color firstColor, Color secondColor)
         {
             _firstColor = firstColor;
             _secondColor = secondColor;
         }
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
@@ -76,24 +77,24 @@ namespace Pixelaria.Views.Controls.PaintOperations
 
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.bucket_cursor);
-            OperationCursor = new Cursor(cursorMemoryStream);
+            ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
             Loaded = true;
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
 
             Loaded = false;
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -118,7 +119,7 @@ namespace Pixelaria.Views.Controls.PaintOperations
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
+        /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseMove(MouseEventArgs e)

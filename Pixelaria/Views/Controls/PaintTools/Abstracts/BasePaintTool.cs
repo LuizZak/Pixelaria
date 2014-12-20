@@ -4,14 +4,14 @@ using System.Drawing;
 using System.Windows.Forms;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.PaintOperations.Interfaces;
+using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
+namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
     /// <summary>
     /// Implements basic functionality to paint operations
     /// </summary>
-    public abstract class BasePaintOperation : IPaintOperation
+    public abstract class BasePaintTool : IPaintTool
     {
         /// <summary>
         /// The PictureBox owning this PaintOperation
@@ -21,15 +21,15 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         /// <summary>
         /// The cursor to use when hovering over the InternalPictureBox while this operation is up
         /// </summary>
-        protected Cursor operationCursor;
+        protected Cursor toolCursor;
 
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
         /// </summary>
-        public Cursor OperationCursor
+        public Cursor ToolCursor
         {
-            get { return operationCursor; }
-            protected set { operationCursor = value; }
+            get { return toolCursor; }
+            protected set { toolCursor = value; }
         }
 
         /// <summary>

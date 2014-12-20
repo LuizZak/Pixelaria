@@ -21,7 +21,7 @@
 */
 
 using Pixelaria.Views.Controls.ColorControls;
-using Pixelaria.Views.Controls.PaintOperations;
+using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PaintOperations.NullPaintOperation nullPaintOperation1 = new Pixelaria.Views.Controls.PaintOperations.NullPaintOperation();
+            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintOperation1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -1222,7 +1222,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // iepb_frame
             // 
-            this.iepb_frame.CurrentPaintOperation = nullPaintOperation1;
+            this.iepb_frame.CurrentPaintTool = nullPaintOperation1;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;

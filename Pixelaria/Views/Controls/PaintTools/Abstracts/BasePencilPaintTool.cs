@@ -7,12 +7,12 @@ using System.Windows.Forms;
 
 using Pixelaria.Utils;
 
-namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
+namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
     /// <summary>
-    /// Base class for pencil-like paint operations
+    /// Base class for pencil-like paint tools
     /// </summary>
-    public abstract class BasePencilPaintOperation : BasePaintOperation
+    public abstract class BasePencilPaintTool : BasePaintTool
     {
         /// <summary>
         /// The minimum point that the trace bitmap occupies over the canvas image
@@ -80,7 +80,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         protected Bitmap secondPenBitmap;
 
         /// <summary>
-        /// The bitmap used to buffer the current pencil operation so the alpha channel is 
+        /// The bitmap used to buffer the current pencil tool so the alpha channel is constant through the operation
         /// </summary>
         protected Bitmap currentTraceBitmap;
 
@@ -174,17 +174,17 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
 
         /// <summary>
-        /// Initializes a new instance of the BasePencilPaintOperation class
+        /// Initializes a new instance of the BasePencilPaintTool class
         /// </summary>
-        protected BasePencilPaintOperation()
+        protected BasePencilPaintTool()
         {
             size = 1;
         }
 
         /// <summary>
-        /// Initializes this Paint Operation
+        /// Initializes this Paint Tool
         /// </summary>
-        /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
+        /// <param name="targetPictureBox">The picture box to initialize the paint tool on</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
@@ -208,7 +208,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Finalizes this Paint Operation
+        /// Finalizes this Paint Tool
         /// </summary>
         public override void Destroy()
         {
@@ -225,7 +225,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
             firstPenBitmap.Dispose();
             secondPenBitmap.Dispose();
 
-            OperationCursor.Dispose();
+            ToolCursor.Dispose();
 
             Loaded = false;
         }
@@ -249,7 +249,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the control is being redrawn
+        /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="pe">The event args for this event</param>
         public override void Paint(PaintEventArgs pe)
@@ -312,7 +312,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being held down
+        /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
@@ -374,7 +374,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being moved
+        /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseMove(MouseEventArgs e)
@@ -478,7 +478,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperation that the mouse is being released
+        /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
@@ -512,7 +512,7 @@ namespace Pixelaria.Views.Controls.PaintOperations.Abstracts
         }
 
         /// <summary>
-        /// Finishes this BasePenOperation's current drawing operation
+        /// Finishes this BasePenTool's current drawing operation
         /// </summary>
         public virtual void FinishOperation()
         {

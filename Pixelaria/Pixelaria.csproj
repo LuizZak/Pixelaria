@@ -183,14 +183,14 @@
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils\AhslColor.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Abstracts\BasePencilPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Abstracts\BaseShapeOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\BucketPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\EllipsePaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\EraserPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\LinePaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Abstracts\BaseDraggingPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Abstracts\BasePaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\BasePencilPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\BaseShapeTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\BucketPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\EllipsePaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\EraserPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\LinePaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\BaseDraggingPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\BasePaintTool.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -278,18 +278,18 @@
     <Compile Include="Views\Controls\Filters\TransparencyControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\Controls\PaintOperations\Interfaces\IClipboardPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Interfaces\IFillModePaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\NullPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Interfaces\ICompositingPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IClipboardPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IFillModePaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\NullPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IColoredPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\ICompositingPaintTool.cs" />
     <Compile Include="Views\Controls\ImageEditPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\PaintOperations\Interfaces\ISizedPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\Interfaces\IPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\PencilPaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\PickerPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\ISizedPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\PencilPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\PickerPaintTool.cs" />
     <Compile Include="Views\Controls\ProjectTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -299,19 +299,19 @@
     <Compile Include="Views\Controls\RearrangeableTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\PaintOperations\RectanglePaintOperation.cs" />
-    <Compile Include="Views\Controls\PaintOperations\SelectionPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\RectanglePaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\SelectionPaintTool.cs" />
     <Compile Include="Views\Controls\SheetPreviewPictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\PaintOperations\SprayPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\SprayPaintTool.cs" />
     <Compile Include="Views\Controls\TimelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\ZoomablePictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\PaintOperations\ZoomPaintOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\ZoomPaintTool.cs" />
     <Compile Include="Views\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
