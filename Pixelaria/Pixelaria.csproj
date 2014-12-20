@@ -720,9 +720,6 @@
     <None Include="Resources\action_delete1.png" />
     <None Include="Resources\pxl_icon_256x256.png" />
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
