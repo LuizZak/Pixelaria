@@ -124,9 +124,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <param name="bundlePath">The common path name of the .png and .xml bundle, with a .xml extension</param>
         public static object ImportBundle(string bundlePath)
         {
-            XmlDocument xml;
-
-            xml = new XmlDocument();
+            var xml = new XmlDocument();
             xml.Load(bundlePath);
 
             // Read the sheet file path

@@ -129,9 +129,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         public static void SaveBundle(Bundle bundle, string path)
         {
             // Start writing to the file
-            Stream stream = null;
-
-            stream = new FileStream(path, FileMode.Create);
+            Stream stream = new FileStream(path, FileMode.Create);
 
             BinaryWriter writer = new BinaryWriter(stream);
 

@@ -60,7 +60,7 @@ namespace Pixelaria.Utils
             for (int i = 0; i < fileCount; i++)
             {
                 // Assert first to make sure the value exists
-                settings.Assert("Recent Files\\File" + i, AssertType.String, "");
+                settings.EnsureValue("Recent Files\\File" + i, EnsureValueType.String, "");
 
                 fileList[i] = settings.GetValue("Recent Files\\File" + i);
             }

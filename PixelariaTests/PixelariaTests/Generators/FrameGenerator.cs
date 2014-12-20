@@ -36,7 +36,7 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <summary>
         /// Random number generator used to randomize seeds for image generation when none are provided
         /// </summary>
-        private static Random _seedRandom = new Random();
+        private static readonly Random _seedRandom = new Random();
 
         /// <summary>
         /// Generates a frame with a given set of parameters.
