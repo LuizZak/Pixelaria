@@ -498,12 +498,14 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationSheetView.en.resx">
       <DependentUpon>AnimationSheetView.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationSheetView.pt-BR.resx">
       <DependentUpon>AnimationSheetView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationSheetView.resx">
       <DependentUpon>AnimationSheetView.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\AnimationView.resx">
       <DependentUpon>AnimationView.cs</DependentUpon>

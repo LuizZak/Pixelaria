@@ -36,11 +36,6 @@ namespace Pixelaria.Views.Controls.Filters
     public partial class FilterContainer : UserControl
     {
         /// <summary>
-        /// The ImageFilterView that owns this FilterContainer
-        /// </summary>
-        readonly ImageFilterView _owningView;
-
-        /// <summary>
         /// The FilterSelector that owns this FilterContainer
         /// </summary>
         readonly FilterSelector _owningSelector;
@@ -153,23 +148,6 @@ namespace Pixelaria.Views.Controls.Filters
         /// Occurs whenever the user finishes dragging the FilterControl
         /// </summary>
         public event EventHandler ContainerDragEnd;
-
-        /// <summary>
-        /// Initializes a new instance of the FilterContainer class
-        /// </summary>
-        /// <param name="owningView">The view that will own this FilterContainer</param>
-        /// <param name="filter">The filter to hold on this FilterContainer</param>
-        public FilterContainer(ImageFilterView owningView, FilterControl filter)
-        {
-            InitializeComponent();
-
-            _containerState = FilterContainerState.Expanded;
-            _mouseDown = false;
-            _owningView = owningView;
-            _filterEnabled = true;
-
-            LoadFilter(filter);
-        }
 
         /// <summary>
         /// Initializes a new instance of the FilterContainer class
@@ -363,9 +341,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void btn_remove_Click(object sender, EventArgs e)
         {
-            if(_owningView != null)
-                _owningView.RemoveFilterControl(this);
-            else if(_owningSelector != null)
+            if(_owningSelector != null)
                 _owningSelector.RemoveFilterControl(this);
         }
 
