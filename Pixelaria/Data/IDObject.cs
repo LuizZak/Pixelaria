@@ -30,6 +30,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets or sets the ID of this IDObject
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         int ID { get; set; }
     }
 }

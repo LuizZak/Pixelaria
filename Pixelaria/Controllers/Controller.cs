@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -56,47 +57,47 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// The list of currently opened files
         /// </summary>
-        List<PixelariaFile> _files;
+        readonly List<PixelariaFile> _files;
 
         /// <summary>
         /// The main application form
         /// </summary>
-        MainForm _mainForm;
+        readonly MainForm _mainForm;
 
         /// <summary>
         /// The default animation importer
         /// </summary>
-        IDefaultImporter _defaultImporter;
+        readonly IDefaultImporter _defaultImporter;
 
         /// <summary>
         /// The default animation exporter
         /// </summary>
-        IBundleExporter _defaultExporter;
+        readonly IBundleExporter _defaultExporter;
 
         /// <summary>
         /// The Animation fields validator
         /// </summary>
-        IAnimationValidator _animationValidator;
+        readonly IAnimationValidator _animationValidator;
 
         /// <summary>
         /// The AnimationSheet fields validator
         /// </summary>
-        IAnimationSheetValidator _animationSheetValidator;
+        readonly IAnimationSheetValidator _animationSheetValidator;
 
         /// <summary>
         /// The frame factory
         /// </summary>
-        IFrameFactory _frameFactory;
+        readonly IFrameFactory _frameFactory;
 
         /// <summary>
         /// Whether the current bundle has unsaved changes
         /// </summary>
-        public bool unsavedChanges;
+        private bool _unsavedChanges;
 
         /// <summary>
         /// Stores a list of the recently opened bundle files
         /// </summary>
-        RecentFileList _recentFileList;
+        readonly RecentFileList _recentFileList;
 
         /// <summary>
         /// Gets the current bundle opened on the application
@@ -136,7 +137,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets whether the current bundle has unsaved changes
         /// </summary>
-        public bool UnsavedChanges { get { return unsavedChanges; } }
+        public bool UnsavedChanges { get { return _unsavedChanges; } }
 
         /// <summary>
         /// Gets the current RecentFileList for the program
@@ -294,10 +295,10 @@ namespace Pixelaria.Controllers
         /// <param name="isUnsaved">The new value for the Unsaved Changes flag</param>
         public void MarkUnsavedChanges(bool isUnsaved)
         {
-            if (_currentBundle == null || isUnsaved == unsavedChanges)
+            if (_currentBundle == null || isUnsaved == _unsavedChanges)
                 return;
 
-            unsavedChanges = isUnsaved;
+            _unsavedChanges = isUnsaved;
 
             _mainForm.UnsavedChangesUpdated(isUnsaved);
         }
@@ -316,10 +317,10 @@ namespace Pixelaria.Controllers
         /// <returns>The newly created animation</returns>
         public Animation CreateAnimation(string name, int width, int height, int fps, bool frameskip, bool openOnForm, AnimationSheet parentSheet = null)
         {
-            Animation anim = new Animation(name, width, height);
-
-            anim.PlaybackSettings.FPS = fps;
-            anim.PlaybackSettings.FrameSkip = frameskip;
+            Animation anim = new Animation(name, width, height)
+            {
+                PlaybackSettings = { FPS = fps, FrameSkip = frameskip }
+            };
 
             // Create a dummy frame
             anim.CreateFrame();
@@ -431,7 +432,7 @@ namespace Pixelaria.Controllers
             }
             else
             {
-                _mainForm.AddAnimationSheet(sheet, false);
+                _mainForm.AddAnimationSheet(sheet);
             }
 
             MarkUnsavedChanges(true);
@@ -537,13 +538,7 @@ namespace Pixelaria.Controllers
         /// <returns>A PixelariaFile that has the given bundle loaded into it</returns>
         public PixelariaFile GetPixelariaFileByBundle(Bundle bundle)
         {
-            foreach (PixelariaFile file in _files)
-            {
-                if (file.LoadedBundle == bundle)
-                    return file;
-            }
-
-            return null;
+            return _files.FirstOrDefault(file => ReferenceEquals(file.LoadedBundle, bundle));
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -581,11 +576,8 @@ namespace Pixelaria.Controllers
             if (ShowConfirmSaveChanges() == DialogResult.Cancel)
                 return;
 
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog ofd = new OpenFileDialog { Filter = @"Pixelaria Bundle (*.pxl)|*.pxl" };
 
-            ofd.Filter = "Pixelaria Bundle (*.pxl)|*.pxl";
-
-            //ofd.FileName = @"C:\Users\Luiz Fernando\Desktop\asasdads.plx";
             if (ofd.ShowDialog(_mainForm) == DialogResult.OK)
             {
                 LoadBundleFromFile(ofd.FileName);
@@ -605,15 +597,8 @@ namespace Pixelaria.Controllers
                 return;
             }
 
-            bool validSheet = false;
-            foreach (AnimationSheet sheet in _currentBundle.AnimationSheets)
-            {
-                if (sheet.Animations.Length != 0)
-                {
-                    validSheet = true;
-                    break;
-                }
-            }
+            // Whether there are any animation sheets with at least one animation in it
+            bool validSheet = _currentBundle.AnimationSheets.Any(sheet => sheet.Animations.Length != 0);
 
             if (!validSheet)
             {
@@ -657,7 +642,7 @@ namespace Pixelaria.Controllers
             {
                 SaveFileDialog svd = new SaveFileDialog();
 
-                svd.Filter = "Pixelaria Bundle (*.pxl)|*.pxl";
+                svd.Filter = @"Pixelaria Bundle (*.pxl)|*.pxl";
 
                 if (svd.ShowDialog(_mainForm) == DialogResult.OK)
                 {
@@ -686,7 +671,7 @@ namespace Pixelaria.Controllers
         /// <returns>The DialogResult of the confirmation MessageBox. If no changes have been made to the bundle, DialogResult.Yes is returned anyways</returns>
         public DialogResult ShowConfirmSaveChanges()
         {
-            if (!unsavedChanges)
+            if (!_unsavedChanges)
             {
                 return DialogResult.Yes;
             }
@@ -804,7 +789,7 @@ namespace Pixelaria.Controllers
         {
             SaveFileDialog sfd = new SaveFileDialog();
 
-            sfd.Filter = "PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
+            sfd.Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
             sfd.FileName = fileName;
 
             if (sfd.ShowDialog(owner) == DialogResult.OK)
@@ -832,7 +817,7 @@ namespace Pixelaria.Controllers
         {
             OpenFileDialog ofd = new OpenFileDialog();
 
-            ofd.Filter = "PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
+            ofd.Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff";
             ofd.FileName = fileName;
 
             if (ofd.ShowDialog(owner) == DialogResult.OK)
@@ -891,13 +876,12 @@ namespace Pixelaria.Controllers
         /// for export progress callback
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
+        /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public BundleSheetExport GenerateBundleSheet(AnimationExportSettings exportSettings, BundleExportProgressEventHandler callback, params Animation[] anims)
         {
-            BundleSheetExport bse = _defaultExporter.ExportBundleSheet(exportSettings, anims, callback);
-
-            return bse;
+            return _defaultExporter.ExportBundleSheet(exportSettings, anims, callback);
         }
     }
 }

@@ -150,18 +150,22 @@ namespace Pixelaria.Data.Exports
 
             XmlNode rootNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
-            rootNode.Attributes.Append(xml.CreateAttribute("file")).InnerText = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(xmlPath));
+            if (rootNode.Attributes != null)
+                rootNode.Attributes.Append(xml.CreateAttribute("file")).InnerText = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(xmlPath));
 
             // Append the animation sheets now
             foreach (Animation anim in _animations)
             {
                 XmlNode animationNode = xml.CreateNode(XmlNodeType.Element, "anim", "");
 
-                animationNode.Attributes.Append(xml.CreateAttribute("name")).InnerText = anim.Name;
-                animationNode.Attributes.Append(xml.CreateAttribute("width")).InnerText = anim.Width + "";
-                animationNode.Attributes.Append(xml.CreateAttribute("height")).InnerText = anim.Height + "";
-                animationNode.Attributes.Append(xml.CreateAttribute("fps")).InnerText = anim.PlaybackSettings.FPS + "";
-                animationNode.Attributes.Append(xml.CreateAttribute("frameskip")).InnerText = anim.PlaybackSettings.FrameSkip.ToString().ToLower();
+                if (animationNode.Attributes != null)
+                {
+                    animationNode.Attributes.Append(xml.CreateAttribute("name")).InnerText = anim.Name;
+                    animationNode.Attributes.Append(xml.CreateAttribute("width")).InnerText = anim.Width + "";
+                    animationNode.Attributes.Append(xml.CreateAttribute("height")).InnerText = anim.Height + "";
+                    animationNode.Attributes.Append(xml.CreateAttribute("fps")).InnerText = anim.PlaybackSettings.FPS + "";
+                    animationNode.Attributes.Append(xml.CreateAttribute("frameskip")).InnerText = anim.PlaybackSettings.FrameSkip.ToString().ToLower();
+                }
 
                 // Write down the frame bounds now
                 for (int i = 0; i < anim.FrameCount; i++)
@@ -175,16 +179,19 @@ namespace Pixelaria.Data.Exports
 
                     XmlNode frameNode = xml.CreateNode(XmlNodeType.Element, "frame", "");
 
-                    frameNode.Attributes.Append(xml.CreateAttribute("index")).InnerText = frame.Index + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding : 0) + "";
+                    if (frameNode.Attributes != null)
+                    {
+                        frameNode.Attributes.Append(xml.CreateAttribute("index")).InnerText = frame.Index + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding : 0) + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding : 0) + "";
 
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameW")).InnerText = rect.FrameArea.Width + "";
-                    frameNode.Attributes.Append(xml.CreateAttribute("frameH")).InnerText = rect.FrameArea.Height + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("frameW")).InnerText = rect.FrameArea.Width + "";
+                        frameNode.Attributes.Append(xml.CreateAttribute("frameH")).InnerText = rect.FrameArea.Height + "";
+                    }
 
                     animationNode.AppendChild(frameNode);
                 }
@@ -206,7 +213,7 @@ namespace Pixelaria.Data.Exports
         {
             foreach (FrameRect frameRect in _frameRects)
             {
-                if (frameRect.Frame == frame)
+                if (ReferenceEquals(frameRect.Frame, frame))
                     return true;
             }
 
@@ -223,7 +230,7 @@ namespace Pixelaria.Data.Exports
         {
             foreach (FrameRect frameRect in _frameRects)
             {
-                if (frameRect.Frame == frame)
+                if (ReferenceEquals(frameRect.Frame, frame))
                     return frameRect;
             }
 
@@ -274,32 +281,32 @@ namespace Pixelaria.Data.Exports
             /// <summary>
             /// The Frame represented by this FrameRect
             /// </summary>
-            private Frame frame;
+            private readonly Frame _frame;
 
             /// <summary>
             /// Represents the area the frame occupies inside the sheet
             /// </summary>
-            private Rectangle sheetArea;
+            private readonly Rectangle _sheetArea;
 
             /// <summary>
             /// Represents the area of the frame that is used on the sheet
             /// </summary>
-            private Rectangle frameArea;
+            private readonly Rectangle _frameArea;
 
             /// <summary>
             /// Gets the Frame represented by this FrameRect
             /// </summary>
-            public Frame Frame { get { return frame; } }
+            public Frame Frame { get { return _frame; } }
 
             /// <summary>
             /// Gets the area the frame occupies inside the sheet
             /// </summary>
-            public Rectangle SheetArea { get { return sheetArea; } }
+            public Rectangle SheetArea { get { return _sheetArea; } }
 
             /// <summary>
             /// Gets the area of the frame that is used on the sheet
             /// </summary>
-            public Rectangle FrameArea { get { return frameArea; } }
+            public Rectangle FrameArea { get { return _frameArea; } }
 
             /// <summary>
             /// Creates a new FrameRect using the given parameters
@@ -309,20 +316,20 @@ namespace Pixelaria.Data.Exports
             /// <param name="frameArea">The area of the frame that is used on the sheet</param>
             public FrameRect(Frame frame, Rectangle sheetArea, Rectangle frameArea)
             {
-                this.frame = frame;
-                this.sheetArea = sheetArea;
-                this.frameArea = frameArea;
+                _frame = frame;
+                _sheetArea = sheetArea;
+                _frameArea = frameArea;
 
                 // Clip the area to the frame size
-                if (this.sheetArea.Width > this.frame.Width)
-                    this.sheetArea.Width = this.frame.Width;
-                if (this.sheetArea.Height > this.frame.Height)
-                    this.sheetArea.Height = this.frame.Height;
+                if (_sheetArea.Width > _frame.Width)
+                    _sheetArea.Width = _frame.Width;
+                if (_sheetArea.Height > _frame.Height)
+                    _sheetArea.Height = _frame.Height;
 
-                if (this.frameArea.Width > this.frame.Width)
-                    this.frameArea.Width = this.frame.Width;
-                if (this.frameArea.Height > this.frame.Height)
-                    this.frameArea.Height = this.frame.Height;
+                if (_frameArea.Width > _frame.Width)
+                    _frameArea.Width = _frame.Width;
+                if (_frameArea.Height > _frame.Height)
+                    _frameArea.Height = _frame.Height;
             }
         }
     }

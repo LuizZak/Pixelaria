@@ -20,15 +20,9 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-
-using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -42,7 +36,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         public AnimationBlock()
         {
-            this.blockID = BLOCKID_ANIMATION;
+            blockID = BLOCKID_ANIMATION;
         }
 
         /// <summary>
@@ -100,11 +94,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             int fps = reader.ReadInt32();
             bool frameskip = reader.ReadBoolean();
 
-            Animation anim = new Animation(name, width, height);
-
-            anim.ID = id;
-            anim.PlaybackSettings.FPS = fps;
-            anim.PlaybackSettings.FrameSkip = frameskip;
+            Animation anim = new Animation(name, width, height)
+            {
+                ID = id,
+                PlaybackSettings = { FPS = fps, FrameSkip = frameskip }
+            };
 
             int frameCount = reader.ReadInt32();
 
@@ -152,9 +146,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             frame.ID = reader.ReadInt32();
 
             // Get the hash now
-            byte[] hash = null;
             int length = reader.ReadInt32();
-            hash = new byte[length];
+            var hash = new byte[length];
             stream.Read(hash, 0, length);
 
             memStream.Dispose();

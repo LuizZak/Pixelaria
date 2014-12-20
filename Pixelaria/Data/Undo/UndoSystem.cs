@@ -33,24 +33,24 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// The list of tasks that can be undone/redone
         /// </summary>
-        private List<IUndoTask> undoTasks;
+        private readonly List<IUndoTask> _undoTasks;
 
         /// <summary>
         /// The index of the current redo task.
         /// From this index onwards, all UndoTasks registered on the undo task list are considered
         /// Redo tasks
         /// </summary>
-        private int currentTask;
+        private int _currentTask;
 
         /// <summary>
         /// The maximum ammount of tasks this UndoSystem can store
         /// </summary>
-        private int maxTaskCount;
+        private int _maxTaskCount;
 
         /// <summary>
         /// The current group undo task
         /// </summary>
-        private GroupUndoTask currentGroupUndoTask;
+        private GroupUndoTask _currentGroupUndoTask;
 
         /// <summary>
         /// Event handler for the events on the UndoSystem
@@ -87,47 +87,47 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// Gets the ammount of tasks currently held by this UndoSystem
         /// </summary>
-        public int Count { get { return undoTasks.Count; } }
+        public int Count { get { return _undoTasks.Count; } }
 
         /// <summary>
         /// Gets or sets the maximum ammount of tasks this UndoSystem can store
         /// </summary>
-        public int MaximumTaskCount { get { return maxTaskCount; } set { maxTaskCount = value; } }
+        public int MaximumTaskCount { get { return _maxTaskCount; } set { _maxTaskCount = value; } }
 
         /// <summary>
         /// Gets whether this UndoSystem can currently undo a task
         /// </summary>
-        public bool CanUndo { get { return currentTask > 0; } }
+        public bool CanUndo { get { return _currentTask > 0; } }
 
         /// <summary>
         /// Gets whether this UndoSystem can currently redo a task
         /// </summary>
-        public bool CanRedo { get { return currentTask < undoTasks.Count; } }
+        public bool CanRedo { get { return _currentTask < _undoTasks.Count; } }
 
         /// <summary>
         /// Gets whether this UndoSystem is currently in group undo mode, recording all
         /// current undos into a group that will be stored as a single undo task later
         /// </summary>
-        public bool InGroupUndo { get { return currentGroupUndoTask != null; } }
+        public bool InGroupUndo { get { return _currentGroupUndoTask != null; } }
 
         /// <summary>
         /// Returns the next undo operation on the undo stack. If there's no undo operation available, null is returned
         /// </summary>
-        public IUndoTask NextUndo { get { return CanUndo ? undoTasks[currentTask - 1] : null; } }
+        public IUndoTask NextUndo { get { return CanUndo ? _undoTasks[_currentTask - 1] : null; } }
 
         /// <summary>
         /// Returns the next redo operation on the undo stack. If there's no redo operation available, null is returned
         /// </summary>
-        public IUndoTask NextRedo { get { return CanRedo ? undoTasks[currentTask] : null; } }
+        public IUndoTask NextRedo { get { return CanRedo ? _undoTasks[_currentTask] : null; } }
 
         /// <summary>
         /// Initializes a new instance of the UndoSystem class
         /// </summary>
         public UndoSystem()
         {
-            undoTasks = new List<IUndoTask>();
-            currentTask = 0;
-            maxTaskCount = 15;
+            _undoTasks = new List<IUndoTask>();
+            _currentTask = 0;
+            _maxTaskCount = 15;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Pixelaria.Data.Undo
             // Grouped undos: record them inside the group undo
             if (InGroupUndo)
             {
-                currentGroupUndoTask.AddTask(task);
+                _currentGroupUndoTask.AddTask(task);
                 return;
             }
 
@@ -147,21 +147,21 @@ namespace Pixelaria.Data.Undo
             ClearRedos();
 
             // Task capping
-            if (undoTasks.Count >= maxTaskCount)
+            if (_undoTasks.Count >= _maxTaskCount)
             {
-                while (undoTasks.Count >= maxTaskCount)
+                while (_undoTasks.Count >= _maxTaskCount)
                 {
-                    undoTasks[0].Clear();
+                    _undoTasks[0].Clear();
 
-                    undoTasks.RemoveAt(0);
+                    _undoTasks.RemoveAt(0);
                 }
             }
             else
             {
-                currentTask++;
+                _currentTask++;
             }
 
-            undoTasks.Add(task);
+            _undoTasks.Add(task);
 
             if (UndoRegistered != null)
             {
@@ -174,11 +174,11 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Undo()
         {
-            if (currentTask == 0)
+            if (_currentTask == 0)
                 return;
 
             // Get the task to undo
-            IUndoTask task = undoTasks[currentTask - 1];
+            IUndoTask task = _undoTasks[_currentTask - 1];
 
             // Fire the WillPerformUndo event handler
             if (WillPerformUndo != null)
@@ -189,11 +189,11 @@ namespace Pixelaria.Data.Undo
             // Finish any currently opened group undos
             if (InGroupUndo)
             {
-                FinishGroupUndo(currentGroupUndoTask.DiscardOnOperation);
+                FinishGroupUndo(_currentGroupUndoTask.DiscardOnOperation);
             }
 
             // Undo the task
-            currentTask--;
+            _currentTask--;
             task.Undo();
 
             // Fire the UndoPerformed event handler
@@ -208,11 +208,11 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
-            if (currentTask == undoTasks.Count)
+            if (_currentTask == _undoTasks.Count)
                 return;
 
             // Get the task to undo
-            IUndoTask task = undoTasks[currentTask];
+            IUndoTask task = _undoTasks[_currentTask];
 
             // Fire the WillPerformRedo event handler
             if (WillPerformRedo != null)
@@ -223,10 +223,10 @@ namespace Pixelaria.Data.Undo
             // Finish any currently opened group undos
             if (InGroupUndo)
             {
-                FinishGroupUndo(currentGroupUndoTask.DiscardOnOperation);
+                FinishGroupUndo(_currentGroupUndoTask.DiscardOnOperation);
             }
 
-            currentTask++;
+            _currentTask++;
             task.Redo();
 
             // Fire the UndoPerformed event handler
@@ -246,8 +246,7 @@ namespace Pixelaria.Data.Undo
             if (InGroupUndo)
                 return;
 
-            currentGroupUndoTask = new GroupUndoTask(description);
-            currentGroupUndoTask.DiscardOnOperation = discardOnOperation;
+            _currentGroupUndoTask = new GroupUndoTask(description) { DiscardOnOperation = discardOnOperation };
         }
 
         /// <summary>
@@ -259,8 +258,8 @@ namespace Pixelaria.Data.Undo
             if (!InGroupUndo)
                 return;
 
-            GroupUndoTask task = currentGroupUndoTask;
-            currentGroupUndoTask = null;
+            GroupUndoTask task = _currentGroupUndoTask;
+            _currentGroupUndoTask = null;
 
             if (!cancel)
             {
@@ -285,8 +284,8 @@ namespace Pixelaria.Data.Undo
 
             IUndoTask task = NextUndo;
 
-            undoTasks.Remove(task);
-            currentTask--;
+            _undoTasks.Remove(task);
+            _currentTask--;
 
             return task;
         }
@@ -304,7 +303,7 @@ namespace Pixelaria.Data.Undo
 
             IUndoTask task = NextRedo;
 
-            undoTasks.Remove(task);
+            _undoTasks.Remove(task);
 
             return task;
         }
@@ -314,14 +313,14 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Clear()
         {
-            foreach (IUndoTask task in undoTasks)
+            foreach (IUndoTask task in _undoTasks)
             {
                 task.Clear();
             }
 
-            undoTasks.Clear();
+            _undoTasks.Clear();
 
-            currentTask = 0;
+            _currentTask = 0;
         }
 
         /// <summary>
@@ -329,15 +328,15 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         private void ClearRedos()
         {
-            if (currentTask == undoTasks.Count)
+            if (_currentTask == _undoTasks.Count)
                 return;
 
-            for (int i = currentTask; i < undoTasks.Count; i++)
+            for (int i = _currentTask; i < _undoTasks.Count; i++)
             {
-                undoTasks[i].Clear();
+                _undoTasks[i].Clear();
             }
 
-            undoTasks.RemoveRange(currentTask, undoTasks.Count - currentTask);
+            _undoTasks.RemoveRange(_currentTask, _undoTasks.Count - _currentTask);
         }
     }
 
@@ -376,12 +375,12 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// The list of undo tasks enclosed in this GroupUndoTask
         /// </summary>
-        List<IUndoTask> undoList;
+        readonly List<IUndoTask> _undoList;
 
         /// <summary>
         /// The description for this GroupUndoTask instance
         /// </summary>
-        string description;
+        readonly string _description;
 
         /// <summary>
         /// Gets or sets a value specifying whether to discard the undo group if it's opened on an UndoSystem while it receives an undo/redo call
@@ -396,12 +395,12 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// Initializes a new instance of the GroupUndoTask class with a description
         /// </summary>
-        /// <param name="tasks">The tasks to perform</param>
+        /// <param name="description">The description for this GroupUndoTask</param>
         public GroupUndoTask(string description)
         {
-            undoList = new List<IUndoTask>();
-            this.description = description;
-            this.ReverseOnUndo = true;
+            _undoList = new List<IUndoTask>();
+            _description = description;
+            ReverseOnUndo = true;
         }
 
         /// <summary>
@@ -410,12 +409,13 @@ namespace Pixelaria.Data.Undo
         /// <param name="tasks">The tasks to perform</param>
         /// <param name="description">The description for this GroupUndoTask</param>
         /// <param name="discardOnOperation">Whether to reverse the order of the operations on undo</param>
+        /// <param name="reverseOnUndo">Whether to perform the undo operations in the reverse order the trasks where added</param>
         public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description, bool discardOnOperation = false, bool reverseOnUndo = true)
             : this(description)
         {
             AddTasks(tasks);
-            this.DiscardOnOperation = discardOnOperation;
-            this.ReverseOnUndo = reverseOnUndo;
+            DiscardOnOperation = discardOnOperation;
+            ReverseOnUndo = reverseOnUndo;
         }
 
         /// <summary>
@@ -424,7 +424,7 @@ namespace Pixelaria.Data.Undo
         /// <param name="task">The task to add to this GroupUndoTask</param>
         public void AddTask(IUndoTask task)
         {
-            undoList.Add(task);
+            _undoList.Add(task);
         }
 
         /// <summary>
@@ -444,12 +444,12 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Clear()
         {
-            foreach (IUndoTask task in undoList)
+            foreach (IUndoTask task in _undoList)
             {
                 task.Clear();
             }
 
-            undoList.Clear();
+            _undoList.Clear();
         }
 
         /// <summary>
@@ -460,14 +460,14 @@ namespace Pixelaria.Data.Undo
             if (ReverseOnUndo)
             {
                 // Undo in reverse order (last to first)
-                for (int i = undoList.Count - 1; i >= 0; i--)
+                for (int i = _undoList.Count - 1; i >= 0; i--)
                 {
-                    undoList[i].Undo();
+                    _undoList[i].Undo();
                 }
             }
             else
             {
-                foreach (IUndoTask task in undoList)
+                foreach (IUndoTask task in _undoList)
                 {
                     task.Undo();
                 }
@@ -479,7 +479,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
-            foreach (IUndoTask task in undoList)
+            foreach (IUndoTask task in _undoList)
             {
                 task.Redo();
             }
@@ -491,7 +491,7 @@ namespace Pixelaria.Data.Undo
         /// <returns>A short string description of this UndoTask</returns>
         public string GetDescription()
         {
-            return description;
+            return _description;
         }
     }
 
@@ -511,7 +511,7 @@ namespace Pixelaria.Data.Undo
         /// <param name="task">The task associated with this event</param>
         public UndoEventArgs(IUndoTask task)
         {
-            this.Task = task;
+            Task = task;
         }
     }
 }

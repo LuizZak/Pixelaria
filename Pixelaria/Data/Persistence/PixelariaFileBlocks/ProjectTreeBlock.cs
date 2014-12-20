@@ -20,13 +20,10 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
+    // TODO: Fill in this class once the project tree feature is done
+
     /// <summary>
     /// Contains information about the project tree to be displayed on the main interface
     /// </summary>
@@ -42,7 +39,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         public ProjectTreeBlock()
         {
-            this.blockID = BLOCKID_PROJECTTREE;
+            blockID = BLOCKID_PROJECTTREE;
         }
 
         /// <summary>
@@ -53,17 +50,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             base.PrepareFromBundle(bundle);
 
-            this.Tree = bundle.BundleProjectTree;
-        }
-
-        protected override void SaveContentToStream(System.IO.Stream stream)
-        {
-            base.SaveContentToStream(stream);
-        }
-
-        protected override void LoadContentFromStream(System.IO.Stream stream)
-        {
-            base.LoadContentFromStream(stream);
+            Tree = bundle.BundleProjectTree;
         }
     }
 }

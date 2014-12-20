@@ -22,8 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Pixelaria.Data
 {
@@ -122,14 +120,14 @@ namespace Pixelaria.Data
             {
                 if (node.parentNode != parent)
                 {
-                    throw new ArgumentException("The provided node is not a child of this node", "node");
+                    throw new ArgumentException(@"The provided node is not a child of this node", "node");
                 }
             }
             else
             {
                 if (node.parentNode != null)
                 {
-                    throw new ArgumentException("Cannot add as a child a node that is already parented by another node", "node");
+                    throw new ArgumentException(@"Cannot add as a child a node that is already parented by another node", "node");
                 }
             }
 
@@ -217,7 +215,7 @@ namespace Pixelaria.Data
         /// <param name="bundle">The bundle to bind to this object</param>
         public BundleProjectTreeNode(Bundle bundle)
         {
-            this.Bundle = bundle;
+            Bundle = bundle;
         }
     }
 
@@ -257,7 +255,7 @@ namespace Pixelaria.Data
         /// <param name="animation">An animation to bind to this AnimationProjectTreeNode</param>
         public AnimationProjectTreeNode(Animation animation)
         {
-            this.Animation = animation;
+            Animation = animation;
         }
     }
 

@@ -154,7 +154,7 @@ namespace Pixelaria.Data
         /// <param name="newAnimation">The new animation</param>
         public void Added(Animation newAnimation)
         {
-            if (_animation != null && _animation != newAnimation)
+            if (_animation != null && !ReferenceEquals(_animation, newAnimation))
             {
                 throw new InvalidOperationException("The frame may not be added to another animation before being removed from the current one before");
             }
@@ -186,7 +186,7 @@ namespace Pixelaria.Data
         /// <param name="frame">The frame to copy</param>
         public void CopyFrom(Frame frame)
         {
-            if (this == frame)
+            if (ReferenceEquals(this, frame))
                 return;
 
             if (_animation != null && frame._width != _animation.Width && frame._height != _animation.Height)

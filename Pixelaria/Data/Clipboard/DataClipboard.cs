@@ -34,12 +34,12 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// The currently stored clipboard data
         /// </summary>
-        private ClipboardObject currentData;
+        private IClipboardObject _currentData;
 
         /// <summary>
         /// Gets the type of the data currently stored in this ProgramClipboard
         /// </summary>
-        public string CurrentDataType { get { return currentData == null ? "" : currentData.GetDataType; } }
+        public string CurrentDataType { get { return _currentData == null ? "" : _currentData.GetDataType; } }
 
         /// <summary>
         /// The delegate for the clipboard events
@@ -58,18 +58,18 @@ namespace Pixelaria.Data.Clipboard
         /// Setting a new object clears any object that was already on the clipboard
         /// </summary>
         /// <param name="dataObject">The new object to set to the clipboard</param>
-        public void SetObject(ClipboardObject dataObject)
+        public void SetObject(IClipboardObject dataObject)
         {
-            if (currentData != null && currentData != dataObject)
+            if (_currentData != null && _currentData != dataObject)
             {
-                currentData.Clear();
+                _currentData.Clear();
             }
 
-            currentData = dataObject;
+            _currentData = dataObject;
 
             if (ClipboardChanged != null)
             {
-                ClipboardChanged.Invoke(this, new ClipboardEventArgs(currentData, ClipboardEventType.Set));
+                ClipboardChanged.Invoke(this, new ClipboardEventArgs(_currentData, ClipboardEventType.Set));
             }
         }
 
@@ -77,9 +77,9 @@ namespace Pixelaria.Data.Clipboard
         /// Gets the object that corresponds to the current data of the clipboard
         /// </summary>
         /// <returns>The current data of the clipboard</returns>
-        public ClipboardObject GetObject()
+        public IClipboardObject GetObject()
         {
-            return currentData;
+            return _currentData;
         }
 
         /// <summary>
@@ -87,8 +87,8 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            currentData.Clear();
-            currentData = null;
+            _currentData.Clear();
+            _currentData = null;
 
             if (ClipboardChanged != null)
             {
@@ -105,7 +105,7 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Gets the object that was inputed into the clipboard
         /// </summary>
-        public ClipboardObject NewObject { get; private set; }
+        public IClipboardObject NewObject { get; private set; }
 
         /// <summary>
         /// Gets the type of the event
@@ -115,12 +115,12 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Initializes a new class of the ClipboardEventArgs
         /// </summary>
-        /// <param name="newObjec">Gets the object that was inputed into the clipboard</param>
+        /// <param name="newObject">Gets the object that was inputed into the clipboard</param>
         /// <param name="eventType">Gets the type of the event</param>
-        public ClipboardEventArgs(ClipboardObject newObject, ClipboardEventType eventType)
+        public ClipboardEventArgs(IClipboardObject newObject, ClipboardEventType eventType)
         {
-            this.NewObject = newObject;
-            this.EventType = eventType;
+            NewObject = newObject;
+            EventType = eventType;
         }
     }
 
@@ -142,7 +142,7 @@ namespace Pixelaria.Data.Clipboard
     /// <summary>
     /// Specifies an object that stores data and can be used with a DataClipboard instance
     /// </summary>
-    public interface ClipboardObject
+    public interface IClipboardObject
     {
         /// <summary>
         /// Clears this clipboard object
@@ -159,7 +159,7 @@ namespace Pixelaria.Data.Clipboard
     /// <summary>
     /// Defines a ClipboardObject that contains a list of frames
     /// </summary>
-    public class FrameListClipboardObject : ClipboardObject
+    public class FrameListClipboardObject : IClipboardObject
     {
         /// <summary>
         /// The data type identifier for the FrameListclipboardObject
@@ -169,19 +169,19 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// List of frames to store into this ClipboardObject
         /// </summary>
-        List<Frame> frameList;
+        List<Frame> _frameList;
 
         /// <summary>
         /// Gets the frames currently added to this FrameListClipboardObject instance
         /// </summary>
-        public Frame[] Frames { get { return frameList.ToArray(); } }
+        public Frame[] Frames { get { return _frameList.ToArray(); } }
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
         /// </summary>
         public FrameListClipboardObject()
         {
-            frameList = new List<Frame>();
+            _frameList = new List<Frame>();
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Pixelaria.Data.Clipboard
         /// <param name="frameList">A list of frames to initialize the internal frame list with</param>
         public FrameListClipboardObject(List<Frame> frameList)
         {
-            this.frameList = new List<Frame>(frameList);
+            _frameList = new List<Frame>(frameList);
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Pixelaria.Data.Clipboard
         /// <param name="frame">The frame to add</param>
         public void AddFrame(Frame frame)
         {
-            frameList.Add(frame);
+            _frameList.Add(frame);
         }
 
         /// <summary>
@@ -207,15 +207,15 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            if (frameList != null)
+            if (_frameList != null)
             {
-                foreach (Frame frame in frameList)
+                foreach (Frame frame in _frameList)
                 {
                     frame.Dispose();
                 }
 
-                frameList.Clear();
-                frameList = null;
+                _frameList.Clear();
+                _frameList = null;
             }
         }
 
@@ -229,7 +229,7 @@ namespace Pixelaria.Data.Clipboard
     /// <summary>
     /// Defines a ClipboardObject that contains a list of animations
     /// </summary>
-    public class AnimationListClipboardObject : ClipboardObject
+    public class AnimationListClipboardObject : IClipboardObject
     {
         /// <summary>
         /// The data type identifier for the AnimationListClipboardObject
@@ -239,19 +239,19 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// List of animations to store into this ClipboardObject
         /// </summary>
-        List<Animation> animList;
+        List<Animation> _animList;
 
         /// <summary>
         /// Gets the animations currently added to this FrameListClipboardObject instance
         /// </summary>
-        public Animation[] Aniamtions { get { return animList.ToArray(); } }
+        public Animation[] Aniamtions { get { return _animList.ToArray(); } }
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
         /// </summary>
         public AnimationListClipboardObject()
         {
-            animList = new List<Animation>();
+            _animList = new List<Animation>();
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace Pixelaria.Data.Clipboard
         /// <param name="animList">A list of animations to initialize the internal animation list with</param>
         public AnimationListClipboardObject(List<Animation> animList)
         {
-            this.animList = new List<Animation>(animList);
+            _animList = new List<Animation>(animList);
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace Pixelaria.Data.Clipboard
         /// <param name="anim">The frame to add</param>
         public void AddAnimation(Animation anim)
         {
-            animList.Add(anim);
+            _animList.Add(anim);
         }
 
         /// <summary>
@@ -277,15 +277,15 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            if (animList != null)
+            if (_animList != null)
             {
-                foreach (Animation anim in animList)
+                foreach (Animation anim in _animList)
                 {
                     anim.Dispose();
                 }
 
-                animList.Clear();
-                animList = null;
+                _animList.Clear();
+                _animList = null;
             }
         }
 
@@ -299,7 +299,7 @@ namespace Pixelaria.Data.Clipboard
     /// <summary>
     /// Defines a image stream clipboard object
     /// </summary>
-    public class ImageStreamClipboardObject : ClipboardObject
+    public class ImageStreamClipboardObject : IClipboardObject
     {
         /// <summary>
         /// The data type identifier for the ImageStreamClipboardObject
@@ -309,12 +309,12 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// The stream that contains the image data
         /// </summary>
-        private Stream imageStream;
+        private readonly Stream _imageStream;
 
         /// <summary>
         /// Gets the stream that contains the image data
         /// </summary>
-        public Stream ImageStream { get { return imageStream; } }
+        public Stream ImageStream { get { return _imageStream; } }
 
         /// <summary>
         /// Initializes a new instance of the ImageStreamClipboardObject class with a stream to initialzie the stream with
@@ -322,7 +322,7 @@ namespace Pixelaria.Data.Clipboard
         /// <param name="stream">The stream containing the image data</param>
         public ImageStreamClipboardObject(Stream stream)
         {
-            this.imageStream = stream;
+            _imageStream = stream;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            imageStream.Dispose();
+            _imageStream.Dispose();
         }
 
         /// <summary>

@@ -61,6 +61,7 @@ namespace Pixelaria.Data.Validators
         /// <param name="fps">The Animation fps to validate</param>
         /// <param name="anim">The Animation that the field is comming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
+        // ReSharper disable once InconsistentNaming
         string ValidateAnimationFPS(int fps, Animation anim = null);
     }
 }

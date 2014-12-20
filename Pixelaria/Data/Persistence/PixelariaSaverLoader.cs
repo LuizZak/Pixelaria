@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.IO;
 
@@ -40,12 +39,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The version of this Pixelaria persistence handler
         /// </summary>
-        private static int version = 9;
-
-        /// <summary>
-        /// Gets the version of this Pixelaria persistence handler
-        /// </summary>
-        public static int Version { get { return version; } }
+        public const int Version = 9;
 
         #region Loading
 
@@ -75,7 +69,7 @@ namespace Pixelaria.Data.Persistence
             {
                 stream.Close();
 
-                return PixelariaSaverLoader.LoadFileFromDisk(path).LoadedBundle;
+                return LoadFileFromDisk(path).LoadedBundle;
             }
 
             ////////
@@ -87,9 +81,7 @@ namespace Pixelaria.Data.Persistence
                 bundlePath = reader.ReadString();
             }
 
-            Bundle bundle = new Bundle(bundleName);
-
-            bundle.ExportPath = bundlePath;
+            Bundle bundle = new Bundle(bundleName) { ExportPath = bundlePath };
 
             // Animation block
             int animCount = reader.ReadInt32();
@@ -211,11 +203,11 @@ namespace Pixelaria.Data.Persistence
             int fps = reader.ReadInt32();
             bool frameskip = reader.ReadBoolean();
 
-            Animation anim = new Animation(name, width, height);
-
-            anim.ID = id;
-            anim.PlaybackSettings.FPS = fps;
-            anim.PlaybackSettings.FrameSkip = frameskip;
+            Animation anim = new Animation(name, width, height)
+            {
+                ID = id,
+                PlaybackSettings = { FPS = fps, FrameSkip = frameskip }
+            };
 
             int frameCount = reader.ReadInt32();
 
@@ -267,7 +259,7 @@ namespace Pixelaria.Data.Persistence
             }
 
             // Get the hash now
-            byte[] hash = null;
+            byte[] hash;
 
             if (version >= 6)
             {
@@ -307,10 +299,7 @@ namespace Pixelaria.Data.Persistence
             AnimationExportSettings settings = LoadExportSettingsFromStream(stream, version);
 
             // Create the animation sheet
-            AnimationSheet sheet = new AnimationSheet(name);
-
-            sheet.ID = id;
-            sheet.ExportSettings = settings;
+            AnimationSheet sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
 
             // Load the animation indices
             int animCount = reader.ReadInt32();
@@ -339,40 +328,23 @@ namespace Pixelaria.Data.Persistence
         {
             BinaryReader reader = new BinaryReader(stream);
 
-            AnimationExportSettings settings = new AnimationExportSettings();
-
-            settings.FavorRatioOverArea = reader.ReadBoolean();
-            settings.ForcePowerOfTwoDimensions = reader.ReadBoolean();
-            settings.ForceMinimumDimensions = reader.ReadBoolean();
-            settings.ReuseIdenticalFramesArea = reader.ReadBoolean();
-            if (version >= 4)
+            AnimationExportSettings settings = new AnimationExportSettings
             {
-                settings.HighPrecisionAreaMatching = reader.ReadBoolean();
-            }
-
-            settings.AllowUnorderedFrames = reader.ReadBoolean();
-
-            if (version >= 7)
-            {
-                settings.UseUniformGrid = reader.ReadBoolean();
-            }
-            else
-            {
-                settings.UseUniformGrid = false;
-            }
-
-            settings.UsePaddingOnXml = reader.ReadBoolean();
-
-            if (version >= 5)
-            {
-                settings.ExportXml = reader.ReadBoolean();
-            }
-            else
-            {
-                settings.ExportXml = true;
-            }
-            settings.XPadding = reader.ReadInt32();
-            settings.YPadding = reader.ReadInt32();
+                FavorRatioOverArea = reader.ReadBoolean(),
+                ForcePowerOfTwoDimensions = reader.ReadBoolean(),
+                ForceMinimumDimensions = reader.ReadBoolean(),
+                ReuseIdenticalFramesArea = reader.ReadBoolean(),
+                // >= Version 4
+                HighPrecisionAreaMatching = version >= 4 && reader.ReadBoolean(),
+                AllowUnorderedFrames = reader.ReadBoolean(),
+                // >= Version 7
+                UseUniformGrid = version >= 7 && reader.ReadBoolean(),
+                UsePaddingOnXml = reader.ReadBoolean(),
+                // >= Version 5
+                ExportXml = version < 5 || reader.ReadBoolean(),
+                XPadding = reader.ReadInt32(),
+                YPadding = reader.ReadInt32()
+            };
 
             return settings;
         }
@@ -487,7 +459,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void Dispose()
         {
-            foreach (BaseBlock block in blockList)
+            foreach (FileBlock block in blockList)
             {
                 block.Dispose();
             }
@@ -575,27 +547,18 @@ namespace Pixelaria.Data.Persistence
         /// <returns>A list of all the blocks that match the given type</returns>
         public FileBlock[] GetBlocksByType(Type blockType)
         {
-            List<FileBlock> blocks = new List<FileBlock>();
-
-            foreach (FileBlock block in blockList)
-            {
-                if (block.GetType() == blockType)
-                {
-                    blocks.Add(block);
-                }
-            }
-
-            return blocks.ToArray();
+            return blockList.Where(block => block.GetType() == blockType).ToArray();
         }
 
         /// <summary>
         /// Gets all the blocks inside this PixelariaFile that match the given blockID
         /// </summary>
-        /// <param name="blockID">The blockID to match</param>
+        /// <param name="blockId">The blockID to match</param>
         /// <returns>All the blocks that match the given ID inside this PixelariaFile</returns>
-        public FileBlock[] GetBlocksByID(short blockID)
+        // ReSharper disable once InconsistentNaming
+        public FileBlock[] GetBlocksByID(short blockId)
         {
-            return blockList.Where<FileBlock>((FileBlock block) => block.BlockID == blockID).ToArray<FileBlock>();
+            return blockList.Where(block => block.BlockID == blockId).ToArray();
         }
     }
 
@@ -607,12 +570,12 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The file to load
         /// </summary>
-        private PixelariaFile _file;
+        private readonly PixelariaFile _file;
 
         /// <summary>
         /// Whether to reset the bundle before loading contents from the stream
         /// </summary>
-        private bool _resetBundle;
+        private readonly bool _resetBundle;
 
         /// <summary>
         /// Initializes a new instance of the PixelariaFileLoader class
@@ -693,7 +656,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The file to save
         /// </summary>
-        private PixelariaFile file;
+        private readonly PixelariaFile _file;
 
         /// <summary>
         /// Initializes a new instance of the PixelariaFileLoader class
@@ -701,7 +664,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="file">The file to save to the stream</param>
         public PixelariaFileSaver(PixelariaFile file)
         {
-            this.file = file;
+            _file = file;
         }
 
         /// <summary>
@@ -710,11 +673,11 @@ namespace Pixelaria.Data.Persistence
         public void Save()
         {
             // Get the stream to load the file from
-            Stream stream = file.CurrentStream;
+            Stream stream = _file.CurrentStream;
             bool closeStream = false;
             if (stream == null)
             {
-                file.CurrentStream = stream = new FileStream(file.FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                _file.CurrentStream = stream = new FileStream(_file.FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 closeStream = true;
             }
 
@@ -729,14 +692,14 @@ namespace Pixelaria.Data.Persistence
             writer.Write((byte)'L');
             
             // Bundle Header block
-            writer.Write(file.Version);
-            writer.Write(file.LoadedBundle.Name);
-            writer.Write(file.LoadedBundle.ExportPath);
+            writer.Write(_file.Version);
+            writer.Write(_file.LoadedBundle.Name);
+            writer.Write(_file.LoadedBundle.ExportPath);
 
             // Save the blocks
-            foreach (FileBlock block in file.Blocks)
+            foreach (FileBlock block in _file.Blocks)
             {
-                block.PrepareFromBundle(file.LoadedBundle);
+                block.PrepareFromBundle(_file.LoadedBundle);
                 block.SaveToStream(stream);
             }
 

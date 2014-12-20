@@ -44,7 +44,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// A project tree that represents the tree visualization for the project contents
         /// </summary>
-        ProjectTree _bundleProjectTree;
+        readonly ProjectTree _bundleProjectTree;
 
         /// <summary>
         /// Gets the array of animations on this bundle
@@ -83,15 +83,15 @@ namespace Pixelaria.Data
         /// <param name="name">The name for this bundle</param>
         public Bundle(string name)
         {
-            this.Name = name;
-            this.SaveFile = "";
-            this.ExportPath = "";
+            Name = name;
+            SaveFile = "";
+            ExportPath = "";
 
-            this._animations = new List<Animation>();
-            this._animationSheets = new List<AnimationSheet>();
+            _animations = new List<Animation>();
+            _animationSheets = new List<AnimationSheet>();
 
             // Initialize the bundle tree
-            this._bundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
+            _bundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Pixelaria.Data
             }
 
             // Copy frame ID indexing for consistency
-            newBundle.nextFrameID = nextFrameID;
+            newBundle._nextFrameId = _nextFrameId;
 
             return newBundle;
         }
@@ -207,7 +207,7 @@ namespace Pixelaria.Data
                 if (frame.ID == -1)
                     frame.ID = GetNextValidFrameID();
                 else
-                    nextFrameID = Math.Max(nextFrameID, frame.ID + 1);
+                    _nextFrameId = Math.Max(_nextFrameId, frame.ID + 1);
             }
         }
 
@@ -337,15 +337,10 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="id">The ID of the animation to get</param>
         /// <returns>An animation object inside this that matches the given ID. If no animation matches the passed ID, null is returned</returns>
+        // ReSharper disable once InconsistentNaming
         public Animation GetAnimationByID(int id)
         {
-            foreach (Animation anim in _animations)
-            {
-                if (anim.ID == id)
-                    return anim;
-            }
-
-            return null;
+            return _animations.FirstOrDefault(anim => anim.ID == id);
         }
 
         /// <summary>
@@ -356,13 +351,7 @@ namespace Pixelaria.Data
         /// <returns>An animation object inside this that matches the given name. If no animation matches the passed name, null is returned</returns>
         public Animation GetAnimationByName(string name)
         {
-            foreach (Animation anim in _animations)
-            {
-                if (anim.Name == name)
-                    return anim;
-            }
-
-            return null;
+            return _animations.FirstOrDefault(anim => anim.Name == name);
         }
 
         /// <summary>
@@ -482,13 +471,7 @@ namespace Pixelaria.Data
         /// <returns>The AnimationSheet that currently owns the given Animation object. If the Animation is not inside any AnimationSheet, null is returned</returns>
         public AnimationSheet GetOwningAnimationSheet(Animation anim)
         {
-            foreach (AnimationSheet sheet in _animationSheets)
-            {
-                if (sheet.ContainsAnimation(anim))
-                    return sheet;
-            }
-
-            return null;
+            return _animationSheets.FirstOrDefault(sheet => sheet.ContainsAnimation(anim));
         }
 
         /// <summary>
@@ -529,15 +512,10 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="id">The ID of the animation sheet to get</param>
         /// <returns>An animation sheet object inside this that matches the given ID. If no animation sheet matches the passed ID, null is returned</returns>
+        // ReSharper disable once InconsistentNaming
         public AnimationSheet GetAnimationSheetByID(int id)
         {
-            foreach (AnimationSheet sheet in _animationSheets)
-            {
-                if (sheet.ID == id)
-                    return sheet;
-            }
-
-            return null;
+            return _animationSheets.FirstOrDefault(sheet => sheet.ID == id);
         }
 
         /// <summary>
@@ -548,22 +526,17 @@ namespace Pixelaria.Data
         /// <returns>An animation sheet object inside this that matches the given name. If no animation sheet matches the passed name, null is returned</returns>
         public AnimationSheet GetAnimationSheetByName(string name)
         {
-            foreach (AnimationSheet sheet in _animationSheets)
-            {
-                if (sheet.Name == name)
-                    return sheet;
-            }
-
-            return null;
+            return _animationSheets.FirstOrDefault(sheet => sheet.Name == name);
         }
 
         /// <summary>
         /// Gets the next valid Frame ID based on the IDs of the current frames
         /// </summary>
         /// <returns>An integer that is safe to be used as an ID for a frame</returns>
+        // ReSharper disable once InconsistentNaming
         public int GetNextValidFrameID()
         {
-            int id = nextFrameID++;
+            int id = _nextFrameId++;
 
             // If the ID equals to -1, it hasn't been cached yet
             if (id == -1)
@@ -578,7 +551,7 @@ namespace Pixelaria.Data
                     }
                 }
 
-                nextFrameID = id + 1;
+                _nextFrameId = id + 1;
             }
 
             return id;
@@ -588,32 +561,24 @@ namespace Pixelaria.Data
         /// Gets the next valid Animation ID based on the IDs of the current animations
         /// </summary>
         /// <returns>An integer that is safe to be used as an ID for an animation</returns>
+        // ReSharper disable once InconsistentNaming
         public int GetNextValidAnimationID()
         {
-            int id = 0;
-
-            foreach (Animation anim in _animations)
-            {
-                id = Math.Max(id, anim.ID + 1);
-            }
-
-            return id;
+            // Generate a list of all the animation IDs + 1, sum with a zero list, then select the largest value on the list.
+            // The 0 concat is used to ensure there will be at least one value for Max() to work with
+            return _animations.Select(anim => anim.ID + 1).Concat(new[] {0}).Max();
         }
 
         /// <summary>
         /// Gets the next valid AnimationSheet ID based on the IDs of the current animation sheets
         /// </summary>
         /// <returns>An integer that is safe to be used as an ID for an animation sheets</returns>
+        // ReSharper disable once InconsistentNaming
         public int GetNextValidAnimationSheetID()
         {
-            int id = 0;
-
-            foreach (AnimationSheet sheet in _animationSheets)
-            {
-                id = Math.Max(id, sheet.ID + 1);
-            }
-
-            return id;
+            // Generate a list of all the animation sheet IDs + 1, sum with a zero list, then select the largest value on the list.
+            // The 0 concat is used to ensure there will be at least one value for Max() to work with
+            return _animationSheets.Select(sheet => sheet.ID + 1).Concat(new[] {0}).Max();
         }
 
         // Override object.Equals
@@ -631,7 +596,7 @@ namespace Pixelaria.Data
                 return false;
             }
 
-            if (Object.ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
                 return true;
 
             Bundle other = (Bundle) obj;
@@ -666,12 +631,12 @@ namespace Pixelaria.Data
         // Override object.GetHashCode
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ ExportPath.GetHashCode() ^ SaveFile.GetHashCode() ^ _animations.Count ^ _animationSheets.Count;
+            return Name.GetHashCode() ^ ExportPath.GetHashCode() ^ SaveFile.GetHashCode();
         }
 
         /// <summary>
         /// The next valid frame ID
         /// </summary>
-        private int nextFrameID = -1;
+        private int _nextFrameId = -1;
     }
 }

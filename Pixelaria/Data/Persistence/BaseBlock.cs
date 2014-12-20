@@ -21,10 +21,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Pixelaria.Data.Persistence
 {
@@ -36,9 +33,10 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// Gets the ID of this block
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public short BlockID
         {
-            get { return this.blockID; }
+            get { return blockID; }
         }
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public short BlockVersion
         {
-            get { return this.blockVersion; }
+            get { return blockVersion; }
         }
 
         /// <summary>
@@ -73,7 +71,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public virtual void Dispose()
         {
-            blockContent = null;
+            _blockContent = null;
         }
 
         /// <summary>
@@ -113,10 +111,10 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to save the content portion to</param>
         protected virtual void SaveContentToStream(Stream stream)
         {
-            if (blockContent == null || blockContent.Length == 0)
+            if (_blockContent == null || _blockContent.Length == 0)
                 return;
 
-            stream.Write(blockContent, 0, blockContent.Length);
+            stream.Write(_blockContent, 0, _blockContent.Length);
         }
 
         /// <summary>
@@ -150,15 +148,16 @@ namespace Pixelaria.Data.Persistence
 
             if (stream.Position + stream.Length < blockLength)
             {
-                throw new ArgumentException("The stream provided does not have the required " + blockLength + " bytes needed to load this file block.", "stream");
+                throw new ArgumentException(@"The stream provided does not have the required " + blockLength + @" bytes needed to load this file block.", "stream");
             }
 
-            blockContent = reader.ReadBytes((int)blockLength);
+            _blockContent = reader.ReadBytes((int)blockLength);
         }
 
         /// <summary>
         /// The ID of this block
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         protected short blockID;
 
         /// <summary>
@@ -181,6 +180,6 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// A temporary, private buffer for saving bytes on memory. Used when the block is of an unknown type and must be kept on memory.
         /// </summary>
-        private byte[] blockContent;
+        private byte[] _blockContent;
     }
 }

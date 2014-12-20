@@ -20,11 +20,7 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -74,7 +70,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             // Reader to read the ID from the stream
             BinaryReader reader = new BinaryReader(stream);
-            FileBlock block = CreateBlockByID(reader.ReadInt16());
+            FileBlock block = CreateBlockById(reader.ReadInt16());
 
             // Rewind the stream and read the block now
             stream.Position = offset;
@@ -87,11 +83,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// Creates and returns a block that matches the given ID
         /// </summary>
-        /// <param name="blockID">The ID of the block to get</param>
+        /// <param name="blockId">The ID of the block to get</param>
         /// <returns>The Block, ready to be used</returns>
-        public static FileBlock CreateBlockByID(int blockID)
+        public static FileBlock CreateBlockById(int blockId)
         {
-            switch (blockID)
+            switch (blockId)
             {
                 // Animation block
                 case BLOCKID_ANIMATION:

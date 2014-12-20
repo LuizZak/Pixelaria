@@ -20,11 +20,7 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -38,7 +34,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         public AnimationSheetBlock()
         {
-            this.blockID = BLOCKID_ANIMATIONSHEET;
+            blockID = BLOCKID_ANIMATIONSHEET;
         }
 
         /// <summary>
@@ -81,7 +77,6 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// number when reading properties
         /// </summary>
         /// <param name="stream">The stream to load the animation sheet from</param>
-        /// <param name="parentBundle">The bundle that will contain this AnimationSheet</param>
         /// <returns>The Animation object loaded</returns>
         protected AnimationSheet LoadAnimationSheetFromStream(Stream stream)
         {
@@ -93,10 +88,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             AnimationExportSettings settings = LoadExportSettingsFromStream(stream);
 
             // Create the animation sheet
-            AnimationSheet sheet = new AnimationSheet(name);
-
-            sheet.ID = id;
-            sheet.ExportSettings = settings;
+            AnimationSheet sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
 
             // Load the animation indices
             int animCount = reader.ReadInt32();
@@ -124,19 +116,20 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             BinaryReader reader = new BinaryReader(stream);
 
-            AnimationExportSettings settings = new AnimationExportSettings();
-
-            settings.FavorRatioOverArea = reader.ReadBoolean();
-            settings.ForcePowerOfTwoDimensions = reader.ReadBoolean();
-            settings.ForceMinimumDimensions = reader.ReadBoolean();
-            settings.ReuseIdenticalFramesArea = reader.ReadBoolean();
-            settings.HighPrecisionAreaMatching = reader.ReadBoolean();
-            settings.AllowUnorderedFrames = reader.ReadBoolean();
-            settings.UseUniformGrid = reader.ReadBoolean();
-            settings.UsePaddingOnXml = reader.ReadBoolean();
-            settings.ExportXml = reader.ReadBoolean();
-            settings.XPadding = reader.ReadInt32();
-            settings.YPadding = reader.ReadInt32();
+            AnimationExportSettings settings = new AnimationExportSettings
+            {
+                FavorRatioOverArea = reader.ReadBoolean(),
+                ForcePowerOfTwoDimensions = reader.ReadBoolean(),
+                ForceMinimumDimensions = reader.ReadBoolean(),
+                ReuseIdenticalFramesArea = reader.ReadBoolean(),
+                HighPrecisionAreaMatching = reader.ReadBoolean(),
+                AllowUnorderedFrames = reader.ReadBoolean(),
+                UseUniformGrid = reader.ReadBoolean(),
+                UsePaddingOnXml = reader.ReadBoolean(),
+                ExportXml = reader.ReadBoolean(),
+                XPadding = reader.ReadInt32(),
+                YPadding = reader.ReadInt32()
+            };
 
             return settings;
         }

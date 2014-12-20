@@ -260,6 +260,8 @@ namespace Pixelaria.Data
             int newAnimWidth = Width;
             int newAnimHeight = Height;
 
+            var framesCasted = frames as Frame[] ?? frames.ToArray();
+
             if (sizeMatchingSettings.AnimationDimensionMatchMethod == AnimationDimensionMatchMethod.UseLargestSize ||
                 sizeMatchingSettings.AnimationDimensionMatchMethod == AnimationDimensionMatchMethod.UseNewSize)
             {
@@ -269,7 +271,7 @@ namespace Pixelaria.Data
                     newAnimHeight = 1;
                 }
 
-                foreach (Frame frame in frames)
+                foreach (Frame frame in framesCasted)
                 {
                     newAnimWidth = Math.Max(newAnimWidth, frame.Width);
                     newAnimHeight = Math.Max(newAnimHeight, frame.Height);
@@ -280,13 +282,13 @@ namespace Pixelaria.Data
             Height = newAnimHeight;
 
             // Redimension each frame now
-            foreach (Frame frame in frames)
+            foreach (Frame frame in framesCasted)
             {
                 InternalAddFrame(frame, (index == -1 ? index : index++), true);
             }
 
             // Resize the frames now
-            foreach (Frame frame in this._frames)
+            foreach (Frame frame in _frames)
             {
                 frame.Resize(newAnimWidth, newAnimHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
@@ -313,6 +315,7 @@ namespace Pixelaria.Data
         /// <param name="frame">The frame to add to this animation</param>
         /// <param name="index">The index to add the frame at. -1 adds the frame to the end of the frame list</param>
         /// <param name="ignoreSize">Whether to ignore the size of the frame and add it even if it is in different dimensions than the rest of the animation</param>
+        // ReSharper disable once UnusedParameter.Local
         private void InternalAddFrame(Frame frame, int index, bool ignoreSize = false)
         {
             if (_frames.ContainsReference(frame))
@@ -355,7 +358,7 @@ namespace Pixelaria.Data
                 throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, "frame");
             }
 
-            if (_frames[index] == frame)
+            if (ReferenceEquals(_frames[index], frame))
                 return frame;
 
             Frame oldFrame = _frames[index];
@@ -488,6 +491,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="id">The ID to search for</param>
         /// <returns>A frame with the given ID, or null if none was found</returns>
+        // ReSharper disable once InconsistentNaming
         public Frame GetFrameByID(int id)
         {
             foreach (Frame frame in _frames)
@@ -514,7 +518,7 @@ namespace Pixelaria.Data
                 return false;
             }
 
-            if (Object.ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
                 return true;
 
             Animation other = (Animation) obj;
@@ -536,7 +540,7 @@ namespace Pixelaria.Data
         // Override object.GetHashCode
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ Width ^ Height ^ _frames.Count;
+            return Name.GetHashCode() ^ Width ^ Height;
         }
     }
 
@@ -549,6 +553,7 @@ namespace Pixelaria.Data
         /// The playback FPS for the Animation. A value of -1 specifies playing as fast as possible. A value
         /// of 0 specifies no playback.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public int FPS;
 
         /// <summary>

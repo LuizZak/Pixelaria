@@ -35,7 +35,7 @@ namespace Pixelaria.Data.Validators
         /// <summary>
         /// The controller that owns this validator
         /// </summary>
-        Controller controller;
+        readonly Controller _controller;
 
         /// <summary>
         /// Default constructor for the IAnimationValidator interface
@@ -43,7 +43,7 @@ namespace Pixelaria.Data.Validators
         /// <param name="controller">The controller that controls the application flow</param>
         public DefaultValidator(Controller controller)
         {
-            this.controller = controller;
+            _controller = controller;
         }
 
         /// <summary>
@@ -58,14 +58,12 @@ namespace Pixelaria.Data.Validators
             if (name.Trim() == "")
                 return "The name of the animation cannot be empty";
 
-            if (controller.CurrentBundle != null)
+            // Check any case of repeated animation name
+            if (_controller.CurrentBundle != null)
             {
-                foreach (Animation canim in controller.CurrentBundle.Animations)
+                if (_controller.CurrentBundle.Animations.Any(canim => canim.Name == name && !ReferenceEquals(canim, anim)))
                 {
-                    if (canim.Name == name && canim != anim)
-                    {
-                        return "The name '" + name + "' conflicts with another animation in the project";
-                    }
+                    return "The name '" + name + "' conflicts with another animation in the project";
                 }
             }
 
@@ -134,14 +132,12 @@ namespace Pixelaria.Data.Validators
             if (validate != "")
                 return validate;
 
-            if (controller.CurrentBundle != null)
+            // Check any case of repeated animation sheet name
+            if (_controller.CurrentBundle != null)
             {
-                foreach (AnimationSheet csheet in controller.CurrentBundle.AnimationSheets)
+                if (_controller.CurrentBundle.AnimationSheets.Any(csheet => csheet.Name == name && csheet != sheet))
                 {
-                    if (csheet.Name == name && csheet != sheet)
-                    {
-                        return "The name '" + name + "' conflicts with another animation sheet in the project";
-                    }
+                    return "The name '" + name + "' conflicts with another animation sheet in the project";
                 }
             }
 

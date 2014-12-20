@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Pixelaria.Utils;
@@ -36,7 +35,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Animations inside this bundle
         /// </summary>
-        private List<Animation> _animations;
+        private readonly List<Animation> _animations;
 
         /// <summary>
         /// Gets or sets the unique identifier for this animation sheet
@@ -78,9 +77,7 @@ namespace Pixelaria.Data
         /// </summary>
         public AnimationSheet Clone()
         {
-            AnimationSheet sheetClone = new AnimationSheet(this.Name);
-
-            sheetClone.ExportSettings = ExportSettings;
+            AnimationSheet sheetClone = new AnimationSheet(Name) { ExportSettings = ExportSettings };
 
             foreach (var animation in _animations)
             {
