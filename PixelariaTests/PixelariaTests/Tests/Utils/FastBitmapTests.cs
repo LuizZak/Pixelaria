@@ -288,6 +288,25 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         }
 
         /// <summary>
+        /// Tests the CopyRegion() static and instance methods by creating two same-sized bitmaps, copying their whole regions, and comparing the expected pixel equalities.
+        /// This tests the optimization done by the FastBitmap in which region copies that equal the whole bitmap being copied over to a same-sized bitmap are transformed
+        /// into CopyPixels calls automatically
+        /// </summary>
+        [TestMethod]
+        public void TestSameSizedCopyRegion()
+        {
+            Bitmap canvasBitmap = new Bitmap(64, 64);
+            Bitmap copyBitmap = GenerateRandomBitmap(64, 64);
+
+            Rectangle sourceRectangle = new Rectangle(0, 0, 64, 64);
+            Rectangle targetRectangle = new Rectangle(0, 0, 64, 64);
+
+            FastBitmap.CopyRegion(copyBitmap, canvasBitmap, sourceRectangle, targetRectangle);
+
+            AssertCopyRegionEquals(canvasBitmap, copyBitmap, targetRectangle, sourceRectangle);
+        }
+
+        /// <summary>
         /// Tests the CopyRegion() static and instance methods by creating two bitmaps, copying regions over from one to another, and comparing the expected pixel equalities.
         /// The source and target rectangles are moved around, and the source rectangle clips outside the bounds of the copy bitmap
         /// </summary>
@@ -716,7 +735,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         {
             if (seed == -1)
             {
-                seed = _seedRandom.Next();
+                seed = SeedRandom.Next();
             }
             Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
@@ -835,6 +854,6 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         /// <summary>
         /// Random number generator used to randomize seeds for image generation when none are provided
         /// </summary>
-        private static readonly Random _seedRandom = new Random();
+        private static readonly Random SeedRandom = new Random();
     }
 }

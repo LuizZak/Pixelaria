@@ -600,9 +600,17 @@ namespace Pixelaria.Utils
         /// <exception cref="ArgumentException">The provided source and target bitmaps are the same bitmap</exception>
         public static void CopyRegion(Bitmap source, Bitmap target, Rectangle srcRect, Rectangle destRect)
         {
-            FastBitmap fastTarget = new FastBitmap(target);
+            Rectangle srcBitmapRect = new Rectangle(0, 0, source.Width, source.Height);
+            Rectangle destBitmapRect = new Rectangle(0, 0, target.Width, target.Height);
 
-            using (fastTarget.Lock())
+            // If the copy operation results in an entire copy, use CopyPixels instead
+            if (srcBitmapRect == srcRect && destBitmapRect == destRect && srcBitmapRect == destBitmapRect)
+            {
+                CopyPixels(source, target);
+                return;
+            }
+
+            using (var fastTarget = target.FastLock())
             {
                 fastTarget.CopyRegion(source, srcRect, destRect);
             }
