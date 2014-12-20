@@ -117,14 +117,14 @@ namespace Pixelaria.Importers
         /// <param name="offsetY">The Y offset to start loading the frames from</param>
         public SheetSettings(bool constantSize, int frameWidth, int frameHeight, int frameCount = -1, int firstFrame = 0, bool flipFrames = false, int offsetX = 0, int offsetY = 0)
         {
-            this.ConstantSize = constantSize;
-            this.FrameWidth = frameWidth;
-            this.FrameHeight = frameHeight;
-            this.FrameCount = frameCount;
-            this.FirstFrame = firstFrame;
-            this.FlipFrames = flipFrames;
-            this.OffsetX = offsetX;
-            this.OffsetY = offsetY;
+            ConstantSize = constantSize;
+            FrameWidth = frameWidth;
+            FrameHeight = frameHeight;
+            FrameCount = frameCount;
+            FirstFrame = firstFrame;
+            FlipFrames = flipFrames;
+            OffsetX = offsetX;
+            OffsetY = offsetY;
         }
 
         /// <summary>
@@ -134,9 +134,9 @@ namespace Pixelaria.Importers
         /// <returns>Whether this SheetSettings object matches the passed object</returns>
         public bool Equals(SheetSettings obj)
         {
-            return this.ConstantSize == obj.ConstantSize && this.OffsetX == obj.OffsetX && this.OffsetY == obj.OffsetY &&
-                   this.FrameWidth == obj.FrameWidth && this.FrameHeight == obj.FrameHeight && this.FrameCount == obj.FrameCount &&
-                   this.FirstFrame == obj.FirstFrame && this.FlipFrames == obj.FlipFrames;
+            return ConstantSize == obj.ConstantSize && OffsetX == obj.OffsetX && OffsetY == obj.OffsetY &&
+                   FrameWidth == obj.FrameWidth && FrameHeight == obj.FrameHeight && FrameCount == obj.FrameCount &&
+                   FirstFrame == obj.FirstFrame && FlipFrames == obj.FlipFrames;
         }
     }
 }

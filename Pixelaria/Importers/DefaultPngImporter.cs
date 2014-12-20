@@ -94,16 +94,16 @@ namespace Pixelaria.Importers
             int frameHeight = (settings.FrameHeight > texture.Height ? texture.Height : settings.FrameHeight);
 
             // Calculate cells dimensions
-            int x_cells = texture.Width / frameWidth;
-            int y_cells = texture.Height / frameHeight;
+            int xCells = texture.Width / frameWidth;
+            int yCells = texture.Height / frameHeight;
 
             // No frame count set? Calculate by the image size
             if (settings.FrameCount == -1)
-                settings.FrameCount = (x_cells * y_cells) - settings.FirstFrame;
+                settings.FrameCount = (xCells * yCells) - settings.FirstFrame;
 
             // Frame count larger than frames on image? Trim the variable
-            if (settings.FirstFrame + settings.FrameCount > x_cells * y_cells)
-                settings.FrameCount = (x_cells * y_cells) - settings.FirstFrame;
+            if (settings.FirstFrame + settings.FrameCount > xCells * yCells)
+                settings.FrameCount = (xCells * yCells) - settings.FirstFrame;
 
             int x = settings.OffsetX + settings.FirstFrame * frameWidth;
             int y = settings.OffsetY;

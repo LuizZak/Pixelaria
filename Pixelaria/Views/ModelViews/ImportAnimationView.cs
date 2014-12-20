@@ -205,13 +205,16 @@ namespace Pixelaria.Views.ModelViews
             if (_spriteSheet == null)
                 return;
 
-            _sheetSettings.FrameWidth = (int)nud_width.Value;
-            _sheetSettings.FrameHeight = (int)nud_height.Value;
-            _sheetSettings.FrameCount = (int)nud_frameCount.Value;
-            _sheetSettings.FirstFrame = (int)nud_skipCount.Value;
-            _sheetSettings.FlipFrames = cb_reverseFrameOrder.Checked;
-            _sheetSettings.OffsetX = (int)nud_startX.Value;
-            _sheetSettings.OffsetY = (int)nud_startY.Value;
+            _sheetSettings = new SheetSettings
+            {
+                FrameWidth = (int)nud_width.Value,
+                FrameHeight = (int)nud_height.Value,
+                FrameCount = (int)nud_frameCount.Value,
+                FirstFrame = (int)nud_skipCount.Value,
+                FlipFrames = cb_reverseFrameOrder.Checked,
+                OffsetX = (int)nud_startX.Value,
+                OffsetY = (int)nud_startY.Value
+            };
 
             cpb_sheetPreview.SheetSettings = _sheetSettings;
 
