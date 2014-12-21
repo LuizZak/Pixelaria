@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.IO;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
@@ -100,6 +101,10 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 if (anim != null)
                 {
                     sheet.AddAnimation(anim);
+                }
+                else
+                {
+                    throw new Exception(@"The animation referenced by an animation sheet stored is invalid. This may be due to a corrupted file.");
                 }
             }
 

@@ -488,9 +488,13 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
-            if (GetBlocksByType(typeof(AnimationBlock)).Length == 0)
+            /*if (GetBlocksByType(typeof(AnimationBlock)).Length == 0)
             {
                 AddBlock(new AnimationBlock());
+            }*/
+            foreach (Animation animation in bundle.Animations)
+            {
+                AddBlock(new AnimationHeaderBlock(animation));
             }
             if (GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
             {
@@ -534,10 +538,24 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void PrepareBlocksWithBundle()
         {
-            foreach (FileBlock block in blockList)
+            // Clear disposable blocks
+            for (int i = 0; i < blockList.Count; i++)
+            {
+                if (blockList[i].RemoveOnPrepare)
+                {
+                    RemoveBlock(blockList[i]);
+                    i--;
+                }
+            }
+
+            for (int i = 0; i < blockList.Count; i++)
+            {
+                blockList[i].PrepareFromBundle(bundle);
+            }
+            /*foreach (FileBlock block in blockList)
             {
                 block.PrepareFromBundle(bundle);
-            }
+            }*/
         }
 
         /// <summary>
@@ -644,6 +662,7 @@ namespace Pixelaria.Data.Persistence
             // TODO: Verify correctess of clearing the pixelaria file's internal blocks list before loading the file from the stream again
             file.ClearBlockList();
             PixelariaFileLoader loader = new PixelariaFileLoader(file, resetBundle);
+            file.PrepareBlocksWithBundle();
             loader.Load();
         }
     }
@@ -719,6 +738,7 @@ namespace Pixelaria.Data.Persistence
         public static void Save(PixelariaFile file)
         {
             PixelariaFileSaver saver = new PixelariaFileSaver(file);
+            file.PrepareBlocksWithBundle();
             saver.Save();
         }
     }

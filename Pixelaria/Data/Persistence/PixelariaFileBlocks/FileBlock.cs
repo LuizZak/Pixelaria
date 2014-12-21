@@ -39,6 +39,14 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
+        /// Gets whether this file block should be removed when the pixelaria file is being prepared to be saved/loaded
+        /// </summary>
+        public bool RemoveOnPrepare
+        {
+            get { return removeOnPrepare; }
+        }
+
+        /// <summary>
         /// Prepares the contents of this block to be saved based on the contents of the given Bundle
         /// </summary>
         /// <param name="bundle">The bundle to prepare this block from</param>
@@ -56,6 +64,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// The bundle that this block was prepared to handle
         /// </summary>
         protected Bundle readyBundle;
+
+        /// <summary>
+        /// Whether this file block should be removed when the pixelaria file is being prepared to be saved/loaded
+        /// </summary>
+        protected bool removeOnPrepare;
 
         /// <summary>
         /// Reads a block from the given stream object
@@ -98,7 +111,12 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 // Project Tree block
                 case BLOCKID_PROJECTTREE:
                     return new ProjectTreeBlock();
-
+                // Frame block
+                case BLOCKID_FRAME:
+                    return new FrameBlock();
+                // Animation Header block
+                case BLOCKID_ANIMATION_HEADER:
+                    return new AnimationHeaderBlock();
                 default:
                     return new FileBlock();
             }
@@ -112,5 +130,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public const short BLOCKID_ANIMATIONSHEET = 0x0002;
         /// <summary>Represents a Project Tree block</summary>
         public const short BLOCKID_PROJECTTREE = 0x0003;
+        /// <summary>Represents a Frame block</summary>
+        public const short BLOCKID_FRAME = 0x0004;
+        /// <summary>Represents an Animation Header block</summary>
+        public const short BLOCKID_ANIMATION_HEADER = 0x0005;
     }
 }

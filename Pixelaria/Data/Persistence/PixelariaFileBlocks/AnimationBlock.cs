@@ -78,6 +78,24 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
+        /// Prepares the contents of this animation to be saved based on the contents of the given Bundle
+        /// </summary>
+        /// <param name="bundle">The bundle to prepare this block from</param>
+        public override void PrepareFromBundle(Bundle bundle)
+        {
+            base.PrepareFromBundle(bundle);
+
+            // Add file blocks for each of the frames for this animation
+            foreach (var animation in bundle.Animations)
+            {
+                foreach (var frame in animation.Frames)
+                {
+                    owningFile.AddBlock(new FrameBlock(frame));
+                }
+            }
+        }
+
+        /// <summary>
         /// Loads an Animation from the given stream, using the specified version
         /// number when reading properties
         /// </summary>
