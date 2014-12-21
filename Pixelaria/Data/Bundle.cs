@@ -199,7 +199,7 @@ namespace Pixelaria.Data
             anim.OwnerBundle = this;
 
             // Iterate through the frames and check their ids
-            foreach (Frame frame in anim.Frames)
+            foreach (IFrame frame in anim.Frames)
             {
                 if (frame.ID == -1)
                     frame.ID = GetNextValidFrameID();

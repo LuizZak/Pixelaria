@@ -373,7 +373,7 @@ namespace Pixelaria.Views.ModelViews
         /// Loads the given frame to be edited on this FrameView form
         /// </summary>
         /// <param name="frame">The frame to edit on this form</param>
-        private void LoadFrame(Frame frame)
+        private void LoadFrame(IFrame frame)
         {
             // Dispose of the current view frame
             if (_viewFrame != null)
@@ -386,7 +386,11 @@ namespace Pixelaria.Views.ModelViews
                 _onionSkin.Dispose();
             }
 
-            _frameToEdit = frame;
+            // TODO: Deal with non Frame frames
+            if (!(frame is Frame))
+                return;
+
+            _frameToEdit = (Frame)frame;
             _viewFrame = _frameToEdit.Clone();
 
             RefreshTitleBar();

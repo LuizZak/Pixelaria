@@ -35,6 +35,11 @@ namespace Pixelaria.Data
     public class Frame : IFrame
     {
         /// <summary>
+        /// Whether this frame has been initialized
+        /// </summary>
+        private bool _initialized;
+
+        /// <summary>
         /// The width of this frame
         /// </summary>
         private int _width;
@@ -100,6 +105,22 @@ namespace Pixelaria.Data
         public int ID { get { return _id; } set { _id = value; } }
 
         /// <summary>
+        /// Gets whether this frame has been initialized
+        /// </summary>
+        public bool Initialized
+        {
+            get { return _initialized; }
+        }
+
+        /// <summary>
+        /// Creates a new instance of the Frame class
+        /// </summary>
+        public Frame()
+        {
+            
+        }
+
+        /// <summary>
         /// Creates a new animation frame
         /// </summary>
         /// <param name="parentAnimation">The parent animation</param>
@@ -108,10 +129,30 @@ namespace Pixelaria.Data
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
         public Frame(Animation parentAnimation, int width, int height, bool initHash = true)
         {
+            Initialize(parentAnimation, width, height, initHash);
+        }
+
+        /// <summary>
+        /// Creates a new animation frame
+        /// </summary>
+        /// <param name="animation">The parent animation</param>
+        /// <param name="width">The width of this frame</param>
+        /// <param name="height">The height of this frame</param>
+        /// <param name="initHash">Whether to initialize the frame's hash now</param>
+        /// <exception cref="InvalidOperationException">The Initialize funcion was already called</exception>
+        public void Initialize(Animation animation, int width, int height, bool initHash = true)
+        {
+            if (_initialized)
+            {
+                throw new InvalidOperationException("Calling Initialize() on an already initialized frame");
+            }
+
+            _initialized = true;
+
             _id = -1;
             _width = width;
             _height = height;
-            _animation = parentAnimation;
+            _animation = animation;
 
             _frameTexture = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
@@ -121,7 +162,7 @@ namespace Pixelaria.Data
                 UpdateHash();
             }
 
-            Added(parentAnimation);
+            Added(animation);
         }
 
         /// <summary>
@@ -143,6 +184,11 @@ namespace Pixelaria.Data
         /// </summary>
         public void Removed()
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             _animation = null;
         }
 
@@ -154,6 +200,11 @@ namespace Pixelaria.Data
         /// <param name="newAnimation">The new animation</param>
         public void Added(Animation newAnimation)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             if (_animation != null && !ReferenceEquals(_animation, newAnimation))
             {
                 throw new InvalidOperationException("The frame may not be added to another animation before being removed from the current one before");
@@ -170,6 +221,11 @@ namespace Pixelaria.Data
         /// <returns>A clone of this Frame, with a new underlying texture</returns>
         public Frame Clone()
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             Frame ret = new Frame(null, Width, Height, false);
             
             ret.CopyFrom(this);
@@ -186,6 +242,11 @@ namespace Pixelaria.Data
         /// <param name="frame">The frame to copy</param>
         public void CopyFrom(IFrame frame)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             if (ReferenceEquals(this, frame))
                 return;
 
@@ -246,6 +307,11 @@ namespace Pixelaria.Data
         /// <returns>Total memory usage, in bytes</returns>
         public long CalculateMemoryUsageInBytes()
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             return Utilities.MemoryUsageOfImage(_frameTexture);
         }
 
@@ -258,6 +324,11 @@ namespace Pixelaria.Data
         /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
         public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             if (bitmap != _frameTexture)
             {
                 if (_frameTexture != null)
@@ -276,6 +347,11 @@ namespace Pixelaria.Data
         /// <returns>The composed bitmap for this frame</returns>
         public Bitmap GetComposedBitmap()
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             return _frameTexture;
         }
 
@@ -290,6 +366,11 @@ namespace Pixelaria.Data
         /// <returns>The thumbnail image</returns>
         public Image GenerateThumbnail(int width, int height, bool resizeOnSmaller, bool centered, Color backColor)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             Image output = new Bitmap(width, height);
             Bitmap composed = GetComposedBitmap();
 
@@ -357,6 +438,11 @@ namespace Pixelaria.Data
         /// <param name="interpolationMode">The interpolation mode to use when drawing the new frame</param>
         public void Resize(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             if (_animation != null && (_animation.Width != newWidth || _animation.Height != newHeight))
             {
                 throw new Exception("The dimensions of the Animation that owns this frame don't match the given new dimensions.");
@@ -383,6 +469,11 @@ namespace Pixelaria.Data
         /// </summary>
         public void UpdateHash()
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             _hash = Utilities.GetHashForBitmap(_frameTexture);
         }
 
@@ -392,6 +483,11 @@ namespace Pixelaria.Data
         /// <param name="newHash">The new hash for the frame</param>
         public void SetHash(byte[] newHash)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             _hash = newHash;
         }
 

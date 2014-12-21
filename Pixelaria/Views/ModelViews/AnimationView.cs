@@ -241,7 +241,7 @@ namespace Pixelaria.Views.ModelViews
             il_framesThumbs.ImageSize = new Size(Math.Min((int)(_viewAnimation.Width * scaleX), width), Math.Min((int)(_viewAnimation.Height * scaleY), height));
             for (int i = 0; i < _viewAnimation.FrameCount; i++)
             {
-                Frame frame = _viewAnimation.GetFrameAtIndex(i);
+                IFrame frame = _viewAnimation.GetFrameAtIndex(i);
 
                 il_framesThumbs.Images.Add(frame.GenerateThumbnail(frame.Width, frame.Height, false, false, Color.White));
 
@@ -848,7 +848,7 @@ namespace Pixelaria.Views.ModelViews
 
             FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Add, "Frame Inserted");
 
-            undoTask.RegisterFrame(_viewAnimation.CreateFrame(index), index);
+            undoTask.RegisterFrame(_viewAnimation.CreateFrame(index), index <= -1 ? _viewAnimation.FrameCount - 1 : index);
 
             _undoSystem.RegisterUndo(undoTask);
 
@@ -1072,9 +1072,9 @@ namespace Pixelaria.Views.ModelViews
                 // Move the frames now
                 int newIndex = eventArgs.TargetItem.Index;
 
-                List<Frame> frames = eventArgs.DraggedItems.Select(item => _viewAnimation[item.Index]).ToList();
-
-                foreach (Frame frame in frames)
+                List<IFrame> frames = eventArgs.DraggedItems.Select(item => _viewAnimation[item.Index]).ToList();
+                
+                foreach (IFrame frame in frames)
                 {
                     _viewAnimation.RemoveFrame(frame);
                     _viewAnimation.AddFrame(frame, newIndex++);
@@ -1388,7 +1388,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// The frames that were deleted
             /// </summary>
-            private readonly List<Frame> _frames;
+            private readonly List<IFrame> _frames;
 
             /// <summary>
             /// Initializes a new instance of a FramesDeleteUndoTask class
@@ -1402,7 +1402,7 @@ namespace Pixelaria.Views.ModelViews
                 _description = description;
                 _operationType = operationType;
                 _frameIndices = new List<int>();
-                _frames = new List<Frame>();
+                _frames = new List<IFrame>();
             }
 
             /// <summary>
@@ -1410,7 +1410,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             /// <param name="frame">The frame being deleted</param>
             /// <param name="index">The index to register. In case this is a delete undo operation, this value is not used</param>
-            public void RegisterFrame(Frame frame, int index = 0)
+            public void RegisterFrame(IFrame frame, int index = 0)
             {
                 if(frame.Animation == null)
                     _frameIndices.Add(index);
@@ -1428,7 +1428,7 @@ namespace Pixelaria.Views.ModelViews
                 if (!_undone)
                 {
                     // Dispose of frames that are not in animations
-                    foreach (Frame frame in _frames)
+                    foreach (IFrame frame in _frames)
                     {
                         if (frame.Animation == null)
                         {
@@ -1499,45 +1499,45 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Implements a frame modify undo task that undoes/redoes the modification of a frame's image
+        /// Implements a frame modify undo task that undoes/redoes the modification of a frame's contents
         /// </summary>
         public class FrameEditUndoTask : IUndoTask
         {
             /// <summary>
             /// The frames that were deleted
             /// </summary>
-            private Frame _frame;
+            private IFrame _frame;
 
             /// <summary>
             /// The old (undo) bitmap
             /// </summary>
-            private readonly Bitmap _oldBitmap;
+            private readonly IFrame _oldFrame;
 
             /// <summary>
             /// The new (redo) bitmap
             /// </summary>
-            private Bitmap _newBitmap;
-
+            private IFrame _newFrame;
+            
             /// <summary>
             /// Initializes a new instance of a FrameEditUndoTask class
             /// </summary>
             /// <param name="frame">The frame to record the changes made to</param>
-            /// <param name="oldBitmap">An (optional) starting value for the old bitmap</param>
-            public FrameEditUndoTask(Frame frame, Bitmap oldBitmap = null)
+            /// <param name="oldFrame">An (optional) starting value for the old frame</param>
+            public FrameEditUndoTask(IFrame frame, IFrame oldFrame = null)
             {
                 _frame = frame;
-                _oldBitmap = (oldBitmap ?? _frame.GetComposedBitmap());
-                _oldBitmap = _oldBitmap.Clone(new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height), _oldBitmap.PixelFormat);
+                _oldFrame = (oldFrame ?? frame).Clone();
+                _oldFrame.ID = frame.ID;
             }
 
             /// <summary>
             /// Records the changes made to the frame's bitmap
             /// </summary>
-            /// <param name="newBitmap">An (optional) value for the new bitmap</param>
-            public void RecordChanges(Bitmap newBitmap = null)
+            /// <param name="newFrame">An (optional) value for the new frame</param>
+            public void RecordChanges(IFrame newFrame = null)
             {
-                _newBitmap = (newBitmap ?? _frame.GetComposedBitmap());
-                _newBitmap = _newBitmap.Clone(new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height), _newBitmap.PixelFormat);
+                _newFrame = (newFrame ?? _frame).Clone();
+                _newFrame.ID = _frame.ID;
             }
 
             /// <summary>
@@ -1545,8 +1545,8 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void Clear()
             {
-                _newBitmap.Dispose();
-                _oldBitmap.Dispose();
+                _newFrame.Dispose();
+                _oldFrame.Dispose();
 
                 _frame = null;
             }
@@ -1556,7 +1556,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void Undo()
             {
-                _frame.SetFrameBitmap(_oldBitmap.Clone(new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height), _oldBitmap.PixelFormat));
+                _frame.CopyFrom(_oldFrame);
             }
 
             /// <summary>
@@ -1564,7 +1564,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void Redo()
             {
-                _frame.SetFrameBitmap(_newBitmap.Clone(new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height), _oldBitmap.PixelFormat));
+                _frame.CopyFrom(_newFrame);
             }
 
             /// <summary>
@@ -1712,9 +1712,9 @@ namespace Pixelaria.Views.ModelViews
                 // Apply the frame contents now
                 for(int i = 0; i < _animation.FrameCount; i++)
                 {
-                    Frame frame = _animation[i];
-
-                    frame.SetFrameBitmap((Bitmap)_newFrames[i].Clone());
+                    IFrame frame = _animation[i];
+                    frame.CopyFrom(frame);
+                    //frame.SetFrameBitmap((Bitmap)_newFrames[i].Clone());
                 }
             }
 
@@ -1742,7 +1742,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// A copy of the old list of frames
             /// </summary>
-            private readonly List<Frame> _oldAnimationFrames;
+            private readonly List<IFrame> _oldAnimationFrames;
 
             /// <summary>
             /// A clone of the animation that was made before changes were made
@@ -1761,7 +1761,7 @@ namespace Pixelaria.Views.ModelViews
             public AnimationModifyUndoTask(Animation animation)
             {
                 _animation = animation;
-                _oldAnimationFrames = new List<Frame>(animation.Frames);
+                _oldAnimationFrames = new List<IFrame>(animation.Frames);
                 _oldAnimation = animation.Clone();
 
                 for (int i = 0; i < _oldAnimation.FrameCount; i++)
@@ -1794,20 +1794,20 @@ namespace Pixelaria.Views.ModelViews
                 */
 
                 // To track for reordering of frames
-                List<Frame> unmodified = new List<Frame>(_animation.Frames);
+                List<IFrame> unmodified = new List<IFrame>(_animation.Frames);
                 List<IUndoTask> undoList = new List<IUndoTask>();
 
                 // 1.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
                 for (int i = 0; i < _animation.FrameCount; i++)
                 {
-                    Frame newFrame = _animation[i];
+                    IFrame newFrame = _animation[i];
                     bool found = false;
 
                     int j;
 
                     for (j = 0; j < _oldAnimation.FrameCount; j++)
                     {
-                        Frame oldFrame = _oldAnimation[j];
+                        IFrame oldFrame = _oldAnimation[j];
 
                         if (newFrame.ID == oldFrame.ID)
                         {
@@ -1832,14 +1832,14 @@ namespace Pixelaria.Views.ModelViews
                 undoList.Clear();
                 for (int i = 0; i < _oldAnimationFrames.Count; i++)
                 {
-                    Frame oldFrame = _oldAnimationFrames[i];
+                    IFrame oldFrame = _oldAnimationFrames[i];
                     bool found = false;
 
                     int j;
 
                     for (j = 0; j < _animation.FrameCount; j++)
                     {
-                        Frame newFrame = _animation[j];
+                        IFrame newFrame = _animation[j];
 
                         if (oldFrame.ID == newFrame.ID)
                         {
@@ -1864,8 +1864,8 @@ namespace Pixelaria.Views.ModelViews
                 // 3.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
                 for (int i = 0; i < _animation.FrameCount; i++)
                 {
-                    Frame newFrame = _animation[i];
-                    Frame oldFrame = null;
+                    IFrame newFrame = _animation[i];
+                    IFrame oldFrame = null;
                     bool found = false;
 
                     for (int j = 0; j < _oldAnimation.FrameCount; j++)
@@ -1881,8 +1881,8 @@ namespace Pixelaria.Views.ModelViews
 
                     if (found)
                     {
-                        FrameEditUndoTask undoTask = new FrameEditUndoTask(newFrame, oldFrame.GetComposedBitmap());
-                        undoTask.RecordChanges(newFrame.GetComposedBitmap());
+                        FrameEditUndoTask undoTask = new FrameEditUndoTask(newFrame, oldFrame);
+                        undoTask.RecordChanges(newFrame);
 
                         _compoundTask.AddTask(undoTask);
                     }
@@ -1893,7 +1893,7 @@ namespace Pixelaria.Views.ModelViews
                 List<int> framesFound = new List<int>();
                 for (int i = 0; i < unmodified.Count; i++)
                 {
-                    Frame newFrame = unmodified[i];
+                    IFrame newFrame = unmodified[i];
                     bool found = false;
 
                     int j;
@@ -1928,11 +1928,13 @@ namespace Pixelaria.Views.ModelViews
                 {
                     GroupUndoTask wrapTask = new GroupUndoTask(null, _compoundTask.GetDescription());
 
-                    AnimationResizeSettings settings = new AnimationResizeSettings();
-                    settings.NewWidth = _animation.Width;
-                    settings.NewHeight = _animation.Height;
-                    settings.InterpolationMode = InterpolationMode.Low;
-                    settings.PerFrameScalingMethod = PerFrameScalingMethod.Zoom;
+                    AnimationResizeSettings settings = new AnimationResizeSettings
+                    {
+                        NewWidth = _animation.Width,
+                        NewHeight = _animation.Height,
+                        InterpolationMode = InterpolationMode.Low,
+                        PerFrameScalingMethod = PerFrameScalingMethod.Zoom
+                    };
 
                     AnimationResizeUndoTask undoTask = new AnimationResizeUndoTask(_animation, new Size(_oldAnimation.Width, _oldAnimation.Height), settings);
                     wrapTask.AddTask(_compoundTask);

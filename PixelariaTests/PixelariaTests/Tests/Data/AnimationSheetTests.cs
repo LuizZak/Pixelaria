@@ -42,12 +42,17 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreEqual(sheet1, sheet2, "Animation sheets copied with the Clone() method must be equal");
 
             // Modify one of the sheet's properties
-            sheet2.Animations[0].Frames[0].SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+            var frame = sheet2.Animations[0].Frames[0] as Frame;
+            if (frame != null)
+                frame.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's animation's frame, it must no longer be considered equal to the original");
 
-            // Modify the export params struct
-            sheet2.Animations[0].Frames[0].SetFrameBitmap(sheet1.Animations[0].Frames[0].GetComposedBitmap());
+            // Modify one of the sheet's properties
+            frame = sheet2.Animations[0].Frames[0] as Frame;
+            if (frame != null)
+                frame.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+
             sheet2.ExportSettings = new AnimationExportSettings {ExportXml = !sheet1.ExportSettings.ExportXml};
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's export settings, it must no longer be considered equal to the original");

@@ -37,7 +37,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
     public class FrameTests
     {
         [TestMethod]
-        public void TestframeClone()
+        public void TestFrameClone()
         {
             Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 64, 0);
             Frame frame2 = frame1.Clone();
@@ -119,6 +119,22 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             Assert.AreEqual(frame1.Index, anim1.GetFrameIndex(frame1), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
             Assert.AreEqual(frame2.Index, anim1.GetFrameIndex(frame2), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Tring to perform any action on an uninitialized frame other than a call to Initialize should raise an InvalidOperationException")]
+        public void TestFrameUninitializedException()
+        {
+            Frame frame = new Frame();
+            frame.GetComposedBitmap();
+        }
+
+        [TestMethod]
+        public void TestFrameInitialize()
+        {
+            Frame frame = new Frame();
+            frame.Initialize(null, 64, 64);
+            frame.GetComposedBitmap();
         }
     }
 }

@@ -84,13 +84,16 @@ namespace Pixelaria.Views.ModelViews
 
                 for (int i = range.X - 1; i < range.X + range.Y; i++)
                 {
-                    Frame frame = _animation[i];
+                    Frame frame = _animation[i] as Frame;
 
-                    foreach (FilterContainer container in fs_filters.FilterContainers)
+                    if(frame != null)
                     {
-                        Bitmap bitmap = frame.GetComposedBitmap();
-                        container.ApplyFilter(bitmap);
-                        frame.SetFrameBitmap(bitmap);
+                        foreach (FilterContainer container in fs_filters.FilterContainers)
+                        {
+                            Bitmap bitmap = frame.GetComposedBitmap();
+                            container.ApplyFilter(bitmap);
+                            frame.SetFrameBitmap(bitmap);
+                        }
                     }
                 }
             }

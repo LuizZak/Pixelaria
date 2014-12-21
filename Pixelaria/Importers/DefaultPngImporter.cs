@@ -63,13 +63,17 @@ namespace Pixelaria.Importers
             {
                 // Create the frame
                 Frame frame = animation.CreateFrame(settings.FlipFrames ? 0 : -1);
-                Graphics graphics = Graphics.FromImage(frame.GetComposedBitmap());
+
+                Bitmap frameBitmap = new Bitmap(frameWidth, frameHeight);
+
+                Graphics graphics = Graphics.FromImage(frameBitmap);
 
                 graphics.DrawImage(sheet, new Rectangle(0, 0, frameWidth, frameHeight), rect, GraphicsUnit.Pixel);
 
                 graphics.Flush();
                 graphics.Dispose();
 
+                frame.SetFrameBitmap(frameBitmap);
                 frame.UpdateHash();
             }
 

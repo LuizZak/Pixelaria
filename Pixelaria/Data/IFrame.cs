@@ -62,6 +62,20 @@ namespace Pixelaria.Data
         byte[] Hash { get; }
 
         /// <summary>
+        /// Gets whether this frame has been initialized
+        /// </summary>
+        bool Initialized { get; }
+
+        /// <summary>
+        /// Initializes this frame with the given set of properties
+        /// </summary>
+        /// <param name="animation">The Animation that will own this frame</param>
+        /// <param name="width">The width of the frame</param>
+        /// <param name="height">The height of the frame</param>
+        /// <param name="initHash">Whether to initialize the frame's hash now</param>
+        void Initialize(Animation animation, int width, int height, bool initHash = true);
+
+        /// <summary>
         /// Called when this Frame object is to be removed from an Animation.
         /// This method does not actually remove the frame from the animation, only
         /// removes the reference to the 

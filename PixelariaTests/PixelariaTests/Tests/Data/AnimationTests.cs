@@ -381,5 +381,15 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreEqual(16 * 16 * 10 * 4, anim1.CalculateMemoryUsageInBytes(), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 10.240 bytes");
             Assert.AreEqual(32 * 32 * 16 * 4, anim2.CalculateMemoryUsageInBytes(), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 65.536 bytes");
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException), "Tring to add an unitialized frame to an animation should raise an exception")]
+        public void TestAddFrameUninitializedException()
+        {
+            Animation anim = new Animation("TestAnim", 64, 64);
+            Frame frame = new Frame();
+            
+            anim.AddFrame(frame);
+        }
     }
 }

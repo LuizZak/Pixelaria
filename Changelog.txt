@@ -29,6 +29,9 @@ Legend:
   * Fixed drawing with a Replace blend mode with the pencil not undoing correctly sometimes.
   * Increased speed and decreased memory footprint of the bucket tool.
 
+. AnimationView
+  * Fixed crash related to insertion of frames.
+
 . AnimationSheetView
   . Fixed checkbox that should be hidden but wasn't.
 

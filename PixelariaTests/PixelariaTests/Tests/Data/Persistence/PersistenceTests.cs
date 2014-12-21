@@ -191,7 +191,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="frame">The frame to write to the stream</param>
         /// <param name="stream">The stream to write the frame to</param>
-        public static void WriteFrameToStream(Frame frame, Stream stream)
+        public static void WriteFrameToStream(IFrame frame, Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
