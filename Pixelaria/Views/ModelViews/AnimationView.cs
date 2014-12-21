@@ -182,6 +182,9 @@ namespace Pixelaria.Views.ModelViews
             else
                 tsm_reverseFrames.Text = @"Reverse Frames";
 
+            tsm_insertFrame.Enabled = tsb_insertFrame.Enabled = lv_frames.SelectedItems.Count != 0;
+            tsm_reverseFrames.Enabled = _viewAnimation.FrameCount > 1;
+
             RefreshClipboardControls();
             RefreshUndoControls();
         }
@@ -954,7 +957,7 @@ namespace Pixelaria.Views.ModelViews
 
                 FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
 
-                if (bit.Width != _viewAnimation.Width || bit.Height != _viewAnimation.Height)
+                if (bit.Size != _viewAnimation.Size)
                 {
                     FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
 
@@ -1029,7 +1032,49 @@ namespace Pixelaria.Views.ModelViews
             if (lv_frames.SelectedItems.Count != 1)
                 return;
 
+            IFrame selectedFrame = GetSelectedFrames()[0];
 
+            Image image = _controller.ShowLoadImage(owner: this);
+
+            try
+            {
+                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+
+                Bitmap tempBit = (Bitmap)image;
+                var bit = new Bitmap(tempBit);
+                tempBit.Dispose();
+
+                Frame newFrame = new Frame(null, bit.Width, bit.Height);
+                newFrame.SetFrameBitmap(bit);
+                newFrame.ID = selectedFrame.ID;
+
+                if (bit.Size != _viewAnimation.Size)
+                {
+                    FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
+
+                    if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        var sizeMatching = sizeMatchingForm.GeneratedSettings;
+                        _viewAnimation.AddFrames(new[] { newFrame }, sizeMatching, selectedFrame.Index);
+                        _viewAnimation.RemoveFrame(selectedFrame);
+                    }
+                    else
+                    {
+                        undoTask.Clear();
+                        return;
+                    }
+                }
+
+                undoTask.RecordChanges();
+                _undoSystem.RegisterUndo(undoTask);
+
+                MarkModified();
+                RefreshView();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(@"There was an error loading the selected image:\n" + e, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         #endregion
@@ -1481,7 +1526,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void lv_frames_SelectedIndexChanged(object sender, EventArgs e)
         {
-           // Refreshes the toolbar where the Copy/Cut/Paste buttons are located
+            // Refreshes the toolbar where the Copy/Cut/Paste buttons are located
             RefreshButtons();
         }
 
@@ -1749,9 +1794,9 @@ namespace Pixelaria.Views.ModelViews
                     diffRedoTask.AddTask(undoTask);
                     diffRedoTask.AddTask(compoundTask);
 
-                    DifferentiatedUndoTask diffTask = new DifferentiatedUndoTask(diffUndoTask, diffRedoTask, _compoundTask.GetDescription());
+                    //DifferentiatedUndoTask diffTask = new DifferentiatedUndoTask(diffUndoTask, diffRedoTask, _compoundTask.GetDescription());
 
-                    _compoundTask = diffTask;
+                    //_compoundTask = diffTask;
 
                     //wrapTask.AddTask(_compoundTask);
                     //wrapTask.AddTask(undoTask);
@@ -1770,7 +1815,8 @@ namespace Pixelaria.Views.ModelViews
                     _oldAnimation.Dispose();
                 }
 
-                _compoundTask.Clear();
+                if (_compoundTask != null)
+                    _compoundTask.Clear();
             }
 
             /// <summary>
@@ -2063,6 +2109,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <summary>
                 /// Initializes a new instance of a FrameEditUndoTask class
                 /// </summary>
+                /// <param name="animation">The animation that holds the frame</param>
                 /// <param name="frame">The frame to record the changes made to</param>
                 /// <param name="oldFrame">An (optional) starting value for the old frame</param>
                 public FrameEditUndoTask(Animation animation, IFrame frame, IFrame oldFrame = null)
