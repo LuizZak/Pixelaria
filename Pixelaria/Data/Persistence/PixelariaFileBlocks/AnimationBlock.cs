@@ -187,7 +187,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="frame">The frame to write to the stream</param>
         /// <param name="stream">The stream to write the frame to</param>
-        protected void SaveFrameToStream(Frame frame, Stream stream)
+        protected void SaveFrameToStream(IFrame frame, Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
 

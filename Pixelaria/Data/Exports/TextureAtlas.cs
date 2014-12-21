@@ -42,7 +42,7 @@ namespace Pixelaria.Data.Exports
         public TextureAtlas(AnimationExportSettings settings, string name = "")
         {
             _animationList = new List<Animation>();
-            _frameList = new List<Frame>();
+            _frameList = new List<IFrame>();
             _boundsList = new List<Rectangle>();
             _originsList = new List<Rectangle>();
             _reuseCount = new List<int>();
@@ -68,7 +68,7 @@ namespace Pixelaria.Data.Exports
         /// Inserts a frame into this TextureAtlas
         /// </summary>
         /// <param name="frame">The frame to pack</param>
-        public void InsertFrame(Frame frame)
+        public void InsertFrame(IFrame frame)
         {
             if (_frameList.ContainsReference(frame))
             {
@@ -113,10 +113,10 @@ namespace Pixelaria.Data.Exports
             // 2. Draw the frames on the sheet image
             //
             // Keep track of frames that were already drawn
-            List<Frame> renderedFrames = new List<Frame>();
+            List<IFrame> renderedFrames = new List<IFrame>();
             for (int i = 0; i < FrameCount; i++)
             {
-                Frame frame = GetFrame(i);
+                IFrame frame = GetFrame(i);
 
                 if (_exportSettings.ReuseIdenticalFramesArea)
                 {
@@ -151,7 +151,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="frameIndex">The index for frame</param>
         /// <returns>The frame that relies on that index</returns>
-        public Frame GetFrame(int frameIndex)
+        public IFrame GetFrame(int frameIndex)
         {
             return _frameList[frameIndex];
         }
@@ -208,7 +208,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// List of frames to pack
         /// </summary>
-        private readonly List<Frame> _frameList;
+        private readonly List<IFrame> _frameList;
 
         /// <summary>
         /// List of frame bounds.
@@ -255,7 +255,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets the internal list of frames for this texture atlas
         /// </summary>
-        public List<Frame> FrameList { get { return _frameList; } }
+        public List<IFrame> FrameList { get { return _frameList; } }
 
         /// <summary>
         /// Gets the list of frame bounds.

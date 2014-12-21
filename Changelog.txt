@@ -29,6 +29,9 @@ Legend:
   * Fixed drawing with a Replace blend mode with the pencil not undoing correctly sometimes.
   * Increased speed and decreased memory footprint of the bucket tool.
 
+. AnimationSheetView
+  . Fixed checkbox that should be hidden but wasn't.
+
 . Now the main window title bar displays the path of the file currently open
 
 -- v1.14.2b

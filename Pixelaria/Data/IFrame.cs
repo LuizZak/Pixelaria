@@ -1,3 +1,25 @@
+/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -7,7 +29,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Interface to be implemented by any object that can be used as an animation frame
     /// </summary>
-    public interface IFrame : IDisposable, IDObject
+    public interface IFrame : IDisposable, IDObject, IEquatable<IFrame>
     {
         /// <summary>
         /// Gets the width of this frame
@@ -69,7 +91,7 @@ namespace Pixelaria.Data
         /// this frame is placed inside an Animation, an exception is thrown
         /// </summary>
         /// <param name="frame">The frame to copy</param>
-        void CopyFrom(Frame frame);
+        void CopyFrom(IFrame frame);
 
         /// <summary>
         /// Returns whether this Frame's contents match another frame's

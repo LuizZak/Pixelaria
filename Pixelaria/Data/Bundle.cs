@@ -542,7 +542,7 @@ namespace Pixelaria.Data
 
                 foreach (Animation anim in _animations)
                 {
-                    foreach (Frame frame in anim.Frames)
+                    foreach (IFrame frame in anim.Frames)
                     {
                         id = Math.Max(id, frame.ID + 1);
                     }

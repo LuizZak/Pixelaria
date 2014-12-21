@@ -171,7 +171,7 @@ namespace Pixelaria.Data.Exports
                 // Write down the frame bounds now
                 for (int i = 0; i < anim.FrameCount; i++)
                 {
-                    Frame frame = anim.GetFrameAtIndex(i);
+                    IFrame frame = anim.GetFrameAtIndex(i);
 
                     if (!ContainsFrame(frame))
                         continue;
@@ -210,7 +210,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="frame">The frame to search for</param>
         /// <returns>True whether the given frame is inside this BundleSheetExport, false otherwise</returns>
-        public bool ContainsFrame(Frame frame)
+        public bool ContainsFrame(IFrame frame)
         {
             // Returns true if any of the sequence's frames returns true to an expression
             return _frameRects.Any(frameRect => ReferenceEquals(frameRect.Frame, frame));
@@ -222,7 +222,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="frame">The Frame to get the corresponding FrameRect</param>
         /// <returns>The FrameRect object that represents the given Frame. If no FrameRect represents the given frame, null is returned.</returns>
-        public FrameRect GetFrameRectForFrame(Frame frame)
+        public FrameRect GetFrameRectForFrame(IFrame frame)
         {
             return _frameRects.FirstOrDefault(frameRect => ReferenceEquals(frameRect.Frame, frame));
         }
@@ -267,7 +267,7 @@ namespace Pixelaria.Data.Exports
             /// <summary>
             /// The Frame represented by this FrameRect
             /// </summary>
-            private readonly Frame _frame;
+            private readonly IFrame _frame;
 
             /// <summary>
             /// Represents the area the frame occupies inside the sheet
@@ -282,7 +282,7 @@ namespace Pixelaria.Data.Exports
             /// <summary>
             /// Gets the Frame represented by this FrameRect
             /// </summary>
-            public Frame Frame { get { return _frame; } }
+            public IFrame Frame { get { return _frame; } }
 
             /// <summary>
             /// Gets the area the frame occupies inside the sheet
@@ -300,7 +300,7 @@ namespace Pixelaria.Data.Exports
             /// <param name="frame">The frame to represent on this FrameRect</param>
             /// <param name="sheetArea">The area the frame occupies inside the sheet</param>
             /// <param name="frameArea">The area of the frame that is used on the sheet</param>
-            public FrameRect(Frame frame, Rectangle sheetArea, Rectangle frameArea)
+            public FrameRect(IFrame frame, Rectangle sheetArea, Rectangle frameArea)
             {
                 _frame = frame;
                 _sheetArea = sheetArea;

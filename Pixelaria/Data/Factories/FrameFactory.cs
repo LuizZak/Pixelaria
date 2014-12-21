@@ -65,7 +65,7 @@ namespace Pixelaria.Data.Factories
         /// Returns a clone copy of the given frame
         /// </summary>
         /// <returns>A clone copy of the given frame</returns>
-        public Frame CloneFrame(Frame frame)
+        public Frame CloneFrame(IFrame frame)
         {
             Frame newFrame = frame.Clone();
 
@@ -94,6 +94,6 @@ namespace Pixelaria.Data.Factories
         /// Returns a clone copy of the given frame
         /// </summary>
         /// <returns>A clone copy of the given frame</returns>
-        Frame CloneFrame(Frame frame);
+        Frame CloneFrame(IFrame frame);
     }
 }

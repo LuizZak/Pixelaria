@@ -184,21 +184,23 @@ namespace Pixelaria.Data
         /// this frame is placed inside an Animation, an exception is thrown
         /// </summary>
         /// <param name="frame">The frame to copy</param>
-        public void CopyFrom(Frame frame)
+        public void CopyFrom(IFrame frame)
         {
             if (ReferenceEquals(this, frame))
                 return;
 
-            if (_animation != null && frame._width != _animation.Width && frame._height != _animation.Height)
+            if (_animation != null && frame.Width != _animation.Width && frame.Height != _animation.Height)
             {
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
-            _width = frame._width;
-            _height = frame._height;
-            _frameTexture = frame._frameTexture.Clone(new Rectangle(0, 0, frame._frameTexture.Width, frame._frameTexture.Height), frame._frameTexture.PixelFormat);
+            Bitmap frameTexture = frame.GetComposedBitmap();
 
-            _hash = frame._hash;
+            _width = frame.Width;
+            _height = frame.Height;
+            _frameTexture = frameTexture.Clone(new Rectangle(0, 0, frameTexture.Width, frameTexture.Height), frameTexture.PixelFormat);
+
+            _hash = frame.Hash;
         }
 
         /// <summary>
@@ -222,6 +224,20 @@ namespace Pixelaria.Data
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Returns whether this Frame's contents match another frame's
+        /// </summary>
+        /// <param name="frame">The second frame to test</param>
+        /// <returns>Whether this frame's contents match another frame's</returns>
+        public bool Equals(IFrame frame)
+        {
+            var frameCasted = frame as Frame;
+            if (frameCasted != null)
+                return Equals(frameCasted);
+
+            return false;
         }
 
         /// <summary>

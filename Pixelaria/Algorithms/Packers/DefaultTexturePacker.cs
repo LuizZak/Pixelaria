@@ -50,7 +50,7 @@ namespace Pixelaria.Algorithms.Packers
             }
 
             // Cache some fields as locals
-            List<Frame> frameList = atlas.FrameList;
+            List<IFrame> frameList = atlas.FrameList;
 
             _progressHandler = handler;
             _frameComparision = new FrameComparision(atlas.ExportSettings.ForceMinimumDimensions);
@@ -173,7 +173,7 @@ namespace Pixelaria.Algorithms.Packers
         /// Calculates the information of the maximum sheet and frame size from a set of frames
         /// </summary>
         /// <param name="frameList">The list of frames to iterate over to calculate the maximum sheet and frame size</param>
-        private void CalculateMaximumSizes(List<Frame> frameList)
+        private void CalculateMaximumSizes(List<IFrame> frameList)
         {
             _maxWidthReal = 0;
 
@@ -182,7 +182,7 @@ namespace Pixelaria.Algorithms.Packers
 
             _minFrameWidth = int.MaxValue;
 
-            foreach (Frame frame in frameList)
+            foreach (IFrame frame in frameList)
             {
                 int frameWidth = frame.Width;
                 int frameHeight = frame.Height;
@@ -221,7 +221,7 @@ namespace Pixelaria.Algorithms.Packers
         {
             // Cache some fields as locals
             AnimationExportSettings exportSettings = atlas.ExportSettings;
-            List<Frame> frameList = atlas.FrameList;
+            List<IFrame> frameList = atlas.FrameList;
             List<Rectangle> originsList = atlas.OriginsList;
             List<Rectangle> boundsList = atlas.BoundsList;
 
@@ -232,14 +232,14 @@ namespace Pixelaria.Algorithms.Packers
 
             for (int i = 0; i < frameList.Count; i++)
             {
-                Frame frame = frameList[i];
+                IFrame frame = frameList[i];
 
                 ////
                 //// 1. Identical frame matching
                 ////
                 if (exportSettings.ReuseIdenticalFramesArea)
                 {
-                    Frame original = _frameComparision.GetOriginalSimilarFrame(frame);
+                    IFrame original = _frameComparision.GetOriginalSimilarFrame(frame);
 
                     if (original != null)
                     {
@@ -331,7 +331,7 @@ namespace Pixelaria.Algorithms.Packers
 
             var simMatrix = _frameComparision.SimilarMatrixIndexDictionary;
 
-            foreach (Frame frame in frameList)
+            foreach (IFrame frame in frameList)
             {
                 if (exportSettings.ReuseIdenticalFramesArea && registerReused)
                 {
@@ -356,7 +356,7 @@ namespace Pixelaria.Algorithms.Packers
         /// From a list of frames, marks all the identical frames on the instance frame comparision object
         /// </summary>
         /// <param name="frameList">The list of frames to identify the identical copies</param>
-        private void MarkIdenticalFramesFromList(List<Frame> frameList)
+        private void MarkIdenticalFramesFromList(List<IFrame> frameList)
         {
             for (int i = 0; i < frameList.Count; i++)
             {
@@ -409,32 +409,32 @@ namespace Pixelaria.Algorithms.Packers
         /// <summary>
         /// Default IComparer used to sort and store information about frames
         /// </summary>
-        public class FrameComparision : IComparer<Frame>
+        public class FrameComparision : IComparer<IFrame>
         {
             /// <summary>
             /// Dictionary of internal compare fragments
             /// </summary>
-            readonly Dictionary<Frame, CompareFrag> _fragDictionary;
+            readonly Dictionary<IFrame, CompareFrag> _fragDictionary;
 
             /// <summary>
             /// Matrix of similar frames stored in a multi-dimensional list
             /// </summary>
-            private readonly List<List<Frame>> _similarFramesMatrix;
+            private readonly List<List<IFrame>> _similarFramesMatrix;
 
             /// <summary>
             /// Dictionary of indexes assigned to similar frames used to store the index of the corresponding frame in the similarMatrix field
             /// </summary>
-            private readonly Dictionary<Frame, int> _similarMatrixIndexDictionary;
+            private readonly Dictionary<IFrame, int> _similarMatrixIndexDictionary;
 
             /// <summary>
             /// Gets the matrix of similar frames stored in a multi-dimensional list
             /// </summary>
-            public List<List<Frame>> SimilarFramesMatrix { get { return _similarFramesMatrix; } }
+            public List<List<IFrame>> SimilarFramesMatrix { get { return _similarFramesMatrix; } }
 
             /// <summary>
             /// Gets the ictionary of indexes assigned to similar frames used to store the index of the corresponding frame in the similarMatrix field
             /// </summary>
-            public Dictionary<Frame, int> SimilarMatrixIndexDictionary { get { return _similarMatrixIndexDictionary; } }
+            public Dictionary<IFrame, int> SimilarMatrixIndexDictionary { get { return _similarMatrixIndexDictionary; } }
 
             /// <summary>
             /// Whether to compute the minimum areas of the frames before comparing them
@@ -457,9 +457,9 @@ namespace Pixelaria.Algorithms.Packers
             /// <param name="useMinimumTextureArea">Whether to compute the minimum areas of the frames before comparing them</param>
             public FrameComparision(bool useMinimumTextureArea)
             {
-                _fragDictionary = new Dictionary<Frame, CompareFrag>();
-                _similarFramesMatrix = new List<List<Frame>>();
-                _similarMatrixIndexDictionary = new Dictionary<Frame, int>();
+                _fragDictionary = new Dictionary<IFrame, CompareFrag>();
+                _similarFramesMatrix = new List<List<IFrame>>();
+                _similarMatrixIndexDictionary = new Dictionary<IFrame, int>();
 
                 _useMinimumTextureArea = useMinimumTextureArea;
             }
@@ -494,7 +494,7 @@ namespace Pixelaria.Algorithms.Packers
             //     Less than zero       x is less than y.
             //     Zero                 x equals y.
             //     Greater than zero    x is greater than y.
-            public int Compare(Frame x, Frame y)
+            public int Compare(IFrame x, IFrame y)
             {
                 // Get the frame areas
                 Rectangle minFrameX = GetFrameArea(x);
@@ -511,7 +511,7 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             /// <param name="frame">The Frame object to get the area of</param>
             /// <returns>A Rectangle representing the Frame's area</returns>
-            public Rectangle GetFrameArea(Frame frame)
+            public Rectangle GetFrameArea(IFrame frame)
             {
                 // Try to find the already-computed frame area first
                 CompareFrag frag;
@@ -538,13 +538,13 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             /// <param name="frame1">The first frame to register</param>
             /// <param name="frame2">The second frame to register</param>
-            public void RegisterSimilarFrames(Frame frame1, Frame frame2)
+            public void RegisterSimilarFrames(IFrame frame1, IFrame frame2)
             {
                 // Check existence of either frames in the matrix index dictionary
                 int index;
                 if (!_similarMatrixIndexDictionary.TryGetValue(frame1, out index) && !_similarMatrixIndexDictionary.TryGetValue(frame2, out index))
                 {
-                    _similarFramesMatrix.Add(new List<Frame>());
+                    _similarFramesMatrix.Add(new List<IFrame>());
                     index = _similarFramesMatrix.Count - 1;
                 }
 
@@ -564,7 +564,7 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             /// <param name="frame">The frame to seek the original similar frame from</param>
             /// <returns>The first frame inserted that is similar to the given frame. If the given frame is the original similar frame, null is returned. If no similar frames were stored, null is returned.</returns>
-            public Frame GetOriginalSimilarFrame(Frame frame)
+            public IFrame GetOriginalSimilarFrame(IFrame frame)
             {
                 int index;
                 if (_similarMatrixIndexDictionary.TryGetValue(frame, out index))

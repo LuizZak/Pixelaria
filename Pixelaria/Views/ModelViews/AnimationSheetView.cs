@@ -102,6 +102,7 @@ namespace Pixelaria.Views.ModelViews
 
                 lbl_zoomLevel.Visible = false;
                 cb_showFrameBounds.Visible = false;
+                cb_showReuseCount.Visible = false;
                 btn_apply.Enabled = false;
 
                 Text = AnimationMessages.TextNewAnimationSheet;
