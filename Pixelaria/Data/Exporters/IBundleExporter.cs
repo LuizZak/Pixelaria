@@ -21,11 +21,9 @@
 */
 
 using System.Drawing;
-
-using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
-namespace Pixelaria.Controllers.Exporters
+namespace Pixelaria.Data.Exporters
 {
     /// <summary>
     /// Defines the behavior that must be implemented by exporters in the program

@@ -24,8 +24,8 @@ using System;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
+using Pixelaria.Data.Exporters;
 using Pixelaria.Data.Exports;
-using Pixelaria.Controllers.Exporters;
 
 namespace Pixelaria.Views.MiscViews
 {

@@ -28,7 +28,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Data.Exports;
-using Pixelaria.Importers;
+using Pixelaria.Data.Importers;
 
 namespace Pixelaria.Views.Controls
 {

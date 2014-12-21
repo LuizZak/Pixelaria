@@ -22,9 +22,7 @@
 
 using System.Drawing;
 
-using Pixelaria.Data;
-
-namespace Pixelaria.Importers
+namespace Pixelaria.Data.Importers
 {
     /// <summary>
     /// Defines a default importer behavior that must be implemented by importers in the program

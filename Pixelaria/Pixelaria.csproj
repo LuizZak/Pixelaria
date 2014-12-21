@@ -150,8 +150,8 @@
     <Compile Include="Data\Validators\DefaultValidator.cs" />
     <Compile Include="Data\Validators\IAnimationSheetValidator.cs" />
     <Compile Include="Data\Validators\IAnimationValidator.cs" />
-    <Compile Include="Controllers\Exporters\DefaultPngExporter.cs" />
-    <Compile Include="Controllers\Exporters\IBundleExporter.cs" />
+    <Compile Include="Data\Exporters\DefaultPngExporter.cs" />
+    <Compile Include="Data\Exporters\IBundleExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
     <Compile Include="Filters\HSLFilter.cs" />
@@ -161,8 +161,8 @@
     <Compile Include="Filters\ScaleFilter.cs" />
     <Compile Include="Filters\StrokeFilter.cs" />
     <Compile Include="Filters\TransparencyFilter.cs" />
-    <Compile Include="Importers\DefaultPngImporter.cs" />
-    <Compile Include="Importers\IDefaultImporter.cs" />
+    <Compile Include="Data\Importers\DefaultPngImporter.cs" />
+    <Compile Include="Data\Importers\IDefaultImporter.cs" />
     <Compile Include="Localization\AnimationMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

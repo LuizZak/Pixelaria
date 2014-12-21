@@ -26,16 +26,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Xml;
-
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
-
-using Pixelaria.Data;
 using Pixelaria.Data.Exports;
-
 using Pixelaria.Utils;
 
-namespace Pixelaria.Controllers.Exporters
+namespace Pixelaria.Data.Exporters
 {
     /// <summary>
     /// Default exporter that uses PNG as the texture format

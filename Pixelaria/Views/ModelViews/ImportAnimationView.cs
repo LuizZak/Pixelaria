@@ -27,7 +27,7 @@ using System.Windows.Forms;
 
 using Pixelaria.Controllers;
 using Pixelaria.Data;
-using Pixelaria.Importers;
+using Pixelaria.Data.Importers;
 
 namespace Pixelaria.Views.ModelViews
 {
