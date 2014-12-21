@@ -93,6 +93,10 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_copy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_cut = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_paste = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsm_delete = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_saveSelected = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_replaceFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.framesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_insertFrame = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_addNewFrame = new System.Windows.Forms.ToolStripMenuItem();
@@ -115,6 +119,13 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssl_memory = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.cms_frameRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmb_deleteFrames = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_saveSelected = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_replaceFromImage = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.cmb_copyFrames = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_cutFrames = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -127,6 +138,7 @@ namespace Pixelaria.Views.ModelViews
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.cms_frameRightClick.SuspendLayout();
             this.SuspendLayout();
             // 
             // il_framesThumbs
@@ -226,6 +238,7 @@ namespace Pixelaria.Views.ModelViews
             this.lv_frames.SelectedIndexChanged += new System.EventHandler(this.lv_frames_SelectedIndexChanged);
             this.lv_frames.DoubleClick += new System.EventHandler(this.lv_frames_DoubleClick);
             this.lv_frames.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lv_frames_KeyDown);
+            this.lv_frames.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lv_frames_MouseClick);
             // 
             // panel3
             // 
@@ -484,7 +497,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_addFrameFromFile.Image = global::Pixelaria.Properties.Resources.frame_open_icon;
             this.tsm_addFrameFromFile.Name = "tsm_addFrameFromFile";
             this.tsm_addFrameFromFile.Size = new System.Drawing.Size(187, 22);
-            this.tsm_addFrameFromFile.Text = "&Add frame form file...";
+            this.tsm_addFrameFromFile.Text = "&Add frame from file...";
             this.tsm_addFrameFromFile.Click += new System.EventHandler(this.tsm_addFrameFromFile_Click);
             // 
             // editToolStripMenuItem
@@ -495,7 +508,11 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripMenuItem1,
             this.tsm_copy,
             this.tsm_cut,
-            this.tsm_paste});
+            this.tsm_paste,
+            this.toolStripMenuItem5,
+            this.tsm_delete,
+            this.tsm_saveSelected,
+            this.tsm_replaceFromFile});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -505,7 +522,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_undo.Image = global::Pixelaria.Properties.Resources.edit_undo;
             this.tsm_undo.Name = "tsm_undo";
             this.tsm_undo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.tsm_undo.Size = new System.Drawing.Size(152, 22);
+            this.tsm_undo.Size = new System.Drawing.Size(172, 22);
             this.tsm_undo.Text = "Undo";
             this.tsm_undo.Click += new System.EventHandler(this.tsm_undo_Click);
             // 
@@ -514,21 +531,21 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_redo.Image = global::Pixelaria.Properties.Resources.edit_redo;
             this.tsm_redo.Name = "tsm_redo";
             this.tsm_redo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-            this.tsm_redo.Size = new System.Drawing.Size(152, 22);
+            this.tsm_redo.Size = new System.Drawing.Size(172, 22);
             this.tsm_redo.Text = "Redo";
             this.tsm_redo.Click += new System.EventHandler(this.tsm_redo_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(169, 6);
             // 
             // tsm_copy
             // 
             this.tsm_copy.Image = global::Pixelaria.Properties.Resources.edit_copy;
             this.tsm_copy.Name = "tsm_copy";
             this.tsm_copy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.tsm_copy.Size = new System.Drawing.Size(152, 22);
+            this.tsm_copy.Size = new System.Drawing.Size(172, 22);
             this.tsm_copy.Text = "Copy";
             this.tsm_copy.Click += new System.EventHandler(this.tsm_copy_Click);
             // 
@@ -537,7 +554,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_cut.Image = global::Pixelaria.Properties.Resources.edit_cut;
             this.tsm_cut.Name = "tsm_cut";
             this.tsm_cut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.tsm_cut.Size = new System.Drawing.Size(152, 22);
+            this.tsm_cut.Size = new System.Drawing.Size(172, 22);
             this.tsm_cut.Text = "Cut";
             this.tsm_cut.Click += new System.EventHandler(this.tsm_cut_Click);
             // 
@@ -546,9 +563,38 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_paste.Image = global::Pixelaria.Properties.Resources.edit_paste;
             this.tsm_paste.Name = "tsm_paste";
             this.tsm_paste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.tsm_paste.Size = new System.Drawing.Size(152, 22);
+            this.tsm_paste.Size = new System.Drawing.Size(172, 22);
             this.tsm_paste.Text = "Paste";
             this.tsm_paste.Click += new System.EventHandler(this.tsm_paste_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(169, 6);
+            // 
+            // tsm_delete
+            // 
+            this.tsm_delete.Image = global::Pixelaria.Properties.Resources.action_delete;
+            this.tsm_delete.Name = "tsm_delete";
+            this.tsm_delete.Size = new System.Drawing.Size(172, 22);
+            this.tsm_delete.Text = "Delete";
+            this.tsm_delete.Click += new System.EventHandler(this.tsm_delete_Click);
+            // 
+            // tsm_saveSelected
+            // 
+            this.tsm_saveSelected.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
+            this.tsm_saveSelected.Name = "tsm_saveSelected";
+            this.tsm_saveSelected.Size = new System.Drawing.Size(172, 22);
+            this.tsm_saveSelected.Text = "Save selected...";
+            this.tsm_saveSelected.Click += new System.EventHandler(this.tsm_saveSelected_Click);
+            // 
+            // tsm_replaceFromFile
+            // 
+            this.tsm_replaceFromFile.Image = global::Pixelaria.Properties.Resources.frame_open_icon;
+            this.tsm_replaceFromFile.Name = "tsm_replaceFromFile";
+            this.tsm_replaceFromFile.Size = new System.Drawing.Size(172, 22);
+            this.tsm_replaceFromFile.Text = "Replace from file...";
+            this.tsm_replaceFromFile.Click += new System.EventHandler(this.tsm_replaceFromFile_Click);
             // 
             // framesToolStripMenuItem
             // 
@@ -620,7 +666,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
             this.tsm_emptyFilter.Text = "Empty";
             this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
@@ -628,13 +674,13 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
             this.tsm_filterPresets.Text = "Presets";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
             // 
             // statusStrip1
             // 
@@ -723,6 +769,63 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
             this.toolStripStatusLabel6.Size = new System.Drawing.Size(10, 20);
             // 
+            // cms_frameRightClick
+            // 
+            this.cms_frameRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmb_deleteFrames,
+            this.cmb_saveSelected,
+            this.cmb_replaceFromImage,
+            this.toolStripMenuItem3,
+            this.cmb_copyFrames,
+            this.cmb_cutFrames});
+            this.cms_frameRightClick.Name = "contextMenuStrip1";
+            this.cms_frameRightClick.Size = new System.Drawing.Size(190, 120);
+            // 
+            // cmb_deleteFrames
+            // 
+            this.cmb_deleteFrames.Image = global::Pixelaria.Properties.Resources.action_delete;
+            this.cmb_deleteFrames.Name = "cmb_deleteFrames";
+            this.cmb_deleteFrames.Size = new System.Drawing.Size(189, 22);
+            this.cmb_deleteFrames.Text = "Delete selected";
+            this.cmb_deleteFrames.Click += new System.EventHandler(this.cmb_deleteFrames_Click);
+            // 
+            // cmb_saveSelected
+            // 
+            this.cmb_saveSelected.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
+            this.cmb_saveSelected.Name = "cmb_saveSelected";
+            this.cmb_saveSelected.Size = new System.Drawing.Size(189, 22);
+            this.cmb_saveSelected.Text = "Save selected...";
+            this.cmb_saveSelected.Click += new System.EventHandler(this.cmb_saveSelected_Click);
+            // 
+            // cmb_replaceFromImage
+            // 
+            this.cmb_replaceFromImage.Image = global::Pixelaria.Properties.Resources.frame_open_icon;
+            this.cmb_replaceFromImage.Name = "cmb_replaceFromImage";
+            this.cmb_replaceFromImage.Size = new System.Drawing.Size(189, 22);
+            this.cmb_replaceFromImage.Text = "Replace from image...";
+            this.cmb_replaceFromImage.Click += new System.EventHandler(this.cmb_replaceFromImage_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(186, 6);
+            // 
+            // cmb_copyFrames
+            // 
+            this.cmb_copyFrames.Image = global::Pixelaria.Properties.Resources.edit_copy;
+            this.cmb_copyFrames.Name = "cmb_copyFrames";
+            this.cmb_copyFrames.Size = new System.Drawing.Size(189, 22);
+            this.cmb_copyFrames.Text = "Copy";
+            this.cmb_copyFrames.Click += new System.EventHandler(this.cmb_copyFrames_Click);
+            // 
+            // cmb_cutFrames
+            // 
+            this.cmb_cutFrames.Image = global::Pixelaria.Properties.Resources.edit_cut;
+            this.cmb_cutFrames.Name = "cmb_cutFrames";
+            this.cmb_cutFrames.Size = new System.Drawing.Size(189, 22);
+            this.cmb_cutFrames.Text = "Cut";
+            this.cmb_cutFrames.Click += new System.EventHandler(this.cmb_cutFrames_Click);
+            // 
             // AnimationView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -759,6 +862,7 @@ namespace Pixelaria.Views.ModelViews
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.cms_frameRightClick.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -818,7 +922,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripButton tsb_undo;
         private System.Windows.Forms.ToolStripButton tsb_redo;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem tsm_undo;
         private System.Windows.Forms.ToolStripMenuItem tsm_redo;
         private System.Windows.Forms.ToolStripMenuItem tsm_filters;
@@ -829,5 +932,17 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_selectAll;
         private System.Windows.Forms.ToolStripMenuItem animationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tsm_reverseFrames;
+        private System.Windows.Forms.ContextMenuStrip cms_frameRightClick;
+        private System.Windows.Forms.ToolStripMenuItem cmb_deleteFrames;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem cmb_copyFrames;
+        private System.Windows.Forms.ToolStripMenuItem cmb_cutFrames;
+        private System.Windows.Forms.ToolStripMenuItem cmb_saveSelected;
+        private System.Windows.Forms.ToolStripMenuItem cmb_replaceFromImage;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem tsm_delete;
+        private System.Windows.Forms.ToolStripMenuItem tsm_saveSelected;
+        private System.Windows.Forms.ToolStripMenuItem tsm_replaceFromFile;
     }
 }

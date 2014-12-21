@@ -401,9 +401,19 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="frame">The frame object to get the respective list view item representation</param>
         /// <returns>A ListViewItem object that is currently representing the given Frame object</returns>
-        private ListViewItem GetListViewItemForFrame(Frame frame)
+        private ListViewItem GetListViewItemForFrame(IFrame frame)
         {
             return lv_frames.Items.Cast<ListViewItem>().FirstOrDefault(item => ReferenceEquals(item.Tag, frame));
+        }
+
+        /// <summary>
+        /// Returns a list of all currently selected frames on this AnimationView
+        /// </summary>
+        /// <returns>The list of selected frames</returns>
+        private List<IFrame> GetSelectedFrames()
+        {
+            // For each index in the selected indices, get the tags, and filter the result to types of IFrame
+            return (from int index in lv_frames.SelectedIndices select lv_frames.Items[index].Tag).OfType<IFrame>().ToList();
         }
 
         /// <summary>
@@ -521,6 +531,20 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
+        /// <summary>
+        /// Shows the context menu for the currently selected frames
+        /// </summary>
+        private void ShowFramesContextMenu()
+        {
+            // Determine visibility of the items
+            if (lv_frames.SelectedItems.Count == 0)
+                return;
+
+            cmb_replaceFromImage.Enabled = lv_frames.SelectedItems.Count == 1;
+
+            cms_frameRightClick.Show(MousePosition);
+        }
+
         #endregion
 
         #region Animation Related Methods
@@ -602,24 +626,23 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void DeleteSelectedFrames()
         {
-            if (lv_frames.SelectedItems.Count > 0)
+            if (lv_frames.SelectedItems.Count <= 0)
+                return;
+
+            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+
+            // Delete selected frames
+            foreach (IFrame frame in GetSelectedFrames())
             {
-                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Delete, "Frames Deleted");
-
-                // Delete selected frames
-                foreach (ListViewItem item in lv_frames.SelectedItems)
-                {
-                    undoTask.RegisterFrame(item.Tag as Frame);
-
-                    _viewAnimation.RemoveFrame(item.Tag as Frame);
-                }
-
-                _undoSystem.RegisterUndo(undoTask);
-
-                MarkModified();
-
-                RefreshView();
+                _viewAnimation.RemoveFrame(frame);
             }
+
+            undoTask.RecordChanges();
+            _undoSystem.RegisterUndo(undoTask);
+
+            MarkModified();
+
+            RefreshView();
         }
 
         /// <summary>
@@ -632,23 +655,23 @@ namespace Pixelaria.Views.ModelViews
 
             int cnt = 0;
 
-            foreach (ListViewItem item in lv_frames.SelectedItems)
+            foreach (IFrame frame in GetSelectedFrames())
             {
-                Frame frame = ((Frame)item.Tag).Clone();
+                IFrame clonedFrame = frame.Clone();
 
                 if (cnt == 0)
                 {
                     // Copy the frame to the clipboard too
                     MemoryStream stream = new MemoryStream();
 
-                    frame.GetComposedBitmap().Save(stream, ImageFormat.Png);
+                    clonedFrame.GetComposedBitmap().Save(stream, ImageFormat.Png);
                     stream.Position = 0;
 
-                    System.Windows.Forms.Clipboard.SetImage(frame.GetComposedBitmap());
+                    System.Windows.Forms.Clipboard.SetImage(clonedFrame.GetComposedBitmap());
                     System.Windows.Forms.Clipboard.SetData("PNG", stream);
                 }
 
-                frameListClip.AddFrame(frame);
+                frameListClip.AddFrame(clonedFrame);
 
                 cnt++;
             }
@@ -732,30 +755,26 @@ namespace Pixelaria.Views.ModelViews
                 if (index == -1)
                     index = lv_frames.Items.Count;
 
-                var undoAddIndex = index;
-
-                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Add, "Frames Pasted");
+                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 // Maintain a copy of the list of added frames so the control can select them after
-                List<Frame> copiedFrames = new List<Frame>();
-                foreach (Frame frame in frameListClip.Frames)
+                List<IFrame> copiedFrames = new List<IFrame>();
+                foreach (IFrame frame in frameListClip.Frames)
                 {
                     Frame newFrame = _controller.FrameFactory.CloneFrame(frame);
                     copiedFrames.Add(newFrame);
-
-                    undoTask.RegisterFrame(newFrame, undoAddIndex++);
                 }
 
                 _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
-                MarkModified();
-
+                undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
 
+                MarkModified();
                 RefreshView();
 
                 // Select the newly added frames
-                foreach (Frame frame in copiedFrames)
+                foreach (IFrame frame in copiedFrames)
                 {
                     GetListViewItemForFrame(frame).Selected = true;
                 }
@@ -800,7 +819,7 @@ namespace Pixelaria.Views.ModelViews
 
                 List<Frame> copiedFrames = new List<Frame> { frame };
 
-                FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Add, "Frames Pasted");
+                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 for (int i = 0; i < lv_frames.SelectedIndices.Count; i++)
                 {
@@ -810,14 +829,12 @@ namespace Pixelaria.Views.ModelViews
                 if (index == -1)
                     index = lv_frames.Items.Count;
 
-                undoTask.RegisterFrame(copiedFrames[0], index);
-
                 _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
-                MarkModified();
-
+                undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
 
+                MarkModified();
                 RefreshView();
 
                 // Select the newly added frames
@@ -846,10 +863,10 @@ namespace Pixelaria.Views.ModelViews
                 index = -1;
             }
 
-            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Add, "Frame Inserted");
+            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
-            undoTask.RegisterFrame(_viewAnimation.CreateFrame(index), index <= -1 ? _viewAnimation.FrameCount - 1 : index);
-
+            _viewAnimation.CreateFrame(index);
+            undoTask.RecordChanges();
             _undoSystem.RegisterUndo(undoTask);
 
             MarkModified();
@@ -864,12 +881,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddNewFrame()
         {
-            FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_viewAnimation, FrameAddDeleteOperationType.Add, "Frame Added");
+            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
-            int index = _viewAnimation.FrameCount;
-
-            undoTask.RegisterFrame(_viewAnimation.CreateFrame(), index);
-
+            _viewAnimation.CreateFrame();
+            undoTask.RecordChanges();
             _undoSystem.RegisterUndo(undoTask);
 
             MarkModified();
@@ -927,59 +942,94 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddFrameFromFile()
         {
-            OpenFileDialog ofd = new OpenFileDialog
+            Image image = _controller.ShowLoadImage(owner: this);
+            
+            try
             {
-                Filter =
-                    @"All Images (*.png, *.jpg, *jpeg, *.bmp, *.gif, *.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|Png Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|Jpeg Images (*.jpg, *.jpeg)|*.jpg;*.jpeg|Gif Images (*.gif)|*.giff|Tiff Images (*.tiff)|*.tiff"
-            };
+                Bitmap tempBit = (Bitmap)image;
 
-            if(ofd.ShowDialog(this) == DialogResult.OK)
-            {
-                try
+                var bit = new Bitmap(tempBit);
+
+                tempBit.Dispose();
+
+                FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
+
+                if (bit.Width != _viewAnimation.Width || bit.Height != _viewAnimation.Height)
                 {
-                    Bitmap tempBit = (Bitmap)Image.FromFile(ofd.FileName);
+                    FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
 
-                    var bit = new Bitmap(tempBit);
-
-                    tempBit.Dispose();
-
-                    FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
-
-                    if (bit.Width != _viewAnimation.Width || bit.Height != _viewAnimation.Height)
+                    if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
                     {
-                        FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
-
-                        if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
-                        {
-                            sizeMatching = sizeMatchingForm.GeneratedSettings;
-                        }
-                        else
-                        {
-                            return;
-                        }
+                        sizeMatching = sizeMatchingForm.GeneratedSettings;
                     }
-
-                    AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
-
-                    Frame frame = _controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
-                    frame.SetFrameBitmap(bit);
-
-                    _viewAnimation.AddFrames(new [] { frame }, sizeMatching);
-
-                    MarkModified();
-
-                    RefreshView();
-
-                    lv_frames.Items[lv_frames.Items.Count - 1].Selected = true;
-
-                    undoTask.RecordChanges();
-                    _undoSystem.RegisterUndo(undoTask);
+                    else
+                    {
+                        return;
+                    }
                 }
-                catch (Exception e)
-                {
-                    MessageBox.Show(@"There was an error loading the selected image:\n" + e, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+
+                Frame frame = _controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
+                frame.SetFrameBitmap(bit);
+
+                _viewAnimation.AddFrames(new [] { frame }, sizeMatching);
+
+                undoTask.RecordChanges();
+                _undoSystem.RegisterUndo(undoTask);
+
+                MarkModified();
+
+                RefreshView();
+
+                lv_frames.Items[lv_frames.Items.Count - 1].Selected = true;
             }
+            catch (Exception e)
+            {
+                MessageBox.Show(@"There was an error loading the selected image:\n" + e, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Displays an interface for saving all currently selected frames
+        /// </summary>
+        private void SaveSelectedFrames()
+        {
+            ImageFormat format;
+            string path = _controller.ShowSaveImage(out format, fileName:_viewAnimation.Name, owner: this);
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            string extension = Path.GetExtension(path);
+
+            // Save the files
+            var selectedFrames = GetSelectedFrames();
+            var padCount = _viewAnimation.FrameCount.ToString().Length;
+            foreach (var frame in selectedFrames)
+            {
+                string fileName = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(path);
+
+                if (selectedFrames.Count > 1)
+                {
+                    fileName += "_" + frame.Index.ToString("D" + padCount);
+                }
+
+                frame.GetComposedBitmap().Save(fileName + extension, format);
+            }
+        }
+
+        /// <summary>
+        /// Replaces the currently selected frame's image with one loaded from a file.
+        /// If the dimensions don't match, the method triggers input from the user to handle the resizing operation of the image.
+        /// If the selection is not set to a one frame only, the method does nothing
+        /// </summary>
+        private void ReplaceFromFile()
+        {
+            if (lv_frames.SelectedItems.Count != 1)
+                return;
+
+
         }
 
         #endregion
@@ -1081,7 +1131,7 @@ namespace Pixelaria.Views.ModelViews
 
                 foreach (var frame in frames)
                 {
-                    _viewAnimation.AddFrame(frame, Math.Min(_viewAnimation.FrameCount - 1, newIndex++));
+                    _viewAnimation.AddFrame(frame, Math.Min(_viewAnimation.FrameCount, newIndex++));
                 }
 
                 undoTask.RecordChanges();
@@ -1113,6 +1163,10 @@ namespace Pixelaria.Views.ModelViews
             RefreshClipboardControls();
         }
 
+        #region Menu Strip
+
+        #region File menu
+
         // 
         // Add Frame From File menu item click
         // 
@@ -1121,40 +1175,119 @@ namespace Pixelaria.Views.ModelViews
             AddFrameFromFile();
         }
 
+        #endregion
+
+        #region Edit menu
+
         // 
-        // Enable Preview Checkbox tick
+        // Undo menu item click
         // 
-        private void cb_enablePreview_CheckedChanged(object sender, EventArgs e)
+        private void tsm_undo_Click(object sender, EventArgs e)
         {
-            if (cb_enablePreview.Checked)
-            {
-                animationPreviewPanel.Enable();
-                panel1.Visible = true;
-            }
-            else
-            {
-                animationPreviewPanel.Disable();
-                panel1.Visible = false;
-            }
+            Undo();
         }
 
         // 
-        // FPS numeric up and down change
+        // Redo menu item click
         // 
-        private void nud_fps_ValueChanged(object sender, EventArgs e)
+        private void tsm_redo_Click(object sender, EventArgs e)
         {
-            _viewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
-            MarkModified();
+            Redo();
         }
 
         // 
-        // Frameskip checkbox check
+        // Copy menu item click
         // 
-        private void cb_frameskip_CheckedChanged(object sender, EventArgs e)
+        private void tsm_copy_Click(object sender, EventArgs e)
         {
-            _viewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
-            MarkModified();
+            CopySelectedFrames();
         }
+
+        // 
+        // Cut menu item click
+        // 
+        private void tsm_cut_Click(object sender, EventArgs e)
+        {
+            CutSelectedFrames();
+        }
+
+        // 
+        // Paste menu item click
+        // 
+        private void tsm_paste_Click(object sender, EventArgs e)
+        {
+            PasteFrames();
+        }
+
+        //
+        // Delete menu item click
+        //
+        private void tsm_delete_Click(object sender, EventArgs e)
+        {
+            DeleteSelectedFrames();
+        }
+
+        //
+        // Save Selected Frames menu item click
+        //
+        private void tsm_saveSelected_Click(object sender, EventArgs e)
+        {
+            SaveSelectedFrames();
+        }
+
+        //
+        // Replace From File menu item click
+        //
+        private void tsm_replaceFromFile_Click(object sender, EventArgs e)
+        {
+            ReplaceFromFile();
+        }
+
+        #endregion
+
+        #region Frames menu
+
+        // 
+        // Insert Frame toolstrip menu button click
+        // 
+        private void tsm_insertFrame_Click(object sender, EventArgs e)
+        {
+            InsertFrame();
+        }
+
+        // 
+        // Add New Frame toolstip menu button click
+        // 
+        private void tsm_addNewFrame_Click(object sender, EventArgs e)
+        {
+            AddNewFrame();
+        }
+
+        // 
+        // Select All item click
+        // 
+        private void tsm_selectAll_Click(object sender, EventArgs e)
+        {
+            SelectAll();
+        }
+
+        #endregion
+
+        #region Animation menu
+
+        // 
+        // Reverse Frames item click
+        // 
+        private void tsm_reverseFrames_Click(object sender, EventArgs e)
+        {
+            ReverseFrames();
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Toolbar
 
         // 
         // Apply Changes and Close toolbar button click
@@ -1171,6 +1304,7 @@ namespace Pixelaria.Views.ModelViews
         {
             ApplyChanges();
         }
+
         /*
         // 
         // Discard Changes And Close toolbar button click
@@ -1195,21 +1329,7 @@ namespace Pixelaria.Views.ModelViews
         {
             InsertFrame();
         }
-        // 
-        // Insert Frame toolstrip menu button click
-        // 
-        private void tsm_insertFrame_Click(object sender, EventArgs e)
-        {
-            InsertFrame();
-        }
 
-        // 
-        // Add New Frame toolstip menu button click
-        // 
-        private void tsm_addNewFrame_Click(object sender, EventArgs e)
-        {
-            AddNewFrame();
-        }
         // 
         // Add New Frame toolbar button click
         // 
@@ -1251,40 +1371,9 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
-        // Copy menu item click
-        // 
-        private void tsm_copy_Click(object sender, EventArgs e)
-        {
-            CopySelectedFrames();
-        }
-
-        // 
-        // Cut menu item click
-        // 
-        private void tsm_cut_Click(object sender, EventArgs e)
-        {
-            CutSelectedFrames();
-        }
-
-        // 
-        // Paste menu item click
-        // 
-        private void tsm_paste_Click(object sender, EventArgs e)
-        {
-            PasteFrames();
-        }
-
-        // 
         // Undo toolbar button click
         // 
         private void tsb_undo_Click(object sender, EventArgs e)
-        {
-            Undo();
-        }
-        // 
-        // Undo menu item click
-        // 
-        private void tsm_undo_Click(object sender, EventArgs e)
         {
             Undo();
         }
@@ -1296,29 +1385,6 @@ namespace Pixelaria.Views.ModelViews
         {
             Redo();
         }
-        // 
-        // Redo menu item click
-        // 
-        private void tsm_redo_Click(object sender, EventArgs e)
-        {
-            Redo();
-        }
-
-        // 
-        // Reverse Frames item click
-        // 
-        private void tsm_reverseFrames_Click(object sender, EventArgs e)
-        {
-            ReverseFrames();
-        }
-
-        // 
-        // Select All item click
-        // 
-        private void tsm_selectAll_Click(object sender, EventArgs e)
-        {
-            SelectAll();
-        }
 
         // 
         // Animation Name textbox change
@@ -1327,6 +1393,87 @@ namespace Pixelaria.Views.ModelViews
         {
             MarkModified();
             ValidateFields();
+        }
+
+        #endregion
+
+        #region Frames Right-Click Context Menu
+
+        //
+        // Delete context menu button click
+        //
+        private void cmb_deleteFrames_Click(object sender, EventArgs e)
+        {
+            DeleteSelectedFrames();
+        }
+
+        //
+        // Save Selected context menu button click
+        //
+        private void cmb_saveSelected_Click(object sender, EventArgs e)
+        {
+            SaveSelectedFrames();
+        }
+
+        //
+        // Replace From Image context menu button click
+        //
+        private void cmb_replaceFromImage_Click(object sender, EventArgs e)
+        {
+            ReplaceFromFile();
+        }
+
+        //
+        // Copy context menu button click
+        //
+        private void cmb_copyFrames_Click(object sender, EventArgs e)
+        {
+            CopySelectedFrames();
+        }
+
+        //
+        // Cut context menu button click
+        //
+        private void cmb_cutFrames_Click(object sender, EventArgs e)
+        {
+            CutSelectedFrames();
+        }
+
+        #endregion
+
+        // 
+        // Enable Preview Checkbox tick
+        // 
+        private void cb_enablePreview_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cb_enablePreview.Checked)
+            {
+                animationPreviewPanel.Enable();
+                panel1.Visible = true;
+            }
+            else
+            {
+                animationPreviewPanel.Disable();
+                panel1.Visible = false;
+            }
+        }
+
+        // 
+        // FPS numeric up and down change
+        // 
+        private void nud_fps_ValueChanged(object sender, EventArgs e)
+        {
+            _viewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
+            MarkModified();
+        }
+
+        // 
+        // Frameskip checkbox check
+        // 
+        private void cb_frameskip_CheckedChanged(object sender, EventArgs e)
+        {
+            _viewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
+            MarkModified();
         }
 
         // 
@@ -1349,6 +1496,17 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
+        //
+        // Frames List View mouse click
+        //
+        private void lv_frames_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                ShowFramesContextMenu();
+            }
+        }
+
         // 
         // Frames List View double click event handler
         // 
@@ -1358,379 +1516,6 @@ namespace Pixelaria.Views.ModelViews
         }
 
         #endregion
-
-        /// <summary>
-        /// Implements an animation modify undo task that undoes/redoes adding and deleting of frames
-        /// </summary>
-        public class FramesAddDeleteUndoTask : IUndoTask
-        {
-            /// <summary>
-            /// The animation that will be modified by this FramesDeleteUndoTask
-            /// </summary>
-            private readonly Animation _animation;
-
-            /// <summary>
-            /// The description for this FramesAddDeleteUndoTask
-            /// </summary>
-            private readonly string _description;
-
-            /// <summary>
-            /// Whether this action has been undone
-            /// </summary>
-            private bool _undone;
-
-            /// <summary>
-            /// The type of this operation
-            /// </summary>
-            private readonly FrameAddDeleteOperationType _operationType;
-
-            /// <summary>
-            /// The indices of the frames being deleted
-            /// </summary>
-            private readonly List<int> _frameIndices;
-
-            /// <summary>
-            /// The frames that were deleted
-            /// </summary>
-            private readonly List<IFrame> _frames;
-
-            /// <summary>
-            /// Initializes a new instance of a FramesDeleteUndoTask class
-            /// </summary>
-            /// <param name="animation">The animation that will be modified by this FramesDeleteUndoTask</param>
-            /// <param name="operationType">The type of operation to perform on this FramesAddDeleteUndoTask</param>
-            /// <param name="description">The description for this FramesAddDeleteUndoTask</param>
-            public FramesAddDeleteUndoTask(Animation animation, FrameAddDeleteOperationType operationType, string description)
-            {
-                _animation = animation;
-                _description = description;
-                _operationType = operationType;
-                _frameIndices = new List<int>();
-                _frames = new List<IFrame>();
-            }
-
-            /// <summary>
-            /// Registers a frame that is being deleted on this FramesDeleteUndoTask instance
-            /// </summary>
-            /// <param name="frame">The frame being deleted</param>
-            /// <param name="index">The index to register. In case this is a delete undo operation, this value is not used</param>
-            public void RegisterFrame(IFrame frame, int index = 0)
-            {
-                if(frame.Animation == null)
-                    _frameIndices.Add(index);
-                else
-                    _frameIndices.Add((_operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index));
-
-                _frames.Add(frame);
-            }
-
-            /// <summary>
-            /// Clears this UndoTask object
-            /// </summary>
-            public void Clear()
-            {
-                if (!_undone)
-                {
-                    // Dispose of frames that are not in animations
-                    foreach (IFrame frame in _frames)
-                    {
-                        if (frame.Animation == null)
-                        {
-                            frame.Dispose();
-                        }
-                    }
-                }
-
-                _frames.Clear();
-                _frameIndices.Clear();
-            }
-
-            /// <summary>
-            /// Undoes this task
-            /// </summary>
-            public void Undo()
-            {
-                if (_operationType == FrameAddDeleteOperationType.Delete)
-                {
-                    for (int i = _frameIndices.Count - 1; i >= 0; i--)
-                    {
-                        _animation.AddFrame(_frames[i], _frameIndices[i]);
-                    }
-                }
-                else
-                {
-                    for (int i = _frameIndices.Count - 1; i >= 0; i--)
-                    {
-                        _animation.RemoveFrameIndex(_frameIndices[i]);
-                    }
-                }
-
-                _undone = true;
-            }
-
-            /// <summary>
-            /// Redoes this task
-            /// </summary>
-            public void Redo()
-            {
-                if (_operationType == FrameAddDeleteOperationType.Delete)
-                {
-                    for(int i = _frameIndices.Count - 1; i >= 0; i--)
-                    {
-                        _animation.RemoveFrameIndex(_frameIndices[i]);
-                    }
-                }
-                else
-                {
-                    //for (int i = 0; i < frames.Count; i++)
-                    for (int i = _frameIndices.Count - 1; i >= 0; i--)
-                    {
-                        _animation.AddFrame(_frames[i], _frameIndices[i]);
-                    }
-                }
-
-                _undone = false;
-            }
-
-            /// <summary>
-            /// Returns a short string description of this UndoTask
-            /// </summary>
-            /// <returns>A short string description of this UndoTask</returns>
-            public string GetDescription()
-            {
-                return _description;
-            }
-        }
-
-        /// <summary>
-        /// Implements a frame modify undo task that undoes/redoes the modification of a frame's contents
-        /// </summary>
-        public class FrameEditUndoTask : IUndoTask
-        {
-            /// <summary>
-            /// The frames that were deleted
-            /// </summary>
-            private IFrame _frame;
-
-            /// <summary>
-            /// The old (undo) bitmap
-            /// </summary>
-            private readonly IFrame _oldFrame;
-
-            /// <summary>
-            /// The new (redo) bitmap
-            /// </summary>
-            private IFrame _newFrame;
-            
-            /// <summary>
-            /// Initializes a new instance of a FrameEditUndoTask class
-            /// </summary>
-            /// <param name="frame">The frame to record the changes made to</param>
-            /// <param name="oldFrame">An (optional) starting value for the old frame</param>
-            public FrameEditUndoTask(IFrame frame, IFrame oldFrame = null)
-            {
-                _frame = frame;
-                _oldFrame = (oldFrame ?? frame).Clone();
-                _oldFrame.ID = frame.ID;
-            }
-
-            /// <summary>
-            /// Records the changes made to the frame's bitmap
-            /// </summary>
-            /// <param name="newFrame">An (optional) value for the new frame</param>
-            public void RecordChanges(IFrame newFrame = null)
-            {
-                _newFrame = (newFrame ?? _frame).Clone();
-                _newFrame.ID = _frame.ID;
-            }
-
-            /// <summary>
-            /// Clears this UndoTask object
-            /// </summary>
-            public void Clear()
-            {
-                _newFrame.Dispose();
-                _oldFrame.Dispose();
-
-                _frame = null;
-            }
-
-            /// <summary>
-            /// Undoes this task
-            /// </summary>
-            public void Undo()
-            {
-                _frame.CopyFrom(_oldFrame);
-            }
-
-            /// <summary>
-            /// Redoes this task
-            /// </summary>
-            public void Redo()
-            {
-                _frame.CopyFrom(_newFrame);
-            }
-
-            /// <summary>
-            /// Returns a short string description of this UndoTask
-            /// </summary>
-            /// <returns>A short string description of this UndoTask</returns>
-            public string GetDescription()
-            {
-                return "Frame edit";
-            }
-        }
-
-        /// <summary>
-        /// Implements an aniation undo task that undoes/redoes the modification on the order of frames
-        /// </summary>
-        public class FrameReoderUndoTask : IUndoTask
-        {
-            /// <summary>
-            /// The animation to affect
-            /// </summary>
-            private readonly Animation _animation;
-
-            /// <summary>
-            /// The old (undo) index
-            /// </summary>
-            private readonly int _oldIndex;
-
-            /// <summary>
-            /// The new (redo) index
-            /// </summary>
-            private readonly int _newIndex;
-
-            /// <summary>
-            /// Initializes a new instance of the FramesReorderUndoTask class
-            /// </summary>
-            /// <param name="anim">The animation to affect</param>
-            /// <param name="oldIndex">The old (undo) index</param>
-            /// <param name="newIndex">The new (redo) index</param>
-            public FrameReoderUndoTask(Animation anim, int oldIndex, int newIndex)
-            {
-                _animation = anim;
-                _oldIndex = oldIndex;
-                _newIndex = newIndex;
-            }
-
-            /// <summary>
-            /// Clears this UndoTask object
-            /// </summary>
-            public void Clear()
-            {
-                
-            }
-
-            /// <summary>
-            /// Undoes this task
-            /// </summary>
-            public void Undo()
-            {
-                _animation.SwapFrameIndices(_oldIndex, _newIndex);
-            }
-
-            /// <summary>
-            /// Redoes this task
-            /// </summary>
-            public void Redo()
-            {
-                _animation.SwapFrameIndices(_oldIndex, _newIndex);
-            }
-
-            /// <summary>
-            /// Returns a short string description of this UndoTask
-            /// </summary>
-            /// <returns>A short string description of this UndoTask</returns>
-            public string GetDescription()
-            {
-                return "Frame Reoder";
-            }
-        }
-
-        /// <summary>
-        /// Implements an animation resize undo task that undoes/redoes animation resize operations
-        /// </summary>
-        public class AnimationResizeUndoTask : IUndoTask
-        {
-            /// <summary>
-            /// The animation to affect with this AnimationResizeUndoTask instance
-            /// </summary>
-            private readonly Animation _animation;
-
-            /// <summary>
-            /// The list of new frames
-            /// </summary>
-            private readonly Bitmap[] _newFrames;
-
-            /// <summary>
-            /// The old size of the animation before resizing
-            /// </summary>
-            private readonly AnimationResizeSettings _oldResizeSettings;
-
-            /// <summary>
-            /// The resize settings for the operation
-            /// </summary>
-            private readonly AnimationResizeSettings _newResizeSettings;
-
-            /// <summary>
-            /// Initializes a new instance of the FramesModifyUndoTask class
-            /// </summary>
-            /// <param name="animation">The animation to affect with this FramesModifyUndoTask instance</param>
-            /// <param name="oldSize">The old size of the animation before resizing</param>
-            /// <param name="resizeSettings">The resize settings for the operation</param>
-            public AnimationResizeUndoTask(Animation animation, Size oldSize, AnimationResizeSettings resizeSettings)
-            {
-                _animation = animation;
-                _newFrames = animation.Frames.ToBitmapArray(true);
-                _oldResizeSettings = new AnimationResizeSettings() { InterpolationMode = resizeSettings.InterpolationMode, NewWidth = oldSize.Width, NewHeight = oldSize.Height, PerFrameScalingMethod = resizeSettings.PerFrameScalingMethod };
-                _newResizeSettings = resizeSettings;
-            }
-
-            /// <summary>
-            /// Clears this UndoTask object
-            /// </summary>
-            public void Clear()
-            {
-                foreach (Bitmap bit in _newFrames)
-                {
-                    bit.Dispose();
-                }
-            }
-
-            /// <summary>
-            /// Undoes this task
-            /// </summary>
-            public void Undo()
-            {
-                _animation.Resize(_oldResizeSettings);
-            }
-
-            /// <summary>
-            /// Redoes this task
-            /// </summary>
-            public void Redo()
-            {
-                _animation.Resize(_newResizeSettings);
-
-                // Apply the frame contents now
-                for(int i = 0; i < _animation.FrameCount; i++)
-                {
-                    IFrame frame = _animation[i];
-                    frame.CopyFrom(frame);
-                    //frame.SetFrameBitmap((Bitmap)_newFrames[i].Clone());
-                }
-            }
-
-            /// <summary>
-            /// Returns a short string description of this UndoTask
-            /// </summary>
-            /// <returns>A short string description of this UndoTask</returns>
-            public string GetDescription()
-            {
-                return "Animation Resize";
-            }
-        }
 
         /// <summary>
         /// Implements an animation modify undo task that undoes/redoes changes in the animation properties, including frame bitmap modifications.
@@ -1756,7 +1541,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// The derivated compound task
             /// </summary>
-            private GroupUndoTask _compoundTask;
+            private IUndoTask _compoundTask;
 
             /// <summary>
             /// Initializes a new instance of the FramesModifyUndoTask class
@@ -1766,14 +1551,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 _animation = animation;
                 _oldAnimationFrames = new List<IFrame>(animation.Frames);
-                _oldAnimation = animation.Clone();
+                _oldAnimation = DeepCloneAnimation(_animation);
 
-                for (int i = 0; i < _oldAnimation.FrameCount; i++)
-                {
-                    _oldAnimation[i].ID = _animation[i].ID;
-                }
-
-                _compoundTask = new GroupUndoTask(GetDescription());
+                //_compoundTask = new GroupUndoTask(GetDescription());
             }
 
             /// <summary>
@@ -1781,27 +1561,43 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void RecordChanges()
             {
+                LazyAnimationModifyUndoTask lazyUndoTask = new LazyAnimationModifyUndoTask(_animation, _oldAnimation, DeepCloneAnimation(_animation));
+
+                _compoundTask = lazyUndoTask;
+                return;
+
+                GroupUndoTask compoundTask = new GroupUndoTask(GetDescription());
+                _compoundTask = compoundTask;
+
                 /*
                     Steps necessary to track frame changes:
                     
-                    1. Verify the frames that were removed
-                    2. Verify the frames that were added
-                    3. Verify the frames that were modified
-                    4. Verify the frame orders
+                    1. Verify that the animation was resized
+                    2. Verify the frames that were removed
+                    3. Verify the frames that were added
+                    4. Verify the frames that were modified
+                    5. Verify the frame orders
                     
                     To achieve this:
                     
-                    1.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
-                    2.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
-                    3.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
-                    4.1 For each frame that was not added or removed, check against the old animation, and note down the new and old frame indices. Mark them down with a FrameReorderUndoTask
+                    1.1 Compare each of the animation's resolutions
+                    2.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
+                    3.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
+                    4.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
+                    5.1 For each frame that was not added or removed, check against the old animation, and note down the new and old frame indices. Mark them down with a FrameReorderUndoTask
                 */
 
                 // To track for reordering of frames
                 List<IFrame> unmodified = new List<IFrame>(_animation.Frames);
                 List<IUndoTask> undoList = new List<IUndoTask>();
 
-                // 1.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
+                // 1.1 Compare each of the animation's resolutions
+                if (_oldAnimation.Size != _animation.Size)
+                {
+                    
+                }
+
+                // 2.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
                 for (int i = 0; i < _animation.FrameCount; i++)
                 {
                     IFrame newFrame = _animation[i];
@@ -1826,13 +1622,13 @@ namespace Pixelaria.Views.ModelViews
 
                         undoTask.RegisterFrame(newFrame, i);
 
-                        _compoundTask.AddTask(undoTask);
+                        compoundTask.AddTask(undoTask);
 
                         unmodified.Remove(newFrame);
                     }
                 }
 
-                // 2.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
+                // 3.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
                 undoList.Clear();
                 for (int i = 0; i < _oldAnimationFrames.Count; i++)
                 {
@@ -1863,9 +1659,9 @@ namespace Pixelaria.Views.ModelViews
                     }
                 }
                 undoList.Reverse();
-                _compoundTask.AddTasks(undoList);
+                compoundTask.AddTasks(undoList);
 
-                // 3.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
+                // 4.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
                 for (int i = 0; i < _animation.FrameCount; i++)
                 {
                     IFrame newFrame = _animation[i];
@@ -1885,14 +1681,14 @@ namespace Pixelaria.Views.ModelViews
 
                     if (found)
                     {
-                        FrameEditUndoTask undoTask = new FrameEditUndoTask(newFrame, oldFrame);
+                        FrameEditUndoTask undoTask = new FrameEditUndoTask(_animation, newFrame, oldFrame);
                         undoTask.RecordChanges(newFrame);
 
-                        _compoundTask.AddTask(undoTask);
+                        compoundTask.AddTask(undoTask);
                     }
                 }
 
-                // 4.1 For each frame that was not added or removed, check against the old animation, and note down the new and old frame indices. Mark them down with a FrameReorderUndoTask
+                // 5.1 For each frame that was not added or removed, check against the old animation, and note down the new and old frame indices. Mark them down with a FrameReorderUndoTask
                 // To keep track of dups
                 List<int> framesFound = new List<int>();
                 for (int i = 0; i < unmodified.Count; i++)
@@ -1923,14 +1719,14 @@ namespace Pixelaria.Views.ModelViews
                         framesFound.Add(i);
 
                         FrameReoderUndoTask undoTask = new FrameReoderUndoTask(_animation, j, i);
-                        _compoundTask.AddTask(undoTask);
+                        compoundTask.AddTask(undoTask);
                     }
                 }
 
                 // Register the animation resize operation
-                if (_oldAnimation.Width != _animation.Width || _oldAnimation.Height != _animation.Height)
+                if (_oldAnimation.Size != _animation.Size)
                 {
-                    GroupUndoTask wrapTask = new GroupUndoTask(null, _compoundTask.GetDescription());
+                    //GroupUndoTask wrapTask = new GroupUndoTask(null, _compoundTask.GetDescription());
 
                     AnimationResizeSettings settings = new AnimationResizeSettings
                     {
@@ -1941,10 +1737,26 @@ namespace Pixelaria.Views.ModelViews
                     };
 
                     AnimationResizeUndoTask undoTask = new AnimationResizeUndoTask(_animation, new Size(_oldAnimation.Width, _oldAnimation.Height), settings);
-                    wrapTask.AddTask(_compoundTask);
-                    wrapTask.AddTask(undoTask);
 
-                    _compoundTask = wrapTask;
+                    GroupUndoTask diffUndoTask = new GroupUndoTask(null, _compoundTask.GetDescription());
+                    GroupUndoTask diffRedoTask = new GroupUndoTask(null, _compoundTask.GetDescription());
+
+                    diffUndoTask.ReverseOnUndo = false;
+
+                    diffUndoTask.AddTask(compoundTask);
+                    diffUndoTask.AddTask(undoTask);
+
+                    diffRedoTask.AddTask(undoTask);
+                    diffRedoTask.AddTask(compoundTask);
+
+                    DifferentiatedUndoTask diffTask = new DifferentiatedUndoTask(diffUndoTask, diffRedoTask, _compoundTask.GetDescription());
+
+                    _compoundTask = diffTask;
+
+                    //wrapTask.AddTask(_compoundTask);
+                    //wrapTask.AddTask(undoTask);
+
+                    //_compoundTask = wrapTask;
                 }
             }
 
@@ -1984,6 +1796,478 @@ namespace Pixelaria.Views.ModelViews
             public string GetDescription()
             {
                 return "Frames modify";
+            }
+
+            /// <summary>
+            /// Performs a deep clone of an animation, by copying all the data from the animation and IDs over
+            /// </summary>
+            /// <param name="animation">The animation to deep clone</param>
+            /// <returns>A deep clone of the provided animation</returns>
+            private Animation DeepCloneAnimation(Animation animation)
+            {
+                Animation anim = animation.Clone();
+                
+                for (int i = 0; i < anim.FrameCount; i++)
+                {
+                    anim[i].ID = animation[i].ID;
+                }
+
+                anim.ID = animation.ID;
+
+                return anim;
+            }
+
+            /// <summary>
+            /// Represents an undo task that undoes and redoes modifications to an animation through a simple copy operation
+            /// </summary>
+            private class LazyAnimationModifyUndoTask : IUndoTask
+            {
+                /// <summary>
+                /// The animation to modify
+                /// </summary>
+                private readonly Animation _animation;
+
+                /// <summary>
+                /// A copy of the old animation to copy to when undoing
+                /// </summary>
+                private readonly Animation _oldAnimation;
+
+                /// <summary>
+                /// A copy of the new animation to copy to when redoing
+                /// </summary>
+                private readonly Animation _newAnimation;
+
+                /// <summary>
+                /// Initializes a new class of the LazyAnimationModifyUndoTask
+                /// </summary>
+                /// <param name="animation">The animation to modify</param>
+                /// <param name="oldAnimation">A copy of the old animation to copy to when undoing</param>
+                /// <param name="newAnimation">A copy of the new animation to copy to when redoing</param>
+                public LazyAnimationModifyUndoTask(Animation animation, Animation oldAnimation, Animation newAnimation)
+                {
+                    _animation = animation;
+                    _oldAnimation = oldAnimation;
+                    _newAnimation = newAnimation;
+                }
+
+                /// <summary>
+                /// Clears this undo task and cleans any utilized resource
+                /// </summary>
+                public void Clear()
+                {
+                    _oldAnimation.Dispose();
+                    _newAnimation.Dispose();
+                }
+
+                /// <summary>
+                /// Undoes this LazyAnimationModifyUndoTask
+                /// </summary>
+                public void Undo()
+                {
+                    _animation.CopyFrom(_oldAnimation, false);
+
+                    for (int i = 0; i < _animation.FrameCount; i++)
+                    {
+                        _animation[i].ID = _oldAnimation[i].ID;
+                    }
+                }
+
+                /// <summary>
+                /// Redoes this LazyAnimationModifyUndoTask
+                /// </summary>
+                public void Redo()
+                {
+                    _animation.CopyFrom(_newAnimation, false);
+
+                    for (int i = 0; i < _animation.FrameCount; i++)
+                    {
+                        _animation[i].ID = _newAnimation[i].ID;
+                    }
+                }
+
+                /// <summary>
+                /// Gets the description for this undo task
+                /// </summary>
+                /// <returns>The description for this undo task</returns>
+                public string GetDescription()
+                {
+                    return "";
+                }
+            }
+
+            /// <summary>
+            /// Implements an animation modify undo task that undoes/redoes adding and deleting of frames
+            /// </summary>
+            public class FramesAddDeleteUndoTask : IUndoTask
+            {
+                /// <summary>
+                /// The animation that will be modified by this FramesDeleteUndoTask
+                /// </summary>
+                private readonly Animation _animation;
+
+                /// <summary>
+                /// The description for this FramesAddDeleteUndoTask
+                /// </summary>
+                private readonly string _description;
+
+                /// <summary>
+                /// Whether this action has been undone
+                /// </summary>
+                private bool _undone;
+
+                /// <summary>
+                /// The type of this operation
+                /// </summary>
+                private readonly FrameAddDeleteOperationType _operationType;
+
+                /// <summary>
+                /// The indices of the frames being deleted
+                /// </summary>
+                private readonly List<int> _frameIndices;
+
+                /// <summary>
+                /// The frames that were deleted
+                /// </summary>
+                private readonly List<IFrame> _frames;
+
+                /// <summary>
+                /// Initializes a new instance of a FramesDeleteUndoTask class
+                /// </summary>
+                /// <param name="animation">The animation that will be modified by this FramesDeleteUndoTask</param>
+                /// <param name="operationType">The type of operation to perform on this FramesAddDeleteUndoTask</param>
+                /// <param name="description">The description for this FramesAddDeleteUndoTask</param>
+                public FramesAddDeleteUndoTask(Animation animation, FrameAddDeleteOperationType operationType, string description)
+                {
+                    _animation = animation;
+                    _description = description;
+                    _operationType = operationType;
+                    _frameIndices = new List<int>();
+                    _frames = new List<IFrame>();
+                }
+
+                /// <summary>
+                /// Registers a frame that is being deleted on this FramesDeleteUndoTask instance
+                /// </summary>
+                /// <param name="frame">The frame being deleted</param>
+                /// <param name="index">The index to register. In case this is a delete undo operation, this value is not used</param>
+                public void RegisterFrame(IFrame frame, int index = 0)
+                {
+                    if (frame.Animation == null)
+                        _frameIndices.Add(index);
+                    else
+                        _frameIndices.Add((_operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index));
+
+                    _frames.Add(frame);
+                }
+
+                /// <summary>
+                /// Clears this UndoTask object
+                /// </summary>
+                public void Clear()
+                {
+                    if (!_undone)
+                    {
+                        // Dispose of frames that are not in animations
+                        foreach (IFrame frame in _frames)
+                        {
+                            if (frame.Animation == null)
+                            {
+                                frame.Dispose();
+                            }
+                        }
+                    }
+
+                    _frames.Clear();
+                    _frameIndices.Clear();
+                }
+
+                /// <summary>
+                /// Undoes this task
+                /// </summary>
+                public void Undo()
+                {
+                    if (_operationType == FrameAddDeleteOperationType.Delete)
+                    {
+                        for (int i = _frameIndices.Count - 1; i >= 0; i--)
+                        {
+                            _animation.AddFrame(_frames[i], _frameIndices[i]);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = _frameIndices.Count - 1; i >= 0; i--)
+                        {
+                            _animation.RemoveFrameIndex(_frameIndices[i]);
+                        }
+                    }
+
+                    _undone = true;
+                }
+
+                /// <summary>
+                /// Redoes this task
+                /// </summary>
+                public void Redo()
+                {
+                    if (_operationType == FrameAddDeleteOperationType.Delete)
+                    {
+                        for (int i = _frameIndices.Count - 1; i >= 0; i--)
+                        {
+                            _animation.RemoveFrameIndex(_frameIndices[i]);
+                        }
+                    }
+                    else
+                    {
+                        //for (int i = 0; i < frames.Count; i++)
+                        for (int i = _frameIndices.Count - 1; i >= 0; i--)
+                        {
+                            _animation.AddFrame(_frames[i], _frameIndices[i]);
+                        }
+                    }
+
+                    _undone = false;
+                }
+
+                /// <summary>
+                /// Returns a short string description of this UndoTask
+                /// </summary>
+                /// <returns>A short string description of this UndoTask</returns>
+                public string GetDescription()
+                {
+                    return _description;
+                }
+            }
+
+            /// <summary>
+            /// Implements a frame modify undo task that undoes/redoes the modification of a frame's contents
+            /// </summary>
+            public class FrameEditUndoTask : IUndoTask
+            {
+                private readonly Animation _animation;
+
+                /// <summary>
+                /// The frames that were deleted
+                /// </summary>
+                private readonly IFrame _frame;
+
+                /// <summary>
+                /// The old (undo) bitmap
+                /// </summary>
+                private readonly IFrame _oldFrame;
+
+                /// <summary>
+                /// The new (redo) bitmap
+                /// </summary>
+                private IFrame _newFrame;
+
+                /// <summary>
+                /// Initializes a new instance of a FrameEditUndoTask class
+                /// </summary>
+                /// <param name="frame">The frame to record the changes made to</param>
+                /// <param name="oldFrame">An (optional) starting value for the old frame</param>
+                public FrameEditUndoTask(Animation animation, IFrame frame, IFrame oldFrame = null)
+                {
+                    _animation = animation;
+                    _frame = frame;
+                    _oldFrame = (oldFrame ?? frame).Clone();
+                    _oldFrame.ID = frame.ID;
+                }
+
+                /// <summary>
+                /// Records the changes made to the frame's bitmap
+                /// </summary>
+                /// <param name="newFrame">An (optional) value for the new frame</param>
+                public void RecordChanges(IFrame newFrame = null)
+                {
+                    _newFrame = (newFrame ?? _frame).Clone();
+                    _newFrame.ID = _frame.ID;
+                }
+
+                /// <summary>
+                /// Clears this UndoTask object
+                /// </summary>
+                public void Clear()
+                {
+                    _newFrame.Dispose();
+                    _oldFrame.Dispose();
+                }
+
+                /// <summary>
+                /// Undoes this task
+                /// </summary>
+                public void Undo()
+                {
+                    //_frame.CopyFrom(_oldFrame);
+                    _animation.GetFrameByID(_frame.ID).CopyFrom(_oldFrame);
+                }
+
+                /// <summary>
+                /// Redoes this task
+                /// </summary>
+                public void Redo()
+                {
+                    //_frame.CopyFrom(_newFrame);
+                    _animation.GetFrameByID(_frame.ID).CopyFrom(_newFrame);
+                }
+
+                /// <summary>
+                /// Returns a short string description of this UndoTask
+                /// </summary>
+                /// <returns>A short string description of this UndoTask</returns>
+                public string GetDescription()
+                {
+                    return "Frame edit";
+                }
+            }
+
+            /// <summary>
+            /// Implements an aniation undo task that undoes/redoes the modification on the order of frames
+            /// </summary>
+            public class FrameReoderUndoTask : IUndoTask
+            {
+                /// <summary>
+                /// The animation to affect
+                /// </summary>
+                private readonly Animation _animation;
+
+                /// <summary>
+                /// The old (undo) index
+                /// </summary>
+                private readonly int _oldIndex;
+
+                /// <summary>
+                /// The new (redo) index
+                /// </summary>
+                private readonly int _newIndex;
+
+                /// <summary>
+                /// Initializes a new instance of the FramesReorderUndoTask class
+                /// </summary>
+                /// <param name="anim">The animation to affect</param>
+                /// <param name="oldIndex">The old (undo) index</param>
+                /// <param name="newIndex">The new (redo) index</param>
+                public FrameReoderUndoTask(Animation anim, int oldIndex, int newIndex)
+                {
+                    _animation = anim;
+                    _oldIndex = oldIndex;
+                    _newIndex = newIndex;
+                }
+
+                /// <summary>
+                /// Clears this UndoTask object
+                /// </summary>
+                public void Clear()
+                {
+
+                }
+
+                /// <summary>
+                /// Undoes this task
+                /// </summary>
+                public void Undo()
+                {
+                    _animation.SwapFrameIndices(_oldIndex, _newIndex);
+                }
+
+                /// <summary>
+                /// Redoes this task
+                /// </summary>
+                public void Redo()
+                {
+                    _animation.SwapFrameIndices(_oldIndex, _newIndex);
+                }
+
+                /// <summary>
+                /// Returns a short string description of this UndoTask
+                /// </summary>
+                /// <returns>A short string description of this UndoTask</returns>
+                public string GetDescription()
+                {
+                    return "Frame Reoder";
+                }
+            }
+
+            /// <summary>
+            /// Implements an animation resize undo task that undoes/redoes animation resize operations
+            /// </summary>
+            public class AnimationResizeUndoTask : IUndoTask
+            {
+                /// <summary>
+                /// The animation to affect with this AnimationResizeUndoTask instance
+                /// </summary>
+                private readonly Animation _animation;
+
+                /// <summary>
+                /// The list of new frames
+                /// </summary>
+                private readonly Bitmap[] _newFrames;
+
+                /// <summary>
+                /// The old size of the animation before resizing
+                /// </summary>
+                private readonly AnimationResizeSettings _oldResizeSettings;
+
+                /// <summary>
+                /// The resize settings for the operation
+                /// </summary>
+                private readonly AnimationResizeSettings _newResizeSettings;
+
+                /// <summary>
+                /// Initializes a new instance of the AnimationResizeUndoTask class
+                /// </summary>
+                /// <param name="animation">The animation to affect with this AnimationResizeUndoTask instance</param>
+                /// <param name="oldSize">The old size of the animation before resizing</param>
+                /// <param name="resizeSettings">The resize settings for the operation</param>
+                public AnimationResizeUndoTask(Animation animation, Size oldSize, AnimationResizeSettings resizeSettings)
+                {
+                    _animation = animation;
+                    _newFrames = animation.Frames.ToBitmapArray(true);
+                    _oldResizeSettings = new AnimationResizeSettings { InterpolationMode = resizeSettings.InterpolationMode, NewWidth = oldSize.Width, NewHeight = oldSize.Height, PerFrameScalingMethod = resizeSettings.PerFrameScalingMethod };
+                    _newResizeSettings = resizeSettings;
+                }
+
+                /// <summary>
+                /// Clears this UndoTask object
+                /// </summary>
+                public void Clear()
+                {
+                    foreach (Bitmap bit in _newFrames)
+                    {
+                        bit.Dispose();
+                    }
+                }
+
+                /// <summary>
+                /// Undoes this task
+                /// </summary>
+                public void Undo()
+                {
+                    _animation.Resize(_oldResizeSettings);
+                }
+
+                /// <summary>
+                /// Redoes this task
+                /// </summary>
+                public void Redo()
+                {
+                    _animation.Resize(_newResizeSettings);
+
+                    // Apply the frame contents now
+                    for (int i = 0; i < _animation.FrameCount; i++)
+                    {
+                        IFrame frame = _animation[i];
+                        frame.CopyFrom(frame);
+                    }
+                }
+
+                /// <summary>
+                /// Returns a short string description of this UndoTask
+                /// </summary>
+                /// <returns>A short string description of this UndoTask</returns>
+                public string GetDescription()
+                {
+                    return "Animation Resize";
+                }
             }
         }
 

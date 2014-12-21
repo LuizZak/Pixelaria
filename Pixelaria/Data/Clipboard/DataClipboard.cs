@@ -169,35 +169,35 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// List of frames to store into this ClipboardObject
         /// </summary>
-        List<Frame> _frameList;
+        List<IFrame> _frameList;
 
         /// <summary>
         /// Gets the frames currently added to this FrameListClipboardObject instance
         /// </summary>
-        public Frame[] Frames { get { return _frameList.ToArray(); } }
+        public IFrame[] Frames { get { return _frameList.ToArray(); } }
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
         /// </summary>
         public FrameListClipboardObject()
         {
-            _frameList = new List<Frame>();
+            _frameList = new List<IFrame>();
         }
 
         /// <summary>
         /// Initializes a new FrameListClipboardObject with a list of frames to 
         /// </summary>
         /// <param name="frameList">A list of frames to initialize the internal frame list with</param>
-        public FrameListClipboardObject(List<Frame> frameList)
+        public FrameListClipboardObject(List<IFrame> frameList)
         {
-            _frameList = new List<Frame>(frameList);
+            _frameList = new List<IFrame>(frameList);
         }
 
         /// <summary>
         /// Adds the given Frame to this FrameListClipboardObject instance
         /// </summary>
         /// <param name="frame">The frame to add</param>
-        public void AddFrame(Frame frame)
+        public void AddFrame(IFrame frame)
         {
             _frameList.Add(frame);
         }
@@ -209,7 +209,7 @@ namespace Pixelaria.Data.Clipboard
         {
             if (_frameList != null)
             {
-                foreach (Frame frame in _frameList)
+                foreach (var frame in _frameList)
                 {
                     frame.Dispose();
                 }

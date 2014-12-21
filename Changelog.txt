@@ -30,10 +30,12 @@ Legend:
   * Increased speed and decreased memory footprint of the bucket tool.
   * Fixed color sliders not updating when switching between the two active colors.
   * Fixed canceling selections with the selection tool sometimes clearing the selected image region.
+  * Fixed saving a frame always saving it in the PNG format regardless of the selected extension.
 
 . AnimationView
   * Fixed crash related to insertion of frames.
   * Fixed crash related to dragging frames to the end of an animation.
+  * Fixed many crashes related to modifications on the frames and their orders.
 
 . AnimationSheetView
   . Fixed checkbox that should be hidden but wasn't.
