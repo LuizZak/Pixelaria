@@ -941,9 +941,11 @@ namespace Pixelaria.Views.Controls
         /// <param name="description">A short description for this BitmapUndoTask</param>
         /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
         public BitmapUndoTask(PictureBox targetPictureBox, string description, Point drawPoint = new Point())
-            : this(targetPictureBox, (Bitmap)targetPictureBox.Image, description, drawPoint)
         {
-            
+            _targetBitmap = (Bitmap)targetPictureBox.Image;
+            _targetPictureBox = targetPictureBox;
+            _description = description;
+            _drawPoint = drawPoint;
         }
 
         /// <summary>
@@ -954,11 +956,9 @@ namespace Pixelaria.Views.Controls
         /// <param name="description">A short description for this BitmapUndoTask</param>
         /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
         public BitmapUndoTask(PictureBox targetPictureBox, Bitmap targetBitmap, string description, Point drawPoint = new Point())
+            : this(targetPictureBox, description, drawPoint)
         {
-            _targetPictureBox = targetPictureBox;
             _targetBitmap = targetBitmap;
-            _description = description;
-            _drawPoint = drawPoint;
 
             _oldBitmap = targetBitmap.Clone() as Bitmap;
         }
@@ -967,28 +967,42 @@ namespace Pixelaria.Views.Controls
         /// Registers the pixels of the given bitmap as the undo bitmap
         /// </summary>
         /// <param name="oldBitmap">The bitmap whose pixels will be used as the undo bitmap</param>
-        public void SetOldBitmap(Bitmap oldBitmap)
+        /// <param name="cloneBitmap">Whether to clone the bitmap instead of only assigning it</param>
+        public void SetOldBitmap(Bitmap oldBitmap, bool cloneBitmap = true)
         {
-            if (_oldBitmap != null)
+            if (_oldBitmap != null && cloneBitmap)
                 _oldBitmap.Dispose();
 
-            _oldBitmap = new Bitmap(oldBitmap.Width, oldBitmap.Height, PixelFormat.Format32bppArgb);
-
-            FastBitmap.CopyPixels(oldBitmap, _oldBitmap);
+            if(cloneBitmap)
+            {
+                _oldBitmap = new Bitmap(oldBitmap.Width, oldBitmap.Height, PixelFormat.Format32bppArgb);
+                FastBitmap.CopyPixels(oldBitmap, _oldBitmap);
+            }
+            else
+            {
+                _oldBitmap = oldBitmap;
+            }
         }
 
         /// <summary>
         /// Registers the pixels of the given bitmap as the redo bitmap
         /// </summary>
         /// <param name="newBitmap">The bitmap whose pixels will be used as the redo bitmap</param>
-        public void SetNewBitmap(Bitmap newBitmap)
+        /// <param name="cloneBitmap">Whether to clone the bitmap instead of only assigning it</param>
+        public void SetNewBitmap(Bitmap newBitmap, bool cloneBitmap = true)
         {
-            if (_newBitmap != null)
+            if (_newBitmap != null && cloneBitmap)
                 _newBitmap.Dispose();
 
-            _newBitmap = new Bitmap(newBitmap.Width, newBitmap.Height, PixelFormat.Format32bppArgb);
-
-            FastBitmap.CopyPixels(newBitmap, _newBitmap);
+            if(cloneBitmap)
+            {
+                _newBitmap = new Bitmap(newBitmap.Width, newBitmap.Height, PixelFormat.Format32bppArgb);
+                FastBitmap.CopyPixels(newBitmap, _newBitmap);
+            }
+            else
+            {
+                _newBitmap = newBitmap;
+            }
         }
 
         /// <summary>
