@@ -123,6 +123,7 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_deleteFrames = new System.Windows.Forms.ToolStripMenuItem();
             this.cmb_saveSelected = new System.Windows.Forms.ToolStripMenuItem();
             this.cmb_replaceFromImage = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_reverseFrames = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_copyFrames = new System.Windows.Forms.ToolStripMenuItem();
             this.cmb_cutFrames = new System.Windows.Forms.ToolStripMenuItem();
@@ -648,8 +649,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_reverseFrames.Image = global::Pixelaria.Properties.Resources.anim_reverse_icon;
             this.tsm_reverseFrames.Name = "tsm_reverseFrames";
-            this.tsm_reverseFrames.Size = new System.Drawing.Size(155, 22);
-            this.tsm_reverseFrames.Text = "&Reverse Frames";
+            this.tsm_reverseFrames.Size = new System.Drawing.Size(172, 22);
+            this.tsm_reverseFrames.Text = "&Reverse All Frames";
             this.tsm_reverseFrames.Click += new System.EventHandler(this.tsm_reverseFrames_Click);
             // 
             // tsm_filters
@@ -666,7 +667,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
             this.tsm_emptyFilter.Text = "Empty";
             this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
@@ -674,13 +675,13 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
             this.tsm_filterPresets.Text = "Presets";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
             // 
             // statusStrip1
             // 
@@ -775,11 +776,12 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_deleteFrames,
             this.cmb_saveSelected,
             this.cmb_replaceFromImage,
+            this.cmb_reverseFrames,
             this.toolStripMenuItem3,
             this.cmb_copyFrames,
             this.cmb_cutFrames});
             this.cms_frameRightClick.Name = "contextMenuStrip1";
-            this.cms_frameRightClick.Size = new System.Drawing.Size(190, 120);
+            this.cms_frameRightClick.Size = new System.Drawing.Size(190, 164);
             // 
             // cmb_deleteFrames
             // 
@@ -804,6 +806,14 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_replaceFromImage.Size = new System.Drawing.Size(189, 22);
             this.cmb_replaceFromImage.Text = "Replace from image...";
             this.cmb_replaceFromImage.Click += new System.EventHandler(this.cmb_replaceFromImage_Click);
+            // 
+            // cmb_reverseFrames
+            // 
+            this.cmb_reverseFrames.Image = global::Pixelaria.Properties.Resources.anim_reverse_icon;
+            this.cmb_reverseFrames.Name = "cmb_reverseFrames";
+            this.cmb_reverseFrames.Size = new System.Drawing.Size(189, 22);
+            this.cmb_reverseFrames.Text = "Reverse All Frames";
+            this.cmb_reverseFrames.Click += new System.EventHandler(this.cmb_reverseFrames_Click);
             // 
             // toolStripMenuItem3
             // 
@@ -944,5 +954,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_delete;
         private System.Windows.Forms.ToolStripMenuItem tsm_saveSelected;
         private System.Windows.Forms.ToolStripMenuItem tsm_replaceFromFile;
+        private System.Windows.Forms.ToolStripMenuItem cmb_reverseFrames;
     }
 }

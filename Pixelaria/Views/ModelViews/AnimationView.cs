@@ -178,12 +178,14 @@ namespace Pixelaria.Views.ModelViews
 
             // Refreshes the 'Reverse Frames' menu item
             if (lv_frames.SelectedIndices.Count == 2)
-                tsm_reverseFrames.Text = @"Swap Frames";
+                cmb_reverseFrames.Text = tsm_reverseFrames.Text = @"Swap Selected Frames";
+            else if(lv_frames.SelectedItems.Count > 0)
+                cmb_reverseFrames.Text = tsm_reverseFrames.Text = @"Reverse Selected Frames";
             else
-                tsm_reverseFrames.Text = @"Reverse Frames";
+                cmb_reverseFrames.Text = tsm_reverseFrames.Text = @"Reverse All Frames";
 
             tsm_insertFrame.Enabled = tsb_insertFrame.Enabled = lv_frames.SelectedItems.Count != 0;
-            tsm_reverseFrames.Enabled = _viewAnimation.FrameCount > 1;
+            cmb_reverseFrames.Enabled = tsm_reverseFrames.Enabled = _viewAnimation.FrameCount > 1;
 
             RefreshClipboardControls();
             RefreshUndoControls();
@@ -1466,6 +1468,14 @@ namespace Pixelaria.Views.ModelViews
         private void cmb_replaceFromImage_Click(object sender, EventArgs e)
         {
             ReplaceFromFile();
+        }
+
+        //
+        // Reverse Frames context menu button click
+        //
+        private void cmb_reverseFrames_Click(object sender, EventArgs e)
+        {
+            ReverseFrames();
         }
 
         //
