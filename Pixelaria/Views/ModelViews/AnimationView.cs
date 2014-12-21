@@ -1077,7 +1077,11 @@ namespace Pixelaria.Views.ModelViews
                 foreach (IFrame frame in frames)
                 {
                     _viewAnimation.RemoveFrame(frame);
-                    _viewAnimation.AddFrame(frame, newIndex++);
+                }
+
+                foreach (var frame in frames)
+                {
+                    _viewAnimation.AddFrame(frame, Math.Min(_viewAnimation.FrameCount - 1, newIndex++));
                 }
 
                 undoTask.RecordChanges();

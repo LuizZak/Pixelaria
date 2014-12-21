@@ -28,9 +28,12 @@ Legend:
   * Fixed pasting something and deselecting right away undoing the paste operation.
   * Fixed drawing with a Replace blend mode with the pencil not undoing correctly sometimes.
   * Increased speed and decreased memory footprint of the bucket tool.
+  * Fixed color sliders not updating when switching between the two active colors.
+  * Fixed canceling selections with the selection tool sometimes clearing the selected image region.
 
 . AnimationView
   * Fixed crash related to insertion of frames.
+  * Fixed crash related to dragging frames to the end of an animation.
 
 . AnimationSheetView
   . Fixed checkbox that should be hidden but wasn't.
