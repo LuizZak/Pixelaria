@@ -1263,21 +1263,21 @@ namespace Pixelaria.Views.ModelViews
         private void cp_mainColorPicker_ColorPick(object sender, ColorPickEventArgs eventArgs)
         {
             var operation = iepb_frame.CurrentPaintTool as IColoredPaintTool;
-            if (operation != null)
+            if (operation == null)
+                return;
+
+            switch (eventArgs.TargetColor)
             {
-                switch (eventArgs.TargetColor)
-                {
-                    // 
-                    case ColorPickerColor.FirstColor:
-                        FirstColor = eventArgs.NewColor;
-                        operation.FirstColor = eventArgs.NewColor;
-                        break;
-                    // 
-                    case ColorPickerColor.SecondColor:
-                        SecondColor = eventArgs.NewColor;
-                        operation.SecondColor = eventArgs.NewColor;
-                        break;
-                }
+                // 
+                case ColorPickerColor.FirstColor:
+                    FirstColor = eventArgs.NewColor;
+                    operation.FirstColor = eventArgs.NewColor;
+                    break;
+                // 
+                case ColorPickerColor.SecondColor:
+                    SecondColor = eventArgs.NewColor;
+                    operation.SecondColor = eventArgs.NewColor;
+                    break;
             }
         }
 
