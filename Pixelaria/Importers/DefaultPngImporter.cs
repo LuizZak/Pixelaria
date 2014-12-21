@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using Pixelaria.Data;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Importers
 {
@@ -64,16 +65,7 @@ namespace Pixelaria.Importers
                 // Create the frame
                 Frame frame = animation.CreateFrame(settings.FlipFrames ? 0 : -1);
 
-                Bitmap frameBitmap = new Bitmap(frameWidth, frameHeight);
-
-                Graphics graphics = Graphics.FromImage(frameBitmap);
-
-                graphics.DrawImage(sheet, new Rectangle(0, 0, frameWidth, frameHeight), rect, GraphicsUnit.Pixel);
-
-                graphics.Flush();
-                graphics.Dispose();
-
-                frame.SetFrameBitmap(frameBitmap);
+                frame.SetFrameBitmap(FastBitmap.SliceBitmap((Bitmap)sheet, rect));
                 frame.UpdateHash();
             }
 
