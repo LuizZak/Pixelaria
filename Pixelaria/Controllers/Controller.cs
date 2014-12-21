@@ -20,8 +20,10 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -776,7 +778,42 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
-        /// Shows a dialog to save an image to disk
+        /// Shows a dialog to save an image to disk, and returns the selected path.
+        /// Returns string.Empty if the user has canceled
+        /// </summary>
+        /// <param name="imageFormat">The ImageFormat associated with the file format chosen by the user</param>
+        /// <param name="imageToSave">The image to save to disk</param>
+        /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
+        /// <param name="owner">An optional owner for the file dialog</param>
+        /// <returns>The selected save path, or an empty string if the user has not chosen a save path</returns>
+        public string ShowSaveImage(out ImageFormat imageFormat, Image imageToSave = null, string fileName = "", IWin32Window owner = null)
+        {
+            imageFormat = ImageFormat.Png;
+
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
+                FileName = fileName
+            };
+
+            if (sfd.ShowDialog(owner) != DialogResult.OK)
+                return string.Empty;
+
+            string savePath = sfd.FileName;
+
+            imageFormat = ImageFormatForExtension(Path.GetExtension(fileName), imageFormat);
+
+            if (imageToSave != null)
+            {
+                imageToSave.Save(savePath, imageFormat);
+            }
+
+            return savePath;
+        }
+
+        /// <summary>
+        /// Shows a dialog to save an image to disk, and returns the selected path.
+        /// Returns string.Empty if the user has canceled
         /// </summary>
         /// <param name="imageToSave">The image to save to disk</param>
         /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
@@ -784,29 +821,55 @@ namespace Pixelaria.Controllers
         /// <returns>The selected save path, or an empty string if the user has not chosen a save path</returns>
         public string ShowSaveImage(Image imageToSave = null, string fileName = "", IWin32Window owner = null)
         {
-            SaveFileDialog sfd = new SaveFileDialog
-            {
-                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
-                FileName = fileName
-            };
-
-            if (sfd.ShowDialog(owner) == DialogResult.OK)
-            {
-                if (imageToSave != null)
-                {
-                    string savePath = sfd.FileName;
-
-                    imageToSave.Save(savePath);
-                }
-
-                return sfd.FileName;
-            }
-
-            return string.Empty;
+            ImageFormat format;
+            return ShowSaveImage(out format, imageToSave, fileName, owner);
         }
 
         /// <summary>
-        /// Shows a dialog to load an image from disk
+        /// Returns the ImageFormat associated with a given file extension
+        /// </summary>
+        /// <param name="extension">The extension of the file format, with or without the precending '.'</param>
+        /// <param name="defaultFormat">The default format, if the extension is not valid</param>
+        /// <returns>The ImageFormat associated with a given file extension</returns>
+        public ImageFormat ImageFormatForExtension(string extension, ImageFormat defaultFormat)
+        {
+            if (extension.StartsWith("."))
+                extension = extension.Substring(1);
+            extension = extension.ToLower();
+
+            switch (extension.ToLower())
+            {
+                case @"bmp":
+                    return ImageFormat.Bmp;
+
+                case @"gif":
+                    return ImageFormat.Gif;
+
+                case @"ico":
+                    return ImageFormat.Icon;
+
+                case @"jpg":
+                case @"jpeg":
+                    return ImageFormat.Jpeg;
+
+                case @"png":
+                    return ImageFormat.Png;
+
+                case @"tif":
+                case @"tiff":
+                    return ImageFormat.Tiff;
+
+                case @"wmf":
+                    return ImageFormat.Wmf;
+
+                default:
+                    return defaultFormat;
+            }
+        }
+
+        /// <summary>
+        /// Shows a dialog to load an image from disk, and returns the loaded image file.
+        /// Returns null if the user has canceled
         /// </summary>
         /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
         /// <param name="owner">An optional owner for the file dialog</param>
