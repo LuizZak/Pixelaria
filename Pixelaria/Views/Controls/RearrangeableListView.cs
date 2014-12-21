@@ -171,6 +171,8 @@ namespace Pixelaria.Views.Controls
             if (index == -1)
                 return;
 
+            InsertionMark.Index = index;
+
             ListViewItem dropItem = Items[index];//GetItemAt(controlP.X, controlP.Y);
 
             if (dropItem != _tempDropItem)
@@ -204,8 +206,6 @@ namespace Pixelaria.Views.Controls
 
                 _tempDropItem = dropItem;
             }
-
-            InsertionMark.Index = index;
         }
 
         // 
