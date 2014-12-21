@@ -150,10 +150,12 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="color">The color of the fill operation</param>
         /// <param name="point">The point to start the fill operation at</param>
         /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
-        protected void PerformBucketOperaiton(Color color, Point point, CompositingMode compMode)
+        protected unsafe void PerformBucketOperaiton(Color color, Point point, CompositingMode compMode)
         {
+            Bitmap targetBitmap = pictureBox.Bitmap;
+
             // Start the fill operation by getting the color under the user's mouse
-            Color pColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
+            Color pColor = targetBitmap.GetPixel(point.X, point.Y);
             // Do a pre-blend of the color, if the composition mode is SourceOver
             Color newColor = (compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color);
 
@@ -167,99 +169,107 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
 
             // Clone the bitmap to be used on undo/redo
-            Bitmap originalBitmap = new Bitmap(pictureBox.Bitmap);
+            Bitmap originalBitmap = new Bitmap(targetBitmap);
 
             int minX = point.X;
             int minY = point.Y;
             int maxX = point.X;
             int maxY = point.Y;
 
-            // Lock the bitmap
-            FastBitmap fastBitmap = new FastBitmap(pictureBox.Bitmap);
-            fastBitmap.Lock();
-
             // Initialize the undo task
-            BitmapUndoTask undoTask = new BitmapUndoTask(pictureBox, pictureBox.Bitmap, "Flood fill");
+            BitmapUndoTask undoTask = new BitmapUndoTask(pictureBox, "Flood fill");
 
             Stack<int> stack = new Stack<int>();
 
-            int width = fastBitmap.Width;
-            int height = fastBitmap.Height;
+            int width = targetBitmap.Width;
+            int height = targetBitmap.Height;
 
             stack.Push(((point.X << 16) | point.Y));
 
-            // Do a floodfill using a vertical scanline algorithm
-            while(stack.Count > 0)
+            // Floodfill the bitmap
+            using (FastBitmap fastBitmap = targetBitmap.FastLock())
             {
-                int v = stack.Pop();
-                int x = (v >> 16);
-                int y = (v & 0xFFFF);
+                uint* scan0 = (uint*)fastBitmap.Scan0;
+                int strideWidth = fastBitmap.Stride;
 
-                var y1 = y;
-
-                while (y1 >= 0 && fastBitmap.GetPixelUInt(x, y1) == pColorI) y1--;
-
-                y1++;
-                bool spanLeft = false, spanRight = false;
-
-                while (y1 < height && fastBitmap.GetPixelUInt(x, y1) == pColorI)
+                // Do a floodfill using a vertical scanline algorithm
+                while (stack.Count > 0)
                 {
-                    // Expand affected region boundaries
-                    minX = x < minX ? x : minX;
-                    maxX = x > maxX ? x : maxX;
+                    int v = stack.Pop();
+                    int x = (v >> 16);
+                    int y = (v & 0xFFFF);
 
-                    minY = y1 < minY ? y1 : minY;
-                    maxY = y1 > maxY ? y1 : maxY;
+                    var y1 = y;
 
-                    fastBitmap.SetPixel(x, y1, newColorI);
+                    while (y1 >= 0 && *(scan0 + x + y1 * strideWidth) == pColorI) y1--;
 
-                    uint pixel;
-
-                    if (x > 0)
-                    {
-                        pixel = fastBitmap.GetPixelUInt(x - 1, y1);
-
-                        if (!spanLeft && pixel == pColorI)
-                        {
-                            stack.Push((((x - 1) << 16) | y1));
-
-                            spanLeft = true;
-                        }
-                        else if (spanLeft && pixel != pColorI)
-                        {
-                            spanLeft = false;
-                        }
-                    }
-
-                    if (x < width - 1)
-                    {
-                        pixel = fastBitmap.GetPixelUInt(x + 1, y1);
-
-                        if (!spanRight && pixel == pColorI)
-                        {
-                            stack.Push((((x + 1) << 16) | y1));
-                            spanRight = true;
-                        }
-                        else if (spanRight && pixel != pColorI)
-                        {
-                            spanRight = false;
-                        }
-                    }
                     y1++;
+                    bool spanLeft = false, spanRight = false;
+
+                    while (y1 < height && *(scan0 + x + y1 * strideWidth) == pColorI)
+                    {
+                        // Expand affected region boundaries
+                        minX = x < minX ? x : minX;
+                        maxX = x > maxX ? x : maxX;
+
+                        minY = y1 < minY ? y1 : minY;
+                        maxY = y1 > maxY ? y1 : maxY;
+
+                        *(scan0 + x + y1 * strideWidth) = newColorI;
+
+                        uint pixel;
+
+                        if (x > 0)
+                        {
+                            pixel = *(scan0 + (x - 1) + y1 * strideWidth);
+
+                            if (!spanLeft && pixel == pColorI)
+                            {
+                                stack.Push((((x - 1) << 16) | y1));
+
+                                spanLeft = true;
+                            }
+                            else if (spanLeft && pixel != pColorI)
+                            {
+                                spanLeft = false;
+                            }
+                        }
+
+                        if (x < width - 1)
+                        {
+                            pixel = *(scan0 + (x + 1) + y1 * strideWidth);
+
+                            if (!spanRight && pixel == pColorI)
+                            {
+                                stack.Push((((x + 1) << 16) | y1));
+                                spanRight = true;
+                            }
+                            else if (spanRight && pixel != pColorI)
+                            {
+                                spanRight = false;
+                            }
+                        }
+                        y1++;
+                    }
                 }
             }
-
-            fastBitmap.Unlock();
 
             // Generate the undo now
             Rectangle affectedRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
 
             undoTask.DrawPoint = affectedRectangle.Location;
-            // Slice and persist the undo/redo bitmap regions
-            undoTask.SetOldBitmap(FastBitmap.SliceBitmap(originalBitmap, affectedRectangle));
-            undoTask.SetNewBitmap(FastBitmap.SliceBitmap(pictureBox.Bitmap, affectedRectangle));
 
-            originalBitmap.Dispose();
+            // Slice and persist the undo/redo bitmap regions
+            if (affectedRectangle != new Rectangle(0, 0, originalBitmap.Width, originalBitmap.Height))
+            {
+                undoTask.SetOldBitmap(FastBitmap.SliceBitmap(originalBitmap, affectedRectangle), false);
+                originalBitmap.Dispose();
+            }
+            else
+            {
+                undoTask.SetOldBitmap(originalBitmap, false);
+            }
+            undoTask.SetNewBitmap(FastBitmap.SliceBitmap(targetBitmap, affectedRectangle), false);
 
             pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
 
