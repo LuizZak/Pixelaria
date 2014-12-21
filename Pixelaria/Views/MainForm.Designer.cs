@@ -52,7 +52,6 @@ namespace Pixelaria.Views
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.il_treeView = new System.Windows.Forms.ImageList(this.components);
             this.ts_mainStrip = new System.Windows.Forms.ToolStrip();
             this.tsb_new = new System.Windows.Forms.ToolStripButton();
             this.tsb_open = new System.Windows.Forms.ToolStripButton();
@@ -105,6 +104,7 @@ namespace Pixelaria.Views
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_editAnimProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.splitter1 = new System.Windows.Forms.Splitter();
+            this.il_treeView = new System.Windows.Forms.ImageList(this.components);
             this.tv_bundleAnimations = new Pixelaria.Views.Controls.ProjectTreeView();
             this.ts_mainStrip.SuspendLayout();
             this.cms_bundleNodeRightClick.SuspendLayout();
@@ -112,17 +112,8 @@ namespace Pixelaria.Views
             this.cms_animationNodeRightClick.SuspendLayout();
             this.SuspendLayout();
             // 
-            // il_treeView
-            // 
-            this.il_treeView.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("il_treeView.ImageStream")));
-            this.il_treeView.TransparentColor = System.Drawing.Color.Transparent;
-            this.il_treeView.Images.SetKeyName(0, "package-x-generic.png");
-            this.il_treeView.Images.SetKeyName(1, "sheet_icon.png");
-            this.il_treeView.Images.SetKeyName(2, "empty_icon.png");
-            // 
             // ts_mainStrip
             // 
-            resources.ApplyResources(this.ts_mainStrip, "ts_mainStrip");
             this.ts_mainStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.ts_mainStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsb_new,
@@ -135,85 +126,85 @@ namespace Pixelaria.Views
             this.toolStripSeparator2,
             this.tsb_exportButton,
             this.tsb_bundleSettings});
+            resources.ApplyResources(this.ts_mainStrip, "ts_mainStrip");
             this.ts_mainStrip.Name = "ts_mainStrip";
             // 
             // tsb_new
             // 
-            resources.ApplyResources(this.tsb_new, "tsb_new");
             this.tsb_new.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_new.Image = global::Pixelaria.Properties.Resources.document_new;
+            resources.ApplyResources(this.tsb_new, "tsb_new");
             this.tsb_new.Name = "tsb_new";
             this.tsb_new.Click += new System.EventHandler(this.tsb_new_Click);
             // 
             // tsb_open
             // 
-            resources.ApplyResources(this.tsb_open, "tsb_open");
             this.tsb_open.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_open.Image = global::Pixelaria.Properties.Resources.document_open;
+            resources.ApplyResources(this.tsb_open, "tsb_open");
             this.tsb_open.Name = "tsb_open";
             this.tsb_open.Click += new System.EventHandler(this.tsb_open_Click);
             // 
             // tsb_save
             // 
-            resources.ApplyResources(this.tsb_save, "tsb_save");
             this.tsb_save.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_save.Image = global::Pixelaria.Properties.Resources.document_save;
+            resources.ApplyResources(this.tsb_save, "tsb_save");
             this.tsb_save.Name = "tsb_save";
             this.tsb_save.Click += new System.EventHandler(this.tsb_save_Click);
             // 
             // toolStripSeparator1
             // 
-            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
             this.toolStripSeparator1.Name = "toolStripSeparator1";
+            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
             // 
             // tsb_createAnimation
             // 
-            resources.ApplyResources(this.tsb_createAnimation, "tsb_createAnimation");
             this.tsb_createAnimation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_createAnimation.Image = global::Pixelaria.Properties.Resources.anim_new_icon;
+            resources.ApplyResources(this.tsb_createAnimation, "tsb_createAnimation");
             this.tsb_createAnimation.Name = "tsb_createAnimation";
             this.tsb_createAnimation.Click += new System.EventHandler(this.tsb_createAnimation_Click);
             // 
             // tsb_importAnimation
             // 
-            resources.ApplyResources(this.tsb_importAnimation, "tsb_importAnimation");
             this.tsb_importAnimation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_importAnimation.Image = global::Pixelaria.Properties.Resources.edit_undo;
+            resources.ApplyResources(this.tsb_importAnimation, "tsb_importAnimation");
             this.tsb_importAnimation.Name = "tsb_importAnimation";
             this.tsb_importAnimation.Click += new System.EventHandler(this.tsb_importAnimation_Click);
             // 
             // tsb_createAnimationSheet
             // 
-            resources.ApplyResources(this.tsb_createAnimationSheet, "tsb_createAnimationSheet");
             this.tsb_createAnimationSheet.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_createAnimationSheet.Image = global::Pixelaria.Properties.Resources.sheet_new;
+            resources.ApplyResources(this.tsb_createAnimationSheet, "tsb_createAnimationSheet");
             this.tsb_createAnimationSheet.Name = "tsb_createAnimationSheet";
             this.tsb_createAnimationSheet.Click += new System.EventHandler(this.tsb_createAnimationSheet_Click);
             // 
             // toolStripSeparator2
             // 
-            resources.ApplyResources(this.toolStripSeparator2, "toolStripSeparator2");
             this.toolStripSeparator2.Name = "toolStripSeparator2";
+            resources.ApplyResources(this.toolStripSeparator2, "toolStripSeparator2");
             // 
             // tsb_exportButton
             // 
-            resources.ApplyResources(this.tsb_exportButton, "tsb_exportButton");
             this.tsb_exportButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_exportButton.Image = global::Pixelaria.Properties.Resources.emblem_symbolic_link;
+            resources.ApplyResources(this.tsb_exportButton, "tsb_exportButton");
             this.tsb_exportButton.Name = "tsb_exportButton";
             this.tsb_exportButton.Click += new System.EventHandler(this.tsb_exportButton_Click);
             // 
             // tsb_bundleSettings
             // 
-            resources.ApplyResources(this.tsb_bundleSettings, "tsb_bundleSettings");
             this.tsb_bundleSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsb_bundleSettings.Image = global::Pixelaria.Properties.Resources.document_properties;
+            resources.ApplyResources(this.tsb_bundleSettings, "tsb_bundleSettings");
             this.tsb_bundleSettings.Name = "tsb_bundleSettings";
             this.tsb_bundleSettings.Click += new System.EventHandler(this.tsb_bundleSettings_Click);
             // 
             // cms_bundleNodeRightClick
             // 
-            resources.ApplyResources(this.cms_bundleNodeRightClick, "cms_bundleNodeRightClick");
             this.cms_bundleNodeRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_createNewAnimation,
             this.cmb_importAnimation,
@@ -221,38 +212,39 @@ namespace Pixelaria.Views
             this.toolStripMenuItem1,
             this.cmb_bundleSettings});
             this.cms_bundleNodeRightClick.Name = "cms_nodeRightClick";
+            resources.ApplyResources(this.cms_bundleNodeRightClick, "cms_bundleNodeRightClick");
             // 
             // cmb_createNewAnimation
             // 
-            resources.ApplyResources(this.cmb_createNewAnimation, "cmb_createNewAnimation");
             this.cmb_createNewAnimation.Image = global::Pixelaria.Properties.Resources.document_new;
             this.cmb_createNewAnimation.Name = "cmb_createNewAnimation";
+            resources.ApplyResources(this.cmb_createNewAnimation, "cmb_createNewAnimation");
             this.cmb_createNewAnimation.Click += new System.EventHandler(this.cmb_createNewAnimationClick);
             // 
             // cmb_importAnimation
             // 
-            resources.ApplyResources(this.cmb_importAnimation, "cmb_importAnimation");
             this.cmb_importAnimation.Image = global::Pixelaria.Properties.Resources.edit_undo;
             this.cmb_importAnimation.Name = "cmb_importAnimation";
+            resources.ApplyResources(this.cmb_importAnimation, "cmb_importAnimation");
             this.cmb_importAnimation.Click += new System.EventHandler(this.cmb_importAnimationClick);
             // 
             // createNewBundleSheetToolStripMenuItem
             // 
-            resources.ApplyResources(this.createNewBundleSheetToolStripMenuItem, "createNewBundleSheetToolStripMenuItem");
             this.createNewBundleSheetToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.sheet_new;
             this.createNewBundleSheetToolStripMenuItem.Name = "createNewBundleSheetToolStripMenuItem";
+            resources.ApplyResources(this.createNewBundleSheetToolStripMenuItem, "createNewBundleSheetToolStripMenuItem");
             this.createNewBundleSheetToolStripMenuItem.Click += new System.EventHandler(this.createNewBundleSheetToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
-            resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
             // 
             // cmb_bundleSettings
             // 
-            resources.ApplyResources(this.cmb_bundleSettings, "cmb_bundleSettings");
             this.cmb_bundleSettings.Image = global::Pixelaria.Properties.Resources.document_properties;
             this.cmb_bundleSettings.Name = "cmb_bundleSettings";
+            resources.ApplyResources(this.cmb_bundleSettings, "cmb_bundleSettings");
             this.cmb_bundleSettings.Click += new System.EventHandler(this.cmb_bundleSettingsClick);
             // 
             // mm_menu
@@ -262,11 +254,9 @@ namespace Pixelaria.Views
             this.menuItem7,
             this.menuItem9,
             this.menuItem2});
-            resources.ApplyResources(this.mm_menu, "mm_menu");
             // 
             // menuItem1
             // 
-            resources.ApplyResources(this.menuItem1, "menuItem1");
             this.menuItem1.Index = 0;
             this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mi_new,
@@ -277,128 +267,128 @@ namespace Pixelaria.Views
             this.mi_saveAs,
             this.menuItem5,
             this.mi_quit});
+            resources.ApplyResources(this.menuItem1, "menuItem1");
             // 
             // mi_new
             // 
-            resources.ApplyResources(this.mi_new, "mi_new");
             this.mi_new.Index = 0;
+            resources.ApplyResources(this.mi_new, "mi_new");
             this.mi_new.Click += new System.EventHandler(this.mi_new_Click);
             // 
             // mi_open
             // 
-            resources.ApplyResources(this.mi_open, "mi_open");
             this.mi_open.Index = 1;
+            resources.ApplyResources(this.mi_open, "mi_open");
             this.mi_open.Click += new System.EventHandler(this.mi_open_Click);
             // 
             // mi_recentFiles
             // 
-            resources.ApplyResources(this.mi_recentFiles, "mi_recentFiles");
             this.mi_recentFiles.Index = 2;
             this.mi_recentFiles.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.menuItem8});
+            resources.ApplyResources(this.mi_recentFiles, "mi_recentFiles");
             // 
             // menuItem8
             // 
-            resources.ApplyResources(this.menuItem8, "menuItem8");
             this.menuItem8.Index = 0;
+            resources.ApplyResources(this.menuItem8, "menuItem8");
             // 
             // menuItem6
             // 
-            resources.ApplyResources(this.menuItem6, "menuItem6");
             this.menuItem6.Index = 3;
+            resources.ApplyResources(this.menuItem6, "menuItem6");
             // 
             // mi_save
             // 
-            resources.ApplyResources(this.mi_save, "mi_save");
             this.mi_save.Index = 4;
+            resources.ApplyResources(this.mi_save, "mi_save");
             this.mi_save.Click += new System.EventHandler(this.mi_save_Click);
             // 
             // mi_saveAs
             // 
-            resources.ApplyResources(this.mi_saveAs, "mi_saveAs");
             this.mi_saveAs.Index = 5;
+            resources.ApplyResources(this.mi_saveAs, "mi_saveAs");
             this.mi_saveAs.Click += new System.EventHandler(this.mi_saveAs_Click);
             // 
             // menuItem5
             // 
-            resources.ApplyResources(this.menuItem5, "menuItem5");
             this.menuItem5.Index = 6;
+            resources.ApplyResources(this.menuItem5, "menuItem5");
             // 
             // mi_quit
             // 
-            resources.ApplyResources(this.mi_quit, "mi_quit");
             this.mi_quit.Index = 7;
+            resources.ApplyResources(this.mi_quit, "mi_quit");
             this.mi_quit.Click += new System.EventHandler(this.mi_quit_Click);
             // 
             // menuItem7
             // 
-            resources.ApplyResources(this.menuItem7, "menuItem7");
             this.menuItem7.Index = 1;
             this.menuItem7.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mi_addAnimation});
+            resources.ApplyResources(this.menuItem7, "menuItem7");
             // 
             // mi_addAnimation
             // 
-            resources.ApplyResources(this.mi_addAnimation, "mi_addAnimation");
             this.mi_addAnimation.Index = 0;
+            resources.ApplyResources(this.mi_addAnimation, "mi_addAnimation");
             this.mi_addAnimation.Click += new System.EventHandler(this.mi_addAnimation_Click);
             // 
             // menuItem9
             // 
-            resources.ApplyResources(this.menuItem9, "menuItem9");
             this.menuItem9.Index = 2;
             this.menuItem9.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mi_cascade,
             this.mi_tileHorizontally,
             this.mi_arrangeIcons});
+            resources.ApplyResources(this.menuItem9, "menuItem9");
             // 
             // mi_cascade
             // 
-            resources.ApplyResources(this.mi_cascade, "mi_cascade");
             this.mi_cascade.Index = 0;
+            resources.ApplyResources(this.mi_cascade, "mi_cascade");
             this.mi_cascade.Click += new System.EventHandler(this.mi_cascade_Click);
             // 
             // mi_tileHorizontally
             // 
-            resources.ApplyResources(this.mi_tileHorizontally, "mi_tileHorizontally");
             this.mi_tileHorizontally.Index = 1;
+            resources.ApplyResources(this.mi_tileHorizontally, "mi_tileHorizontally");
             this.mi_tileHorizontally.Click += new System.EventHandler(this.mi_tileHorizontally_Click);
             // 
             // mi_arrangeIcons
             // 
-            resources.ApplyResources(this.mi_arrangeIcons, "mi_arrangeIcons");
             this.mi_arrangeIcons.Index = 2;
+            resources.ApplyResources(this.mi_arrangeIcons, "mi_arrangeIcons");
             this.mi_arrangeIcons.Click += new System.EventHandler(this.mi_arrangeIcons_Click);
             // 
             // menuItem2
             // 
-            resources.ApplyResources(this.menuItem2, "menuItem2");
             this.menuItem2.Index = 3;
             this.menuItem2.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mi_fileBug,
             this.menuItem3,
             this.mi_about});
+            resources.ApplyResources(this.menuItem2, "menuItem2");
             // 
             // mi_fileBug
             // 
-            resources.ApplyResources(this.mi_fileBug, "mi_fileBug");
             this.mi_fileBug.Index = 0;
+            resources.ApplyResources(this.mi_fileBug, "mi_fileBug");
             this.mi_fileBug.Click += new System.EventHandler(this.mi_fileBug_Click);
             // 
             // menuItem3
             // 
-            resources.ApplyResources(this.menuItem3, "menuItem3");
             this.menuItem3.Index = 1;
+            resources.ApplyResources(this.menuItem3, "menuItem3");
             // 
             // mi_about
             // 
-            resources.ApplyResources(this.mi_about, "mi_about");
             this.mi_about.Index = 2;
+            resources.ApplyResources(this.mi_about, "mi_about");
             this.mi_about.Click += new System.EventHandler(this.mi_about_Click);
             // 
             // cms_sheetNodeRightClick
             // 
-            resources.ApplyResources(this.cms_sheetNodeRightClick, "cms_sheetNodeRightClick");
             this.cms_sheetNodeRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_deleteSheet,
             this.tsm_sheetCreateAnimation,
@@ -408,88 +398,89 @@ namespace Pixelaria.Views
             this.toolStripMenuItem2,
             this.tsm_editSheetProperties});
             this.cms_sheetNodeRightClick.Name = "cms_sheetNodeRightClick";
+            resources.ApplyResources(this.cms_sheetNodeRightClick, "cms_sheetNodeRightClick");
             // 
             // cmb_deleteSheet
             // 
-            resources.ApplyResources(this.cmb_deleteSheet, "cmb_deleteSheet");
             this.cmb_deleteSheet.Image = global::Pixelaria.Properties.Resources.action_delete;
             this.cmb_deleteSheet.Name = "cmb_deleteSheet";
+            resources.ApplyResources(this.cmb_deleteSheet, "cmb_deleteSheet");
             this.cmb_deleteSheet.Click += new System.EventHandler(this.cmb_deleteSheet_Click);
             // 
             // tsm_sheetCreateAnimation
             // 
-            resources.ApplyResources(this.tsm_sheetCreateAnimation, "tsm_sheetCreateAnimation");
             this.tsm_sheetCreateAnimation.Image = global::Pixelaria.Properties.Resources.anim_new_icon;
             this.tsm_sheetCreateAnimation.Name = "tsm_sheetCreateAnimation";
+            resources.ApplyResources(this.tsm_sheetCreateAnimation, "tsm_sheetCreateAnimation");
             this.tsm_sheetCreateAnimation.Click += new System.EventHandler(this.tsm_sheetCreateAnimation_Click);
             // 
             // tsm_sheetImportAnimation
             // 
-            resources.ApplyResources(this.tsm_sheetImportAnimation, "tsm_sheetImportAnimation");
             this.tsm_sheetImportAnimation.Image = global::Pixelaria.Properties.Resources.edit_undo;
             this.tsm_sheetImportAnimation.Name = "tsm_sheetImportAnimation";
+            resources.ApplyResources(this.tsm_sheetImportAnimation, "tsm_sheetImportAnimation");
             this.tsm_sheetImportAnimation.Click += new System.EventHandler(this.tsm_sheetImportAnimation_Click);
             // 
             // tsm_duplicateSheet
             // 
-            resources.ApplyResources(this.tsm_duplicateSheet, "tsm_duplicateSheet");
             this.tsm_duplicateSheet.Image = global::Pixelaria.Properties.Resources.sheet_duplicate_icon;
             this.tsm_duplicateSheet.Name = "tsm_duplicateSheet";
+            resources.ApplyResources(this.tsm_duplicateSheet, "tsm_duplicateSheet");
             this.tsm_duplicateSheet.Click += new System.EventHandler(this.tsm_duplicateSheet_Click);
             // 
             // exportSheetImageToolStripMenuItem
             // 
-            resources.ApplyResources(this.exportSheetImageToolStripMenuItem, "exportSheetImageToolStripMenuItem");
             this.exportSheetImageToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.sheet_save_icon;
             this.exportSheetImageToolStripMenuItem.Name = "exportSheetImageToolStripMenuItem";
+            resources.ApplyResources(this.exportSheetImageToolStripMenuItem, "exportSheetImageToolStripMenuItem");
             this.exportSheetImageToolStripMenuItem.Click += new System.EventHandler(this.exportSheetImageToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
-            resources.ApplyResources(this.toolStripMenuItem2, "toolStripMenuItem2");
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            resources.ApplyResources(this.toolStripMenuItem2, "toolStripMenuItem2");
             // 
             // tsm_editSheetProperties
             // 
-            resources.ApplyResources(this.tsm_editSheetProperties, "tsm_editSheetProperties");
             this.tsm_editSheetProperties.Image = global::Pixelaria.Properties.Resources.edit_properties;
             this.tsm_editSheetProperties.Name = "tsm_editSheetProperties";
+            resources.ApplyResources(this.tsm_editSheetProperties, "tsm_editSheetProperties");
             this.tsm_editSheetProperties.Click += new System.EventHandler(this.tsm_editSheetPropertiesClick);
             // 
             // cms_animationNodeRightClick
             // 
-            resources.ApplyResources(this.cms_animationNodeRightClick, "cms_animationNodeRightClick");
             this.cms_animationNodeRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_deleteAnim,
             this.duplicateAnimationToolStripMenuItem,
             this.toolStripMenuItem3,
             this.cmb_editAnimProperties});
             this.cms_animationNodeRightClick.Name = "contextMenuStrip1";
+            resources.ApplyResources(this.cms_animationNodeRightClick, "cms_animationNodeRightClick");
             // 
             // cmb_deleteAnim
             // 
-            resources.ApplyResources(this.cmb_deleteAnim, "cmb_deleteAnim");
             this.cmb_deleteAnim.Image = global::Pixelaria.Properties.Resources.action_delete;
             this.cmb_deleteAnim.Name = "cmb_deleteAnim";
+            resources.ApplyResources(this.cmb_deleteAnim, "cmb_deleteAnim");
             this.cmb_deleteAnim.Click += new System.EventHandler(this.cmb_deleteAnim_Click);
             // 
             // duplicateAnimationToolStripMenuItem
             // 
-            resources.ApplyResources(this.duplicateAnimationToolStripMenuItem, "duplicateAnimationToolStripMenuItem");
             this.duplicateAnimationToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.edit_copy;
             this.duplicateAnimationToolStripMenuItem.Name = "duplicateAnimationToolStripMenuItem";
+            resources.ApplyResources(this.duplicateAnimationToolStripMenuItem, "duplicateAnimationToolStripMenuItem");
             this.duplicateAnimationToolStripMenuItem.Click += new System.EventHandler(this.duplicateAnimationToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
-            resources.ApplyResources(this.toolStripMenuItem3, "toolStripMenuItem3");
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            resources.ApplyResources(this.toolStripMenuItem3, "toolStripMenuItem3");
             // 
             // cmb_editAnimProperties
             // 
-            resources.ApplyResources(this.cmb_editAnimProperties, "cmb_editAnimProperties");
             this.cmb_editAnimProperties.Image = global::Pixelaria.Properties.Resources.edit_properties;
             this.cmb_editAnimProperties.Name = "cmb_editAnimProperties";
+            resources.ApplyResources(this.cmb_editAnimProperties, "cmb_editAnimProperties");
             this.cmb_editAnimProperties.Click += new System.EventHandler(this.cmb_editAnimProperties_Click);
             // 
             // splitter1
@@ -498,10 +489,19 @@ namespace Pixelaria.Views
             this.splitter1.Name = "splitter1";
             this.splitter1.TabStop = false;
             // 
+            // il_treeView
+            // 
+            this.il_treeView.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("il_treeView.ImageStream")));
+            this.il_treeView.TransparentColor = System.Drawing.Color.Transparent;
+            this.il_treeView.Images.SetKeyName(0, "package-x-generic.png");
+            this.il_treeView.Images.SetKeyName(1, "sheet_icon.png");
+            this.il_treeView.Images.SetKeyName(2, "empty_icon.png");
+            this.il_treeView.Images.SetKeyName(3, "anim_icon.png");
+            // 
             // tv_bundleAnimations
             // 
-            resources.ApplyResources(this.tv_bundleAnimations, "tv_bundleAnimations");
             this.tv_bundleAnimations.AllowDrop = true;
+            resources.ApplyResources(this.tv_bundleAnimations, "tv_bundleAnimations");
             this.tv_bundleAnimations.FullRowSelect = true;
             this.tv_bundleAnimations.HideSelection = false;
             this.tv_bundleAnimations.ImageList = this.il_treeView;
@@ -539,7 +539,6 @@ namespace Pixelaria.Views
         #endregion
 
         private Pixelaria.Views.Controls.ProjectTreeView tv_bundleAnimations;
-        private System.Windows.Forms.ImageList il_treeView;
         private System.Windows.Forms.ToolStrip ts_mainStrip;
         private System.Windows.Forms.ToolStripButton tsb_bundleSettings;
         private System.Windows.Forms.ContextMenuStrip cms_bundleNodeRightClick;
@@ -592,5 +591,6 @@ namespace Pixelaria.Views
         private System.Windows.Forms.ToolStripMenuItem exportSheetImageToolStripMenuItem;
         private System.Windows.Forms.MenuItem mi_fileBug;
         private System.Windows.Forms.MenuItem menuItem3;
+        private System.Windows.Forms.ImageList il_treeView;
     }
 }

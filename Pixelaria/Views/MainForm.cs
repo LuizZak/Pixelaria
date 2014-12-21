@@ -154,10 +154,10 @@ namespace Pixelaria.Views
             _rootNode = null;
 
             // Clear the thumbnails
-            while(il_treeView.Images.Count > 3)
+            while(il_treeView.Images.Count > 4)
             {
-                il_treeView.Images[3].Dispose();
-                il_treeView.Images.RemoveAt(3);
+                il_treeView.Images[4].Dispose();
+                il_treeView.Images.RemoveAt(4);
             }
 
             // Start filling the tree view again
@@ -211,9 +211,7 @@ namespace Pixelaria.Views
                 var animation = node.Tag as Animation;
                 if(animation != null)
                 {
-                    Animation tag = animation;
-
-                    node.ImageKey = node.SelectedImageKey = (tag.Name + tag.ID);
+                    node.ImageKey = node.SelectedImageKey = (animation.Name + animation.ID);
                 }
 
                 // Enqueue the children nodes
@@ -384,7 +382,7 @@ namespace Pixelaria.Views
             }
             else
             {
-                animNode.ImageKey = animNode.SelectedImageKey = @"EMPTY";
+                animNode.ImageKey = animNode.SelectedImageKey = animNode.StateImageKey = @"EMPTY";
             }
 
             UpdateTreeViewIcons();
