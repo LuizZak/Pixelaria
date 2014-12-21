@@ -21,6 +21,9 @@ Legend:
 -- Current Release
 
 - When changing active colors on the frame view, the color sliders don't update accordingly
+- When changing active colors on the frame view, the color sliders don't update accordingly.
+>> Fixed on Current Release
+
 
 -- v1.11.0b
 

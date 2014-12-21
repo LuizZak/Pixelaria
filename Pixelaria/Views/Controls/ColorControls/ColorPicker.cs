@@ -77,7 +77,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             get { return _firstColor.ToColor(); }
             set
             {
-                if (_firstColor.ToColor() == value)
+                if (_firstColor.ToColor().ToArgb() == value.ToArgb())
                     return;
 
                 _firstColor = value.ToAhsl();
@@ -95,7 +95,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             get { return _secondColor.ToColor(); }
             set
             {
-                if (_secondColor.ToColor() == value)
+                if (_secondColor.ToColor().ToArgb() == value.ToArgb())
                     return;
 
                 _secondColor = value.ToAhsl();
@@ -149,6 +149,9 @@ namespace Pixelaria.Views.Controls.ColorControls
             get { return _selectedColor; }
             set
             {
+                if (_selectedColor == value)
+                    return;
+
                 _selectedColor = value;
 
                 switch (_selectedColor)
@@ -162,6 +165,8 @@ namespace Pixelaria.Views.Controls.ColorControls
                         pnl_secondColor.BorderStyle = BorderStyle.Fixed3D;
                         break;
                 }
+
+                UpdateSliders();
             }
         }
 
@@ -186,6 +191,8 @@ namespace Pixelaria.Views.Controls.ColorControls
             cs_hue.ColorChanged += cs_colorChanged;
             cs_saturation.ColorChanged += cs_colorChanged;
             cs_lightness.ColorChanged += cs_colorChanged;
+
+            UpdateSliders();
         }
 
         /// <summary>
@@ -337,8 +344,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="point">The point to get the color at the palette</param>
         private void SelectColorOnPalette(Point point)
         {
-            if (point.X < 0 || point.Y < 0 || point.X >= pb_palette.Width || point.Y >= pb_palette.Height)
-                return;
+            point.X = Math.Max(0, Math.Min(pb_palette.Width - 1, point.X));
+            point.Y = Math.Max(0, Math.Min(pb_palette.Height - 1, point.Y));
 
             point.X = (int)(point.X / ((float)pb_palette.Width / pb_palette.Image.Width));
             point.Y = (int)(point.Y / ((float)pb_palette.Height / pb_palette.Image.Height));
