@@ -357,7 +357,8 @@ namespace Pixelaria.Data
         /// <param name="sheet">The animation sheet to add to this bundle</param>
         public void AddAnimationSheet(AnimationSheet sheet)
         {
-            sheet.ID = GetNextValidAnimationSheetID();
+            if(sheet.ID == -1)
+                sheet.ID = GetNextValidAnimationSheetID();
 
             _animationSheets.Add(sheet);
 
@@ -371,7 +372,8 @@ namespace Pixelaria.Data
 
             foreach (var animation in sheet.Animations)
             {
-                animation.ID = GetNextValidAnimationID();
+                if(animation.ID == -1)
+                    animation.ID = GetNextValidAnimationID();
             }
         }
 
