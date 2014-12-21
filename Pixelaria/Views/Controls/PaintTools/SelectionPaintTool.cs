@@ -235,7 +235,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 FinishOperation(true);
             }
 
-            StartOperation(new Rectangle(0, 0, pictureBox.Image.Width, pictureBox.Image.Height), null);
+            StartOperation(new Rectangle(0, 0, pictureBox.Image.Width, pictureBox.Image.Height), null, SelectionOperationType.Moved);
         }
 
         /// <summary>
