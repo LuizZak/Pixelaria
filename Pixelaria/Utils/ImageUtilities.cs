@@ -116,69 +116,67 @@ namespace Pixelaria.Utils
             int width = image.Width;
             int height = image.Height;
 
-            FastBitmap fastBitmap = new FastBitmap(image);
-
-            fastBitmap.Lock();
-
-            // Scan vertically - 1st pass
-            for (x = 0; x < width; x++)
+            using (FastBitmap fastBitmap = image.FastLock())
             {
+                // Scan vertically - 1st pass
+                for (x = 0; x < width; x++)
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                        {
+                            minImageX = x;
+                            goto skipx;
+                        }
+                        // All pixels scanned, non are opaque
+                        if (x == width - 1 && y == height - 1)
+                        {
+                            return new Rectangle(0, 0, 0, 0);
+                        }
+                    }
+                } skipx:
+
+                // Scan horizontally - 1st pass
                 for (y = 0; y < height; y++)
                 {
-                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                    for (x = minImageX; x < width; x++)
                     {
-                        minImageX = x;
-                        goto skipx;
-                    }
-                    // All pixels scanned, non are opaque
-                    if (x == width - 1 && y == height - 1)
-                    {
-                        return new Rectangle(0, 0, 0, 0);
-                    }
-                }
-            } skipx:
+                        minImageY = y;
 
-            // Scan horizontally - 1st pass
-            for (y = 0; y < height; y++)
-            {
-                for (x = minImageX; x < width; x++)
+                        if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                        {
+                            goto skipy;
+                        }
+                    }
+                } skipy:
+
+                // Scan vertically - 2nd pass
+                for (x = width - 1; x >= minImageX; x--)
                 {
-                    minImageY = y;
-
-                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                    for (y = height - 1; y >= minImageY; y--)
                     {
-                        goto skipy;
+                        if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                        {
+                            maxImageX = x;
+                            goto skipw;
+                        }
                     }
-                }
-            } skipy:
+                } skipw:
 
-            // Scan vertically - 2nd pass
-            for (x = width - 1; x >= minImageX; x--)
-            {
+                // Scan horizontally - 2nd pass
                 for (y = height - 1; y >= minImageY; y--)
                 {
-                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                    for (x = minImageX; x <= maxImageX; x++)
                     {
-                        maxImageX = x;
-                        goto skipw;
+                        if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
+                        {
+                            maxImageY = y;
+                            goto skiph;
+                        }
                     }
-                }
-            } skipw:
-
-            // Scan horizontally - 2nd pass
-            for (y = height - 1; y >= minImageY; y--)
-            {
-                for (x = minImageX; x <= maxImageX; x++)
-                {
-                    if (fastBitmap.GetPixelInt(x, y) >> 24 != 0)
-                    {
-                        maxImageY = y;
-                        goto skiph;
-                    }
-                }
-            } skiph:
-
-            fastBitmap.Unlock();
+                } skiph:
+                ;
+            }
 
             return new Rectangle(minImageX, minImageY, maxImageX - minImageX + 1, maxImageY - minImageY + 1);
         }
