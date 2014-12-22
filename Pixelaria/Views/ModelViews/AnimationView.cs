@@ -90,6 +90,11 @@ namespace Pixelaria.Views.ModelViews
         private readonly EventHandler _presetClickEventHandler;
 
         /// <summary>
+        /// Whether the animation name provided in the animation's name text box is valid
+        /// </summary>
+        private bool _nameValid;
+
+        /// <summary>
         /// Gets the current animation being displayed on this AnimationView
         /// </summary>
         public Animation CurrentAnimation { get { return _currentAnimation; } }
@@ -379,23 +384,23 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>Whether the validation was successful</returns>
         private bool ValidateFields()
         {
-            bool valid = true;
-
             // Animation name
             var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animName.Text, _currentAnimation);
             if (validation != "")
             {
                 txt_animName.BackColor = Color.LightPink;
                 tsl_error.Text = validation;
-                valid = false;
+                _nameValid = false;
             }
             else
             {
                 txt_animName.BackColor = Color.White;
+                _nameValid = true;
             }
 
-            tsl_error.Visible = !valid;
+            var valid = _nameValid;
 
+            tsl_error.Visible = !valid;
             tsb_applyChangesAndClose.Enabled = valid;
 
             return valid;
@@ -620,6 +625,22 @@ namespace Pixelaria.Views.ModelViews
             MarkModified();
 
             RefreshView();
+        }
+
+        /// <summary>
+        /// Updates the animation's name based on the text provided in the animation name's textbox
+        /// </summary>
+        private void UpdateAnimationName()
+        {
+            MarkModified();
+            ValidateFields();
+
+            if (_nameValid)
+            {
+                _viewAnimation.Name = txt_animName.Text;
+                RefreshAnimationInfo();
+                RefreshTitle();
+            }
         }
 
         #endregion
@@ -1438,8 +1459,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void txt_animName_TextChanged(object sender, EventArgs e)
         {
-            MarkModified();
-            ValidateFields();
+            UpdateAnimationName();
         }
 
         #endregion
@@ -2278,6 +2298,7 @@ namespace Pixelaria.Views.ModelViews
                 public AnimationResizeUndoTask(Animation animation, Size oldSize, AnimationResizeSettings resizeSettings)
                 {
                     _animation = animation;
+                    // TODO: Deal with ToBitmapArray() here assuming it is always a clone, not a reference to the original bitmap
                     _newFrames = animation.Frames.ToBitmapArray(true);
                     _oldResizeSettings = new AnimationResizeSettings { InterpolationMode = resizeSettings.InterpolationMode, NewWidth = oldSize.Width, NewHeight = oldSize.Height, PerFrameScalingMethod = resizeSettings.PerFrameScalingMethod };
                     _newResizeSettings = resizeSettings;

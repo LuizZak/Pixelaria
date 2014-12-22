@@ -21,6 +21,8 @@ Legend:
 -- Current Version
 
 . FrameView
+  + Added option to render the onion skin on top of the current frame, instead of under it
+  
   * Now only the Alpha color component slider shows transparency, all the other sliders are always fully opaque regardless of the current color's transparency.
   * Fixed deleting a selection that was just pasted on the canvas creating an undo task.
   * Now an undo task for a selection pasting is only performed when the selection is effectively released and the image drawn on the canvas.
@@ -33,6 +35,9 @@ Legend:
   * Fixed saving a frame always saving it in the PNG format regardless of the selected extension.
 
 . AnimationView
+  + Added new right click menu for frames.
+  + Added functionality to save selected frames to disk.
+  + Added functionality to load a frame from disk into the currently selected frame.
   * Fixed crash related to insertion of frames.
   * Fixed crash related to dragging frames to the end of an animation.
   * Fixed many crashes related to modifications on the frames and their orders.

@@ -20,6 +20,9 @@ Legend:
 
 -- Current Release
 
+- When changing a frame and returning the the animation form, the information for the animation's reset back to the default info
+>> Fixed on Current Release
+
 - When moving slices of the image with the selection tool, the preview panel's image is not updated accordingly.
 
 - When changing active colors on the frame view, the color sliders don't update accordingly.
