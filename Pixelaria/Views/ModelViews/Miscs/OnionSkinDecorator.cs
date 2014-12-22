@@ -24,29 +24,9 @@ namespace Pixelaria.Views.ModelViews.Miscs
         protected Bitmap onionSkin;
 
         /// <summary>
-        /// Whether the onion skin is currently enabled
+        /// The settings to utilize when rendering this onion skin
         /// </summary>
-        public bool OnionSkinEnabled;
-
-        /// <summary>
-        /// The depth of the onion skin
-        /// </summary>
-        public int OnionSkinDepth;
-
-        /// <summary>
-        /// The transparency of the onion skin
-        /// </summary>
-        public float OnionSkinTransparency;
-
-        /// <summary>
-        /// The current onion skin mode
-        /// </summary>
-        public OnionSkinMode OnionSkinMode;
-
-        /// <summary>
-        /// Whether to show the current frame on the onion skin
-        /// </summary>
-        public bool OnionSkinShowCurrentFrame;
+        public OnionSkinSettings Settings;
 
         /// <summary>
         /// The event handler for the frame changed event
@@ -73,7 +53,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
         // 
         private void frameView_EditFrameChanged(object sender, EditFrameChangedEventArgs args)
         {
-            if (OnionSkinEnabled)
+            if (Settings.OnionSkinEnabled)
             {
                 DestroyOnionSkin();
                 ShowOnionSkin();
@@ -106,7 +86,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
         /// </summary>
         public void ShowOnionSkin()
         {
-            OnionSkinEnabled = true;
+            Settings.OnionSkinEnabled = true;
 
             if (frameView.FrameLoaded == null)
                 return;
@@ -140,16 +120,16 @@ namespace Pixelaria.Views.ModelViews.Miscs
             ColorMatrix matrix = new ColorMatrix();
 
             //float multDecay = 0.3f + (0.7f / OnionSkinDepth);
-            float multDecay = 0.5f + (OnionSkinDepth / 50.0f);
+            float multDecay = 0.5f + (Settings.OnionSkinDepth / 50.0f);
 
             // Draw the previous frames
-            if (OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
+            if (Settings.OnionSkinMode == OnionSkinMode.PreviousFrames || Settings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
             {
                 int fi = frameView.FrameLoaded.Index;
                 float mult = 1;
-                for (int i = fi - 1; i > fi - OnionSkinDepth - 1 && i >= 0; i--)
+                for (int i = fi - 1; i > fi - Settings.OnionSkinDepth - 1 && i >= 0; i--)
                 {
-                    matrix.Matrix33 = OnionSkinTransparency * mult;
+                    matrix.Matrix33 = Settings.OnionSkinTransparency * mult;
                     mult *= multDecay;
                     attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
@@ -157,13 +137,13 @@ namespace Pixelaria.Views.ModelViews.Miscs
                 }
             }
             // Draw the next frames
-            if (OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
+            if (Settings.OnionSkinMode == OnionSkinMode.NextFrames || Settings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
             {
                 int fi = frameView.FrameLoaded.Index;
                 float mult = 1;
-                for (int i = fi + 1; i < fi + OnionSkinDepth + 1 && i < frameView.FrameLoaded.Animation.FrameCount; i++)
+                for (int i = fi + 1; i < fi + Settings.OnionSkinDepth + 1 && i < frameView.FrameLoaded.Animation.FrameCount; i++)
                 {
-                    matrix.Matrix33 = OnionSkinTransparency * mult;
+                    matrix.Matrix33 = Settings.OnionSkinTransparency * mult;
                     mult *= multDecay;
                     attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
@@ -174,7 +154,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
             og.Flush();
             og.Dispose();
 
-            pictureBox.DisplayImage = OnionSkinShowCurrentFrame;
+            pictureBox.DisplayImage = Settings.OnionSkinShowCurrentFrame;
             pictureBox.Invalidate();
         }
 
@@ -187,7 +167,7 @@ namespace Pixelaria.Views.ModelViews.Miscs
 
             DestroyOnionSkin();
 
-            OnionSkinEnabled = false;
+            Settings.OnionSkinEnabled = false;
         }
 
         /// <summary>
@@ -211,12 +191,87 @@ namespace Pixelaria.Views.ModelViews.Miscs
         /// <param name="image">The under image to decorate</param>
         public override void DecorateUnderImage(Image image)
         {
-            if (onionSkin != null)
+            if (onionSkin != null && !Settings.DisplayOnFront)
+            {
+                Graphics g = Graphics.FromImage(image);
+
+                g.DrawImage(onionSkin, 0, 0);
+            }
+
+            pictureBox.DisplayImage = Settings.OnionSkinShowCurrentFrame;
+        }
+
+        /// <summary>
+        /// Decorates the over image, using the given event arguments
+        /// </summary>
+        /// <param name="image">The over image to decorate</param>
+        public override void DecorateFrontImage(Image image)
+        {
+            if (onionSkin != null && Settings.DisplayOnFront)
             {
                 Graphics g = Graphics.FromImage(image);
 
                 g.DrawImage(onionSkin, 0, 0);
             }
         }
+    }
+
+    /// <summary>
+    /// Represents the settings to apply to an onion skin decorator
+    /// </summary>
+    public struct OnionSkinSettings
+    {
+        /// <summary>
+        /// Whether onion skin is currently enabled
+        /// </summary>
+        public bool OnionSkinEnabled;
+
+        /// <summary>
+        /// The depth of the onion skin, in frames
+        /// </summary>
+        public int OnionSkinDepth;
+
+        /// <summary>
+        /// The transparency of the onion skin
+        /// </summary>
+        public float OnionSkinTransparency;
+
+        /// <summary>
+        /// Whether to show the current frame on onion skin mode
+        /// </summary>
+        public bool OnionSkinShowCurrentFrame;
+
+        /// <summary>
+        /// Whether to display the onion skin above the current frame
+        /// </summary>
+        public bool DisplayOnFront;
+
+        /// <summary>
+        /// The mode to use on the onion skin
+        /// </summary>
+        public OnionSkinMode OnionSkinMode;
+    }
+
+    /// <summary>
+    /// Specifies the mode of an onion skin display
+    /// </summary>
+    public enum OnionSkinMode
+    {
+        /// <summary>
+        /// Display no frames on the onion skin
+        /// </summary>
+        None,
+        /// <summary>
+        /// Displays only the previous frames on the onion skin
+        /// </summary>
+        PreviousFrames,
+        /// <summary>
+        /// Displays both the previous and next frames on the onion skin
+        /// </summary>
+        PreviousAndNextFrames,
+        /// <summary>
+        /// Displays only the next frames on the onion skin
+        /// </summary>
+        NextFrames
     }
 }

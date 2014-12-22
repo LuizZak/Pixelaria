@@ -110,29 +110,9 @@ namespace Pixelaria.Views.ModelViews
         public static int BrushSize;
 
         /// <summary>
-        /// Whether onion skin is currently enabled
+        /// The settings to apply to the onion skin, saved accross form closings
         /// </summary>
-        public static bool OnionSkinEnabled;
-
-        /// <summary>
-        /// The depth of the onion skin, in frames
-        /// </summary>
-        public static int OnionSkinDepth;
-
-        /// <summary>
-        /// The transparency of the onion skin
-        /// </summary>
-        public static float OnionSkinTransparency;
-
-        /// <summary>
-        /// Whether to show the current frame on onion skin mode
-        /// </summary>
-        public static bool OnionSkinShowCurrentFrame;
-
-        /// <summary>
-        /// The mode to use on the onion skin
-        /// </summary>
-        public static OnionSkinMode OnionSkinMode;
+        public static OnionSkinSettings GlobalOnionSkinSettings;
 
         /// <summary>
         /// The onion skin decorator used to display the onion skin on this frame view
@@ -174,11 +154,15 @@ namespace Pixelaria.Views.ModelViews
             CurrentCompositingMode = CompositingMode.SourceOver;
             BrushSize = 1;
 
-            OnionSkinEnabled = false;
-            OnionSkinDepth = 3;
-            OnionSkinShowCurrentFrame = true;
-            OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
-            OnionSkinTransparency = 0.25f;
+            GlobalOnionSkinSettings = new OnionSkinSettings
+            {
+                OnionSkinEnabled = false,
+                OnionSkinDepth = 3,
+                OnionSkinShowCurrentFrame = true,
+                OnionSkinMode = OnionSkinMode.PreviousAndNextFrames,
+                OnionSkinTransparency = 0.25f,
+                DisplayOnFront = false
+            };
         }
 
         /// <summary>
@@ -225,22 +209,25 @@ namespace Pixelaria.Views.ModelViews
             pnl_framePreview.Visible = _framePreviewEnabled;
             zpb_framePreview.HookToControl(this);
 
-            tsb_onionSkin.Checked = OnionSkinEnabled;
-            tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
-            tsb_osShowCurrentFrame.Checked = OnionSkinShowCurrentFrame;
-            tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_onionSkin.Checked = GlobalOnionSkinSettings.OnionSkinEnabled;
+            tsb_osPrevFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_osShowCurrentFrame.Checked = GlobalOnionSkinSettings.OnionSkinShowCurrentFrame;
+            tsb_osNextFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.NextFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
 
             OnionSkinDecorator = new OnionSkinDecorator(this, iepb_frame.PictureBox)
             {
-                OnionSkinDepth = OnionSkinDepth,
-                OnionSkinMode = OnionSkinMode,
-                OnionSkinShowCurrentFrame = OnionSkinShowCurrentFrame,
-                OnionSkinTransparency = OnionSkinTransparency
+                Settings =
+                {
+                    OnionSkinDepth = GlobalOnionSkinSettings.OnionSkinDepth,
+                    OnionSkinMode = GlobalOnionSkinSettings.OnionSkinMode,
+                    OnionSkinShowCurrentFrame = GlobalOnionSkinSettings.OnionSkinShowCurrentFrame,
+                    OnionSkinTransparency = GlobalOnionSkinSettings.OnionSkinTransparency
+                }
             };
 
             iepb_frame.PictureBox.AddDecorator(OnionSkinDecorator);
 
-            if (OnionSkinEnabled)
+            if (GlobalOnionSkinSettings.OnionSkinEnabled)
             {
                 ShowOnionSkin();
             }
@@ -386,7 +373,7 @@ namespace Pixelaria.Views.ModelViews
                 _onionSkin.Dispose();
             }
 
-            // TODO: Deal with non Frame frames
+            // TODO: Deal with non 'Frame' typed frames
             if (!(frame is Frame))
                 return;
 
@@ -418,6 +405,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ExportFrame()
         {
+            // TODO: Deal with GetComposedBitmap()'s return assuming it is a clone of the image, and not the original
             Image img = _viewFrame.GetComposedBitmap();
             string fileName;
 
@@ -540,7 +528,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ToggleOnionSkin()
         {
-            if (OnionSkinEnabled)
+            if (GlobalOnionSkinSettings.OnionSkinEnabled)
             {
                 HideOnionSkin();
             }
@@ -555,9 +543,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ToggleCurrentFrameOnOnionSkin()
         {
-            OnionSkinShowCurrentFrame = !OnionSkinShowCurrentFrame;
+            GlobalOnionSkinSettings.OnionSkinShowCurrentFrame = !GlobalOnionSkinSettings.OnionSkinShowCurrentFrame;
 
-            iepb_frame.PictureBox.DisplayImage = OnionSkinShowCurrentFrame;
+            OnionSkinDecorator.Settings = GlobalOnionSkinSettings;
+            iepb_frame.PictureBox.Invalidate();
         }
 
         /// <summary>
@@ -565,21 +554,24 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ShowOnionSkin()
         {
-            OnionSkinEnabled = true;
+            GlobalOnionSkinSettings.OnionSkinEnabled = true;
 
             // Update the toolbar
-            tsb_osPrevFrames.Checked = OnionSkinMode == OnionSkinMode.PreviousFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
-            tsb_osNextFrames.Checked = OnionSkinMode == OnionSkinMode.NextFrames || OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_osPrevFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_osNextFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.NextFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
+            tsb_osDisplayOnFront.Checked = GlobalOnionSkinSettings.DisplayOnFront;
 
-            if (tscb_osFrameCount.SelectedIndex != OnionSkinDepth - 1)
+            if (tscb_osFrameCount.SelectedIndex != GlobalOnionSkinSettings.OnionSkinDepth - 1)
             {
                 _ignoreOnionSkinDepthComboboxEvent = true;
-                tscb_osFrameCount.SelectedIndex = OnionSkinDepth - 1;
+                tscb_osFrameCount.SelectedIndex = GlobalOnionSkinSettings.OnionSkinDepth - 1;
                 _ignoreOnionSkinDepthComboboxEvent = false;
             }
 
             if (!tsl_onionSkinDepth.Visible)
-                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = true;
+                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osDisplayOnFront.Visible = tsb_osNextFrames.Visible = true;
+
+            OnionSkinDecorator.Settings = GlobalOnionSkinSettings;
 
             OnionSkinDecorator.ShowOnionSkin();
         }
@@ -589,12 +581,12 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void HideOnionSkin()
         {
-            OnionSkinEnabled = false;
+            GlobalOnionSkinSettings.OnionSkinEnabled = false;
 
             OnionSkinDecorator.HideOnionSkin();
 
             if (tsl_onionSkinDepth.Visible)
-                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osNextFrames.Visible = false;
+                tsl_onionSkinDepth.Visible = tscb_osFrameCount.Visible = tsb_osPrevFrames.Visible = tsb_osShowCurrentFrame.Visible = tsb_osDisplayOnFront.Visible = tsb_osNextFrames.Visible = false;
         }
 
         /// <summary>
@@ -1154,7 +1146,107 @@ namespace Pixelaria.Views.ModelViews
 
         #endregion
 
-        #region Filters Menu
+        #region Menu Bar Button Events
+
+        #region File menu
+
+        // 
+        // Export Frame menu item click
+        // 
+        private void tsm_exportFrame_Click(object sender, EventArgs e)
+        {
+            ExportFrame();
+        }
+
+        // 
+        // Import Frame menu item click
+        // 
+        private void tsm_importFrame_Click(object sender, EventArgs e)
+        {
+            ImportFrame();
+        }
+
+        #endregion
+
+        #region Edit menu
+
+        // 
+        // Previous Frame menu item click
+        // 
+        private void tsm_prevFrame_Click(object sender, EventArgs e)
+        {
+            PrevFrame();
+        }
+        // 
+        // Next Frame menu item click
+        // 
+        private void tsm_nextFrame_Click(object sender, EventArgs e)
+        {
+            NextFrame();
+        }
+
+        // 
+        // Copy menu item click
+        // 
+        private void tsm_copy_Click(object sender, EventArgs e)
+        {
+            Copy();
+        }
+        // 
+        // Cut menu item click
+        // 
+        private void tsm_cut_Click(object sender, EventArgs e)
+        {
+            Cut();
+        }
+        // 
+        // Paste menu item click
+        // 
+        private void tsm_paste_Click(object sender, EventArgs e)
+        {
+            Paste();
+        }
+        // 
+        // Select All menu item click
+        // 
+        private void tsm_selectAll_Click(object sender, EventArgs e)
+        {
+            SelectAll();
+        }
+
+        // 
+        // Undo toolstrip menu item click
+        // 
+        private void tsm_undo_Click(object sender, EventArgs e)
+        {
+            Undo();
+        }
+        // 
+        // Redo toolstrip menu item click
+        // 
+        private void tsm_redo_Click(object sender, EventArgs e)
+        {
+            Redo();
+        }
+
+        // 
+        // Switch Blending Mode menu item click
+        // 
+        private void tsm_switchBlendingMode_Click(object sender, EventArgs e)
+        {
+            if (iepb_frame.DefaultCompositingMode == CompositingMode.SourceCopy)
+            {
+                rb_blendingBlend.PerformClick();
+            }
+            else
+            {
+                rb_blendingReplace.PerformClick();
+            }
+        }
+
+        #endregion
+
+        #region Filters menu
 
         // 
         // Empty Filter menu item click
@@ -1169,7 +1261,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_filterItem_Click(object sender, EventArgs e)
         {
-            DisplayFilterPreset(new FilterPreset("New Preset", new[] { FilterStore.Instance.CreateFilter(((ToolStripMenuItem)sender).Tag as string) }));
+            var item = sender as ToolStripMenuItem;
+            if (item != null && item.Tag is string)
+                DisplayFilterPreset(new FilterPreset("New Preset", new[] { FilterStore.Instance.CreateFilter((string)item.Tag) }));
         }
 
         // 
@@ -1177,7 +1271,243 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_presetItem_Click(object sender, EventArgs e)
         {
-            DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName(((ToolStripMenuItem)sender).Tag as string));
+            var item = sender as ToolStripMenuItem;
+            if (item != null && item.Tag is string)
+                DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName((string)item.Tag));
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Toolbar Button Events
+
+        // 
+        // Apply Changes And Close button click
+        // 
+        private void tsb_applyChangesAndClose_Click(object sender, EventArgs e)
+        {
+            ApplyChangesAndClose();
+        }
+
+        // 
+        // Apply Changes button click
+        // 
+        private void tsb_applyChanges_Click(object sender, EventArgs e)
+        {
+            ApplyChanges();
+        }
+
+        // 
+        // Prev Frame toolbar button click
+        // 
+        private void tsb_prevFrame_Click(object sender, EventArgs e)
+        {
+            PrevFrame();
+        }
+
+        // 
+        // Next Frame toolbar button click
+        // 
+        private void tsb_nextFrame_Click(object sender, EventArgs e)
+        {
+            NextFrame();
+        }
+
+        // 
+        // Insert New Frame toolbar button click
+        // 
+        private void tsb_insertNewframe_Click(object sender, EventArgs e)
+        {
+            InsertNewFrame();
+        }
+
+        // 
+        // Add Frame At End toolbar button click
+        // 
+        private void tsb_addFrameAtEnd_Click(object sender, EventArgs e)
+        {
+            AddFrameAtEnd();
+        }
+
+        // 
+        // Clear Frame toolbar button click
+        // 
+        private void tsb_clearFrame_Click(object sender, EventArgs e)
+        {
+            ClearFrame();
+        }
+
+        // 
+        // Copy toolbar button click
+        // 
+        private void tsb_copy_Click(object sender, EventArgs e)
+        {
+            Copy();
+        }
+
+        // 
+        // Cut toolbar button click
+        // 
+        private void tsb_cut_Click(object sender, EventArgs e)
+        {
+            Cut();
+        }
+
+        // 
+        // Paste toolbar button click
+        // 
+        private void tsb_paste_Click(object sender, EventArgs e)
+        {
+            Paste();
+        }
+
+        // 
+        // Undo toolbar button click
+        // 
+        private void tsb_undo_Click(object sender, EventArgs e)
+        {
+            Undo();
+        }
+
+        // 
+        // Redo toolbar button click
+        // 
+        private void tsb_redo_Click(object sender, EventArgs e)
+        {
+            Redo();
+        }
+
+        // 
+        // Enable/Disable Grid toolbar button click
+        // 
+        private void tsb_grid_Click(object sender, EventArgs e)
+        {
+            iepb_frame.PictureBox.DisplayGrid = tsb_grid.Checked;
+        }
+
+        // 
+        // Enable/Disable toolbar button click
+        // 
+        private void tsb_previewFrame_Click(object sender, EventArgs e)
+        {
+            tsb_previewFrame.Checked = !tsb_previewFrame.Checked;
+
+            pnl_framePreview.Visible = _framePreviewEnabled = tsb_previewFrame.Checked;
+
+            // Update the image preview if enabled
+            if (_framePreviewEnabled)
+            {
+                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+            }
+        }
+
+        //
+        // Preview Animation toolbar button click
+        //
+        private void tsb_previewAnimation_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        // 
+        // Enable/Disable Onion Skin toolbar button click
+        // 
+        private void tsb_onionSkin_Click(object sender, EventArgs e)
+        {
+            ToggleOnionSkin();
+        }
+
+        // 
+        // Show Previous Frames On Onion Skin toolbar button click
+        // 
+        private void tsb_osPrevFrames_Click(object sender, EventArgs e)
+        {
+            // Update the OnionSkinMode flag
+            if (tsb_osPrevFrames.Checked && tsb_osNextFrames.Checked)
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
+            }
+            else if (tsb_osNextFrames.Checked)
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.NextFrames;
+            }
+            else if (tsb_osPrevFrames.Checked)
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.PreviousFrames;
+            }
+            else
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.None;
+            }
+
+            ShowOnionSkin();
+        }
+
+        // 
+        // Show Current Frame On Onion Skin toolbar button click
+        // 
+        private void tsb_hideCurrentFrame_Click(object sender, EventArgs e)
+        {
+            ToggleCurrentFrameOnOnionSkin();
+        }
+
+        // 
+        // Show Next Frames On Onion Skin toolbar button click
+        // 
+        private void tsb_osNextFrames_Click(object sender, EventArgs e)
+        {
+            // Update the OnionSkinMode flag
+            if (tsb_osPrevFrames.Checked && tsb_osNextFrames.Checked)
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
+            }
+            else if (tsb_osNextFrames.Checked)
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.NextFrames;
+            }
+            else if (tsb_osPrevFrames.Checked)
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.PreviousFrames;
+            }
+            else
+            {
+                GlobalOnionSkinSettings.OnionSkinMode = OnionSkinMode.None;
+            }
+
+            ShowOnionSkin();
+        }
+
+        //
+        // Display On Front toolbar button click
+        //
+        private void tsb_osDisplayOnFront_Click(object sender, EventArgs e)
+        {
+            GlobalOnionSkinSettings.DisplayOnFront = tsb_osDisplayOnFront.Checked;
+
+            ShowOnionSkin();
+        }
+
+        // 
+        // Onion Skin Depth Combobox selection index changed
+        // 
+        private void tscb_osFrameCount_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_ignoreOnionSkinDepthComboboxEvent)
+                return;
+
+            var selectedItem = tscb_osFrameCount.SelectedItem as string;
+            if (selectedItem == null)
+                return;
+
+            int depth = int.Parse(selectedItem);
+
+            if (depth != GlobalOnionSkinSettings.OnionSkinDepth)
+            {
+                GlobalOnionSkinSettings.OnionSkinDepth = depth;
+
+                ShowOnionSkin();
+            }
         }
 
         #endregion
@@ -1188,7 +1518,7 @@ namespace Pixelaria.Views.ModelViews
         private void FrameView_FormClosed(object sender, FormClosedEventArgs e)
         {
             // Toggle the display of the image back before closing the form
-            if (!OnionSkinShowCurrentFrame)
+            if (!GlobalOnionSkinSettings.OnionSkinShowCurrentFrame)
             {
                 ToggleCurrentFrameOnOnionSkin();
             }
@@ -1323,8 +1653,8 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void iepb_frame_ClipboardStateChanged(object sender, ClipboardStateEventArgs eventArgs)
         {
-            tsm_copy.Enabled  = tsb_copy.Enabled  = eventArgs.CanCopy;
-            tsm_cut.Enabled   = tsb_cut.Enabled = eventArgs.CanCut;
+            tsm_copy.Enabled = tsb_copy.Enabled = eventArgs.CanCopy;
+            tsm_cut.Enabled = tsb_cut.Enabled = eventArgs.CanCut;
             tsm_paste.Enabled = tsb_paste.Enabled = eventArgs.CanPaste || (Clipboard.ContainsData("PNG"));
 
             if (Clipboard.ContainsData("PNG"))
@@ -1391,303 +1721,6 @@ namespace Pixelaria.Views.ModelViews
             iepb_frame.PictureBox.Zoom = new PointF((float)anud_zoom.Value, (float)anud_zoom.Value);
         }
 
-        // 
-        // Export Frame menu item click
-        // 
-        private void tsm_exportFrame_Click(object sender, EventArgs e)
-        {
-            ExportFrame();
-        }
-
-        // 
-        // Import Frame menu item click
-        // 
-        private void tsm_importFrame_Click(object sender, EventArgs e)
-        {
-            ImportFrame();
-        }
-
-        // 
-        // Switch Blending Mode menu item click
-        // 
-        private void tsm_switchBlendingMode_Click(object sender, EventArgs e)
-        {
-            if (iepb_frame.DefaultCompositingMode == CompositingMode.SourceCopy)
-            {
-                rb_blendingBlend.PerformClick();
-            }
-            else
-            {
-                rb_blendingReplace.PerformClick();
-            }
-        }
-
-        // 
-        // Apply Changes And Close button click
-        // 
-        private void tsb_applyChangesAndClose_Click(object sender, EventArgs e)
-        {
-            ApplyChangesAndClose();
-        }
-
-        // 
-        // Apply Changes button click
-        // 
-        private void tsb_applyChanges_Click(object sender, EventArgs e)
-        {
-            ApplyChanges();
-        }
-
-        // 
-        // Prev Frame toolbar button click
-        // 
-        private void tsb_prevFrame_Click(object sender, EventArgs e)
-        {
-            PrevFrame();
-        }
-        // 
-        // Previous Frame menu item click
-        // 
-        private void tsm_prevFrame_Click(object sender, EventArgs e)
-        {
-            PrevFrame();
-        }
-
-        // 
-        // Next Frame toolbar button click
-        // 
-        private void tsb_nextFrame_Click(object sender, EventArgs e)
-        {
-            NextFrame();
-        }
-        // 
-        // Next Frame menu item click
-        // 
-        private void tsm_nextFrame_Click(object sender, EventArgs e)
-        {
-            NextFrame();
-        }
-
-        // 
-        // Insert New Frame toolbar button click
-        // 
-        private void tsb_insertNewframe_Click(object sender, EventArgs e)
-        {
-            InsertNewFrame();
-        }
-
-        // 
-        // Add Frame At End toolbar button click
-        // 
-        private void tsb_addFrameAtEnd_Click(object sender, EventArgs e)
-        {
-            AddFrameAtEnd();
-        }
-
-        // 
-        // Clear Frame toolbar button click
-        // 
-        private void tsb_clearFrame_Click(object sender, EventArgs e)
-        {
-            ClearFrame();
-        }
-
-        // 
-        // Copy toolbar button click
-        // 
-        private void tsb_copy_Click(object sender, EventArgs e)
-        {
-            Copy();
-        }
-        // 
-        // Cut toolbar button click
-        // 
-        private void tsb_cut_Click(object sender, EventArgs e)
-        {
-            Cut();
-        }
-        // 
-        // Paste toolbar button click
-        // 
-        private void tsb_paste_Click(object sender, EventArgs e)
-        {
-            Paste();
-        }
-
-        // 
-        // Copy menu item click
-        // 
-        private void tsm_copy_Click(object sender, EventArgs e)
-        {
-            Copy();
-        }
-        // 
-        // Cut menu item click
-        // 
-        private void tsm_cut_Click(object sender, EventArgs e)
-        {
-            Cut();
-        }
-        // 
-        // Paste menu item click
-        // 
-        private void tsm_paste_Click(object sender, EventArgs e)
-        {
-            Paste();
-        }
-
-        // 
-        // Select All menu item click
-        // 
-        private void tsm_selectAll_Click(object sender, EventArgs e)
-        {
-            SelectAll();
-        }
-
-        // 
-        // Undo toolstrip menu item click
-        // 
-        private void tsm_undo_Click(object sender, EventArgs e)
-        {
-            Undo();
-        }
-        // 
-        // Undo toolbar button click
-        // 
-        private void tsb_undo_Click(object sender, EventArgs e)
-        {
-            Undo();
-        }
-
-        // 
-        // Redo toolstrip menu item click
-        // 
-        private void tsm_redo_Click(object sender, EventArgs e)
-        {
-            Redo();
-        }
-        // 
-        // Redo toolbar button click
-        // 
-        private void tsb_redo_Click(object sender, EventArgs e)
-        {
-            Redo();
-        }
-
-        // 
-        // Enable/Disable Grid toolbar button click
-        // 
-        private void tsb_grid_Click(object sender, EventArgs e)
-        {
-            iepb_frame.PictureBox.DisplayGrid = tsb_grid.Checked;
-        }
-
-        // 
-        // Enable/Disable preview
-        // 
-        private void tsb_previewFrame_Click(object sender, EventArgs e)
-        {
-            tsb_previewFrame.Checked = !tsb_previewFrame.Checked;
-
-            pnl_framePreview.Visible = _framePreviewEnabled = tsb_previewFrame.Checked;
-
-            // Update the image preview if enabled
-            if (_framePreviewEnabled)
-            {
-                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
-            }
-        }
-
-        // 
-        // Enable/Disable Onion Skin
-        // 
-        private void tsb_onionSkin_Click(object sender, EventArgs e)
-        {
-            ToggleOnionSkin();
-        }
-
-        // 
-        // Show Previous Frames On Onion Skin toolbar button click
-        // 
-        private void tsb_osPrevFrames_Click(object sender, EventArgs e)
-        {
-            // Update the OnionSkinMode flag
-            if (tsb_osPrevFrames.Checked && tsb_osNextFrames.Checked)
-            {
-                OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
-            }
-            else if (tsb_osNextFrames.Checked)
-            {
-                OnionSkinMode = OnionSkinMode.NextFrames;
-            }
-            else if (tsb_osPrevFrames.Checked)
-            {
-                OnionSkinMode = OnionSkinMode.PreviousFrames;
-            }
-            else
-            {
-                OnionSkinMode = OnionSkinMode.None;
-            }
-
-            ShowOnionSkin();
-        }
-
-        // 
-        // Show Current Frame On Onion Skin toolbar button click
-        // 
-        private void tsb_hideCurrentFrame_Click(object sender, EventArgs e)
-        {
-            ToggleCurrentFrameOnOnionSkin();
-        }
-
-        // 
-        // Show Next Frames On Onion Skin toolbar button click
-        // 
-        private void tsb_osNextFrames_Click(object sender, EventArgs e)
-        {
-            // Update the OnionSkinMode flag
-            if (tsb_osPrevFrames.Checked && tsb_osNextFrames.Checked)
-            {
-                OnionSkinMode = OnionSkinMode.PreviousAndNextFrames;
-            }
-            else if (tsb_osNextFrames.Checked)
-            {
-                OnionSkinMode = OnionSkinMode.NextFrames;
-            }
-            else if (tsb_osPrevFrames.Checked)
-            {
-                OnionSkinMode = OnionSkinMode.PreviousFrames;
-            }
-            else
-            {
-                OnionSkinMode = OnionSkinMode.None;
-            }
-
-            ShowOnionSkin();
-        }
-
-        // 
-        // Onion Skin Depth Combobox selection index changed
-        // 
-        private void tscb_osFrameCount_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (_ignoreOnionSkinDepthComboboxEvent)
-                return;
-
-            var selectedItem = tscb_osFrameCount.SelectedItem as string;
-            if (selectedItem != null)
-            {
-                int depth = int.Parse(selectedItem);
-
-                if (depth != OnionSkinDepth)
-                {
-                    OnionSkinDepth = depth;
-
-                    ShowOnionSkin();
-                }
-            }
-        }
-
         /// <summary>
         /// Whether to ignore the tscb_osFrameCount_SelectedIndexChanged event
         /// </summary>
@@ -1721,28 +1754,5 @@ namespace Pixelaria.Views.ModelViews
             OldFrameIndex = oldIndex;
             NewFrameIndex = newIndex;
         }
-    }
-
-    /// <summary>
-    /// Specifies the mode of an onion skin display
-    /// </summary>
-    public enum OnionSkinMode
-    {
-        /// <summary>
-        /// Display no frames on the onion skin
-        /// </summary>
-        None,
-        /// <summary>
-        /// Displays only the previous frames on the onion skin
-        /// </summary>
-        PreviousFrames,
-        /// <summary>
-        /// Displays both the previous and next frames on the onion skin
-        /// </summary>
-        PreviousAndNextFrames,
-        /// <summary>
-        /// Displays only the next frames on the onion skin
-        /// </summary>
-        NextFrames
     }
 }

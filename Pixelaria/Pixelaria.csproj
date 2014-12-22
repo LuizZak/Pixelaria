@@ -631,6 +631,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\frame_os_order.png" />
     <None Include="Resources\Numbers_9.png" />
     <None Include="Resources\Numbers_8.png" />
     <None Include="Resources\Numbers_7.png" />

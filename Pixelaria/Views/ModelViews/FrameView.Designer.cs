@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
+            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool4 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -124,6 +124,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_osPrevFrames = new System.Windows.Forms.ToolStripButton();
             this.tsb_osShowCurrentFrame = new System.Windows.Forms.ToolStripButton();
             this.tsb_osNextFrames = new System.Windows.Forms.ToolStripButton();
+            this.tsb_osDisplayOnFront = new System.Windows.Forms.ToolStripButton();
             this.tsl_onionSkinDepth = new System.Windows.Forms.ToolStripLabel();
             this.tscb_osFrameCount = new System.Windows.Forms.ToolStripComboBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -747,6 +748,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_osPrevFrames,
             this.tsb_osShowCurrentFrame,
             this.tsb_osNextFrames,
+            this.tsb_osDisplayOnFront,
             this.tsl_onionSkinDepth,
             this.tscb_osFrameCount});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
@@ -925,6 +927,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_previewAnimation.Size = new System.Drawing.Size(23, 22);
             this.tsb_previewAnimation.Text = "Preview Animation";
             this.tsb_previewAnimation.Visible = false;
+            this.tsb_previewAnimation.Click += new System.EventHandler(this.tsb_previewAnimation_Click);
             // 
             // toolStripSeparator5
             // 
@@ -983,6 +986,18 @@ namespace Pixelaria.Views.ModelViews
             this.tsb_osNextFrames.Text = "Show next frames on onion skin";
             this.tsb_osNextFrames.Visible = false;
             this.tsb_osNextFrames.Click += new System.EventHandler(this.tsb_osNextFrames_Click);
+            // 
+            // tsb_osDisplayOnFront
+            // 
+            this.tsb_osDisplayOnFront.CheckOnClick = true;
+            this.tsb_osDisplayOnFront.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_osDisplayOnFront.Image = global::Pixelaria.Properties.Resources.frame_os_order;
+            this.tsb_osDisplayOnFront.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_osDisplayOnFront.Name = "tsb_osDisplayOnFront";
+            this.tsb_osDisplayOnFront.Size = new System.Drawing.Size(23, 22);
+            this.tsb_osDisplayOnFront.Text = "Display onion skin abore frame";
+            this.tsb_osDisplayOnFront.Visible = false;
+            this.tsb_osDisplayOnFront.Click += new System.EventHandler(this.tsb_osDisplayOnFront_Click);
             // 
             // tsl_onionSkinDepth
             // 
@@ -1222,7 +1237,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // iepb_frame
             // 
-            this.iepb_frame.CurrentPaintTool = nullPaintTool1;
+            this.iepb_frame.CurrentPaintTool = nullPaintTool4;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1389,5 +1404,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripButton tsb_osShowCurrentFrame;
         private System.Windows.Forms.RadioButton rb_sprayPaint;
         private Controls.TimelineControl tc_currentFrame;
+        private System.Windows.Forms.ToolStripButton tsb_osDisplayOnFront;
     }
 }
