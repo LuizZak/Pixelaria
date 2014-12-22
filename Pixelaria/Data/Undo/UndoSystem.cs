@@ -277,7 +277,7 @@ namespace Pixelaria.Data.Undo
         /// If no undo task is available, null is returned
         /// </summary>
         /// <returns>The next available undo operation if available, null otherwise</returns>
-        public IUndoTask SliceUndo()
+        public IUndoTask PopUndo()
         {
             if (!CanUndo)
                 return null;
@@ -296,7 +296,7 @@ namespace Pixelaria.Data.Undo
         /// If no redo task is available, null is returned
         /// </summary>
         /// <returns>The next available redo operation if available, null otherwise</returns>
-        public IUndoTask SliceRedo()
+        public IUndoTask PopRedo()
         {
             if (!CanRedo)
                 return null;

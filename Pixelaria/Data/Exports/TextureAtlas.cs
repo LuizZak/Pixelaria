@@ -129,6 +129,7 @@ namespace Pixelaria.Data.Exports
                 Rectangle frameBounds = GetFrameBoundsRectangle(i);
                 Rectangle originBounds = GetFrameOriginsRectangle(i);
 
+                // TODO: Deal with disposal of GetComposedBitmap()'s return
                 Bitmap frameBitmap = frame.GetComposedBitmap();
 
                 FastBitmap.CopyRegion(frameBitmap, image, originBounds, frameBounds);

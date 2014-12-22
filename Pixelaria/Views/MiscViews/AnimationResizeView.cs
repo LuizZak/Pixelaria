@@ -132,19 +132,19 @@ namespace Pixelaria.Views.MiscViews
         {
             RegenerateSettings();
 
-            if (_animation.FrameCount > 0)
+            if (_animation.FrameCount <= 0)
+                return;
+
+            if (_viewFrame != null)
             {
-                if (_viewFrame != null)
-                {
-                    _viewFrame.Dispose();
-                }
-
-                _viewFrame = _animation[0].Clone();
-
-                _viewFrame.Resize(GeneratedSettings.NewWidth, GeneratedSettings.NewHeight, GeneratedSettings.PerFrameScalingMethod, GeneratedSettings.InterpolationMode);
-
-                zpb_preview.Image = _viewFrame.GetComposedBitmap();
+                _viewFrame.Dispose();
             }
+
+            _viewFrame = _animation[0].Clone();
+
+            _viewFrame.Resize(GeneratedSettings.NewWidth, GeneratedSettings.NewHeight, GeneratedSettings.PerFrameScalingMethod, GeneratedSettings.InterpolationMode);
+
+            zpb_preview.Image = _viewFrame.GetComposedBitmap();
         }
 
         /// <summary>

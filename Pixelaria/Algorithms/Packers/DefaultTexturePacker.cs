@@ -521,6 +521,7 @@ namespace Pixelaria.Algorithms.Packers
                 if (frag != null)
                     return frag.FrameRectangle;
 
+                // TODO: Deal with disposal of GetComposedBitmap()'s return
                 CompareFrag newFrag = new CompareFrag
                 {
                     FrameRectangle = _useMinimumTextureArea

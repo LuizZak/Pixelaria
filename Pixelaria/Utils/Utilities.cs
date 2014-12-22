@@ -393,6 +393,7 @@ namespace Pixelaria.Utils
         /// <returns>The given list of frames, turned into a list of bitmaps</returns>
         public static List<Bitmap> ToBitmapList(this List<IFrame> frameList, bool clone)
         {
+            // TODO: Deal with the result of GetComposedBitmap() assuming it is a copy
             return new List<Bitmap>(
                                 from frame in frameList
                                 select (clone ? frame.GetComposedBitmap().DeepClone() : frame.GetComposedBitmap())
@@ -408,6 +409,7 @@ namespace Pixelaria.Utils
         /// <returns>The given array of frames, turned into a array of bitmaps</returns>
         public static Bitmap[] ToBitmapArray(this IFrame[] frames, bool clone)
         {
+            // TODO: Deal with the result of GetComposedBitmap() assuming it is a copy
             return (from frame in frames
                     select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
                     ).ToArray();

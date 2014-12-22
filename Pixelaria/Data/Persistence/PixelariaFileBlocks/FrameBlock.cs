@@ -112,6 +112,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             long sizeOffset = stream.Position;
             writer.Write((long)0);
 
+            // TODO: Deal with GetComposedBitmap()'s result, also deal with layering
             // Save the frame image
             frame.GetComposedBitmap().Save(stream, ImageFormat.Png);
 
