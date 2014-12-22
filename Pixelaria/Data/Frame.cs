@@ -275,9 +275,9 @@ namespace Pixelaria.Data
         /// Returns whether the current frame can copy the conents of the specified frame type
         /// </summary>
         /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
-        public bool CanCopyFromType<TFrame>() where TFrame : IFrame
+        public virtual bool CanCopyFromType<TFrame>() where TFrame : IFrame
         {
-            return typeof(TFrame) == typeof(Frame);
+            return typeof(TFrame).IsAssignableFrom(typeof(Frame));
         }
 
         /// <summary>

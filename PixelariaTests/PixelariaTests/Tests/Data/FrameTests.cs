@@ -87,6 +87,21 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         }
 
         [TestMethod]
+        public void TestCanCopyFrom()
+        {
+            Frame frame = new Frame(null, 64, 64);
+
+            Assert.IsTrue(frame.CanCopyFromType<Frame>(), "A call to CanCopyFromType with the same type as the frame object should return true");
+            Assert.IsFalse(frame.CanCopyFromType<DifferentFrame>(), "A call to CanCopyFromType with a type that is not assignable to the frame's type should return false");
+            Assert.IsFalse(frame.CanCopyFromType<DerivedFrame>(), "A call to CanCopyFromType with a type that is derived from the frame's type should return false");
+
+            DerivedFrame derivedFrame = new DerivedFrame(null, 64, 64);
+
+            Assert.IsTrue(derivedFrame.CanCopyFromType<Frame>(), "A call to CanCopyFromType with a type that is a super type of the DerivedFrame's type should return true");
+            Assert.IsTrue(derivedFrame.CanCopyFromType<DerivedFrame>(), "A call to CanCopyFromType with a type of DerivedFrame should return true");
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException), "Trying to copy a frame with different dimensions while inside an animation should raise an exception")]
         public void TestFrameInvalidCopyFrom()
         {
@@ -135,6 +150,156 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Frame frame = new Frame();
             frame.Initialize(null, 64, 64);
             frame.GetComposedBitmap();
+        }
+    }
+
+    /// <summary>
+    /// Specifies an IFrame class that is different from a Frame class
+    /// </summary>
+    public class DifferentFrame : IFrame
+    {
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int ID
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        public bool Equals(IFrame other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Width
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public int Height
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public Size Size
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public int Index
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public Animation Animation
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public byte[] Hash
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool Initialized
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Initialize(Animation animation, int width, int height, bool initHash = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Removed()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Added(Animation newAnimation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Frame Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyFrom<TFrame>(TFrame frame) where TFrame : IFrame
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CanCopyFromType<TFrame>() where TFrame : IFrame
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Equals(Frame frame)
+        {
+            throw new NotImplementedException();
+        }
+
+        public long CalculateMemoryUsageInBytes()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Bitmap GetComposedBitmap()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Image GenerateThumbnail(int width, int height, bool resizeOnSmaller, bool centered, Color backColor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resize(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateHash()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetHash(byte[] newHash)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Specifies a Frame class that is derived from the original Frame class
+    /// </summary>
+    public class DerivedFrame : Frame
+    {
+        /// <summary>
+        /// Creates a new derived animation frame
+        /// </summary>
+        /// <param name="parentAnimation">The parent animation</param>
+        /// <param name="width">The width of this frame</param>
+        /// <param name="height">The height of this frame</param>
+        /// <param name="initHash">Whether to initialize the frame's hash now</param>
+        public DerivedFrame(Animation parentAnimation, int width, int height, bool initHash = true)
+            : base(parentAnimation, width, height, initHash)
+        {
+
+        }
+
+        /// <summary>
+        /// Returns whether the current frame can copy the conents of the specified frame type
+        /// </summary>
+        /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
+        public override bool CanCopyFromType<TFrame>()
+        {
+            return typeof(TFrame).IsAssignableFrom(typeof(DerivedFrame));
         }
     }
 }
