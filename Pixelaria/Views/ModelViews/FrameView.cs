@@ -599,7 +599,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (registerUndo)
             {
-                bud = new BitmapUndoTask(iepb_frame.PictureBox, iepb_frame.PictureBox.Bitmap, "Clear");
+                bud = new BitmapUndoTask(iepb_frame.PictureBox.Bitmap, "Clear");
             }
 
             FastBitmap.ClearBitmap(iepb_frame.PictureBox.Bitmap, 0);
@@ -795,21 +795,21 @@ namespace Pixelaria.Views.ModelViews
                     
                     op.CancelOperation(true, false);
 
-                    but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
+                    but = new BitmapUndoTask(undoTarget, "Filter");
 
                     op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
                     op.SelectionArea = area;
                 }
                 else if (op.OperationType == SelectionPaintTool.SelectionOperationType.Paste)
                 {
-                    but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
+                    but = new BitmapUndoTask(undoTarget, "Filter");
                 }
 
                 filterTarget = op.SelectionBitmap;
             }
             else
             {
-                but = new BitmapUndoTask(iepb_frame.PictureBox, undoTarget, "Filter");
+                but = new BitmapUndoTask(undoTarget, "Filter");
             }
 
             ImageFilterView bfv = new ImageFilterView(filterPreset, filterTarget);
@@ -909,6 +909,7 @@ namespace Pixelaria.Views.ModelViews
             RefreshUndoRedo();
 
             MarkModified();
+            iepb_frame.PictureBox.Invalidate();
         }
 
         // 
@@ -919,6 +920,7 @@ namespace Pixelaria.Views.ModelViews
             RefreshUndoRedo();
 
             MarkModified();
+            iepb_frame.PictureBox.Invalidate();
         }
 
         #endregion

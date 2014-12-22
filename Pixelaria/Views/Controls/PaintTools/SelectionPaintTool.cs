@@ -1,3 +1,25 @@
+/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -777,7 +799,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (selectedArea != selectedStartArea || _operationMode != SelectionOperationType.Moved || ForceApplyChanges)
             {
                 // Record the undo operation
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(pictureBox, selectionBitmap, originalSlice, selectedStartArea, selectedArea, _operationMode, compositingMode));
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(pictureBox.Bitmap, selectionBitmap, originalSlice, selectedStartArea, selectedArea, _operationMode, compositingMode));
 
                 pictureBox.MarkModified();
             }
@@ -873,9 +895,9 @@ namespace Pixelaria.Views.Controls.PaintTools
         protected class SelectionUndoTask : IUndoTask
         {
             /// <summary>
-            /// The target picture box for the undo task
+            /// The target bitmap for this undo task
             /// </summary>
-            readonly ImageEditPanel.InternalPictureBox _pictureBox;
+            private readonly Bitmap _targetbitmap;
 
             /// <summary>
             /// The selection bitmap
@@ -910,16 +932,16 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <summary>
             /// Initializes a new instance of the SelectionUndoTask class
             /// </summary>
-            /// <param name="pictureBox">The target picture box for the undo task</param>
+            /// <param name="targetBitmap">The target bitmap for the undo task</param>
             /// <param name="selectionBitmap">The selection bitmap</param>
             /// <param name="originalSlice">The original image slice before a Move operation was made</param>
             /// <param name="selectionStartArea">The area that the selection started at</param>
             /// <param name="area">The area of the affected SelectionUndoTask</param>
             /// <param name="operationType">The operation type of this SelectionUndoTask</param>
             /// <param name="compositingMode">The compositing mode for the operation</param>
-            public SelectionUndoTask(ImageEditPanel.InternalPictureBox pictureBox, Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
+            public SelectionUndoTask(Bitmap targetBitmap, Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
             {
-                _pictureBox = pictureBox;
+                _targetbitmap = targetBitmap;
                 _selectionBitmap = (Bitmap)selectionBitmap.Clone();
                 _originalSlice = (originalSlice == null ? null : (Bitmap)originalSlice.Clone());
                 _selectionStartArea = selectionStartArea;
@@ -949,7 +971,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Undo()
             {
-                Graphics gfx = Graphics.FromImage(_pictureBox.Bitmap);
+                Graphics gfx = Graphics.FromImage(_targetbitmap);
 
                 gfx.CompositingMode = CompositingMode.SourceCopy;
 
@@ -973,8 +995,6 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 gfx.Flush();
                 gfx.Dispose();
-
-                _pictureBox.Invalidate();
             }
 
             /// <summary>
@@ -982,7 +1002,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Redo()
             {
-                Graphics gfx = Graphics.FromImage(_pictureBox.Bitmap);
+                Graphics gfx = Graphics.FromImage(_targetbitmap);
                 Region reg;
 
                 gfx.CompositingMode = _compositingMode;
@@ -1013,8 +1033,6 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 gfx.Flush();
                 gfx.Dispose();
-
-                _pictureBox.Invalidate();
             }
 
             /// <summary>

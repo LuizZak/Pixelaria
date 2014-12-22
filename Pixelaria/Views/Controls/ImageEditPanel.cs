@@ -896,11 +896,6 @@ namespace Pixelaria.Views.Controls
     public class BitmapUndoTask : IUndoTask
     {
         /// <summary>
-        /// The target picture box that will be invalidated
-        /// </summary>
-        readonly PictureBox _targetPictureBox;
-
-        /// <summary>
         /// The bitmap that will be the target for the changes
         /// </summary>
         readonly Bitmap _targetBitmap;
@@ -935,31 +930,16 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Initializes a new instance of the BitmapUndoTask, with a target picture box
-        /// </summary>
-        /// <param name="targetPictureBox">The target picture box that will be invalidated</param>
-        /// <param name="description">A short description for this BitmapUndoTask</param>
-        /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
-        public BitmapUndoTask(PictureBox targetPictureBox, string description, Point drawPoint = new Point())
-        {
-            _targetBitmap = (Bitmap)targetPictureBox.Image;
-            _targetPictureBox = targetPictureBox;
-            _description = description;
-            _drawPoint = drawPoint;
-        }
-
-        /// <summary>
         /// Initializes a new instance of the BitmapUndoTask, with a target picture box and bitmap
         /// </summary>
-        /// <param name="targetPictureBox">The target picture box that will be invalidated</param>
         /// <param name="targetBitmap">The target bitmap for this BitmapUndoTask</param>
         /// <param name="description">A short description for this BitmapUndoTask</param>
         /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
-        public BitmapUndoTask(PictureBox targetPictureBox, Bitmap targetBitmap, string description, Point drawPoint = new Point())
-            : this(targetPictureBox, description, drawPoint)
+        public BitmapUndoTask(Bitmap targetBitmap, string description, Point drawPoint = new Point())
         {
             _targetBitmap = targetBitmap;
-
+            _description = description;
+            _drawPoint = drawPoint;
             _oldBitmap = targetBitmap.Clone() as Bitmap;
         }
 
@@ -1025,8 +1005,6 @@ namespace Pixelaria.Views.Controls
             FastBitmap.CopyRegion(_oldBitmap, _targetBitmap,
                 new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height),
                 new Rectangle(_drawPoint, new Size(_oldBitmap.Width, _oldBitmap.Height)));
-            
-            _targetPictureBox.Invalidate();
         }
 
         /// <summary>
@@ -1037,8 +1015,6 @@ namespace Pixelaria.Views.Controls
             FastBitmap.CopyRegion(_newBitmap, _targetBitmap,
                 new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height),
                 new Rectangle(_drawPoint, new Size(_targetBitmap.Width, _targetBitmap.Height)));
-            
-            _targetPictureBox.Invalidate();
         }
 
         /// <summary>

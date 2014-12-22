@@ -1,9 +1,30 @@
+/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-using Pixelaria.Data.Undo;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
@@ -80,12 +101,19 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
+        public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
+            ShapeUndoTask returnTask = null;
+
             if (registerUndo)
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new EllipseUndoTask(pictureBox, color1, color2, area, compMode, opFillMode));
+            {
+                returnTask = new EllipseUndoTask(pictureBox.Bitmap, color1, color2, area, compMode, opFillMode);
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(returnTask);
+            }
 
             PerformEllipseOperation(color1, color2, area, bitmap, compMode, opFillMode);
+
+            return returnTask;
         }
 
         /// <summary>
@@ -112,7 +140,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="bitmap">The Bitmap to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static void PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static ShapeUndoTask PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             //FastBitmap fb = new FastBitmap(bitmap);
             //fb.Lock();
@@ -177,7 +205,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="graphics">The Graphics to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static void PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static ShapeUndoTask PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             Brush brush = new SolidBrush((fillMode == OperationFillMode.SolidFillFirstColor ? firstColor : secondColor));
 
@@ -203,13 +231,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// An ellipse undo task
         /// </summary>
-        protected class EllipseUndoTask : IUndoTask
+        protected class EllipseUndoTask : ShapeUndoTask
         {
-            /// <summary>
-            /// The target InternalPictureBox of this EllipseUndoTask
-            /// </summary>
-            readonly ImageEditPanel.InternalPictureBox _targetPictureBox;
-
             /// <summary>
             /// The area of the the image that was affected by the ellipse operation
             /// </summary>
@@ -234,7 +257,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <summary>
             /// The bitmap where the ellipse was drawn on
             /// </summary>
-            Bitmap _bitmap;
+            readonly Bitmap _bitmap;
 
             /// <summary>
             /// The compositing mode of the paint operation
@@ -249,19 +272,18 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <summary>
             /// Initializes a new instance of the EllipseUndoTask class
             /// </summary>
-            /// <param name="targetPictureBox">The target InternalPictureBox of this EllipseUndoTask</param>
+            /// <param name="targetBitmap">The target bitmap of this EllipseUndoTask</param>
             /// <param name="firstColor">The first color to use when drawing the ellipse</param>
             /// <param name="secondColor">The second color to use when drawing the ellipse</param>
             /// <param name="area">The area of the ellipse to draw</param>
             /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
             /// <param name="fillMode">The fill mode for this ellipse operation</param>
-            public EllipseUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, Color firstColor, Color secondColor, Rectangle area, CompositingMode compositingMode, OperationFillMode fillMode)
+            public EllipseUndoTask(Bitmap targetBitmap, Color firstColor, Color secondColor, Rectangle area, CompositingMode compositingMode, OperationFillMode fillMode)
             {
-                _targetPictureBox = targetPictureBox;
                 _firstColor = firstColor;
                 _secondColor = secondColor;
                 _area = area;
-                _bitmap = targetPictureBox.Bitmap;
+                _bitmap = targetBitmap;
                 _compositingMode = compositingMode;
                 _fillMode = fillMode;
 
@@ -277,16 +299,15 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <summary>
             /// Clears this UndoTask object
             /// </summary>
-            public void Clear()
+            public override void Clear()
             {
                 _originalSlice.Dispose();
-                _bitmap = null;
             }
 
             /// <summary>
             /// Undoes this task
             /// </summary>
-            public void Undo()
+            public override void Undo()
             {
                 // Redraw the original slice back to the image
                 Graphics g = Graphics.FromImage(_bitmap);
@@ -298,28 +319,22 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 g.Flush();
                 g.Dispose();
-
-                // Invalidate the target box
-                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
             /// Redoes this task
             /// </summary>
-            public void Redo()
+            public override void Redo()
             {
                 // Draw the ellipse again
                 PerformEllipseOperation(_firstColor, _secondColor, _area, _bitmap, _compositingMode, _fillMode);
-
-                // Invalidate the target box
-                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
             /// Returns a short string description of this UndoTask
             /// </summary>
             /// <returns>A short string description of this UndoTask</returns>
-            public string GetDescription()
+            public override string GetDescription()
             {
                 return "Elipse";
             }

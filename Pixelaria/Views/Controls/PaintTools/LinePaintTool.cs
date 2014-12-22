@@ -1,3 +1,25 @@
+/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -168,7 +190,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 {
                     Color color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
 
-                    pictureBox.OwningPanel.UndoSystem.RegisterUndo(new LineUndoTask(pictureBox, color, mouseDownAbsolutePoint, mouseAbsolutePoint, _compositingMode));
+                    pictureBox.OwningPanel.UndoSystem.RegisterUndo(new LineUndoTask(pictureBox.Bitmap, color, mouseDownAbsolutePoint, mouseAbsolutePoint, _compositingMode));
 
                     PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, _compositingMode);
 
@@ -380,11 +402,6 @@ namespace Pixelaria.Views.Controls.PaintTools
         protected class LineUndoTask : IUndoTask
         {
             /// <summary>
-            /// The target InternalPictureBox of this RectangleUndoTask
-            /// </summary>
-            readonly ImageEditPanel.InternalPictureBox _targetPictureBox;
-
-            /// <summary>
             /// The area of the the image that was affected by the line operation
             /// </summary>
             readonly Rectangle _area;
@@ -423,18 +440,17 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <summary>
             /// Initializes a new instance of the LineUndoTask class
             /// </summary>
-            /// <param name="targetPictureBox">The target InternalPictureBox of this LineUndoTask</param>
+            /// <param name="targetBitmap">The target bitmap of this LineUndoTask</param>
             /// <param name="color">The color to use when drawing the line</param>
             /// <param name="lineStart">The starting point of the line</param>
             /// <param name="lineEnd">The ending point of the line</param>
             /// <param name="compositingMode">The CompositingMode to use when drawing the rectangle</param>
-            public LineUndoTask(ImageEditPanel.InternalPictureBox targetPictureBox, Color color, Point lineStart, Point lineEnd, CompositingMode compositingMode)
+            public LineUndoTask(Bitmap targetBitmap, Color color, Point lineStart, Point lineEnd, CompositingMode compositingMode)
             {
-                _targetPictureBox = targetPictureBox;
                 _color = color;
                 _lineStart = lineStart;
                 _lineEnd = lineEnd;
-                _bitmap = targetPictureBox.Bitmap;
+                _bitmap = targetBitmap;
                 _compositingMode = compositingMode;
 
                 Rectangle rec = GetRectangleAreaAbsolute(new [] { lineStart, lineEnd });
@@ -476,9 +492,6 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 g.Flush();
                 g.Dispose();
-
-                // Invalidate the target box
-                _targetPictureBox.Invalidate();
             }
 
             /// <summary>
@@ -488,9 +501,6 @@ namespace Pixelaria.Views.Controls.PaintTools
             {
                 // Draw the rectangle again
                 PerformLineOperation(_color, _lineStart, _lineEnd, _bitmap, _compositingMode);
-
-                // Invalidate the target box
-                _targetPictureBox.Invalidate();
             }
 
             /// <summary>

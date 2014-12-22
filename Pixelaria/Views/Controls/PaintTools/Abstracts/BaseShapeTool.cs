@@ -1,8 +1,31 @@
+/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using Pixelaria.Data.Undo;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
@@ -254,7 +277,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public abstract void PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo);
+        public abstract ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo);
 
         /// <summary>
         /// Performs the shape paint operation with the given parameters
@@ -267,5 +290,32 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
         public abstract void PerformShapeOperation(Color color1, Color color2, Rectangle area, Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo);
+
+        /// <summary>
+        /// Represents a shape drawing undo task
+        /// </summary>
+        public abstract class ShapeUndoTask  : IUndoTask
+        {
+            /// <summary>
+            /// Clears this UndoTask object
+            /// </summary>
+            public abstract void Clear();
+
+            /// <summary>
+            /// Undoes this shape task
+            /// </summary>
+            public abstract void Undo();
+
+            /// <summary>
+            /// Redoes this shape task
+            /// </summary>
+            public abstract void Redo();
+
+            /// <summary>
+            /// Returns a short string description of this UndoTask
+            /// </summary>
+            /// <returns>A short string description of this UndoTask</returns>
+            public abstract string GetDescription();
+        }
     }
 }
