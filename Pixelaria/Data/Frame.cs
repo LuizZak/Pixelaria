@@ -240,7 +240,7 @@ namespace Pixelaria.Data
         /// this frame is placed inside an Animation, an exception is thrown
         /// </summary>
         /// <param name="frame">The frame to copy</param>
-        public void CopyFrom(IFrame frame)
+        public void CopyFrom<TFrame>(TFrame frame) where TFrame : IFrame
         {
             if (!_initialized)
             {

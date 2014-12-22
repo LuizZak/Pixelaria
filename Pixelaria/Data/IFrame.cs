@@ -105,7 +105,7 @@ namespace Pixelaria.Data
         /// this frame is placed inside an Animation, an exception is thrown
         /// </summary>
         /// <param name="frame">The frame to copy</param>
-        void CopyFrom(IFrame frame);
+        void CopyFrom<TFrame>(TFrame frame) where TFrame : IFrame;
 
         /// <summary>
         /// Returns whether this Frame's contents match another frame's
