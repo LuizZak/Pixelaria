@@ -399,7 +399,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// A line undo task
         /// </summary>
-        protected class LineUndoTask : IUndoTask
+        public class LineUndoTask : IUndoTask
         {
             /// <summary>
             /// The area of the the image that was affected by the line operation

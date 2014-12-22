@@ -213,7 +213,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// A rectangle undo task
         /// </summary>
-        protected class RectangleUndoTask : ShapeUndoTask
+        public class RectangleUndoTask : ShapeUndoTask
         {
             /// <summary>
             /// The area of the the image that was affected by the Rectangle operation

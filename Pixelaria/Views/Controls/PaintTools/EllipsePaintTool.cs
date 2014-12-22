@@ -140,7 +140,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="bitmap">The Bitmap to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static ShapeUndoTask PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static void PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             //FastBitmap fb = new FastBitmap(bitmap);
             //fb.Lock();
@@ -205,7 +205,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="graphics">The Graphics to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static ShapeUndoTask PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static void PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             Brush brush = new SolidBrush((fillMode == OperationFillMode.SolidFillFirstColor ? firstColor : secondColor));
 
@@ -231,7 +231,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// An ellipse undo task
         /// </summary>
-        protected class EllipseUndoTask : ShapeUndoTask
+        public class EllipseUndoTask : ShapeUndoTask
         {
             /// <summary>
             /// The area of the the image that was affected by the ellipse operation

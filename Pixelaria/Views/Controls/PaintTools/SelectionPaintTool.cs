@@ -892,7 +892,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// A selection undo task
         /// </summary>
-        protected class SelectionUndoTask : IUndoTask
+        public class SelectionUndoTask : IUndoTask
         {
             /// <summary>
             /// The target bitmap for this undo task
