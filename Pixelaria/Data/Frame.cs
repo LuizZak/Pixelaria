@@ -240,12 +240,18 @@ namespace Pixelaria.Data
         /// this frame is placed inside an Animation, an exception is thrown
         /// </summary>
         /// <param name="frame">The frame to copy</param>
+        /// <exception cref="InvalidOperationException">The frame is not initialized</exception>
+        /// <exception cref="InvalidOperationException">The frame is hosted inside an animation and the dimensions of the frames don't match</exception>
+        /// <exception cref="InvalidOperationException">The frame's type is not copyable to this type. Use CanCopyFromType&lt;&gt;() to verify type compatibility</exception>
         public void CopyFrom<TFrame>(TFrame frame) where TFrame : IFrame
         {
             if (!_initialized)
             {
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
+
+            if(!CanCopyFromType<TFrame>())
+                throw new InvalidOperationException("The provided frame's type is not copyable to this frame's type. Use CanCopyFromType<>() to verify compatibility fist");
 
             if (ReferenceEquals(this, frame))
                 return;
@@ -255,6 +261,7 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
+            // TODO: Deal with layering in the copy operation
             Bitmap frameTexture = frame.GetComposedBitmap();
 
             _width = frame.Width;
@@ -262,6 +269,15 @@ namespace Pixelaria.Data
             _frameTexture = frameTexture.Clone(new Rectangle(0, 0, frameTexture.Width, frameTexture.Height), frameTexture.PixelFormat);
 
             _hash = frame.Hash;
+        }
+
+        /// <summary>
+        /// Returns whether the current frame can copy the conents of the specified frame type
+        /// </summary>
+        /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
+        public bool CanCopyFromType<TFrame>() where TFrame : IFrame
+        {
+            return typeof(TFrame) == typeof(Frame);
         }
 
         /// <summary>
