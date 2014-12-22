@@ -129,7 +129,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (WithinBounds(point))
                 {
-                    PerformBucketOperaiton(color, point, compositingMode);
+                    PerformBucketOperaiton(color, point);
                 }
             }
             else if (e.Button == MouseButtons.Middle)
@@ -171,11 +171,28 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         /// <param name="color">The color of the fill operation</param>
         /// <param name="point">The point to start the fill operation at</param>
-        /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
-        protected unsafe void PerformBucketOperaiton(Color color, Point point, CompositingMode compMode)
+        public void PerformBucketOperaiton(Color color, Point point)
         {
-            Bitmap targetBitmap = pictureBox.Bitmap;
+            BitmapUndoTask undoTask = PerformBucketOperaiton(pictureBox.Bitmap, color, point, compositingMode, true);
 
+            pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
+
+            // Finish the operation by updating the picture box
+            pictureBox.Invalidate();
+            pictureBox.MarkModified();
+        }
+
+        /// <summary>
+        /// Performs the bucket fill operation
+        /// </summary>
+        /// <param name="targetBitmap">The target bitmap for this bucket operation</param>
+        /// <param name="color">The color of the fill operation</param>
+        /// <param name="point">The point to start the fill operation at</param>
+        /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
+        /// <param name="createUndo">Whether to create and return an undo task</param>
+        /// <returns>The undo task associated with this operation, or null, if createUndo is false or if the operation failed</returns>
+        public unsafe static BitmapUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
+        {
             // Start the fill operation by getting the color under the user's mouse
             Color pColor = targetBitmap.GetPixel(point.X, point.Y);
             // Do a pre-blend of the color, if the composition mode is SourceOver
@@ -187,11 +204,16 @@ namespace Pixelaria.Views.Controls.PaintTools
             // Don't do anything if the fill operation doesn't ends up changing any pixel color
             if (pColorI == newColorI || pColor == color && (compMode == CompositingMode.SourceOver && pColor.A == 255 || compMode == CompositingMode.SourceCopy))
             {
-                return;
+                return null;
             }
 
             // Clone the bitmap to be used on undo/redo
-            Bitmap originalBitmap = new Bitmap(targetBitmap);
+            Bitmap originalBitmap = null;
+
+            if (createUndo)
+            {
+                originalBitmap = new Bitmap(targetBitmap);
+            }
 
             int minX = point.X;
             int minY = point.Y;
@@ -199,7 +221,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             int maxY = point.Y;
 
             // Initialize the undo task
-            BitmapUndoTask undoTask = new BitmapUndoTask(pictureBox.Bitmap, "Flood fill");
+            BitmapUndoTask undoTask = new BitmapUndoTask(targetBitmap, "Flood fill");
 
             Stack<int> stack = new Stack<int>();
 
@@ -276,6 +298,11 @@ namespace Pixelaria.Views.Controls.PaintTools
                 }
             }
 
+            if (!createUndo)
+            {
+                return null;
+            }
+
             // Generate the undo now
             Rectangle affectedRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
 
@@ -291,13 +318,10 @@ namespace Pixelaria.Views.Controls.PaintTools
             {
                 undoTask.SetOldBitmap(originalBitmap, false);
             }
+
             undoTask.SetNewBitmap(FastBitmap.SliceBitmap(targetBitmap, affectedRectangle), false);
 
-            pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
-
-            // Finish the operation by updating the picture box
-            pictureBox.Invalidate();
-            pictureBox.MarkModified();
+            return undoTask;
         }
     }
 }
