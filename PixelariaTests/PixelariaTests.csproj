@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.XML" />
@@ -64,6 +67,7 @@
     <Compile Include="PixelariaTests\Tests\Data\Exports\TextureAtlasTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\FrameTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="PixelariaTests\Tests\PaintOperations\PencilPaintOperationTests.cs" />
     <Compile Include="PixelariaTests\Tests\Utils\FastBitmapTests.cs" />
     <Compile Include="PixelariaTests\Tests\Utils\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -73,6 +77,9 @@
       <Project>{9dbee059-e16e-4ee4-8df0-6ecd2fe2eac2}</Project>
       <Name>Pixelaria</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

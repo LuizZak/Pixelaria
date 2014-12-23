@@ -124,7 +124,16 @@
   <ItemGroup>
     <Compile Include="Algorithms\ITexturePacker.cs" />
     <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
+    <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
+    <Compile Include="Algorithms\PaintOperations\Interfaces\ICompositePaintOperation.cs" />
+    <Compile Include="Algorithms\PaintOperations\UndoTasks\PixelHistoryTracker.cs" />
     <Compile Include="Controllers\Controller.cs" />
+    <Compile Include="Algorithms\PaintOperations\Abstracts\BasicContinuousPaintOperation.cs" />
+    <Compile Include="Algorithms\PaintOperations\Abstracts\BasicPaintOperationUndoTask.cs" />
+    <Compile Include="Algorithms\PaintOperations\Interfaces\IPaintOperation.cs" />
+    <Compile Include="Algorithms\PaintOperations\Interfaces\IPencilOperation.cs" />
+    <Compile Include="Algorithms\PaintOperations\PencilPaintOperation.cs" />
+    <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />
     <Compile Include="Data\AnimationSheet.cs" />

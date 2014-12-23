@@ -357,6 +357,32 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Flattens two colors using a GDI+ like color blending mode
+        /// </summary>
+        /// <param name="backColor">The back color to blend</param>
+        /// <param name="foreColor">The fore color to blend</param>
+        /// <returns>The two colors, blended with a GDI+ like color bleding mode</returns>
+        public static Color FlattenColor(Color backColor, Color foreColor)
+        {
+            // Based off an answer by an anonymous user on StackOverlow http://stackoverflow.com/questions/1718825/blend-formula-for-gdi/2223241#2223241
+
+            if (foreColor.A == 0)
+                return backColor;
+            if (foreColor.A == 255)
+                return foreColor;
+
+            float backAlphaFloat = backColor.A;
+            float foreAlphaFloat = foreColor.A;
+
+            float foreAlphaNormalized = foreAlphaFloat / 255;
+            float backColorMultiplier = backAlphaFloat * (1 - foreAlphaNormalized);
+
+            float alpha = backAlphaFloat + foreAlphaFloat - backAlphaFloat * foreAlphaNormalized;
+
+            return Color.FromArgb((int)Math.Min(255, alpha), (int)(Math.Min(255, (foreColor.R * foreAlphaFloat + backColor.R * backColorMultiplier) / alpha)), (int)(Math.Min(255, (foreColor.G * foreAlphaFloat + backColor.G * backColorMultiplier) / alpha)), (int)(Math.Min(255, (foreColor.B * foreAlphaFloat + backColor.B * backColorMultiplier) / alpha)));
+        }
+
+        /// <summary>
         /// Returns the distance between two points objects
         /// </summary>
         /// <param name="point">The first point</param>

@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
@@ -202,7 +203,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                         pictureBox.MarkModified();
 
                         // Register pixel on undo operation
-                        currentUndoTask.RegisterPixel(absolutePencil.X, absolutePencil.Y, oldColor, newColor);
+                        currentUndoTask.PixelHistoryTracker.RegisterPixel(absolutePencil.X, absolutePencil.Y, oldColor, newColor);
                     }
                 }
             }
@@ -301,7 +302,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                             image.SetPixel(p.X, p.Y, newColor);
 
-                            currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor, false);
+                            currentUndoTask.PixelHistoryTracker.RegisterPixel(p.X, p.Y, oldColor, newColor, false);
 
                             InvalidateRect(GetRelativePoint(p), pen.Width, pen.Height);
                         }

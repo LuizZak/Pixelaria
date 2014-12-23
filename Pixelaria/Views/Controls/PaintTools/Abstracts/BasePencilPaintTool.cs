@@ -26,7 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-
+using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
@@ -585,7 +585,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             // Find the properties to draw the pen with
             Color penColor = (penId == 0 ? firstColor : secondColor);
             Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
-
+            
             Color oldColor = pictureBox.Bitmap.GetPixel(p.X, p.Y);
             Color newColor = penColor;
 
@@ -601,7 +601,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 bitmap.SetPixel(p.X, p.Y, penColor);
             }
 
-            currentUndoTask.RegisterPixel(p.X, p.Y, oldColor, newColor);
+            currentUndoTask.PixelHistoryTracker.RegisterPixel(p.X, p.Y, oldColor, newColor);
 
             PointF pf = GetRelativePoint(p);
             InvalidateRect(pf, pen.Width, pen.Height);
