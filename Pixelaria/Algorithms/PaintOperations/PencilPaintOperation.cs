@@ -148,7 +148,6 @@ namespace Pixelaria.Algorithms.PaintOperations
             if (!AccumulateAlpha)
             {
                 pixelsDrawn.RegisterPixel(point.X, point.Y, oldColor, newColor);
-                return;
             }
 
             if (Notifier != null)
@@ -298,7 +297,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         public PerPixelUndoTask UndoTask { get; private set; }
 
         /// <summary>
-        /// 
+        /// Whether to check existing pixels for duplicates during calls to PlottedPixel
         /// </summary>
         public bool CheckExisitingPixels { get; set; }
 
@@ -310,8 +309,9 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
         /// <param name="keepReplacedOriginals">Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.</param>
         public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool indexPixels = true, bool keepReplacedOriginals = true)
+            : this(new PerPixelUndoTask(bitmap, description, indexPixels, keepReplacedOriginals))
         {
-            UndoTask = new PerPixelUndoTask(bitmap, description, indexPixels, keepReplacedOriginals);
+
         }
 
         /// <summary>
@@ -320,6 +320,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="undoTask">The undo task to associate to this undo generator</param>
         public PlottingPaintUndoGenerator(PerPixelUndoTask undoTask)
         {
+            CheckExisitingPixels = true;
             UndoTask = undoTask;
         }
 
@@ -331,7 +332,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="newColor">The new color of the pixel, after the plot</param>
         public void PlottedPixel(Point point, int oldColor, int newColor)
         {
-            UndoTask.PixelHistoryTracker.RegisterPixel(point.X, point.Y, oldColor, newColor);
+            UndoTask.PixelHistoryTracker.RegisterPixel(point.X, point.Y, oldColor, newColor, CheckExisitingPixels);
         }
     }
 }

@@ -243,6 +243,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.DrawTo(15, 17);
             operation.DrawTo(20, 25);
             operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
 
             operation.FinishOperation();
 
@@ -254,6 +255,245 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             RegisterResultBitmap(target, "PencilOperation_AfterUndo");
 
             Assert.IsTrue(originalHash.SequenceEqual(afterUndoHash), "After undoing a paint operation's task, its pixels must return to their original state before the operation was applied");
+        }
+
+        /// <summary>
+        /// Tests the undo for the pencil paint operation using a SourceOver compositing mode
+        /// </summary>
+        [TestMethod]
+        public void TestUndoOperation_SourceOverAlpha()
+        {
+            // Create the objects
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = GetHashForBitmap(target);
+
+            // Create the test subjects
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceOver,
+                Notifier = generator
+            };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Undo the task
+            generator.UndoTask.Undo();
+
+            byte[] afterUndoHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceOverAlpha");
+
+            Assert.IsTrue(originalHash.SequenceEqual(afterUndoHash), "After undoing a paint operation's task, its pixels must return to their original state before the operation was applied");
+        }
+
+        /// <summary>
+        /// Tests the undo for the pencil paint operation using a SourceCopy compositing mode
+        /// </summary>
+        [TestMethod]
+        public void TestUndoOperation_SourceCopyAlpha()
+        {
+            // Create the objects
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = GetHashForBitmap(target);
+
+            // Create the test subjects
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceCopy,
+                Notifier = generator
+            };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Undo the task
+            generator.UndoTask.Undo();
+
+            byte[] afterUndoHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceCopyAlpha");
+
+            Assert.IsTrue(originalHash.SequenceEqual(afterUndoHash), "After undoing a paint operation's task, its pixels must return to their original state before the operation was applied");
+        }
+
+        /// <summary>
+        /// Tests the undo for the pencil paint operation using a SourceCopy compositing mode and having no accumulation of transparency on
+        /// </summary>
+        [TestMethod]
+        public void TestUndoOperation_SourceOverAlpha_NoAccumulateAlpha()
+        {
+            // Create the objects
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = GetHashForBitmap(target);
+
+            // Create the test subjects
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceOver,
+                Notifier = generator
+            };
+
+            operation.StartOpertaion(false);
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Undo the task
+            generator.UndoTask.Undo();
+
+            byte[] afterUndoHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceCopyAlpha_NoAccumulateAlpha");
+
+            Assert.IsTrue(originalHash.SequenceEqual(afterUndoHash), "After undoing a paint operation's task, its pixels must return to their original state before the operation was applied");
+        }
+
+        /// <summary>
+        /// Tests the undo for the pencil paint operation failing by specifying an undo task that replaces pixel colors that are being drawn over repeatedly
+        /// </summary>
+        [TestMethod]
+        public void TestUndoOperationFailing()
+        {
+            // Create the objects
+            Bitmap target = new Bitmap(64, 64);
+            FastBitmap.ClearBitmap(target, Color.Transparent);
+            byte[] originalHash = GetHashForBitmap(target);
+
+            // Create the test subjects
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedOriginals: false);
+            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Undo the task
+            generator.UndoTask.Undo();
+
+            byte[] afterUndoHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_AfterUndo_Failed");
+
+            Assert.IsFalse(originalHash.SequenceEqual(afterUndoHash),
+                "Plotting the same pixel repeatedly with an undo generator that has keepReplacedOriginals should fail, since the redrawn pixels have their undo color replaced");
+        }
+
+        /// <summary>
+        /// Tests the undo for the pencil paint operation failing by specifying an undo task that replaces pixel colors that are being drawn over repeatedly
+        /// </summary>
+        [TestMethod]
+        public void TestUndoOperation_SourceOverAlphaFailing()
+        {
+            // Create the objects
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = GetHashForBitmap(target);
+
+            // Create the test subjects
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedOriginals: false);
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceOver,
+                Notifier = generator
+            };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Undo the task
+            generator.UndoTask.Undo();
+
+            byte[] afterUndoHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceOverAlpha_Failed");
+
+            Assert.IsFalse(originalHash.SequenceEqual(afterUndoHash),
+                "Plotting the same pixel repeatedly with an undo generator that has keepReplacedOriginals should fail, since the redrawn pixels have their undo color replaced");
+        }
+
+        /// <summary>
+        /// Tests the undo for the pencil paint operation
+        /// </summary>
+        [TestMethod]
+        public void TestUndoOperation_SourceCopyAlphaFailing()
+        {
+            // Create the objects
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = GetHashForBitmap(target);
+
+            // Create the test subjects
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedOriginals: false);
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceCopy,
+                Notifier = generator
+            };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Undo the task
+            generator.UndoTask.Undo();
+
+            byte[] afterUndoHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceCopyAlpha_Failed");
+
+            Assert.IsFalse(originalHash.SequenceEqual(afterUndoHash),
+                "Plotting the same pixel repeatedly with an undo generator that has keepReplacedOriginals should fail, since the redrawn pixels have their undo color replaced");
         }
 
         /// <summary>
@@ -307,7 +547,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] hashBytes = GetHashForBitmap(bitmap);
             string hashString = "";
             hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") +"0x" + b.ToString("X"));
-            File.WriteAllText(file + "_hash.txt", hashString);
+            File.WriteAllText(file + ".txt", hashString);
         }
 
         /// <summary>
