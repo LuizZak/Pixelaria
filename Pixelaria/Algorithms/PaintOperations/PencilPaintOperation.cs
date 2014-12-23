@@ -46,11 +46,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         public CompositingMode CompositingMode { get; set; }
 
         /// <summary>
-        /// Whether to allow the opration to accumulate the alpha transparency of the pixels it is affecting. Turning this on will make
-        /// the paint operation accumulate the alpha of pixels it has already drawn over, and turning it off will only affect pixels it has
-        /// not been rendered on still. Disabling alpha accumulation has a small performance penalty over leaving it on
+        /// Gets a value specifying whether the opration is currently accumulating the alpha transparency of the pixels it is affecting.
+        /// Having this true means the paint operation accumulates the alpha of pixels it has already drawn over, and having it false means it only affects
+        /// pixels it has not been rendered on still. Disabled alpha accumulation has a small performance penalty over having it enabled
         /// </summary>
-        public bool AccumulateAlpha { get; set; }
+        public bool AccumulateAlpha { get; private set; }
 
         /// <summary>
         /// The point that specified the current pencil tip
@@ -69,6 +69,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// This field is used during sequential DrawTo calls to avoid drawing duplicated pixels where the lines meet
         /// </summary>
         protected bool pencilTipPressed;
+
+        /// <summary>
+        /// The pixel history tracker associated with this pencil paint operation, used to track pixels already drawn over when the AccumulateAlpha is set to true
+        /// </summary>
+        protected PixelHistoryTracker pixelsDrawn;
 
         /// <summary>
         /// The object to notify to when this operation has plotted a pixel
@@ -133,9 +138,18 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="point">The point to plot at</param>
         protected virtual void PlotPoint(Point point)
         {
+            if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(point.X, point.Y))
+                return;
+
             Color oldColor = fastBitmap.GetPixel(point.X, point.Y);
             Color newColor = GetBlendedColor(oldColor);
             fastBitmap.SetPixel(point.X, point.Y, newColor);
+
+            if (!AccumulateAlpha)
+            {
+                pixelsDrawn.RegisterPixel(point.X, point.Y, oldColor, newColor);
+                return;
+            }
 
             if (Notifier != null)
                 Notifier.PlottedPixel(point, oldColor.ToArgb(), newColor.ToArgb());
@@ -162,10 +176,26 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         public override void StartOpertaion()
         {
+            StartOpertaion(true);
+        }
+
+        /// <summary>
+        /// Starts this pencil paint operation, specifying whethe to accumulate the alpha of the pixels
+        /// </summary>
+        /// <param name="accumulateAlpha">Whether to accumulate the trasparency of the pixels as the pencil draws over them repeatedly</param>
+        public void StartOpertaion(bool accumulateAlpha)
+        {
             base.StartOpertaion();
 
             fastBitmap = new FastBitmap(targetBitmap);
             fastBitmap.Lock();
+
+            AccumulateAlpha = accumulateAlpha;
+
+            if(!accumulateAlpha)
+            {
+                pixelsDrawn = new PixelHistoryTracker(true, false, targetBitmap.Width);
+            }
         }
 
         /// <summary>

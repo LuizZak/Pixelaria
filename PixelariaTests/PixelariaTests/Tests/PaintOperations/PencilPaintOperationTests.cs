@@ -32,6 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using Pixelaria.Utils;
+using PixelariaTests.PixelariaTests.Generators;
 using Rhino.Mocks;
 
 namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
@@ -78,17 +79,16 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         }
 
         /// <summary>
-        /// Tests that the pencil operation is working correctly with a transparent color
+        /// Tests that the pencil operation is working correctly with a transparent color and a source copy compositing mode
         /// </summary>
         [TestMethod]
         public void TestSourceCopyTransparentOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
-            FastBitmap.ClearBitmap(target, Color.Transparent);
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             PencilPaintOperation operation = new PencilPaintOperation(target)
             {
-                Color = Color.FromArgb(50, 0, 0, 0),
+                Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceCopy
             };
 
@@ -103,7 +103,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0xF0, 0xCB, 0xBB, 0xC0, 0xA6, 0xF4, 0xAA, 0x27, 0x21, 0x77, 0x19, 0x45, 0x33, 0xBC, 0x28, 0xEF, 0x65, 0xC4, 0x41, 0x85, 0x72, 0x7C, 0xAE, 0x6E, 0xAC, 0xE2, 0xFE, 0xF0, 0x76, 0x7, 0x3, 0x64 };
+            byte[] goodHash = { 0x7C, 0xB0, 0xE9, 0x83, 0x12, 0xC3, 0x13, 0x74, 0x20, 0xCA, 0x40, 0x8E, 0x27, 0x11, 0x8B, 0xF5, 0xE9, 0x5F, 0x33, 0x41, 0xCE, 0x7D, 0x8D, 0x74, 0x76, 0x5C, 0xA6, 0xD1, 0xAB, 0x90, 0x1C, 0x34 };
             byte[] currentHash = GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SourceCopyTransparentPaint");
@@ -112,17 +112,16 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         }
 
         /// <summary>
-        /// Tests that the pencil operation is working correctly with a transparent color
+        /// Tests that the pencil operation is working correctly with a transparent color and a source over compositing mode
         /// </summary>
         [TestMethod]
         public void TestSourceOverTransparentOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
-            FastBitmap.ClearBitmap(target, Color.Transparent);
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             PencilPaintOperation operation = new PencilPaintOperation(target)
             {
-                Color = Color.FromArgb(50, 0, 0, 0),
+                Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver
             };
 
@@ -138,10 +137,44 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x9B, 0x44, 0x4, 0xF3, 0x5, 0x2E, 0xFF, 0x8, 0x49, 0x92, 0xF2, 0x46, 0xCD, 0x21, 0x19, 0x6E, 0x69, 0x87, 0x9C, 0x67, 0x66, 0x66, 0x72, 0xB0, 0xD8, 0xE9, 0x6, 0xC8, 0x89, 0x59, 0xF0, 0xBA };
+            byte[] goodHash = { 0x7D, 0xBB, 0x8A, 0xAE, 0x0, 0x75, 0x55, 0x54, 0x67, 0xE1, 0x35, 0x90, 0xE2, 0x77, 0xD3, 0xF1, 0xE4, 0xAD, 0xE2, 0xD6, 0xB, 0xDA, 0xCA, 0xB9, 0xDD, 0x64, 0x99, 0x70, 0xFF, 0x69, 0x6D, 0x52 };
             byte[] currentHash = GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SourceOverTransparentPaint");
+
+            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation must match the good hash stored");
+        }
+
+        /// <summary>
+        /// Tests that the pencil operation is working correctly with a transparent color, a source over compositing mode, and accumulate alpha set to false
+        /// </summary>
+        [TestMethod]
+        public void TestSourceOverAlphaAccumulationOffTransparentOperation()
+        {
+            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceOver
+            };
+
+            operation.StartOpertaion(false);
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(10, 10);
+            operation.DrawTo(15, 17);
+            operation.DrawTo(20, 25);
+            operation.DrawTo(25, 37);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
+            byte[] goodHash = { 0x7E, 0xCD, 0xAB, 0x2D, 0xB, 0x48, 0x83, 0x2B, 0x1E, 0xCA, 0xA, 0x98, 0x68, 0x58, 0x86, 0x66, 0x67, 0x15, 0x62, 0xDA, 0xC4, 0xB5, 0xE2, 0x8, 0x12, 0xBD, 0x3C, 0x7A, 0xF2, 0x92, 0x80, 0x9 };
+            byte[] currentHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_SourceOverTransparentPaint_AccumulateAlphaOff");
 
             Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation must match the good hash stored");
         }

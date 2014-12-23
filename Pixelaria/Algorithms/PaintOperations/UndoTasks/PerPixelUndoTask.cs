@@ -65,6 +65,8 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             _pixelHistoryTracker = new PixelHistoryTracker(indexPixels, keepReplacedOriginals, bitmap.Width);
         }
 
+        // TODO: Avaliate the encapsulation and object composition implications of having a constructor that takes a pixel history tracker and clears it on calls to .Clear()
+        /*
         /// <summary>
         /// Initializes a new instance of the PixelUndoTask
         /// </summary>
@@ -78,6 +80,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
 
             _pixelHistoryTracker = tracker;
         }
+        */
 
         /// <summary>
         /// Clears this pencil undo task
