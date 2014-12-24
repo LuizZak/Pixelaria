@@ -20,6 +20,8 @@ Legend:
 
 -- Current Version
 
+* Fixed crash related to opening files that are not valid .plx files.
+
 . FrameView
   + Added option to render the onion skin on top of the current frame, instead of under it
   

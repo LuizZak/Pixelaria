@@ -210,20 +210,21 @@ namespace Pixelaria.Controllers
         /// <param name="savePath">The path to load the bundle from</param>
         public void LoadBundleFromFile(string savePath)
         {
+            PixelariaFile file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
+
+            if (file == null)
+            {
+                MessageBox.Show(Resources.ErrorLoadingFile, Resources.Error_AlertTile, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             // Dispose of the current bundle if it's present
             if (_currentBundle != null)
             {
                 CloseBundle(_currentBundle);
             }
 
-            PixelariaFile file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
             Bundle newBundle = file.LoadedBundle;
-
-            if (newBundle == null)
-            {
-                MessageBox.Show(Resources.ErrorLoadingFile, Resources.Error_AlertTile, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
 
             newBundle.SaveFile = savePath;
 
