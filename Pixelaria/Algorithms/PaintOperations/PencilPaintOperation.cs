@@ -138,6 +138,10 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="point">The point to plot at</param>
         protected virtual void PlotPoint(Point point)
         {
+            // Test boundaries
+            if (!WithinBounds(point))
+                return;
+
             if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(point.X, point.Y))
                 return;
 
@@ -206,6 +210,15 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             fastBitmap.Unlock();
             fastBitmap.Dispose();
+
+        /// <summary>
+        /// Returns whether the given Point is within the image bounds
+        /// </summary>
+        /// <param name="point">The point to get whether or not it's within the image</param>
+        /// <returns>Whether the given point is within the image bounds</returns>
+        protected virtual bool WithinBounds(Point point)
+        {
+            return point.X >= 0 && point.Y >= 0 && point.X < targetBitmap.Width && point.Y < targetBitmap.Height;
         }
 
         /// <summary>

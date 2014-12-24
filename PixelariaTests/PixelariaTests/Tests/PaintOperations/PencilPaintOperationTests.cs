@@ -79,6 +79,33 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         }
 
         /// <summary>
+        /// Tests a paint operation that crosses the boundaries of the affected bitmap
+        /// </summary>
+        [TestMethod]
+        public void TestOutOfBoundsPaintOperation()
+        {
+            Bitmap target = new Bitmap(64, 64);
+            FastBitmap.ClearBitmap(target, Color.Transparent);
+
+            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(-20, 40);
+            operation.DrawTo(40, -20);
+
+            operation.FinishOperation();
+
+            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
+            byte[] goodHash = { 0x35, 0xC8, 0x80, 0x21, 0xE7, 0xC1, 0x48, 0x28, 0xA5, 0xA9, 0xDC, 0xF5, 0x2D, 0x1F, 0xBB, 0x8B, 0xE3, 0xBC, 0x3C, 0x80, 0x2B, 0xCC, 0x95, 0x2C, 0xD3, 0xC8, 0xD, 0x52, 0xC2, 0xE5, 0xC2, 0x62 };
+            byte[] currentHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_OutOfBoundsPaint");
+
+            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation does not match the good hash stored. Verify the output image for an analysis of what went wrong");
+        }
+
+        /// <summary>
         /// Tests a single plot on the bitmap
         /// </summary>
         [TestMethod]
