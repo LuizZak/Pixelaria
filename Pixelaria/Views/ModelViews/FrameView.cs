@@ -90,6 +90,11 @@ namespace Pixelaria.Views.ModelViews
         private readonly EventHandler _presetClickEventHandler;
 
         /// <summary>
+        /// Whether this form ahs been completely loaded. Mostly used by interface callbacks to know whether to avoid updating any values
+        /// </summary>
+        private bool _formLoaded;
+
+        /// <summary>
         /// The first edit color
         /// </summary>
         public static Color FirstColor;
@@ -195,25 +200,33 @@ namespace Pixelaria.Views.ModelViews
             iepb_frame.UndoSystem.UndoPerformed += UndoSystem_UndoPerformed;
             iepb_frame.UndoSystem.RedoPerformed += UndoSystem_RedoPerformed;
 
+            // Set the paint operation to the default
             ChangePaintOperation(new PencilPaintTool(FirstColor, SecondColor, BrushSize));
-
             iepb_frame.DefaultCompositingMode = CurrentCompositingMode;
 
             cp_mainColorPicker.FirstColor = FirstColor;
             cp_mainColorPicker.SecondColor = SecondColor;
 
+            // Reset the fill mode
             rb_fillMode_2.Checked = true;
+
+            // Update the interface to have its previous value before the form was closed
+            anud_brushSize.Value = BrushSize;
+            rb_blendingBlend.Checked = CurrentCompositingMode == CompositingMode.SourceOver;
+            rb_blendingReplace.Checked = !rb_blendingBlend.Checked;
 
             // Frame preview
             _framePreviewEnabled = false;
             pnl_framePreview.Visible = _framePreviewEnabled;
             zpb_framePreview.HookToControl(this);
 
+            // Setup the onion skin configuration interface
             tsb_onionSkin.Checked = GlobalOnionSkinSettings.OnionSkinEnabled;
             tsb_osPrevFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
             tsb_osShowCurrentFrame.Checked = GlobalOnionSkinSettings.OnionSkinShowCurrentFrame;
             tsb_osNextFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.NextFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
 
+            // Setup the onion skin decorator
             OnionSkinDecorator = new OnionSkinDecorator(this, iepb_frame.PictureBox)
             {
                 Settings =
@@ -244,6 +257,8 @@ namespace Pixelaria.Views.ModelViews
             UpdateMouseLocationLabel();
 
             LoadFrame(frameToEdit);
+
+            _formLoaded = true;
         }
 
         /// <summary>
@@ -1042,6 +1057,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_blendingBlend_CheckedChanged(object sender, EventArgs e)
         {
+            if (!_formLoaded)
+                return;
+
             if (rb_blendingBlend.Checked)
             {
                 iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceOver;
@@ -1053,6 +1071,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void rb_blendingReplace_CheckedChanged(object sender, EventArgs e)
         {
+            if (!_formLoaded)
+                return;
+
             if (rb_blendingReplace.Checked)
             {
                 iepb_frame.DefaultCompositingMode = CurrentCompositingMode = CompositingMode.SourceCopy;
@@ -1066,6 +1087,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void anud_brushSize_ValueChanged(object sender, EventArgs e)
         {
+            if (!_formLoaded)
+                return;
+
             BrushSize = (int)anud_brushSize.Value;
 
             var operation = iepb_frame.CurrentPaintTool as ISizedPaintTool;
