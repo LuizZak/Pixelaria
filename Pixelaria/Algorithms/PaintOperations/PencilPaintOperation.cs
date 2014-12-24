@@ -50,6 +50,21 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         public int Size { get; set; }
 
+        public override Bitmap TargetBitmap
+        {
+            get { return base.TargetBitmap; }
+            set
+            {
+                base.TargetBitmap = value;
+
+                if(value != null)
+                {
+                    bitmapWidth = value.Width;
+                    bitmapHeight = value.Height;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets a value specifying whether the opration is currently accumulating the alpha transparency of the pixels it is affecting.
         /// Having this true means the paint operation accumulates the alpha of pixels it has already drawn over, and having it false means it only affects
@@ -91,6 +106,16 @@ namespace Pixelaria.Algorithms.PaintOperations
         protected bool pencilTipPressed;
 
         /// <summary>
+        /// The width of the current bitmap being manipulated
+        /// </summary>
+        protected int bitmapWidth;
+
+        /// <summary>
+        /// The height of the current bitmap being manipulated
+        /// </summary>
+        protected int bitmapHeight;
+
+        /// <summary>
         /// The pixel history tracker associated with this pencil paint operation, used to track pixels already drawn over when the AccumulateAlpha is set to true
         /// </summary>
         protected PixelHistoryTracker pixelsDrawn;
@@ -109,6 +134,9 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="pencilTipPoint">The tip of the pencil </param>
         public PencilPaintOperation(Bitmap targetBitmap, bool useFastBitmap = false, Point pencilTipPoint = new Point()) : base(targetBitmap)
         {
+            bitmapWidth = targetBitmap.Width;
+            bitmapHeight = targetBitmap.Height;
+
             pencilTip = pencilTipPoint;
             ColorBlender = new DefaultColorBlender();
             Size = 1;
@@ -157,28 +185,31 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="point">The point to plot at</param>
         public virtual void PlotPixel(Point point)
         {
+            int pointX = point.X;
+            int pointY = point.Y;
+
             // Test boundaries
-            if (!WithinBounds(point))
+            if (!WithinBounds(pointX, pointY))
                 return;
 
-            if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(point.X, point.Y))
+            if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(pointX, pointY))
                 return;
 
-            Color oldColor = (useFastBitmap ? fastBitmap.GetPixel(point.X, point.Y) : targetBitmap.GetPixel(point.X, point.Y));
+            Color oldColor = (useFastBitmap ? fastBitmap.GetPixel(pointX, pointY) : targetBitmap.GetPixel(pointX, pointY));
             Color newColor = GetBlendedColor(oldColor);
 
             if (useFastBitmap)
             {
-                fastBitmap.SetPixel(point.X, point.Y, newColor);
+                fastBitmap.SetPixel(pointX, pointY, newColor);
             }
             else
             {
-                targetBitmap.SetPixel(point.X, point.Y, newColor);
+                targetBitmap.SetPixel(pointX, pointY, newColor);
             }
 
             if (!AccumulateAlpha)
             {
-                pixelsDrawn.RegisterPixel(point.X, point.Y, oldColor, newColor);
+                pixelsDrawn.RegisterPixel(pointX, pointY, oldColor, newColor);
             }
 
             if (Notifier != null)

@@ -103,23 +103,5 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             Assert.IsTrue(undo != null && undo.Value.OldColor == 0xCF,
                 "The returned PixelUndo does not contains the undo color that was expected. The pixel color must match the color of the last pixel registered RegisterPixel");
         }
-
-        /// <summary>
-        /// Tests duplicated pixels feeded to the RegisterPixel with 'ignoreIfDuplicated' set to false and pixel indexing disabled 
-        /// </summary>
-        [TestMethod]
-        public void TestNoDuplicateAllowDuplicated()
-        {
-            // Create the tracker
-            PixelHistoryTracker tracker = new PixelHistoryTracker(false, false, 12);
-
-            // Add the pixels
-            tracker.RegisterPixel(5, 5, 0xFF, 0x1F, false);
-            tracker.RegisterPixel(5, 5, 0xEF, 0x2F, false);
-            tracker.RegisterPixel(5, 5, 0xCF, 0x3F, false);
-
-            Assert.AreEqual(3, tracker.PixelList.Count,
-                "The number of pixels stored does not match the expected number of pixels stored after calling RegisterPixel with 'checkExisting' false and pixel indexing disabled");
-        }
     }
 }

@@ -64,8 +64,6 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             _pixelHistoryTracker = new PixelHistoryTracker(indexPixels, keepReplacedOriginals, bitmap.Width);
         }
 
-        // TODO: Avaliate the encapsulation and object composition implications of having a constructor that takes a pixel history tracker and clears it on calls to .Clear()
-        /*
         /// <summary>
         /// Initializes a new instance of the PixelUndoTask
         /// </summary>
@@ -79,14 +77,13 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
 
             _pixelHistoryTracker = tracker;
         }
-        */
 
         /// <summary>
         /// Clears this pencil undo task
         /// </summary>
         public override void Clear()
         {
-            PixelHistoryTracker.PixelList.Clear();
+            _pixelHistoryTracker.Clear();
         }
 
         /// <summary>
@@ -96,12 +93,16 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             using (FastBitmap bitmap = targetBitmap.FastLock())
             {
-                int c = PixelHistoryTracker.PixelList.Count;
+                foreach (var pixelUndo in _pixelHistoryTracker.StoredPixelsEnumerable)
+                {
+                    bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.OldColor);
+                }
+                /*int c = _pixelHistoryTracker.PixelList.Count;
                 for (int i = 0; i < c; i++)
                 {
-                    PixelHistoryTracker.PixelUndo pu = PixelHistoryTracker.PixelList[i];
+                    PixelHistoryTracker.PixelUndo pu = _pixelHistoryTracker.PixelList[i];
                     bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.OldColor);
-                }
+                }*/
             }
         }
 
@@ -112,12 +113,16 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             using (FastBitmap bitmap = targetBitmap.FastLock())
             {
-                int c = PixelHistoryTracker.PixelList.Count;
+                foreach (var pixelUndo in _pixelHistoryTracker.StoredPixelsEnumerable)
+                {
+                    bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.NewColor);
+                }
+                /*int c = _pixelHistoryTracker.PixelList.Count;
                 for (int i = 0; i < c; i++)
                 {
-                    PixelHistoryTracker.PixelUndo pu = PixelHistoryTracker.PixelList[i];
+                    PixelHistoryTracker.PixelUndo pu = _pixelHistoryTracker.PixelList[i];
                     bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.NewColor);
-                }
+                }*/
             }
         }
 

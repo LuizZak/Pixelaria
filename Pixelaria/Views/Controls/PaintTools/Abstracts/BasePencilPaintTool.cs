@@ -429,7 +429,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pencilOperation.Notifier = null; // Nullify the notifier so subsequent operations don't interfere with previous undo operations
             
             // Verify that the generator has registered any modifications
-            if(undoGenerator.UndoTask.PixelHistoryTracker.PixelList.Count > 0)
+            if(undoGenerator.UndoTask.PixelHistoryTracker.PixelCount > 0)
             {
                 pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
                 pictureBox.MarkModified();

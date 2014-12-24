@@ -473,7 +473,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
         #endregion
 
-        #region Undo Operation
+        #region Redo Operation
 
         /// <summary>
         /// Tests the undo for the pencil paint operation
@@ -655,7 +655,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] originalHash = GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false, ignoreDuplicatedPlots: false);
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false);
             PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
 
             operation.StartOpertaion();
@@ -691,7 +691,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] originalHash = GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false, ignoreDuplicatedPlots: false);
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false);
             PencilPaintOperation operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),

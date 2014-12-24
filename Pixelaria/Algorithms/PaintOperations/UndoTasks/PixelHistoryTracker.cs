@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -31,9 +32,9 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
     public class PixelHistoryTracker
     {
         /// <summary>
-        /// List of pixels stored on this per-pixel undo
+        /// Dictionary of pixels stored on this per-pixel undo task
         /// </summary>
-        private readonly List<PixelUndo> _pixelList;
+        private readonly Dictionary<int, PixelUndo> _pixelDictionary;
 
         /// <summary>
         /// Whether to index the pixels being added so they appear sequentially on the pixels list
@@ -51,11 +52,19 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         private readonly int _width;
 
         /// <summary>
-        /// Gets the list of pixels affected in this pixel history
+        /// Gets an enumerable object for the pixels affected in this pixel history
         /// </summary>
-        public List<PixelUndo> PixelList
+        public IEnumerable<PixelUndo> StoredPixelsEnumerable
         {
-            get { return _pixelList; }
+            get { return _pixelDictionary.Values; }
+        }
+
+        /// <summary>
+        /// Gets the number of items stored in this PixelHistoryTracker
+        /// </summary>
+        public int PixelCount
+        {
+            get { return _pixelDictionary.Count; }
         }
 
         /// <summary>
@@ -68,10 +77,18 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="width">The width of the bitmap being affected</param>
         public PixelHistoryTracker(bool indexPixels, bool keepOriginalUndos, int width)
         {
-            _pixelList = new List<PixelUndo>();
+            _pixelDictionary = new Dictionary<int, PixelUndo>();
             _indexPixels = indexPixels;
             _keepOriginalUndos = keepOriginalUndos;
             _width = width;
+        }
+
+        /// <summary>
+        /// Clears this PixelHistoryTracker
+        /// </summary>
+        public void Clear()
+        {
+            _pixelDictionary.Clear();
         }
 
         /// <summary>
@@ -119,16 +136,6 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </param>
         public void RegisterPixel(int x, int y, uint oldColor, uint newColor, bool ignoreIfDuplicated = true)
         {
-            // Early out: don't register duplicated pixels
-            if (ignoreIfDuplicated && !_indexPixels)
-            {
-                foreach (PixelUndo pu in _pixelList)
-                {
-                    if (pu.PixelX == x && pu.PixelY == y)
-                        return;
-                }
-            }
-
             InternalRegisterPixel(x, y, oldColor, newColor, !ignoreIfDuplicated);
         }
 
@@ -157,111 +164,25 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             int pixelIndex = x + y * _width;
 
-            PixelUndo item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
-
-            if (!_indexPixels)
+            if (_pixelDictionary.ContainsKey(pixelIndex))
             {
-                _pixelList.Add(item);
-                return;
+                if (!replaceExisting)
+                    return;
+
+                PixelUndo item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
+
+                if (_keepOriginalUndos)
+                {
+                    item.OldColor = _pixelDictionary[pixelIndex].OldColor;
+                }
+
+                _pixelDictionary[pixelIndex] = item;
             }
-
-            int l = _pixelList.Count;
-
-            // Empty list: Add item directly
-            if (l == 0)
+            else
             {
-                _pixelList.Add(item);
-                return;
-            }
+                PixelUndo item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
 
-            int s = 0;
-            int e = l - 1;
-            while (true)
-            {
-                var idF = _pixelList[e].PixelIndex;
-
-                // Pixel index of the item at the end of the interval is smaller than the current pixel index: Add
-                // item after the interval
-                if (idF < pixelIndex)
-                {
-                    _pixelList.Insert(e + 1, item);
-                    return;
-                }
-                // Pixel index of the item at the end of the interval is equals to the item being added: Replace the pixel if replacing is allowed and quit
-                if (idF == pixelIndex)
-                {
-                    if (replaceExisting)
-                    {
-                        if (_keepOriginalUndos)
-                        {
-                            item.OldColor = _pixelList[e].OldColor;
-                        }
-
-                        _pixelList[e] = item;
-                    }
-
-                    return;
-                }
-
-                var idC = _pixelList[s].PixelIndex;
-
-                // Pixel index of the item at the start of the interval is larger than the current pixel index: Add
-                // item before the interval
-                if (idC > pixelIndex)
-                {
-                    _pixelList.Insert(s, item);
-                    return;
-                }
-                // Pixel index of the item at the start of the interval is equals to the item being added: Replace the pixel if replacing is allowed and quit
-                if (idC == pixelIndex)
-                {
-                    if (replaceExisting)
-                    {
-                        if (_keepOriginalUndos)
-                        {
-                            item.OldColor = _pixelList[s].OldColor;
-                        }
-
-                        _pixelList[s] = item;
-                    }
-
-                    return;
-                }
-
-                int mid = s + (e - s) / 2;
-                var idM = _pixelList[mid].PixelIndex;
-
-                if (idM > pixelIndex)
-                {
-                    s++;
-                    e = mid - 1;
-                }
-                else if (idM < pixelIndex)
-                {
-                    s = mid + 1;
-                    e--;
-                }
-                else if (idM == pixelIndex)
-                {
-                    if (replaceExisting)
-                    {
-                        if (_keepOriginalUndos)
-                        {
-                            item.OldColor = _pixelList[mid].OldColor;
-                        }
-
-                        _pixelList[mid] = item;
-                    }
-
-                    return;
-                }
-
-                // End of search: Add item at the current index
-                if (s > e)
-                {
-                    _pixelList.Insert(s, item);
-                    return;
-                }
+                _pixelDictionary[pixelIndex] = item;
             }
         }
 
@@ -273,7 +194,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <returns>Whether this PerPixelUndoTask contains information about undoing the given pixel</returns>
         public bool ContainsPixel(int x, int y)
         {
-            return IndexOfPixel(x, y) > -1;
+            return _pixelDictionary.ContainsKey(y * _width + x);
         }
 
         /// <summary>
@@ -284,77 +205,20 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <returns>A PixelUndo struct containing the information of the pixel, or null, if none was found</returns>
         public PixelUndo? PixelUndoForPixel(int x, int y)
         {
-            int index = IndexOfPixel(x, y);
+            PixelUndo undo;
 
-            if (index > -1)
-                return _pixelList[index];
+            if (_pixelDictionary.TryGetValue(y * _width + x, out undo))
+            {
+                return undo;
+            }
 
             return null;
         }
 
         /// <summary>
-        /// Returns the index of a pixel in the pixel list. If no pixel is found, -1 is returned instead
-        /// </summary>
-        /// <param name="x">The X coordinate of the pixel to search</param>
-        /// <param name="y">The Y coordinate of the pixel to search</param>
-        /// <returns>The index of a pixel in the pixel list</returns>
-        private int IndexOfPixel(int x, int y)
-        {
-            if (_pixelList.Count == 0)
-                return -1;
-
-            if (!_indexPixels)
-            {
-                int c = _pixelList.Count;
-                for(int i = 0; i < c; i++)
-                {
-                    PixelUndo pu = _pixelList[i];
-                    if (pu.PixelX == x && pu.PixelY == y)
-                        return i;
-                }
-            }
-
-            int id = x + y * _width;
-
-            int s = 0;
-            int e = _pixelList.Count - 1;
-
-            while (s <= e)
-            {
-                int mid = s + (e - s) / 2;
-                int idMid = _pixelList[mid].PixelIndex;
-
-                if (idMid == id)
-                {
-                    return mid;
-                }
-
-                if (idMid > id)
-                {
-                    e = mid - 1;
-                }
-                else if (idMid < id)
-                {
-                    s = mid + 1;
-                }
-            }
-
-            return -1;
-        }
-
-        /// <summary>
-        /// Packs any underlying data so it occupies memory more efficietly
-        /// </summary>
-        public void PackData()
-        {
-            // Trim pixel list capacity
-            _pixelList.Capacity = _pixelList.Count;
-        }
-
-        /// <summary>
         /// Encapsulates an undo task on a single pixel
         /// </summary>
-        public struct PixelUndo
+        public struct PixelUndo : IEquatable<PixelUndo>
         {
             /// <summary>
             /// The X position of the pixel to draw
@@ -396,6 +260,64 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 PixelIndex = pixelIndex;
                 OldColor = oldColor;
                 NewColor = newColor;
+            }
+
+            /// <summary>
+            /// Returns whether the given PixelUndo object is equal to this object
+            /// </summary>
+            /// <param name="other">The object to test equality against this object</param>
+            /// <returns>Whether the given PixelUndo object is equal to this object</returns>
+            public bool Equals(PixelUndo other)
+            {
+                return PixelX == other.PixelX && PixelY == other.PixelY && PixelIndex == other.PixelIndex && NewColor == other.NewColor;
+            }
+
+            /// <summary>
+            /// Returns whether the given object is equal to this object
+            /// </summary>
+            /// <param name="obj">The object to test equality against this object</param>
+            /// <returns>Whether the given object is equal to this object</returns>
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                return obj is PixelUndo && Equals((PixelUndo)obj);
+            }
+
+            /// <summary>
+            /// Gets the hashcode of this PixelUndo object
+            /// </summary>
+            /// <returns>The hash of this PixelUndo object</returns>
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = PixelX;
+                    hashCode = (hashCode * 397) ^ PixelY;
+                    hashCode = (hashCode * 397) ^ PixelIndex;
+                    return hashCode;
+                }
+            }
+
+            /// <summary>
+            /// Returns whether two PixelUndo objects are equal, using the .Equals() method
+            /// </summary>
+            /// <param name="left">A PixelUndo object</param>
+            /// <param name="right">Another PixelUndo object</param>
+            /// <returns>Whether two PixelUndo objects are equal</returns>
+            public static bool operator==(PixelUndo left, PixelUndo right)
+            {
+                return left.Equals(right);
+            }
+
+            /// <summary>
+            /// Returns whether two PixelUndo objects are not equal, using the .Equals() method
+            /// </summary>
+            /// <param name="left">A PixelUndo object</param>
+            /// <param name="right">Another PixelUndo object</param>
+            /// <returns>Whether two PixelUndo objects are not equal</returns>
+            public static bool operator!=(PixelUndo left, PixelUndo right)
+            {
+                return !left.Equals(right);
             }
         }
     }
