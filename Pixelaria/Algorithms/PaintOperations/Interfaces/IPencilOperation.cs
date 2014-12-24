@@ -21,6 +21,7 @@
 */
 
 using System.Drawing;
+using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 
 namespace Pixelaria.Algorithms.PaintOperations.Interfaces
 {
@@ -56,5 +57,17 @@ namespace Pixelaria.Algorithms.PaintOperations.Interfaces
         /// <param name="oldColor">The old color of the pixel, before the plot</param>
         /// <param name="newColor">The new color of the pixel, after the plot</param>
         void PlottedPixel(Point point, int oldColor, int newColor);
+
+        /// <summary>
+        /// Method called to notify the plotting operation has started
+        /// </summary>
+        /// <param name="accumulateAlpha">Whether the plotting operation has alpha accumulation mode on</param>
+        void OperationStarted(bool accumulateAlpha);
+
+        /// <summary>
+        /// Method called to notify the plotting operation was finished
+        /// </summary>
+        /// <param name="pixelHistory">The pixel history tracker containing the information about the pixels that were modified during the operation</param>
+        void OperationFinished(PixelHistoryTracker pixelHistory);
     }
 }
