@@ -37,11 +37,6 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         private readonly Dictionary<int, PixelUndo> _pixelDictionary;
 
         /// <summary>
-        /// Whether to index the pixels being added so they appear sequentially on the pixels list
-        /// </summary>
-        private readonly bool _indexPixels;
-
-        /// <summary>
         /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
         /// </summary>
         private readonly bool _keepOriginalUndos;
@@ -70,15 +65,13 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <summary>
         /// Initializes a new isntance of the pixel history tracker
         /// </summary>
-        /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixels list</param>
         /// <param name="keepOriginalUndos">
-        /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified
+        ///     Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified
         /// </param>
         /// <param name="width">The width of the bitmap being affected</param>
-        public PixelHistoryTracker(bool indexPixels, bool keepOriginalUndos, int width)
+        public PixelHistoryTracker(bool keepOriginalUndos, int width)
         {
             _pixelDictionary = new Dictionary<int, PixelUndo>();
-            _indexPixels = indexPixels;
             _keepOriginalUndos = keepOriginalUndos;
             _width = width;
         }

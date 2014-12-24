@@ -54,14 +54,15 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         /// <param name="bitmap">The target bitmap for hte undo operation</param>
         /// <param name="description">A description to use for this UndoTask</param>
-        /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
-        /// <param name="keepReplacedOriginals">Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.</param>
-        public PerPixelUndoTask(Bitmap bitmap, string description, bool indexPixels = false, bool keepReplacedOriginals = false)
+        /// <param name="keepReplacedUndos">
+        /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
+        /// </param>
+        public PerPixelUndoTask(Bitmap bitmap, string description, bool keepReplacedUndos = false)
             : base(bitmap)
         {
             _description = description;
 
-            _pixelHistoryTracker = new PixelHistoryTracker(indexPixels, keepReplacedOriginals, bitmap.Width);
+            _pixelHistoryTracker = new PixelHistoryTracker(keepReplacedUndos, bitmap.Width);
         }
 
         /// <summary>
@@ -97,12 +98,6 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 {
                     bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.OldColor);
                 }
-                /*int c = _pixelHistoryTracker.PixelList.Count;
-                for (int i = 0; i < c; i++)
-                {
-                    PixelHistoryTracker.PixelUndo pu = _pixelHistoryTracker.PixelList[i];
-                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.OldColor);
-                }*/
             }
         }
 
@@ -117,12 +112,6 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 {
                     bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.NewColor);
                 }
-                /*int c = _pixelHistoryTracker.PixelList.Count;
-                for (int i = 0; i < c; i++)
-                {
-                    PixelHistoryTracker.PixelUndo pu = _pixelHistoryTracker.PixelList[i];
-                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.NewColor);
-                }*/
             }
         }
 

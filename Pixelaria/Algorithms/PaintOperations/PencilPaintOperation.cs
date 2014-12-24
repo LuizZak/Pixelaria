@@ -50,6 +50,9 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         public int Size { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target bitmap for this PencilPaintOperation
+        /// </summary>
         public override Bitmap TargetBitmap
         {
             get { return base.TargetBitmap; }
@@ -278,7 +281,7 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             if(!accumulateAlpha)
             {
-                pixelsDrawn = new PixelHistoryTracker(true, false, targetBitmap.Width);
+                pixelsDrawn = new PixelHistoryTracker(true, targetBitmap.Width);
             }
 
             if (Notifier != null)
@@ -454,13 +457,12 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         /// <param name="bitmap">The target bitmap for hte undo operation</param>
         /// <param name="description">A description to use for this UndoTask</param>
-        /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
         /// <param name="keepReplacedUndos">
-        /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
+        ///     Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
         /// </param>
         /// <param name="ignoreDuplicatedPlots">Whether to ignore duplicated pixels during calls to PlottedPixel</param>
-        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool indexPixels = true, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = false)
-            : this(new PerPixelUndoTask(bitmap, description, indexPixels, keepReplacedUndos), ignoreDuplicatedPlots)
+        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = false)
+            : this(new PerPixelUndoTask(bitmap, description, keepReplacedUndos), ignoreDuplicatedPlots)
         {
             _bitmap = bitmap;
             _description = description;

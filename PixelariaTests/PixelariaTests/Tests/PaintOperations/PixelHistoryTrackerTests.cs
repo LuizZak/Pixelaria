@@ -38,7 +38,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestPixelRegistering()
         {
             // Create the tracker
-            PixelHistoryTracker tracker = new PixelHistoryTracker(true, true, 12);
+            PixelHistoryTracker tracker = new PixelHistoryTracker(true, 12);
 
             // Add the pixels
             tracker.RegisterPixel(5, 5, 0xFF, 0x1F);
@@ -54,7 +54,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestDuplicatedPixelRegisteringKeepReplacedOriginal()
         {
             // Create the tracker
-            PixelHistoryTracker tracker = new PixelHistoryTracker(true, true, 12);
+            PixelHistoryTracker tracker = new PixelHistoryTracker(true, 12);
 
             // Add the pixels
             tracker.RegisterPixel(5, 5, 0xFF, 0x1F);
@@ -73,7 +73,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestDuplicatedPixelRegisteringReplaceOriginal()
         {
             // Create the tracker
-            PixelHistoryTracker tracker = new PixelHistoryTracker(true, false, 12);
+            PixelHistoryTracker tracker = new PixelHistoryTracker(false, 12);
 
             // Add the pixels
             tracker.RegisterPixel(5, 5, 0xFF, 0x1F, false);
@@ -92,7 +92,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestDuplicatedPixelUncheckedRegisteringReplaceOriginal()
         {
             // Create the tracker
-            PixelHistoryTracker tracker = new PixelHistoryTracker(true, false, 12);
+            PixelHistoryTracker tracker = new PixelHistoryTracker(false, 12);
 
             // Add the pixels
             tracker.RegisterUncheckedPixel(5, 5, 0xFF, 0x1F);
