@@ -774,6 +774,20 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             paintOperation.DrawTo(5, 5);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to modify the target bitmap while under operation should result in an InvalidOperationException")]
+        public void TestChangeBitmapUnderOperationException()
+        {
+            Bitmap bitmap = new Bitmap(64, 64);
+            PencilPaintOperation paintOperation = new PencilPaintOperation(bitmap);
+
+            paintOperation.StartOpertaion();
+
+            paintOperation.DrawTo(5, 5);
+
+            paintOperation.TargetBitmap = new Bitmap(64, 64);
+        }
+
         /// <summary>
         /// Saves the specified bitmap on a desktop folder used to store resulting operations' bitmaps with the specified file name.
         /// The method saves both a .png format of the image, and a .txt file containing an array of bytes for the image's SHA256 hash
