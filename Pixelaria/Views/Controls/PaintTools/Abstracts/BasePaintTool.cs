@@ -155,18 +155,39 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         }
 
         /// <summary>
-        /// Returns the absolute position of the given point on the canvas image
+        /// Invalidates a region of the control, with the given coordinates and size.
+        /// The region must be in absolute pixels in relation to the image being edited
         /// </summary>
-        /// <returns>The absolute position of the given point on the canvas image</returns>
+        /// <param name="rectangle">The rectangle to invalidate</param>
+        protected virtual void InvalidateRect(Rectangle rectangle)
+        {
+            // Get the top-left and bottom-right spots of the rectangle, in screen coordinates
+            PointF topPoint = GetRelativePoint(rectangle.Location);
+            PointF bottomPoint = GetRelativePoint(new Point(rectangle.Right, rectangle.Bottom));
+
+            // Transform the points into rectangles, and create a rectangle that encloses them
+            // This effectively transforms the rectangle area from image to control space
+            RectangleF topRect = new RectangleF(topPoint, new SizeF(1, 1));
+            RectangleF bottomRect = new RectangleF(bottomPoint, new SizeF(1, 1));
+            
+            RectangleF controlRect = RectangleF.Union(topRect, bottomRect);
+
+            pictureBox.Invalidate(Rectangle.Truncate(controlRect));
+        }
+
+        /// <summary>
+        /// Returns the absolute position of the given control point on the canvas image
+        /// </summary>
+        /// <returns>The absolute position of the given control point on the canvas image</returns>
         protected virtual Point GetAbsolutePoint(PointF point)
         {
             return Point.Truncate(pictureBox.GetAbsolutePoint(point));
         }
 
         /// <summary>
-        /// Returns the relative position of the given point on the control bounds
+        /// Returns the relative position of the given canvas point on the control bounds
         /// </summary>
-        /// <returns>The relative position of the given point on the control bounds</returns>
+        /// <returns>The relative position of the given canvas point on the control bounds</returns>
         protected virtual PointF GetRelativePoint(Point point)
         {
             return pictureBox.GetRelativePoint(point);

@@ -26,8 +26,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+
+using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
@@ -36,21 +37,6 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// </summary>
     public abstract class BasePencilPaintTool : BasePaintTool
     {
-        /// <summary>
-        /// The minimum point that the trace bitmap occupies over the canvas image
-        /// </summary>
-        private Point _minimumTraceBitmapPoint;
-
-        /// <summary>
-        /// The maximum point that the trace bitmap occupies over the canvas image
-        /// </summary>
-        private Point _maximumTraceBitmapPoint;
-
-        /// <summary>
-        /// Whether the current trace bitmap area is invalid
-        /// </summary>
-        private bool _invalidTraceArea;
-
         /// <summary>
         /// Whether the pencil is visible
         /// </summary>
@@ -112,11 +98,6 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         protected PerPixelUndoTask currentUndoTask;
 
         /// <summary>
-        /// The compositing mode to use on this pencil
-        /// </summary>
-        protected CompositingMode compositingMode;
-
-        /// <summary>
         /// The radius of this pencil
         /// </summary>
         protected int size;
@@ -125,6 +106,16 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// The string to use as a description for the undo operation
         /// </summary>
         protected string undoDecription;
+
+        /// <summary>
+        /// The underlying paint operation that is affecting the bitmap
+        /// </summary>
+        protected PencilPaintOperation pencilOperation;
+
+        /// <summary>
+        /// The undo generator that is used during the plotting of the bitmap
+        /// </summary>
+        protected PlottingPaintUndoGenerator undoGenerator;
 
         /// <summary>
         /// The position to place the pencil point in absolute control coordinates
@@ -193,7 +184,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Gets or sets the compositing mode for the pen
         /// </summary>
-        public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
+        public CompositingMode CompositingMode { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the BasePencilPaintTool class
@@ -214,8 +205,6 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pictureBox = targetPictureBox;
             lastMousePosition = new Point();
 
-            _invalidTraceArea = true;
-
             RegeneratePenBitmap();
 
             ChangeBitmap(targetPictureBox.Bitmap);
@@ -225,6 +214,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             CompositingMode = targetPictureBox.OwningPanel.DefaultCompositingMode;
 
             visible = true;
+
+            pencilOperation = new PencilPaintOperation(targetPictureBox.Bitmap);
 
             Loaded = true;
         }
@@ -291,12 +282,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pe.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
             pe.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-            Graphics gfx = Graphics.FromImage(pictureBox.Buffer);
-
-            // Create image attributes
-            ImageAttributes attributes = new ImageAttributes();
-
-            if (compositingMode == CompositingMode.SourceOver)
+            if (CompositingMode == CompositingMode.SourceOver && !mouseDown)
             {
                 // Create a color matrix object
                 ColorMatrix matrix = new ColorMatrix
@@ -304,33 +290,28 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                     Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255)
                 };
 
-                // Set the opacity
-
+                // Create image attributes
+                ImageAttributes attributes = new ImageAttributes();
+                
                 // Set the color(opacity) of the image
                 attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                if (!mouseDown)
-                {
-                    gfx.DrawImage(pen, new Rectangle(absolutePencil, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
-                }
+                Graphics gfx = Graphics.FromImage(pictureBox.Buffer);
+
+                gfx.DrawImage(pen, new Rectangle(absolutePencil, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
+
+                gfx.Flush();
+                gfx.Dispose();
             }
 
-            if (mouseDown && CompositingMode == CompositingMode.SourceOver)
-            {
-                Rectangle traceRectangle = new Rectangle(_minimumTraceBitmapPoint.X, _minimumTraceBitmapPoint.Y, _maximumTraceBitmapPoint.X - _minimumTraceBitmapPoint.X + 1, _maximumTraceBitmapPoint.Y - _minimumTraceBitmapPoint.Y + 1);
-
-                gfx.DrawImage(currentTraceBitmap, traceRectangle, traceRectangle.X, traceRectangle.Y, traceRectangle.Width, traceRectangle.Height, GraphicsUnit.Pixel, attributes);
-            }
-            else if (CompositingMode == CompositingMode.SourceCopy)
+            // When rendering in Source Copy mode, draw the pencil color directly over the buffer
+            if ((!mouseDown || CompositingMode != CompositingMode.SourceOver) && CompositingMode == CompositingMode.SourceCopy)
             {
                 if (WithinBounds(absolutePencil))
                 {
                     pictureBox.Buffer.SetPixel(absolutePencil.X, absolutePencil.Y, firstColor);
                 }
             }
-
-            gfx.Flush();
-            gfx.Dispose();
         }
 
         /// <summary>
@@ -345,53 +326,33 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             Point absolutePencil = Point.Round(GetAbsolutePoint(pencilPoint));
 
-            // Early out
-            if (!WithinBounds(absolutePencil))
+            // Mouse down
+            if (e.Button == MouseButtons.Left)
             {
-                return;
+                penId = 0;
+
+                StartOperation(absolutePencil);
             }
-
-            if (!mouseDown)
+            else if (e.Button == MouseButtons.Right)
             {
-                currentUndoTask = new PerPixelUndoTask(pictureBox.Bitmap, undoDecription, true, true);
+                penId = 1;
 
-                // Mouse down
-                if (e.Button == MouseButtons.Left)
-                {
-                    mouseDown = true;
+                StartOperation(absolutePencil);
+            }
+            // Color pick
+            else if (e.Button == MouseButtons.Middle)
+            {
+                mouseDown = true;
 
-                    penId = 0;
-                }
-                else if (e.Button == MouseButtons.Right)
-                {
-                    mouseDown = true;
+                // Set pen to first color because color picking always changes the first color
+                penId = 0;
 
-                    penId = 1;
-                }
-                // Color pick
-                else if (e.Button == MouseButtons.Middle)
-                {
-                    mouseDown = true;
+                firstColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
+                RegeneratePenBitmap();
 
-                    // Set pen to first color because color picking always changes the first color
-                    penId = 0;
+                pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
 
-                    firstColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
-                    RegeneratePenBitmap();
-
-                    pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
-
-                    pictureBox.Invalidate();
-                }
-
-                // Draw a single pixel now
-                if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
-                {
-                    Bitmap targetBitmap = CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap;
-
-                    DrawPencil(absolutePencil, targetBitmap);
-                    ComputeTraceBitmapBounds(absolutePencil);
-                }
+                pictureBox.Invalidate();
             }
         }
 
@@ -410,77 +371,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
                 if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                 {
-                    if (pencil != pencilLast)
-                    {
-                        Bitmap targetBitmap = (CompositingMode == CompositingMode.SourceCopy ? pictureBox.Bitmap : currentTraceBitmap);
-
-                        int x0 = pencilLast.X;
-                        int y0 = pencilLast.Y;
-                        int x1 = pencil.X;
-                        int y1 = pencil.Y;
-
-                        bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-                        if (steep)
-                        {
-                            int t = x0;
-                            x0 = y0;
-                            y0 = t;
-
-                            t = x1;
-                            x1 = y1;
-                            y1 = t;
-                        }
-                        if (x0 > x1)
-                        {
-                            int t = x0;
-                            x0 = x1;
-                            x1 = t;
-
-                            t = y0;
-                            y0 = y1;
-                            y1 = t;
-                        }
-                        int deltax = x1 - x0;
-                        int deltay = Math.Abs(y1 - y0);
-                        int error = deltax / 2;
-                        int ystep;
-                        int y = y0;
-
-                        if (y0 < y1)
-                            ystep = 1;
-                        else
-                            ystep = -1;
-
-                        Point p = new Point();
-                        for (int x = x0; x <= x1; x++)
-                        {
-                            if (steep)
-                            {
-                                p.X = y;
-                                p.Y = x;
-                            }
-                            else
-                            {
-                                p.X = x;
-                                p.Y = y;
-                            }
-
-                            if (WithinBounds(p) && p != pencilLast)
-                            {
-                                DrawPencil(p, targetBitmap);
-                                ComputeTraceBitmapBounds(p);
-                            }
-
-                            error = error - deltay;
-                            if (error < 0)
-                            {
-                                y = y + ystep;
-                                error = error + deltax;
-                            }
-                        }
-
-                        pictureBox.MarkModified();
-                    }
+                    DrawPencil(pencil, null);
                 }
                 else if (e.Button == MouseButtons.Middle)
                 {
@@ -495,8 +386,6 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                     }
                 }
             }
-
-            lastMousePosition = e.Location;
         }
 
         /// <summary>
@@ -508,7 +397,6 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             if (e.Button != MouseButtons.Middle)
             {
                 FinishOperation();
-                _invalidTraceArea = true;
             }
 
             mouseDown = false;
@@ -534,6 +422,35 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         }
 
         /// <summary>
+        /// Starts this pencil operation on a specified point
+        /// </summary>
+        /// <param name="point">The point to start this operation on</param>
+        private void StartOperation(Point point)
+        {
+            // Early out
+            if (!WithinBounds(point))
+            {
+                return;
+            }
+
+            mouseDown = true;
+
+            lastMousePosition = point;
+
+            Color penColor = (penId == 0 ? firstColor : secondColor);
+            pencilOperation.Color = penColor;
+            pencilOperation.CompositingMode = CompositingMode;
+
+            pencilOperation.StartOpertaion(false);
+
+            undoGenerator = new PlottingPaintUndoGenerator(pictureBox.Bitmap, "Pencil");
+            pencilOperation.Notifier = undoGenerator;
+
+            pencilOperation.MoveTo(point.X, point.Y);
+            pencilOperation.DrawTo(point.X, point.Y);
+        }
+
+        /// <summary>
         /// Finishes this BasePenTool's current drawing operation
         /// </summary>
         public virtual void FinishOperation()
@@ -541,38 +458,10 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             if (!mouseDown)
                 return;
 
-            if (CompositingMode == CompositingMode.SourceOver)
-            {
-                // Draw the buffered trace bitmap now
-
-                // Create a color matrix object  
-                ColorMatrix matrix = new ColorMatrix
-                {
-                    Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255)
-                };
-
-                // Set the opacity  
-
-                // Create image attributes  
-                ImageAttributes attributes = new ImageAttributes();
-
-                // Set the color(opacity) of the image  
-                attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-
-                graphics.DrawImage(currentTraceBitmap, new Rectangle(0, 0, currentTraceBitmap.Width, currentTraceBitmap.Height), 0, 0, currentTraceBitmap.Width, currentTraceBitmap.Height, GraphicsUnit.Pixel, attributes);
-
-                // Clear the trace bitmap
-                Graphics gfx = Graphics.FromImage(currentTraceBitmap);
-
-                gfx.Clear(Color.Transparent);
-
-                gfx.Dispose();
-            }
+            pencilOperation.FinishOperation();
+            pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
 
             pictureBox.MarkModified();
-
-            pictureBox.OwningPanel.UndoSystem.RegisterUndo(currentUndoTask);
-            currentUndoTask = null;
         }
 
         /// <summary>
@@ -584,50 +473,21 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             // Find the properties to draw the pen with
             Color penColor = (penId == 0 ? firstColor : secondColor);
-            Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
             
-            Color oldColor = pictureBox.Bitmap.GetPixel(p.X, p.Y);
-            Color newColor = penColor;
+            pencilOperation.Color = penColor;
+            pencilOperation.DrawTo(p.X, p.Y);
 
-            if (CompositingMode == CompositingMode.SourceOver)
-            {
-                Color c = Color.FromArgb(penColor.ToArgb() | (0xFF << 24));
-                bitmap.SetPixel(p.X, p.Y, c);
+            // Calculate the invalidation area
+            Rectangle rectangle = new Rectangle(Math.Min(p.X, lastMousePosition.X), Math.Min(p.Y, lastMousePosition.Y), Math.Max(p.X, lastMousePosition.X), Math.Max(p.Y, lastMousePosition.Y));
 
-                newColor = penColor.Blend(oldColor);
-            }
-            else
-            {
-                bitmap.SetPixel(p.X, p.Y, penColor);
-            }
+            rectangle.Width -= rectangle.X - 2;
+            rectangle.Height -= rectangle.Y - 2;
+            rectangle.X -= 1;
+            rectangle.Y -= 1;
 
-            currentUndoTask.PixelHistoryTracker.RegisterPixel(p.X, p.Y, oldColor, newColor);
+            InvalidateRect(rectangle);
 
-            PointF pf = GetRelativePoint(p);
-            InvalidateRect(pf, pen.Width, pen.Height);
-        }
-
-        /// <summary>
-        /// Computes the minimum and maximum bounds of the trace bitmap by adding a point to its area
-        /// </summary>
-        /// <param name="p">The point to add to the trace bitmap area</param>
-        protected virtual void ComputeTraceBitmapBounds(Point p)
-        {
-            if (_invalidTraceArea)
-            {
-                _minimumTraceBitmapPoint = p;
-                _maximumTraceBitmapPoint = p;
-
-                _invalidTraceArea = false;
-            }
-            else
-            {
-                _minimumTraceBitmapPoint.X = Math.Min(_minimumTraceBitmapPoint.X, p.X);
-                _minimumTraceBitmapPoint.Y = Math.Min(_minimumTraceBitmapPoint.Y, p.Y);
-
-                _maximumTraceBitmapPoint.X = Math.Max(_maximumTraceBitmapPoint.X, p.X);
-                _maximumTraceBitmapPoint.Y = Math.Max(_maximumTraceBitmapPoint.Y, p.Y);
-            }
+            lastMousePosition = p;
         }
 
         /// <summary>

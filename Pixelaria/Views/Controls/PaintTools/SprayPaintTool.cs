@@ -132,17 +132,17 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="bitmap">The bitmap to draw the pencil on</param>
         protected override void DrawPencil(Point p, Bitmap bitmap)
         {
-            // Randomize the point around a circle based on the current radius
+            // Find the properties to draw the pen with
             double angle = _random.NextDouble() * Math.PI * 2;
             float radius = (_random.Next(0, size) / 2.0f);
 
             p.X = p.X + (int)Math.Round(Math.Cos(angle) * radius);
             p.Y = p.Y + (int)Math.Round(Math.Sin(angle) * radius);
 
-            if (WithinBounds(p))
-            {
-                base.DrawPencil(p, bitmap);
-            }
+            pencilOperation.PlotPixel(p);
+
+            PointF pf = GetRelativePoint(p);
+            InvalidateRect(pf, 1.2f, 1.2f);
         }
 
         // 
@@ -150,7 +150,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         // 
         private void sprayTimer_Tick(object sender, EventArgs e)
         {
-            DrawPencil(GetAbsolutePoint(pencilPoint), (compositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap));
+            DrawPencil(GetAbsolutePoint(pencilPoint), (CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap));
         }
     }
 }

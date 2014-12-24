@@ -60,7 +60,9 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
 
             operation.StartOpertaion();
-            
+
+            Assert.IsTrue(operation.OperationStarted, "After a call to StartOperation(), an operation's OperationStarted property should return true");
+
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
             operation.DrawTo(15, 17);
@@ -68,6 +70,8 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.DrawTo(25, 37);
 
             operation.FinishOperation();
+
+            Assert.IsFalse(operation.OperationStarted, "After a call to FinishOperation(), an operation's OperationStarted property should return false");
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
             byte[] goodHash = { 0xC5, 0x6B, 0x5C, 0x6B, 0xB0, 0x12, 0xBD, 0x28, 0xC4, 0x13, 0x8D, 0xAA, 0x5, 0xA1, 0x71, 0x5D, 0x1B, 0xAF, 0x9B, 0x4, 0xE7, 0x85, 0x98, 0x1E, 0xFD, 0xD4, 0x14, 0xC0, 0xB6, 0x36, 0x32, 0xA1 };

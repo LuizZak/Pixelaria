@@ -20,7 +20,7 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         /// <summary>
         /// Gets whether this operation has been started by calling the StartOperation() method
         /// </summary>
-        protected bool OperationStarted
+        public bool OperationStarted
         {
             get { return operationStarted; }
         }
