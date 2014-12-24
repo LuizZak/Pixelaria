@@ -400,12 +400,6 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="point">The point to start this operation on</param>
         private void StartOperation(Point point)
         {
-            // Early out
-            if (!WithinBounds(point))
-            {
-                return;
-            }
-
             mouseDown = true;
 
             lastMousePosition = point;
