@@ -53,6 +53,16 @@ namespace Pixelaria.Algorithms.PaintOperations
         public bool AccumulateAlpha { get; private set; }
 
         /// <summary>
+        /// Gets or sets the object to notify to when this operation has plotted a pixel
+        /// </summary>
+        public IPlottingOperationNotifier Notifier { get; set; }
+
+        /// <summary>
+        /// Gets or sets the color blender used by this paint operation in order to blend the colors
+        /// </summary>
+        public IColorBlender ColorBlender { get; set; }
+
+        /// <summary>
         /// The point that specified the current pencil tip
         /// </summary>
         protected Point pencilTip;
@@ -76,11 +86,6 @@ namespace Pixelaria.Algorithms.PaintOperations
         protected PixelHistoryTracker pixelsDrawn;
 
         /// <summary>
-        /// The object to notify to when this operation has plotted a pixel
-        /// </summary>
-        public IPlottingOperationNotifier Notifier { get; set; }
-
-        /// <summary>
         /// Specifies a delegate for the plot function used by the DrawLine method
         /// </summary>
         /// <param name="point">The point to plot the line at</param>
@@ -94,6 +99,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         public PencilPaintOperation(Bitmap targetBitmap, Point pencilTip = new Point()) : base(targetBitmap)
         {
             this.pencilTip = pencilTip;
+            ColorBlender = new DefaultColorBlender();
         }
 
         /// <summary>
@@ -296,6 +302,31 @@ namespace Pixelaria.Algorithms.PaintOperations
                     error = error + deltax;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// The default color blender for the drawing operations
+    /// </summary>
+    public class DefaultColorBlender : IColorBlender
+    {
+        /// <summary>
+        /// Returns a Color that represents the blend of the two provided background and foreground colors
+        /// </summary>
+        /// <param name="backColor">The background color to blend</param>
+        /// <param name="foreColor">The foreground color to blend</param>
+        /// <param name="compositingMode"></param>
+        /// <returns>The blend result of the two colors</returns>
+        public Color BlendColors(Color backColor, Color foreColor, CompositingMode compositingMode)
+        {
+
+            if (CompositingMode == CompositingMode.SourceCopy)
+            {
+                return Color;
+            }
+
+
+            return Utilities.FlattenColor(backColor, foreColor);
         }
     }
 
