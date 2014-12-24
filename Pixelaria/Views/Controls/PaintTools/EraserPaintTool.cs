@@ -80,9 +80,9 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         /// <param name="backColor">The back color to blend</param>
         /// <param name="foreColor">The fore color to blend</param>
-        /// <param name="compositingMode"></param>
+        /// <param name="blendCompositingMode">The compositing mode to blend with</param>
         /// <returns>The two colors, blended with an alpha erase mode</returns>
-        public Color BlendColors(Color backColor, Color foreColor, CompositingMode compositingMode)
+        public Color BlendColors(Color backColor, Color foreColor, CompositingMode blendCompositingMode)
         {
             if (foreColor.A == 0)
             {
