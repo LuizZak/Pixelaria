@@ -623,7 +623,7 @@ namespace Pixelaria.Views.ModelViews
             0});
             this.anud_brushSize.Location = new System.Drawing.Point(6, 19);
             this.anud_brushSize.Maximum = new decimal(new int[] {
-            15,
+            50,
             0,
             0,
             0});
