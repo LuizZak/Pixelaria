@@ -432,6 +432,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 return;
 
             pencilOperation.FinishOperation();
+            pencilOperation.Notifier = null; // Nullify the notifier so subsequent operations don't interfere with previous undo operations
+
             pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
 
             pictureBox.MarkModified();
