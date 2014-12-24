@@ -921,8 +921,7 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Opens a view for editing the currentl
-        /// y selected frames
+        /// Opens a view for editing the currently selected frames
         /// </summary>
         private void EditFrame()
         {
@@ -1604,11 +1603,6 @@ namespace Pixelaria.Views.ModelViews
             private readonly Animation _animation;
 
             /// <summary>
-            /// A copy of the old list of frames
-            /// </summary>
-            private readonly List<IFrame> _oldAnimationFrames;
-
-            /// <summary>
             /// A clone of the animation that was made before changes were made
             /// </summary>
             private readonly Animation _oldAnimation;
@@ -1625,7 +1619,6 @@ namespace Pixelaria.Views.ModelViews
             public AnimationModifyUndoTask(Animation animation)
             {
                 _animation = animation;
-                _oldAnimationFrames = new List<IFrame>(animation.Frames);
                 _oldAnimation = DeepCloneAnimation(_animation);
 
                 //_compoundTask = new GroupUndoTask(GetDescription());
@@ -1639,200 +1632,6 @@ namespace Pixelaria.Views.ModelViews
                 LazyAnimationModifyUndoTask lazyUndoTask = new LazyAnimationModifyUndoTask(_animation, _oldAnimation, DeepCloneAnimation(_animation));
 
                 _compoundTask = lazyUndoTask;
-                return;
-
-                GroupUndoTask compoundTask = new GroupUndoTask(GetDescription());
-                _compoundTask = compoundTask;
-
-                /*
-                    Steps necessary to track frame changes:
-                    
-                    1. Verify that the animation was resized
-                    2. Verify the frames that were removed
-                    3. Verify the frames that were added
-                    4. Verify the frames that were modified
-                    5. Verify the frame orders
-                    
-                    To achieve this:
-                    
-                    1.1 Compare each of the animation's resolutions
-                    2.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
-                    3.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
-                    4.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
-                    5.1 For each frame that was not added or removed, check against the old animation, and note down the new and old frame indices. Mark them down with a FrameReorderUndoTask
-                */
-
-                // To track for reordering of frames
-                List<IFrame> unmodified = new List<IFrame>(_animation.Frames);
-                List<IUndoTask> undoList = new List<IUndoTask>();
-
-                // 1.1 Compare each of the animation's resolutions
-                if (_oldAnimation.Size != _animation.Size)
-                {
-                    
-                }
-
-                // 2.1 For each current frame, check against the old animation frames. If it is not present, it is a new frame. Mark it with a FramesAddDeleteUndoTask
-                for (int i = 0; i < _animation.FrameCount; i++)
-                {
-                    IFrame newFrame = _animation[i];
-                    bool found = false;
-
-                    int j;
-
-                    for (j = 0; j < _oldAnimation.FrameCount; j++)
-                    {
-                        IFrame oldFrame = _oldAnimation[j];
-
-                        if (newFrame.ID == oldFrame.ID)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if(!found)
-                    {
-                        FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_animation, FrameAddDeleteOperationType.Add, "Frame Added");
-
-                        undoTask.RegisterFrame(newFrame, i);
-
-                        compoundTask.AddTask(undoTask);
-
-                        unmodified.Remove(newFrame);
-                    }
-                }
-
-                // 3.1 For each old frame, check against the current animation frames. If it is not present, it is a deleted frame. Mark it with a FramesAddDeleteUndoTask
-                undoList.Clear();
-                for (int i = 0; i < _oldAnimationFrames.Count; i++)
-                {
-                    IFrame oldFrame = _oldAnimationFrames[i];
-                    bool found = false;
-
-                    int j;
-
-                    for (j = 0; j < _animation.FrameCount; j++)
-                    {
-                        IFrame newFrame = _animation[j];
-
-                        if (oldFrame.ID == newFrame.ID)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                    {
-                        FramesAddDeleteUndoTask undoTask = new FramesAddDeleteUndoTask(_animation, FrameAddDeleteOperationType.Delete, "Frame Removed");
-                        undoTask.RegisterFrame(oldFrame, i);
-
-                        undoList.Add(undoTask);
-
-                        unmodified.Remove(oldFrame);
-                    }
-                }
-                undoList.Reverse();
-                compoundTask.AddTasks(undoList);
-
-                // 4.1 For each current frame, check against the old animation frames. If it is present but it's content is different, it has been modified. Mark it with a FrameEditUndoTask
-                for (int i = 0; i < _animation.FrameCount; i++)
-                {
-                    IFrame newFrame = _animation[i];
-                    IFrame oldFrame = null;
-                    bool found = false;
-
-                    for (int j = 0; j < _oldAnimation.FrameCount; j++)
-                    {
-                        oldFrame = _oldAnimation[j];
-
-                        if (newFrame.ID == oldFrame.ID && !newFrame.Equals(oldFrame))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found)
-                    {
-                        FrameEditUndoTask undoTask = new FrameEditUndoTask(_animation, newFrame, oldFrame);
-                        undoTask.RecordChanges(newFrame);
-
-                        compoundTask.AddTask(undoTask);
-                    }
-                }
-
-                // 5.1 For each frame that was not added or removed, check against the old animation, and note down the new and old frame indices. Mark them down with a FrameReorderUndoTask
-                // To keep track of dups
-                List<int> framesFound = new List<int>();
-                for (int i = 0; i < unmodified.Count; i++)
-                {
-                    IFrame newFrame = unmodified[i];
-                    bool found = false;
-
-                    int j;
-
-                    for (j = 0; j < _oldAnimation.FrameCount; j++)
-                    {
-                        var oldFrame = _oldAnimation[j];
-
-                        if (newFrame.ID == oldFrame.ID)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found && i != j)
-                    {
-                        bool dup = framesFound.Any(fr => fr == j);
-
-                        if (dup)
-                            continue;
-
-                        framesFound.Add(i);
-
-                        FrameReoderUndoTask undoTask = new FrameReoderUndoTask(_animation, j, i);
-                        compoundTask.AddTask(undoTask);
-                    }
-                }
-
-                // Register the animation resize operation
-                if (_oldAnimation.Size != _animation.Size)
-                {
-                    //GroupUndoTask wrapTask = new GroupUndoTask(null, _compoundTask.GetDescription());
-
-                    AnimationResizeSettings settings = new AnimationResizeSettings
-                    {
-                        NewWidth = _animation.Width,
-                        NewHeight = _animation.Height,
-                        InterpolationMode = InterpolationMode.Low,
-                        PerFrameScalingMethod = PerFrameScalingMethod.Zoom
-                    };
-
-                    AnimationResizeUndoTask undoTask = new AnimationResizeUndoTask(_animation, new Size(_oldAnimation.Width, _oldAnimation.Height), settings);
-
-                    GroupUndoTask diffUndoTask = new GroupUndoTask(null, _compoundTask.GetDescription());
-                    GroupUndoTask diffRedoTask = new GroupUndoTask(null, _compoundTask.GetDescription());
-
-                    diffUndoTask.ReverseOnUndo = false;
-
-                    diffUndoTask.AddTask(compoundTask);
-                    diffUndoTask.AddTask(undoTask);
-
-                    diffRedoTask.AddTask(undoTask);
-                    diffRedoTask.AddTask(compoundTask);
-
-                    //DifferentiatedUndoTask diffTask = new DifferentiatedUndoTask(diffUndoTask, diffRedoTask, _compoundTask.GetDescription());
-
-                    //_compoundTask = diffTask;
-
-                    //wrapTask.AddTask(_compoundTask);
-                    //wrapTask.AddTask(undoTask);
-
-                    //_compoundTask = wrapTask;
-                }
             }
 
             /// <summary>
