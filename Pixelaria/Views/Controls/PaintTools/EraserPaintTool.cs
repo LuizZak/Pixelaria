@@ -20,13 +20,13 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+
 using Pixelaria.Algorithms.PaintOperations;
-using Pixelaria.Algorithms.PaintOperations.UndoTasks;
+
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
