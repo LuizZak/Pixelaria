@@ -103,5 +103,91 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             Assert.IsTrue(undo != null && undo.Value.OldColor == 0xCF,
                 "The returned PixelUndo does not contains the undo color that was expected. The pixel color must match the color of the last pixel registered RegisterPixel");
         }
+
+        /// <summary>
+        /// Tests Clear method
+        /// </summary>
+        [TestMethod]
+        public void TestClearing()
+        {
+            // Create the tracker
+            PixelHistoryTracker tracker = new PixelHistoryTracker(false, 12);
+
+            // Add the pixels
+            tracker.RegisterPixel(5, 5, 0xFF, 0x1F);
+            tracker.RegisterPixel(6, 5, 0xEF, 0x2F);
+            tracker.RegisterPixel(7, 5, 0xCF, 0x3F);
+
+            tracker.Clear();
+
+            var undo = tracker.PixelUndoForPixel(5, 5);
+
+            Assert.IsNull(undo, "After a call to .Clear(), all pixels that were previously stored must be cleared off the PixelHistoryTracker");
+        }
+
+        /// <summary>
+        /// Tests the PixelCount property and its intended value
+        /// </summary>
+        [TestMethod]
+        public void TestPixelCount()
+        {
+            // Create the tracker
+            PixelHistoryTracker tracker = new PixelHistoryTracker(false, 12);
+
+            // Add the pixels
+            tracker.RegisterPixel(5, 5, 0xFF, 0x1F);
+            tracker.RegisterPixel(6, 5, 0xEF, 0x2F);
+            tracker.RegisterPixel(7, 5, 0xCF, 0x3F);
+
+            Assert.AreEqual(3, tracker.PixelCount, "After consecutive calls to RegisterPixel, the pixel count must match the number of unique pixels provided");
+        }
+
+        /// <summary>
+        /// Tests equality accross PixelUndo values
+        /// </summary>
+        [TestMethod]
+        public void TestPixelUndoEquality()
+        {
+            PixelHistoryTracker.PixelUndo undo1 = new PixelHistoryTracker.PixelUndo(0, 0, 0, 0xFF, 0xFE);
+            PixelHistoryTracker.PixelUndo undo2 = new PixelHistoryTracker.PixelUndo(0, 0, 0, 0x00, 0xFE);
+
+            Assert.AreEqual(undo1, undo2, "Equal PixelUndos of different old colors are to be considered equal");
+        }
+
+        /// <summary>
+        /// Tests equality accross PixelUndo values
+        /// </summary>
+        [TestMethod]
+        public void TestPixelUndoInequality()
+        {
+            PixelHistoryTracker.PixelUndo undo1 = new PixelHistoryTracker.PixelUndo(0, 0, 0, 0xFF, 0xFE);
+            PixelHistoryTracker.PixelUndo undo2 = new PixelHistoryTracker.PixelUndo(1, 0, 0, 0xFF, 0xFE);
+
+            Assert.AreNotEqual(undo1, undo2, "PixelUndos of different pixel coordinates are not to be considered equal");
+        }
+
+        /// <summary>
+        /// Tests equality accross PixelUndo values
+        /// </summary>
+        [TestMethod]
+        public void TestPixelUndoSameHashCode()
+        {
+            PixelHistoryTracker.PixelUndo undo1 = new PixelHistoryTracker.PixelUndo(0, 0, 0, 0xFF, 0xFE);
+            PixelHistoryTracker.PixelUndo undo2 = new PixelHistoryTracker.PixelUndo(0, 0, 0, 0x00, 0xFE);
+
+            Assert.AreEqual(undo1.GetHashCode(), undo2.GetHashCode(), "Equal PixelUndos of different old colors must have the same hash code");
+        }
+
+        /// <summary>
+        /// Tests equality accross PixelUndo values
+        /// </summary>
+        [TestMethod]
+        public void TestPixelUndoDifferentHashCode()
+        {
+            PixelHistoryTracker.PixelUndo undo1 = new PixelHistoryTracker.PixelUndo(0, 0, 0, 0xFF, 0xFE);
+            PixelHistoryTracker.PixelUndo undo2 = new PixelHistoryTracker.PixelUndo(0, 1, 0, 0xFF, 0xFE);
+
+            Assert.AreNotEqual(undo1.GetHashCode(), undo2.GetHashCode(), "PixelUndos of different coordinates must no have the same hash code");
+        }
     }
 }
