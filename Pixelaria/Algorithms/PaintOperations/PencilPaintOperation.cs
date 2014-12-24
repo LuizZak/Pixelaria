@@ -73,6 +73,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         protected FastBitmap fastBitmap;
 
         /// <summary>
+        /// Whether to use a FastBitmap that locks and unlocks during StartOperation() and FinishOperation() calls
+        /// </summary>
+        protected bool useFastBitmap;
+
+        /// <summary>
         /// Whether the pencil tip is being 'pressed' into the bitmap.
         /// Calls to DrawTo() set the field to true, and calls to MoveTo() set to false.
         /// At the time of creation of the pencil paint operation, it is set to false always
@@ -95,11 +100,13 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Initializes a new PencilPaintOperation, with the specified target bitmap as target
         /// </summary>
         /// <param name="targetBitmap">The bitmap to perform the operation on</param>
-        /// <param name="pencilTip">The tip of the pencil </param>
-        public PencilPaintOperation(Bitmap targetBitmap, Point pencilTip = new Point()) : base(targetBitmap)
+        /// <param name="useFastBitmap">Whether to use a FastBitmap that locks and unlocks during StartOperation() and FinishOperation() calls</param>
+        /// <param name="pencilTipPoint">The tip of the pencil </param>
+        public PencilPaintOperation(Bitmap targetBitmap, bool useFastBitmap = false, Point pencilTipPoint = new Point()) : base(targetBitmap)
         {
-            this.pencilTip = pencilTip;
+            pencilTip = pencilTipPoint;
             ColorBlender = new DefaultColorBlender();
+            this.useFastBitmap = useFastBitmap;
         }
 
         /// <summary>
@@ -151,9 +158,17 @@ namespace Pixelaria.Algorithms.PaintOperations
             if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(point.X, point.Y))
                 return;
 
-            Color oldColor = fastBitmap.GetPixel(point.X, point.Y);
+            Color oldColor = (useFastBitmap ? fastBitmap.GetPixel(point.X, point.Y) : targetBitmap.GetPixel(point.X, point.Y));
             Color newColor = GetBlendedColor(oldColor);
-            fastBitmap.SetPixel(point.X, point.Y, newColor);
+
+            if (useFastBitmap)
+            {
+                fastBitmap.SetPixel(point.X, point.Y, newColor);
+            }
+            else
+            {
+                targetBitmap.SetPixel(point.X, point.Y, newColor);
+            }
 
             if (!AccumulateAlpha)
             {
@@ -168,16 +183,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Returns a color that represents the given color blended with this pencil paint operation's blend information.
         /// The resulting color depends on the Color and CompositingMode of this paint operation
         /// </summary>
-        /// <param name="color">The color to blend</param>
+        /// <param name="backColor">The color to blend</param>
         /// <returns>A blended version of the specified color</returns>
-        protected Color GetBlendedColor(Color color)
+        protected Color GetBlendedColor(Color backColor)
         {
-            if (CompositingMode == CompositingMode.SourceCopy)
-            {
-                return Color;
-            }
-
-            return Utilities.FlattenColor(color, Color);
+            return ColorBlender.BlendColors(backColor, Color, CompositingMode);
         }
 
         /// <summary>
@@ -196,8 +206,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         {
             base.StartOpertaion();
 
-            fastBitmap = new FastBitmap(targetBitmap);
-            fastBitmap.Lock();
+            if (useFastBitmap)
+            {
+                fastBitmap = new FastBitmap(targetBitmap);
+                fastBitmap.Lock();
+            }
 
             AccumulateAlpha = accumulateAlpha;
 
@@ -214,8 +227,12 @@ namespace Pixelaria.Algorithms.PaintOperations
         {
             base.FinishOperation();
 
-            fastBitmap.Unlock();
-            fastBitmap.Dispose();
+            if (useFastBitmap)
+            {
+                fastBitmap.Unlock();
+                fastBitmap.Dispose();
+            }
+        }
 
         /// <summary>
         /// Returns whether the given Point is within the image bounds
@@ -319,12 +336,10 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <returns>The blend result of the two colors</returns>
         public Color BlendColors(Color backColor, Color foreColor, CompositingMode compositingMode)
         {
-
-            if (CompositingMode == CompositingMode.SourceCopy)
+            if (compositingMode == CompositingMode.SourceCopy)
             {
-                return Color;
+                return foreColor;
             }
-
 
             return Utilities.FlattenColor(backColor, foreColor);
         }
@@ -355,7 +370,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
         /// </param>
         /// <param name="ignoreDuplicatedPlots">Whether to ignore duplicated pixels during calls to PlottedPixel</param>
-        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool indexPixels = true, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = true)
+        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool indexPixels = true, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = false)
             : this(new PerPixelUndoTask(bitmap, description, indexPixels, keepReplacedUndos), ignoreDuplicatedPlots)
         {
 
