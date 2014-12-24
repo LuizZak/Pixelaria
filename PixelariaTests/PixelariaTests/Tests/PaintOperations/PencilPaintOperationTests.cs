@@ -126,7 +126,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.StartOpertaion();
 
-            operation.PlotPixel(new Point(5, 5));
+            operation.PlotPixel(5, 5);
 
             operation.FinishOperation();
 
@@ -304,12 +304,14 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Test line from 5x5 -> 10x10
             for (int i = 5; i <= 10; i++)
             {
-                stubNotifier.AssertWasCalled(x => x.PlottedPixel(new Point(i, i), Color.Transparent.ToArgb(), Color.Black.ToArgb()));
+                var i1 = i;
+                stubNotifier.AssertWasCalled(x => x.PlottedPixel(new Point(i1, i1), Color.Transparent.ToArgb(), Color.Black.ToArgb()));
             }
             // Test line that goes back from 9x9 -> 5x5, in which the black pixels due to the previous DrawTo() are being drawn over again
             for (int i = 5; i < 10; i++)
             {
-                stubNotifier.AssertWasCalled(x => x.PlottedPixel(new Point(i, i), Color.Black.ToArgb(), Color.Black.ToArgb()));
+                var i1 = i;
+                stubNotifier.AssertWasCalled(x => x.PlottedPixel(new Point(i1, i1), Color.Black.ToArgb(), Color.Black.ToArgb()));
             }
         }
 

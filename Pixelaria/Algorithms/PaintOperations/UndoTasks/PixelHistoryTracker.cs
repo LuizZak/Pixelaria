@@ -72,6 +72,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         public PixelHistoryTracker(bool keepOriginalUndos, int width)
         {
             _pixelDictionary = new Dictionary<int, PixelUndo>();
+
             _keepOriginalUndos = keepOriginalUndos;
             _width = width;
         }
@@ -214,6 +215,11 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         public struct PixelUndo : IEquatable<PixelUndo>
         {
             /// <summary>
+            /// Pre-computed hashcode for this PixelUndo
+            /// </summary>
+            private readonly int _hashCode;
+
+            /// <summary>
             /// The X position of the pixel to draw
             /// </summary>
             public readonly int PixelX;
@@ -253,6 +259,14 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 PixelIndex = pixelIndex;
                 OldColor = oldColor;
                 NewColor = newColor;
+
+                unchecked
+                {
+                    var hashCode = PixelX;
+                    hashCode = (hashCode * 397) ^ PixelY;
+                    hashCode = (hashCode * 397) ^ PixelIndex;
+                    _hashCode = hashCode;
+                }
             }
 
             /// <summary>
@@ -282,13 +296,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             /// <returns>The hash of this PixelUndo object</returns>
             public override int GetHashCode()
             {
-                unchecked
-                {
-                    var hashCode = PixelX;
-                    hashCode = (hashCode * 397) ^ PixelY;
-                    hashCode = (hashCode * 397) ^ PixelIndex;
-                    return hashCode;
-                }
+                return _hashCode;
             }
 
             /// <summary>

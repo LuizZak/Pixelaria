@@ -71,7 +71,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <summary>
         /// Gets a value specifying whether the opration is currently accumulating the alpha transparency of the pixels it is affecting.
         /// Having this true means the paint operation accumulates the alpha of pixels it has already drawn over, and having it false means it only affects
-        /// pixels it has not been rendered on still. Disabled alpha accumulation has a small performance penalty over having it enabled
+        /// pixels it has not been rendered on still
         /// </summary>
         public bool AccumulateAlpha { get; private set; }
 
@@ -185,12 +185,10 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <summary>
         /// Plots a pencil point at the specified point coordinates
         /// </summary>
-        /// <param name="point">The point to plot at</param>
-        public virtual void PlotPixel(Point point)
+        /// <param name="pointX">The X position to plot at</param>
+        /// <param name="pointY">The Y position to plot at</param>
+        public virtual void PlotPixel(int pointX, int pointY)
         {
-            int pointX = point.X;
-            int pointY = point.Y;
-
             // Test boundaries
             if (!WithinBounds(pointX, pointY))
                 return;
@@ -216,7 +214,7 @@ namespace Pixelaria.Algorithms.PaintOperations
             }
 
             if (Notifier != null)
-                Notifier.PlottedPixel(point, oldColor.ToArgb(), newColor.ToArgb());
+                Notifier.PlottedPixel(new Point(pointX, pointY), oldColor.ToArgb(), newColor.ToArgb());
         }
 
         /// <summary>
@@ -227,10 +225,12 @@ namespace Pixelaria.Algorithms.PaintOperations
         {
             if (Size == 1)
             {
-                PlotPixel(point);
+                PlotPixel(point.X, point.Y);
                 return;
             }
 
+            int px = point.X;
+            int py = point.Y;
             int size = Size / 2;
             for (int y = -size; y <= size; y++)
             {
@@ -238,7 +238,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 {
                     if (x * x + y * y <= size * size)
                     {
-                        PlotPixel(new Point(point.X + x, point.Y + y));
+                        PlotPixel(px + x, py + y);
                     }
                 }
             }

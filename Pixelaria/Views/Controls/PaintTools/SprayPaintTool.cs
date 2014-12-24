@@ -100,7 +100,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Initializes this PencilPaintTool
         /// </summary>
-        /// <param name="targetPictureBox"></param>
+        /// <param name="targetPictureBox">The target picture box for this pencil tool</param>
         public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
@@ -155,7 +155,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             p.X = p.X + (int)Math.Round(Math.Cos(angle) * radius);
             p.Y = p.Y + (int)Math.Round(Math.Sin(angle) * radius);
 
-            pencilOperation.PlotPixel(p);
+            pencilOperation.PlotPixel(p.X, p.Y);
 
             PointF pf = GetRelativePoint(p);
             InvalidateRect(pf, 1.2f, 1.2f);
