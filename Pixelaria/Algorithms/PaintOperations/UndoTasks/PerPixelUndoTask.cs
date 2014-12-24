@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Collections.Generic;
 using System.Drawing;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Utils;
