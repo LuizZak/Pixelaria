@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
@@ -44,6 +45,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// The spray's timer, used to make the operation paint with the mouse held down at a stationary point
         /// </summary>
         readonly Timer _sprayTimer;
+
+        /// <summary>
+        /// The Bitmap to use as pen with the first color
+        /// </summary>
+        protected Bitmap firstPenBitmap;
+
+        /// <summary>
+        /// The Bitmap to use as pen with the second color
+        /// </summary>
+        protected Bitmap secondPenBitmap;
 
         /// <summary>
         /// Initializes a new instance of the SprayPaintTool class
@@ -77,6 +88,11 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             _sprayTimer.Stop();
             _sprayTimer.Dispose();
+
+            if (firstPenBitmap != null)
+                firstPenBitmap.Dispose();
+            if (secondPenBitmap != null)
+                secondPenBitmap.Dispose();
 
             base.Destroy();
         }
@@ -143,6 +159,94 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             PointF pf = GetRelativePoint(p);
             InvalidateRect(pf, 1.2f, 1.2f);
+        }
+
+        /// <summary>
+        /// Draws the pencil preview on a specified bitmap at the specified point.
+        /// If the current pencil operation is currently started, no preview is drawn
+        /// </summary>
+        /// <param name="bitmap">The bitmap to draw the pencil preview on</param>
+        /// <param name="point">The point on the bitmap draw the pencil preview on</param>
+        protected override void DrawPencilPreview(Bitmap bitmap, Point point)
+        {
+            if (mouseDown)
+                return;
+
+            Graphics bitmapGraphics = Graphics.FromImage(bitmap);
+
+            Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
+
+            if (size > 1)
+            {
+                point.Offset(-size / 2, -size / 2);
+            }
+
+            bitmapGraphics.PixelOffsetMode = PixelOffsetMode.Half;
+            bitmapGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+            // Create a color matrix object
+            ColorMatrix matrix = new ColorMatrix
+            {
+                Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255)
+            };
+
+            // Create image attributes
+            ImageAttributes attributes = new ImageAttributes();
+                
+            // Set the color(opacity) of the image
+            attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+            Graphics gfx = Graphics.FromImage(pictureBox.Buffer);
+
+            gfx.DrawImage(pen, new Rectangle(point, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
+
+            gfx.Flush();
+            gfx.Dispose();
+        }
+
+        /// <summary>
+        /// Updates the pen configuration
+        /// </summary>
+        protected override void UpdatePen()
+        {
+            base.UpdatePen();
+
+            if (firstPenBitmap != null)
+            {
+                firstPenBitmap.Dispose();
+            }
+            if (secondPenBitmap != null)
+            {
+                secondPenBitmap.Dispose();
+            }
+
+            firstPenBitmap = new Bitmap(size + 1, size + 1, PixelFormat.Format32bppArgb);
+
+            if (size == 1)
+            {
+                firstPenBitmap.SetPixel(0, 0, Color.FromArgb(255, firstColor.R, firstColor.G, firstColor.B));
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(firstPenBitmap);
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                Brush b = new SolidBrush(Color.FromArgb(255, firstColor.R, firstColor.G, firstColor.B));
+                g.FillEllipse(b, 0, 0, size, size);
+            }
+
+            secondPenBitmap = new Bitmap(size + 1, size + 1, PixelFormat.Format32bppArgb);
+
+            if (size == 1)
+            {
+                secondPenBitmap.SetPixel(0, 0, Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+            }
+            else
+            {
+                Graphics g = Graphics.FromImage(secondPenBitmap);
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                Brush b = new SolidBrush(Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+                g.FillEllipse(b, 0, 0, size, size);
+            }
         }
 
         // 

@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Pencil paint operation
     /// </summary>
-    public class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool
+    public class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
     {
         /// <summary>
         /// Initializes a new instance of the PencilPaintTool class
@@ -53,7 +53,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;
-            size = 1;
+            size = pencilSize;
         }
 
         /// <summary>

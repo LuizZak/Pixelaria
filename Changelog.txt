@@ -23,7 +23,8 @@ Legend:
 * Fixed crash related to opening files that are not valid .plx files.
 
 . FrameView
-  + Added option to render the onion skin on top of the current frame, instead of under it
+  + Added ability to change the size of the pencil and eraser tools.
+  + Added option to render the onion skin on top of the current frame, instead of under it.
   
   * Now only the Alpha color component slider shows transparency, all the other sliders are always fully opaque regardless of the current color's transparency.
   * Fixed deleting a selection that was just pasted on the canvas creating an undo task.
@@ -47,7 +48,7 @@ Legend:
 . AnimationSheetView
   . Fixed checkbox that should be hidden but wasn't.
 
-. Now the main window title bar displays the path of the file currently open
+. Now the main window title bar displays the path of the file currently open.
 
 -- v1.14.2b
 

@@ -33,7 +33,7 @@ namespace Pixelaria.Algorithms.PaintOperations
     /// <summary>
     /// Defines the behavior for a pencil type paint operation that works by calling 'MoveTo's and 'DrawTo's
     /// </summary>
-    public class PencilPaintOperation : BasicContinuousPaintOperation, IPencilOperation, IColoredPaintOperation, ICompositingPaintOperation
+    public class PencilPaintOperation : BasicContinuousPaintOperation, IPencilOperation, IColoredPaintOperation, ICompositingPaintOperation, ISizedPaintOperation
     {
         /// <summary>
         /// Gets or sets the paint color attributed to this pencil operation
@@ -44,6 +44,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Gets or sets the compositing mode for this pencil operation
         /// </summary>
         public CompositingMode CompositingMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the size of this pencil operation
+        /// </summary>
+        public int Size { get; set; }
 
         /// <summary>
         /// Gets a value specifying whether the opration is currently accumulating the alpha transparency of the pixels it is affecting.
@@ -106,6 +111,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         {
             pencilTip = pencilTipPoint;
             ColorBlender = new DefaultColorBlender();
+            Size = 1;
             this.useFastBitmap = useFastBitmap;
         }
 
@@ -138,7 +144,7 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             Point newPencilTip = new Point(x, y);
 
-            InvokePlotsOnLine(PlotPixel, pencilTip, newPencilTip, pencilTipPressed);
+            InvokePlotsOnLine(PlotLinePoint, pencilTip, newPencilTip, pencilTipPressed);
 
             pencilTipPressed = true;
 
@@ -177,6 +183,31 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             if (Notifier != null)
                 Notifier.PlottedPixel(point, oldColor.ToArgb(), newColor.ToArgb());
+        }
+
+        /// <summary>
+        /// Plots a single line point segment at the specified point coordinates
+        /// </summary>
+        /// <param name="point">The point to plot at</param>
+        protected virtual void PlotLinePoint(Point point)
+        {
+            if (Size == 1)
+            {
+                PlotPixel(point);
+                return;
+            }
+
+            int size = Size / 2;
+            for (int y = -size; y <= size; y++)
+            {
+                for (int x = -size; x <= size; x++)
+                {
+                    if (x * x + y * y <= size * size)
+                    {
+                        PlotPixel(new Point(point.X + x, point.Y + y));
+                    }
+                }
+            }
         }
 
         /// <summary>

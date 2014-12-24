@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 
 namespace Pixelaria.Algorithms.PaintOperations.Abstracts
@@ -38,6 +39,25 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         /// Whether this operation has been started by calling the StartOperation() method
         /// </summary>
         protected bool operationStarted;
+
+        /// <summary>
+        /// Gets or sets the target bitmap for this operation.
+        /// If the operation is currently being performed, a call to the setter will trigger an InvalidOperationException
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException">The target bitmap is modified while the operation is already started</exception>
+        public Bitmap TargetBitmap
+        {
+            get { return targetBitmap; }
+            set
+            {
+                if (operationStarted)
+                {
+                    throw new InvalidOperationException("The target bitmap cannot be modified while the operation is being performed");
+                }
+
+                targetBitmap = value;
+            }
+        }
 
         /// <summary>
         /// Gets whether this operation has been started by calling the StartOperation() method

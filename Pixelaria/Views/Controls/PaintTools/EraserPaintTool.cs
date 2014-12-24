@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements an Eraser paint operation
     /// </summary>
-    public class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool, IColorBlender
+    public class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool, IColorBlender, ISizedPaintTool
     {
         /// <summary>
         /// Initializes a new instance of the PencilPaintTool class, initializing the object
@@ -48,7 +48,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;
-            size = 1;
+            accumulateAlpha = true;
+            size = pencilSize;
         }
 
         /// <summary>

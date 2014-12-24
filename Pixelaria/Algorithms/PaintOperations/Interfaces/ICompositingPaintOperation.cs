@@ -27,7 +27,7 @@ namespace Pixelaria.Algorithms.PaintOperations.Interfaces
     /// <summary>
     /// Specifies a paint operation that has a compositing mode attributed to it
     /// </summary>
-    interface ICompositingPaintOperation
+    public interface ICompositingPaintOperation
     {
         /// <summary>
         /// Gets or sets the compositing mode for the paint operation
