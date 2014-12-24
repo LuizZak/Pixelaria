@@ -297,9 +297,9 @@ namespace Pixelaria.Algorithms.PaintOperations
         public PerPixelUndoTask UndoTask { get; private set; }
 
         /// <summary>
-        /// Whether to check existing pixels for duplicates during calls to PlottedPixel
+        /// Whether to ignore duplicated pixels during calls to PlottedPixel
         /// </summary>
-        public bool CheckExisitingPixels { get; set; }
+        public bool IgnoreDuplicatedPlots { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the PixelUndoTask, creating the underlying undo task
@@ -307,9 +307,12 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="bitmap">The target bitmap for hte undo operation</param>
         /// <param name="description">A description to use for this UndoTask</param>
         /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixel list</param>
-        /// <param name="keepReplacedOriginals">Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.</param>
-        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool indexPixels = true, bool keepReplacedOriginals = true)
-            : this(new PerPixelUndoTask(bitmap, description, indexPixels, keepReplacedOriginals))
+        /// <param name="keepReplacedUndos">
+        /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
+        /// </param>
+        /// <param name="ignoreDuplicatedPlots">Whether to ignore duplicated pixels during calls to PlottedPixel</param>
+        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool indexPixels = true, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = true)
+            : this(new PerPixelUndoTask(bitmap, description, indexPixels, keepReplacedUndos), ignoreDuplicatedPlots)
         {
 
         }
@@ -318,9 +321,10 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Initializes a new instance of the PixelUndoTask with a specified undo task to use into this generator
         /// </summary>
         /// <param name="undoTask">The undo task to associate to this undo generator</param>
-        public PlottingPaintUndoGenerator(PerPixelUndoTask undoTask)
+        /// <param name="ignoreDuplicatedPlots">Whether to ignore duplicated pixels during calls to PlottedPixel</param>
+        public PlottingPaintUndoGenerator(PerPixelUndoTask undoTask, bool ignoreDuplicatedPlots = true)
         {
-            CheckExisitingPixels = true;
+            IgnoreDuplicatedPlots = ignoreDuplicatedPlots;
             UndoTask = undoTask;
         }
 
@@ -332,7 +336,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="newColor">The new color of the pixel, after the plot</param>
         public void PlottedPixel(Point point, int oldColor, int newColor)
         {
-            UndoTask.PixelHistoryTracker.RegisterPixel(point.X, point.Y, oldColor, newColor, CheckExisitingPixels);
+            UndoTask.PixelHistoryTracker.RegisterPixel(point.X, point.Y, oldColor, newColor, IgnoreDuplicatedPlots);
         }
     }
 }

@@ -389,7 +389,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] originalHash = GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedOriginals: false);
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false, ignoreDuplicatedPlots: false);
             PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
 
             operation.StartOpertaion();
@@ -425,7 +425,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] originalHash = GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedOriginals: false);
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false, ignoreDuplicatedPlots: false);
             PencilPaintOperation operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
@@ -466,7 +466,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] originalHash = GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedOriginals: false);
+            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false, ignoreDuplicatedPlots: false);
             PencilPaintOperation operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),

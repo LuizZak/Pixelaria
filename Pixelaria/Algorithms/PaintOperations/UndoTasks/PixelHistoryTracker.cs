@@ -21,7 +21,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <summary>
         /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
         /// </summary>
-        private readonly bool _keepReplacedOriginals;
+        private readonly bool _keepOriginalUndos;
 
         /// <summary>
         /// The width of the bitmap being affected
@@ -40,15 +40,15 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// Initializes a new isntance of the pixel history tracker
         /// </summary>
         /// <param name="indexPixels">Whether to index the pixels being added so they appear sequentially on the pixels list</param>
-        /// <param name="keepReplacedOriginals">
+        /// <param name="keepOriginalUndos">
         /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified
         /// </param>
         /// <param name="width">The width of the bitmap being affected</param>
-        public PixelHistoryTracker(bool indexPixels, bool keepReplacedOriginals, int width)
+        public PixelHistoryTracker(bool indexPixels, bool keepOriginalUndos, int width)
         {
             _pixelList = new List<PixelUndo>();
             _indexPixels = indexPixels;
-            _keepReplacedOriginals = keepReplacedOriginals;
+            _keepOriginalUndos = keepOriginalUndos;
             _width = width;
         }
 
@@ -59,10 +59,13 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="y">The Y coordinate of the pixel to store</param>
         /// <param name="oldColor">The old color of the pixel</param>
         /// <param name="newColor">The new color of the pixel</param>
-        /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
-        public void RegisterPixel(int x, int y, Color oldColor, Color newColor, bool checkExisting = true)
+        /// <param name="ignoreIfDuplicated">
+        /// Whether to check existing pixels before adding the new pixel and aborting if the pixel already exists.
+        /// Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance
+        /// </param>
+        public void RegisterPixel(int x, int y, Color oldColor, Color newColor, bool ignoreIfDuplicated = true)
         {
-            RegisterPixel(x, y, oldColor.ToArgb(), newColor.ToArgb(), checkExisting);
+            RegisterPixel(x, y, unchecked((uint)oldColor.ToArgb()), unchecked((uint)newColor.ToArgb()), ignoreIfDuplicated);
         }
 
         /// <summary>
@@ -72,10 +75,13 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="y">The Y coordinate of the pixel to store</param>
         /// <param name="oldColor">The old color of the pixel</param>
         /// <param name="newColor">The new color of the pixel</param>
-        /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
-        public void RegisterPixel(int x, int y, int oldColor, int newColor, bool checkExisting = true)
+        /// <param name="ignoreIfDuplicated">
+        /// Whether to check existing pixels before adding the new pixel and aborting if the pixel already exists.
+        /// Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance
+        /// </param>
+        public void RegisterPixel(int x, int y, int oldColor, int newColor, bool ignoreIfDuplicated = true)
         {
-            RegisterPixel(x, y, unchecked((uint)oldColor), unchecked((uint)newColor), !checkExisting);
+            RegisterPixel(x, y, unchecked((uint)oldColor), unchecked((uint)newColor), ignoreIfDuplicated);
         }
 
         /// <summary>
@@ -85,11 +91,14 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="y">The Y coordinate of the pixel to store</param>
         /// <param name="oldColor">The old color of the pixel</param>
         /// <param name="newColor">The new color of the pixel</param>
-        /// <param name="checkExisting">Whether to check existing pixels before adding the new pixel. Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance</param>
-        public void RegisterPixel(int x, int y, uint oldColor, uint newColor, bool checkExisting = true)
+        /// <param name="ignoreIfDuplicated">
+        /// Whether to check existing pixels before adding the new pixel and aborting if the pixel already exists.
+        /// Settings this value to false will allow duplicated pixels on this PerPixelUndoTask instance
+        /// </param>
+        public void RegisterPixel(int x, int y, uint oldColor, uint newColor, bool ignoreIfDuplicated = true)
         {
             // Early out: don't register duplicated pixels
-            if (checkExisting && !_indexPixels)
+            if (ignoreIfDuplicated && !_indexPixels)
             {
                 foreach (PixelUndo pu in _pixelList)
                 {
@@ -98,11 +107,12 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 }
             }
 
-            InternalRegisterPixel(x, y, oldColor, newColor, !checkExisting);
+            InternalRegisterPixel(x, y, oldColor, newColor, !ignoreIfDuplicated);
         }
 
         /// <summary>
-        /// Registers a pixel on this PixelUndoTask without the existance of a similar pixel priorly
+        /// Registers a pixel on this PixelUndoTask without the existance of a similar pixel priorly.
+        /// If the pixel already exists, its values are replaced according to the keepOriginalUndos flag
         /// </summary>
         /// <param name="x">The X coordinate of the pixel to store</param>
         /// <param name="y">The Y coordinate of the pixel to store</param>
@@ -110,7 +120,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="newColor">The new color of the pixel</param>
         public void RegisterUncheckedPixel(int x, int y, uint oldColor, uint newColor)
         {
-            InternalRegisterPixel(x, y, oldColor, newColor, false);
+            InternalRegisterPixel(x, y, oldColor, newColor, true);
         }
 
         /// <summary>
@@ -160,7 +170,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 {
                     if (replaceExisting)
                     {
-                        if (_keepReplacedOriginals)
+                        if (_keepOriginalUndos)
                         {
                             item.UndoColor = _pixelList[e].UndoColor;
                         }
@@ -185,7 +195,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 {
                     if (replaceExisting)
                     {
-                        if (_keepReplacedOriginals)
+                        if (_keepOriginalUndos)
                         {
                             item.UndoColor = _pixelList[s].UndoColor;
                         }
@@ -213,7 +223,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 {
                     if (replaceExisting)
                     {
-                        if (_keepReplacedOriginals)
+                        if (_keepOriginalUndos)
                         {
                             item.UndoColor = _pixelList[mid].UndoColor;
                         }
@@ -245,6 +255,22 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         }
 
         /// <summary>
+        /// Returns the pixel undo information for a pixel at a specified location
+        /// </summary>
+        /// <param name="x">The X coordinate of the pixel to search</param>
+        /// <param name="y">The Y coordinate of the pixel to search</param>
+        /// <returns>A PixelUndo struct containing the information of the pixel, or null, if none was found</returns>
+        public PixelUndo? PixelUndoForPixel(int x, int y)
+        {
+            int index = IndexOfPixel(x, y);
+
+            if (index > -1)
+                return _pixelList[index];
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns the index of a pixel in the pixel list. If no pixel is found, -1 is returned instead
         /// </summary>
         /// <param name="x">The X coordinate of the pixel to search</param>
@@ -254,6 +280,17 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             if (_pixelList.Count == 0)
                 return -1;
+
+            if (!_indexPixels)
+            {
+                int c = _pixelList.Count;
+                for(int i = 0; i < c; i++)
+                {
+                    PixelUndo pu = _pixelList[i];
+                    if (pu.PixelX == x && pu.PixelY == y)
+                        return i;
+                }
+            }
 
             int id = x + y * _width;
 

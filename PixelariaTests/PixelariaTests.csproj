@@ -68,6 +68,8 @@
     <Compile Include="PixelariaTests\Tests\Data\FrameTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PencilPaintOperationTests.cs" />
+    <Compile Include="PixelariaTests\Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
+    <Compile Include="PixelariaTests\Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
     <Compile Include="PixelariaTests\Tests\Utils\FastBitmapTests.cs" />
     <Compile Include="PixelariaTests\Tests\Utils\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
