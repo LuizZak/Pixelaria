@@ -427,10 +427,13 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             pencilOperation.FinishOperation();
             pencilOperation.Notifier = null; // Nullify the notifier so subsequent operations don't interfere with previous undo operations
-
-            pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
-
-            pictureBox.MarkModified();
+            
+            // Verify that the generator has registered any modifications
+            if(undoGenerator.UndoTask.PixelHistoryTracker.PixelList.Count > 0)
+            {
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
+                pictureBox.MarkModified();
+            }
         }
 
         /// <summary>
