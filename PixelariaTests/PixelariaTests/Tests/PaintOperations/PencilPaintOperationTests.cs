@@ -49,7 +49,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public const string OPERATION_NAME = "Pencil";
 
         /// <summary>
-        /// Tests the actual paint operation
+        /// Tests a simple scribble composed of lines
         /// </summary>
         [TestMethod]
         public void TestBasicPaintOperation()
@@ -74,6 +74,37 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             byte[] currentHash = GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_BasicPaint");
+
+            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation does not match the good hash stored. Verify the output image for an analysis of what went wrong");
+        }
+
+        /// <summary>
+        /// Tests a single plot on the bitmap
+        /// </summary>
+        [TestMethod]
+        public void TestSinglePixelPaintOperation()
+        {
+            Bitmap target = new Bitmap(64, 64);
+            FastBitmap.ClearBitmap(target, Color.Transparent);
+
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceOver
+            };
+
+            operation.StartOpertaion();
+
+            operation.MoveTo(5, 5);
+            operation.DrawTo(5, 5);
+
+            operation.FinishOperation();
+
+            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
+            byte[] goodHash = { 0x9, 0xD8, 0xAD, 0x5, 0x84, 0x5E, 0x98, 0x81, 0x5D, 0x6B, 0xCD, 0x63, 0x74, 0x3A, 0xF8, 0x2A, 0x32, 0x48, 0x90, 0x35, 0x90, 0x21, 0xC7, 0xBA, 0xBF, 0x63, 0xC, 0xD5, 0x1, 0x1F, 0x90, 0x62 };
+            byte[] currentHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_SinglePlotPaint");
 
             Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation does not match the good hash stored. Verify the output image for an analysis of what went wrong");
         }
@@ -494,36 +525,6 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             Assert.IsFalse(originalHash.SequenceEqual(afterUndoHash),
                 "Plotting the same pixel repeatedly with an undo generator that has keepReplacedOriginals should fail, since the redrawn pixels have their undo color replaced");
-        }
-
-        /// <summary>
-        /// Tests the actual paint operation
-        /// </summary>
-        [TestMethod]
-        public void TestPaintOperation()
-        {
-            Bitmap target = new Bitmap(64, 64);
-            FastBitmap.ClearBitmap(target, Color.Transparent);
-
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
-
-            operation.StartOpertaion();
-
-            operation.MoveTo(5, 5);
-            operation.DrawTo(10, 10);
-            operation.DrawTo(15, 17);
-            operation.DrawTo(20, 25);
-            operation.DrawTo(25, 37);
-
-            operation.FinishOperation();
-
-            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0xC5, 0x6B, 0x5C, 0x6B, 0xB0, 0x12, 0xBD, 0x28, 0xC4, 0x13, 0x8D, 0xAA, 0x5, 0xA1, 0x71, 0x5D, 0x1B, 0xAF, 0x9B, 0x4, 0xE7, 0x85, 0x98, 0x1E, 0xFD, 0xD4, 0x14, 0xC0, 0xB6, 0x36, 0x32, 0xA1 };
-            byte[] currentHash = GetHashForBitmap(target);
-
-            RegisterResultBitmap(target, "PencilOperation_BlendedPaint");
-
-            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation must match the good hash stored");
         }
 
         /// <summary>
