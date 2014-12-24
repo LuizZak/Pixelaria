@@ -125,7 +125,7 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             Point newPencilTip = new Point(x, y);
 
-            InvokePlotsOnLine(PlotPoint, pencilTip, newPencilTip, pencilTipPressed);
+            InvokePlotsOnLine(PlotPixel, pencilTip, newPencilTip, pencilTipPressed);
 
             pencilTipPressed = true;
 
@@ -136,7 +136,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Plots a pencil point at the specified point coordinates
         /// </summary>
         /// <param name="point">The point to plot at</param>
-        protected virtual void PlotPoint(Point point)
+        public virtual void PlotPixel(Point point)
         {
             // Test boundaries
             if (!WithinBounds(point))

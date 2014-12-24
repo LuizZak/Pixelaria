@@ -106,6 +106,36 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         }
 
         /// <summary>
+        /// Tests the PlotPoint method
+        /// </summary>
+        [TestMethod]
+        public void TestPLotPixelOperation()
+        {
+            Bitmap target = new Bitmap(64, 64);
+            FastBitmap.ClearBitmap(target, Color.Transparent);
+
+            PencilPaintOperation operation = new PencilPaintOperation(target)
+            {
+                Color = Color.FromArgb(127, 0, 0, 0),
+                CompositingMode = CompositingMode.SourceOver
+            };
+
+            operation.StartOpertaion();
+
+            operation.PlotPixel(new Point(5, 5));
+
+            operation.FinishOperation();
+
+            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
+            byte[] goodHash = { 0x9, 0xD8, 0xAD, 0x5, 0x84, 0x5E, 0x98, 0x81, 0x5D, 0x6B, 0xCD, 0x63, 0x74, 0x3A, 0xF8, 0x2A, 0x32, 0x48, 0x90, 0x35, 0x90, 0x21, 0xC7, 0xBA, 0xBF, 0x63, 0xC, 0xD5, 0x1, 0x1F, 0x90, 0x62 };
+            byte[] currentHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "PencilOperation_PlotPixel");
+
+            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the paint operation does not match the good hash stored. Verify the output image for an analysis of what went wrong");
+        }
+
+        /// <summary>
         /// Tests a single plot on the bitmap
         /// </summary>
         [TestMethod]
