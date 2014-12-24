@@ -101,7 +101,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 for (int i = 0; i < c; i++)
                 {
                     PixelHistoryTracker.PixelUndo pu = PixelHistoryTracker.PixelList[i];
-                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.UndoColor);
+                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.OldColor);
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 for (int i = 0; i < c; i++)
                 {
                     PixelHistoryTracker.PixelUndo pu = PixelHistoryTracker.PixelList[i];
-                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.RedoColor);
+                    bitmap.SetPixel(pu.PixelX, pu.PixelY, pu.NewColor);
                 }
             }
         }

@@ -44,7 +44,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             tracker.RegisterPixel(5, 5, 0xFF, 0x1F);
 
             var undo = tracker.PixelUndoForPixel(5, 5);
-            Assert.IsTrue(undo != null && undo.Value.UndoColor == 0xFF, "The returned PixelUndo does not contains the undo color that was expected");
+            Assert.IsTrue(undo != null && undo.Value.OldColor == 0xFF, "The returned PixelUndo does not contains the undo color that was expected");
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             tracker.RegisterPixel(5, 5, 0xCF, 0x3F);
 
             var undo = tracker.PixelUndoForPixel(5, 5);
-            Assert.IsTrue(undo != null && undo.Value.UndoColor == 0xFF,
+            Assert.IsTrue(undo != null && undo.Value.OldColor == 0xFF,
                 "The returned PixelUndo does not contains the undo color that was expected. The pixel color must match the color of the first pixel registered RegisterPixel");
         }
 
@@ -81,7 +81,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             tracker.RegisterPixel(5, 5, 0xCF, 0x3F, false);
 
             var undo = tracker.PixelUndoForPixel(5, 5);
-            Assert.IsTrue(undo != null && undo.Value.UndoColor == 0xCF,
+            Assert.IsTrue(undo != null && undo.Value.OldColor == 0xCF,
                 "The returned PixelUndo does not contains the undo color that was expected. The pixel color must match the color of the last pixel registered RegisterPixel");
         }
 
@@ -100,7 +100,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             tracker.RegisterUncheckedPixel(5, 5, 0xCF, 0x3F);
 
             var undo = tracker.PixelUndoForPixel(5, 5);
-            Assert.IsTrue(undo != null && undo.Value.UndoColor == 0xCF,
+            Assert.IsTrue(undo != null && undo.Value.OldColor == 0xCF,
                 "The returned PixelUndo does not contains the undo color that was expected. The pixel color must match the color of the last pixel registered RegisterPixel");
         }
 

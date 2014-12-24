@@ -4,7 +4,7 @@ using System.Drawing;
 namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
 {
     /// <summary>
-    /// Tracks changes of pixel colors
+    /// Tracks changes of pixel colors by keeping a list of pixels and their previous and current colors
     /// </summary>
     public class PixelHistoryTracker
     {
@@ -172,7 +172,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                     {
                         if (_keepOriginalUndos)
                         {
-                            item.UndoColor = _pixelList[e].UndoColor;
+                            item.OldColor = _pixelList[e].OldColor;
                         }
 
                         _pixelList[e] = item;
@@ -197,7 +197,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                     {
                         if (_keepOriginalUndos)
                         {
-                            item.UndoColor = _pixelList[s].UndoColor;
+                            item.OldColor = _pixelList[s].OldColor;
                         }
 
                         _pixelList[s] = item;
@@ -225,7 +225,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                     {
                         if (_keepOriginalUndos)
                         {
-                            item.UndoColor = _pixelList[mid].UndoColor;
+                            item.OldColor = _pixelList[mid].OldColor;
                         }
 
                         _pixelList[mid] = item;
@@ -350,14 +350,14 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             public readonly int PixelIndex;
 
             /// <summary>
-            /// The color to apply on a undo operation
+            /// The old color for this pixel
             /// </summary>
-            public uint UndoColor;
+            public uint OldColor;
 
             /// <summary>
-            /// The color to apply on a redo operation
+            /// The new (or current) color for this pixel
             /// </summary>
-            public readonly uint RedoColor;
+            public readonly uint NewColor;
 
             /// <summary>
             /// Initializes a new instance of the PixelUndo struct
@@ -372,8 +372,8 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 PixelX = x;
                 PixelY = y;
                 PixelIndex = pixelIndex;
-                UndoColor = oldColor;
-                RedoColor = newColor;
+                OldColor = oldColor;
+                NewColor = newColor;
             }
         }
     }
