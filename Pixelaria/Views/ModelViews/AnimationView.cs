@@ -282,7 +282,7 @@ namespace Pixelaria.Views.ModelViews
                 tsm_cut.Enabled = tsb_cutFrames.Enabled = true;
             }
 
-            tsm_paste.Enabled = tsb_pasteFrames.Enabled = (Clipboard.CurrentDataType == FrameListClipboardObject.DataType || Clipboard.CurrentDataType == ImageStreamClipboardObject.DataType);
+            cmb_pasteFrames.Enabled = tsm_paste.Enabled = tsb_pasteFrames.Enabled = (Clipboard.CurrentDataType == FrameListClipboardObject.DataType || Clipboard.CurrentDataType == ImageStreamClipboardObject.DataType);
         }
 
         /// <summary>
@@ -548,7 +548,11 @@ namespace Pixelaria.Views.ModelViews
         {
             // Determine visibility of the items
             if (lv_frames.SelectedItems.Count == 0)
+            {
+                cms_animationRightClick.Show(MousePosition);
+
                 return;
+            }
 
             cmb_replaceFromImage.Enabled = lv_frames.SelectedItems.Count == 1;
 
@@ -1515,6 +1519,26 @@ namespace Pixelaria.Views.ModelViews
 
         #endregion
 
+        #region Animation Right-Click Context Menu
+
+        // 
+        // Add Frame From File context menu button click
+        // 
+        private void cmb_addFrameFromFile_Click(object sender, EventArgs e)
+        {
+            AddFrameFromFile();
+        }
+
+        // 
+        // Paste Frames context menu button click
+        // 
+        private void cmb_pasteFrames_Click(object sender, EventArgs e)
+        {
+            PasteFrames();
+        }
+
+        #endregion
+
         // 
         // Enable Preview Checkbox tick
         // 
@@ -1572,8 +1596,8 @@ namespace Pixelaria.Views.ModelViews
 
         //
         // Frames List View mouse click
-        //
-        private void lv_frames_MouseClick(object sender, MouseEventArgs e)
+        // 
+        private void lv_frames_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {

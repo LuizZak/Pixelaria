@@ -24,6 +24,7 @@ Legend:
 
 - When moving slices of the image with the selection tool, the preview panel's image is not updated accordingly.
 
+
 - The pencil, eraser and spray paint tool run really slow during long operations.
 >> Fixed on current Release
 

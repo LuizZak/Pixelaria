@@ -127,6 +127,10 @@ namespace Pixelaria.Views.ModelViews
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_copyFrames = new System.Windows.Forms.ToolStripMenuItem();
             this.cmb_cutFrames = new System.Windows.Forms.ToolStripMenuItem();
+            this.cms_animationRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmb_addFrameFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
+            this.cmb_pasteFrames = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -140,6 +144,7 @@ namespace Pixelaria.Views.ModelViews
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.cms_frameRightClick.SuspendLayout();
+            this.cms_animationRightClick.SuspendLayout();
             this.SuspendLayout();
             // 
             // il_framesThumbs
@@ -239,7 +244,7 @@ namespace Pixelaria.Views.ModelViews
             this.lv_frames.SelectedIndexChanged += new System.EventHandler(this.lv_frames_SelectedIndexChanged);
             this.lv_frames.DoubleClick += new System.EventHandler(this.lv_frames_DoubleClick);
             this.lv_frames.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lv_frames_KeyDown);
-            this.lv_frames.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lv_frames_MouseClick);
+            this.lv_frames.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lv_frames_MouseUp);
             // 
             // panel3
             // 
@@ -667,7 +672,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(152, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
             this.tsm_emptyFilter.Text = "Empty";
             this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
@@ -675,13 +680,13 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(152, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
             this.tsm_filterPresets.Text = "Presets";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
             // 
             // statusStrip1
             // 
@@ -781,7 +786,7 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_copyFrames,
             this.cmb_cutFrames});
             this.cms_frameRightClick.Name = "contextMenuStrip1";
-            this.cms_frameRightClick.Size = new System.Drawing.Size(190, 164);
+            this.cms_frameRightClick.Size = new System.Drawing.Size(190, 142);
             // 
             // cmb_deleteFrames
             // 
@@ -836,6 +841,36 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_cutFrames.Text = "Cut";
             this.cmb_cutFrames.Click += new System.EventHandler(this.cmb_cutFrames_Click);
             // 
+            // cms_animationRightClick
+            // 
+            this.cms_animationRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmb_addFrameFromFile,
+            this.toolStripMenuItem6,
+            this.cmb_pasteFrames});
+            this.cms_animationRightClick.Name = "cms_animationRightClick";
+            this.cms_animationRightClick.Size = new System.Drawing.Size(188, 54);
+            // 
+            // cmb_addFrameFromFile
+            // 
+            this.cmb_addFrameFromFile.Image = global::Pixelaria.Properties.Resources.frame_open_icon;
+            this.cmb_addFrameFromFile.Name = "cmb_addFrameFromFile";
+            this.cmb_addFrameFromFile.Size = new System.Drawing.Size(187, 22);
+            this.cmb_addFrameFromFile.Text = "Add frame from file...";
+            this.cmb_addFrameFromFile.Click += new System.EventHandler(this.cmb_addFrameFromFile_Click);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(184, 6);
+            // 
+            // cmb_pasteFrames
+            // 
+            this.cmb_pasteFrames.Image = global::Pixelaria.Properties.Resources.edit_paste;
+            this.cmb_pasteFrames.Name = "cmb_pasteFrames";
+            this.cmb_pasteFrames.Size = new System.Drawing.Size(187, 22);
+            this.cmb_pasteFrames.Text = "Paste";
+            this.cmb_pasteFrames.Click += new System.EventHandler(this.cmb_pasteFrames_Click);
+            // 
             // AnimationView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -873,6 +908,7 @@ namespace Pixelaria.Views.ModelViews
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.cms_frameRightClick.ResumeLayout(false);
+            this.cms_animationRightClick.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -955,5 +991,9 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_saveSelected;
         private System.Windows.Forms.ToolStripMenuItem tsm_replaceFromFile;
         private System.Windows.Forms.ToolStripMenuItem cmb_reverseFrames;
+        private System.Windows.Forms.ContextMenuStrip cms_animationRightClick;
+        private System.Windows.Forms.ToolStripMenuItem cmb_pasteFrames;
+        private System.Windows.Forms.ToolStripMenuItem cmb_addFrameFromFile;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
     }
 }
