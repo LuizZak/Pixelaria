@@ -142,7 +142,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="point">The point to invalidate</param>
         /// <param name="width">The width of the area to invalidate</param>
         /// <param name="height">The height of the area to invalidate</param>
-        protected virtual void InvalidateRect(PointF point, float width, float height)
+        /// <returns>The rectangle that was invalidated</returns>
+        protected virtual Rectangle InvalidateRect(PointF point, float width, float height)
         {
             point = GetRelativePoint(GetAbsolutePoint(point));
 
@@ -152,6 +153,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             Rectangle rec = new Rectangle((int)point.X, (int)point.Y, (int)(width * pictureBox.Zoom.Y), (int)(height * pictureBox.Zoom.Y));
 
             pictureBox.Invalidate(rec);
+
+            return rec;
         }
 
         /// <summary>

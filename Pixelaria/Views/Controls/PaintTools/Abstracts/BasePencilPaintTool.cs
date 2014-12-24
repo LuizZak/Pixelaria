@@ -460,14 +460,12 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pencilOperation.DrawTo(p.X, p.Y);
 
             // Calculate the invalidation area
-            Rectangle rectangle = new Rectangle(Math.Min(p.X, lastMousePosition.X), Math.Min(p.Y, lastMousePosition.Y), Math.Max(p.X, lastMousePosition.X), Math.Max(p.Y, lastMousePosition.Y));
+            Rectangle lastRect = new Rectangle(Point.Subtract(lastMousePosition, new Size(size / 2, size / 2)), new Size(size * 2, size * 2));
+            Rectangle curRect  = new Rectangle(Point.Subtract(p, new Size(size / 2, size / 2)), new Size(size * 2, size * 2));
 
-            rectangle.Width -= rectangle.X - 2;
-            rectangle.Height -= rectangle.Y - 2;
-            rectangle.X -= 1;
-            rectangle.Y -= 1;
+            Rectangle invalidateRect = Rectangle.Union(lastRect, curRect);
 
-            InvalidateRect(rectangle);
+            InvalidateRect(invalidateRect);
 
             lastMousePosition = p;
         }
@@ -498,14 +496,14 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Invalidates the region on the InternalPictureBox that represents the pen
         /// </summary>
-        protected virtual void InvalidatePen()
+        protected virtual Rectangle InvalidatePen()
         {
             PointF invPoint = pencilPoint;
 
             invPoint.X -= (size * pictureBox.Zoom.X) / 2;
             invPoint.Y -= (size * pictureBox.Zoom.X) / 2;
 
-            InvalidateRect(invPoint, (size * pictureBox.Zoom.X) * 2, (size * pictureBox.Zoom.X) * 2);
+            return InvalidateRect(invPoint, (size * pictureBox.Zoom.X) * 1.5f, (size * pictureBox.Zoom.X) * 1.5f);
         }
     }
 }
