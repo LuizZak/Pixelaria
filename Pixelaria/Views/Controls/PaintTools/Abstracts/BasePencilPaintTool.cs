@@ -499,7 +499,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             var rec = GetRelativeCircleBounds(GetAbsolutePoint(mouseControlPoint), size + 2);
 
-            return InvalidateRect(rec);
+            pictureBox.Invalidate(rec);
+
+            return rec;
         }
     }
 }
