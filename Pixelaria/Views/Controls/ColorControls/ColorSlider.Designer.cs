@@ -50,31 +50,30 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         private void InitializeComponent()
         {
-            this.rtb_value = new System.Windows.Forms.RichTextBox();
+            this.txt_value = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // rtb_value
             // 
-            this.rtb_value.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtb_value.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtb_value.Location = new System.Drawing.Point(0, 0);
-            this.rtb_value.MaxLength = 4;
-            this.rtb_value.Multiline = false;
-            this.rtb_value.Name = "rtb_value";
-            this.rtb_value.Size = new System.Drawing.Size(29, 15);
-            this.rtb_value.TabIndex = 0;
-            this.rtb_value.TabStop = false;
-            this.rtb_value.Text = "100";
-            this.rtb_value.TextChanged += new System.EventHandler(this.rtb_value_TextChanged);
-            this.rtb_value.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rtb_value_KeyDown);
+            this.txt_value.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txt_value.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txt_value.Location = new System.Drawing.Point(0, 0);
+            this.txt_value.MaxLength = 4;
+            this.txt_value.Name = "txt_value";
+            this.txt_value.Size = new System.Drawing.Size(29, 13);
+            this.txt_value.TabIndex = 0;
+            this.txt_value.TabStop = false;
+            this.txt_value.Text = "100";
+            this.txt_value.TextChanged += new System.EventHandler(this.rtb_value_TextChanged);
+            this.txt_value.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rtb_value_KeyDown);
             // 
             // panel1
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.rtb_value);
+            this.panel1.Controls.Add(this.txt_value);
             this.panel1.Location = new System.Drawing.Point(208, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(31, 17);
@@ -88,13 +87,14 @@ namespace Pixelaria.Views.Controls.ColorControls
             this.Name = "ColorSlider";
             this.Size = new System.Drawing.Size(240, 38);
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox rtb_value;
+        private System.Windows.Forms.TextBox txt_value;
         private System.Windows.Forms.Panel panel1;
     }
 }

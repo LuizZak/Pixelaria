@@ -282,10 +282,10 @@ namespace Pixelaria.Views.Controls.ColorControls
             int rawValue;
             int maxValue = GetColorComponentMaxValue();
             float value = 0;
-            string valueString = rtb_value.Text;
+            string valueString = txt_value.Text;
 
             // If the caret is not at the end of the current value string, trim the digits that are out of the range
-            if (rtb_value.SelectionStart != rtb_value.TextLength)
+            if (txt_value.SelectionStart != txt_value.TextLength)
             {
                 valueString = valueString.Substring(0, Math.Min(valueString.Length, maxValue.ToString().Length));
             }
@@ -328,18 +328,19 @@ namespace Pixelaria.Views.Controls.ColorControls
         #region Position/value-related calculations
 
         /// <summary>
-        /// Recalculates this color slider's value property from the current
-        /// color's composition
+        /// Recalculates this color slider's value property from the current color's composition
         /// </summary>
         private void RecalculateValue()
         {
-            int selectionStart = rtb_value.SelectionStart;
+            string valueString = "" + GetColorComponentValueRaw();
 
             _currentValue = GetColorComponentValue();
             _ignoreTextField = true;
-            rtb_value.Text = "" + GetColorComponentValueRaw();
+            txt_value.Text = valueString;
             _ignoreTextField = false;
-            rtb_value.SelectionStart = Math.Min(rtb_value.TextLength, selectionStart);
+
+            if (txt_value.SelectionStart > valueString.Length)
+                txt_value.SelectionStart = valueString.Length;
         }
 
         /// <summary>
