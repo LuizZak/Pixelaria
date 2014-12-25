@@ -220,13 +220,16 @@ namespace Pixelaria.Algorithms.PaintOperations
             Color oldColor = (useFastBitmap ? fastBitmap.GetPixel(pointX, pointY) : targetBitmap.GetPixel(pointX, pointY));
             Color newColor = GetBlendedColor(oldColor);
 
+            uint oldColorArgb = unchecked((uint)oldColor.ToArgb());
+            uint newColorArgb = unchecked((uint)newColor.ToArgb());
+
             // If the colors are virtually the same, quit early
-            if (oldColor.ToArgb() == newColor.ToArgb())
+            if (oldColorArgb == newColorArgb)
                 return;
 
             if (useFastBitmap)
             {
-                fastBitmap.SetPixel(pointX, pointY, newColor);
+                fastBitmap.SetPixel(pointX, pointY, newColorArgb);
             }
             else
             {
@@ -235,11 +238,11 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             if (!AccumulateAlpha)
             {
-                pixelsDrawn.RegisterPixel(pointX, pointY, oldColor, newColor);
+                pixelsDrawn.RegisterPixel(pointX, pointY, oldColorArgb, newColorArgb);
             }
 
             if (Notifier != null)
-                Notifier.PlottedPixel(new Point(pointX, pointY), oldColor.ToArgb(), newColor.ToArgb());
+                Notifier.PlottedPixel(new Point(pointX, pointY), (int)oldColorArgb, (int)newColorArgb);
         }
 
         /// <summary>
