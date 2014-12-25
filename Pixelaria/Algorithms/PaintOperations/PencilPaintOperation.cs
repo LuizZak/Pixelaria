@@ -506,7 +506,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="pixelHistory">The pixel history tracker containing the information about the pixels that were modified during the operation</param>
         public void OperationFinished(PixelHistoryTracker pixelHistory)
         {
-            if (pixelHistory != null)
+            if (pixelHistory != null && !_registerPixels)
                 UndoTask = new PerPixelUndoTask(_bitmap, _description, pixelHistory);
         }
     }
