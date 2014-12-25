@@ -38,6 +38,20 @@ namespace Pixelaria.Views.Controls.PaintTools
     public class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool, IColorBlender, ISizedPaintTool
     {
         /// <summary>
+        /// Gets or sets the compositing mode for the pen
+        /// </summary>
+        public override CompositingMode CompositingMode
+        {
+            get { return base.CompositingMode; }
+            set
+            {
+                base.CompositingMode = value;
+                // When the blend mode is SourceCopy, the transparency of the pixels should be set only once per pass
+                accumulateAlpha = value != CompositingMode.SourceCopy;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the PencilPaintTool class, initializing the object
         /// with the two pencil colors to use
         /// </summary>
