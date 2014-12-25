@@ -162,7 +162,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// The region must be in absolute pixels in relation to the image being edited
         /// </summary>
         /// <param name="rectangle">The rectangle to invalidate</param>
-        protected virtual void InvalidateRect(Rectangle rectangle)
+        /// <returns>The rectangle region of the control that was invalidated</returns>
+        protected virtual Rectangle InvalidateRect(Rectangle rectangle)
         {
             // Get the top-left and bottom-right spots of the rectangle, in screen coordinates
             PointF topPoint = GetRelativePoint(rectangle.Location);
@@ -176,6 +177,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             RectangleF controlRect = RectangleF.Union(topRect, bottomRect);
 
             pictureBox.Invalidate(Rectangle.Truncate(controlRect));
+
+            return Rectangle.Truncate(controlRect);
         }
 
         /// <summary>
