@@ -128,7 +128,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         /// <param name="point">The point to plot the line at</param>
         /// <param name="size">The size of the brush to plot at</param>
-        public delegate void PlotFunction(Point point, int size);
+        /// <param name="fillSize">
+        /// The size of the fill of the disk. Leaving 1 will produce an outline circle, with progressive values producing a thicker inside.
+        /// Leaving 0 will default to a completely filled circle.
+        /// </param>
+        public delegate void PlotFunction(Point point, int size, int fillSize = 0);
 
         /// <summary>
         /// Initializes a new PencilPaintOperation, with the specified target bitmap as target
@@ -184,7 +188,8 @@ namespace Pixelaria.Algorithms.PaintOperations
                 useFastBitmap = true;
             }
 
-            InvokePlotsOnLine(PlotLinePoint, pencilTip, newPencilTip, pencilTipPressed);
+            // Detect the algorithm to use based on the pencil's size
+            InvokePlotsOnLine(PlotLinePoint, pencilTip, newPencilTip, Size, pencilTipPressed);
 
             // Switch back the fast bitmap in case it was previously disabled
             if (useFastBitmap && !oldUseFastBitmap)
@@ -242,7 +247,11 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         /// <param name="point">The point to plot at</param>
         /// <param name="size">The size of the pencil brush to plot at</param>
-        protected virtual void PlotLinePoint(Point point, int size)
+        /// <param name="fillSize">
+        /// The size of the fill of the disk. Leaving 1 will produce an outline circle, with progressive values producing a thicker inside.
+        /// Leaving 0 will default to a completely filled circle.
+        /// </param>
+        protected virtual void PlotLinePoint(Point point, int size, int fillSize = 0)
         {
             if (Size == 1)
             {
@@ -252,11 +261,37 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             int px = point.X;
             int py = point.Y;
+            int sizeSqrd = size * size;
+
+            // 0 fill size: Fill whole circle
+            // We also draw a full circle when accumulate alpha mode is on so the strokes end up with the expected blend color
+            if (AccumulateAlpha || fillSize == 0)
+            {
+                for (int y = -size; y <= size; y++)
+                {
+                    int ySqrd = y * y;
+                    for (int x = -size; x <= size; x++)
+                    {
+                        if (x * x + ySqrd <= sizeSqrd)
+                        {
+                            PlotPixel(px + x, py + y);
+                        }
+                    }
+                }
+
+                return;
+            }
+
+            // Draw the circle with a tolerance to use as borders
+            int fillSqrd = (size - fillSize) * (size - fillSize);
+
             for (int y = -size; y <= size; y++)
             {
+                int ySqrd = y * y;
                 for (int x = -size; x <= size; x++)
                 {
-                    if (x * x + y * y <= size * size)
+                    int sqrd = x * x + ySqrd;
+                    if (sqrd <= sizeSqrd && sqrd >= fillSqrd)
                     {
                         PlotPixel(px + x, py + y);
                     }
@@ -347,8 +382,9 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="plotFunction">The fuction to call to plot the lines</param>
         /// <param name="startPoint">The start point for the line</param>
         /// <param name="endPoint">The end point of the line</param>
+        /// <param name="size">The size of the line to plot</param>
         /// <param name="ignoreFirstPlot">Whether to ignore the first plot of the sequence and not call the plot function on it</param>
-        protected void InvokePlotsOnLine(PlotFunction plotFunction, Point startPoint, Point endPoint, bool ignoreFirstPlot = false)
+        protected void InvokePlotsOnLine(PlotFunction plotFunction, Point startPoint, Point endPoint, int size, bool ignoreFirstPlot = false)
         {
             int x0 = startPoint.X;
             int y0 = startPoint.Y;
@@ -406,7 +442,7 @@ namespace Pixelaria.Algorithms.PaintOperations
 
                 if (!(ignoreFirstPlot && p == startPoint))
                 {
-                    plotFunction(p, Size);
+                    plotFunction(p, size, (p == startPoint || p == endPoint) ? 0 : 2);
                 }
 
                 error = error - deltay;
