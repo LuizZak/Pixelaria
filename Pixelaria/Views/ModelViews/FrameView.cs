@@ -92,7 +92,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Whether this form ahs been completely loaded. Mostly used by interface callbacks to know whether to avoid updating any values
         /// </summary>
-        private bool _formLoaded;
+        private readonly bool _formLoaded;
 
         /// <summary>
         /// The first edit color
@@ -369,6 +369,12 @@ namespace Pixelaria.Views.ModelViews
 
             gb_sizeGroup.Visible = paintTool is ISizedPaintTool;
             gb_fillMode.Visible = paintTool is IFillModePaintTool;
+            gb_otherGroup.Visible = paintTool is IAirbrushPaintTool;
+
+            if (paintTool is IAirbrushPaintTool)
+            {
+                (paintTool as IAirbrushPaintTool).AirbrushMode = cb_airbrushMode.Checked;
+            }
         }
 
         /// <summary>
@@ -1166,6 +1172,23 @@ namespace Pixelaria.Views.ModelViews
         private void rb_fillMode_3_CheckedChanged(object sender, EventArgs e)
         {
             iepb_frame.DefaultFillMode = OperationFillMode.SolidFillFirstColor;
+        }
+
+        #endregion
+
+        #region Pencil Group Box
+
+        // 
+        // Airbrush checkbox check
+        // 
+        private void cb_enablePencilFlow_CheckedChanged(object sender, EventArgs e)
+        {
+            var pencilTool = iepb_frame.CurrentPaintTool as PencilPaintTool;
+
+            if (pencilTool != null)
+            {
+                pencilTool.AirbrushMode = cb_airbrushMode.Checked;
+            }
         }
 
         #endregion

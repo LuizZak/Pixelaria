@@ -202,6 +202,7 @@
     <Compile Include="Views\Controls\PaintTools\BucketPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\EllipsePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\EraserPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IAirbrushPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\LinePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\BaseDraggingPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\BasePaintTool.cs" />

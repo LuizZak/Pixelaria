@@ -29,10 +29,20 @@ using Pixelaria.Views.Controls.PaintTools.Interfaces;
 namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
-    /// Implements a Pencil paint operation
+    /// Implements a Pencil paint tool
     /// </summary>
-    public class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
+    public class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool, IAirbrushPaintTool
     {
+        /// <summary>
+        /// Gets or sets whether this paint tool should work in Airbrush mode.
+        /// While in Airbrush mode, the opaqueness of the pixels are accumulated as they are drawn over repeatedly
+        /// </summary>
+        public bool AirbrushMode
+        {
+            get { return accumulateAlpha; }
+            set { accumulateAlpha = value; }
+        }
+
         /// <summary>
         /// Initializes a new instance of the PencilPaintTool class
         /// </summary>

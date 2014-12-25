@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
+            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool2 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -97,6 +97,8 @@ namespace Pixelaria.Views.ModelViews
             this.rb_fillMode_3 = new System.Windows.Forms.RadioButton();
             this.rb_fillMode_2 = new System.Windows.Forms.RadioButton();
             this.rb_fillMode_1 = new System.Windows.Forms.RadioButton();
+            this.gb_otherGroup = new System.Windows.Forms.GroupBox();
+            this.cb_airbrushMode = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -164,6 +166,7 @@ namespace Pixelaria.Views.ModelViews
             this.gb_sizeGroup.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.gb_fillMode.SuspendLayout();
+            this.gb_otherGroup.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -478,9 +481,10 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel3.Controls.Add(this.groupBox1);
             this.flowLayoutPanel3.Controls.Add(this.gb_sizeGroup);
             this.flowLayoutPanel3.Controls.Add(this.gb_fillMode);
+            this.flowLayoutPanel3.Controls.Add(this.gb_otherGroup);
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 185);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(90, 444);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(90, 587);
             this.flowLayoutPanel3.TabIndex = 7;
             // 
             // groupBox1
@@ -690,6 +694,28 @@ namespace Pixelaria.Views.ModelViews
             this.rb_fillMode_1.TabStop = true;
             this.rb_fillMode_1.UseVisualStyleBackColor = true;
             this.rb_fillMode_1.CheckedChanged += new System.EventHandler(this.rb_fillMode_1_CheckedChanged);
+            // 
+            // gb_otherGroup
+            // 
+            this.gb_otherGroup.Controls.Add(this.cb_airbrushMode);
+            this.gb_otherGroup.Location = new System.Drawing.Point(3, 313);
+            this.gb_otherGroup.Name = "gb_otherGroup";
+            this.gb_otherGroup.Size = new System.Drawing.Size(84, 73);
+            this.gb_otherGroup.TabIndex = 9;
+            this.gb_otherGroup.TabStop = false;
+            this.gb_otherGroup.Text = "Other";
+            this.gb_otherGroup.Visible = false;
+            // 
+            // cb_enablePencilFlow
+            // 
+            this.cb_airbrushMode.AutoSize = true;
+            this.cb_airbrushMode.Location = new System.Drawing.Point(6, 19);
+            this.cb_airbrushMode.Name = "cb_airbrushMode";
+            this.cb_airbrushMode.Size = new System.Drawing.Size(64, 17);
+            this.cb_airbrushMode.TabIndex = 0;
+            this.cb_airbrushMode.Text = "Airbrush";
+            this.cb_airbrushMode.UseVisualStyleBackColor = true;
+            this.cb_airbrushMode.CheckedChanged += new System.EventHandler(this.cb_enablePencilFlow_CheckedChanged);
             // 
             // flowLayoutPanel1
             // 
@@ -1237,7 +1263,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // iepb_frame
             // 
-            this.iepb_frame.CurrentPaintTool = nullPaintTool1;
+            this.iepb_frame.CurrentPaintTool = nullPaintTool2;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1294,6 +1320,8 @@ namespace Pixelaria.Views.ModelViews
             this.gb_sizeGroup.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.gb_fillMode.ResumeLayout(false);
+            this.gb_otherGroup.ResumeLayout(false);
+            this.gb_otherGroup.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
@@ -1405,5 +1433,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.RadioButton rb_sprayPaint;
         private Controls.TimelineControl tc_currentFrame;
         private System.Windows.Forms.ToolStripButton tsb_osDisplayOnFront;
+        private System.Windows.Forms.GroupBox gb_otherGroup;
+        private System.Windows.Forms.CheckBox cb_airbrushMode;
     }
 }

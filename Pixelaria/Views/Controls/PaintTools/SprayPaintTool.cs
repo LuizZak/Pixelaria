@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Spray paint operation
     /// </summary>
-    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool
+    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
     {
         /// <summary>
         /// Instance of a Random class used to randomize the spray of this SprayPaintTool
@@ -55,6 +55,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// The Bitmap to use as pen with the second color
         /// </summary>
         protected Bitmap secondPenBitmap;
+
+        /// <summary>
+        /// Gets or sets whether this paint tool should work in Airbrush mode.
+        /// While in Airbrush mode, the opaqueness of the pixels are accumulated as they are drawn over repeatedly
+        /// </summary>
+        public bool AirbrushMode
+        {
+            get { return accumulateAlpha; }
+            set { accumulateAlpha = value; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the SprayPaintTool class
