@@ -20,13 +20,13 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-using Pixelaria.Data.Undo;
-using Pixelaria.Utils;
+using Pixelaria.Algorithms.PaintOperations;
+using Pixelaria.Algorithms.PaintOperations.UndoTasks;
+
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Line paint operation
     /// </summary>
-    public class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool
+    public class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -82,6 +82,11 @@ namespace Pixelaria.Views.Controls.PaintTools
         }
 
         /// <summary>
+        /// Gets or sets the size of this LinePaintTool
+        /// </summary>
+        public int Size { get; set; }
+
+        /// <summary>
         /// Gets or sets the compositing mode for this paint operation
         /// </summary>
         public CompositingMode CompositingMode { get { return _compositingMode; } set { _compositingMode = value; } }
@@ -92,10 +97,12 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
         /// <param name="secondColor">The second color for the paint operation</param>
-        public LinePaintTool(Color firstColor, Color secondColor)
+        /// <param name="size">The size for this line paint tool</param>
+        public LinePaintTool(Color firstColor, Color secondColor, int size)
         {
             _firstColor = firstColor;
             _secondColor = secondColor;
+            Size = size;
         }
 
         /// <summary>
@@ -141,7 +148,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             if (mouseDown && (mouseButton == MouseButtons.Left || mouseButton == MouseButtons.Right))
             {
-                PerformLineOperation((mouseButton == MouseButtons.Left ? _firstColor : _secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, _compositingMode);
+                PerformLineOperation((mouseButton == MouseButtons.Left ? _firstColor : _secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, _compositingMode, Size, false);
             }
         }
 
@@ -167,6 +174,12 @@ namespace Pixelaria.Views.Controls.PaintTools
             {
                 Rectangle rec = GetCurrentRectangle(true);
 
+                rec.X -= (int)(Size * pictureBox.Zoom.X) * 2;
+                rec.Y -= (int)(Size * pictureBox.Zoom.Y) * 2;
+
+                rec.Width += (int)(Size * pictureBox.Zoom.X) * 4;
+                rec.Height += (int)(Size * pictureBox.Zoom.Y) * 4;
+
                 pictureBox.Invalidate(rec);
             }
         }
@@ -190,11 +203,13 @@ namespace Pixelaria.Views.Controls.PaintTools
                 {
                     Color color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
 
-                    pictureBox.OwningPanel.UndoSystem.RegisterUndo(new LineUndoTask(pictureBox.Bitmap, color, mouseDownAbsolutePoint, mouseAbsolutePoint, _compositingMode));
+                    PerPixelUndoTask task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, _compositingMode, Size, true);
 
-                    PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, _compositingMode);
-
-                    pictureBox.MarkModified();
+                    if(task.PixelHistoryTracker.PixelCount > 0)
+                    {
+                        pictureBox.OwningPanel.UndoSystem.RegisterUndo(task);
+                        pictureBox.MarkModified();
+                    }
                 }
             }
 
@@ -208,12 +223,10 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            Rectangle rec1 = GetRelativeCircleBounds(mouseDownAbsolutePoint, Size + 1);
+            Rectangle rec2 = GetRelativeCircleBounds(mouseAbsolutePoint, Size + 1);
 
-            rec.Width += (int)(pictureBox.Zoom.X);
-            rec.Height += (int)(pictureBox.Zoom.Y);
-
-            return rec;
+            return Rectangle.Union(rec1, rec2);
         }
 
         /// <summary>
@@ -224,293 +237,39 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="secondPoint">The second point of the line to draw</param>
         /// <param name="bitmap">The Bitmap to draw the line on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the line</param>
-        public static void PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Bitmap bitmap, CompositingMode compositingMode)
+        /// <param name="size">The size of the line to draw</param>
+        /// <param name="recordUndo">Whether to generate an undo operation for this line operation</param>
+        /// <returns>An undo task for the line operation, or null, if recordUndo is false</returns>
+        public static PerPixelUndoTask PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Bitmap bitmap, CompositingMode compositingMode, int size, bool recordUndo)
         {
-            // Implemented using the Bresenham's line algorithm
-            int x0 = firstPoint.X;
-            int y0 = firstPoint.Y;
-            int x1 = secondPoint.X;
-            int y1 = secondPoint.Y;
+            PlottingPaintUndoGenerator generator = null;
 
-            bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep)
+            if (recordUndo)
             {
-                int t = x0;
-                x0 = y0;
-                y0 = t;
-
-                t = x1;
-                x1 = y1;
-                y1 = t;
-            }
-            if (x0 > x1)
-            {
-                int t = x0;
-                x0 = x1;
-                x1 = t;
-
-                t = y0;
-                y0 = y1;
-                y1 = t;
-            }
-            int deltax = x1 - x0;
-            int deltay = Math.Abs(y1 - y0);
-            int error = deltax / 2;
-            int ystep;
-            int y = y0;
-
-            if (y0 < y1)
-                ystep = 1;
-            else
-                ystep = -1;
-
-            using (FastBitmap fastBitmap = bitmap.FastLock())
-            {
-                Point p = new Point();
-                for (int x = x0; x <= x1; x++)
-                {
-                    if (steep)
-                    {
-                        p.X = y;
-                        p.Y = x;
-                    }
-                    else
-                    {
-                        p.X = x;
-                        p.Y = y;
-                    }
-
-                    if (p.X < 0 || p.X >= fastBitmap.Width || p.Y < 0 || p.Y >= fastBitmap.Height)
-                    {
-                        continue;
-                    }
-
-                    if (compositingMode == CompositingMode.SourceOver)
-                    {
-                        Color newColor = color.Blend(fastBitmap.GetPixel(p.X, p.Y));
-
-                        fastBitmap.SetPixel(p.X, p.Y, newColor);
-                    }
-                    else
-                    {
-                        fastBitmap.SetPixel(p.X, p.Y, color);
-                    }
-
-                    error = error - deltay;
-                    if (error < 0)
-                    {
-                        y = y + ystep;
-                        error = error + deltax;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Performs the Line paint operation with the given parameters
-        /// </summary>
-        /// <param name="color">The color to use when drawing the line</param>
-        /// <param name="firstPoint">The first point of the line to draw</param>
-        /// <param name="secondPoint">The second point of the line to draw</param>
-        /// <param name="graphics">The Graphics to draw the line on</param>
-        /// <param name="compositingMode">The CompositingMode to use when drawing the line</param>
-        public static void PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Graphics graphics, CompositingMode compositingMode)
-        {
-            // Implemented using the Bresenham's line algorithm
-            int x0 = firstPoint.X;
-            int y0 = firstPoint.Y;
-            int x1 = secondPoint.X;
-            int y1 = secondPoint.Y;
-
-            bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep)
-            {
-                int t = x0;
-                x0 = y0;
-                y0 = t;
-
-                t = x1;
-                x1 = y1;
-                y1 = t;
-            }
-            if (x0 > x1)
-            {
-                int t = x0;
-                x0 = x1;
-                x1 = t;
-
-                t = y0;
-                y0 = y1;
-                y1 = t;
-            }
-            int deltax = x1 - x0;
-            int deltay = Math.Abs(y1 - y0);
-            int error = deltax / 2;
-            int ystep;
-            int y = y0;
-
-            if (y0 < y1)
-                ystep = 1;
-            else
-                ystep = -1;
-
-            Brush brush = new SolidBrush(color);
-
-            Point p = new Point();
-            for (int x = x0; x <= x1; x++)
-            {
-                if (steep)
-                {
-                    p.X = y;
-                    p.Y = x;
-                }
-                else
-                {
-                    p.X = x;
-                    p.Y = y;
-                }
-
-                if (compositingMode == CompositingMode.SourceOver)
-                {
-                    Rectangle rec = new Rectangle(p.X, p.Y, 1, 1);
-
-                    graphics.FillRectangle(brush, rec);
-                }
-                else
-                {
-                    Rectangle rec = new Rectangle(p.X, p.Y, 1, 1);
-
-                    graphics.FillRectangle(brush, rec);
-                }
-
-                error = error - deltay;
-                if (error < 0)
-                {
-                    y = y + ystep;
-                    error = error + deltax;
-                }
+                generator = new PlottingPaintUndoGenerator(bitmap, "Line");
             }
 
-            graphics.Flush();
-
-            brush.Dispose();
-        }
-
-        /// <summary>
-        /// A line undo task
-        /// </summary>
-        public class LineUndoTask : IUndoTask
-        {
-            /// <summary>
-            /// The area of the the image that was affected by the line operation
-            /// </summary>
-            readonly Rectangle _area;
-
-            /// <summary>
-            /// The point of the start of the line
-            /// </summary>
-            readonly Point _lineStart;
-
-            /// <summary>
-            /// The point of the end of the line
-            /// </summary>
-            readonly Point _lineEnd;
-
-            /// <summary>
-            /// The color used to draw the line
-            /// </summary>
-            readonly Color _color;
-
-            /// <summary>
-            /// The original slice of bitmap that represents the image region before the rectangle
-            /// was drawn
-            /// </summary>
-            readonly Bitmap _originalSlice;
-
-            /// <summary>
-            /// The bitmap where the line was drawn on
-            /// </summary>
-            readonly Bitmap _bitmap;
-
-            /// <summary>
-            /// The compositing mode of the paint operation
-            /// </summary>
-            readonly CompositingMode _compositingMode;
-
-            /// <summary>
-            /// Initializes a new instance of the LineUndoTask class
-            /// </summary>
-            /// <param name="targetBitmap">The target bitmap of this LineUndoTask</param>
-            /// <param name="color">The color to use when drawing the line</param>
-            /// <param name="lineStart">The starting point of the line</param>
-            /// <param name="lineEnd">The ending point of the line</param>
-            /// <param name="compositingMode">The CompositingMode to use when drawing the rectangle</param>
-            public LineUndoTask(Bitmap targetBitmap, Color color, Point lineStart, Point lineEnd, CompositingMode compositingMode)
+            PencilPaintOperation operation = new PencilPaintOperation(bitmap, true, firstPoint)
             {
-                _color = color;
-                _lineStart = lineStart;
-                _lineEnd = lineEnd;
-                _bitmap = targetBitmap;
-                _compositingMode = compositingMode;
+                Color = color,
+                CompositingMode = compositingMode,
+                Notifier = generator,
+                Size = size
+            };
 
-                Rectangle rec = GetRectangleAreaAbsolute(new [] { lineStart, lineEnd });
+            operation.StartOpertaion(false);
 
-                rec.Offset(-1, -1);
-                rec.Inflate(2, 2);
+            operation.DrawTo(secondPoint.X, secondPoint.Y);
 
-                _area = rec;
+            operation.FinishOperation();
 
-                // Take the image slide now
-                _originalSlice = new Bitmap(_area.Width, _area.Height);
-                
-                Graphics g = Graphics.FromImage(_originalSlice);
-                g.DrawImage(_bitmap, new Point(-_area.X, -_area.Y));
-                g.Flush();
-                g.Dispose();
+
+            if (recordUndo)
+            {
+                return generator.UndoTask;
             }
 
-            /// <summary>
-            /// Clears this UndoTask object
-            /// </summary>
-            public void Clear()
-            {
-                _originalSlice.Dispose();
-            }
-
-            /// <summary>
-            /// Undoes this task
-            /// </summary>
-            public void Undo()
-            {
-                // Redraw the original slice back to the image
-                Graphics g = Graphics.FromImage(_bitmap);
-                g.SetClip(_area);
-                g.Clear(Color.Transparent);
-                g.CompositingMode = CompositingMode.SourceCopy;
-                
-                g.DrawImage(_originalSlice, _area);
-
-                g.Flush();
-                g.Dispose();
-            }
-
-            /// <summary>
-            /// Redoes this task
-            /// </summary>
-            public void Redo()
-            {
-                // Draw the rectangle again
-                PerformLineOperation(_color, _lineStart, _lineEnd, _bitmap, _compositingMode);
-            }
-
-            /// <summary>
-            /// Returns a short string description of this UndoTask
-            /// </summary>
-            /// <returns>A short string description of this UndoTask</returns>
-            public string GetDescription()
-            {
-                return "Rectangle";
-            }
+            return null;
         }
     }
 }

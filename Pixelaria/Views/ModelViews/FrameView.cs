@@ -999,7 +999,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (rb_line.Checked)
             {
-                ChangePaintOperation(new LinePaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor));
+                ChangePaintOperation(new LinePaintTool(cp_mainColorPicker.FirstColor, cp_mainColorPicker.SecondColor, BrushSize));
             }
         }
 

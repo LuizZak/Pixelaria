@@ -198,5 +198,21 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             return pictureBox.GetRelativePoint(point);
         }
+
+        /// <summary>
+        /// Returns a rectangle relative to the control bounds that represents the absolute circle relative to the bitmap
+        /// </summary>
+        /// <param name="point">The midpoint of the circle</param>
+        /// <param name="radius">The radius of the circle</param>
+        /// <returns>A rectangle that represents the given circle, relative to the control bounds</returns>
+        protected Rectangle GetRelativeCircleBounds(Point point, int radius)
+        {
+            // Get a rectangle composed of two points that are offset by the size
+            Point topLeft = Point.Truncate(GetRelativePoint(Point.Subtract(point, new Size(radius, radius))));
+            Point botRight = Point.Truncate(GetRelativePoint(Point.Add(point, new Size(radius, radius))));
+
+            Rectangle rec = new Rectangle(topLeft, (Size)Point.Subtract(botRight, (Size)topLeft));
+            return rec;
+        }
     }
 }

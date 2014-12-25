@@ -59,7 +59,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// The current pencil point in relative control coordinates
         /// </summary>
-        protected Point pencilPoint;
+        protected Point mouseControlPoint;
 
         /// <summary>
         /// The first color currently being used to paint on the InternalPictureBox
@@ -121,11 +121,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public virtual Point PencilPoint
         {
-            get { return pencilPoint; }
+            get { return mouseControlPoint; }
             set
             {
                 InvalidatePen();
-                pencilPoint = value;
+                mouseControlPoint = value;
                 InvalidatePen();
             }
         }
@@ -281,7 +281,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 return;
 
             // Draw the pencil position
-            Point absolutePencil = GetAbsolutePoint(pencilPoint);
+            Point absolutePencil = GetAbsolutePoint(mouseControlPoint);
 
             // Draw the pencil on the spot under the user's mouse using the pencil paint operation
             DrawPencilPreview(pictureBox.Buffer, absolutePencil);
@@ -297,7 +297,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             lastMousePosition = e.Location;
 
-            Point absolutePencil = Point.Round(GetAbsolutePoint(pencilPoint));
+            Point absolutePencil = Point.Round(GetAbsolutePoint(mouseControlPoint));
 
             // Mouse down
             if (e.Button == MouseButtons.Left)
@@ -338,7 +338,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             if (mouseDown)
             {
-                Point pencil = GetAbsolutePoint(pencilPoint);
+                Point pencil = GetAbsolutePoint(mouseControlPoint);
                 Point pencilLast = GetAbsolutePoint(lastMousePosition);
 
                 if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
@@ -497,11 +497,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>The region that was invalidated</returns>
         protected virtual Rectangle InvalidatePen()
         {
-            // Get a rectangle composed of two points that are offset by the size
-            Point topLeft = Point.Subtract(GetAbsolutePoint(pencilPoint), new Size(size + 2, size + 2));
-            Point botRight = Point.Add(GetAbsolutePoint(pencilPoint), new Size(size + 4, size + 4));
-
-            Rectangle rec = new Rectangle(topLeft, (Size)Point.Subtract(botRight, (Size)topLeft));
+            var rec = GetRelativeCircleBounds(GetAbsolutePoint(mouseControlPoint), size + 2);
 
             return InvalidateRect(rec);
         }

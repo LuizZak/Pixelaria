@@ -23,7 +23,7 @@ Legend:
 * Fixed crash related to opening files that are not valid .plx files.
 
 . FrameView
-  + Added ability to change the size of the pencil and eraser tools.
+  + Added ability to change the size of the pencil, eraser and line tools.
   + Added option to render the onion skin on top of the current frame as well as under it.
   + Added Airbrush mode to the Pencil and Spray paint tools.
   

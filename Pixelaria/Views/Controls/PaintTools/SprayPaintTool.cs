@@ -264,7 +264,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         // 
         private void sprayTimer_Tick(object sender, EventArgs e)
         {
-            DrawPencil(GetAbsolutePoint(pencilPoint), (CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap));
+            DrawPencil(GetAbsolutePoint(mouseControlPoint), (CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap));
         }
     }
 }

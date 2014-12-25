@@ -116,7 +116,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 mouseAbsolutePoint = GetAbsolutePoint(e.Location);
 
                 Rectangle newArea = GetCurrentRectangle(true);
-                Rectangle newAreaAbs = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, false);
+                Rectangle newAreaAbs = GetCurrentRectangle(false);//GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, false);
 
                 if (shiftDown)
                 {
