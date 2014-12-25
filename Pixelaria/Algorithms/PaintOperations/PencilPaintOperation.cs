@@ -127,7 +127,8 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Specifies a delegate for the plot function used by the DrawLine method
         /// </summary>
         /// <param name="point">The point to plot the line at</param>
-        public delegate void PlotFunction(Point point);
+        /// <param name="size">The size of the brush to plot at</param>
+        public delegate void PlotFunction(Point point, int size);
 
         /// <summary>
         /// Initializes a new PencilPaintOperation, with the specified target bitmap as target
@@ -175,7 +176,22 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             Point newPencilTip = new Point(x, y);
 
+            // Temporarely switch to the fast bitmap for faster plotting
+            bool oldUseFastBitmap = useFastBitmap;
+            if (!useFastBitmap)
+            {
+                fastBitmap = targetBitmap.FastLock();
+                useFastBitmap = true;
+            }
+
             InvokePlotsOnLine(PlotLinePoint, pencilTip, newPencilTip, pencilTipPressed);
+
+            // Switch back the fast bitmap in case it was previously disabled
+            if (useFastBitmap && !oldUseFastBitmap)
+            {
+                fastBitmap.Dispose();
+                useFastBitmap = false;
+            }
 
             pencilTipPressed = true;
 
@@ -199,6 +215,10 @@ namespace Pixelaria.Algorithms.PaintOperations
             Color oldColor = (useFastBitmap ? fastBitmap.GetPixel(pointX, pointY) : targetBitmap.GetPixel(pointX, pointY));
             Color newColor = GetBlendedColor(oldColor);
 
+            // If the colors are virtually the same, quit early
+            if (oldColor.ToArgb() == newColor.ToArgb())
+                return;
+
             if (useFastBitmap)
             {
                 fastBitmap.SetPixel(pointX, pointY, newColor);
@@ -221,7 +241,8 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// Plots a single line point segment at the specified point coordinates
         /// </summary>
         /// <param name="point">The point to plot at</param>
-        protected virtual void PlotLinePoint(Point point)
+        /// <param name="size">The size of the pencil brush to plot at</param>
+        protected virtual void PlotLinePoint(Point point, int size)
         {
             if (Size == 1)
             {
@@ -231,7 +252,6 @@ namespace Pixelaria.Algorithms.PaintOperations
 
             int px = point.X;
             int py = point.Y;
-            int size = Size / 2;
             for (int y = -size; y <= size; y++)
             {
                 for (int x = -size; x <= size; x++)
@@ -386,7 +406,7 @@ namespace Pixelaria.Algorithms.PaintOperations
 
                 if (!(ignoreFirstPlot && p == startPoint))
                 {
-                    plotFunction(p);
+                    plotFunction(p, Size);
                 }
 
                 error = error - deltay;
