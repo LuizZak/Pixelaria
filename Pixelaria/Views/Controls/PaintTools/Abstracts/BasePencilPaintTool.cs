@@ -184,7 +184,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Gets or sets the compositing mode for the pen
         /// </summary>
-        public CompositingMode CompositingMode
+        public virtual CompositingMode CompositingMode
         {
             get { return compositingMode; }
             set
@@ -320,10 +320,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 // Set pen to first color because color picking always changes the first color
                 penId = 0;
 
-                firstColor = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
-                UpdatePen();
+                Color colorAt = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
 
-                pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+                pictureBox.OwningPanel.FireColorChangeEvent(colorAt);
 
                 pictureBox.Invalidate();
             }
@@ -350,10 +349,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 {
                     if (pencil != pencilLast && WithinBounds(pencil))
                     {
-                        firstColor = pictureBox.Bitmap.GetPixel(pencil.X, pencil.Y);
-                        UpdatePen();
+                        Color colorAt = pictureBox.Bitmap.GetPixel(pencil.X, pencil.Y);
 
-                        pictureBox.OwningPanel.FireColorChangeEvent(firstColor);
+                        pictureBox.OwningPanel.FireColorChangeEvent(colorAt);
 
                         pictureBox.Invalidate();
                     }
@@ -408,10 +406,10 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pencilOperation.Color = penColor;
             pencilOperation.CompositingMode = CompositingMode;
 
-            pencilOperation.StartOpertaion(accumulateAlpha);
-
             undoGenerator = new PlottingPaintUndoGenerator(pictureBox.Bitmap, undoDecription);
             pencilOperation.Notifier = undoGenerator;
+
+            pencilOperation.StartOpertaion(accumulateAlpha);
 
             pencilOperation.MoveTo(point.X, point.Y);
             pencilOperation.DrawTo(point.X, point.Y);
