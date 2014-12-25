@@ -24,7 +24,7 @@ Legend:
 
 . FrameView
   + Added ability to change the size of the pencil and eraser tools.
-  + Added option to render the onion skin on top of the current frame, instead of under it.
+  + Added option to render the onion skin on top of the current frame as well as under it.
   + Added Airbrush mode to the Pencil and Spray paint tools.
   
   * Now only the Alpha color component slider shows transparency, all the other sliders are always fully opaque regardless of the current color's transparency.
@@ -39,7 +39,7 @@ Legend:
   * Fixed saving a frame always saving it in the PNG format regardless of the selected extension.
 
 . AnimationView
-  + Added new right click menu for frames.
+  + Added new right click menus for the frames list panel.
   + Added functionality to save selected frames to disk.
   + Added functionality to load a frame from disk into the currently selected frame.
   * Fixed crash related to insertion of frames.
@@ -47,7 +47,7 @@ Legend:
   * Fixed many crashes related to modifications on the frames and their orders.
 
 . AnimationSheetView
-  . Fixed checkbox that should be hidden but wasn't.
+  . Fixed checkbox that should be hidden when creating a new sheet but wasn't.
 
 . Now the main window title bar displays the path of the file currently open.
 
