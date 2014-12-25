@@ -78,15 +78,10 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             undoDecription = "Eraser";
 
-            CompositingMode = CompositingMode.SourceCopy;
-
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.eraser_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
-
-            //FirstColor = Color.FromArgb(0, 0, 0, 0);
-            //SecondColor = Color.FromArgb(0, 0, 0, 0);
         }
 
         /// <summary>
