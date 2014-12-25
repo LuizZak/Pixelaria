@@ -412,7 +412,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pencilOperation.StartOpertaion(accumulateAlpha);
 
             pencilOperation.MoveTo(point.X, point.Y);
-            pencilOperation.DrawTo(point.X, point.Y);
+            DrawPencil(point, null);
         }
 
         /// <summary>
