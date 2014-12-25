@@ -1176,18 +1176,18 @@ namespace Pixelaria.Views.ModelViews
 
         #endregion
 
-        #region Pencil Group Box
+        #region Other Group Box
 
         // 
         // Airbrush checkbox check
         // 
         private void cb_enablePencilFlow_CheckedChanged(object sender, EventArgs e)
         {
-            var pencilTool = iepb_frame.CurrentPaintTool as PencilPaintTool;
+            var airbrushTool = iepb_frame.CurrentPaintTool as IAirbrushPaintTool;
 
-            if (pencilTool != null)
+            if (airbrushTool != null)
             {
-                pencilTool.AirbrushMode = cb_airbrushMode.Checked;
+                airbrushTool.AirbrushMode = cb_airbrushMode.Checked;
             }
         }
 
