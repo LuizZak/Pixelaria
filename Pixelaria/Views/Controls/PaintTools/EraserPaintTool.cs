@@ -93,13 +93,18 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>The two colors, blended with an alpha erase mode</returns>
         public Color BlendColors(Color backColor, Color foreColor, CompositingMode blendCompositingMode)
         {
+            if (backColor.A == 0)
+            {
+                return backColor;
+            }
+
             if (foreColor.A == 0)
             {
                 return Color.FromArgb(0, 0, 0, 0);
             }
 
             float newAlpha = (((float)backColor.A / 255) * (1 - (float)foreColor.A / 255));
-            return Color.FromArgb((int)(newAlpha * 255), backColor.R, backColor.G, backColor.B);
+            return Color.FromArgb((int)(newAlpha * 255), backColor);
         }
     }
 }
