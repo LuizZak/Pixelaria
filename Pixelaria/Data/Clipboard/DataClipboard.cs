@@ -207,16 +207,16 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            if (_frameList != null)
-            {
-                foreach (var frame in _frameList)
-                {
-                    frame.Dispose();
-                }
+            if (_frameList == null)
+                return;
 
-                _frameList.Clear();
-                _frameList = null;
+            foreach (var frame in _frameList)
+            {
+                frame.Dispose();
             }
+
+            _frameList.Clear();
+            _frameList = null;
         }
 
         /// <summary>

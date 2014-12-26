@@ -335,16 +335,17 @@ namespace Pixelaria.Algorithms.PaintOperations
                 fastBitmap.Lock();
             }
 
-            AccumulateAlpha = accumulateAlpha;
+            // Ignore alpha accumulation if the color has no transparency
+            AccumulateAlpha = (accumulateAlpha && Color.A != 255);
 
-            if(!accumulateAlpha)
+            if(!AccumulateAlpha)
             {
                 pixelsDrawn = new PixelHistoryTracker(true, targetBitmap.Width);
             }
 
             if (Notifier != null)
             {
-                Notifier.OperationStarted(accumulateAlpha);
+                Notifier.OperationStarted(AccumulateAlpha);
             }
         }
 
@@ -366,6 +367,8 @@ namespace Pixelaria.Algorithms.PaintOperations
             {
                 Notifier.OperationFinished(pixelsDrawn);
             }
+
+            pixelsDrawn = null;
         }
 
         /// <summary>

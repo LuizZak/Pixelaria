@@ -45,9 +45,12 @@ namespace Pixelaria.Data.Exporters
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         public void ExportBundle(Bundle bundle, BundleExportProgressEventHandler progressHandler = null)
         {
+            // The total final stage count is two times the sheet array size (one stage for atlasses, and another stage for saving to disk, for each sheet)
+            int totalStages = bundle.AnimationSheets.Count(sheet => sheet.Animations.Length > 0);
+
             // Create a proxy handler to handle total progress
             float totalProgress;
-            float stages = 0;
+            float stages = totalStages * 2 + 1;
             float currentStage = 0;
 
             BundleExportProgressEventHandler proxyHandler = null;
@@ -56,16 +59,12 @@ namespace Pixelaria.Data.Exporters
             List<string> xmls = new List<string>();
             List<BundleSheetExport> bundleSheetList = new List<BundleSheetExport>();
 
-            // The total final stage count is two times the sheet array size (one stage for atlasses, and another stage for saving to disk, for each sheet)
-            int totalStages = bundle.AnimationSheets.Count(sheet => sheet.Animations.Length > 0);
-
-            stages = totalStages * 2 + 1;
-
             if (progressHandler != null)
             {
+                var stage = currentStage;
                 proxyHandler = args =>
                 {
-                    totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
+                    totalProgress = ((stage + (float)args.StageProgress / 100) / stages);
 
                     // Calculate total progress
                     progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));

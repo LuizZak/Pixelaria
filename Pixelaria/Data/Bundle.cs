@@ -540,15 +540,9 @@ namespace Pixelaria.Data
             // If the ID equals to -1, it hasn't been cached yet
             if (id == -1)
             {
-                id = 0;
-
-                foreach (Animation anim in _animations)
-                {
-                    foreach (IFrame frame in anim.Frames)
-                    {
-                        id = Math.Max(id, frame.ID + 1);
-                    }
-                }
+                id = (from anim in _animations
+                      from frame in anim.Frames
+                      select frame.ID + 1).Concat(new[] {0}).Max();
 
                 _nextFrameId = id + 1;
             }

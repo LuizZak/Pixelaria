@@ -25,6 +25,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
+
 using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 
@@ -265,6 +266,5 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         }
 
         #endregion
-
     }
 }

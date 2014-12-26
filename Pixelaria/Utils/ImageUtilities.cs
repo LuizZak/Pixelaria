@@ -132,15 +132,15 @@ namespace Pixelaria.Utils
             int maxImageX = 0;
             int maxImageY = 0;
 
-            int x;
-            int y;
-
             int width = image.Width;
             int height = image.Height;
 
             using (FastBitmap fastBitmap = image.FastLock())
             {
                 // Scan vertically - 1st pass
+                int x;
+                int y;
+
                 for (x = 0; x < width; x++)
                 {
                     for (y = 0; y < height; y++)

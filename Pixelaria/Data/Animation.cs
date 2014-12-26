@@ -41,11 +41,6 @@ namespace Pixelaria.Data
         private List<IFrame> _frames;
 
         /// <summary>
-        /// The unique identifier for this Animation object
-        /// </summary>
-        private int _id;
-
-        /// <summary>
         /// Gets or sets the name of this animation
         /// </summary>
         public String Name { get; set; }
@@ -68,7 +63,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets or sets the ID for this Animation
         /// </summary>
-        public int ID { get { return _id; } set { _id = value; } }
+        public int ID { get; set; }
 
         /// <summary>
         /// Gets the number of frames of this Animaion
@@ -110,7 +105,7 @@ namespace Pixelaria.Data
         /// <param name="height">The starting height of this Animation</param>
         public Animation(String name, int width, int height)
         {
-            _id = -1;
+            ID = -1;
             _frames = new List<IFrame>();
 
             Name = name;
