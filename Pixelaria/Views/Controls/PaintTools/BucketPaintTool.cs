@@ -25,6 +25,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+
+using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
@@ -173,13 +175,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="point">The point to start the fill operation at</param>
         public void PerformBucketOperaiton(Color color, Point point)
         {
-            BitmapUndoTask undoTask = PerformBucketOperaiton(pictureBox.Bitmap, color, point, compositingMode, true);
+            IUndoTask undoTask = PerformBucketOperaiton(pictureBox.Bitmap, color, point, compositingMode, true);
 
-            pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
+            if (undoTask != null)
+            {
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
 
-            // Finish the operation by updating the picture box
-            pictureBox.Invalidate();
-            pictureBox.MarkModified();
+                // Finish the operation by updating the picture box
+                pictureBox.Invalidate();
+                pictureBox.MarkModified();
+            }
         }
 
         /// <summary>
@@ -191,7 +196,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
         /// <param name="createUndo">Whether to create and return an undo task</param>
         /// <returns>The undo task associated with this operation, or null, if createUndo is false or if the operation failed</returns>
-        public unsafe static BitmapUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
+        public unsafe static IUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
         {
             // Start the fill operation by getting the color under the user's mouse
             Color pColor = targetBitmap.GetPixel(point.X, point.Y);
