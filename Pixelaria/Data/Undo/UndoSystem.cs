@@ -134,8 +134,14 @@ namespace Pixelaria.Data.Undo
         /// Registers the given UndoTask on this UndoSystem
         /// </summary>
         /// <param name="task">The task to undo</param>
+        /// <exception cref="ArgumentNullException">The undo task provided is null</exception>
         public void RegisterUndo(IUndoTask task)
         {
+            if (task == null)
+            {
+                throw new ArgumentNullException("task", @"The task cannot be null");
+            }
+
             // Grouped undos: record them inside the group undo
             if (InGroupUndo)
             {
