@@ -33,6 +33,7 @@ using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
+
 using Rhino.Mocks;
 
 namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
@@ -49,6 +50,32 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public const string OPERATION_NAME = "Pencil";
 
         /// <summary>
+        /// Tests the property return behavior for the PencilPaintOperation
+        /// </summary>
+        [TestMethod]
+        public void TestPaintOperationProperties()
+        {
+            Bitmap target = new Bitmap(64, 64);
+            Bitmap target2 = new Bitmap(64, 64);
+            FastBitmap.ClearBitmap(target, Color.Transparent);
+
+            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
+
+            // Check TargetBitmap property
+            Assert.AreEqual(operation.TargetBitmap, target, "The TargetBitmap property for the paint operation must point to the bitmap that was passed on its constructor");
+
+            // Modify target bitmap
+            operation.TargetBitmap = target2;
+
+            // Check OperationStarted property
+            operation.StartOpertaion();
+            Assert.IsTrue(operation.OperationStarted, "After a call to StartOperation(), an operation's OperationStarted property should return true");
+
+            operation.FinishOperation();
+            Assert.IsFalse(operation.OperationStarted, "After a call to FinishOperation(), an operation's OperationStarted property should return false");
+        }
+
+        /// <summary>
         /// Tests a simple scribble composed of lines
         /// </summary>
         [TestMethod]
@@ -61,8 +88,6 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.StartOpertaion();
 
-            Assert.IsTrue(operation.OperationStarted, "After a call to StartOperation(), an operation's OperationStarted property should return true");
-
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
             operation.DrawTo(15, 17);
@@ -70,8 +95,6 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.DrawTo(25, 37);
 
             operation.FinishOperation();
-
-            Assert.IsFalse(operation.OperationStarted, "After a call to FinishOperation(), an operation's OperationStarted property should return false");
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
             byte[] goodHash = { 0xC5, 0x6B, 0x5C, 0x6B, 0xB0, 0x12, 0xBD, 0x28, 0xC4, 0x13, 0x8D, 0xAA, 0x5, 0xA1, 0x71, 0x5D, 0x1B, 0xAF, 0x9B, 0x4, 0xE7, 0x85, 0x98, 0x1E, 0xFD, 0xD4, 0x14, 0xC0, 0xB6, 0x36, 0x32, 0xA1 };
