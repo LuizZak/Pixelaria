@@ -66,6 +66,7 @@
     <Compile Include="PixelariaTests\Tests\Data\Exports\SheetExportTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\Exports\TextureAtlasTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\FrameTests.cs" />
+    <Compile Include="PixelariaTests\Tests\Data\Persistence\FileBlocksTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PencilPaintOperationTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PixelHistoryTrackerTests.cs" />

@@ -50,7 +50,7 @@ namespace Pixelaria.Data.Persistence
 
         /// <summary>
         /// <para>Gets the length of this block data on the stream.</para>
-        /// <para>This includes the block ID, block size and block data</para>
+        /// <para>This does not include the block ID, block size and block data</para>
         /// </summary>
         public long BlockLength
         {
@@ -146,12 +146,21 @@ namespace Pixelaria.Data.Persistence
         {
             BinaryReader reader = new BinaryReader(stream);
 
-            if (stream.Position + stream.Length < blockLength)
+            if (stream.Length - stream.Position < blockLength)
             {
                 throw new ArgumentException(@"The stream provided does not have the required " + blockLength + @" bytes needed to load this file block.", "stream");
             }
 
             _blockContent = reader.ReadBytes((int)blockLength);
+        }
+
+        /// <summary>
+        /// Gets the byte array that represents the buffer for the block's contents that were read off the stream
+        /// </summary>
+        /// <returns>The byte array that represents the buffer for the block's contents that were read off the stream</returns>
+        public byte[] GetBlockBuffer()
+        {
+            return _blockContent;
         }
 
         /// <summary>
@@ -167,7 +176,7 @@ namespace Pixelaria.Data.Persistence
 
         /// <summary>
         /// <para>The length of this block data on the stream.</para>
-        /// <para>This includes the block ID, block size and block data</para>
+        /// <para>This does not include the block ID, block size and block data</para>
         /// </summary>
         protected long blockLength;
 
