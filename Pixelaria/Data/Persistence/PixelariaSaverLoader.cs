@@ -488,10 +488,6 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
-            /*if (GetBlocksByType(typeof(AnimationBlock)).Length == 0)
-            {
-                AddBlock(new AnimationBlock());
-            }*/
             foreach (Animation animation in bundle.Animations)
             {
                 AddBlock(new AnimationHeaderBlock(animation));
@@ -548,14 +544,12 @@ namespace Pixelaria.Data.Persistence
                 }
             }
 
+            // No for-loop because the block list may be modified during preparation
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < blockList.Count; i++)
             {
                 blockList[i].PrepareFromBundle(bundle);
             }
-            /*foreach (FileBlock block in blockList)
-            {
-                block.PrepareFromBundle(bundle);
-            }*/
         }
 
         /// <summary>
