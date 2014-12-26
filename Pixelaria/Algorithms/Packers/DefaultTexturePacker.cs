@@ -73,10 +73,49 @@ namespace Pixelaria.Algorithms.Packers
             CalculateMaximumSizes(frameList);
 
             int minAreaWidth = _maxWidthCapped;
-            float minRatio = 0;
-            int minArea = int.MaxValue;
 
             // 4. Iterate through possible widths and match the smallest area to use as a maxWidth
+            uint atlasWidth;
+            uint atlasHeight;
+
+            minAreaWidth = IterateAtlasSize(atlas, minAreaWidth, out atlasWidth, out atlasHeight);
+
+            atlasWidth = 0;
+            atlasHeight = 0;
+
+            // 5. Pack the texture atlas
+            InternalPack(atlas, ref atlasWidth, ref atlasHeight, minAreaWidth, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1, true);
+
+            // Round up to the closest power of two
+            if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
+            {
+                atlasWidth = Utilities.SnapToNextPowerOfTwo(atlasWidth);
+                atlasHeight = Utilities.SnapToNextPowerOfTwo(atlasHeight);
+            }
+
+            if (atlasWidth == 0)
+                atlasWidth = 1;
+            if (atlasHeight == 0)
+                atlasHeight = 1;
+
+            atlas.AtlasRectangle = new Rectangle(0, 0, (int)atlasWidth, (int)atlasHeight);
+
+            // Assign the information on the texture atlas
+            atlas.Information.ReusedFrameOriginsCount = _frameComparision.CachedSimilarCount;
+        }
+
+        /// <summary>
+        /// Iterates the given texture atlas using the given properties in order to find the proper atlas width and height configuration that will match the desired settings more
+        /// </summary>
+        /// <param name="atlas">The atlas to iterate</param>
+        /// <param name="minAreaWidth">Helper value for calculatingthe minimum area width</param>
+        /// <param name="atlasWidth">The out atlas width</param>
+        /// <param name="atlasHeight">The out atlas height</param>
+        /// <returns>The minimum area width that was calculated</returns>
+        private int IterateAtlasSize(TextureAtlas atlas, int minAreaWidth, out uint atlasWidth, out uint atlasHeight)
+        {
+            float minRatio = 0;
+            int minArea = int.MaxValue;
             uint curWidth = (uint)_maxFrameWidth;
 
             if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
@@ -84,14 +123,16 @@ namespace Pixelaria.Algorithms.Packers
                 curWidth = Utilities.SnapToNextPowerOfTwo(curWidth);
             }
 
-            uint atlasWidth;
-            uint atlasHeight;
+            atlasWidth = 0;
+            atlasHeight = 0;
 
-            for ( ; curWidth < _maxWidthCapped; )
+            for (; curWidth < _maxWidthCapped;)
             {
                 atlasWidth = 0;
                 atlasHeight = 0;
-                InternalPack(atlas, ref atlasWidth, ref atlasHeight, (int)curWidth, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
+                InternalPack(atlas, ref atlasWidth, ref atlasHeight, (int)curWidth,
+                    atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1,
+                    atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
 
                 float ratio = (float)atlasWidth / atlasHeight;
 
@@ -106,7 +147,9 @@ namespace Pixelaria.Algorithms.Packers
                 int area = (int)(atlasWidth * atlasHeight);
 
                 // Decide whether to swap the best sheet target width with the current one
-                if ((atlas.ExportSettings.FavorRatioOverArea && (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1))) || (!atlas.ExportSettings.FavorRatioOverArea && (area < minArea || (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1)))))
+                if ((atlas.ExportSettings.FavorRatioOverArea && (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1))) ||
+                    (!atlas.ExportSettings.FavorRatioOverArea &&
+                     (area < minArea || (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1)))))
                 {
                     minArea = area;
                     minRatio = ratio;
@@ -135,7 +178,8 @@ namespace Pixelaria.Algorithms.Packers
 
                     progress = Math.Min(100, progress);
 
-                    _progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.TextureAtlasGeneration, progress, progress, atlas.Name));
+                    _progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.TextureAtlasGeneration, progress,
+                        progress, atlas.Name));
                 }
 
                 // Exit the loop if favoring ratio and no better ratio can be achieved
@@ -145,28 +189,7 @@ namespace Pixelaria.Algorithms.Packers
                 }
             }
 
-            atlasWidth = 0;
-            atlasHeight = 0;
-
-            // 5. Pack the texture atlas
-            InternalPack(atlas, ref atlasWidth, ref atlasHeight, minAreaWidth, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1, true);
-
-            // Round up to the closest power of two
-            if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
-            {
-                atlasWidth = Utilities.SnapToNextPowerOfTwo(atlasWidth);
-                atlasHeight = Utilities.SnapToNextPowerOfTwo(atlasHeight);
-            }
-
-            if (atlasWidth == 0)
-                atlasWidth = 1;
-            if (atlasHeight == 0)
-                atlasHeight = 1;
-
-            atlas.AtlasRectangle = new Rectangle(0, 0, (int)atlasWidth, (int)atlasHeight);
-
-            // Assign the information on the texture atlas
-            atlas.Information.ReusedFrameOriginsCount = _frameComparision.CachedSimilarCount;
+            return minAreaWidth;
         }
 
         /// <summary>
@@ -228,7 +251,6 @@ namespace Pixelaria.Algorithms.Packers
             boundsList.Clear();
 
             int x = exportSettings.XPadding;
-            int y;
 
             for (int i = 0; i < frameList.Count; i++)
             {
@@ -282,7 +304,7 @@ namespace Pixelaria.Algorithms.Packers
                     x = exportSettings.XPadding;
                 }
 
-                y = exportSettings.YPadding;
+                var y = exportSettings.YPadding;
 
                 // Do a little trickery to find the minimum Y for this frame
                 if (x - exportSettings.XPadding < atlasWidth)
