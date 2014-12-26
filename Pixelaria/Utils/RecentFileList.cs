@@ -32,19 +32,19 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The list of files
         /// </summary>
-        private readonly string[] fileList;
+        private readonly string[] _fileList;
 
         /// <summary>
         /// Returns the list of files currently in this RecentFileList object
         /// </summary>
-        public int FileCount { get { return fileList.Length; } }
+        public int FileCount { get { return _fileList.Length; } }
 
         /// <summary>
         /// Returns the file path at the given index
         /// </summary>
         /// <param name="index">The index to get the file path</param>
         /// <returns>The file path at the given index</returns>
-        public string this[int index] { get { return fileList[index]; } }
+        public string this[int index] { get { return _fileList[index]; } }
 
         /// <summary>
         /// Initializes a new instance of the RecentFileList class
@@ -52,7 +52,7 @@ namespace Pixelaria.Utils
         /// <param name="fileCount">The number of values to store at the list</param>
         public RecentFileList(int fileCount)
         {
-            fileList = new string[fileCount];
+            _fileList = new string[fileCount];
 
             // Load the values from the settings file
             Settings settings = Settings.GetSettings();
@@ -62,7 +62,7 @@ namespace Pixelaria.Utils
                 // Assert first to make sure the value exists
                 settings.EnsureValue("Recent Files\\File" + i, EnsureValueType.String, "");
 
-                fileList[i] = settings.GetValue("Recent Files\\File" + i);
+                _fileList[i] = settings.GetValue("Recent Files\\File" + i);
             }
         }
 
@@ -78,17 +78,17 @@ namespace Pixelaria.Utils
             string fullPath = Path.GetFullPath(file);
 
             // Don't do anything if the file is already at the top of the file list
-            if (fullPath == fileList[0])
+            if (fullPath == _fileList[0])
                 return;
 
             // Search if the file is not already in the list, and push it to the top
             int index = 0;
 
-            for (int i = 1; i < fileList.Length; i++)
+            for (int i = 1; i < _fileList.Length; i++)
             {
-                if (fullPath == fileList[i] || i == fileList.Length - 1)
+                if (fullPath == _fileList[i] || i == _fileList.Length - 1)
                 {
-                    index = (i == fileList.Length - 1 ? i : i - 1);
+                    index = (i == _fileList.Length - 1 ? i : i - 1);
                     break;
                 }
             }
@@ -96,15 +96,15 @@ namespace Pixelaria.Utils
             // Push all current values down
             for (int i = index; i >= 0; i--)
             {
-                if (i + 1 >= fileList.Length)
+                if (i + 1 >= _fileList.Length)
                     continue;
 
-                fileList[i + 1] = fileList[i];
+                _fileList[i + 1] = _fileList[i];
 
-                settings.SetValue("Recent Files\\File" + (i + 1), fileList[i + 1]);
+                settings.SetValue("Recent Files\\File" + (i + 1), _fileList[i + 1]);
             }
 
-            fileList[0] = fullPath;
+            _fileList[0] = fullPath;
 
             settings.SetValue("Recent Files\\File" + 0, fullPath);
         }
@@ -117,23 +117,23 @@ namespace Pixelaria.Utils
         {
             Settings settings = Settings.GetSettings();
 
-            if (index == fileList.Length - 1)
+            if (index == _fileList.Length - 1)
             {
-                fileList[index] = "";
+                _fileList[index] = "";
                 settings.SetValue("Recent Files\\File" + index, "");
                 return;
             }
 
             // Push all current values down
-            for (int i = index; i < fileList.Length - 1; i++)
+            for (int i = index; i < _fileList.Length - 1; i++)
             {
-                fileList[i] = fileList[i + 1];
+                _fileList[i] = _fileList[i + 1];
 
-                settings.SetValue("Recent Files\\File" + i, fileList[i]);
+                settings.SetValue("Recent Files\\File" + i, _fileList[i]);
             }
 
-            fileList[fileList.Length - 1] = "";
-            settings.SetValue("Recent Files\\File" + (fileList.Length - 1), "");
+            _fileList[_fileList.Length - 1] = "";
+            settings.SetValue("Recent Files\\File" + (_fileList.Length - 1), "");
         }
     }
 }
