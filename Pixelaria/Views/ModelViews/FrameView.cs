@@ -65,6 +65,11 @@ namespace Pixelaria.Views.ModelViews
         private Frame _viewFrame;
 
         /// <summary>
+        /// The bitmap for the current frame being displayed
+        /// </summary>
+        private Bitmap _viewFrameBitmap;
+
+        /// <summary>
         /// Previous frame index
         /// </summary>
         private int _oldFrameIndex;
@@ -271,7 +276,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the image preview if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+                zpb_framePreview.Image = _viewFrameBitmap;
             }
 
             RefreshTitleBar();
@@ -293,15 +298,15 @@ namespace Pixelaria.Views.ModelViews
 
                 ModifiedFrames = true;
 
-                _viewFrame.UpdateHash();
+                _viewFrame.SetFrameBitmap(_viewFrameBitmap);
 
                 // Apply changes made to the frame
                 _frameToEdit.CopyFrom(_viewFrame);
 
+                base.ApplyChanges();
+
                 RefreshTitleBar();
             }
-
-            base.ApplyChanges();
         }
 
         /// <summary>
@@ -403,14 +408,21 @@ namespace Pixelaria.Views.ModelViews
 
             RefreshTitleBar();
 
-            iepb_frame.LoadBitmap(_viewFrame.GetComposedBitmap());
+            if (_viewFrameBitmap != null)
+            {
+                _viewFrameBitmap.Dispose();
+            }
+
+            _viewFrameBitmap = _viewFrame.GetComposedBitmap();
+
+            iepb_frame.LoadBitmap(_viewFrameBitmap);
 
             RefreshView();
 
             // Update the preview box if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+                zpb_framePreview.Image = _viewFrameBitmap;
             }
 
             if (EditFrameChanged != null)
@@ -427,7 +439,7 @@ namespace Pixelaria.Views.ModelViews
         private void ExportFrame()
         {
             // TODO: Deal with GetComposedBitmap()'s return assuming it is a clone of the image, and not the original
-            Image img = _viewFrame.GetComposedBitmap();
+            Image img = _viewFrameBitmap;
             string fileName;
 
             if (_frameToEdit.Animation.FrameCount > 1)
@@ -801,7 +813,7 @@ namespace Pixelaria.Views.ModelViews
 
             BitmapUndoTask but = null;
 
-            var undoTarget = filterTarget = _viewFrame.GetComposedBitmap();
+            var undoTarget = filterTarget = _viewFrameBitmap;
 
             // Apply the filter to a selection
             var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
@@ -1447,7 +1459,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the image preview if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+                zpb_framePreview.Image = _viewFrameBitmap;
             }
         }
 

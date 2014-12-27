@@ -266,7 +266,8 @@ namespace Pixelaria.Data
 
             _width = frame.Width;
             _height = frame.Height;
-            _frameTexture = frameTexture.Clone(new Rectangle(0, 0, frameTexture.Width, frameTexture.Height), frameTexture.PixelFormat);
+            //_frameTexture = frameTexture.Clone(new Rectangle(0, 0, frameTexture.Width, frameTexture.Height), frameTexture.PixelFormat);
+            _frameTexture = frameTexture;
 
             _hash = frame.Hash;
         }
@@ -368,7 +369,8 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            return _frameTexture;
+            Bitmap copyBitmap = _frameTexture.Clone(new Rectangle(Point.Empty, _frameTexture.Size), _frameTexture.PixelFormat);
+            return copyBitmap;
         }
 
         /// <summary>
@@ -437,6 +439,8 @@ namespace Pixelaria.Data
 
             graphics.Flush();
             graphics.Dispose();
+
+            composed.Dispose();
 
             return output;
         }
@@ -536,5 +540,13 @@ namespace Pixelaria.Data
         {
             return _width ^ _height ^ _id;
         }
+    }
+
+    /// <summary>
+    /// Represents the layer for a frame
+    /// </summary>
+    public class FrameLayer
+    {
+        
     }
 }

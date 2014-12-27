@@ -422,7 +422,7 @@ namespace Pixelaria.Utils
             // TODO: Deal with the result of GetComposedBitmap() assuming it is a copy
             return new List<Bitmap>(
                                 from frame in frameList
-                                select (clone ? frame.GetComposedBitmap().DeepClone() : frame.GetComposedBitmap())
+                                select frame.GetComposedBitmap()
                                 );
         }
 
@@ -437,7 +437,7 @@ namespace Pixelaria.Utils
         {
             // TODO: Deal with the result of GetComposedBitmap() assuming it is a copy
             return (from frame in frames
-                    select (clone ? (Bitmap)frame.GetComposedBitmap().Clone() : frame.GetComposedBitmap())
+                    select frame.GetComposedBitmap()
                     ).ToArray();
         }
 

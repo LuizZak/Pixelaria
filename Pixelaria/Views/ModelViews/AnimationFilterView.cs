@@ -43,6 +43,11 @@ namespace Pixelaria.Views.ModelViews
         private readonly Animation _animation;
 
         /// <summary>
+        /// The current frame bitmap being displayed
+        /// </summary>
+        private Bitmap _currentFrameBitmap;
+
+        /// <summary>
         /// Initializes a new instance of the AnimationFilterView class
         /// </summary>
         /// <param name="animation">The animation to show the filter to</param>
@@ -57,11 +62,27 @@ namespace Pixelaria.Views.ModelViews
 
             tc_timeline.Range = new Point(0, animation.FrameCount);
 
-            fs_filters.SetImage(animation.GetFrameAtIndex(0).GetComposedBitmap());
+            SetDisplayFrame(animation.GetFrameAtIndex(0));
 
             pnl_errorPanel.Visible = false;
 
             btn_ok.Enabled = true;
+        }
+
+        /// <summary>
+        /// Sets the current frame  being displayed on the filter view
+        /// </summary>
+        /// <param name="frame">The </param>
+        private void SetDisplayFrame(IFrame frame)
+        {
+            if (_currentFrameBitmap != null)
+            {
+                _currentFrameBitmap.Dispose();
+            }
+
+            _currentFrameBitmap = frame.GetComposedBitmap();
+
+            fs_filters.SetImage(_currentFrameBitmap);
         }
 
         /// <summary>
@@ -126,7 +147,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tc_timeline_FrameChanged(object sender, FrameChangedEventArgs eventArgs)
         {
-            fs_filters.SetImage(_animation.GetFrameAtIndex(eventArgs.NewFrame - 1).GetComposedBitmap());
+            SetDisplayFrame(_animation.GetFrameAtIndex(eventArgs.NewFrame - 1));
         }
 
         // 

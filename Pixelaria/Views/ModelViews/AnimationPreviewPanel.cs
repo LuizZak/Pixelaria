@@ -55,6 +55,11 @@ namespace Pixelaria.Views.ModelViews
         private bool _playing;
 
         /// <summary>
+        /// The current frame bitmap being displayed on this AnimationPreviewPanel
+        /// </summary>
+        private Bitmap _frameBitmap;
+
+        /// <summary>
         /// The maximum zoom factor allowed on the control
         /// </summary>
         private const decimal MaxZoom = 15;
@@ -175,7 +180,15 @@ namespace Pixelaria.Views.ModelViews
             _currentFrame = newFrame;
 
             lbl_currentFrame.Text = "" + (newFrame + 1);
-            pnl_preview.Image = _currentAnimation.GetFrameAtIndex(newFrame).GetComposedBitmap();
+
+            if (_frameBitmap != null)
+            {
+                _frameBitmap.Dispose();
+            }
+
+            _frameBitmap = _currentAnimation.GetFrameAtIndex(newFrame).GetComposedBitmap();
+
+            pnl_preview.Image = _frameBitmap;
         }
 
         /// <summary>

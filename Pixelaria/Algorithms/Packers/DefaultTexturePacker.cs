@@ -544,12 +544,16 @@ namespace Pixelaria.Algorithms.Packers
                     return frag.FrameRectangle;
 
                 // TODO: Deal with disposal of GetComposedBitmap()'s return
+                Bitmap frameBitmap = frame.GetComposedBitmap();
+
                 CompareFrag newFrag = new CompareFrag
                 {
                     FrameRectangle = _useMinimumTextureArea
-                        ? ImageUtilities.FindMinimumImageArea(frame.GetComposedBitmap())
+                        ? ImageUtilities.FindMinimumImageArea(frameBitmap)
                         : new Rectangle(0, 0, frame.Width, frame.Height)
                 };
+
+                frameBitmap.Dispose();
 
                 _fragDictionary[frame] = newFrag;
 

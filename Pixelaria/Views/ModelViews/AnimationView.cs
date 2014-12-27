@@ -694,11 +694,14 @@ namespace Pixelaria.Views.ModelViews
                     // Copy the frame to the clipboard too
                     MemoryStream stream = new MemoryStream();
 
-                    clonedFrame.GetComposedBitmap().Save(stream, ImageFormat.Png);
-                    stream.Position = 0;
+                    using (var bitmap = clonedFrame.GetComposedBitmap())
+                    {
+                        bitmap.Save(stream, ImageFormat.Png);
+                        stream.Position = 0;
 
-                    System.Windows.Forms.Clipboard.SetImage(clonedFrame.GetComposedBitmap());
-                    System.Windows.Forms.Clipboard.SetData("PNG", stream);
+                        System.Windows.Forms.Clipboard.SetImage(bitmap);
+                        System.Windows.Forms.Clipboard.SetData("PNG", stream);
+                    }
                 }
 
                 frameListClip.AddFrame(clonedFrame);

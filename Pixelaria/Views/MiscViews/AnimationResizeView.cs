@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -144,7 +145,10 @@ namespace Pixelaria.Views.MiscViews
 
             _viewFrame.Resize(GeneratedSettings.NewWidth, GeneratedSettings.NewHeight, GeneratedSettings.PerFrameScalingMethod, GeneratedSettings.InterpolationMode);
 
-            zpb_preview.Image = _viewFrame.GetComposedBitmap();
+            using (var bitmap = _viewFrame.GetComposedBitmap())
+            {
+                zpb_preview.Image = bitmap;
+            }
         }
 
         /// <summary>

@@ -133,6 +133,8 @@ namespace Pixelaria.Data.Exports
                 Bitmap frameBitmap = frame.GetComposedBitmap();
 
                 FastBitmap.CopyRegion(frameBitmap, image, originBounds, frameBounds);
+
+                frameBitmap.Dispose();
             }
 
             return image;
