@@ -55,7 +55,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // rtb_value
+            // txt_value
             // 
             this.txt_value.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_value.Dock = System.Windows.Forms.DockStyle.Fill;
