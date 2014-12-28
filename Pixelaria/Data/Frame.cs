@@ -21,10 +21,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
+using System.Linq;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -50,14 +51,14 @@ namespace Pixelaria.Data
         private int _height;
 
         /// <summary>
+        /// The list of layers laid on this frame
+        /// </summary>
+        private readonly List<FrameLayer> _layers;
+
+        /// <summary>
         /// The animation this frames belongs to
         /// </summary>
         private Animation _animation;
-
-        /// <summary>
-        /// The texture of this frame
-        /// </summary>
-        private Bitmap _frameTexture;
 
         /// <summary>
         /// This Frame's texture's hash
@@ -83,6 +84,14 @@ namespace Pixelaria.Data
         /// Gets the size of this animation's frames
         /// </summary>
         public Size Size { get { return new Size(_width, _height); } }
+
+        /// <summary>
+        /// Gets the total number of layers stored on this Frame object
+        /// </summary>
+        public int LayerCount
+        {
+            get { return _layers.Count; }
+        }
 
         /// <summary>
         /// Gets the index of this frame on the parent animation
@@ -117,7 +126,7 @@ namespace Pixelaria.Data
         /// </summary>
         public Frame()
         {
-            
+            _layers = new List<FrameLayer>();
         }
 
         /// <summary>
@@ -129,6 +138,7 @@ namespace Pixelaria.Data
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
         public Frame(Animation parentAnimation, int width, int height, bool initHash = true)
         {
+            _layers = new List<FrameLayer>();
             Initialize(parentAnimation, width, height, initHash);
         }
 
@@ -154,7 +164,7 @@ namespace Pixelaria.Data
             _height = height;
             _animation = animation;
 
-            _frameTexture = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            CreateLayer(0);
 
             if (initHash)
             {
@@ -171,10 +181,22 @@ namespace Pixelaria.Data
         public void Dispose()
         {
             _animation = null;
-            if (_frameTexture != null)
-                _frameTexture.Dispose();
-            _frameTexture = null;
+
+            ClearLayers();
+
             _hash = null;
+        }
+
+        /// <summary>
+        /// Clears all the layers stored on this Frame object
+        /// </summary>
+        private void ClearLayers()
+        {
+            foreach (var layer in _layers)
+            {
+                layer.Dispose();
+            }
+            _layers.Clear();
         }
 
         /// <summary>
@@ -261,13 +283,19 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
-            // TODO: Deal with layering in the copy operation
-            Bitmap frameTexture = frame.GetComposedBitmap();
+            Frame castFrame = frame as Frame;
 
+            if (castFrame == null)
+                return;
+
+            // TODO: Deal with layering in the copy operation
             _width = frame.Width;
             _height = frame.Height;
-            //_frameTexture = frameTexture.Clone(new Rectangle(0, 0, frameTexture.Width, frameTexture.Height), frameTexture.PixelFormat);
-            _frameTexture = frameTexture;
+
+            // Clear the current layers and clone from the passed frame
+            ClearLayers();
+
+            _layers.AddRange(castFrame._layers.Select(t => t.Clone()));
 
             _hash = frame.Hash;
         }
@@ -319,17 +347,98 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
-        /// Returns the memory usage of this frame, in bytes
+        /// Creates a new empty layer on this Frame
         /// </summary>
-        /// <returns>Total memory usage, in bytes</returns>
-        public long CalculateMemoryUsageInBytes()
+        /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
+        public IFrameLayer CreateLayer(int layerIndex = -1)
         {
-            if (!_initialized)
+            FrameLayer layer = new FrameLayer(new Bitmap(_width, _height, PixelFormat.Format32bppArgb));
+
+            if (layerIndex == -1)
+                _layers.Add(layer);
+            else
+                _layers.Insert(layerIndex, layer);
+
+            return layer;
+        }
+
+        /// <summary>
+        /// Adds a layer on this Frame object based on the specified bitmap.
+        /// If the bitmap does not match this frame's dimensions or its pixel format is not 32bpp, an exception is raised
+        /// </summary>
+        /// <param name="bitmap">The bitmap to use as a layer image</param>
+        /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
+        /// <exception cref="ArgumentException">The provided bitmap's dimensions does not match this Frame's dimensions, or its pixel format isn't 32bpp</exception>
+        public void AddLayer(Bitmap bitmap, int layerIndex = -1)
+        {
+            if (bitmap.Width != _width || bitmap.Height != _height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
             {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
+                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "bitmap");
             }
 
-            return Utilities.MemoryUsageOfImage(_frameTexture);
+            FrameLayer layer = (FrameLayer)CreateLayer(layerIndex);
+
+            layer.CopyFromBitmap(bitmap);
+        }
+
+        /// <summary>
+        /// Removes a layer that is stored on the specified index on this Frame
+        /// </summary>
+        /// <param name="layerIndex">The layer index to remove</param>
+        public void RemoveLayer(int layerIndex)
+        {
+            _layers[layerIndex].Dispose();
+            _layers.RemoveAt(layerIndex);
+        }
+
+        /// <summary>
+        /// Gets a layer at the specified index on this Frame object
+        /// </summary>
+        /// <param name="index">The index to get the layer at</param>
+        /// <returns>A layer at the specified index on this Frame object</returns>
+        public IFrameLayer GetLayerAt(int index)
+        {
+            return _layers[index];
+        }
+
+        /// <summary>
+        /// Swaps layers at the two specified indices
+        /// </summary>
+        /// <param name="firstIndex">The first layer index to swap</param>
+        /// <param name="secondIndex">The second layer index to swap</param>
+        /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
+        public void SwapLayers(int firstIndex, int secondIndex, bool updateHash = false)
+        {
+            FrameLayer secondLayer = _layers[secondIndex];
+            _layers[secondIndex] = _layers[firstIndex];
+            _layers[firstIndex] = secondLayer;
+
+            if (updateHash)
+            {
+                UpdateHash();
+            }
+        }
+
+        /// <summary>
+        /// Updates the bitmap of a given layer. If the dimensions of the bitmap don't match 32bpp, an exception is raised
+        /// </summary>
+        /// <param name="layerIndex">The index of the layer to update</param>
+        /// <param name="layerBitmap">The new layer bitmap</param>
+        /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
+        /// <exception cref="ArgumentException">The dimensions of the bitmap don't match this frame's size, or its pixel format isn't 32bpp</exception>
+        public void SetLayerBitmap(int layerIndex, Bitmap layerBitmap, bool updateHash = true)
+        {
+            if (layerBitmap.Width != _width || layerBitmap.Height != _height || Image.GetPixelFormatSize(layerBitmap.PixelFormat) != 32)
+            {
+                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "bitmap");
+            }
+
+            _layers[layerIndex].LayerBitmap = layerBitmap;
+
+            if (updateHash)
+            {
+                UpdateHash();
+            }
         }
 
         /// <summary>
@@ -346,13 +455,9 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            if (bitmap != _frameTexture)
-            {
-                if (_frameTexture != null)
-                    _frameTexture.Dispose();
-
-                _frameTexture = bitmap;
-            }
+            // Copy to the first layer
+            _layers[0].LayerBitmap.Dispose();
+            _layers[0].LayerBitmap = bitmap;
 
             if (updateHash)
                 UpdateHash();
@@ -366,11 +471,51 @@ namespace Pixelaria.Data
         {
             if (!_initialized)
             {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
+                throw new InvalidOperationException(@"The frame was not initialized prior to this action");
             }
 
-            Bitmap copyBitmap = _frameTexture.Clone(new Rectangle(Point.Empty, _frameTexture.Size), _frameTexture.PixelFormat);
-            return copyBitmap;
+            Bitmap composedBitmap = new Bitmap(_width, _height, PixelFormat.Format32bppArgb);
+            FastBitmap.CopyPixels(_layers[0].LayerBitmap, composedBitmap);
+
+            FastBitmap fastBitmap = composedBitmap.FastLock();
+
+            // Compose the layers by blending all the pixels from each layer into the final image
+            for(int i = 1; i < _layers.Count; i++)
+            {
+                IFrameLayer layer = _layers[i];
+                using (FastBitmap fastLayer = layer.LayerBitmap.FastLock())
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        for (int x = 0; x < _width; x++)
+                        {
+                            Color blendedColor = Utilities.FlattenColor(fastBitmap.GetPixel(x, y), fastLayer.GetPixel(x, y));
+
+                            fastBitmap.SetPixel(x, y, blendedColor);
+                        }
+                    }
+                }
+            }
+
+            fastBitmap.Unlock();
+
+            /*using(Graphics gfx = Graphics.FromImage(composedBitmap))
+            {
+                gfx.Clear(Color.FromArgb(0, 0, 0, 0));
+
+                gfx.CompositingMode = CompositingMode.SourceOver;
+                gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
+                gfx.CompositingQuality = CompositingQuality.HighQuality;
+
+                foreach (var layer in _layers)
+                {
+                    gfx.DrawImageUnscaled(layer.LayerBitmap, 0, 0);
+                }
+
+                gfx.Flush();
+            }*/
+
+            return composedBitmap;
         }
 
         /// <summary>
@@ -446,14 +591,12 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
-        /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating
-        /// with the given interpolation mode.
-        /// Note that trying to resize a frame while it's inside an animation, and that animation's dimensions don't match
-        /// the new size, an exception is thrown.
+        /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating with the given interpolation mode.
+        /// Note that trying to resize a frame while it's inside an animation, and that animation's dimensions don't match the new size, an exception is thrown.
         /// This method disposes of the current frame texture
         /// </summary>
-        /// <param name="newWidth">The new width of this animation</param>
-        /// <param name="newHeight">The new height of this animation</param>
+        /// <param name="newWidth">The new width for this frame</param>
+        /// <param name="newHeight">The new height for this frame </param>
         /// <param name="scalingMethod">The scaling method to use to match this frame to the new size</param>
         /// <param name="interpolationMode">The interpolation mode to use when drawing the new frame</param>
         public void Resize(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
@@ -471,17 +614,37 @@ namespace Pixelaria.Data
             if(_width == newWidth && _height == newHeight)
                 return;
 
-            Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
+            //Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
 
             // Texture replacement
-            _frameTexture.Dispose();
-            _frameTexture = newTexture;
+            //_frameTexture.Dispose();
+            //_frameTexture = newTexture;
 
             _width = newWidth;
             _height = newHeight;
 
+            foreach (var layer in _layers)
+            {
+                layer.Resize(newWidth, newHeight, scalingMethod, interpolationMode);
+            }
+
             // Update hash
             UpdateHash();
+        }
+
+        /// <summary>
+        /// Returns the memory usage of this frame, in bytes
+        /// </summary>
+        /// <returns>Total memory usage, in bytes</returns>
+        public long CalculateMemoryUsageInBytes()
+        {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
+            // Calculate the usage of each layer individually
+            return _layers.Sum(layer => Utilities.MemoryUsageOfImage(layer.LayerBitmap));
         }
 
         /// <summary>
@@ -494,7 +657,10 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            _hash = Utilities.GetHashForBitmap(_frameTexture);
+            using (var bitmap = GetComposedBitmap())
+            {
+                _hash = Utilities.GetHashForBitmap(bitmap);
+            }
         }
 
         /// <summary>
@@ -531,8 +697,20 @@ namespace Pixelaria.Data
 
             Frame other = (Frame) obj;
 
-            return _hash != null && other._hash != null && Utilities.ByteArrayCompare(_hash, other._hash) && _width == other._width &&
-                   _height == other._height && _frameTexture != null && other._frameTexture != null;
+            if (_layers.Count != other._layers.Count || _hash == null || other._hash == null || !Utilities.ByteArrayCompare(_hash, other._hash) ||
+                _width != other._width || _height != other._height)
+            {
+                return false;
+            }
+
+            // Compare each layer individually
+            for (int i = 0; i < _layers.Count; i++)
+            {
+                if (!_layers[i].Equals(other._layers[i]))
+                    return false;
+            }
+
+            return true;
         }
 
         // Override object.GetHashCode
@@ -540,13 +718,230 @@ namespace Pixelaria.Data
         {
             return _width ^ _height ^ _id;
         }
+
+        /// <summary>
+        /// Represents the layer for a frame
+        /// </summary>
+        protected class FrameLayer : IFrameLayer, IDisposable, IEquatable<FrameLayer>
+        {
+            /// <summary>
+            /// The bitmap for this layer
+            /// </summary>
+            private Bitmap _layerBitmap;
+
+            /// <summary>
+            /// Gets this layer's width
+            /// </summary>
+            public int Width
+            {
+                get { return _layerBitmap.Width; }
+            }
+
+            /// <summary>
+            /// Gets this layer's height
+            /// </summary>
+            public int Height
+            {
+                get { return _layerBitmap.Height; }
+            }
+
+            /// <summary>
+            /// Gets this layer's bitmap content
+            /// </summary>
+            public Bitmap LayerBitmap
+            {
+                get { return _layerBitmap; }
+                set { _layerBitmap = value; }
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the FrameLayer class, with a bitmap to bind to this layer
+            /// </summary>
+            /// <param name="layerBitmap">The bitmap to bind to this layer</param>
+            public FrameLayer(Bitmap layerBitmap)
+            {
+                _layerBitmap = layerBitmap;
+            }
+
+            /// <summary>
+            /// Clones this frame layer object
+            /// </summary>
+            /// <returns>A clone of this frame layer's object</returns>
+            public FrameLayer Clone()
+            {
+                FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, _layerBitmap.PixelFormat));
+
+                layer.CopyFromBitmap(_layerBitmap);
+
+                return layer;
+            }
+            
+            /// <summary>
+            /// Destructor the FrameLayer class
+            /// </summary>
+            ~FrameLayer()
+            {
+                Dispose(false);
+            }
+
+            #region IDisposable Members
+
+            /// <summary>
+            /// Internal variable which checks if Dispose has already been called
+            /// </summary>
+            private Boolean _disposed;
+
+            /// <summary>
+            /// Releases unmanaged and - optionally - managed resources
+            /// </summary>
+            /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+            private void Dispose(Boolean disposing)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                if(_layerBitmap != null)
+                    _layerBitmap.Dispose();
+
+                _disposed = true;
+            }
+
+            /// <summary>
+            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            /// </summary>
+            public void Dispose()
+            {
+                // Call the private Dispose(bool) helper and indicate 
+                // that we are explicitly disposing
+                Dispose(true);
+
+                // Tell the garbage collector that the object doesn't require any
+                // cleanup when collected since Dispose was called explicitly.
+                GC.SuppressFinalize(this);
+            }
+
+            #endregion
+
+            /// <summary>
+            /// Resizes this Layer so it matches the given dimensions, scaling with the given scaling method, and interpolating with the given interpolation mode.
+            /// This method disposes of the current layer texture
+            /// </summary>
+            /// <param name="newWidth">The new width for this layer</param>
+            /// <param name="newHeight">The new height for this layer</param>
+            /// <param name="scalingMethod">The scaling method to use to match this layer to the new size</param>
+            /// <param name="interpolationMode">The interpolation mode to use when drawing the new layer</param>
+            public void Resize(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
+            {
+                if (Width == newWidth && Height == newHeight)
+                    return;
+
+                Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_layerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
+
+                // Texture replacement
+                _layerBitmap.Dispose();
+                _layerBitmap = newTexture;
+            }
+
+            /// <summary>
+            /// Copies this layer's contents from the given bitmap.
+            /// If the layer's dimensions don't match the passed bitmap's dimensions, an ArgumentException is raised
+            /// </summary>
+            /// <param name="bitmap">The bitmap to copy to this layer</param>
+            /// <exception cref="ArgumentException">The bitmap's dimensions don't match this layer's dimensions</exception>
+            public void CopyFromBitmap(Bitmap bitmap)
+            {
+                if (bitmap.Width != _layerBitmap.Width || bitmap.Height != _layerBitmap.Height)
+                {
+                    throw new ArgumentException(@"The provided bitmap's dimensions don't match this bitmap's dimensions", "bitmap");
+                }
+
+                // Copy the pixels
+                FastBitmap.CopyPixels(bitmap, _layerBitmap);
+            }
+
+            #region Equality members
+
+            /// <summary>
+            /// Returns whether this FrameLayer is equal to another FrameLayer
+            /// </summary>
+            /// <param name="other">The other FrameLayer to test</param>
+            /// <returns>Whether this FrameLayer is equal to another FrameLayer</returns>
+            public bool Equals(FrameLayer other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return Utilities.ImagesAreIdentical(_layerBitmap, other._layerBitmap);
+            }
+
+            /// <summary>
+            /// Returns whether this FrameLayer equals to the provided object
+            /// </summary>
+            /// <param name="obj">The object to compare to this FrameLayer</param>
+            /// <returns>Whether this FrameLayer equals to the provided object</returns>
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+                return Equals((FrameLayer)obj);
+            }
+
+            /// <summary>
+            /// Gets the hash code for this FrameLayer.
+            /// The hash code is computed from the underlying layer bitmap
+            /// </summary>
+            /// <returns>The hash code for this FrameLayer</returns>
+            public override int GetHashCode()
+            {
+                return (_layerBitmap != null ? _layerBitmap.GetHashCode() : 0);
+            }
+
+            /// <summary>
+            /// Equality operator for the FrameLayer class
+            /// </summary>
+            /// <param name="left">The first layer to compare</param>
+            /// <param name="right">The second layer to compare</param>
+            /// <returns>Whether the layers are equal</returns>
+            public static bool operator==(FrameLayer left, FrameLayer right)
+            {
+                return Equals(left, right);
+            }
+
+            /// <summary>
+            /// Inequality operator for the FrameLayer class
+            /// </summary>
+            /// <param name="left">The first layer to compare</param>
+            /// <param name="right">The second layer to compare</param>
+            /// <returns>Whether the layers are unequal</returns>
+            public static bool operator!=(FrameLayer left, FrameLayer right)
+            {
+                return !Equals(left, right);
+            }
+
+            #endregion
+        }
     }
 
     /// <summary>
-    /// Represents the layer for a frame
+    /// Interface to be implemented by frame layers 
     /// </summary>
-    public class FrameLayer
+    public interface IFrameLayer
     {
-        
+        /// <summary>
+        /// Gets this layer's width
+        /// </summary>
+        int Width { get; }
+
+        /// <summary>
+        /// Gets this layer's height
+        /// </summary>
+        int Height { get; }
+
+        /// <summary>
+        /// Gets this layer's bitmap content
+        /// </summary>
+        Bitmap LayerBitmap { get; }
     }
 }

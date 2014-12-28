@@ -24,8 +24,12 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
+using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 
 namespace PixelariaTests.PixelariaTests.Tests.Data
@@ -39,7 +43,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameClone()
         {
-            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 64, 0);
+            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 63, 0);
             Frame frame2 = frame1.Clone();
 
             Assert.AreEqual(frame1, frame2, "Frames cloned using .Clone() should be exactly equivalent");
@@ -150,6 +154,193 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Frame frame = new Frame();
             frame.Initialize(null, 64, 64);
             frame.GetComposedBitmap();
+        }
+
+        /// <summary>
+        /// Tests frame compositing by creating and saving a composed frame to a file and comparing its result
+        /// </summary>
+        [TestMethod]
+        public void TestFrameCompositing()
+        {
+            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5);
+            Bitmap target = frame.GetComposedBitmap();
+
+            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
+            byte[] goodHash = { 0xB2, 0x91, 0xF2, 0xB1, 0x17, 0xF7, 0x17, 0x46, 0xA0, 0x1C, 0xA4, 0xCB, 0x45, 0x82, 0x17, 0xA4, 0x42, 0x60, 0x2F, 0xEE, 0x7E, 0x1A, 0xDC, 0xE3, 0x2F, 0xB, 0x89, 0xEC, 0x76, 0x6, 0x2C, 0xA1 };
+
+            byte[] currentHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "FrameCompositing");
+
+            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the composed frame does not match the good hash stored. Verify the output image for an analysis of what went wrong");
+        }
+
+        /// <summary>
+        /// Tests frame layer creation by creating a frame composed of multiple layers of a bitmap, and testing the resulting composed bitmap
+        /// </summary>
+        [TestMethod]
+        public void TestFrameLayerCreation()
+        {
+            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5);
+            frame.AddLayer(FrameGenerator.GenerateRandomBitmap(64, 64, 2));
+            frame.AddLayer(FrameGenerator.GenerateRandomBitmap(64, 64, 3));
+
+            Bitmap target = frame.GetComposedBitmap();
+
+            // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
+            byte[] goodHash = { 0x4F, 0xB5, 0xE4, 0x59, 0xB8, 0x87, 0x6B, 0x3C, 0x8C, 0xA, 0x63, 0x88, 0xEE, 0x21, 0xBB, 0xC3, 0xB3, 0xF5, 0xA0, 0x5E, 0xA2, 0x31, 0xAF, 0xA2, 0x31, 0xCE, 0x71, 0xE9, 0x50, 0x52, 0x8C, 0x4F };
+
+            byte[] currentHash = GetHashForBitmap(target);
+
+            RegisterResultBitmap(target, "FrameLayering");
+
+            Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the composed frame does not match the good hash stored. Verify the output image for an analysis of what went wrong");
+        }
+
+        /// <summary>
+        /// Tests layer insertion logic and asserts the layer insertions are behaving as expected
+        /// </summary>
+        [TestMethod]
+        public void TestFrameLayerInsertion()
+        {
+            Frame frame = new Frame(null, 64, 64);
+
+            Bitmap layer1 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            Bitmap layer2 = FrameGenerator.GenerateRandomBitmap(64, 64, 9);
+
+            frame.AddLayer(layer1);
+            frame.AddLayer(layer2, 1);
+
+            Assert.AreEqual(3, frame.LayerCount, "The layer count must go up for each new layer added");
+
+            Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(1).LayerBitmap), "The layer bitmaps insertion must obey the index provided on AddLayer");
+        }
+
+        /// <summary>
+        /// Tests layer swapping logic and asserts the layer swappings are behaving as expected
+        /// </summary>
+        [TestMethod]
+        public void TestLayerSwapping()
+        {
+            // Create a frame
+            Bitmap layer0 = FrameGenerator.GenerateRandomBitmap(64, 64, 11);
+            Frame frame = new Frame(null, 64, 64);
+            frame.SetFrameBitmap(layer0);
+
+            Bitmap layer1 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            Bitmap layer2 = FrameGenerator.GenerateRandomBitmap(64, 64, 9);
+
+            frame.AddLayer(layer1);
+            frame.AddLayer(layer2);
+
+            // Swap the layers
+            frame.SwapLayers(0, 2);
+
+            // Test layer swapping by comparing the bitmaps
+            Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(0).LayerBitmap), "The layers have not been swapped correctly");
+            Assert.IsTrue(Utilities.ImagesAreIdentical(layer0, frame.GetLayerAt(2).LayerBitmap), "The layers have not been swapped correctly");
+        }
+
+        /// <summary>
+        /// Tests layer bitmap updating logic
+        /// </summary>
+        [TestMethod]
+        public void TestLayerBitmapUpdating()
+        {
+            // Create a frame
+            Frame frame = new Frame(null, 64, 64);
+
+            Bitmap layer1 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+
+            frame.CreateLayer();
+
+            // Swap the layers
+            frame.SetLayerBitmap(1, layer1);
+
+            // Test layer swapping by comparing the bitmaps
+            Assert.IsTrue(Utilities.ImagesAreIdentical(layer1, frame.GetLayerAt(1).LayerBitmap), "The layer bitmap has not been updated correctly");
+        }
+
+        /// <summary>
+        /// Tests layer removal logic
+        /// </summary>
+        [TestMethod]
+        public void TestLayerRemoval()
+        {
+            // Create a frame
+            Frame frame = new Frame(null, 64, 64);
+
+            Bitmap layer1 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+
+            frame.CreateLayer();
+
+            // Swap the layers
+            frame.SetLayerBitmap(1, layer1);
+
+            frame.RemoveLayer(0);
+
+            // Test layer swapping by comparing the bitmaps
+            Assert.IsTrue(Utilities.ImagesAreIdentical(layer1, frame.GetLayerAt(0).LayerBitmap), "The layer does not appear to have been correctly removed");
+        }
+
+        /// <summary>
+        /// Saves the specified bitmap on a desktop folder used to store resulting operations' bitmaps with the specified file name.
+        /// The method saves both a .png format of the image, and a .txt file containing an array of bytes for the image's SHA256 hash
+        /// </summary>
+        /// <param name="bitmap">The bitmap to save</param>
+        /// <param name="name">The file name to use on the bitmap</param>
+        public void RegisterResultBitmap(Bitmap bitmap, string name)
+        {
+            string folder = "TestsResults" + Path.DirectorySeparatorChar + "FrameTests";
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
+            string file = path + Path.DirectorySeparatorChar + name;
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            bitmap.Save(file + ".png", ImageFormat.Png);
+
+            // Also save a .txt file containing the hash
+            byte[] hashBytes = GetHashForBitmap(bitmap);
+            string hashString = "";
+            hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") + "0x" + b.ToString("X"));
+            File.WriteAllText(file + ".txt", hashString);
+        }
+
+        /// <summary>
+        /// The hashing algorithm used for hashing the bitmaps
+        /// </summary>
+        private static readonly HashAlgorithm ShaM = new SHA256Managed();
+
+        /// <summary>
+        /// Returns a hash for the given Bitmap object
+        /// </summary>
+        /// <param name="bitmap">The bitmap to get the hash of</param>
+        /// <returns>The hash of the given bitmap</returns>
+        public static byte[] GetHashForBitmap(Bitmap bitmap)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                bitmap.Save(stream, ImageFormat.Png);
+
+                stream.Position = 0;
+
+                // Compute a hash for the image
+                byte[] hash = GetHashForStream(stream);
+
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Returns a hash for the given Stream object
+        /// </summary>
+        /// <param name="stream">The stream to get the hash of</param>
+        /// <returns>The hash of the given stream</returns>
+        public static byte[] GetHashForStream(Stream stream)
+        {
+            // Compute a hash for the image
+            return ShaM.ComputeHash(stream);
         }
     }
 

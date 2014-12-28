@@ -58,8 +58,6 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         [TestMethod]
         public void TestSheetExportConsistency()
         {
-            // TODO: Modularize this test so it can be fed different export settings to test different setting types
-
             AnimationExportSettings[] permSettings = AnimationSheetGenerator.GetExportSettingsPermutations();
 
             foreach (var settings in permSettings)

@@ -160,13 +160,19 @@ namespace Pixelaria.Utils
 
         /// <summary>
         /// Returns whether the two given images are identical to the pixel level.
-        /// If the image dimensions are mis-matched, the method returns false.
+        /// If the image dimensions are mis-matched, or any of the references is null, the method returns false.
         /// </summary>
         /// <param name="image1">The first image to compare</param>
         /// <param name="image2">The second image to compare</param>
         /// <returns>True whether the two images are identical, false otherwise</returns>
         public static bool ImagesAreIdentical(Image image1, Image image2)
         {
+            if (image1 == null || image2 == null)
+                return false;
+
+            if (image1 == image2)
+                return true;
+
             if (image1.Size != image2.Size)
                 return false;
 
@@ -238,11 +244,11 @@ namespace Pixelaria.Utils
             BitmapData bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             BitmapData bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-            int len = b1.Width * b1.Height;
+            int len = bd1.Stride * b1.Height;
 
             try
             {
-                return memcmp(bd1.Scan0, bd2.Scan0, len * Image.GetPixelFormatSize(bd1.PixelFormat)) == 0;
+                return memcmp(bd1.Scan0, bd2.Scan0, len) == 0;
             }
             finally
             {

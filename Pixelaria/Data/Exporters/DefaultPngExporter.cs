@@ -61,10 +61,9 @@ namespace Pixelaria.Data.Exporters
 
             if (progressHandler != null)
             {
-                var stage = currentStage;
                 proxyHandler = args =>
                 {
-                    totalProgress = ((stage + (float)args.StageProgress / 100) / stages);
+                    totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
 
                     // Calculate total progress
                     progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));

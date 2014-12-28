@@ -61,6 +61,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             : this()
         {
             _frame = frame;
+            blockVersion = 1;
         }
 
         /// <summary>
@@ -105,16 +106,43 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
+            // TODO: Deal with GetComposedBitmap()'s result, also deal with layering
+
+            if(frame is Frame)
+            {
+                SaveLayersToStream((Frame)frame, stream);
+            }
+            else
+            {
+                using(Bitmap bitmap = frame.GetComposedBitmap())
+                {
+                    SaveImageToStream(bitmap, stream);
+                }
+            }
+
+            // Write the frame ID
+            writer.Write(frame.ID);
+
+            // Write the hash now
+            writer.Write(frame.Hash.Length);
+            writer.Write(frame.Hash, 0, frame.Hash.Length);
+        }
+
+        /// <summary>
+        /// Saves the given bitmap onto the given stram. The save procedure stores a long value just before the bitmap specifying the size of the bitmap's contents
+        /// </summary>
+        /// <param name="bitmap">The bitmap to save</param>
+        /// <param name="stream">The stream to save the bitmap to</param>
+        private static void SaveImageToStream(Bitmap bitmap, Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
+
             // Save the space for the image size on the stream
             long sizeOffset = stream.Position;
             writer.Write((long)0);
 
-            // TODO: Deal with GetComposedBitmap()'s result, also deal with layering
             // Save the frame image
-            using (Bitmap bitmap = frame.GetComposedBitmap())
-            {
-                bitmap.Save(stream, ImageFormat.Png);
-            }
+            bitmap.Save(stream, ImageFormat.Png);
 
             // Skip back to the image size offset and save the size
             long streamEnd = stream.Position;
@@ -123,13 +151,24 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             // Skip back to the end to keep saving
             stream.Position = streamEnd;
+        }
 
-            // Write the frame ID
-            writer.Write(frame.ID);
+        /// <summary>
+        /// Saves the layers of the given frame to a stream
+        /// </summary>
+        /// <param name="frame">The frame to save the layers to the strean</param>
+        /// <param name="stream">The stream to save the layers to</param>
+        protected void SaveLayersToStream(Frame frame, Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
 
-            // Write the hash now
-            writer.Write(frame.Hash.Length);
-            writer.Write(frame.Hash, 0, frame.Hash.Length);
+            // Save the number of layers stored on the frame object
+            writer.Write(frame.LayerCount);
+
+            for (int i = 0; i < frame.LayerCount; i++)
+            {
+                SaveImageToStream(frame.GetLayerAt(i).LayerBitmap, stream);
+            }
         }
 
         /// <summary>
@@ -143,10 +182,52 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             BinaryReader reader = new BinaryReader(stream);
 
+            Frame frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
+
+            if(blockVersion == 0)
+            {
+                var bitmap = LoadImageFromStream(stream);
+                frame.SetFrameBitmap(bitmap, false);
+            }
+            else if (blockVersion == 1)
+            {
+                LoadLayersFromStream(stream, frame);
+            }
+            else
+            {
+                throw new Exception("Unknown frame block version " + blockVersion);
+            }
+
+            frame.ID = reader.ReadInt32();
+
+            // Get the hash now
+            int length = reader.ReadInt32();
+            var hash = new byte[length];
+            stream.Read(hash, 0, length);
+
+            frame.SetHash(hash);
+
+            // If the block version is prior to 1, update the frame's hash value due to the new way the hash is calculated
+            if (blockVersion < 1)
+            {
+                frame.UpdateHash();
+            }
+
+            owningAnimation.AddFrame(frame);
+
+            return frame;
+        }
+
+        /// <summary>
+        /// Loads a bitmap image from the given stream. The stream must contain a long value at its current position specifying the size of the image on the stream
+        /// </summary>
+        /// <param name="stream">The stream to load the image from</param>
+        /// <returns>A bitmap generated from the stream</returns>
+        private static Bitmap LoadImageFromStream(Stream stream)
+        {
+            BinaryReader reader = new BinaryReader(stream);
             // Read the size of the frame texture
             long textSize = reader.ReadInt64();
-
-            Frame frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
 
             MemoryStream memStream = new MemoryStream();
 
@@ -165,21 +246,28 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             img.Dispose();
 
-            frame.ID = reader.ReadInt32();
-
-            // Get the hash now
-            int length = reader.ReadInt32();
-            var hash = new byte[length];
-            stream.Read(hash, 0, length);
-
             memStream.Dispose();
 
-            frame.SetFrameBitmap(bitmap, false);
-            frame.SetHash(hash);
+            return bitmap;
+        }
 
-            owningAnimation.AddFrame(frame);
+        /// <summary>
+        /// Loads layers stored on the given stream on the given frame
+        /// </summary>
+        /// <param name="stream">The stream to load the layers from</param>
+        /// <param name="frame">The frame to load the layers into</param>
+        protected void LoadLayersFromStream(Stream stream, Frame frame)
+        {
+            BinaryReader reader = new BinaryReader(stream);
 
-            return frame;
+            int layerCount = reader.ReadInt32();
+
+            for (int i = 0; i < layerCount; i++)
+            {
+                Bitmap layerBitmap = LoadImageFromStream(stream);
+
+                frame.AddLayer(layerBitmap);
+            }
         }
     }
 }
