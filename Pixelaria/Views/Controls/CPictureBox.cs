@@ -33,13 +33,26 @@ namespace Pixelaria.Views.Controls
     public class CPictureBox : PictureBox
     {
         /// <summary>
+        /// The image layout to use when drawing the image
+        /// </summary>
+        private ImageLayout _imageLayout;
+
+        /// <summary>
         /// Gets or sets the image layout to use when drawing the image
         /// </summary>
         [Category("Appearance")]
         [Browsable(true)]
         [DefaultValue(ImageLayout.None)]
         [Description("The image layout used for the component.")]
-        public ImageLayout ImageLayout { get; set; }
+        public ImageLayout ImageLayout
+        {
+            get { return _imageLayout; }
+            set
+            {
+                _imageLayout = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Gets ot sets the interpolation mode to use when drawing the images
@@ -103,46 +116,54 @@ namespace Pixelaria.Views.Controls
                         return rectangle;
 
                     case ImageLayout.Center:
+                        rectangle.Size = backgroundImage.Size;
+                        Size size = bounds.Size;
+                        if (size.Width > rectangle.Width)
                         {
-                            rectangle.Size = backgroundImage.Size;
-                            Size size = bounds.Size;
-                            if (size.Width > rectangle.Width)
-                            {
-                                rectangle.X = (size.Width - rectangle.Width) / 2;
-                            }
-                            if (size.Height > rectangle.Height)
-                            {
-                                rectangle.Y = (size.Height - rectangle.Height) / 2;
-                            }
-                            return rectangle;
+                            rectangle.X = (size.Width - rectangle.Width) / 2;
                         }
+                        if (size.Height > rectangle.Height)
+                        {
+                            rectangle.Y = (size.Height - rectangle.Height) / 2;
+                        }
+                        return rectangle;
+
                     case ImageLayout.Stretch:
                         rectangle.Size = bounds.Size;
                         return rectangle;
 
                     case ImageLayout.Zoom:
+                        Size size2 = backgroundImage.Size;
+                        float num = bounds.Width / ((float)size2.Width);
+                        float num2 = bounds.Height / ((float)size2.Height);
+
+                        if (size2.Width <= backgroundImage.Width && size2.Height <= backgroundImage.Height)
                         {
-                            Size size2 = backgroundImage.Size;
-                            float num = bounds.Width / ((float)size2.Width);
-                            float num2 = bounds.Height / ((float)size2.Height);
-                            if (num >= num2)
+                            return new Rectangle(bounds.Width / 2 - size2.Width / 2, bounds.Height / 2 - size2.Height / 2, size2.Width, size2.Height);
+                        }
+
+                        if (num >= num2)
+                        {
+                            rectangle.Height = bounds.Height;
+                            rectangle.Width = (int)((size2.Width * num2) + 0.5);
+                            
+                            if (bounds.X >= 0)
                             {
-                                rectangle.Height = bounds.Height;
-                                rectangle.Width = (int)((size2.Width * num2) + 0.5);
-                                if (bounds.X >= 0)
-                                {
-                                    rectangle.X = (bounds.Width - rectangle.Width) / 2;
-                                }
-                                return rectangle;
+                                rectangle.X = (bounds.Width - rectangle.Width) / 2;
                             }
+                        }
+                        else
+                        {
                             rectangle.Width = bounds.Width;
                             rectangle.Height = (int)((size2.Height * num) + 0.5);
+
                             if (bounds.Y >= 0)
                             {
                                 rectangle.Y = (bounds.Height - rectangle.Height) / 2;
                             }
-                            return rectangle;
                         }
+
+                        return rectangle;
                 }
             }
             return rectangle;

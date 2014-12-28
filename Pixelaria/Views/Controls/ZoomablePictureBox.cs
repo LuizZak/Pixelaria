@@ -70,6 +70,11 @@ namespace Pixelaria.Views.Controls
         protected Control boundsControl;
 
         /// <summary>
+        /// Whether to clip the background image to the image's size
+        /// </summary>
+        private bool _clipBackgroundToImage;
+
+        /// <summary>
         /// Delegate for the ZoomChanged event
         /// </summary>
         /// <param name="sender">The object that fired the event</param>
@@ -111,7 +116,15 @@ namespace Pixelaria.Views.Controls
         [Category("Appearance")]
         [DefaultValue(false)]
         [Description("Whether to clip the background image to the image's size")]
-        public bool ClipBackgroundToImage { get; set; }
+        public bool ClipBackgroundToImage
+        {
+            get { return _clipBackgroundToImage; }
+            set
+            {
+                _clipBackgroundToImage = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether to allow dragging of the image
@@ -479,8 +492,22 @@ namespace Pixelaria.Views.Controls
                 
                 pevent.Graphics.Clear(BackColor);
 
-                Rectangle rec = new Rectangle(-offsetPoint.X, -offsetPoint.Y, (int)(Image.Width * scale.X), (int)(Image.Height * scale.Y));
-                rec = CalculateBackgroundImageRectangle(rec, BackgroundImage, BackgroundImageLayout);
+                //Rectangle rec = new Rectangle(-offsetPoint.X, -offsetPoint.Y, (int)(Image.Width * scale.X), (int)(Image.Height * scale.Y));
+                Rectangle rec = CalculateBackgroundImageRectangle(new Rectangle(0, 0, Width, Height), Image, ImageLayout);
+
+                // Transform the rectangle by the transform matrix
+                var transform = pevent.Graphics.Transform;
+                UpdateGraphicsTransform(pevent.Graphics);
+
+                PointF[] points =
+                {
+                    new PointF(rec.X, rec.Y), new PointF(rec.X + rec.Width, rec.Y),
+                    new PointF(rec.X + rec.Width, rec.Y + rec.Height), new PointF(rec.X, rec.Y + rec.Height)
+                };
+
+                pevent.Graphics.Transform.TransformPoints(points);
+
+                pevent.Graphics.Transform = transform;
 
                 if (ImageLayout == ImageLayout.Center)
                 {
@@ -492,7 +519,7 @@ namespace Pixelaria.Views.Controls
                 {
                     TextureBrush tex = new TextureBrush(BackgroundImage) { WrapMode = WrapMode.Tile };
 
-                    pevent.Graphics.FillRectangle(tex, rec);
+                    pevent.Graphics.FillPolygon(tex, points);
 
                     tex.Dispose();
                 }
