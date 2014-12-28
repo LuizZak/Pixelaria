@@ -297,6 +297,9 @@ namespace Pixelaria.Data
 
             _layers.AddRange(castFrame._layers.Select(t => t.Clone()));
 
+            // Update the indices of the layers
+            UpdateLayerIndices();
+
             _hash = frame.Hash;
         }
 
@@ -361,6 +364,8 @@ namespace Pixelaria.Data
                 _layers.Add(layer);
             else
                 _layers.Insert(layerIndex, layer);
+
+            UpdateLayerIndices();
 
             return layer;
         }
@@ -901,7 +906,7 @@ namespace Pixelaria.Data
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return Utilities.ImagesAreIdentical(_layerBitmap, other._layerBitmap);
+                return Utilities.ImagesAreIdentical(_layerBitmap, other._layerBitmap) && Index == other.Index;
             }
 
             /// <summary>
@@ -924,7 +929,7 @@ namespace Pixelaria.Data
             /// <returns>The hash code for this FrameLayer</returns>
             public override int GetHashCode()
             {
-                return (_layerBitmap != null ? _layerBitmap.GetHashCode() : 0);
+                return (_layerBitmap != null ? _layerBitmap.GetHashCode() : 0) ^ (Index * 367);
             }
 
             /// <summary>
