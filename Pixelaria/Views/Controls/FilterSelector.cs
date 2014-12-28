@@ -479,9 +479,11 @@ namespace Pixelaria.Views.Controls
 
             int scroll = pnl_container.VerticalScroll.Value;
 
+            // Create a container replacement panel that is only used to occupy the previous spot occupied by the filter container
             _containerReplacePanel = new Panel { BorderStyle = BorderStyle.FixedSingle, Size = fc.Size };
             _containerReplacePanel.PerformLayout();
 
+            // Remove the filter container from the container panel
             pnl_container.SuspendLayout();
             pnl_container.Controls.Add(_containerReplacePanel);
             pnl_container.Controls.SetChildIndex(_containerReplacePanel, pnl_container.Controls.GetChildIndex(fc));
@@ -491,6 +493,7 @@ namespace Pixelaria.Views.Controls
             pnl_container.VerticalScroll.Value = scroll;
             pnl_container.PerformLayout();
 
+            // Create the form that is effectively dragged by the user
             _dragForm = new ContainerDragForm(fc);
             _dragForm.ContainerDragging += _containerDraggingHandler;
             _dragForm.Show();

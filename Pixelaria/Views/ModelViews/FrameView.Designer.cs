@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools;
 
@@ -55,7 +56,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
+            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool2 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -68,7 +69,7 @@ namespace Pixelaria.Views.ModelViews
             this.rb_bucket = new System.Windows.Forms.RadioButton();
             this.rb_selection = new System.Windows.Forms.RadioButton();
             this.rb_zoom = new System.Windows.Forms.RadioButton();
-            this.pnl_framePreview = new System.Windows.Forms.Panel();
+            this.pnl_framePreview = new Pixelaria.Views.Controls.LabeledPanel();
             this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.tc_currentFrame = new Pixelaria.Views.Controls.TimelineControl();
@@ -79,7 +80,7 @@ namespace Pixelaria.Views.ModelViews
             this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorControls.ColorSwatchControl();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorControls.ColorPicker();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1 = new Pixelaria.Views.Controls.LabeledPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rb_blendingBlend = new System.Windows.Forms.RadioButton();
@@ -100,7 +101,6 @@ namespace Pixelaria.Views.ModelViews
             this.gb_otherGroup = new System.Windows.Forms.GroupBox();
             this.cb_airbrushMode = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsb_applyChangesAndClose = new System.Windows.Forms.ToolStripButton();
             this.tsb_applyChanges = new System.Windows.Forms.ToolStripButton();
@@ -320,20 +320,23 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview.Controls.Add(this.zpb_framePreview);
             this.pnl_framePreview.Location = new System.Drawing.Point(397, 49);
             this.pnl_framePreview.Name = "pnl_framePreview";
+            this.pnl_framePreview.PanelTitle = "Frame Preview";
             this.pnl_framePreview.Size = new System.Drawing.Size(249, 318);
             this.pnl_framePreview.TabIndex = 7;
             // 
             // zpb_framePreview
             // 
             this.zpb_framePreview.AllowScrollbars = false;
+            this.zpb_framePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.zpb_framePreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_framePreview.ClipBackgroundToImage = true;
-            this.zpb_framePreview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zpb_framePreview.Location = new System.Drawing.Point(0, 0);
+            this.zpb_framePreview.Location = new System.Drawing.Point(0, 18);
             this.zpb_framePreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MaximumZoom")));
             this.zpb_framePreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MinimumZoom")));
             this.zpb_framePreview.Name = "zpb_framePreview";
-            this.zpb_framePreview.Size = new System.Drawing.Size(245, 314);
+            this.zpb_framePreview.Size = new System.Drawing.Size(245, 296);
             this.zpb_framePreview.TabIndex = 0;
             this.zpb_framePreview.TabStop = false;
             this.zpb_framePreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.Zoom")));
@@ -470,10 +473,10 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.panel1.Controls.Add(this.flowLayoutPanel3);
             this.panel1.Controls.Add(this.flowLayoutPanel1);
-            this.panel1.Controls.Add(this.label1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 49);
             this.panel1.Name = "panel1";
+            this.panel1.PanelTitle = "Toolbox";
             this.panel1.Size = new System.Drawing.Size(90, 818);
             this.panel1.TabIndex = 1;
             // 
@@ -483,9 +486,9 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel3.Controls.Add(this.gb_sizeGroup);
             this.flowLayoutPanel3.Controls.Add(this.gb_fillMode);
             this.flowLayoutPanel3.Controls.Add(this.gb_otherGroup);
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 185);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 190);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(90, 587);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(90, 582);
             this.flowLayoutPanel3.TabIndex = 7;
             // 
             // groupBox1
@@ -731,21 +734,10 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel1.Controls.Add(this.rb_bucket);
             this.flowLayoutPanel1.Controls.Add(this.rb_selection);
             this.flowLayoutPanel1.Controls.Add(this.rb_zoom);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 13);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 18);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(90, 166);
             this.flowLayoutPanel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(45, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Toolbox";
             // 
             // toolStrip1
             // 
@@ -1264,7 +1256,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // iepb_frame
             // 
-            this.iepb_frame.CurrentPaintTool = nullPaintTool1;
+            this.iepb_frame.CurrentPaintTool = nullPaintTool2;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1284,9 +1276,11 @@ namespace Pixelaria.Views.ModelViews
             // 
             // layerControlPanel1
             // 
+            this.layerControlPanel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.layerControlPanel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.layerControlPanel1.Location = new System.Drawing.Point(90, 49);
             this.layerControlPanel1.Name = "layerControlPanel1";
+            this.layerControlPanel1.PanelTitle = "Layers";
             this.layerControlPanel1.Size = new System.Drawing.Size(125, 726);
             this.layerControlPanel1.TabIndex = 9;
             // 
@@ -1323,7 +1317,6 @@ namespace Pixelaria.Views.ModelViews
             this.panel2.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.flowLayoutPanel3.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -1348,7 +1341,7 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         private Pixelaria.Views.Controls.ImageEditPanel iepb_frame;
-        private System.Windows.Forms.Panel panel1;
+        private LabeledPanel panel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.PrintDialog printDialog1;
         private System.Windows.Forms.ToolStrip toolStrip1;
@@ -1384,7 +1377,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton rb_blendingBlend;
         private System.Windows.Forms.RadioButton rb_blendingReplace;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem tsm_switchBlendingMode;
         private System.Windows.Forms.GroupBox gb_sizeGroup;
@@ -1419,7 +1411,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_paste;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolTip tt_mainTooltip;
-        private System.Windows.Forms.Panel pnl_framePreview;
+        private LabeledPanel pnl_framePreview;
         private System.Windows.Forms.ToolStripButton tsb_previewFrame;
         private System.Windows.Forms.ToolStripButton tsb_previewAnimation;
         private Controls.ZoomablePictureBox zpb_framePreview;

@@ -198,6 +198,9 @@
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils\AhslColor.cs" />
+    <Compile Include="Views\Controls\LabeledPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Views\Controls\LayerControlPanel.cs">
       <SubType>Component</SubType>
     </Compile>

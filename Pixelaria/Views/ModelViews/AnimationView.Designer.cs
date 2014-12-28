@@ -57,7 +57,6 @@ namespace Pixelaria.Views.ModelViews
             this.cb_enablePreview = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.animationPreviewPanel = new Pixelaria.Views.ModelViews.AnimationPreviewPanel();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.lv_frames = new Pixelaria.Views.Controls.RearrangeableListView();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -131,6 +130,7 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_addFrameFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_pasteFrames = new System.Windows.Forms.ToolStripMenuItem();
+            this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -162,9 +162,9 @@ namespace Pixelaria.Views.ModelViews
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.labeledPanel1);
             this.splitContainer1.Panel1.Controls.Add(this.cb_enablePreview);
             this.splitContainer1.Panel1.Controls.Add(this.panel1);
-            this.splitContainer1.Panel1.Controls.Add(this.label1);
             // 
             // splitContainer1.Panel2
             // 
@@ -206,15 +206,6 @@ namespace Pixelaria.Views.ModelViews
             this.animationPreviewPanel.Name = "animationPreviewPanel";
             this.animationPreviewPanel.Size = new System.Drawing.Size(201, 654);
             this.animationPreviewPanel.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 3);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(94, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Animation Preview";
             // 
             // panel2
             // 
@@ -871,6 +862,15 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_pasteFrames.Text = "Paste";
             this.cmb_pasteFrames.Click += new System.EventHandler(this.cmb_pasteFrames_Click);
             // 
+            // labeledPanel1
+            // 
+            this.labeledPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labeledPanel1.Location = new System.Drawing.Point(0, 0);
+            this.labeledPanel1.Name = "labeledPanel1";
+            this.labeledPanel1.PanelTitle = "Animation Preview";
+            this.labeledPanel1.Size = new System.Drawing.Size(210, 18);
+            this.labeledPanel1.TabIndex = 2;
+            // 
             // AnimationView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -922,7 +922,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_addNewFrame;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ImageList il_framesThumbs;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.CheckBox cb_enablePreview;
         private System.Windows.Forms.Panel panel2;
@@ -995,5 +994,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem cmb_pasteFrames;
         private System.Windows.Forms.ToolStripMenuItem cmb_addFrameFromFile;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
+        private Controls.LabeledPanel labeledPanel1;
     }
 }
