@@ -499,6 +499,14 @@ namespace Pixelaria.Views.Controls
                 var transform = pevent.Graphics.Transform;
                 UpdateGraphicsTransform(pevent.Graphics);
 
+                if (ImageLayout == ImageLayout.Center)
+                {
+                    rec.X = (int)((ClientRectangle.Width / 2.0f - (rec.Width * scale.X) / 2));
+                    rec.Y = (int)((ClientRectangle.Height / 2.0f - (rec.Height * scale.Y) / 2));
+                    rec.Width = (int)(rec.Width * scale.X);
+                    rec.Height = (int)(rec.Height * scale.Y);
+                }
+
                 PointF[] points =
                 {
                     new PointF(rec.X, rec.Y), new PointF(rec.X + rec.Width, rec.Y),
