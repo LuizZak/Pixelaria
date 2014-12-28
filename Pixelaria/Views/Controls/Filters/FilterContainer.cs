@@ -86,13 +86,11 @@ namespace Pixelaria.Views.Controls.Filters
                 AhslColor lightColor = value.ToAhsl();
                 AhslColor darkColor = value.ToAhsl();
 
-                lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
-                darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);
+                lightColor = new AhslColor(lightColor.A, lightColor.H, lightColor.S, lightColor.L + 6);
+                darkColor = new AhslColor(darkColor.A, darkColor.H, darkColor.S, darkColor.L - 19);
 
-                btn_remove.FlatAppearance.MouseOverBackColor =
-                    btn_enable.FlatAppearance.MouseOverBackColor = lightColor.ToColor();
-                btn_remove.FlatAppearance.MouseDownBackColor =
-                    btn_enable.FlatAppearance.MouseDownBackColor = darkColor.ToColor();
+                btn_remove.FlatAppearance.MouseOverBackColor = btn_enable.FlatAppearance.MouseOverBackColor = lightColor.ToColor();
+                btn_remove.FlatAppearance.MouseDownBackColor = btn_enable.FlatAppearance.MouseDownBackColor = darkColor.ToColor();
 
                 base.BackColor = value;
             }
@@ -119,7 +117,7 @@ namespace Pixelaria.Views.Controls.Filters
 
                     AhslColor newColor = Color.FromKnownColor(KnownColor.Control).ToAhsl();
 
-                    newColor = new AhslColor(newColor.Af, newColor.Hf, newColor.Sf, newColor.Lf - 10);
+                    newColor = new AhslColor(newColor.A, newColor.H, newColor.S, newColor.L - 10);
 
                     BackColor = newColor.ToColor();
                 }
@@ -307,8 +305,8 @@ namespace Pixelaria.Views.Controls.Filters
             AhslColor lightColor = BackColor.ToAhsl();
             AhslColor darkColor = BackColor.ToAhsl();
 
-            lightColor = new AhslColor(lightColor.Af, lightColor.Hf, lightColor.Sf, lightColor.Lf + 6);
-            darkColor = new AhslColor(darkColor.Af, darkColor.Hf, darkColor.Sf, darkColor.Lf - 19);
+            lightColor = new AhslColor(lightColor.A, lightColor.H, lightColor.S, lightColor.L + 6);
+            darkColor = new AhslColor(darkColor.A, darkColor.H, darkColor.S, darkColor.L - 19);
 
             Pen lightPen = new Pen(lightColor.ToColor());
             Pen darkPen = new Pen(darkColor.ToColor());
