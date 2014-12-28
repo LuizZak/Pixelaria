@@ -27,7 +27,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
-
+using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
 
@@ -40,7 +40,7 @@ using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
-using Pixelaria.Views.ModelViews.Miscs;
+using Pixelaria.Views.ModelViews.Decorators;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -53,6 +53,11 @@ namespace Pixelaria.Views.ModelViews
         /// The Controller that owns this FrameView instance
         /// </summary>
         private readonly Controller _controller;
+
+        /// <summary>
+        /// The controller for the layers of the currently active frame
+        /// </summary>
+        private LayerController _layerController;
 
         /// <summary>
         /// The frame to edit on this form
@@ -231,6 +236,10 @@ namespace Pixelaria.Views.ModelViews
             tsb_osShowCurrentFrame.Checked = GlobalOnionSkinSettings.OnionSkinShowCurrentFrame;
             tsb_osNextFrames.Checked = GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.NextFrames || GlobalOnionSkinSettings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames;
 
+            // Create the layer controller
+            _layerController = new LayerController(null);
+            lcp_layers.SetController(_layerController);
+
             // Setup the onion skin decorator
             OnionSkinDecorator = new OnionSkinDecorator(this, iepb_frame.PictureBox)
             {
@@ -405,6 +414,7 @@ namespace Pixelaria.Views.ModelViews
 
             _frameToEdit = (Frame)frame;
             _viewFrame = _frameToEdit.Clone();
+            _layerController.Frame = _frameToEdit;
 
             RefreshTitleBar();
 

@@ -212,8 +212,21 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             frame.AddLayer(layer2, 1);
 
             Assert.AreEqual(3, frame.LayerCount, "The layer count must go up for each new layer added");
-
+            Assert.AreEqual(1, frame.GetLayerAt(1).Index, "A layer's index must reflect its current position on the owning frame's layer list");
             Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(1).LayerBitmap), "The layer bitmaps insertion must obey the index provided on AddLayer");
+        }
+
+        /// <summary>
+        /// Tests removal of a single layer on a frame
+        /// </summary>
+        [TestMethod]
+        public void TestOneLayerRemoval()
+        {
+            Frame frame = new Frame(null, 64, 64);
+
+            frame.RemoveLayer(0);
+
+            Assert.AreEqual(1, frame.LayerCount, "The layer count must go up for each new layer added");
         }
 
         /// <summary>
@@ -237,6 +250,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             frame.SwapLayers(0, 2);
 
             // Test layer swapping by comparing the bitmaps
+            Assert.AreEqual(0, frame.GetLayerAt(0).Index, "A layer's index must reflect its current position on the owning frame's layer list");
+            Assert.AreEqual(2, frame.GetLayerAt(2).Index, "A layer's index must reflect its current position on the owning frame's layer list");
+
             Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(0).LayerBitmap), "The layers have not been swapped correctly");
             Assert.IsTrue(Utilities.ImagesAreIdentical(layer0, frame.GetLayerAt(2).LayerBitmap), "The layers have not been swapped correctly");
         }

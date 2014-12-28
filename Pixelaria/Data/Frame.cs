@@ -352,7 +352,10 @@ namespace Pixelaria.Data
         /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
         public IFrameLayer CreateLayer(int layerIndex = -1)
         {
-            FrameLayer layer = new FrameLayer(new Bitmap(_width, _height, PixelFormat.Format32bppArgb));
+            FrameLayer layer = new FrameLayer(new Bitmap(_width, _height, PixelFormat.Format32bppArgb))
+            {
+                Index = layerIndex == -1 ? _layers.Count : layerIndex
+            };
 
             if (layerIndex == -1)
                 _layers.Add(layer);
@@ -368,8 +371,9 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="bitmap">The bitmap to use as a layer image</param>
         /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
+        /// <returns>The layer that was just created</returns>
         /// <exception cref="ArgumentException">The provided bitmap's dimensions does not match this Frame's dimensions, or its pixel format isn't 32bpp</exception>
-        public void AddLayer(Bitmap bitmap, int layerIndex = -1)
+        public IFrameLayer AddLayer(Bitmap bitmap, int layerIndex = -1)
         {
             if (bitmap.Width != _width || bitmap.Height != _height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
             {
@@ -379,6 +383,8 @@ namespace Pixelaria.Data
             FrameLayer layer = (FrameLayer)CreateLayer(layerIndex);
 
             layer.CopyFromBitmap(bitmap);
+
+            return layer;
         }
 
         /// <summary>
@@ -389,6 +395,11 @@ namespace Pixelaria.Data
         {
             _layers[layerIndex].Dispose();
             _layers.RemoveAt(layerIndex);
+
+            if (_layers.Count == 0)
+                CreateLayer();
+
+            UpdateLayerIndices();
         }
 
         /// <summary>
@@ -407,11 +418,13 @@ namespace Pixelaria.Data
         /// <param name="firstIndex">The first layer index to swap</param>
         /// <param name="secondIndex">The second layer index to swap</param>
         /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
-        public void SwapLayers(int firstIndex, int secondIndex, bool updateHash = false)
+        public void SwapLayers(int firstIndex, int secondIndex, bool updateHash = true)
         {
             FrameLayer secondLayer = _layers[secondIndex];
             _layers[secondIndex] = _layers[firstIndex];
             _layers[firstIndex] = secondLayer;
+
+            UpdateLayerIndices();
 
             if (updateHash)
             {
@@ -438,6 +451,17 @@ namespace Pixelaria.Data
             if (updateHash)
             {
                 UpdateHash();
+            }
+        }
+
+        /// <summary>
+        /// Updates the indices for all the layers stored on this frame
+        /// </summary>
+        private void UpdateLayerIndices()
+        {
+            for (int i = 0; i < _layers.Count; i++)
+            {
+                _layers[i].Index = i;
             }
         }
 
@@ -746,6 +770,11 @@ namespace Pixelaria.Data
             }
 
             /// <summary>
+            /// Gets the index of this layer on the origin frame
+            /// </summary>
+            public int Index { get; set; }
+
+            /// <summary>
             /// Gets this layer's bitmap content
             /// </summary>
             public Bitmap LayerBitmap
@@ -938,6 +967,11 @@ namespace Pixelaria.Data
         /// Gets this layer's height
         /// </summary>
         int Height { get; }
+
+        /// <summary>
+        /// Gets the index of this layer on the origin frame
+        /// </summary>
+        int Index { get; }
 
         /// <summary>
         /// Gets this layer's bitmap content

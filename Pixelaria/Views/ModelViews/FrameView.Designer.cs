@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool2 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
+            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -154,7 +154,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
-            this.layerControlPanel1 = new Pixelaria.Views.Controls.LayerControlPanel();
+            this.lcp_layers = new Pixelaria.Views.Controls.LayerControlPanel();
             this.pnl_framePreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
@@ -1256,7 +1256,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // iepb_frame
             // 
-            this.iepb_frame.CurrentPaintTool = nullPaintTool2;
+            this.iepb_frame.CurrentPaintTool = nullPaintTool1;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1274,15 +1274,15 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.MouseLeave += new System.EventHandler(this.iepb_frame_MouseLeave);
             this.iepb_frame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.iepb_frame_MouseMove);
             // 
-            // layerControlPanel1
+            // lcp_layers
             // 
-            this.layerControlPanel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.layerControlPanel1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.layerControlPanel1.Location = new System.Drawing.Point(90, 49);
-            this.layerControlPanel1.Name = "layerControlPanel1";
-            this.layerControlPanel1.PanelTitle = "Layers";
-            this.layerControlPanel1.Size = new System.Drawing.Size(125, 726);
-            this.layerControlPanel1.TabIndex = 9;
+            this.lcp_layers.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lcp_layers.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lcp_layers.Location = new System.Drawing.Point(90, 49);
+            this.lcp_layers.Name = "lcp_layers";
+            this.lcp_layers.PanelTitle = "Layers";
+            this.lcp_layers.Size = new System.Drawing.Size(125, 726);
+            this.lcp_layers.TabIndex = 9;
             // 
             // FrameView
             // 
@@ -1291,7 +1291,7 @@ namespace Pixelaria.Views.ModelViews
             this.ClientSize = new System.Drawing.Size(818, 889);
             this.Controls.Add(this.pnl_framePreview);
             this.Controls.Add(this.iepb_frame);
-            this.Controls.Add(this.layerControlPanel1);
+            this.Controls.Add(this.lcp_layers);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -1437,6 +1437,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripButton tsb_osDisplayOnFront;
         private System.Windows.Forms.GroupBox gb_otherGroup;
         private System.Windows.Forms.CheckBox cb_airbrushMode;
-        private Controls.LayerControlPanel layerControlPanel1;
+        private Controls.LayerControlPanel lcp_layers;
     }
 }

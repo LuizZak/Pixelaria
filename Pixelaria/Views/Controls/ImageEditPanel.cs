@@ -134,6 +134,7 @@ namespace Pixelaria.Views.Controls
         /// Gets or sets the current paint operation to perform on this ImageEditPanel
         /// </summary>
         [Browsable(false)]
+        [DefaultValue(null)]
         public IPaintTool CurrentPaintTool
         {
             get { return _internalPictureBox.CurrentPaintTool; }

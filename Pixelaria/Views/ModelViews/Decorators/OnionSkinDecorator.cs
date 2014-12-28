@@ -23,12 +23,10 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
+using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
 
-using Pixelaria.Utils;
-
-namespace Pixelaria.Views.ModelViews.Miscs
+namespace Pixelaria.Views.ModelViews.Decorators
 {
     /// <summary>
     /// Decorates the picture box with an onion skin display

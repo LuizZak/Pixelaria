@@ -492,7 +492,6 @@ namespace Pixelaria.Views.Controls
                 
                 pevent.Graphics.Clear(BackColor);
 
-                //Rectangle rec = new Rectangle(-offsetPoint.X, -offsetPoint.Y, (int)(Image.Width * scale.X), (int)(Image.Height * scale.Y));
                 Rectangle rec = CalculateBackgroundImageRectangle(new Rectangle(0, 0, Width, Height), Image, ImageLayout);
 
                 // Transform the rectangle by the transform matrix
@@ -514,14 +513,7 @@ namespace Pixelaria.Views.Controls
                 };
 
                 pevent.Graphics.Transform.TransformPoints(points);
-
                 pevent.Graphics.Transform = transform;
-
-                if (ImageLayout == ImageLayout.Center)
-                {
-                    rec.X = (int)((ClientRectangle.Width / 2.0f - (Image.Width * scale.X) / 2));
-                    rec.Y = (int)((ClientRectangle.Height / 2.0f - (Image.Height * scale.Y) / 2));
-                }
 
                 if (BackgroundImageLayout == ImageLayout.Tile)
                 {
