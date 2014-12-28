@@ -136,6 +136,7 @@
     <Compile Include="Algorithms\PaintOperations\Interfaces\IPencilOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\PencilPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
+    <Compile Include="Controllers\LayerInterfaceController.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />
     <Compile Include="Data\AnimationSheet.cs" />
@@ -197,6 +198,15 @@
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils\AhslColor.cs" />
+    <Compile Include="Views\Controls\LayerControlPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\LayerControl\LayerControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\LayerControl\LayerControl.Designer.cs">
+      <DependentUpon>LayerControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\PaintTools\Abstracts\BasePencilPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\BaseShapeTool.cs" />
     <Compile Include="Views\Controls\PaintTools\BucketPaintTool.cs" />
@@ -475,6 +485,9 @@
     <EmbeddedResource Include="Views\Controls\Filters\TransparencyControl.resx">
       <DependentUpon>TransparencyControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\LayerControl\LayerControl.resx">
+      <DependentUpon>LayerControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.en.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -643,6 +656,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\padlock_open.png" />
     <None Include="Resources\frame_os_order.png" />
     <None Include="Resources\Numbers_9.png" />
     <None Include="Resources\Numbers_8.png" />

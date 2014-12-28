@@ -31,8 +31,14 @@ using System.Windows.Forms;
 
 namespace Pixelaria.Views.Controls.LayerControl
 {
+    /// <summary>
+    /// Specifies a visual representation of a layer in which the user can interact with in order to manage a frame's layers
+    /// </summary>
     public partial class LayerControl : UserControl
     {
+        /// <summary>
+        /// Initializes a new instance of the LayerControl class
+        /// </summary>
         public LayerControl()
         {
             InitializeComponent();

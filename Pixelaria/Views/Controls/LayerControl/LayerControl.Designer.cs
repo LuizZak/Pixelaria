@@ -44,7 +44,7 @@
             this.btn_enable.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
             this.btn_enable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_enable.Image = global::Pixelaria.Properties.Resources.filter_enable_icon;
-            this.btn_enable.Location = new System.Drawing.Point(3, 19);
+            this.btn_enable.Location = new System.Drawing.Point(0, 19);
             this.btn_enable.Name = "btn_enable";
             this.btn_enable.Size = new System.Drawing.Size(18, 18);
             this.btn_enable.TabIndex = 4;
@@ -57,7 +57,7 @@
             this.btn_remove.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
             this.btn_remove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_remove.Image = global::Pixelaria.Properties.Resources.edit_copy;
-            this.btn_remove.Location = new System.Drawing.Point(3, 61);
+            this.btn_remove.Location = new System.Drawing.Point(0, 61);
             this.btn_remove.Name = "btn_remove";
             this.btn_remove.Size = new System.Drawing.Size(18, 18);
             this.btn_remove.TabIndex = 3;
@@ -70,7 +70,7 @@
             this.button1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Image = global::Pixelaria.Properties.Resources.padlock_open;
-            this.button1.Location = new System.Drawing.Point(3, 40);
+            this.button1.Location = new System.Drawing.Point(0, 40);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(18, 18);
             this.button1.TabIndex = 5;
@@ -83,7 +83,7 @@
             this.button2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.button2.Location = new System.Drawing.Point(3, 82);
+            this.button2.Location = new System.Drawing.Point(0, 82);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(18, 18);
             this.button2.TabIndex = 6;
@@ -92,7 +92,7 @@
             // pb_layerImage
             // 
             this.pb_layerImage.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.pb_layerImage.Location = new System.Drawing.Point(24, 19);
+            this.pb_layerImage.Location = new System.Drawing.Point(21, 19);
             this.pb_layerImage.Name = "pb_layerImage";
             this.pb_layerImage.Size = new System.Drawing.Size(96, 81);
             this.pb_layerImage.TabIndex = 7;
@@ -100,7 +100,7 @@
             // 
             // lbl_layerName
             // 
-            this.lbl_layerName.Location = new System.Drawing.Point(24, 3);
+            this.lbl_layerName.Location = new System.Drawing.Point(21, 3);
             this.lbl_layerName.Name = "lbl_layerName";
             this.lbl_layerName.Size = new System.Drawing.Size(96, 13);
             this.lbl_layerName.TabIndex = 8;
@@ -118,7 +118,7 @@
             this.Controls.Add(this.btn_enable);
             this.Controls.Add(this.btn_remove);
             this.Name = "LayerControl";
-            this.Size = new System.Drawing.Size(120, 100);
+            this.Size = new System.Drawing.Size(118, 100);
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).EndInit();
             this.ResumeLayout(false);
 
