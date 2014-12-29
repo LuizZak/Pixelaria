@@ -257,7 +257,7 @@ namespace Pixelaria.Utils
         /// <exception cref="ArgumentOutOfRangeException">The provided coordinates are out of bounds of the bitmap</exception>
         public void SetPixel(int x, int y, int color)
         {
-            SetPixel(x, y, (uint)color);
+            SetPixel(x, y, unchecked((uint)color));
         }
 
         /// <summary>
