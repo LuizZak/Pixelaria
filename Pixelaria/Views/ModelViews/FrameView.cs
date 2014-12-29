@@ -1146,6 +1146,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 operation.Size = BrushSize;
             }
+
+            // Re-focus the control layer
+            ActiveControl = iepb_frame.PictureBox;
         }
 
         // 
