@@ -214,12 +214,12 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// <summary>
         /// Decorates the under image, using the given event arguments
         /// </summary>
-        /// <param name="image">The under image to decorate</param>
-        public override void DecorateUnderImage(Image image)
+        /// <param name="bitmap"></param>
+        public override void DecorateUnderBitmap(Bitmap bitmap)
         {
             if (onionSkin != null && !Settings.DisplayOnFront)
             {
-                Graphics g = Graphics.FromImage(image);
+                Graphics g = Graphics.FromImage(bitmap);
 
                 g.DrawImage(onionSkin, 0, 0);
             }
@@ -230,12 +230,12 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// <summary>
         /// Decorates the over image, using the given event arguments
         /// </summary>
-        /// <param name="image">The over image to decorate</param>
-        public override void DecorateFrontImage(Image image)
+        /// <param name="bitmap"></param>
+        public override void DecorateOverBitmap(Bitmap bitmap)
         {
             if (onionSkin != null && Settings.DisplayOnFront)
             {
-                Graphics g = Graphics.FromImage(image);
+                Graphics g = Graphics.FromImage(bitmap);
 
                 g.DrawImage(onionSkin, 0, 0);
             }

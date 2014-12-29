@@ -351,12 +351,12 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// The image to display under the current image
             /// </summary>
-            private Image _underImage;
+            private Bitmap _underImage;
 
             /// <summary>
             /// The image to display over the current image
             /// </summary>
-            private Image _overImage;
+            private Bitmap _overImage;
 
             /// <summary>
             /// Whether to display the current image
@@ -414,14 +414,14 @@ namespace Pixelaria.Views.Controls
             public Bitmap Buffer { get { return _buffer; } }
 
             /// <summary>
-            /// Gets or sets the image to display under the current image
+            /// Gets or sets the bitmap to display under the current image
             /// </summary>
-            public Image UnderImage { get { return _underImage; } set { _underImage = value; Invalidate(); } }
+            public Bitmap UnderImage { get { return _underImage; } set { _underImage = value; Invalidate(); } }
 
             /// <summary>
-            /// Gets or sets the image to display over the current image
+            /// Gets or sets the bitmap to display over the current image
             /// </summary>
-            public Image OverImage { get { return _overImage; } set { _overImage = value; Invalidate(); } }
+            public Bitmap OverImage { get { return _overImage; } set { _overImage = value; Invalidate(); } }
 
             /// <summary>
             /// Gets or sets whether to display the current image
@@ -644,7 +644,7 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.InterpolationMode = ImageInterpolationMode;
 
                     // Apply the decorators
-                    Image copy = _underImage;
+                    Bitmap copy = _underImage;
 
                     if (_pictureBoxDecorators.Count > 0)
                     {
@@ -652,7 +652,7 @@ namespace Pixelaria.Views.Controls
 
                         foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
-                            decorator.DecorateUnderImage(copy);
+                            decorator.DecorateUnderBitmap(copy);
                         }
                     }
 
@@ -682,7 +682,7 @@ namespace Pixelaria.Views.Controls
                     {
                         foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
-                            decorator.DecorateMainImage(_buffer);
+                            decorator.DecorateMainBitmap(_buffer);
                         }
 
                         // Draw the buffer now
@@ -693,15 +693,15 @@ namespace Pixelaria.Views.Controls
                     if (_overImage != null)
                     {
                         // Apply the decorators
-                        Image copy = _overImage;
+                        Bitmap copy = _overImage;
 
                         if (_pictureBoxDecorators.Count > 0)
                         {
-                            copy = ((Bitmap)_overImage).Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
+                            copy = (_overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat));
 
                             foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                             {
-                                decorator.DecorateFrontImage(copy);
+                                decorator.DecorateOverBitmap(copy);
                             }
                         }
 
@@ -737,15 +737,15 @@ namespace Pixelaria.Views.Controls
                     // Draw the over image
                     if (_overImage != null)
                     {
-                        Image copy = _overImage;
+                        Bitmap copy = _overImage;
 
                         if (_pictureBoxDecorators.Count > 0)
                         {
-                            copy = ((Bitmap)_overImage).Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
+                            copy = _overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
 
                             foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                             {
-                                decorator.DecorateUnderImage(copy);
+                                decorator.DecorateUnderBitmap(copy);
                             }
                         }
 
@@ -1131,19 +1131,19 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Decorates the under image, using the given event arguments
         /// </summary>
-        /// <param name="image">The under image to decorate</param>
-        public virtual void DecorateUnderImage(Image image) { }
+        /// <param name="bitmap"></param>
+        public virtual void DecorateUnderBitmap(Bitmap bitmap) { }
 
         /// <summary>
         /// Decorates the main image, using the given event arguments
         /// </summary>
-        /// <param name="image">The main image to decorate</param>
-        public virtual void DecorateMainImage(Image image) { }
-        
+        /// <param name="bitmap"></param>
+        public virtual void DecorateMainBitmap(Bitmap bitmap) { }
+
         /// <summary>
         /// Decorates the front image, using the given event arguments
         /// </summary>
-        /// <param name="image">The front image to decorate</param>
-        public virtual void DecorateFrontImage(Image image) { }
+        /// <param name="bitmap"></param>
+        public virtual void DecorateOverBitmap(Bitmap bitmap) { }
     }
 }

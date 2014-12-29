@@ -241,7 +241,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         {
             Frame frame = new Frame(null, 64, 64);
 
-            frame.RemoveLayer(0);
+            frame.RemoveLayerAt(0);
 
             Assert.AreEqual(1, frame.LayerCount, "The layer count must go up for each new layer added");
         }
@@ -310,10 +310,27 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             // Swap the layers
             frame.SetLayerBitmap(1, layer1);
 
-            frame.RemoveLayer(0);
+            frame.RemoveLayerAt(0);
 
             // Test layer swapping by comparing the bitmaps
             Assert.IsTrue(Utilities.ImagesAreIdentical(layer1, frame.GetLayerAt(0).LayerBitmap), "The layer does not appear to have been correctly removed");
+        }
+
+        /// <summary>
+        /// Tests layer remova/re-adition
+        /// </summary>
+        [TestMethod]
+        public void TestLayerReinserting()
+        {
+            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 64, 10);
+
+            Frame frame2 = frame1.Clone();
+
+            IFrameLayer layer = frame2.GetLayerAt(0);
+            frame2.RemoveLayerAt(0, false);
+            frame2.AddLayer(layer, 0);
+
+            Assert.AreEqual(frame1, frame2, "After removing and readding a layer back to its original place, the frame structure must be considered unchanged");
         }
 
         /// <summary>

@@ -75,11 +75,11 @@ namespace Pixelaria.Views.ModelViews.Decorators
         // 
         // Decorate Under Image method
         // 
-        public override void DecorateUnderImage(Image image)
+        public override void DecorateUnderBitmap(Bitmap bitmap1)
         {
-            base.DecorateUnderImage(image);
+            base.DecorateUnderBitmap(bitmap1);
 
-            Bitmap bitmap = image as Bitmap;
+            Bitmap bitmap = bitmap1 as Bitmap;
 
             if (bitmap == null)
                 return;
@@ -97,13 +97,26 @@ namespace Pixelaria.Views.ModelViews.Decorators
         }
 
         // 
-        // Decorate Front Image method
+        // Decorate Main Image method
         // 
-        public override void DecorateFrontImage(Image image)
+        public override void DecorateMainBitmap(Bitmap bitmap)
         {
-            base.DecorateFrontImage(image);
+            base.DecorateMainBitmap(bitmap);
 
-            Bitmap bitmap = image as Bitmap;
+            if (!_layerStatuses[_layerController.ActiveLayerIndex].Visible)
+            {
+                FastBitmap.ClearBitmap(bitmap, Color.Transparent);
+            }
+        }
+
+        // 
+        // Decorate Over Image method
+        // 
+        public override void DecorateOverBitmap(Bitmap bitmap1)
+        {
+            base.DecorateOverBitmap(bitmap1);
+
+            Bitmap bitmap = bitmap1 as Bitmap;
 
             if (bitmap == null)
                 return;

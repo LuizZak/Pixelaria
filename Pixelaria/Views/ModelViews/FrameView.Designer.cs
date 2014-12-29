@@ -57,6 +57,7 @@ namespace Pixelaria.Views.ModelViews
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
             Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
+            Pixelaria.Data.Undo.UndoSystem undoSystem1 = new Pixelaria.Data.Undo.UndoSystem();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -1260,6 +1261,7 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.iepb_frame.EditingEnabled = true;
             this.iepb_frame.Location = new System.Drawing.Point(215, 49);
             this.iepb_frame.Name = "iepb_frame";
             this.iepb_frame.NotifyTo = null;
@@ -1267,6 +1269,8 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.Size = new System.Drawing.Size(431, 726);
             this.iepb_frame.TabIndex = 0;
             this.iepb_frame.Text = "imageEditPictureBox1";
+            undoSystem1.MaximumTaskCount = 15;
+            this.iepb_frame.UndoSystem = undoSystem1;
             this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
             this.iepb_frame.ClipboardStateChanged += new Pixelaria.Views.Controls.ImageEditPanel.ClipboardStateEventHandler(this.iepb_frame_ClipboardStateChanged);
             this.iepb_frame.OperationStatusChanged += new Pixelaria.Views.Controls.ImageEditPanel.OperationStatusEventHandler(this.iepb_frame_OperationStatusChanged);

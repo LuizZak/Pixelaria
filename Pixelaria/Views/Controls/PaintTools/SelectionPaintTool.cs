@@ -36,7 +36,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    public class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool
+    public class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation
     {
         /// <summary>
         /// Timer used to animate the selection area

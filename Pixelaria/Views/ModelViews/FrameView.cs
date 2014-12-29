@@ -1926,7 +1926,11 @@ namespace Pixelaria.Views.ModelViews
             {
                 _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
 
-                _frameView.iepb_frame.EditingEnabled = !_frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex].Locked;
+                // Update editability of the current layer
+                var status = _frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex];
+                _frameView.iepb_frame.EditingEnabled = !status.Locked && status.Visible;
+
+                // Invalidate frame to update visibility
                 _frameView.iepb_frame.PictureBox.Invalidate();
             }
 
@@ -1943,6 +1947,13 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
             {
+                // Deal with operations going on on the current frame
+                var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
+                if (operation != null)
+                {
+                    operation.FinishOperation(true);
+                }
+
                 _frameView.MarkModified();
             }
 
@@ -1970,12 +1981,20 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnActiveLayerIndexChanged(object sender, ActiveLayerIndexChangedEventArgs args)
             {
-                // TODO: Deal with selection paint operation canceling before switching bitmaps here
+                // Finish any pending operations left
+                var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
+                if (operation != null)
+                {
+                    operation.FinishOperation(true);
+                }
 
+                // Update the bitmap being edited
                 _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
-                _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap);
+                _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap, false);
 
-                _frameView.iepb_frame.EditingEnabled = !_frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex].Locked;
+                // Update editability of the current layer
+                var status = _frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex];
+                _frameView.iepb_frame.EditingEnabled = !status.Locked && status.Visible;
             }
         }
     }

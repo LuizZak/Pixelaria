@@ -223,7 +223,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="layerIndex">The index of the layer to remove</param>
         public void RemoveLayer(int layerIndex)
         {
-            _frame.RemoveLayer(layerIndex);
+            _frame.RemoveLayerAt(layerIndex);
 
             if (LayerRemoved != null)
             {

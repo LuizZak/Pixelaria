@@ -140,6 +140,7 @@
     <Compile Include="Views\Controls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />

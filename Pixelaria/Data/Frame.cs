@@ -365,12 +365,7 @@ namespace Pixelaria.Data
                 Index = layerIndex == -1 ? _layers.Count : layerIndex
             };
 
-            if (layerIndex == -1)
-                _layers.Add(layer);
-            else
-                _layers.Insert(layerIndex, layer);
-
-            UpdateLayerIndices();
+            AddLayer(layer, layerIndex);
 
             return layer;
         }
@@ -403,17 +398,64 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
-        /// Removes a layer that is stored on the specified index on this Frame
+        /// Adds the specified layer to this Frame object.
+        /// If the layer's size does not match this frame's dimensions, an exception is raised.
+        /// If the layer's type does not match the internal layer type (or, the layer does not originates from a CreateLayer/AddLayer/GetLayerAt from this object), an exception is raised
         /// </summary>
-        /// <param name="layerIndex">The layer index to remove</param>
-        public void RemoveLayer(int layerIndex)
+        /// <param name="layer">The layer to add to this frame</param>
+        /// <param name="layerIndex">The index at which to add the layer</param>
+        /// <exception cref="ArgumentException">The provided layers's dimensions does not match this Frame's dimensions</exception>
+        /// <exception cref="ArgumentException">The provided layers's type is not compatible with this Frame object</exception>
+        /// <exception cref="ArgumentException">The provided layer is already stored in a Frame object</exception>
+        public void AddLayer(IFrameLayer layer, int layerIndex = -1)
         {
             if (!_initialized)
             {
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            _layers[layerIndex].Dispose();
+            if (layer.Width != _width || layer.Height != _height)
+            {
+                throw new ArgumentException(@"The provided layer's dimensions must match the size of this frame", "layer");
+            }
+
+            if (!(layer is FrameLayer))
+            {
+                throw new ArgumentException("The provided layers's type is not compatible with this Frame object");
+            }
+
+            if (layer.Frame != null)
+            {
+                throw new ArgumentException("The specified layer is already stored in a Frame object");
+            }
+
+            if (layerIndex == -1)
+                _layers.Add((FrameLayer)layer);
+            else
+                _layers.Insert(layerIndex, (FrameLayer)layer);
+
+            UpdateLayerIndices();
+        }
+
+        /// <summary>
+        /// Removes a layer that is stored on the specified index on this Frame
+        /// </summary>
+        /// <param name="layerIndex">The layer index to remove</param>
+        /// <param name="dispose">Whether to dispose of the layer after removing it</param>
+        public void RemoveLayerAt(int layerIndex, bool dispose = true)
+        {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
+            if(dispose)
+            {
+                _layers[layerIndex].Dispose();
+            }
+
+            _layers[layerIndex].Frame = null;
+
             _layers.RemoveAt(layerIndex);
 
             if (_layers.Count == 0)
@@ -778,6 +820,11 @@ namespace Pixelaria.Data
             }
 
             /// <summary>
+            /// Gets the frame that owns this IFrameLayer object
+            /// </summary>
+            public Frame Frame { get; set; }
+
+            /// <summary>
             /// Initializes a new instance of the FrameLayer class, with a bitmap to bind to this layer
             /// </summary>
             /// <param name="layerBitmap">The bitmap to bind to this layer</param>
@@ -966,6 +1013,11 @@ namespace Pixelaria.Data
         /// Gets the index of this layer on the origin frame
         /// </summary>
         int Index { get; }
+
+        /// <summary>
+        /// Gets the frame that owns this IFrameLayer object
+        /// </summary>
+        Frame Frame { get; }
 
         /// <summary>
         /// Gets this layer's bitmap content
