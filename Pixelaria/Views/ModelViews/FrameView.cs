@@ -1925,7 +1925,8 @@ namespace Pixelaria.Views.ModelViews
             private void OnLayerStatusesUpdated(object sender, EventArgs eventArgs)
             {
                 _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
-                
+
+                _frameView.iepb_frame.EditingEnabled = !_frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex].Locked;
                 _frameView.iepb_frame.PictureBox.Invalidate();
             }
 
@@ -1950,6 +1951,9 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnLayerCreated(object sender, LayerControllerLayerCreatedEventArgs args)
             {
+                // Update the layer image
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+
                 _frameView.MarkModified();
             }
 
@@ -1966,8 +1970,12 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnActiveLayerIndexChanged(object sender, ActiveLayerIndexChangedEventArgs args)
             {
+                // TODO: Deal with selection paint operation canceling before switching bitmaps here
+
                 _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
                 _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap);
+
+                _frameView.iepb_frame.EditingEnabled = !_frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex].Locked;
             }
         }
     }

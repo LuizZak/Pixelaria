@@ -38,8 +38,7 @@ using Pixelaria.Views.ModelViews;
 namespace Pixelaria.Views.Controls
 {
     /// <summary>
-    /// Defines a panel that is used specifically for displaying a Bitmap object and allowing
-    /// the user to make changes to it
+    /// Defines a panel that is used specifically for displaying a Bitmap object and allowing the user to make changes to it
     /// </summary>
     public class ImageEditPanel : Control, IModifiable
     {
@@ -163,6 +162,11 @@ namespace Pixelaria.Views.Controls
         public UndoSystem UndoSystem { get { return _undoSystem; } set { _undoSystem = value; } }
 
         /// <summary>
+        /// Gets or sets a value specifying whether editing the image is currently enabled on this image edit panel
+        /// </summary>
+        public bool EditingEnabled { get; set; }
+
+        /// <summary>
         /// Gets or sets the default compositing mode to use on paint operations that have a compositing component
         /// </summary>
         public CompositingMode DefaultCompositingMode
@@ -202,6 +206,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public ImageEditPanel()
         {
+            EditingEnabled = true;
+
             // Create the controls
             SuspendLayout();
 
@@ -666,8 +672,11 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.IntersectClip(new RectangleF(0, 0, Image.Width, Image.Height));
                     Region clip = pe.Graphics.Clip;
 
-                    // Start painting now
-                    _currentPaintTool.Paint(pe);
+                    if(_owningPanel.EditingEnabled)
+                    {
+                        // Start painting now
+                        _currentPaintTool.Paint(pe);
+                    }
 
                     if (_displayImage)
                     {
@@ -764,8 +773,11 @@ namespace Pixelaria.Views.Controls
                 if (findForm != null)
                     findForm.ActiveControl = this;
 
-                if (Image != null)
-                    _currentPaintTool.MouseDown(e);
+                if (_owningPanel.EditingEnabled)
+                {
+                    if (Image != null)
+                        _currentPaintTool.MouseDown(e);
+                }
             }
 
             // 
@@ -777,7 +789,8 @@ namespace Pixelaria.Views.Controls
 
                 if (Image != null)
                 {
-                    _currentPaintTool.MouseMove(e);
+                    if (_owningPanel.EditingEnabled)
+                        _currentPaintTool.MouseMove(e);
 
                     _mousePoint = GetAbsolutePoint(e.Location);
 
@@ -792,7 +805,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseUp(e);
 
-                if (Image != null)
+                if (_owningPanel.EditingEnabled && Image != null)
                     _currentPaintTool.MouseUp(e);
             }
 
@@ -805,7 +818,7 @@ namespace Pixelaria.Views.Controls
 
                 _mouseOverImage = false;
 
-                if (Image != null)
+                if (_owningPanel.EditingEnabled && Image != null)
                     _currentPaintTool.MouseLeave(e);
             }
 
@@ -816,7 +829,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseEnter(e);
 
-                if (Image != null)
+                if (_owningPanel.EditingEnabled && Image != null)
                     _currentPaintTool.MouseEnter(e);
             }
 
@@ -827,7 +840,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnKeyDown(e);
 
-                if (Image != null)
+                if (_owningPanel.EditingEnabled && Image != null)
                     _currentPaintTool.KeyDown(e);
             }
 
@@ -838,7 +851,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnKeyDown(e);
 
-                if (Image != null)
+                if (_owningPanel.EditingEnabled && Image != null)
                     _currentPaintTool.KeyUp(e);
             }
         }
