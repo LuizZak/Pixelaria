@@ -20,6 +20,8 @@ Legend:
 
 -- Current Version
 
++ Added basic layering functionality for frames.
+
 * Fixed crash related to opening files that are not valid .plx files.
 
 . FrameView

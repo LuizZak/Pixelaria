@@ -638,12 +638,6 @@ namespace Pixelaria.Data
             if(_width == newWidth && _height == newHeight)
                 return;
 
-            //Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_frameTexture, newWidth, newHeight, scalingMethod, interpolationMode);
-
-            // Texture replacement
-            //_frameTexture.Dispose();
-            //_frameTexture = newTexture;
-
             _width = newWidth;
             _height = newHeight;
 
