@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LayerControl));
             this.btn_visible = new System.Windows.Forms.Button();
             this.btn_remove = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btn_locked = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.lbl_layerName = new System.Windows.Forms.Label();
             this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
@@ -50,6 +50,7 @@
             this.btn_visible.Size = new System.Drawing.Size(18, 18);
             this.btn_visible.TabIndex = 4;
             this.btn_visible.UseVisualStyleBackColor = true;
+            this.btn_visible.Click += new System.EventHandler(this.btn_visible_Click);
             // 
             // btn_remove
             // 
@@ -64,18 +65,19 @@
             this.btn_remove.TabIndex = 3;
             this.btn_remove.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btn_locked
             // 
-            this.button1.FlatAppearance.BorderSize = 0;
-            this.button1.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
-            this.button1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Image = global::Pixelaria.Properties.Resources.padlock_open;
-            this.button1.Location = new System.Drawing.Point(3, 40);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(18, 18);
-            this.button1.TabIndex = 5;
-            this.button1.UseVisualStyleBackColor = true;
+            this.btn_locked.FlatAppearance.BorderSize = 0;
+            this.btn_locked.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
+            this.btn_locked.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_locked.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_locked.Image = global::Pixelaria.Properties.Resources.padlock_closed;
+            this.btn_locked.Location = new System.Drawing.Point(3, 40);
+            this.btn_locked.Name = "btn_locked";
+            this.btn_locked.Size = new System.Drawing.Size(18, 18);
+            this.btn_locked.TabIndex = 5;
+            this.btn_locked.UseVisualStyleBackColor = true;
+            this.btn_locked.Click += new System.EventHandler(this.btn_locked_Click);
             // 
             // button2
             // 
@@ -115,6 +117,7 @@
             this.pb_layerImage.TabStop = false;
             this.pb_layerImage.Zoom = ((System.Drawing.PointF)(resources.GetObject("pb_layerImage.Zoom")));
             this.pb_layerImage.ZoomFactor = 1.414214F;
+            this.pb_layerImage.Click += new System.EventHandler(this.pb_layerImage_Click);
             // 
             // LayerControl
             // 
@@ -123,11 +126,11 @@
             this.Controls.Add(this.lbl_layerName);
             this.Controls.Add(this.pb_layerImage);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btn_locked);
             this.Controls.Add(this.btn_visible);
             this.Controls.Add(this.btn_remove);
             this.Name = "LayerControl";
-            this.Size = new System.Drawing.Size(125, 100);
+            this.Size = new System.Drawing.Size(125, 105);
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).EndInit();
             this.ResumeLayout(false);
 
@@ -137,7 +140,7 @@
 
         private System.Windows.Forms.Button btn_visible;
         private System.Windows.Forms.Button btn_remove;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btn_locked;
         private System.Windows.Forms.Button button2;
         private ZoomablePictureBox pb_layerImage;
         private System.Windows.Forms.Label lbl_layerName;

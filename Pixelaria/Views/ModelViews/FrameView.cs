@@ -30,7 +30,7 @@ using Pixelaria.Controllers;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
-
+using Pixelaria.Data.Undo;
 using Pixelaria.Filters;
 
 using Pixelaria.Utils;
@@ -57,7 +57,17 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The controller for the layers of the currently active frame
         /// </summary>
-        private LayerController _layerController;
+        private readonly LayerController _layerController;
+
+        /// <summary>
+        /// The undo system for the operations on the frame
+        /// </summary>
+        private readonly UndoSystem _undoSystem;
+
+        /// <summary>
+        /// The object that binds this frame view with the layer controller
+        /// </summary>
+        private readonly FrameViewLayerControllerBinder _binder;
 
         /// <summary>
         /// The frame to edit on this form
@@ -200,6 +210,9 @@ namespace Pixelaria.Views.ModelViews
             UpdateFilterPresetList();
 
             // Image editor panel
+            _undoSystem = new UndoSystem();
+
+            iepb_frame.UndoSystem = _undoSystem;
             iepb_frame.Init();
             iepb_frame.NotifyTo = this;
             iepb_frame.PictureBox.ZoomChanged += PictureBox_ZoomChanged;
@@ -239,6 +252,8 @@ namespace Pixelaria.Views.ModelViews
             // Create the layer controller
             _layerController = new LayerController(null);
             lcp_layers.SetController(_layerController);
+
+            _binder = new FrameViewLayerControllerBinder(this, _layerController);
 
             // Setup the onion skin decorator
             OnionSkinDecorator = new OnionSkinDecorator(this, iepb_frame.PictureBox)
@@ -306,8 +321,6 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 ModifiedFrames = true;
-
-                _viewFrame.SetFrameBitmap(_viewFrameBitmap);
 
                 // Apply changes made to the frame
                 _frameToEdit.CopyFrom(_viewFrame);
@@ -414,7 +427,7 @@ namespace Pixelaria.Views.ModelViews
 
             _frameToEdit = (Frame)frame;
             _viewFrame = _frameToEdit.Clone();
-            _layerController.Frame = _frameToEdit;
+            _layerController.Frame = _viewFrame;
 
             RefreshTitleBar();
 
@@ -423,8 +436,7 @@ namespace Pixelaria.Views.ModelViews
                 _viewFrameBitmap.Dispose();
             }
 
-            _viewFrameBitmap = _viewFrame.GetComposedBitmap();
-
+            _viewFrameBitmap = _viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
             iepb_frame.LoadBitmap(_viewFrameBitmap);
 
             RefreshView();
@@ -1597,6 +1609,9 @@ namespace Pixelaria.Views.ModelViews
             // Dispose of the image edit panel
             iepb_frame.Dispose();
 
+            // Dispose of the undo system
+            _undoSystem.Clear();
+
             // Dispose of the view frame
             _viewFrame.Dispose();
 
@@ -1606,6 +1621,9 @@ namespace Pixelaria.Views.ModelViews
                 _onionSkin.Dispose();
                 _onionSkin = null;
             }
+
+            // Clear the binder
+            _binder.Clear();
 
             // Run garbage collector now
             GC.Collect();
@@ -1798,6 +1816,160 @@ namespace Pixelaria.Views.ModelViews
         private bool _ignoreOnionSkinDepthComboboxEvent;
 
         #endregion
+
+        /// <summary>
+        /// Class that binds the frame view and layer controller
+        /// </summary>
+        private class FrameViewLayerControllerBinder
+        {
+            /// <summary>
+            /// The frame view being binded
+            /// </summary>
+            private readonly FrameView _frameView;
+
+            /// <summary>
+            /// The layer controller that is binding to the frame view
+            /// </summary>
+            private readonly LayerController _layerController;
+
+            /// <summary>
+            /// The decorator used to display the frame's layers on the picture box
+            /// </summary>
+            private LayerDecorator _decorator;
+
+            /// <summary>
+            /// Initializes a new instance of the FrameViewLayercontrollerBinder class
+            /// </summary>
+            /// <param name="frameView">The frame view to bind</param>
+            /// <param name="layerController">The layer controller to bind</param>
+            public FrameViewLayerControllerBinder(FrameView frameView, LayerController layerController)
+            {
+                _frameView = frameView;
+                _layerController = layerController;
+
+                _decorator = new LayerDecorator(_frameView.iepb_frame.PictureBox, layerController);
+
+                _frameView.iepb_frame.PictureBox.AddDecorator(_decorator);
+
+                HookEvents();
+            }
+
+            /// <summary>
+            /// Clears this binder object
+            /// </summary>
+            public void Clear()
+            {
+                UnhookEvents();
+            }
+
+            /// <summary>
+            /// Hooks the event listeners that are required to bind the frame view and layer controller
+            /// </summary>
+            private void HookEvents()
+            {
+                _frameView.lcp_layers.LayerStatusesUpdated += OnLayerStatusesUpdated;
+
+                _frameView.iepb_frame.PictureBox.Modified += PictureBoxOnModified;
+
+                _frameView.iepb_frame.UndoSystem.UndoPerformed += OnUndoTaskPerformed;
+                _frameView.iepb_frame.UndoSystem.RedoPerformed += OnUndoTaskPerformed;
+
+                _layerController.ActiveLayerIndexChanged += OnActiveLayerIndexChanged;
+                _layerController.FrameChanged += OnFrameChanged;
+                _layerController.LayerCreated += OnLayerCreated;
+                _layerController.LayerRemoved += OnLayerRemoved;
+                _layerController.LayersSwapped += OnLayersSwapped;
+            }
+
+            /// <summary>
+            /// Unhooks the event listeners that are required to bind the frame view and layer controller
+            /// </summary>
+            private void UnhookEvents()
+            {
+                _frameView.lcp_layers.LayerStatusesUpdated -= OnLayerStatusesUpdated;
+
+                _frameView.iepb_frame.PictureBox.Modified -= PictureBoxOnModified;
+
+                _frameView.iepb_frame.UndoSystem.UndoPerformed -= OnUndoTaskPerformed;
+                _frameView.iepb_frame.UndoSystem.RedoPerformed -= OnUndoTaskPerformed;
+
+                _layerController.ActiveLayerIndexChanged -= OnActiveLayerIndexChanged;
+                _layerController.LayerCreated -= OnLayerCreated;
+                _layerController.LayerRemoved -= OnLayerRemoved;
+                _layerController.LayersSwapped -= OnLayersSwapped;
+            }
+
+            // 
+            // Undo/Redo Performed event handler
+            // 
+            private void OnUndoTaskPerformed(object sender, UndoEventArgs undoEventArgs)
+            {
+                // Update the layer image
+                _frameView.lcp_layers.UpdateLayersDisplay();
+            }
+
+            // 
+            // Picture Box Modified event handler
+            // 
+            private void PictureBoxOnModified(object sender, EventArgs eventArgs)
+            {
+                // Update the layer image
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+
+                _frameView.lcp_layers.UpdateLayersDisplay();
+            }
+
+            // 
+            // Layer Status Update event handler
+            // 
+            private void OnLayerStatusesUpdated(object sender, EventArgs eventArgs)
+            {
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+                
+                _frameView.iepb_frame.PictureBox.Invalidate();
+            }
+
+            // 
+            // Layers Swapped event handler
+            // 
+            private void OnLayersSwapped(object sender, LayerControllerLayersSwappedEventArgs args)
+            {
+                _frameView.MarkModified();
+            }
+
+            // 
+            // Layers Swapped event handler
+            // 
+            private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
+            {
+                _frameView.MarkModified();
+            }
+
+            // 
+            // Layers Swapped event handler
+            // 
+            private void OnLayerCreated(object sender, LayerControllerLayerCreatedEventArgs args)
+            {
+                _frameView.MarkModified();
+            }
+
+            // 
+            // Frame Changed event handler
+            // 
+            private void OnFrameChanged(object sender, LayerControllerFrameChangedEventArgs args)
+            {
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+            }
+
+            // 
+            // Active Layer Index Changed event handler
+            // 
+            private void OnActiveLayerIndexChanged(object sender, ActiveLayerIndexChangedEventArgs args)
+            {
+                _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
+                _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap);
+            }
+        }
     }
 
     /// <summary>

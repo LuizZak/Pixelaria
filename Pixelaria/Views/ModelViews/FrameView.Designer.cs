@@ -1280,7 +1280,6 @@ namespace Pixelaria.Views.ModelViews
             this.lcp_layers.Dock = System.Windows.Forms.DockStyle.Left;
             this.lcp_layers.Location = new System.Drawing.Point(90, 49);
             this.lcp_layers.Name = "lcp_layers";
-            this.lcp_layers.PanelTitle = "Layers";
             this.lcp_layers.Size = new System.Drawing.Size(125, 726);
             this.lcp_layers.TabIndex = 9;
             // 

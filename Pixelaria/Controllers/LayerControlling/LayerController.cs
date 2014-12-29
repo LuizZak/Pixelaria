@@ -37,6 +37,11 @@ namespace Pixelaria.Controllers.LayerControlling
         private Frame _frame;
 
         /// <summary>
+        /// The currently active layer index
+        /// </summary>
+        private int _activeLayerIndex;
+
+        /// <summary>
         /// Delegate for the LayersSwapped event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
@@ -81,6 +86,17 @@ namespace Pixelaria.Controllers.LayerControlling
         public event FrameChangedEventHandler FrameChanged;
 
         /// <summary>
+        /// Delegate for the ActiveLayerIndexChanged event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void ActiveLayerIndexChangedEventHandler(object sender, ActiveLayerIndexChangedEventArgs args);
+        /// <summary>
+        /// Event fired whenever the current active layer index is changed
+        /// </summary>
+        public event ActiveLayerIndexChangedEventHandler ActiveLayerIndexChanged;
+
+        /// <summary>
         /// Gets or sets the current frame being controlled
         /// </summary>
         public Frame Frame
@@ -96,6 +112,31 @@ namespace Pixelaria.Controllers.LayerControlling
                 if (FrameChanged != null)
                 {
                     FrameChanged(this, new LayerControllerFrameChangedEventArgs(value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the currently active layer index.
+        /// When settings the value, it must be >= 0 and smaller than layer count
+        /// </summary>
+        /// 
+        public int ActiveLayerIndex
+        {
+            get { return Math.Max(0, Math.Min(_frame.LayerCount - 1, _activeLayerIndex)); }
+            set
+            {
+                if (_activeLayerIndex == value)
+                    return;
+
+                if(value < 0 || value >= _frame.LayerCount)
+                    throw new ArgumentOutOfRangeException("value", @"The value specified must be >= 0 and smaller than the layer count");
+
+                _activeLayerIndex = value;
+
+                if (ActiveLayerIndexChanged != null)
+                {
+                    ActiveLayerIndexChanged(this, new ActiveLayerIndexChangedEventArgs(value));
                 }
             }
         }
@@ -275,6 +316,26 @@ namespace Pixelaria.Controllers.LayerControlling
         public LayerControllerFrameChangedEventArgs(Frame newFrame)
         {
             NewFrame = newFrame;
+        }
+    }
+
+    /// <summary>
+    /// Specifies the event arguments for an ActiveLayerIndexChanged event
+    /// </summary>
+    public class ActiveLayerIndexChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the new current active layer index
+        /// </summary>
+        public int ActiveLayerIndex { get; private set; }
+
+        /// <summary>
+        /// Creates a new instance of the ActiveLayerIndexChangedEventArgs class
+        /// </summary>
+        /// <param name="activeLayerIndex">The new current active layer index</param>
+        public ActiveLayerIndexChangedEventArgs(int activeLayerIndex)
+        {
+            ActiveLayerIndex = activeLayerIndex;
         }
     }
 }

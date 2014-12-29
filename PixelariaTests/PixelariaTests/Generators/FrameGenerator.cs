@@ -45,11 +45,17 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <param name="width">The width of the frame to generate</param>
         /// <param name="height">The height of the frame to generate</param>
         /// <param name="seed">The seed for the frame's image, used to seed the random number generator that will generate the image contents</param>
+        /// <param name="layerCount">The number of layers to create on the frame</param>
         /// <returns>A frame with the passed parameters</returns>
-        public static Frame GenerateRandomFrame(int width, int height, int seed = -1)
+        public static Frame GenerateRandomFrame(int width, int height, int seed = -1, int layerCount = 3)
         {
             Frame frame = new Frame(null, width, height, false);
             frame.SetFrameBitmap(GenerateRandomBitmap(width, height, seed));
+
+            for (int i = 1; i < layerCount; i++)
+            {
+                frame.AddLayer(GenerateRandomBitmap(width, height, seed + 1));
+            }
 
             return frame;
         }

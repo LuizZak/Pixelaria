@@ -27,7 +27,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-
+using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.ColorControls;
@@ -56,7 +56,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The undo system that handles undoing/redoing of tasks
         /// </summary>
-        private readonly UndoSystem _undoSystem;
+        private UndoSystem _undoSystem;
 
         /// <summary>
         /// The default compositing mode to use on paint operations that have a compositing operation
@@ -158,9 +158,9 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Gets the undo system that handles the undo/redo tasks of this ImageEditPanel
+        /// Gets or sets the undo system that handles the undo/redo tasks of this ImageEditPanel
         /// </summary>
-        public UndoSystem UndoSystem { get { return _undoSystem; } }
+        public UndoSystem UndoSystem { get { return _undoSystem; } set { _undoSystem = value; } }
 
         /// <summary>
         /// Gets or sets the default compositing mode to use on paint operations that have a compositing component
@@ -257,10 +257,14 @@ namespace Pixelaria.Views.Controls
         /// Loads the given Bitmap to this ImageEditPanel
         /// </summary>
         /// <param name="bitmap">The Bitmap to edit</param>
-        public void LoadBitmap(Bitmap bitmap)
+        /// <param name="clearUndoSystem">Whether to clear the undo system when changing images</param>
+        public void LoadBitmap(Bitmap bitmap, bool clearUndoSystem = true)
         {
-            // Clear the undo system
-            _undoSystem.Clear();
+            if(clearUndoSystem)
+            {
+                // Clear the undo system
+                _undoSystem.Clear();
+            }
 
             _internalPictureBox.SetBitmap(bitmap);
             _internalPictureBox.Width = _owningPanel.Width;

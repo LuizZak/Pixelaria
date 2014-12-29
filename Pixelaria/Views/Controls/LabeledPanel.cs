@@ -44,7 +44,6 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The display name displayed on top of the panel")]
-        [DefaultValue("Panel")]
         public string PanelTitle
         {
             get { return panelTitle; }

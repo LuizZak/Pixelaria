@@ -355,6 +355,11 @@ namespace Pixelaria.Data
         /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
         public IFrameLayer CreateLayer(int layerIndex = -1)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             FrameLayer layer = new FrameLayer(new Bitmap(_width, _height, PixelFormat.Format32bppArgb))
             {
                 Index = layerIndex == -1 ? _layers.Count : layerIndex
@@ -380,6 +385,11 @@ namespace Pixelaria.Data
         /// <exception cref="ArgumentException">The provided bitmap's dimensions does not match this Frame's dimensions, or its pixel format isn't 32bpp</exception>
         public IFrameLayer AddLayer(Bitmap bitmap, int layerIndex = -1)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             if (bitmap.Width != _width || bitmap.Height != _height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
             {
                 throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "bitmap");
@@ -398,6 +408,11 @@ namespace Pixelaria.Data
         /// <param name="layerIndex">The layer index to remove</param>
         public void RemoveLayer(int layerIndex)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             _layers[layerIndex].Dispose();
             _layers.RemoveAt(layerIndex);
 
@@ -414,6 +429,11 @@ namespace Pixelaria.Data
         /// <returns>A layer at the specified index on this Frame object</returns>
         public IFrameLayer GetLayerAt(int index)
         {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
             return _layers[index];
         }
 
@@ -446,12 +466,18 @@ namespace Pixelaria.Data
         /// <exception cref="ArgumentException">The dimensions of the bitmap don't match this frame's size, or its pixel format isn't 32bpp</exception>
         public void SetLayerBitmap(int layerIndex, Bitmap layerBitmap, bool updateHash = true)
         {
-            if (layerBitmap.Width != _width || layerBitmap.Height != _height || Image.GetPixelFormatSize(layerBitmap.PixelFormat) != 32)
+            if (!_initialized)
             {
-                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "bitmap");
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            _layers[layerIndex].LayerBitmap = layerBitmap;
+            if (layerBitmap.Width != _width || layerBitmap.Height != _height || Image.GetPixelFormatSize(layerBitmap.PixelFormat) != 32)
+            {
+                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "layerBitmap");
+            }
+
+            //_layers[layerIndex].LayerBitmap = layerBitmap;
+            _layers[layerIndex].CopyFromBitmap(layerBitmap);
 
             if (updateHash)
             {
@@ -485,6 +511,7 @@ namespace Pixelaria.Data
             }
 
             // Copy to the first layer
+            //_layers[0].CopyFromBitmap(bitmap);
             _layers[0].LayerBitmap.Dispose();
             _layers[0].LayerBitmap = bitmap;
 
@@ -506,43 +533,11 @@ namespace Pixelaria.Data
             Bitmap composedBitmap = new Bitmap(_width, _height, PixelFormat.Format32bppArgb);
             FastBitmap.CopyPixels(_layers[0].LayerBitmap, composedBitmap);
 
-            FastBitmap fastBitmap = composedBitmap.FastLock();
-
             // Compose the layers by blending all the pixels from each layer into the final image
-            for(int i = 1; i < _layers.Count; i++)
+            for (int i = 1; i < _layers.Count; i++)
             {
-                IFrameLayer layer = _layers[i];
-                using (FastBitmap fastLayer = layer.LayerBitmap.FastLock())
-                {
-                    for (int y = 0; y < _height; y++)
-                    {
-                        for (int x = 0; x < _width; x++)
-                        {
-                            Color blendedColor = Utilities.FlattenColor(fastBitmap.GetPixel(x, y), fastLayer.GetPixel(x, y));
-
-                            fastBitmap.SetPixel(x, y, blendedColor);
-                        }
-                    }
-                }
+                Utilities.FlattenBitmaps(composedBitmap, _layers[i].LayerBitmap);
             }
-
-            fastBitmap.Unlock();
-
-            /*using(Graphics gfx = Graphics.FromImage(composedBitmap))
-            {
-                gfx.Clear(Color.FromArgb(0, 0, 0, 0));
-
-                gfx.CompositingMode = CompositingMode.SourceOver;
-                gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
-                gfx.CompositingQuality = CompositingQuality.HighQuality;
-
-                foreach (var layer in _layers)
-                {
-                    gfx.DrawImageUnscaled(layer.LayerBitmap, 0, 0);
-                }
-
-                gfx.Flush();
-            }*/
 
             return composedBitmap;
         }

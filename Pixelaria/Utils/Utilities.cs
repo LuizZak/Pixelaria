@@ -389,6 +389,32 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Draws a bitmap on top of a target bitmap using color blending.
+        /// If the two images don't have the same dimensions or don't have a 32bpp ARGB, an exception is raised
+        /// </summary>
+        /// <param name="target">The bitmap to draw the foreground onto</param>
+        /// <param name="foreBitmap">The foreground bitmap to draw onto the target bitmap</param>
+        /// <exception cref="Exception">The size of the bitmaps must be equal and both bitmaps must have a 32bpp ARGB pixel format</exception>
+        public static void FlattenBitmaps(Bitmap target, Bitmap foreBitmap)
+        {
+            if (target.Size != foreBitmap.Size || target.PixelFormat != PixelFormat.Format32bppArgb || foreBitmap.PixelFormat != PixelFormat.Format32bppArgb)
+            {
+                throw new Exception("The size of the bitmaps must be equal and both bitmaps must have a 32bpp ARGB pixel format");
+            }
+
+            using (FastBitmap fastTarget = target.FastLock(), fastForeBitmap = foreBitmap.FastLock())
+            {
+                for (int y = 0; y < target.Height; y++)
+                {
+                    for (int x = 0; x < target.Width; x++)
+                    {
+                        fastTarget.SetPixel(x, y, FlattenColor(fastTarget.GetPixel(x, y), fastForeBitmap.GetPixel(x, y)));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the distance between two points objects
         /// </summary>
         /// <param name="point">The first point</param>

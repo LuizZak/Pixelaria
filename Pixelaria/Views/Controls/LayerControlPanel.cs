@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Views.Controls.LayerControls;
@@ -32,7 +34,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Control that is used to display an interface for the user to manage a frame's layers
     /// </summary>
-    public class LayerControlPanel : LabeledPanel
+    public partial class LayerControlPanel : UserControl
     {
         /// <summary>
         /// The controller that this layer control panel uses to interact with the layers
@@ -43,6 +45,19 @@ namespace Pixelaria.Views.Controls
         /// The list of all currently registered layer controls
         /// </summary>
         private readonly List<LayerControl> _layerControls;
+
+        /// <summary>
+        /// Gets the array of layer status for each layer
+        /// </summary>
+        public LayerStatus[] LayerStatuses
+        {
+            get { return _layerControls.Select(layer => layer.LayerStatus).ToArray(); }
+        }
+
+        /// <summary>
+        /// Occurs whenever the status of any of the layer controls is changed
+        /// </summary>
+        public event EventHandler LayerStatusesUpdated;
 
         /// <summary>
         /// Initializes a new instance of the LayerControlPanel class
@@ -59,8 +74,6 @@ namespace Pixelaria.Views.Controls
         /// <param name="controller">The layer controller to bind to this layer control panel</param>
         public LayerControlPanel(LayerController controller)
         {
-            panelTitle = "Layers";
-
             _layerControls = new List<LayerControl>();
 
             ClearAllControls();
@@ -69,6 +82,8 @@ namespace Pixelaria.Views.Controls
             {
                 SetController(controller);
             }
+
+            InitializeComponent();
         }
 
         /// <summary>
@@ -83,9 +98,21 @@ namespace Pixelaria.Views.Controls
             _controller.LayerRemoved += OnLayerRemoved;
             _controller.LayersSwapped += OnLayersSwapped;
             _controller.FrameChanged += OnFrameChanged;
+            _controller.ActiveLayerIndexChanged += OnActiveLayerIndexChanged;
 
             if (_controller.Frame != null)
                 LoadLayers();
+        }
+
+        /// <summary>
+        /// Updates the display of the layers on this layer control panel
+        /// </summary>
+        public void UpdateLayersDisplay()
+        {
+            foreach (var control in _layerControls)
+            {
+                control.UpdateBitmapDisplay();
+            }
         }
 
         // 
@@ -117,7 +144,15 @@ namespace Pixelaria.Views.Controls
         // 
         private void OnLayerCreated(object sender, LayerControllerLayerCreatedEventArgs args)
         {
-            throw new NotImplementedException();
+            AddLayerControl(args.FrameLayer);
+        }
+
+        // 
+        // Active Layer Index Changed event handler
+        // 
+        private void OnActiveLayerIndexChanged(object sender, ActiveLayerIndexChangedEventArgs args)
+        {
+            UpdateActiveLayerDisplay();
         }
 
         /// <summary>
@@ -138,6 +173,8 @@ namespace Pixelaria.Views.Controls
             }
 
             ArrangeControls();
+
+            UpdateActiveLayerDisplay();
         }
 
         /// <summary>
@@ -147,6 +184,8 @@ namespace Pixelaria.Views.Controls
         {
             foreach (var control in _layerControls)
             {
+                control.LayerStatusChanged -= OnLayerStatusChanged;
+                control.LayerSelected -= OnLayerControlSelected;
                 control.Dispose();
             }
 
@@ -162,9 +201,12 @@ namespace Pixelaria.Views.Controls
         {
             LayerControl control = new LayerControl(layer);
 
-            _layerControls.Add(control);
+            control.LayerSelected += OnLayerControlSelected;
+            control.LayerStatusChanged += OnLayerStatusChanged;
 
-            Controls.Add(control);
+            _layerControls.Insert(layer.Index, control);
+
+            pnl_container.Controls.Add(control);
 
             if (arrangeAfter)
             {
@@ -178,14 +220,55 @@ namespace Pixelaria.Views.Controls
         private void ArrangeControls()
         {
             const int x = 0;
-            int y = 19;
+            int y = 0;
 
-            foreach (var control in _layerControls)
+            for (int i = _layerControls.Count - 1; i >= 0; i--)
             {
+                var control = _layerControls[i];
+                
                 control.Location = new Point(x, y);
+                control.UpdateDisplay();
 
                 y += control.Height + 2;
             }
+        }
+
+        /// <summary>
+        /// Updates the visual feedback for the currently active layer
+        /// </summary>
+        private void UpdateActiveLayerDisplay()
+        {
+            foreach (var control in _layerControls)
+            {
+                control.BackColor = (control.Layer.Index == _controller.ActiveLayerIndex ? Color.FromArgb(255, 200, 200, 200) : Color.FromKnownColor(KnownColor.Control));
+            }
+        }
+
+        // 
+        // Layer Selected event handler
+        // 
+        private void OnLayerControlSelected(object sender, LayerControl control)
+        {
+            _controller.ActiveLayerIndex = control.Layer.Index;
+        }
+
+        // 
+        // Layer Status Changed event handler
+        // 
+        private void OnLayerStatusChanged(object sender, LayerControlStatusChangedEventArgs args)
+        {
+            if (LayerStatusesUpdated != null)
+            {
+                LayerStatusesUpdated(this, new EventArgs());
+            }
+        }
+
+        // 
+        // Create New Layer button click
+        // 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            _controller.CreateLayer();
         }
     }
 }

@@ -43,7 +43,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameClone()
         {
-            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 63, 0);
+            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 63, 2);
             Frame frame2 = frame1.Clone();
 
             Assert.AreEqual(frame1, frame2, "Frames cloned using .Clone() should be exactly equivalent");
@@ -162,7 +162,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameCompositing()
         {
-            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5);
+            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5, 1);
             Bitmap target = frame.GetComposedBitmap();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
@@ -176,12 +176,29 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         }
 
         /// <summary>
+        /// Tests frame layer indexing
+        /// </summary>
+        [TestMethod]
+        public void TestLayerIndexing()
+        {
+            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5, 1);
+            frame.AddLayer(FrameGenerator.GenerateRandomBitmap(64, 64, 2));
+            IFrameLayer layer = frame.CreateLayer();
+
+            Assert.AreEqual(0, frame.GetLayerAt(0).Index, "Layers fetched with GetLayerAt() must have an index that match the parameter passed");
+            Assert.AreEqual(1, frame.GetLayerAt(1).Index, "Layers fetched with GetLayerAt() must have an index that match the parameter passed");
+            Assert.AreEqual(2, frame.GetLayerAt(2).Index, "Layers fetched with GetLayerAt() must have an index that match the parameter passed");
+
+            Assert.AreEqual(2, layer.Index, "Layers returned by calls to AddLayer() and CreateLayer() must have an index that match the 'index' parameter passed");
+        }
+
+        /// <summary>
         /// Tests frame layer creation by creating a frame composed of multiple layers of a bitmap, and testing the resulting composed bitmap
         /// </summary>
         [TestMethod]
         public void TestFrameLayerCreation()
         {
-            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5);
+            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5, 1);
             frame.AddLayer(FrameGenerator.GenerateRandomBitmap(64, 64, 2));
             frame.AddLayer(FrameGenerator.GenerateRandomBitmap(64, 64, 3));
 

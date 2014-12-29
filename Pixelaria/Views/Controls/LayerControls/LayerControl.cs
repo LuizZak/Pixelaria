@@ -44,6 +44,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _layerVisible;
 
         /// <summary>
+        /// Whether the layer being displayed is currently locked
+        /// </summary>
+        private bool _layerLocked;
+
+        /// <summary>
         /// Gets or sets a value specifying whether the layer is visible
         /// </summary>
         public bool LayerVisible
@@ -56,9 +61,29 @@ namespace Pixelaria.Views.Controls.LayerControls
 
                 _layerVisible = value;
 
-                btn_visible.Image = _layerVisible
-                                        ? Properties.Resources.filter_enable_icon
-                                        : Properties.Resources.filter_disable_icon;
+                UpdateDisplay();
+
+                if (LayerStatusChanged != null)
+                {
+                    LayerStatusChanged(this, new LayerControlStatusChangedEventArgs(LayerStatus));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the layer is visible
+        /// </summary>
+        public bool LayerLocked
+        {
+            get { return _layerLocked; }
+            set
+            {
+                if (_layerLocked == value)
+                    return;
+
+                _layerLocked = value;
+
+                UpdateDisplay();
 
                 if (LayerStatusChanged != null)
                 {
@@ -74,7 +99,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             get
             {
-                return new LayerStatus(_layerVisible);
+                return new LayerStatus(_layerVisible, _layerLocked);
             }
         }
 
@@ -101,6 +126,18 @@ namespace Pixelaria.Views.Controls.LayerControls
         public event LayerStatusChangedEventHandler LayerStatusChanged;
 
         /// <summary>
+        /// Delegate for the LayerSelected event
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="layer">The layer that was selected</param>
+        public delegate void LayerSelectedEventHandler(object sender, LayerControl layer);
+
+        /// <summary>
+        /// Event called whenever the user selects the layer
+        /// </summary>
+        public event LayerSelectedEventHandler LayerSelected;
+
+        /// <summary>
         /// Initializes a new instance of the LayerControl class
         /// </summary>
         /// <param name="layer">The layer this control will bind to</param>
@@ -108,6 +145,10 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             InitializeComponent();
             _layer = layer;
+
+            // Update startup values
+            _layerVisible = true;
+            _layerLocked = false;
 
             UpdateDisplay();
         }
@@ -117,7 +158,46 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public void UpdateDisplay()
         {
+            UpdateBitmapDisplay();
+
+            lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
+
+            btn_visible.Image = _layerVisible ? Properties.Resources.filter_enable_icon : Properties.Resources.filter_disable_icon;
+            btn_locked.Image = _layerLocked ? Properties.Resources.padlock_closed : Properties.Resources.padlock_open;
+        }
+
+        /// <summary>
+        /// Updates the bitmap display for the layers
+        /// </summary>
+        public void UpdateBitmapDisplay()
+        {
             pb_layerImage.Image = _layer.LayerBitmap;
+            pb_layerImage.Invalidate();
+        }
+
+        // 
+        // Layer Visible button
+        // 
+        private void btn_visible_Click(object sender, EventArgs e)
+        {
+            LayerVisible = !LayerVisible;
+        }
+
+        // 
+        // Layer Locked button
+        // 
+        private void btn_locked_Click(object sender, EventArgs e)
+        {
+            LayerLocked = !LayerLocked;
+        }
+
+        // 
+        // Layer Image picture box click
+        // 
+        private void pb_layerImage_Click(object sender, EventArgs e)
+        {
+            if (LayerSelected != null)
+                LayerSelected(this, this);
         }
     }
 
@@ -152,12 +232,19 @@ namespace Pixelaria.Views.Controls.LayerControls
         public readonly bool Visible;
 
         /// <summary>
+        /// Whetehr the layer is locked
+        /// </summary>
+        public readonly bool Locked;
+
+        /// <summary>
         /// Creates a new LayerStatus struct
         /// </summary>
         /// <param name="visible">Whether the layer is currently visible</param>
-        public LayerStatus(bool visible)
+        /// <param name="locked">Whether the layer is currently locked</param>
+        public LayerStatus(bool visible, bool locked)
         {
             Visible = visible;
+            Locked = locked;
         }
     }
 }

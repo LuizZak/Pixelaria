@@ -1,6 +1,32 @@
-﻿using System;
+﻿/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
+using System;
+using System.Drawing;
 using Pixelaria.Controllers.LayerControlling;
+using Pixelaria.Data;
+using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
+using Pixelaria.Views.Controls.LayerControls;
 
 namespace Pixelaria.Views.ModelViews.Decorators
 {
@@ -10,12 +36,32 @@ namespace Pixelaria.Views.ModelViews.Decorators
     public class LayerDecorator : PictureBoxDecorator
     {
         /// <summary>
+        /// The statuses for the layers being rendered on this layer decorator
+        /// </summary>
+        private LayerStatus[] _layerStatuses;
+
+        /// <summary>
+        /// The layer controller used to fetch information about the layers
+        /// </summary>
+        private readonly LayerController _layerController;
+
+        /// <summary>
+        /// Gets or sets the layer statuses for the layers to be rendered on this layer decorator
+        /// </summary>
+        public LayerStatus[] LayerStatuses
+        {
+            get { return _layerStatuses; }
+            set { _layerStatuses = value; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the LayerDecorator class
         /// </summary>
         /// <param name="pictureBox">The picture box to decorate</param>
-        public LayerDecorator(ImageEditPanel.InternalPictureBox pictureBox) : base(pictureBox)
+        /// <param name="controller">The layer controller for this layer decorator</param>
+        public LayerDecorator(ImageEditPanel.InternalPictureBox pictureBox, LayerController controller) : base(pictureBox)
         {
-
+            _layerController = controller;
         }
 
         /// <summary>
@@ -23,7 +69,55 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// </summary>
         public override void Initialize()
         {
-            throw new NotImplementedException();
+            
+        }
+
+        // 
+        // Decorate Under Image method
+        // 
+        public override void DecorateUnderImage(Image image)
+        {
+            base.DecorateUnderImage(image);
+
+            Bitmap bitmap = image as Bitmap;
+
+            if (bitmap == null)
+                return;
+
+            // Iterate through and render each layer up to the current layer
+            IFrameLayer[] layers = _layerController.FrameLayers;
+
+            for (int i = 0; i < _layerController.ActiveLayerIndex; i++)
+            {
+                if (_layerStatuses[i].Visible)
+                {
+                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap);
+                }
+            }
+        }
+
+        // 
+        // Decorate Front Image method
+        // 
+        public override void DecorateFrontImage(Image image)
+        {
+            base.DecorateFrontImage(image);
+
+            Bitmap bitmap = image as Bitmap;
+
+            if (bitmap == null)
+                return;
+
+            // Iterate through and render each layer up to the current layer
+            IFrameLayer[] layers = _layerController.FrameLayers;
+
+            for (int i = _layerController.ActiveLayerIndex + 1; i < layers.Length; i++)
+            {
+                if (_layerStatuses[i].Visible)
+                {
+                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap);
+                }
+            }
         }
     }
 }
