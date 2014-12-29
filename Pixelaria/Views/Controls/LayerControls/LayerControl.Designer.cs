@@ -28,13 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LayerControl));
             this.btn_visible = new System.Windows.Forms.Button();
-            this.btn_remove = new System.Windows.Forms.Button();
+            this.btn_duplicate = new System.Windows.Forms.Button();
             this.btn_locked = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btn_remove = new System.Windows.Forms.Button();
             this.lbl_layerName = new System.Windows.Forms.Label();
             this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -49,21 +51,24 @@
             this.btn_visible.Name = "btn_visible";
             this.btn_visible.Size = new System.Drawing.Size(18, 18);
             this.btn_visible.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.btn_visible, "Switch visibility");
             this.btn_visible.UseVisualStyleBackColor = true;
             this.btn_visible.Click += new System.EventHandler(this.btn_visible_Click);
             // 
-            // btn_remove
+            // btn_duplicate
             // 
-            this.btn_remove.FlatAppearance.BorderSize = 0;
-            this.btn_remove.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
-            this.btn_remove.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
-            this.btn_remove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_remove.Image = global::Pixelaria.Properties.Resources.edit_copy;
-            this.btn_remove.Location = new System.Drawing.Point(3, 61);
-            this.btn_remove.Name = "btn_remove";
-            this.btn_remove.Size = new System.Drawing.Size(18, 18);
-            this.btn_remove.TabIndex = 3;
-            this.btn_remove.UseVisualStyleBackColor = true;
+            this.btn_duplicate.FlatAppearance.BorderSize = 0;
+            this.btn_duplicate.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
+            this.btn_duplicate.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_duplicate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_duplicate.Image = global::Pixelaria.Properties.Resources.edit_copy;
+            this.btn_duplicate.Location = new System.Drawing.Point(3, 61);
+            this.btn_duplicate.Name = "btn_duplicate";
+            this.btn_duplicate.Size = new System.Drawing.Size(18, 18);
+            this.btn_duplicate.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.btn_duplicate, "Duplicate layer");
+            this.btn_duplicate.UseVisualStyleBackColor = true;
+            this.btn_duplicate.Click += new System.EventHandler(this.btn_duplicate_Click);
             // 
             // btn_locked
             // 
@@ -76,21 +81,24 @@
             this.btn_locked.Name = "btn_locked";
             this.btn_locked.Size = new System.Drawing.Size(18, 18);
             this.btn_locked.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.btn_locked, "Lock/unlock layer");
             this.btn_locked.UseVisualStyleBackColor = true;
             this.btn_locked.Click += new System.EventHandler(this.btn_locked_Click);
             // 
-            // button2
+            // btn_remove
             // 
-            this.button2.FlatAppearance.BorderSize = 0;
-            this.button2.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
-            this.button2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.button2.Location = new System.Drawing.Point(3, 82);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(18, 18);
-            this.button2.TabIndex = 6;
-            this.button2.UseVisualStyleBackColor = true;
+            this.btn_remove.FlatAppearance.BorderSize = 0;
+            this.btn_remove.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
+            this.btn_remove.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_remove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_remove.Image = global::Pixelaria.Properties.Resources.action_delete;
+            this.btn_remove.Location = new System.Drawing.Point(3, 82);
+            this.btn_remove.Name = "btn_remove";
+            this.btn_remove.Size = new System.Drawing.Size(18, 18);
+            this.btn_remove.TabIndex = 6;
+            this.toolTip1.SetToolTip(this.btn_remove, "Remove layer");
+            this.btn_remove.UseVisualStyleBackColor = true;
+            this.btn_remove.Click += new System.EventHandler(this.btn_remove_Click);
             // 
             // lbl_layerName
             // 
@@ -125,10 +133,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.lbl_layerName);
             this.Controls.Add(this.pb_layerImage);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.btn_remove);
             this.Controls.Add(this.btn_locked);
             this.Controls.Add(this.btn_visible);
-            this.Controls.Add(this.btn_remove);
+            this.Controls.Add(this.btn_duplicate);
             this.Name = "LayerControl";
             this.Size = new System.Drawing.Size(125, 105);
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).EndInit();
@@ -139,10 +147,11 @@
         #endregion
 
         private System.Windows.Forms.Button btn_visible;
-        private System.Windows.Forms.Button btn_remove;
+        private System.Windows.Forms.Button btn_duplicate;
         private System.Windows.Forms.Button btn_locked;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btn_remove;
         private ZoomablePictureBox pb_layerImage;
         private System.Windows.Forms.Label lbl_layerName;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

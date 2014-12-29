@@ -136,7 +136,7 @@ namespace Pixelaria.Views.Controls
         // 
         private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
         {
-            throw new NotImplementedException();
+            RemoveLayerControl(GetLayerControlForLayer(args.FrameLayer));
         }
 
         // 
@@ -182,12 +182,14 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void ClearAllControls()
         {
-            foreach (var control in _layerControls)
+            SuspendLayout();
+
+            while (_layerControls.Count > 0)
             {
-                control.LayerStatusChanged -= OnLayerStatusChanged;
-                control.LayerSelected -= OnLayerControlSelected;
-                control.Dispose();
+                RemoveLayerControl(_layerControls[0]);
             }
+
+            ResumeLayout();
 
             _layerControls.Clear();
         }
@@ -203,10 +205,35 @@ namespace Pixelaria.Views.Controls
 
             control.LayerSelected += OnLayerControlSelected;
             control.LayerStatusChanged += OnLayerStatusChanged;
+            control.DuplicateLayerSelected += OnDuplicateLayerSelected;
+            control.RemoveLayerSelected += OnRemoveLayerSelected;
 
             _layerControls.Insert(layer.Index, control);
 
             pnl_container.Controls.Add(control);
+
+            if (arrangeAfter)
+            {
+                ArrangeControls();
+            }
+        }
+
+        /// <summary>
+        /// Removes the specified layer control from this layer contro panel
+        /// </summary>
+        /// <param name="control">The layer control to remove</param>
+        /// <param name="arrangeAfter">Whether to call the ArrangeControls method after removing the control</param>
+        private void RemoveLayerControl(LayerControl control, bool arrangeAfter = true)
+        {
+            control.LayerStatusChanged -= OnLayerStatusChanged;
+            control.LayerSelected -= OnLayerControlSelected;
+            control.DuplicateLayerSelected -= OnDuplicateLayerSelected;
+            control.RemoveLayerSelected -= OnRemoveLayerSelected;
+            control.Dispose();
+
+            Controls.Remove(control);
+
+            _layerControls.Remove(control);
 
             if (arrangeAfter)
             {
@@ -244,6 +271,16 @@ namespace Pixelaria.Views.Controls
             }
         }
 
+        /// <summary>
+        /// Gets the layer control for the specified layer, or null, if none was found
+        /// </summary>
+        /// <param name="layer">A valid IFrameLayer that is currently registered on this layer control panel</param>
+        /// <returns>The layer control for the specified layer, or null, if none was found</returns>
+        private LayerControl GetLayerControlForLayer(IFrameLayer layer)
+        {
+            return _layerControls.FirstOrDefault(control => ReferenceEquals(control.Layer, layer));
+        }
+
         // 
         // Layer Selected event handler
         // 
@@ -251,7 +288,6 @@ namespace Pixelaria.Views.Controls
         {
             _controller.ActiveLayerIndex = control.Layer.Index;
         }
-
         // 
         // Layer Status Changed event handler
         // 
@@ -262,11 +298,39 @@ namespace Pixelaria.Views.Controls
                 LayerStatusesUpdated(this, new EventArgs());
             }
         }
+        // 
+        // Duplicate Layer layer control button click
+        // 
+        private void OnDuplicateLayerSelected(object sender, EventArgs eventArgs)
+        {
+            // Convert the sender
+            LayerControl control = sender as LayerControl;
+            if (control == null)
+                return;
+
+            _controller.DuplicateLayer(control.Layer.Index);
+        }
+        // 
+        // Remove Layer layer control button click
+        // 
+        private void OnRemoveLayerSelected(object sender, EventArgs eventArgs)
+        {
+            // Convert the sender
+            LayerControl control = sender as LayerControl;
+            if (control == null)
+                return;
+
+            // Do not allow removing the only layer on the frame
+            if (_controller.FrameLayers.Length == 1)
+                return;
+
+            _controller.RemoveLayer(control.Layer.Index, false);
+        }
 
         // 
         // Create New Layer button click
         // 
-        private void button1_Click(object sender, EventArgs e)
+        private void btn_createNewLayer_Click(object sender, EventArgs e)
         {
             _controller.CreateLayer();
         }

@@ -203,6 +203,21 @@ namespace Pixelaria.Controllers.LayerControlling
         }
 
         /// <summary>
+        /// Adds the specified layer at a specified index
+        /// </summary>
+        /// <param name="layer">The layer to add</param>
+        /// <param name="index">The index to add the layer at</param>
+        public void AddLayer(IFrameLayer layer, int index = -1)
+        {
+            _frame.AddLayer(layer, index);
+
+            if (LayerCreated != null)
+            {
+                LayerCreated(this, new LayerControllerLayerCreatedEventArgs(layer));
+            }
+        }
+
+        /// <summary>
         /// Swaps two layers from the frame
         /// </summary>
         /// <param name="layer1">The index of the first layer to swap</param>
@@ -232,6 +247,29 @@ namespace Pixelaria.Controllers.LayerControlling
             {
                 LayerRemoved(this, new LayerControllerLayerRemovedEventArgs(layer));
             }
+        }
+
+        /// <summary>
+        /// Duplicates the specified layer index
+        /// </summary>
+        /// <param name="layerIndex">The layer to duplicate</param>
+        /// <returns>An IFrameLayer for the newly duplicated layer</returns>
+        public IFrameLayer DuplicateLayer(int layerIndex)
+        {
+            // Duplicate the layer up
+            IFrameLayer layer = _frame.GetLayerAt(layerIndex).Clone();
+
+            if (layerIndex == _frame.LayerCount - 1)
+                _frame.AddLayer(layer);
+            else
+                _frame.AddLayer(layer, layerIndex + 1);
+
+            if (LayerCreated != null)
+            {
+                LayerCreated(this, new LayerControllerLayerCreatedEventArgs(layer));
+            }
+
+            return layer;
         }
     }
 

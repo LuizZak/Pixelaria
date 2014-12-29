@@ -126,6 +126,16 @@ namespace Pixelaria.Views.Controls.LayerControls
         public event LayerStatusChangedEventHandler LayerStatusChanged;
 
         /// <summary>
+        /// Occurs whenever the user clicks the Duplicate Layer button
+        /// </summary>
+        public event EventHandler DuplicateLayerSelected;
+
+        /// <summary>
+        /// Occurs whenever the user clicks the Remove Layer button
+        /// </summary>
+        public event EventHandler RemoveLayerSelected;
+
+        /// <summary>
         /// Delegate for the LayerSelected event
         /// </summary>
         /// <param name="sender">The sender of the event</param>
@@ -189,6 +199,28 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void btn_locked_Click(object sender, EventArgs e)
         {
             LayerLocked = !LayerLocked;
+        }
+
+        // 
+        // Duplicate Layer button click
+        // 
+        private void btn_duplicate_Click(object sender, EventArgs e)
+        {
+            if (DuplicateLayerSelected != null)
+            {
+                DuplicateLayerSelected(this, new EventArgs());
+            }
+        }
+
+        // 
+        // Remove Layer button click
+        // 
+        private void btn_remove_Click(object sender, EventArgs e)
+        {
+            if (RemoveLayerSelected != null)
+            {
+                RemoveLayerSelected(this, new EventArgs());
+            }
         }
 
         // 

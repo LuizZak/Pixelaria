@@ -1847,6 +1847,11 @@ namespace Pixelaria.Views.ModelViews
             private readonly LayerDecorator _decorator;
 
             /// <summary>
+            /// Whether to generate undo tasks for operations on the layers 
+            /// </summary>
+            private bool _generateUndos;
+
+            /// <summary>
             /// Initializes a new instance of the FrameViewLayercontrollerBinder class
             /// </summary>
             /// <param name="frameView">The frame view to bind</param>
@@ -1855,6 +1860,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 _frameView = frameView;
                 _layerController = layerController;
+                _generateUndos = true;
 
                 _decorator = new LayerDecorator(_frameView.iepb_frame.PictureBox, layerController);
 
@@ -1928,16 +1934,6 @@ namespace Pixelaria.Views.ModelViews
                     }
                 }
 
-                // Deal with layer management undo tasks
-                ILayerUndoTask layerTask = undoEventArgs.Task as ILayerUndoTask;
-                if (layerTask != null)
-                {
-                    _frameView.lcp_layers.ReloadLayers();
-                    _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
-
-                    UpdateEditActiveLayer();
-                }
-
                 // Update the layer image
                 _frameView.lcp_layers.UpdateLayersDisplay();
             }
@@ -1999,7 +1995,8 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 // Add the undo task
-                _frameView._undoSystem.RegisterUndo(new RemoveLayerUndoTask(args.FrameLayer, _frameView._viewFrame));
+                if (_generateUndos)
+                    _frameView._undoSystem.RegisterUndo(new RemoveLayerUndoTask(args.FrameLayer, this));
 
                 _frameView.MarkModified();
             }
@@ -2013,7 +2010,8 @@ namespace Pixelaria.Views.ModelViews
                 _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
 
                 // Add the undo task
-                _frameView._undoSystem.RegisterUndo(new AddLayerUndoTask(args.FrameLayer));
+                if (_generateUndos)
+                    _frameView._undoSystem.RegisterUndo(new AddLayerUndoTask(args.FrameLayer, this));
 
                 _frameView.MarkModified();
             }
@@ -2073,14 +2071,14 @@ namespace Pixelaria.Views.ModelViews
             private class AddLayerUndoTask : ILayerUndoTask
             {
                 /// <summary>
+                /// The binder controller
+                /// </summary>
+                private readonly FrameViewLayerControllerBinder _binder;
+
+                /// <summary>
                 /// The layer that was added
                 /// </summary>
                 private readonly IFrameLayer _layer;
-
-                /// <summary>
-                /// The frame in which the layer was added
-                /// </summary>
-                private readonly Frame _frame;
 
                 /// <summary>
                 /// Whether the task has been undone
@@ -2091,10 +2089,11 @@ namespace Pixelaria.Views.ModelViews
                 /// Initializes a new instance of the AddLayerUndoTask class
                 /// </summary>
                 /// <param name="layer">The layer that was added</param>
-                public AddLayerUndoTask(IFrameLayer layer)
+                /// <param name="binder">The binder controller</param>
+                public AddLayerUndoTask(IFrameLayer layer, FrameViewLayerControllerBinder binder)
                 {
                     _layer = layer;
-                    _frame = layer.Frame;
+                    _binder = binder;
                 }
 
                 /// <summary>
@@ -2116,7 +2115,9 @@ namespace Pixelaria.Views.ModelViews
                     _undone = true;
 
                     // Remove the layer
-                    _frame.RemoveLayerAt(_layer.Index, false);
+                    _binder._generateUndos = false;
+                    _binder._layerController.RemoveLayer(_layer.Index, false);
+                    _binder._generateUndos = true;
                 }
 
                 /// <summary>
@@ -2126,7 +2127,9 @@ namespace Pixelaria.Views.ModelViews
                 {
                     _undone = false;
 
-                    _frame.AddLayer(_layer, _layer.Index);
+                    _binder._generateUndos = false;
+                    _binder._layerController.AddLayer(_layer, _layer.Index);
+                    _binder._generateUndos = true;
                 }
                 
                 /// <summary>
@@ -2145,14 +2148,14 @@ namespace Pixelaria.Views.ModelViews
             private class RemoveLayerUndoTask : ILayerUndoTask
             {
                 /// <summary>
+                /// The binder controller
+                /// </summary>
+                private readonly FrameViewLayerControllerBinder _binder;
+
+                /// <summary>
                 /// The layer that was removed
                 /// </summary>
                 private readonly IFrameLayer _layer;
-
-                /// <summary>
-                /// The frame in which the layer was removed
-                /// </summary>
-                private readonly Frame _frame;
 
                 /// <summary>
                 /// Whether the task has been undone
@@ -2163,11 +2166,11 @@ namespace Pixelaria.Views.ModelViews
                 /// Initializes a new instance of the RemoveLayerUndoTask class
                 /// </summary>
                 /// <param name="layer">The layer that was removed</param>
-                /// <param name="frame">The frame from which the layer was removed from</param>
-                public RemoveLayerUndoTask(IFrameLayer layer, Frame frame)
+                /// <param name="binder">The binder controller</param>
+                public RemoveLayerUndoTask(IFrameLayer layer, FrameViewLayerControllerBinder binder)
                 {
                     _layer = layer;
-                    _frame = frame;
+                    _binder = binder;
                 }
 
                 /// <summary>
@@ -2188,7 +2191,9 @@ namespace Pixelaria.Views.ModelViews
                 {
                     _undone = true;
 
-                    _frame.AddLayer(_layer, _layer.Index);
+                    _binder._generateUndos = false;
+                    _binder._layerController.AddLayer(_layer, _layer.Index);
+                    _binder._generateUndos = true;
                 }
 
                 /// <summary>
@@ -2199,7 +2204,9 @@ namespace Pixelaria.Views.ModelViews
                     _undone = false;
 
                     // Remove the layer
-                    _frame.RemoveLayerAt(_layer.Index, false);
+                    _binder._generateUndos = false;
+                    _binder._layerController.RemoveLayer(_layer.Index, false);
+                    _binder._generateUndos = true;
                 }
                 
                 /// <summary>

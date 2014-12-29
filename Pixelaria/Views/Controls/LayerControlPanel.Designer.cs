@@ -45,7 +45,7 @@ namespace Pixelaria.Views.Controls
             this.btn_createNewLayer.TabIndex = 2;
             this.toolTip1.SetToolTip(this.btn_createNewLayer, "Add New Layer");
             this.btn_createNewLayer.UseVisualStyleBackColor = true;
-            this.btn_createNewLayer.Click += new System.EventHandler(this.button1_Click);
+            this.btn_createNewLayer.Click += new System.EventHandler(this.btn_createNewLayer_Click);
             // 
             // pnl_container
             // 

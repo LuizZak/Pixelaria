@@ -295,7 +295,7 @@ namespace Pixelaria.Data
             // Clear the current layers and clone from the passed frame
             ClearLayers();
 
-            _layers.AddRange(castFrame._layers.Select(t => t.Clone()));
+            _layers.AddRange(castFrame._layers.Select(t => t.Clone() as FrameLayer));
 
             // Update the indices of the layers
             UpdateLayerIndices();
@@ -839,7 +839,7 @@ namespace Pixelaria.Data
             /// Clones this frame layer object
             /// </summary>
             /// <returns>A clone of this frame layer's object</returns>
-            public FrameLayer Clone()
+            public IFrameLayer Clone()
             {
                 FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, _layerBitmap.PixelFormat));
 
@@ -1025,5 +1025,11 @@ namespace Pixelaria.Data
         /// Gets this layer's bitmap content
         /// </summary>
         Bitmap LayerBitmap { get; }
+
+        /// <summary>
+        /// Clones this Frame Layer object
+        /// </summary>
+        /// <returns>A copy of this Frame Layer object</returns>
+        IFrameLayer Clone();
     }
 }
