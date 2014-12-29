@@ -379,6 +379,11 @@ namespace Pixelaria.Views.Controls
             public IModifiable NotifyTo;
 
             /// <summary>
+            /// Event fired whenever the picture box has had its bitmap modified
+            /// </summary>
+            public event EventHandler Modified;
+
+            /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox
             /// </summary>
             public IPaintTool CurrentPaintTool { get { return _currentPaintTool; } set { if (IsDisposed) return; SetPaintOperation(value); } }
@@ -567,6 +572,11 @@ namespace Pixelaria.Views.Controls
                 if (NotifyTo != null)
                 {
                     NotifyTo.MarkModified();
+                }
+
+                if (Modified != null)
+                {
+                    Modified(this, new EventArgs());
                 }
             }
 
