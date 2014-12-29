@@ -904,7 +904,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Describes an undo task capable of undoing changes made to a bitmap
     /// </summary>
-    public class BitmapUndoTask : IUndoTask
+    public class BitmapUndoTask : BasicPaintOperationUndoTask
     {
         /// <summary>
         /// The bitmap that will be the target for the changes
@@ -947,6 +947,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="description">A short description for this BitmapUndoTask</param>
         /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
         public BitmapUndoTask(Bitmap targetBitmap, string description, Point drawPoint = new Point())
+            : base(targetBitmap)
         {
             _targetBitmap = targetBitmap;
             _description = description;
@@ -999,7 +1000,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Clears this UndoTask object
         /// </summary>
-        public void Clear()
+        public override void Clear()
         {
             if (_oldBitmap != null)
                 _oldBitmap.Dispose();
@@ -1011,7 +1012,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Undoes this task
         /// </summary>
-        public void Undo()
+        public override void Undo()
         {
             FastBitmap.CopyRegion(_oldBitmap, _targetBitmap,
                 new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height),
@@ -1021,7 +1022,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Redoes this task
         /// </summary>
-        public void Redo()
+        public override void Redo()
         {
             FastBitmap.CopyRegion(_newBitmap, _targetBitmap,
                 new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height),
@@ -1032,7 +1033,7 @@ namespace Pixelaria.Views.Controls
         /// Returns a short string description of this UndoTask
         /// </summary>
         /// <returns>A short string description of this UndoTask</returns>
-        public string GetDescription()
+        public override string GetDescription()
         {
             return _description;
         }
