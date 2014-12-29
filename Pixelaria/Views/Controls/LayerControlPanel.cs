@@ -101,7 +101,7 @@ namespace Pixelaria.Views.Controls
             _controller.ActiveLayerIndexChanged += OnActiveLayerIndexChanged;
 
             if (_controller.Frame != null)
-                LoadLayers();
+                ReloadLayers();
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Pixelaria.Views.Controls
         // 
         private void OnFrameChanged(object sender, LayerControllerFrameChangedEventArgs args)
         {
-            LoadLayers();
+            ReloadLayers();
         }
 
         // 
@@ -156,9 +156,9 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Loads the layers from the currently bound controller
+        /// Loads/reloads the layers from the currently bound controller
         /// </summary>
-        private void LoadLayers()
+        public void ReloadLayers()
         {
             ClearAllControls();
 

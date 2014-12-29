@@ -221,13 +221,16 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Removes a layer that is at the specified index
         /// </summary>
         /// <param name="layerIndex">The index of the layer to remove</param>
-        public void RemoveLayer(int layerIndex)
+        /// <param name="dispose">Whether to dispose of the layer that was removed</param>
+        public void RemoveLayer(int layerIndex, bool dispose = true)
         {
-            _frame.RemoveLayerAt(layerIndex);
+            IFrameLayer layer = _frame.GetLayerAt(layerIndex);
+
+            _frame.RemoveLayerAt(layerIndex, dispose);
 
             if (LayerRemoved != null)
             {
-                LayerRemoved(this, new LayerControllerLayerRemovedEventArgs(layerIndex));
+                LayerRemoved(this, new LayerControllerLayerRemovedEventArgs(layer));
             }
         }
     }
@@ -285,17 +288,17 @@ namespace Pixelaria.Controllers.LayerControlling
     public class LayerControllerLayerRemovedEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the index of the layer that was removed
+        /// Gets the layer that was removed
         /// </summary>
-        public int LayerIndex { get; private set; }
+        public IFrameLayer FrameLayer { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the LayerRemovedEventArgs class
         /// </summary>
-        /// <param name="layerIndex">The index of the layer that was removed</param>
-        public LayerControllerLayerRemovedEventArgs(int layerIndex)
+        /// <param name="frameLayer">The layer that was removed</param>
+        public LayerControllerLayerRemovedEventArgs(IFrameLayer frameLayer)
         {
-            LayerIndex = layerIndex;
+            FrameLayer = frameLayer;
         }
     }
 

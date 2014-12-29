@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-
+using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
@@ -222,6 +222,7 @@ namespace Pixelaria.Views.ModelViews
             iepb_frame.UndoSystem.UndoRegistered += UndoSystem_UndoRegistered;
             iepb_frame.UndoSystem.UndoPerformed += UndoSystem_UndoPerformed;
             iepb_frame.UndoSystem.RedoPerformed += UndoSystem_RedoPerformed;
+            iepb_frame.UndoSystem.Cleared += UndoSystem_Cleared;
 
             // Set the paint operation to the default
             ChangePaintOperation(new PencilPaintTool(FirstColor, SecondColor, BrushSize));
@@ -949,17 +950,17 @@ namespace Pixelaria.Views.ModelViews
         #region Undo System
 
         // 
-        // ImageEditPanel Undo System undo registered event handler
+        // ImageEditPanel Undo System Task Registered event handler
         // 
-        private void UndoSystem_UndoRegistered(object sender, Data.Undo.UndoEventArgs e)
+        private void UndoSystem_UndoRegistered(object sender, UndoEventArgs e)
         {
             RefreshUndoRedo();
         }
 
         // 
-        // ImageEditPanel Undo System undo performed event handler
+        // ImageEditPanel Undo System Undo Performed event handler
         // 
-        private void UndoSystem_UndoPerformed(object sender, Data.Undo.UndoEventArgs e)
+        private void UndoSystem_UndoPerformed(object sender, UndoEventArgs e)
         {
             RefreshUndoRedo();
 
@@ -968,14 +969,22 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
-        // ImageEditPanel Undo System redo performed event handler
+        // ImageEditPanel Undo System Redo Performed event handler
         // 
-        private void UndoSystem_RedoPerformed(object sender, Data.Undo.UndoEventArgs e)
+        private void UndoSystem_RedoPerformed(object sender, UndoEventArgs e)
         {
             RefreshUndoRedo();
 
             MarkModified();
             iepb_frame.PictureBox.Invalidate();
+        }
+
+        // 
+        // ImageEditPanel Undo System Cleared event handler
+        // 
+        private void UndoSystem_Cleared(object sender, EventArgs eventArgs)
+        {
+            RefreshUndoRedo();
         }
 
         #endregion
@@ -1835,7 +1844,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// The decorator used to display the frame's layers on the picture box
             /// </summary>
-            private LayerDecorator _decorator;
+            private readonly LayerDecorator _decorator;
 
             /// <summary>
             /// Initializes a new instance of the FrameViewLayercontrollerBinder class
@@ -1904,9 +1913,36 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnUndoTaskPerformed(object sender, UndoEventArgs undoEventArgs)
             {
+                // Switch layers based on the bitmap that was modified
+                BasicPaintOperationUndoTask task = undoEventArgs.Task as BasicPaintOperationUndoTask;
+                if (task != null)
+                {
+                    // Find the layer that the bitmap belongs to
+                    foreach (var layer in _layerController.FrameLayers)
+                    {
+                        if (layer.LayerBitmap == task.TargetBitmap)
+                        {
+                            _layerController.ActiveLayerIndex = layer.Index;
+                            break;
+                        }
+                    }
+                }
+
+                // Deal with layer management undo tasks
+                ILayerUndoTask layerTask = undoEventArgs.Task as ILayerUndoTask;
+                if (layerTask != null)
+                {
+                    _frameView.lcp_layers.ReloadLayers();
+                    _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+
+                    UpdateEditActiveLayer();
+                }
+
                 // Update the layer image
                 _frameView.lcp_layers.UpdateLayersDisplay();
             }
+
+            #region ImageEditPanel.PictureBox event handlers
 
             // 
             // Picture Box Modified event handler
@@ -1918,6 +1954,10 @@ namespace Pixelaria.Views.ModelViews
 
                 _frameView.lcp_layers.UpdateLayersDisplay();
             }
+
+            #endregion
+
+            #region Layer Control Panel event handlers
 
             // 
             // Layer Status Update event handler
@@ -1933,6 +1973,10 @@ namespace Pixelaria.Views.ModelViews
                 // Invalidate frame to update visibility
                 _frameView.iepb_frame.PictureBox.Invalidate();
             }
+
+            #endregion
+
+            #region Layer Controller event handlers
 
             // 
             // Layers Swapped event handler
@@ -1954,6 +1998,9 @@ namespace Pixelaria.Views.ModelViews
                     operation.FinishOperation(true);
                 }
 
+                // Add the undo task
+                _frameView._undoSystem.RegisterUndo(new RemoveLayerUndoTask(args.FrameLayer, _frameView._viewFrame));
+
                 _frameView.MarkModified();
             }
 
@@ -1964,6 +2011,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 // Update the layer image
                 _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+
+                // Add the undo task
+                _frameView._undoSystem.RegisterUndo(new AddLayerUndoTask(args.FrameLayer));
 
                 _frameView.MarkModified();
             }
@@ -1988,6 +2038,14 @@ namespace Pixelaria.Views.ModelViews
                     operation.FinishOperation(true);
                 }
 
+                UpdateEditActiveLayer();
+            }
+
+            /// <summary>
+            /// Updates the bitmap being currently edited based on the active layer of the layer control
+            /// </summary>
+            private void UpdateEditActiveLayer()
+            {
                 // Update the bitmap being edited
                 _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
                 _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap, false);
@@ -1996,6 +2054,165 @@ namespace Pixelaria.Views.ModelViews
                 var status = _frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex];
                 _frameView.iepb_frame.EditingEnabled = !status.Locked && status.Visible;
             }
+
+            #endregion
+
+            #region Layer Undo Tasks
+
+            /// <summary>
+            /// Represents an interface to be implemented by classes that undo/redo layer management
+            /// </summary>
+            private interface ILayerUndoTask : IUndoTask
+            {
+                
+            }
+
+            /// <summary>
+            /// Represents an undo operation for an Add Layer operation
+            /// </summary>
+            private class AddLayerUndoTask : ILayerUndoTask
+            {
+                /// <summary>
+                /// The layer that was added
+                /// </summary>
+                private readonly IFrameLayer _layer;
+
+                /// <summary>
+                /// The frame in which the layer was added
+                /// </summary>
+                private readonly Frame _frame;
+
+                /// <summary>
+                /// Whether the task has been undone
+                /// </summary>
+                private bool _undone;
+
+                /// <summary>
+                /// Initializes a new instance of the AddLayerUndoTask class
+                /// </summary>
+                /// <param name="layer">The layer that was added</param>
+                public AddLayerUndoTask(IFrameLayer layer)
+                {
+                    _layer = layer;
+                    _frame = layer.Frame;
+                }
+
+                /// <summary>
+                /// Clears this AddLayerUndoTask
+                /// </summary>
+                public void Clear()
+                {
+                    if (_undone)
+                    {
+                        _layer.Dispose();
+                    }
+                }
+
+                /// <summary>
+                /// Undoes the Add Layer task
+                /// </summary>
+                public void Undo()
+                {
+                    _undone = true;
+
+                    // Remove the layer
+                    _frame.RemoveLayerAt(_layer.Index, false);
+                }
+
+                /// <summary>
+                /// Redoes the Add Layer task
+                /// </summary>
+                public void Redo()
+                {
+                    _undone = false;
+
+                    _frame.AddLayer(_layer, _layer.Index);
+                }
+                
+                /// <summary>
+                /// Returns the description for this undo task
+                /// </summary>
+                /// <returns>The description for this undo task</returns>
+                public string GetDescription()
+                {
+                    return "Add Layer";
+                }
+            }
+
+            /// <summary>
+            /// Represents an undo operation for a Remove Layer operation
+            /// </summary>
+            private class RemoveLayerUndoTask : ILayerUndoTask
+            {
+                /// <summary>
+                /// The layer that was removed
+                /// </summary>
+                private readonly IFrameLayer _layer;
+
+                /// <summary>
+                /// The frame in which the layer was removed
+                /// </summary>
+                private readonly Frame _frame;
+
+                /// <summary>
+                /// Whether the task has been undone
+                /// </summary>
+                private bool _undone;
+
+                /// <summary>
+                /// Initializes a new instance of the RemoveLayerUndoTask class
+                /// </summary>
+                /// <param name="layer">The layer that was removed</param>
+                /// <param name="frame">The frame from which the layer was removed from</param>
+                public RemoveLayerUndoTask(IFrameLayer layer, Frame frame)
+                {
+                    _layer = layer;
+                    _frame = frame;
+                }
+
+                /// <summary>
+                /// Clears this RemoveLayerUndoTask
+                /// </summary>
+                public void Clear()
+                {
+                    if (_undone)
+                    {
+                        _layer.Dispose();
+                    }
+                }
+
+                /// <summary>
+                /// Undoes the Remove Layer task
+                /// </summary>
+                public void Undo()
+                {
+                    _undone = true;
+
+                    _frame.AddLayer(_layer, _layer.Index);
+                }
+
+                /// <summary>
+                /// Redoes the Remove Layer task
+                /// </summary>
+                public void Redo()
+                {
+                    _undone = false;
+
+                    // Remove the layer
+                    _frame.RemoveLayerAt(_layer.Index, false);
+                }
+                
+                /// <summary>
+                /// Returns the description for this undo task
+                /// </summary>
+                /// <returns>The description for this undo task</returns>
+                public string GetDescription()
+                {
+                    return "Remove Layer";
+                }
+            }
+
+            #endregion
         }
     }
 

@@ -434,6 +434,8 @@ namespace Pixelaria.Data
             else
                 _layers.Insert(layerIndex, (FrameLayer)layer);
 
+            ((FrameLayer)layer).Frame = this;
+
             UpdateLayerIndices();
         }
 
@@ -782,7 +784,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Represents the layer for a frame
         /// </summary>
-        protected class FrameLayer : IFrameLayer, IDisposable, IEquatable<FrameLayer>
+        protected class FrameLayer : IFrameLayer, IEquatable<FrameLayer>
         {
             /// <summary>
             /// The bitmap for this layer
@@ -997,7 +999,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Interface to be implemented by frame layers 
     /// </summary>
-    public interface IFrameLayer
+    public interface IFrameLayer : IDisposable
     {
         /// <summary>
         /// Gets this layer's width

@@ -228,6 +228,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             frame.AddLayer(layer1);
             frame.AddLayer(layer2, 1);
 
+            Assert.AreEqual(frame, frame.GetLayerAt(0).Frame, "The Frame reference of the layer must match the frame that it was added to");
             Assert.AreEqual(3, frame.LayerCount, "The layer count must go up for each new layer added");
             Assert.AreEqual(1, frame.GetLayerAt(1).Index, "A layer's index must reflect its current position on the owning frame's layer list");
             Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(1).LayerBitmap), "The layer bitmaps insertion must obey the index provided on AddLayer");
@@ -243,7 +244,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             frame.RemoveLayerAt(0);
 
-            Assert.AreEqual(1, frame.LayerCount, "The layer count must go up for each new layer added");
+            Assert.AreEqual(1, frame.LayerCount, "The layer count for a frame can never go bellow 1");
         }
 
         /// <summary>
@@ -303,17 +304,18 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             // Create a frame
             Frame frame = new Frame(null, 64, 64);
 
-            Bitmap layer1 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
-            frame.CreateLayer();
+            IFrameLayer layer = frame.CreateLayer();
 
             // Swap the layers
-            frame.SetLayerBitmap(1, layer1);
+            frame.SetLayerBitmap(1, bitmap);
 
             frame.RemoveLayerAt(0);
 
             // Test layer swapping by comparing the bitmaps
-            Assert.IsTrue(Utilities.ImagesAreIdentical(layer1, frame.GetLayerAt(0).LayerBitmap), "The layer does not appear to have been correctly removed");
+            Assert.AreEqual(null, layer.Frame, "After removing a layer from a frame, its Frame reference must be null");
+            Assert.IsTrue(Utilities.ImagesAreIdentical(bitmap, frame.GetLayerAt(0).LayerBitmap), "The layer does not appear to have been correctly removed");
         }
 
         /// <summary>

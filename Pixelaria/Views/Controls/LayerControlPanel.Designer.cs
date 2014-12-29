@@ -10,15 +10,16 @@ namespace Pixelaria.Views.Controls
     {
         private LabeledPanel labeledPanel1;
         private Panel panel1;
-        private Button btn_createNewLayer;
         private Panel pnl_container;
 
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btn_createNewLayer = new System.Windows.Forms.Button();
             this.pnl_container = new System.Windows.Forms.Panel();
             this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -42,6 +43,7 @@ namespace Pixelaria.Views.Controls
             this.btn_createNewLayer.Name = "btn_createNewLayer";
             this.btn_createNewLayer.Size = new System.Drawing.Size(20, 20);
             this.btn_createNewLayer.TabIndex = 2;
+            this.toolTip1.SetToolTip(this.btn_createNewLayer, "Add New Layer");
             this.btn_createNewLayer.UseVisualStyleBackColor = true;
             this.btn_createNewLayer.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -75,5 +77,9 @@ namespace Pixelaria.Views.Controls
             this.ResumeLayout(false);
 
         }
+
+        private Button btn_createNewLayer;
+        private ToolTip toolTip1;
+        private System.ComponentModel.IContainer components;
     }
 }
