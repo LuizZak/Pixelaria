@@ -160,6 +160,14 @@ namespace Pixelaria.Controllers.LayerControlling
         }
 
         /// <summary>
+        /// Gets the number of layers on the current active frame
+        /// </summary>
+        public int LayerCount
+        {
+            get { return _frame.LayerCount; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the LayerController class with a specified frame to control
         /// </summary>
         /// <param name="frame">The frame to control on this Layer Controller</param>
@@ -230,6 +238,16 @@ namespace Pixelaria.Controllers.LayerControlling
             {
                 LayersSwapped(this, new LayerControllerLayersSwappedEventArgs(layer1, layer2));
             }
+
+            // Update active layer index
+            if (ActiveLayerIndex == layer1)
+            {
+                ActiveLayerIndex = layer2;
+            }
+            else if (ActiveLayerIndex == layer2)
+            {
+                ActiveLayerIndex = layer1;
+            }
         }
 
         /// <summary>
@@ -281,22 +299,22 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// The first layer that was swapped
         /// </summary>
-        public int FirstLayer { get; private set; }
+        public int FirstLayerIndex { get; private set; }
 
         /// <summary>
         /// The second layer that was swapped
         /// </summary>
-        public int SecondLayer { get; private set; }
+        public int SecondLayerIndex { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the LayersSwappedEventArgs class
         /// </summary>
-        /// <param name="firstLayer">The first layer that was swapped</param>
-        /// <param name="secondLayer">The second layer that was swapped</param>
-        public LayerControllerLayersSwappedEventArgs(int firstLayer, int secondLayer)
+        /// <param name="firstLayerIndex">The first layer that was swapped</param>
+        /// <param name="secondLayerIndex">The second layer that was swapped</param>
+        public LayerControllerLayersSwappedEventArgs(int firstLayerIndex, int secondLayerIndex)
         {
-            FirstLayer = firstLayer;
-            SecondLayer = secondLayer;
+            FirstLayerIndex = firstLayerIndex;
+            SecondLayerIndex = secondLayerIndex;
         }
     }
 

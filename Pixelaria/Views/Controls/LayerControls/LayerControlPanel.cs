@@ -27,9 +27,8 @@ using System.Linq;
 using System.Windows.Forms;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
-using Pixelaria.Views.Controls.LayerControls;
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.LayerControls
 {
     /// <summary>
     /// Control that is used to display an interface for the user to manage a frame's layers
@@ -45,6 +44,11 @@ namespace Pixelaria.Views.Controls
         /// The list of all currently registered layer controls
         /// </summary>
         private readonly List<LayerControl> _layerControls;
+
+        /// <summary>
+        /// Whether the user is currently swapping controls
+        /// </summary>
+        private bool _swappingControls;
 
         /// <summary>
         /// Gets the array of layer status for each layer
@@ -128,7 +132,11 @@ namespace Pixelaria.Views.Controls
         // 
         private void OnLayersSwapped(object sender, LayerControllerLayersSwappedEventArgs args)
         {
-            throw new NotImplementedException();
+            LayerControl secondLayer = _layerControls[args.SecondLayerIndex];
+            _layerControls[args.SecondLayerIndex] = _layerControls[args.FirstLayerIndex];
+            _layerControls[args.FirstLayerIndex] = secondLayer;
+
+            ArrangeControls();
         }
 
         // 
@@ -207,6 +215,10 @@ namespace Pixelaria.Views.Controls
             control.LayerStatusChanged += OnLayerStatusChanged;
             control.DuplicateLayerSelected += OnDuplicateLayerSelected;
             control.RemoveLayerSelected += OnRemoveLayerSelected;
+            control.LayerControlDragged += OnLayerControlDragged;
+
+            control.LayerImagePressed += OnLayerImagePressed;
+            control.LayerImageReleased += OnLayerImageReleased;
 
             _layerControls.Insert(layer.Index, control);
 
@@ -229,6 +241,11 @@ namespace Pixelaria.Views.Controls
             control.LayerSelected -= OnLayerControlSelected;
             control.DuplicateLayerSelected -= OnDuplicateLayerSelected;
             control.RemoveLayerSelected -= OnRemoveLayerSelected;
+            control.LayerControlDragged -= OnLayerControlDragged;
+
+            control.LayerImagePressed -= OnLayerImagePressed;
+            control.LayerImageReleased -= OnLayerImageReleased;
+
             control.Dispose();
 
             Controls.Remove(control);
@@ -282,6 +299,23 @@ namespace Pixelaria.Views.Controls
         }
 
         // 
+        // Create New Layer button click
+        // 
+        private void btn_createNewLayer_Click(object sender, EventArgs e)
+        {
+            if (_controller.ActiveLayerIndex == _controller.LayerCount - 1)
+            {
+                _controller.ActiveLayerIndex = _controller.CreateLayer().Index;
+            }
+            else
+            {
+                _controller.ActiveLayerIndex = _controller.CreateLayer(_controller.ActiveLayerIndex + 1).Index;
+            }
+        }
+
+        #region Layer Control event handlers
+
+        // 
         // Layer Selected event handler
         // 
         private void OnLayerControlSelected(object sender, LayerControl control)
@@ -326,13 +360,65 @@ namespace Pixelaria.Views.Controls
 
             _controller.RemoveLayer(control.Layer.Index, false);
         }
+        // 
+        // Layer Drag event handler
+        // 
+        private void OnLayerControlDragged(object sender, LayerControlDragEventArgs args)
+        {
+            // Get the index of the control being dragged
+            LayerControl control = sender as LayerControl;
+            if (control == null)
+                return;
+
+            _swappingControls = true;
+
+            // Swap controls via the index of the controls
+            int index = _layerControls.IndexOf(control);
+            int newIndex = index + (args.DragDirection == LayerDragDirection.Down ? -1 : 1);
+
+            var layerControl = _layerControls[index];
+            _layerControls[index] = _layerControls[newIndex];
+            _layerControls[newIndex] = layerControl;
+
+            ArrangeControls();
+        }
 
         // 
-        // Create New Layer button click
+        // Layer Image Pressed mouse event handler
         // 
-        private void btn_createNewLayer_Click(object sender, EventArgs e)
+        private void OnLayerImagePressed(object sender, MouseEventArgs mouseEventArgs)
         {
-            _controller.CreateLayer();
+            
         }
+        // 
+        // Layer Image Released mouse event handler
+        // 
+        private void OnLayerImageReleased(object sender, MouseEventArgs mouseEventArgs)
+        {
+            // Get the index of the control being dragged
+            LayerControl control = sender as LayerControl;
+            if (control == null || !_swappingControls)
+                return;
+
+            _swappingControls = false;
+
+            int index = control.Layer.Index;
+            int newIndex = _layerControls.IndexOf(control);
+
+            if (index == newIndex)
+                return;
+
+            // Reset the layer control index
+            var layerControl = _layerControls[index];
+            _layerControls[index] = _layerControls[newIndex];
+            _layerControls[newIndex] = layerControl;
+
+            if (newIndex >= 0 && newIndex < _controller.LayerCount)
+            {
+                _controller.SwapLayers(index, newIndex);
+            }
+        }
+
+        #endregion
     }
 }

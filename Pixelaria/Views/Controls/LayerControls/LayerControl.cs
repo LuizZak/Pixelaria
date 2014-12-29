@@ -22,8 +22,11 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using Pixelaria.Data;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.LayerControls
 {
@@ -37,6 +40,21 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// The layer this layer control is binded to
         /// </summary>
         private readonly IFrameLayer _layer;
+
+        /// <summary>
+        /// Whether the user is currently dragging the layer around
+        /// </summary>
+        private bool _draggingLayer;
+
+        /// <summary>
+        /// Whether the user is currently pressing down on the layer bitmap
+        /// </summary>
+        private bool _pressingLayer;
+
+        /// <summary>
+        /// Specifies the point where the player pressed down on the layer's image
+        /// </summary>
+        private Point _layerPressPoint;
 
         /// <summary>
         /// Whether the layer being displayed is currently visible
@@ -148,6 +166,28 @@ namespace Pixelaria.Views.Controls.LayerControls
         public event LayerSelectedEventHandler LayerSelected;
 
         /// <summary>
+        /// Delegate for the LayerControlDragged event
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="args">The event arguments for the event</param>
+        public delegate void LayerControlDraggedEventHandler(object sender, LayerControlDragEventArgs args);
+
+        /// <summary>
+        /// Occurs whenever the user drags the layer in order to swap it with another layer up or down
+        /// </summary>
+        public event LayerControlDraggedEventHandler LayerControlDragged;
+
+        /// <summary>
+        /// Occurs whenever the user presses on the layer image area
+        /// </summary>
+        public event MouseEventHandler LayerImagePressed;
+
+        /// <summary>
+        /// Occurs whenever the user releases the layer image area
+        /// </summary>
+        public event MouseEventHandler LayerImageReleased;
+
+        /// <summary>
         /// Initializes a new instance of the LayerControl class
         /// </summary>
         /// <param name="layer">The layer this control will bind to</param>
@@ -231,10 +271,72 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (LayerSelected != null)
                 LayerSelected(this, this);
         }
+
+        // 
+        // Layer Image picture box mouse down
+        // 
+        private void pb_layerImage_MouseDown(object sender, MouseEventArgs e)
+        {
+            _layerPressPoint = e.Location;
+            _pressingLayer = true;
+
+            if (LayerImagePressed != null)
+            {
+                LayerImagePressed(this, e);
+            }
+        }
+
+        // 
+        // Layer Image picture box mouse move
+        // 
+        private void pb_layerImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_pressingLayer)
+            {
+                if (_layerPressPoint.Distance(e.Location) > 20)
+                {
+                    _draggingLayer = true;
+                }
+
+                if (_draggingLayer)
+                {
+                    if (e.Location.Y < -pb_layerImage.Location.Y - 5)
+                    {
+                        if (LayerControlDragged != null)
+                        {
+                            LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Up));
+                        }
+                    }
+                    else if (e.Location.Y - pb_layerImage.Location.Y > Height + 5)
+                    {
+                        if (LayerControlDragged != null)
+                        {
+                            LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Down));
+                        }
+                    }
+                }
+
+                Debug.WriteLine(e.Location);
+            }
+        }
+
+        // 
+        // Layer Image picture box mouse up
+        // 
+        private void pb_layerImage_MouseUp(object sender, MouseEventArgs e)
+        {
+            _draggingLayer = false;
+            _pressingLayer = false;
+
+            if (LayerImageReleased != null)
+            {
+                LayerImageReleased(this, e);
+            }
+        }
     }
 
     /// <summary>
-    /// Represents the event arguments for the LayerControlStatusChanged event
+    /// Represents the event arguments for the LayerStatusChanged event
     /// </summary>
     public class LayerControlStatusChangedEventArgs : EventArgs
     {
@@ -250,6 +352,26 @@ namespace Pixelaria.Views.Controls.LayerControls
         public LayerControlStatusChangedEventArgs(LayerStatus status)
         {
             Status = status;
+        }
+    }
+
+    /// <summary>
+    /// Represents the event arguments for the LayerControlDragged event
+    /// </summary>
+    public class LayerControlDragEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the direction of the drag
+        /// </summary>
+        public LayerDragDirection DragDirection { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the LayerControlDragEventArgs class
+        /// </summary>
+        /// <param name="dragDirection">The direction of the drag</param>
+        public LayerControlDragEventArgs(LayerDragDirection dragDirection)
+        {
+            DragDirection = dragDirection;
         }
     }
 
@@ -278,5 +400,20 @@ namespace Pixelaria.Views.Controls.LayerControls
             Visible = visible;
             Locked = locked;
         }
+    }
+
+    /// <summary>
+    /// Specifies the direction of the drag for a layer
+    /// </summary>
+    public enum LayerDragDirection
+    {
+        /// <summary>
+        /// Specifies that the direction dragged was upwards
+        /// </summary>
+        Up,
+        /// <summary>
+        /// Specifies that the direction dragged was downards
+        /// </summary>
+        Down
     }
 }

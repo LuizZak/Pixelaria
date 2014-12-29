@@ -22,6 +22,7 @@
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
+using Pixelaria.Views.Controls.LayerControls;
 using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.ModelViews
@@ -155,7 +156,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsl_operationLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.iepb_frame = new Pixelaria.Views.Controls.ImageEditPanel();
-            this.lcp_layers = new Pixelaria.Views.Controls.LayerControlPanel();
+            this.lcp_layers = new Pixelaria.Views.Controls.LayerControls.LayerControlPanel();
             this.pnl_framePreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_framePreview)).BeginInit();
             this.panel4.SuspendLayout();
@@ -350,7 +351,7 @@ namespace Pixelaria.Views.ModelViews
             this.panel4.Controls.Add(this.pb_zoomIcon);
             this.panel4.Controls.Add(this.anud_zoom);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel4.Location = new System.Drawing.Point(90, 775);
+            this.panel4.Location = new System.Drawing.Point(90, 586);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(556, 92);
             this.panel4.TabIndex = 5;
@@ -424,7 +425,7 @@ namespace Pixelaria.Views.ModelViews
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel2.Location = new System.Drawing.Point(646, 49);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(172, 818);
+            this.panel2.Size = new System.Drawing.Size(172, 629);
             this.panel2.TabIndex = 4;
             // 
             // panel3
@@ -478,7 +479,7 @@ namespace Pixelaria.Views.ModelViews
             this.panel1.Location = new System.Drawing.Point(0, 49);
             this.panel1.Name = "panel1";
             this.panel1.PanelTitle = "Toolbox";
-            this.panel1.Size = new System.Drawing.Size(90, 818);
+            this.panel1.Size = new System.Drawing.Size(90, 629);
             this.panel1.TabIndex = 1;
             // 
             // flowLayoutPanel3
@@ -1238,7 +1239,7 @@ namespace Pixelaria.Views.ModelViews
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsl_coordinates,
             this.tsl_operationLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 867);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 678);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(818, 22);
             this.statusStrip1.TabIndex = 8;
@@ -1266,7 +1267,7 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.Name = "iepb_frame";
             this.iepb_frame.NotifyTo = null;
             this.iepb_frame.PictureBoxBackgroundImage = ((System.Drawing.Image)(resources.GetObject("iepb_frame.PictureBoxBackgroundImage")));
-            this.iepb_frame.Size = new System.Drawing.Size(431, 726);
+            this.iepb_frame.Size = new System.Drawing.Size(431, 537);
             this.iepb_frame.TabIndex = 0;
             this.iepb_frame.Text = "imageEditPictureBox1";
             undoSystem1.MaximumTaskCount = 15;
@@ -1284,14 +1285,14 @@ namespace Pixelaria.Views.ModelViews
             this.lcp_layers.Dock = System.Windows.Forms.DockStyle.Left;
             this.lcp_layers.Location = new System.Drawing.Point(90, 49);
             this.lcp_layers.Name = "lcp_layers";
-            this.lcp_layers.Size = new System.Drawing.Size(125, 726);
+            this.lcp_layers.Size = new System.Drawing.Size(125, 537);
             this.lcp_layers.TabIndex = 9;
             // 
             // FrameView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(818, 889);
+            this.ClientSize = new System.Drawing.Size(818, 700);
             this.Controls.Add(this.pnl_framePreview);
             this.Controls.Add(this.iepb_frame);
             this.Controls.Add(this.lcp_layers);
@@ -1440,6 +1441,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripButton tsb_osDisplayOnFront;
         private System.Windows.Forms.GroupBox gb_otherGroup;
         private System.Windows.Forms.CheckBox cb_airbrushMode;
-        private Controls.LayerControlPanel lcp_layers;
+        private LayerControlPanel lcp_layers;
     }
 }

@@ -126,6 +126,9 @@
             this.pb_layerImage.Zoom = ((System.Drawing.PointF)(resources.GetObject("pb_layerImage.Zoom")));
             this.pb_layerImage.ZoomFactor = 1.414214F;
             this.pb_layerImage.Click += new System.EventHandler(this.pb_layerImage_Click);
+            this.pb_layerImage.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pb_layerImage_MouseDown);
+            this.pb_layerImage.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pb_layerImage_MouseMove);
+            this.pb_layerImage.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pb_layerImage_MouseUp);
             // 
             // LayerControl
             // 

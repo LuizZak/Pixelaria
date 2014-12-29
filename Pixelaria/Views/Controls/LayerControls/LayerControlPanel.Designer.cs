@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.LayerControls
 {
     public partial class LayerControlPanel
     {

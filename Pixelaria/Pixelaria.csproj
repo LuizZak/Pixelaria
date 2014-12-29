@@ -137,7 +137,7 @@
     <Compile Include="Algorithms\PaintOperations\PencilPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Controllers\LayerControlling\LayerController.cs" />
-    <Compile Include="Views\Controls\LayerControlPanel.Designer.cs">
+    <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
@@ -206,7 +206,7 @@
     <Compile Include="Views\Controls\LabeledPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\LayerControlPanel.cs">
+    <Compile Include="Views\Controls\LayerControls\LayerControlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\Controls\LayerControls\LayerControl.cs">
@@ -493,7 +493,7 @@
     <EmbeddedResource Include="Views\Controls\Filters\TransparencyControl.resx">
       <DependentUpon>TransparencyControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\LayerControlPanel.resx">
+    <EmbeddedResource Include="Views\Controls\LayerControls\LayerControlPanel.resx">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\LayerControls\LayerControl.resx">

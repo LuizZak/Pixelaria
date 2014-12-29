@@ -301,7 +301,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the image preview if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrameBitmap;
+                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
             }
 
             RefreshTitleBar();
@@ -445,7 +445,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the preview box if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrameBitmap;
+                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
             }
 
             if (EditFrameChanged != null)
@@ -868,52 +868,51 @@ namespace Pixelaria.Views.ModelViews
                 but = new BitmapUndoTask(undoTarget, "Filter");
             }
 
+            // Apply the filter
             ImageFilterView bfv = new ImageFilterView(filterPreset, filterTarget);
-
-            if (bfv.ShowDialog(this) == DialogResult.OK)
+            if (bfv.ShowDialog(this) == DialogResult.OK && bfv.ChangesDetected())
             {
-                if (bfv.ChangesDetected())
+                bool registerUndo = true;
+
+                var paintOperation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
+                if (paintOperation != null && paintOperation.SelectionBitmap != null)
                 {
-                    bool registerUndo = true;
+                    SelectionPaintTool op = paintOperation;
 
-                    iepb_frame.PictureBox.Invalidate();
-                    MarkModified();
-
-                    var paintOperation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
-                    if (paintOperation != null && paintOperation.SelectionBitmap != null)
+                    switch (op.OperationType)
                     {
-                        SelectionPaintTool op = paintOperation;
+                        case SelectionPaintTool.SelectionOperationType.Moved:
+                            Rectangle area = op.SelectionArea;
+                            Rectangle startArea = op.SelectionStartArea;
 
-                        switch (op.OperationType)
-                        {
-                            case SelectionPaintTool.SelectionOperationType.Moved:
-                                Rectangle area = op.SelectionArea;
-                                Rectangle startArea = op.SelectionStartArea;
+                            op.CancelOperation(true, false);
 
-                                op.CancelOperation(true, false);
+                            if (but != null)
+                                but.SetNewBitmap(undoTarget);
 
-                                if (but != null)
-                                    but.SetNewBitmap(undoTarget);
-
-                                op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
-                                op.SelectionArea = area;
-                                break;
-                            case SelectionPaintTool.SelectionOperationType.Paste:
-                                registerUndo = false;
-                                break;
-                        }
-
-                        op.ForceApplyChanges = true;
-                    }
-                    else
-                    {
-                        if (but != null)
-                            but.SetNewBitmap(undoTarget);
+                            op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
+                            op.SelectionArea = area;
+                            break;
+                        case SelectionPaintTool.SelectionOperationType.Paste:
+                            registerUndo = false;
+                            break;
                     }
 
-                    if (registerUndo)
-                        iepb_frame.UndoSystem.RegisterUndo(but);
+                    op.ForceApplyChanges = true;
                 }
+                else
+                {
+                    if (but != null)
+                        but.SetNewBitmap(undoTarget);
+                }
+
+                // Update the display
+                iepb_frame.PictureBox.Invalidate();
+                lcp_layers.UpdateLayersDisplay();
+                MarkModified();
+
+                if (registerUndo)
+                    iepb_frame.UndoSystem.RegisterUndo(but);
             }
             else
             {
@@ -1983,6 +1982,10 @@ namespace Pixelaria.Views.ModelViews
             private void OnLayersSwapped(object sender, LayerControllerLayersSwappedEventArgs args)
             {
                 _frameView.MarkModified();
+
+                // Add the undo task
+                if (_generateUndos)
+                    _frameView._undoSystem.RegisterUndo(new LayerSwappedUndoTask(args.FirstLayerIndex, args.SecondLayerIndex, this));
             }
 
             // 
@@ -2219,6 +2222,78 @@ namespace Pixelaria.Views.ModelViews
                 public string GetDescription()
                 {
                     return "Remove Layer";
+                }
+            }
+
+            /// <summary>
+            /// Represents an undo operation for a Layer Swap operation
+            /// </summary>
+            private class LayerSwappedUndoTask : ILayerUndoTask
+            {
+                /// <summary>
+                /// The binder controller
+                /// </summary>
+                private readonly FrameViewLayerControllerBinder _binder;
+
+                /// <summary>
+                /// The first layer that was swapped
+                /// </summary>
+                private readonly int _firstIndex;
+
+                /// <summary>
+                /// The second layer that was swapped
+                /// </summary>
+                private readonly int _secondIndex;
+
+                /// <summary>
+                /// Initializes a new instance of the LayerSwappedUndoTask class
+                /// </summary>
+                /// <param name="firstIndex">The first layer that was swapped</param>
+                /// <param name="secondIndex">The second layer that was swapped</param>
+                /// <param name="binder">The binder controller</param>
+                public LayerSwappedUndoTask(int firstIndex, int secondIndex, FrameViewLayerControllerBinder binder)
+                {
+                    _firstIndex = firstIndex;
+                    _secondIndex = secondIndex;
+                    _binder = binder;
+                }
+
+                /// <summary>
+                /// Clears this LayerSwappedUndoTask
+                /// </summary>
+                public void Clear()
+                {
+                    
+                }
+
+                /// <summary>
+                /// Undoes the Swap Layer task
+                /// </summary>
+                public void Undo()
+                {
+                    _binder._generateUndos = false;
+                    _binder._layerController.SwapLayers(_secondIndex, _firstIndex);
+                    _binder._generateUndos = true;
+                }
+
+                /// <summary>
+                /// Redoes the Swap Layer task
+                /// </summary>
+                public void Redo()
+                {
+                    // Remove the layer
+                    _binder._generateUndos = false;
+                    _binder._layerController.SwapLayers(_firstIndex, _secondIndex);
+                    _binder._generateUndos = true;
+                }
+                
+                /// <summary>
+                /// Returns the description for this undo task
+                /// </summary>
+                /// <returns>The description for this undo task</returns>
+                public string GetDescription()
+                {
+                    return "Swap Layers";
                 }
             }
 
