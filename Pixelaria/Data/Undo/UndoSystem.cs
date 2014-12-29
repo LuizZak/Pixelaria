@@ -85,6 +85,11 @@ namespace Pixelaria.Data.Undo
         public event UndoEventHandler RedoPerformed;
 
         /// <summary>
+        /// Occurs whenever the undo system was cleared
+        /// </summary>
+        public event EventHandler Cleared;
+
+        /// <summary>
         /// Gets the ammount of tasks currently held by this UndoSystem
         /// </summary>
         public int Count { get { return _undoTasks.Count; } }
@@ -327,6 +332,9 @@ namespace Pixelaria.Data.Undo
             _undoTasks.Clear();
 
             _currentTask = 0;
+
+            if (Cleared != null)
+                Cleared(this, new EventArgs());
         }
 
         /// <summary>
