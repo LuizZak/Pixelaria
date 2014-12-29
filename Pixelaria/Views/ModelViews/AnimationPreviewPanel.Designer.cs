@@ -184,7 +184,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_preview.BackColor = System.Drawing.Color.White;
             this.pnl_preview.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pnl_preview.BackgroundImage")));
             this.pnl_preview.ImageInterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-            this.pnl_preview.ImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.pnl_preview.ImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pnl_preview.Location = new System.Drawing.Point(6, 106);
             this.pnl_preview.Name = "pnl_preview";
             this.pnl_preview.Size = new System.Drawing.Size(197, 162);
