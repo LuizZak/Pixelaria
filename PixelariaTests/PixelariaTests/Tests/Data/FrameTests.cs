@@ -294,7 +294,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             // Test layer swapping by comparing the bitmaps
             Assert.IsTrue(Utilities.ImagesAreIdentical(layer1, frame.GetLayerAt(1).LayerBitmap), "The layer bitmap has not been updated correctly");
         }
-
+        
         /// <summary>
         /// Tests layer removal logic
         /// </summary>
@@ -306,11 +306,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             Bitmap bitmap = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
-            IFrameLayer layer = frame.CreateLayer();
+            frame.CreateLayer();
 
             // Swap the layers
             frame.SetLayerBitmap(1, bitmap);
 
+            IFrameLayer layer = frame.GetLayerAt(0);
             frame.RemoveLayerAt(0);
 
             // Test layer swapping by comparing the bitmaps
