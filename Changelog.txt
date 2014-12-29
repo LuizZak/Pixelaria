@@ -18,7 +18,7 @@ Legend:
 * Fix/Change
 . Note
 
--- Current Version
+-- Current Version (planned 1.17.0b)
 
 + Added basic layering functionality for frames.
 
