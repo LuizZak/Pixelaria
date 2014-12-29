@@ -36,6 +36,14 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         protected Bitmap targetBitmap;
 
         /// <summary>
+        /// Gets the target bitmap for this undo operation
+        /// </summary>
+        public Bitmap TargetBitmap
+        {
+            get { return targetBitmap; }
+        }
+
+        /// <summary>
         /// Initializes a new BasicPaintOperationUndoTask with the specified bitmap to perform the operations on
         /// </summary>
         /// <param name="targetBitmap">The target bitmap to perform the undo of the paint operation on</param>
