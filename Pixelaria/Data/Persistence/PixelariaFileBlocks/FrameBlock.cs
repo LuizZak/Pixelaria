@@ -129,6 +129,24 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
+        /// Saves the layers of the given frame to a stream
+        /// </summary>
+        /// <param name="frame">The frame to save the layers to the strean</param>
+        /// <param name="stream">The stream to save the layers to</param>
+        protected void SaveLayersToStream(Frame frame, Stream stream)
+        {
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            // Save the number of layers stored on the frame object
+            writer.Write(frame.LayerCount);
+
+            for (int i = 0; i < frame.LayerCount; i++)
+            {
+                SaveImageToStream(frame.GetLayerAt(i).LayerBitmap, stream);
+            }
+        }
+
+        /// <summary>
         /// Saves the given bitmap onto the given stram. The save procedure stores a long value just before the bitmap specifying the size of the bitmap's contents
         /// </summary>
         /// <param name="bitmap">The bitmap to save</param>
@@ -151,24 +169,6 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             // Skip back to the end to keep saving
             stream.Position = streamEnd;
-        }
-
-        /// <summary>
-        /// Saves the layers of the given frame to a stream
-        /// </summary>
-        /// <param name="frame">The frame to save the layers to the strean</param>
-        /// <param name="stream">The stream to save the layers to</param>
-        protected void SaveLayersToStream(Frame frame, Stream stream)
-        {
-            BinaryWriter writer = new BinaryWriter(stream);
-
-            // Save the number of layers stored on the frame object
-            writer.Write(frame.LayerCount);
-
-            for (int i = 0; i < frame.LayerCount; i++)
-            {
-                SaveImageToStream(frame.GetLayerAt(i).LayerBitmap, stream);
-            }
         }
 
         /// <summary>
@@ -219,6 +219,28 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
+        /// Loads layers stored on the given stream on the given frame
+        /// </summary>
+        /// <param name="stream">The stream to load the layers from</param>
+        /// <param name="frame">The frame to load the layers into</param>
+        protected void LoadLayersFromStream(Stream stream, Frame frame)
+        {
+            BinaryReader reader = new BinaryReader(stream);
+
+            int layerCount = reader.ReadInt32();
+
+            for (int i = 0; i < layerCount; i++)
+            {
+                Bitmap layerBitmap = LoadImageFromStream(stream);
+
+                frame.AddLayer(layerBitmap);
+            }
+
+            // Remove the first default layer of the frame
+            frame.RemoveLayerAt(0);
+        }
+
+        /// <summary>
         /// Loads a bitmap image from the given stream. The stream must contain a long value at its current position specifying the size of the image on the stream
         /// </summary>
         /// <param name="stream">The stream to load the image from</param>
@@ -249,25 +271,6 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             memStream.Dispose();
 
             return bitmap;
-        }
-
-        /// <summary>
-        /// Loads layers stored on the given stream on the given frame
-        /// </summary>
-        /// <param name="stream">The stream to load the layers from</param>
-        /// <param name="frame">The frame to load the layers into</param>
-        protected void LoadLayersFromStream(Stream stream, Frame frame)
-        {
-            BinaryReader reader = new BinaryReader(stream);
-
-            int layerCount = reader.ReadInt32();
-
-            for (int i = 0; i < layerCount; i++)
-            {
-                Bitmap layerBitmap = LoadImageFromStream(stream);
-
-                frame.AddLayer(layerBitmap);
-            }
         }
     }
 }
