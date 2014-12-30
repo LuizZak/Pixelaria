@@ -288,13 +288,11 @@ namespace Pixelaria.Data
             if (castFrame == null)
                 return;
 
-            // TODO: Deal with layering in the copy operation
             _width = frame.Width;
             _height = frame.Height;
 
             // Clear the current layers and clone from the passed frame
             ClearLayers();
-
             _layers.AddRange(castFrame._layers.Select(t => t.Clone() as FrameLayer));
 
             // Update the indices of the layers

@@ -137,7 +137,7 @@ namespace Pixelaria.Views.Controls
                         float num = bounds.Width / ((float)size2.Width);
                         float num2 = bounds.Height / ((float)size2.Height);
 
-                        if (size2.Width <= backgroundImage.Width && size2.Height <= backgroundImage.Height)
+                        if (size2.Width <= bounds.Width && size2.Height <= bounds.Height)
                         {
                             return new Rectangle(bounds.Width / 2 - size2.Width / 2, bounds.Height / 2 - size2.Height / 2, size2.Width, size2.Height);
                         }

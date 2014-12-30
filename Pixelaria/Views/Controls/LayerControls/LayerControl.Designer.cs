@@ -115,6 +115,7 @@
             this.pb_layerImage.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.pb_layerImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pb_layerImage.ClipBackgroundToImage = true;
+            this.pb_layerImage.ImageInterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             this.pb_layerImage.ImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pb_layerImage.Location = new System.Drawing.Point(24, 19);
             this.pb_layerImage.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("pb_layerImage.MaximumZoom")));
