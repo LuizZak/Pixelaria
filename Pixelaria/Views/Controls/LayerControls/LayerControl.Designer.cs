@@ -141,6 +141,7 @@
             this.Controls.Add(this.btn_locked);
             this.Controls.Add(this.btn_visible);
             this.Controls.Add(this.btn_duplicate);
+            this.DoubleBuffered = true;
             this.Name = "LayerControl";
             this.Size = new System.Drawing.Size(125, 105);
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).EndInit();

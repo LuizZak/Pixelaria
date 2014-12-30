@@ -199,6 +199,8 @@ namespace Pixelaria.Views.ModelViews
         {
             InitializeComponent();
 
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true);
+
             _oldFrameIndex = frameToEdit.Index;
 
             _controller = controller;

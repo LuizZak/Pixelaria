@@ -194,7 +194,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             while (_layerControls.Count > 0)
             {
-                RemoveLayerControl(_layerControls[0]);
+                RemoveLayerControl(_layerControls[0], false);
             }
 
             ResumeLayout();

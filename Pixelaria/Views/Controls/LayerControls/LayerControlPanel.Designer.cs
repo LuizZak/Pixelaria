@@ -67,6 +67,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.Controls.Add(this.pnl_container);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.labeledPanel1);
+            this.DoubleBuffered = true;
             this.Name = "LayerControlPanel";
             this.Size = new System.Drawing.Size(125, 332);
             this.panel1.ResumeLayout(false);
