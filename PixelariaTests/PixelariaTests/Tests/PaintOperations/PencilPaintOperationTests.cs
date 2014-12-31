@@ -434,6 +434,9 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
+            // Test the undo task target
+            Assert.AreEqual(generator.UndoTask.TargetBitmap, target, "The target for a bitmap undo should be the bitmap that was operated upon");
+
             // Undo the task
             generator.UndoTask.Undo();
 
