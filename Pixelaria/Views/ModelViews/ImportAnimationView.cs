@@ -126,51 +126,43 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void LoadSheet()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            string filePath;
+            Image image = _controller.ShowLoadImage(out filePath, owner: this);
 
-            ofd.Filter = @"All Images (*.png, *.jpg, *jpeg, *.bmp, *.gif, *.tiff)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|Png Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|Jpeg Images (*.jpg, *.jpeg)|*.jpg;*.jpeg|Gif Images (*.gif)|*.giff|Tiff Images (*.tiff)|*.tiff";
+            if (image == null)
+                return;
 
-            if (ofd.ShowDialog(this) == DialogResult.OK)
+            // Dispose of the current sprite sheet if it's loaded
+            if (_spriteSheet != null)
             {
-                try
-                {
-                    // Dispose of the current sprite sheet if it's loaded
-                    if (_spriteSheet != null)
-                    {
-                        _spriteSheet.Dispose();
-                    }
-
-                    txt_fileName.Text = ofd.FileName;
-
-                    _spriteSheet = Image.FromFile(ofd.FileName);
-
-                    cpb_sheetPreview.LoadPreview(_spriteSheet, _sheetSettings);
-
-                    txt_animationName.Text = Path.GetFileNameWithoutExtension(ofd.FileName);
-
-                    // Setup the boundaries for the numeric up downs
-                    nud_width.Maximum = _spriteSheet.Width;
-                    nud_height.Maximum = _spriteSheet.Height;
-
-                    nud_startX.Maximum = _spriteSheet.Width - 1;
-                    nud_startY.Maximum = _spriteSheet.Height - 1;
-
-                    tssl_dimensions.Text = _spriteSheet.Width + @" x " + _spriteSheet.Height;
-
-                    // Enable the width/height fitting buttons
-                    btn_fitWidthLeft.Enabled = btn_fitWidthRight.Enabled = btn_fitHeightLeft.Enabled = btn_fitHeightRight.Enabled = true;
-
-                    RefreshSheetSettings();
-
-                    GenerateAnimationPreview();
-
-                    ValidateFields();
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(@"Error loading image: " + e.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                _spriteSheet.Dispose();
             }
+
+            txt_fileName.Text = filePath;
+
+            _spriteSheet = image;
+
+            cpb_sheetPreview.LoadPreview(_spriteSheet, _sheetSettings);
+
+            txt_animationName.Text = Path.GetFileNameWithoutExtension(filePath);
+
+            // Setup the boundaries for the numeric up downs
+            nud_width.Maximum = _spriteSheet.Width;
+            nud_height.Maximum = _spriteSheet.Height;
+
+            nud_startX.Maximum = _spriteSheet.Width - 1;
+            nud_startY.Maximum = _spriteSheet.Height - 1;
+
+            tssl_dimensions.Text = _spriteSheet.Width + @" x " + _spriteSheet.Height;
+
+            // Enable the width/height fitting buttons
+            btn_fitWidthLeft.Enabled = btn_fitWidthRight.Enabled = btn_fitHeightLeft.Enabled = btn_fitHeightRight.Enabled = true;
+
+            RefreshSheetSettings();
+
+            GenerateAnimationPreview();
+
+            ValidateFields();
         }
 
         /// <summary>
@@ -226,15 +218,16 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ImportAnimation()
         {
-            if (_currentPreviewAnimation != null && _currentPreviewAnimation.FrameCount > 0)
-            {
-                _currentPreviewAnimation.Name = txt_animationName.Text;
+            // Quit if no valid animation is currently being displayed
+            if (_currentPreviewAnimation == null || _currentPreviewAnimation.FrameCount <= 0)
+                return;
 
-                _controller.AddAnimation(_currentPreviewAnimation, true, _parentSheet);
+            _currentPreviewAnimation.Name = txt_animationName.Text;
 
-                _currentPreviewAnimation = null;
-                ap_animationPreview.LoadAnimation(null);
-            }
+            _controller.AddAnimation(_currentPreviewAnimation, true, _parentSheet);
+
+            _currentPreviewAnimation = null;
+            ap_animationPreview.LoadAnimation(null);
         }
 
         // 
