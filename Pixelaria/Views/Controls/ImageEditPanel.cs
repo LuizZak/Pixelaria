@@ -648,7 +648,7 @@ namespace Pixelaria.Views.Controls
 
                     if (_pictureBoxDecorators.Count > 0)
                     {
-                        copy = ((Bitmap)_underImage).Clone(new Rectangle(0, 0, _underImage.Width, _underImage.Height), _underImage.PixelFormat);
+                        copy = _underImage.Clone(new Rectangle(0, 0, _underImage.Width, _underImage.Height), _underImage.PixelFormat);
 
                         foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
