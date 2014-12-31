@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -876,6 +877,22 @@ namespace Pixelaria.Controllers
         /// <returns>The selected load path, or an empty string if the user has not chosen a load path</returns>
         public Image ShowLoadImage(string fileName = "", IWin32Window owner = null)
         {
+            string filePath;
+            return ShowLoadImage(out filePath, fileName, owner);
+        }
+
+        /// <summary>
+        /// Shows a dialog to load an image from disk, and returns the loaded image file.
+        /// Returns null if the user has canceled
+        /// </summary>
+        /// <param name="filePath">The file path that was chosen for the file. Returned as an empty string when no file was chosen</param>
+        /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
+        /// <param name="owner">An optional owner for the file dialog</param>
+        /// <returns>The selected load path, or an empty string if the user has not chosen a load path</returns>
+        public Image ShowLoadImage(out string filePath, string fileName = "", IWin32Window owner = null)
+        {
+            filePath = string.Empty;
+
             OpenFileDialog ofd = new OpenFileDialog
             {
                 Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
@@ -884,7 +901,17 @@ namespace Pixelaria.Controllers
 
             if (ofd.ShowDialog(owner) == DialogResult.OK)
             {
-                return Image.FromFile(ofd.FileName);
+                filePath = ofd.FileName;
+
+                try
+                {
+                    return Image.FromFile(ofd.FileName);
+                }
+                catch (Exception)
+                {
+                    filePath = "";
+                    MessageBox.Show(@"Error loading selected image. It may not be in a valid image file format.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 
             return null;
