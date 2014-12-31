@@ -36,7 +36,7 @@ namespace Pixelaria.Views.MiscViews
             labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
             labelCopyright.Text = AssemblyCopyright;
             labelCompanyName.Text = AssemblyCompany;
-            textBoxDescription.Text = AssemblyDescription + "\n" + Properties.Resources.License;
+            textBoxDescription.Text = String.Format("{0}\n{1}", AssemblyDescription, Properties.Resources.License);
         }
 
         #region Assembly Attribute Accessors

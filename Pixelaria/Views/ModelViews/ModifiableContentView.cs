@@ -114,7 +114,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (modified)
             {
-                this.BringToFront();
+                BringToFront();
                 DialogResult diag = ConfirmChanges();
 
                 if (diag == DialogResult.Cancel)
