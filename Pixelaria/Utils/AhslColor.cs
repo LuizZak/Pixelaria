@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using Pixelaria.Views.Controls.ColorControls;
 
@@ -215,6 +216,7 @@ namespace Pixelaria.Utils
         /// Converts this AHSL color to a Color object
         /// </summary>
         /// <returns>The Color object that represents this AHSL color</returns>
+        [Pure]
         public Color ToColor()
         {
             return Color.FromArgb(ToArgb());
@@ -225,6 +227,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
         /// <returns>The ARGB color that represents this AHSL color</returns>
+        [Pure]
         public int ToArgb(bool revertByteOrder = false)
         {
             return ColorSwatch.ArgbFromAhsl(_hf, _sf, _lf, _af, revertByteOrder);
@@ -268,7 +271,7 @@ namespace Pixelaria.Utils
         /// <param name="s">The Saturation component, ranging from 0-100</param>
         /// <param name="l">The Lightness component, ranging from 0-100</param>
         /// <returns>The AHSL color representing the given AHSL value</returns>
-        // ReSharper disable once InconsistentNaming
+        [Pure]
         public static AhslColor FromAhsl(int a, int h, int s, int l)
         {
             return new AhslColor(a, h, s, l);
@@ -282,6 +285,7 @@ namespace Pixelaria.Utils
         /// <param name="g">The Green component</param>
         /// <param name="b">The Blue component</param>
         /// <returns>The AHSL color representing the given ARGB value</returns>
+        [Pure]
         public static AhslColor FromArgb(int a, int r, int g, int b)
         {
             return ToAhsl((a << 24) | (r << 16) | (g << 8) | b);
@@ -295,6 +299,7 @@ namespace Pixelaria.Utils
         /// <param name="g">The Green component, ranging from 0-1</param>
         /// <param name="b">The Blue component, ranging from 0-1</param>
         /// <returns>The AHSL color representing the given ARGB value</returns>
+        [Pure]
         public static AhslColor FromArgb(float a, float r, float g, float b)
         {
             return ToAhsl(a, r, g, b);
@@ -305,6 +310,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="argb">The ARGB color to convert to AHSL</param>
         /// <returns>The AHSL color representing the given ARGB value</returns>
+        [Pure]
         public static AhslColor FromArgb(int argb)
         {
             return ToAhsl(argb);
@@ -315,6 +321,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="argb">The color to convert to AHSL</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        [Pure]
         public static AhslColor ToAhsl(int argb)
         {
             float a = (int)((uint)argb >> 24);
@@ -338,6 +345,7 @@ namespace Pixelaria.Utils
         /// <param name="g">The green component</param>
         /// <param name="b">The blue component</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        [Pure]
         public static AhslColor ToAhsl(float a, float r, float g, float b)
         {
             // ReSharper disable once InconsistentNaming
