@@ -70,22 +70,6 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Sets the current frame  being displayed on the filter view
-        /// </summary>
-        /// <param name="frame">The </param>
-        private void SetDisplayFrame(IFrame frame)
-        {
-            if (_currentFrameBitmap != null)
-            {
-                _currentFrameBitmap.Dispose();
-            }
-
-            _currentFrameBitmap = frame.GetComposedBitmap();
-
-            fs_filters.SetImage(_currentFrameBitmap);
-        }
-
-        /// <summary>
         /// Initializes a new instance of the BaseFilterView class
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
@@ -108,6 +92,22 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Sets the current frame  being displayed on the filter view
+        /// </summary>
+        /// <param name="frame">The </param>
+        private void SetDisplayFrame(IFrame frame)
+        {
+            if (_currentFrameBitmap != null)
+            {
+                _currentFrameBitmap.Dispose();
+            }
+
+            _currentFrameBitmap = frame.GetComposedBitmap();
+
+            fs_filters.SetImage(_currentFrameBitmap);
+        }
+
+        /// <summary>
         /// Returns whether the current filter configuration can make any significant changes to the bitmap loaded
         /// </summary>
         /// <returns>Whether the current filter configuration can make any significant changes to the bitmap loaded</returns>
@@ -121,6 +121,11 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void ApplyFilter()
         {
+            if (MessageBox.Show(@"Applying filters results in the flattening of the layers of all the frames. Do you wish to continue?", @"Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+            {
+                return;
+            }
+
             if (fs_filters.ChangesDetected())
             {
                 Point range = tc_timeline.GetRange();
@@ -135,6 +140,13 @@ namespace Pixelaria.Views.ModelViews
                         {
                             Bitmap bitmap = frame.GetComposedBitmap();
                             container.ApplyFilter(bitmap);
+
+                            // Remove all the layers from the frame
+                            while (frame.LayerCount > 1)
+                            {
+                                frame.RemoveLayerAt(frame.LayerCount - 1);
+                            }
+
                             frame.SetFrameBitmap(bitmap);
                         }
                     }
