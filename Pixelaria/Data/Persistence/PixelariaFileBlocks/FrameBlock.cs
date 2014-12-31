@@ -106,11 +106,10 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
-            // TODO: Deal with GetComposedBitmap()'s result, also deal with layering
-
-            if(frame is Frame)
+            var castFrame = frame as Frame;
+            if(castFrame != null)
             {
-                SaveLayersToStream((Frame)frame, stream);
+                SaveLayersToStream(castFrame, stream);
             }
             else
             {
