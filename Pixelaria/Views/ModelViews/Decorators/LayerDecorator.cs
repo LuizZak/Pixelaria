@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
@@ -75,14 +74,9 @@ namespace Pixelaria.Views.ModelViews.Decorators
         // 
         // Decorate Under Image method
         // 
-        public override void DecorateUnderBitmap(Bitmap bitmap1)
+        public override void DecorateUnderBitmap(Bitmap bitmap)
         {
-            base.DecorateUnderBitmap(bitmap1);
-
-            Bitmap bitmap = bitmap1 as Bitmap;
-
-            if (bitmap == null)
-                return;
+            base.DecorateUnderBitmap(bitmap);
 
             // Iterate through and render each layer up to the current layer
             IFrameLayer[] layers = _layerController.FrameLayers;
@@ -112,14 +106,9 @@ namespace Pixelaria.Views.ModelViews.Decorators
         // 
         // Decorate Over Image method
         // 
-        public override void DecorateOverBitmap(Bitmap bitmap1)
+        public override void DecorateOverBitmap(Bitmap bitmap)
         {
-            base.DecorateOverBitmap(bitmap1);
-
-            Bitmap bitmap = bitmap1 as Bitmap;
-
-            if (bitmap == null)
-                return;
+            base.DecorateOverBitmap(bitmap);
 
             // Iterate through and render each layer up to the current layer
             IFrameLayer[] layers = _layerController.FrameLayers;
