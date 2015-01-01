@@ -376,6 +376,9 @@ namespace Pixelaria.Views.Controls.LayerControls
             int index = _layerControls.IndexOf(control);
             int newIndex = index + (args.DragDirection == LayerDragDirection.Down ? -1 : 1);
 
+            if (newIndex < 0 || newIndex >= _controller.LayerCount)
+                return;
+
             var layerControl = _layerControls[index];
             _layerControls[index] = _layerControls[newIndex];
             _layerControls[newIndex] = layerControl;

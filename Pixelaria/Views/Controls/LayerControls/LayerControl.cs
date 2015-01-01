@@ -24,6 +24,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Pixelaria.Data;
 using Pixelaria.Utils;
@@ -226,6 +227,29 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         // 
+        // OnPaintBackground event handler
+        // 
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            base.OnPaintBackground(e);
+            
+            // During a drag operation, draw a marquee around the control
+            if(_draggingLayer)
+            {
+                Pen p = new Pen(Color.Black)
+                {
+                    DashStyle = DashStyle.Dash,
+                    DashPattern = new[] { 2f, 2f },
+                    Alignment = PenAlignment.Inset,
+                    Width = 1
+                };
+
+                Rectangle rec = new Rectangle(Point.Empty, new Size(Width - 1, Height - 1));
+                e.Graphics.DrawRectangle(p, rec);
+            }
+        }
+
+        // 
         // Layer Visible button
         // 
         private void btn_visible_Click(object sender, EventArgs e)
@@ -268,7 +292,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void pb_layerImage_Click(object sender, EventArgs e)
         {
-            if (LayerSelected != null)
+            if (!_draggingLayer && LayerSelected != null)
                 LayerSelected(this, this);
         }
 
@@ -296,6 +320,7 @@ namespace Pixelaria.Views.Controls.LayerControls
                 if (_layerPressPoint.Distance(e.Location) > 20)
                 {
                     _draggingLayer = true;
+                    Invalidate();
                 }
 
                 if (_draggingLayer)
@@ -331,6 +356,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (LayerImageReleased != null)
             {
                 LayerImageReleased(this, e);
+                Invalidate();
             }
         }
     }

@@ -1263,11 +1263,11 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;
             this.iepb_frame.EditingEnabled = true;
-            this.iepb_frame.Location = new System.Drawing.Point(215, 49);
+            this.iepb_frame.Location = new System.Drawing.Point(219, 49);
             this.iepb_frame.Name = "iepb_frame";
             this.iepb_frame.NotifyTo = null;
             this.iepb_frame.PictureBoxBackgroundImage = ((System.Drawing.Image)(resources.GetObject("iepb_frame.PictureBoxBackgroundImage")));
-            this.iepb_frame.Size = new System.Drawing.Size(431, 537);
+            this.iepb_frame.Size = new System.Drawing.Size(427, 537);
             this.iepb_frame.TabIndex = 0;
             this.iepb_frame.Text = "imageEditPictureBox1";
             undoSystem1.MaximumTaskCount = 15;
@@ -1285,7 +1285,7 @@ namespace Pixelaria.Views.ModelViews
             this.lcp_layers.Dock = System.Windows.Forms.DockStyle.Left;
             this.lcp_layers.Location = new System.Drawing.Point(90, 49);
             this.lcp_layers.Name = "lcp_layers";
-            this.lcp_layers.Size = new System.Drawing.Size(125, 537);
+            this.lcp_layers.Size = new System.Drawing.Size(129, 537);
             this.lcp_layers.TabIndex = 9;
             // 
             // FrameView
