@@ -111,6 +111,7 @@
             // 
             // pb_layerImage
             // 
+            this.pb_layerImage.AllowDrag = false;
             this.pb_layerImage.AllowScrollbars = false;
             this.pb_layerImage.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.pb_layerImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;

@@ -2006,6 +2006,12 @@ namespace Pixelaria.Views.ModelViews
                 if (_generateUndos)
                     _frameView._undoSystem.RegisterUndo(new RemoveLayerUndoTask(args.FrameLayer, this));
 
+                // Check if the active layer has not been modified
+                if (!ReferenceEquals(args.FrameLayer, _layerController.ActiveLayer))
+                {
+                    UpdateEditActiveLayer();
+                }
+
                 _frameView.MarkModified();
             }
 

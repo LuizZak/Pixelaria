@@ -120,7 +120,6 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Gets or sets the currently active layer index.
         /// When settings the value, it must be >= 0 and smaller than layer count
         /// </summary>
-        /// 
         public int ActiveLayerIndex
         {
             get { return Math.Max(0, Math.Min(_frame.LayerCount - 1, _activeLayerIndex)); }
@@ -139,6 +138,14 @@ namespace Pixelaria.Controllers.LayerControlling
                     ActiveLayerIndexChanged(this, new ActiveLayerIndexChangedEventArgs(value));
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the currently active layer
+        /// </summary>
+        public IFrameLayer ActiveLayer
+        {
+            get { return Frame.GetLayerAt(ActiveLayerIndex); }
         }
 
         /// <summary>

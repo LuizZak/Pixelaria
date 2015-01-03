@@ -145,6 +145,9 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
         {
             RemoveLayerControl(GetLayerControlForLayer(args.FrameLayer));
+
+            // Update selected layer
+            UpdateActiveLayerDisplay();
         }
 
         // 
@@ -153,6 +156,9 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerCreated(object sender, LayerControllerLayerCreatedEventArgs args)
         {
             AddLayerControl(args.FrameLayer);
+
+            // Update selected layer
+            UpdateActiveLayerDisplay();
         }
 
         // 
