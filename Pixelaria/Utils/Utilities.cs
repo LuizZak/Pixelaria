@@ -411,12 +411,26 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="target">The bitmap to draw the foreground onto</param>
         /// <param name="foreBitmap">The foreground bitmap to draw onto the target bitmap</param>
+        /// <param name="highQuality">Whether to use high quality image composition. This composition mode is considerably slower than low quality</param>
         /// <exception cref="Exception">The size of the bitmaps must be equal and both bitmaps must have a 32bpp ARGB pixel format</exception>
-        public static void FlattenBitmaps(Bitmap target, Bitmap foreBitmap)
+        public static void FlattenBitmaps(Bitmap target, Bitmap foreBitmap, bool highQuality)
         {
             if (target.Size != foreBitmap.Size || target.PixelFormat != PixelFormat.Format32bppArgb || foreBitmap.PixelFormat != PixelFormat.Format32bppArgb)
             {
                 throw new Exception("The size of the bitmaps must be equal and both bitmaps must have a 32bpp ARGB pixel format");
+            }
+
+            if (!highQuality)
+            {
+                using(Graphics gfx = Graphics.FromImage(target))
+                {
+                    gfx.CompositingMode = CompositingMode.SourceOver;
+                    gfx.DrawImageUnscaled(foreBitmap, 0, 0);
+
+                    gfx.Flush();
+                }
+
+                return;
             }
 
             using (FastBitmap fastTarget = target.FastLock(), fastForeBitmap = foreBitmap.FastLock())

@@ -578,7 +578,7 @@ namespace Pixelaria.Data
             // Compose the layers by blending all the pixels from each layer into the final image
             for (int i = 1; i < _layers.Count; i++)
             {
-                Utilities.FlattenBitmaps(composedBitmap, _layers[i].LayerBitmap);
+                Utilities.FlattenBitmaps(composedBitmap, _layers[i].LayerBitmap, true);
             }
 
             return composedBitmap;

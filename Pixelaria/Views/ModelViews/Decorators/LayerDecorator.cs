@@ -85,7 +85,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
             {
                 if (_layerStatuses[i].Visible)
                 {
-                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap);
+                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap, false);
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
             {
                 if (_layerStatuses[i].Visible)
                 {
-                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap);
+                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap, false);
                 }
             }
         }
