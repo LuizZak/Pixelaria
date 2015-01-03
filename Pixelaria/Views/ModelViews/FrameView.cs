@@ -513,7 +513,6 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Moves to the previous frame
         /// </summary>
-        /// <returns>Whether the frame was sucessfully retroceeded</returns>
         private void PrevFrame()
         {
             if (ConfirmChanges() != DialogResult.Cancel)
@@ -525,7 +524,6 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Moves to the next frame
         /// </summary>
-        /// <returns>Whether the frame was successfully advanced</returns>
         private void NextFrame()
         {
             if (ConfirmChanges() != DialogResult.Cancel)
