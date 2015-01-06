@@ -471,20 +471,14 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ExportFrame()
         {
-            // TODO: Deal with GetComposedBitmap()'s return assuming it is a clone of the image, and not the original
-            Image img = _viewFrameBitmap;
-            string fileName;
+            string fileName = _frameToEdit.Animation.Name;
 
             if (_frameToEdit.Animation.FrameCount > 1)
             {
-                fileName = _frameToEdit.Animation.Name + "_" + _frameToEdit.Index;
-            }
-            else
-            {
-                fileName = _frameToEdit.Animation.Name;
+                fileName += "_" + _frameToEdit.Index;
             }
 
-            _controller.ShowSaveImage(img, fileName, this);
+            _controller.ShowSaveImage(_viewFrameBitmap, fileName, this);
         }
 
         /// <summary>
