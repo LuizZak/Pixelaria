@@ -402,9 +402,10 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="layer">The layer to add to this frame</param>
         /// <param name="layerIndex">The index at which to add the layer</param>
-        /// <exception cref="ArgumentException">The provided layers's dimensions does not match this Frame's dimensions</exception>
-        /// <exception cref="ArgumentException">The provided layers's type is not compatible with this Frame object</exception>
-        /// <exception cref="ArgumentException">The provided layer is already stored in a Frame object</exception>
+        /// <exception cref="ArgumentException">
+        /// The provided layers's dimensions does not match this Frame's dimensions, or the provided layers's type
+        /// is not compatible with this Frame object, or the provided layer is already stored in a Frame object
+        /// </exception>
         public void AddLayer(IFrameLayer layer, int layerIndex = -1)
         {
             if (!_initialized)
