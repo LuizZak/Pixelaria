@@ -539,6 +539,8 @@ namespace Pixelaria.Data
                 return false;
 
             // Check frame-by-frame for an innequality
+            // Disable LINQ suggestion because it'd actually be considerably slower
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (int i = 0; i < _frames.Count; i++)
             {
                 if (!_frames[i].Equals(other._frames[i]))

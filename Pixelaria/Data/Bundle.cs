@@ -601,6 +601,8 @@ namespace Pixelaria.Data
                 return false;
 
             // Test equality of animation sheets
+            // Disable LINQ suggestion because it'd actually be considerably slower
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (int i = 0; i < _animationSheets.Count; i++)
             {
                 if (!_animationSheets[i].Equals(other._animationSheets[i]))
@@ -610,7 +612,8 @@ namespace Pixelaria.Data
             }
 
             // Test equality of animation
-            for (int i = 0; i < _animations.Count; i++)
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            for (int i = 0; i < _animations.Count;i++)
             {
                 if (!_animations[i].Equals(other._animations[i]))
                 {

@@ -764,6 +764,8 @@ namespace Pixelaria.Data
             }
 
             // Compare each layer individually
+            // Disable LINQ suggestion because it'd actually be considerably slower
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (int i = 0; i < _layers.Count; i++)
             {
                 if (!_layers[i].Equals(other._layers[i]))

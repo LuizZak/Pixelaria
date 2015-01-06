@@ -181,6 +181,8 @@ namespace Pixelaria.Data
                 return false;
             
             // Iterate through each fo the animations and check for an inequality
+            // Disable LINQ suggestion because it'd actually be considerably slower
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (int i = 0; i < _animations.Count; i++)
             {
                 if (!_animations[i].Equals(other._animations[i]))
