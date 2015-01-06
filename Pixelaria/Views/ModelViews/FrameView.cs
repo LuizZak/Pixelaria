@@ -303,7 +303,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the image preview if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+                RefreshFramePreview();
             }
 
             RefreshTitleBar();
@@ -390,6 +390,14 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Refreshes the frame preview for the form
+        /// </summary>
+        private void RefreshFramePreview()
+        {
+            zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+        }
+
+        /// <summary>
         /// Changes the paint operation with the given one
         /// </summary>
         /// <param name="paintTool">The new paint operation to replace the current one</param>
@@ -447,7 +455,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the preview box if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+                RefreshFramePreview();
             }
 
             if (EditFrameChanged != null)
@@ -1492,7 +1500,7 @@ namespace Pixelaria.Views.ModelViews
             // Update the image preview if enabled
             if (_framePreviewEnabled)
             {
-                zpb_framePreview.Image = _viewFrameBitmap;
+                RefreshFramePreview();
             }
         }
 
