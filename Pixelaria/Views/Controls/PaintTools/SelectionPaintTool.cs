@@ -760,6 +760,8 @@ namespace Pixelaria.Views.Controls.PaintTools
             selected = false;
             _animTimer.Stop();
 
+            pictureBox.NotifyBitmapModified();
+
             UpdateClipboardState();
 
             // Default the operation mode to 'Moved'

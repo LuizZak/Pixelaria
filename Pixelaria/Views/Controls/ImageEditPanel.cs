@@ -608,6 +608,17 @@ namespace Pixelaria.Views.Controls
             }
 
             /// <summary>
+            /// Notifies the picture box that the underlying bitmap was modified
+            /// </summary>
+            public void NotifyBitmapModified()
+            {
+                if (Modified != null)
+                {
+                    Modified(this, new EventArgs());
+                }
+            }
+
+            /// <summary>
             /// Paints the background of this PictureBox using the given PaintEventArgs
             /// </summary>
             /// <param name="pe">The PaintEventArgs to use on the paint background event</param>
