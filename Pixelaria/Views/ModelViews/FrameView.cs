@@ -416,9 +416,11 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Loads the given frame to be edited on this FrameView form
+        /// Loads the given frame to be edited on this FrameView form.
+        /// The provided frame must be derived from the Frame class, otherwise an exception is thrown
         /// </summary>
         /// <param name="frame">The frame to edit on this form</param>
+        /// <exception cref="ArgumentException">The provided frame object is not derived from the Frame class</exception>
         private void LoadFrame(IFrame frame)
         {
             // Dispose of the current view frame
@@ -432,9 +434,10 @@ namespace Pixelaria.Views.ModelViews
                 _onionSkin.Dispose();
             }
 
-            // TODO: Deal with non 'Frame' typed frames
             if (!(frame is Frame))
-                return;
+            {
+                throw new ArgumentException(@"The provided frame object must be derived from the Frame class", "frame");
+            }
 
             _frameToEdit = (Frame)frame;
             _viewFrame = _frameToEdit.Clone();
