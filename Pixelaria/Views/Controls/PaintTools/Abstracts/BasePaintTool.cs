@@ -83,6 +83,12 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         public virtual void Paint(PaintEventArgs e) { }
 
         /// <summary>
+        /// Called to notify this PaintOperation that the control is being redrawn
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        public virtual void PaintForeground(PaintEventArgs e) { }
+
+        /// <summary>
         /// Called to notify this PaintOperation that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>

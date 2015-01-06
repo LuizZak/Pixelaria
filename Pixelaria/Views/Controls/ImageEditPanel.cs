@@ -689,12 +689,13 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.IntersectClip(new RectangleF(0, 0, Image.Width, Image.Height));
                     Region clip = pe.Graphics.Clip;
 
+                    // Render the current paint tool
                     if(_owningPanel.EditingEnabled)
                     {
-                        // Start painting now
                         _currentPaintTool.Paint(pe);
                     }
 
+                    // Draw the actual image
                     if (_displayImage)
                     {
                         foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
@@ -752,22 +753,28 @@ namespace Pixelaria.Views.Controls
                 else
                 {
                     // Draw the over image
-                    if (_overImage != null)
+                    if (_overImage == null)
+                        return;
+
+                    Bitmap copy = _overImage;
+
+                    if (_pictureBoxDecorators.Count > 0)
                     {
-                        Bitmap copy = _overImage;
+                        copy = _overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
 
-                        if (_pictureBoxDecorators.Count > 0)
+                        foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
-                            copy = _overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
-
-                            foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
-                            {
-                                decorator.DecorateUnderBitmap(copy);
-                            }
+                            decorator.DecorateUnderBitmap(copy);
                         }
-
-                        pe.Graphics.DrawImage(copy, new Point());
                     }
+
+                    pe.Graphics.DrawImage(copy, new Point());
+                }
+
+                // Paint the current paint tool's foreground
+                if (_owningPanel.EditingEnabled)
+                {
+                    _currentPaintTool.PaintForeground(pe);
                 }
             }
 
