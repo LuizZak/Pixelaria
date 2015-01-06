@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.LayerControlling;
@@ -33,14 +34,14 @@ using Pixelaria.Data.Clipboard;
 using Pixelaria.Data.Undo;
 using Pixelaria.Filters;
 
-using Pixelaria.Utils;
-
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews.Decorators;
+
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews
 {
