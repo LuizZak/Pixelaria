@@ -402,41 +402,45 @@ namespace Pixelaria.Views.Controls.PaintTools
                     gfx.DrawImage(selectionBitmap, selectedArea);
                 }
 
-                if (displaySelection)
-                {
-                    Rectangle rec = GetSelectionArea(false);
-
-                    rec.Width--;
-                    rec.Height--;
-
-                    Pen p = new Pen(Color.Black)
-                    {
-                        DashStyle = DashStyle.Dash,
-                        DashOffset = _dashOffset,
-                        DashPattern = new[] {2f, 2f},
-                        Alignment = PenAlignment.Inset,
-                        Width = 1
-                    };
-
-                    gfx.DrawRectangle(p, rec);
-
-                    p = new Pen(Color.White)
-                    {
-                        DashStyle = DashStyle.Dash,
-                        DashOffset = _dashOffset + 1.99f,
-                        DashPattern = new[] {2f, 2f},
-                        Alignment = PenAlignment.Inset,
-                        Width = 1
-                    };
-
-                    gfx.DrawRectangle(p, rec);
-
-                    p.Dispose();
-                }
-
                 gfx.Flush();
                 gfx.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Called to notify this PaintOperation that the foreground of the control is being redrawn
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        public override void PaintForeground(PaintEventArgs e)
+        {
+            if (!displaySelection || !selected && !drawingSelection)
+                return;
+
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.Default;
+
+            Rectangle rec = GetSelectionArea(false);
+
+            Pen p = new Pen(Color.Black)
+            {
+                DashStyle = DashStyle.Dash,
+                DashOffset = _dashOffset,
+                DashPattern = new[] { 2f, 2f },
+                Alignment = PenAlignment.Inset,
+                Width = 1
+            };
+
+            e.Graphics.DrawRectangle(p, rec);
+
+            p = new Pen(Color.White)
+            {
+                DashStyle = DashStyle.Dash,
+                DashOffset = _dashOffset + 1,
+                DashPattern = new[] { 2f, 2f },
+                Alignment = PenAlignment.Inset,
+                Width = 1
+            };
+
+            e.Graphics.DrawRectangle(p, rec);
         }
 
         /// <summary>
