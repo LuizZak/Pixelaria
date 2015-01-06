@@ -68,6 +68,11 @@ namespace Pixelaria.Views.Controls
         private OperationFillMode _defaultFillMode;
 
         /// <summary>
+        /// Whether editing the image is currently enabled on this image edit panel
+        /// </summary>
+        private bool _editingEnabled;
+
+        /// <summary>
         /// Gets or sets this panel's picture box's background image
         /// </summary>
         [Browsable(true)]
@@ -164,7 +169,19 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets a value specifying whether editing the image is currently enabled on this image edit panel
         /// </summary>
-        public bool EditingEnabled { get; set; }
+        public bool EditingEnabled
+        {
+            get { return _editingEnabled; }
+            set
+            {
+                _editingEnabled = value;
+
+                if (!_editingEnabled && CurrentPaintTool is IAreaOperation)
+                {
+                    ((IAreaOperation)CurrentPaintTool).CancelOperation(true);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the default compositing mode to use on paint operations that have a compositing component
