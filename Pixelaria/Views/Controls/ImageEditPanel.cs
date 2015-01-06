@@ -601,10 +601,7 @@ namespace Pixelaria.Views.Controls
                     NotifyTo.MarkModified();
                 }
 
-                if (Modified != null)
-                {
-                    Modified(this, new EventArgs());
-                }
+                NotifyBitmapModified();
             }
 
             /// <summary>
