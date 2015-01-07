@@ -163,7 +163,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            _animTimer = new Timer { Interval = 200 };
+            _animTimer = new Timer { Interval = 150 };
             _animTimer.Tick += animTimer_Tick;
 
             displaySelection = true;
@@ -185,7 +185,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         // 
         private void animTimer_Tick(object sender, EventArgs e)
         {
-            _dashOffset += 1f;
+            _dashOffset -= 0.5f;
             pictureBox.Invalidate(GetSelectionArea(true));
         }
 
