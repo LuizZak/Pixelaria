@@ -166,7 +166,7 @@ namespace Pixelaria.Controllers
             _defaultExporter = new DefaultPngExporter();
 
             // Initialize the Settings singleton
-            Settings.GetSettings(Path.GetDirectoryName(Application.ExecutablePath) + "\\settings.ini");
+            Settings.GetSettings(Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\settings.ini");
 
             _recentFileList = new RecentFileList(10);
 

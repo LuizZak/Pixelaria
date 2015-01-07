@@ -278,7 +278,7 @@ namespace Pixelaria.Filters
         /// </summary>
         private void SaveFilterPresets()
         {
-            string savePath = Path.GetDirectoryName(Application.ExecutablePath) + "\\filterpresets.bin";
+            string savePath = Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\filterpresets.bin";
 
             using (FileStream stream = new FileStream(savePath, FileMode.Create))
             {
@@ -300,7 +300,7 @@ namespace Pixelaria.Filters
         {
             _filterPresets.Clear();
 
-            string savePath = Path.GetDirectoryName(Application.ExecutablePath) + "\\filterpresets.bin";
+            string savePath = Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\filterpresets.bin";
 
             using (FileStream stream = new FileStream(savePath, FileMode.OpenOrCreate))
             {
