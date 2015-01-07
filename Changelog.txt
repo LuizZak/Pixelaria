@@ -29,17 +29,21 @@ Legend:
   + Added option to render the onion skin on top of the current frame as well as under it.
   + Added Airbrush mode to the Pencil and Spray paint tools.
   
-  * Now only the Alpha color component slider shows transparency, all the other sliders are always fully opaque regardless of the current color's transparency.
   * Fixed deleting a selection that was just pasted on the canvas creating an undo task.
   * Now an undo task for a selection pasting is only performed when the selection is effectively released and the image drawn on the canvas.
-  * Fixed pencil operation being really slow on high-resolution images.
+  * Fixed canceling selections with the selection tool sometimes clearing the selected image region.
+  * Fixed selection tool's ctrl+click duplicating the image incorrectly.
   * Fixed pasting something and deselecting right away undoing the paste operation.
+  
+  * Fixed pencil operation being really slow on high-resolution images.
   * Fixed drawing with a Replace blend mode with the pencil not undoing correctly sometimes.
   * Increased speed and decreased memory footprint of the bucket tool.
+  
+  * Now only the Alpha color component slider shows transparency, all the other sliders are always fully opaque regardless of the current color's transparency.
   * Fixed color sliders not updating when switching between the two active colors.
-  * Fixed canceling selections with the selection tool sometimes clearing the selected image region.
+  * Fixed clicking a color slider's knob ticking the slider off to the left by a small ammount.
+
   * Fixed saving a frame always saving it in the PNG format regardless of the selected extension.
-  * Fixed selection tool's ctrl+click duplicating the image incorrectly.
 
 . AnimationView
   + Added new right click menus for the frames list panel.
