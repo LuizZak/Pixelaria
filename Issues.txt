@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.14.2b
+                  v1.17.0b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright © 2013 Luiz Fernando Silva
@@ -20,19 +20,22 @@ Legend:
 
 -- Current Release
 
-- The pencil/eraser/spray paint tool do not invalidate the canvas correctly during large mouse movements.
-
 - When moving slices of the image with the selection tool, the preview panel's image is not updated accordingly.
 
 
+-- v1.17.0b
+
+- The pencil/eraser/spray paint tool do not invalidate the canvas correctly during large mouse movements.
+>> Fixed on v1.17.0b
+
 - The pencil, eraser and spray paint tool run really slow during long operations.
->> Fixed on current Release
+>> Fixed on v1.17.0b
 
 - When changing a frame and returning the the animation form, the information for the animation's reset back to the default info
->> Fixed on Current Release
+>> Fixed on v1.17.0b
 
 - When changing active colors on the frame view, the color sliders don't update accordingly.
->> Fixed on Current Release
+>> Fixed on v1.17.0b
 
 
 -- v1.11.0b

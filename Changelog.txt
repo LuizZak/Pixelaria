@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.14.2b
+                  v1.17.0b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,7 +18,11 @@ Legend:
 * Fix/Change
 . Note
 
--- Current Version (planned 1.17.0b)
+-- Current Version
+
+
+
+-- 1.17.0b
 
 + Added basic layering functionality for frames.
 
