@@ -66,7 +66,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// An offset applied to the mouse position while dragging the knob
         /// </summary>
-        private int _knobDraggingOffset;
+        private float _knobDraggingOffset;
 
         /// <summary>
         /// The current value specified by this ColorSlider, ranging from [0 - 1]
@@ -163,13 +163,13 @@ namespace Pixelaria.Views.Controls.ColorControls
             {
                 // Test agains the current knob position, if the mouse is over the knob, setup an offset so
                 // the mouse drags relative to the current knob's position
-                Rectangle bounds = GetKnobRectangleBounds();
+                Rectangle knobBounds = GetKnobRectangleBounds();
                 
                 _knobDraggingOffset = 0;
 
-                if (bounds.Contains(e.Location))
+                if (knobBounds.Contains(e.Location))
                 {
-                    _knobDraggingOffset = e.Location.X - (bounds.Right + bounds.Left) / 2;
+                    _knobDraggingOffset = e.Location.X - GetSliderXOffset();
                 }
 
                 UpdateValueForMouseEvent(e);
@@ -374,7 +374,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         /// <param name="xOffset">An X offset of the slider's total size</param>
         /// <returns>A float value ranging from [0 - 1] that indicates the value represented by a given X offset of the slider</returns>
-        private float GetValueForXOffset(int xOffset)
+        private float GetValueForXOffset(float xOffset)
         {
             // Get the slider rectangle and move it to offset 0
             Rectangle rect = GetSliderRectangleBounds();
@@ -385,7 +385,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             rect.X = 0;
             rect.Width -= rect.Height;
 
-            var value = (float)(xOffset) / rect.Width;
+            float value = xOffset / rect.Width;
 
             return Math.Max(0, Math.Min(1, value));
         }
