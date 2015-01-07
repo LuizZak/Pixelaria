@@ -26,6 +26,7 @@ Legend:
 
 + Added basic layering functionality for frames.
 
+* Fixed crashes related to settings file permissions.
 * Fixed crash related to opening files that are not valid .plx files.
 
 . FrameView
@@ -62,6 +63,7 @@ Legend:
   . Fixed checkbox that should be hidden when creating a new sheet but wasn't.
 
 . Now the main window title bar displays the path of the file currently open.
+. Now all settings files are saved under the User\AppData folder path.
 
 -- v1.14.2b
 
