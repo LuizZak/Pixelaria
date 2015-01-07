@@ -469,8 +469,10 @@ namespace Pixelaria.Views.Controls.PaintTools
                 // If the control key is currently down, duplicate the image and start dragging the duplicated image instead
                 if (ctrlDown)
                 {
+                    Bitmap copy = selectionBitmap.Clone(new Rectangle(Point.Empty, selectionBitmap.Size), selectionBitmap.PixelFormat);
+
                     FinishOperation(true);
-                    StartOperation(selectedArea, ExtractBitmap(selectedArea), SelectionOperationType.Paste);
+                    StartOperation(selectedArea, copy, SelectionOperationType.Paste);
                 }
 
                 movingSelection = true;
