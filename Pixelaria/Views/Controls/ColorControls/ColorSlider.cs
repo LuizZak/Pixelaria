@@ -174,6 +174,8 @@ namespace Pixelaria.Views.Controls.ColorControls
 
                 UpdateValueForMouseEvent(e);
                 _mouseDragging = true;
+
+                InvalidateSlider();
             }
         }
 
@@ -732,10 +734,15 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             Rectangle rec = GetSliderRectangleBounds();
 
+            // Offset the rectangle so it starts within the round corners of the graphic path
+            rec.X += rec.Height / 2;
+            rec.Width -= rec.Height;
+
             // Hue is a special case
             if (_colorComponent == ColorSliderComponent.Hue)
             {
-                const int steps = 54;
+                // 7 steps chosen for the 7 colors of the spectrum. This produces a gradient that is precise enough to display the whole hue range for the slider
+                const int steps = 7;
 
                 // Create the color blends for the brush
                 blend = new ColorBlend(steps);
@@ -760,16 +767,13 @@ namespace Pixelaria.Views.Controls.ColorControls
                     InterpolationColors = blend,
                     WrapMode = WrapMode.TileFlipXY
                 };
-
+                
                 return brush;
             }
 
             Color zeroColor = GetColorWithActiveComponentSet(0);
             Color halfColor = GetColorWithActiveComponentSet(0.5f);
             Color fullColor = GetColorWithActiveComponentSet(1);
-
-            rec.X += 7;
-            rec.Width -= 14;
 
             // Create the color blends for the brush
             blend = new ColorBlend(3)
@@ -886,7 +890,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             RectangleF bounds = GenerateKnobGraphicsPath().GetBounds();
             bounds.Inflate(4, 0);
 
-            return new Rectangle((int)bounds.X, (int)bounds.Y, (int)bounds.Width, (int)bounds.Height);
+            return Rectangle.Truncate(bounds);
         }
 
         #endregion

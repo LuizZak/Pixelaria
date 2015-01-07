@@ -42,6 +42,7 @@ Legend:
   * Now only the Alpha color component slider shows transparency, all the other sliders are always fully opaque regardless of the current color's transparency.
   * Fixed color sliders not updating when switching between the two active colors.
   * Fixed clicking a color slider's knob ticking the slider off to the left by a small ammount.
+  * Adjusted Hue slider's background gradient.
 
   * Fixed saving a frame always saving it in the PNG format regardless of the selected extension.
 
