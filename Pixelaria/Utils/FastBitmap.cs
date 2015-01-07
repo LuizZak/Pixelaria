@@ -504,7 +504,7 @@ namespace Pixelaria.Utils
 
             destBitmapRect = Rectangle.Intersect(destRect, destBitmapRect);
 
-            // Clipt the source bitmap region yet again here
+            // Clip the source bitmap region yet again here
             srcBitmapRect = Rectangle.Intersect(srcBitmapRect, new Rectangle(-destRect.X + srcRect.X, -destRect.Y + srcRect.Y, _width, _height));
 
             // Calculate the rectangle containing the maximum possible area that is supposed to be affected by the copy region operation
@@ -524,6 +524,7 @@ namespace Pixelaria.Utils
             {
                 ulong strideWidth = (ulong)copyWidth * BytesPerPixel;
 
+                // Perform copies of whole pixel rows
                 for (int y = 0; y < copyHeight; y++)
                 {
                     int destX = destStartX;
