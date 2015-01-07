@@ -39,6 +39,7 @@ Legend:
   * Fixed color sliders not updating when switching between the two active colors.
   * Fixed canceling selections with the selection tool sometimes clearing the selected image region.
   * Fixed saving a frame always saving it in the PNG format regardless of the selected extension.
+  * Fixed selection tool's ctrl+click duplicating the image incorrectly.
 
 . AnimationView
   + Added new right click menus for the frames list panel.
