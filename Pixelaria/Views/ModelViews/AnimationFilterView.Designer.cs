@@ -116,6 +116,7 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 559);
             this.label1.Name = "label1";
@@ -125,6 +126,8 @@
             // 
             // tc_timeline
             // 
+            this.tc_timeline.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tc_timeline.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.TimelineWithRange;
             this.tc_timeline.CurrentFrame = 1;
             this.tc_timeline.DisableFrameSelectionOutOfRange = false;
@@ -134,8 +137,8 @@
             this.tc_timeline.Minimum = 0;
             this.tc_timeline.Name = "tc_timeline";
             this.tc_timeline.Range = new System.Drawing.Point(0, 1);
-            this.tc_timeline.ScrollScaleWidth = 1F;
-            this.tc_timeline.ScrollX = 0F;
+            this.tc_timeline.ScrollScaleWidth = 1D;
+            this.tc_timeline.ScrollX = 0D;
             this.tc_timeline.Size = new System.Drawing.Size(624, 40);
             this.tc_timeline.TabIndex = 32;
             this.tc_timeline.Text = "timelineControl1";
