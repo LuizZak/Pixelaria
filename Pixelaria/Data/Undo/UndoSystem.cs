@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Pixelaria.Data.Undo
 {
@@ -272,7 +273,7 @@ namespace Pixelaria.Data.Undo
             GroupUndoTask task = _currentGroupUndoTask;
             _currentGroupUndoTask = null;
 
-            if (!cancel)
+            if (task.UndoList.Count > 0 && !cancel)
             {
                 RegisterUndo(task);
             }
@@ -405,6 +406,11 @@ namespace Pixelaria.Data.Undo
         /// Gets or sets whether to reverse the order of the operations on undo
         /// </summary>
         public bool ReverseOnUndo { get; set; }
+
+        /// <summary>
+        /// Gets a read-only version of the internal undo tasks list for this group undo task
+        /// </summary>
+        public ReadOnlyCollection<IUndoTask> UndoList { get { return _undoList.AsReadOnly(); } }
 
         /// <summary>
         /// Initializes a new instance of the GroupUndoTask class with a description
