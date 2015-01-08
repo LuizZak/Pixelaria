@@ -70,12 +70,16 @@ Legend:
 . Now the main window title bar displays the path of the file currently open.
 . Now all settings files are saved under the User\AppData folder path.
 
+
+
 -- v1.14.2b
 
 * Fixed bug where similar frames that were reused in the export atlas sheet would accumulate their opacity, changing the generated transparency of the final frame on the sheet.
 
 . Improved sprite sheet image generation, now the pixel colors are guaranteed to be 100% similar to their original frame representations.
 . Now the animations on the exported sheet .xml are always in the order they appear in the program.
+
+
 
 -- v1.14.0b
 
@@ -94,6 +98,8 @@ Legend:
   * Now when updates to the animation are made (cut, paste, move, edit frame, etc.), the animation preview panel will not playback automatically.
 
 . Added a "File a Bug..." menu item to direct users to a repository of bug repport on the SourceForce page.
+
+
 
 -- v1.13.0b
 
@@ -124,6 +130,8 @@ Legend:
   + Added checkbox to toggle visualization of individual frame bounds on the sheet.
   + Added an 'Apply' button that will apply changes made without closing the form.
 
+
+
 -- v1.11.0b
 
 . AnimationView
@@ -131,6 +139,8 @@ Legend:
 
 . FrameView
   + Added a timeline to visualize and quickly select which frame is currently being edited.
+
+
 
 -- v1.10.0b
 
@@ -154,6 +164,8 @@ Legend:
   
   . Now application of filters on a selection and moving it to somewhere else will be grouped into a single undo.
   . Now color picking on the pencil and bucket operations also work when dragging the mouse with the mouse wheel held down.
+
+
 
 -- v1.95b
 
@@ -180,6 +192,8 @@ Legend:
   * Now when pasting an image the pasting is placed at the top-left visible position of the canvas instead of the top-left most corner of the image.
   
   . The color swatch now also picks colors when the mouse is moved while pressed down on the control.
+
+
 
 -- v1.85b
 
@@ -211,6 +225,8 @@ Legend:
 . Animation Resize View
   * The form is now resizable.
   * Now the preview image box's background image is clipped to the image size.
+
+
 
 -- v1.6b
 
