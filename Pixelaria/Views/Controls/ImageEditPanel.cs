@@ -396,6 +396,11 @@ namespace Pixelaria.Views.Controls
             private bool _displayGrid;
 
             /// <summary>
+            /// Whether the space keyboard key is currently being held down
+            /// </summary>
+            private bool _spaceHeld;
+
+            /// <summary>
             /// The list of picture box decorators
             /// </summary>
             private readonly List<PictureBoxDecorator> _pictureBoxDecorators;
@@ -459,6 +464,19 @@ namespace Pixelaria.Views.Controls
             /// Gets or sets whether to display a grid over the image
             /// </summary>
             public bool DisplayGrid { get { return _displayGrid; } set { _displayGrid = value; Invalidate(); } }
+
+            /// <summary>
+            /// Gets a value specifying whether editing is currently enabled on this PictureBox
+            /// </summary>
+            public bool EditingEnabled { get { return _owningPanel.EditingEnabled; } }
+
+            /// <summary>
+            /// Gets a value specifying whether the space keyboard key is currently being held down
+            /// </summary>
+            public bool SpaceHeld
+            {
+                get { return _spaceHeld; }
+            }
 
             /// <summary>
             /// Initializes a new instance of the InternalPictureBox class
@@ -698,7 +716,7 @@ namespace Pixelaria.Views.Controls
                     Region clip = pe.Graphics.Clip;
 
                     // Render the current paint tool
-                    if(_owningPanel.EditingEnabled)
+                    if (EditingEnabled)
                     {
                         _currentPaintTool.Paint(pe);
                     }
@@ -780,7 +798,7 @@ namespace Pixelaria.Views.Controls
                 }
 
                 // Paint the current paint tool's foreground
-                if (_owningPanel.EditingEnabled)
+                if (EditingEnabled)
                 {
                     _currentPaintTool.PaintForeground(pe);
                 }
@@ -805,7 +823,7 @@ namespace Pixelaria.Views.Controls
                 if (findForm != null)
                     findForm.ActiveControl = this;
 
-                if (_owningPanel.EditingEnabled)
+                if (EditingEnabled && !AllowDrag)
                 {
                     if (Image != null)
                         _currentPaintTool.MouseDown(e);
@@ -821,7 +839,7 @@ namespace Pixelaria.Views.Controls
 
                 if (Image != null)
                 {
-                    if (_owningPanel.EditingEnabled)
+                    if (EditingEnabled)
                         _currentPaintTool.MouseMove(e);
 
                     _mousePoint = GetAbsolutePoint(e.Location);
@@ -837,7 +855,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseUp(e);
 
-                if (_owningPanel.EditingEnabled && Image != null)
+                if (EditingEnabled && Image != null)
                     _currentPaintTool.MouseUp(e);
             }
 
@@ -850,7 +868,7 @@ namespace Pixelaria.Views.Controls
 
                 _mouseOverImage = false;
 
-                if (_owningPanel.EditingEnabled && Image != null)
+                if (Image != null)
                     _currentPaintTool.MouseLeave(e);
             }
 
@@ -861,7 +879,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseEnter(e);
 
-                if (_owningPanel.EditingEnabled && Image != null)
+                if (Image != null)
                     _currentPaintTool.MouseEnter(e);
             }
 
@@ -872,8 +890,19 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnKeyDown(e);
 
-                if (_owningPanel.EditingEnabled && Image != null)
+                if (EditingEnabled && Image != null)
                     _currentPaintTool.KeyDown(e);
+
+                if (e.KeyCode == Keys.Space && !_spaceHeld)
+                {
+                    AllowDrag = true;
+                    _spaceHeld = true;
+
+                    if (!mouseDown)
+                    {
+                        Invalidate();
+                    }
+                }
             }
 
             // 
@@ -883,8 +912,19 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnKeyDown(e);
 
-                if (_owningPanel.EditingEnabled && Image != null)
+                if (EditingEnabled && Image != null)
                     _currentPaintTool.KeyUp(e);
+
+                if (e.KeyCode == Keys.Space)
+                {
+                    AllowDrag = false;
+                    _spaceHeld = false;
+
+                    if (!mouseDown)
+                    {
+                        Invalidate();
+                    }
+                }
             }
         }
     }

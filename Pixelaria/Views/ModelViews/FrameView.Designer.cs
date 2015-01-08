@@ -334,6 +334,7 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.zpb_framePreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_framePreview.ClipBackgroundToImage = true;
+            this.zpb_framePreview.HorizontalScrollValue = 0;
             this.zpb_framePreview.Location = new System.Drawing.Point(0, 18);
             this.zpb_framePreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MaximumZoom")));
             this.zpb_framePreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.MinimumZoom")));
@@ -341,6 +342,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_framePreview.Size = new System.Drawing.Size(245, 296);
             this.zpb_framePreview.TabIndex = 0;
             this.zpb_framePreview.TabStop = false;
+            this.zpb_framePreview.VerticalScrollValue = 0;
             this.zpb_framePreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_framePreview.Zoom")));
             this.zpb_framePreview.ZoomFactor = 1.414214F;
             // 

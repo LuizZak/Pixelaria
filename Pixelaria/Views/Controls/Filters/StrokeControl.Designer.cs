@@ -56,7 +56,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.label1 = new System.Windows.Forms.Label();
             this.cb_knockout = new System.Windows.Forms.CheckBox();
             this.cb_smooth = new System.Windows.Forms.CheckBox();
-            this.cp_color = new ColorPanel();
+            this.cp_color = new Pixelaria.Views.Controls.ColorControls.ColorPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -87,7 +87,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.anud_strokeSize.Size = new System.Drawing.Size(386, 32);
             this.anud_strokeSize.TabIndex = 7;
             this.anud_strokeSize.Value = new decimal(new int[] {
-            100,
+            1,
             0,
             0,
             0});

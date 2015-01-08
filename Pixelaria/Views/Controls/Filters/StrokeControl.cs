@@ -68,10 +68,10 @@ namespace Pixelaria.Views.Controls.Filters
         /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
         public override void UpdateFieldsFromFilter(IFilter referenceFilter)
         {
-            if (!(referenceFilter is StrokeFilter))
-                return;
+            var strokeFilter = referenceFilter as StrokeFilter;
 
-            var strokeFilter = ((StrokeFilter)referenceFilter);
+            if (strokeFilter == null)
+                return;
 
             anud_strokeSize.Value = strokeFilter.StrokeRadius;
             cp_color.BackColor = strokeFilter.StrokeColor;

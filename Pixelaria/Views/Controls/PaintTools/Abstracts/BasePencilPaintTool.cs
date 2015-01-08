@@ -283,8 +283,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             // Draw the pencil position
             Point absolutePencil = GetAbsolutePoint(mouseControlPoint);
 
-            // Draw the pencil on the spot under the user's mouse using the pencil paint operation
-            DrawPencilPreview(pictureBox.Buffer, absolutePencil);
+            if(!pictureBox.SpaceHeld)
+            {
+                // Draw the pencil on the spot under the user's mouse using the pencil paint operation
+                DrawPencilPreview(pictureBox.Buffer, absolutePencil);
+            }
         }
 
         /// <summary>

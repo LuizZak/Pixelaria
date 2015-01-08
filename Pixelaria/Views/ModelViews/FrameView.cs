@@ -414,6 +414,10 @@ namespace Pixelaria.Views.ModelViews
             {
                 (paintTool as IAirbrushPaintTool).AirbrushMode = cb_airbrushMode.Checked;
             }
+
+            // Focus on the canvas
+            ActiveControl = iepb_frame.PictureBox;
+            iepb_frame.PictureBox.Focus();
         }
 
         /// <summary>
@@ -468,6 +472,10 @@ namespace Pixelaria.Views.ModelViews
             }
 
             _oldFrameIndex = frame.Index;
+
+            // Focus on the canvas
+            ActiveControl = iepb_frame.PictureBox;
+            iepb_frame.PictureBox.Focus();
         }
 
         /// <summary>

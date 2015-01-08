@@ -21,6 +21,7 @@ Legend:
 -- Current Version
 
 * Updated the filter selection interface to enable free resizing.
+* Fixing Stroke filter starting with a wrongly attributed 100 value.
 
 . AnimationView
   * Fixed applying filters not marking the animation as modified.

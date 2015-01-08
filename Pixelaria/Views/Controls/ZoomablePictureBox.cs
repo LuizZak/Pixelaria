@@ -60,6 +60,11 @@ namespace Pixelaria.Views.Controls
         protected bool draggingViewport;
 
         /// <summary>
+        /// Whether the mouse is currently held down on this control
+        /// </summary>
+        protected bool mouseDown;
+
+        /// <summary>
         /// The offset of the mouse when it started dragging the viewport
         /// </summary>
         protected Point mouseOffset;
@@ -625,6 +630,8 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseDown(e);
 
+            mouseDown = true;
+
             if (AllowDrag && e.Button == MouseButtons.Left)
             {
                 // Steal the focus from the current control so the mouse wheel event handler funcions correctly
@@ -669,6 +676,8 @@ namespace Pixelaria.Views.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
+
+            mouseDown = false;
 
             if (e.Button == MouseButtons.Left)
             {
