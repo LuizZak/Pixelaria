@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The active color for this ColorSlider
         /// </summary>
-        protected AhslColor activeColor = Color.White.ToAhsl();
+        protected AhslColor activeColor = Color.Black.ToAhsl();
 
         /// <summary>
         /// The color component this ColorSlider is currently manipulating
@@ -937,6 +937,12 @@ namespace Pixelaria.Views.Controls.ColorControls
         //
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
+            // If no fixed control height is specified, allow free resizing
+            if (fixedControlHeight == -1)
+            {
+                base.SetBoundsCore(x, y, Math.Max(80, width), height, specified);
+            }
+
             // EDIT: ADD AN EXTRA HEIGHT VALIDATION TO AVOID INITIALIZATION PROBLEMS
             // BITWISE 'AND' OPERATION: IF ZERO THEN HEIGHT IS NOT INVOLVED IN THIS OPERATION
             if ((specified & BoundsSpecified.Height) == 0 || (specified & BoundsSpecified.Width) == 0 || height == fixedControlHeight)
