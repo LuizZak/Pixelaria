@@ -38,6 +38,24 @@ namespace Pixelaria.Views.Controls.LayerControls
     public partial class LayerControl : UserControl
     {
         /// <summary>
+        /// Cached version of the layer hidden image
+        /// </summary>
+        private readonly Image _layerHiddenImage = Properties.Resources.filter_disable_icon;
+        /// <summary>
+        /// Cached version of the layer visible image
+        /// </summary>
+        private readonly Image _layerVisibleImage = Properties.Resources.filter_enable_icon;
+
+        /// <summary>
+        /// Cached version of the layer locked image
+        /// </summary>
+        private readonly Image _layerLockedImage = Properties.Resources.padlock_closed;
+        /// <summary>
+        /// Cached version of the layer unlocked image
+        /// </summary>
+        private readonly Image _layerUnlockedImage = Properties.Resources.padlock_open;
+
+        /// <summary>
         /// The layer this layer control is binded to
         /// </summary>
         private readonly IFrameLayer _layer;
@@ -213,8 +231,8 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
 
-            btn_visible.Image = _layerVisible ? Properties.Resources.filter_enable_icon : Properties.Resources.filter_disable_icon;
-            btn_locked.Image = _layerLocked ? Properties.Resources.padlock_closed : Properties.Resources.padlock_open;
+            btn_visible.Image = _layerVisible ? _layerHiddenImage : _layerVisibleImage;
+            btn_locked.Image = _layerLocked ? _layerLockedImage : _layerUnlockedImage;
         }
 
         /// <summary>
