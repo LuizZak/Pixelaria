@@ -128,7 +128,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok.Location = new System.Drawing.Point(465, 3);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
-            this.btn_ok.TabIndex = 28;
+            this.btn_ok.TabIndex = 0;
             this.btn_ok.Text = "&OK";
             this.btn_ok.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btn_ok.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -158,11 +158,9 @@ namespace Pixelaria.Views.ModelViews
             this.Controls.Add(this.fs_filters);
             this.Controls.Add(this.pnl_bottom);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(663, 3000);
             this.MinimumSize = new System.Drawing.Size(663, 706);
             this.Name = "ImageFilterView";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Filter";
             this.pnl_errorPanel.ResumeLayout(false);
             this.pnl_errorPanel.PerformLayout();

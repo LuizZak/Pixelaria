@@ -107,7 +107,7 @@
             this.btn_ok.Location = new System.Drawing.Point(466, 3);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
-            this.btn_ok.TabIndex = 28;
+            this.btn_ok.TabIndex = 0;
             this.btn_ok.Text = "&OK";
             this.btn_ok.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btn_ok.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -152,7 +152,7 @@
             this.fs_filters.Location = new System.Drawing.Point(12, 12);
             this.fs_filters.Name = "fs_filters";
             this.fs_filters.Size = new System.Drawing.Size(624, 537);
-            this.fs_filters.TabIndex = 0;
+            this.fs_filters.TabIndex = 1;
             // 
             // AnimationFilterView
             // 
@@ -164,9 +164,9 @@
             this.Controls.Add(this.pnl_bottom);
             this.Controls.Add(this.fs_filters);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximumSize = new System.Drawing.Size(663, 3000);
             this.MinimumSize = new System.Drawing.Size(663, 706);
             this.Name = "AnimationFilterView";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Filter";
             this.pnl_bottom.ResumeLayout(false);
             this.pnl_errorPanel.ResumeLayout(false);
