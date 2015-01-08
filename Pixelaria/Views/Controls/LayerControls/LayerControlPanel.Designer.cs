@@ -52,6 +52,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.pnl_container.Name = "pnl_container";
             this.pnl_container.Size = new System.Drawing.Size(125, 283);
             this.pnl_container.TabIndex = 3;
+            this.pnl_container.Click += new System.EventHandler(this.pnl_container_Click);
             // 
             // labeledPanel1
             // 
