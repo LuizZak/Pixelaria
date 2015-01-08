@@ -206,10 +206,11 @@ namespace Pixelaria.Data
         /// <summary>
         /// Returns the memory usage of this animation, in bytes
         /// </summary>
+        /// <param name="composed">Whether to calculate the memory usage of the frames after they have been composed into single images</param>
         /// <returns>Total memory usage, in bytes</returns>
-        public long CalculateMemoryUsageInBytes()
+        public long CalculateMemoryUsageInBytes(bool composed)
         {
-            return _frames.Sum(frame => frame.CalculateMemoryUsageInBytes());
+            return _frames.Sum(frame => frame.CalculateMemoryUsageInBytes(composed));
         }
 
         /// <summary>

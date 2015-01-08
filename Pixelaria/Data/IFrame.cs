@@ -123,8 +123,9 @@ namespace Pixelaria.Data
         /// <summary>
         /// Returns the memory usage of this frame, in bytes
         /// </summary>
+        /// <param name="composed">Whether to calculate the memory usage after the bitmap has been composed into a single image</param>
         /// <returns>Total memory usage, in bytes</returns>
-        long CalculateMemoryUsageInBytes();
+        long CalculateMemoryUsageInBytes(bool composed);
 
         /// <summary>
         /// Returns the composed Bitmap for this frame

@@ -214,7 +214,10 @@ namespace Pixelaria.Views.ModelViews
 
             tssl_dimensions.Text = _viewAnimation.Width + @" x " + _viewAnimation.Height;
             tssl_frameCount.Text = _viewAnimation.FrameCount + "";
-            tssl_memory.Text = Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes());
+
+            tssl_memory.Text = string.Format("Current: {0} Composed: {1}",
+                Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes(false)),
+                Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes(true)));
         }
 
         /// <summary>

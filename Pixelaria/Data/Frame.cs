@@ -696,13 +696,18 @@ namespace Pixelaria.Data
         /// <summary>
         /// Returns the memory usage of this frame, in bytes
         /// </summary>
+        /// <param name="composed">Whether to calculte the memory usage after the frame has been composed into a single image</param>
         /// <returns>Total memory usage, in bytes</returns>
-        public long CalculateMemoryUsageInBytes()
+        public long CalculateMemoryUsageInBytes(bool composed)
         {
             if (!_initialized)
             {
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
+
+            // For composed mode, use the memory usage of the first layer
+            if (composed)
+                return Utilities.MemoryUsageOfImage(_layers[0].LayerBitmap);
 
             // Calculate the usage of each layer individually
             return _layers.Sum(layer => Utilities.MemoryUsageOfImage(layer.LayerBitmap));
