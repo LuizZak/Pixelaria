@@ -557,7 +557,7 @@ namespace Pixelaria.Views.Controls
                 
                 pevent.Graphics.Clear(BackColor);
 
-                Rectangle rec = CalculateBackgroundImageRectangle(new Rectangle(0, 0, Width, Height), Image, ImageLayout);
+                Rectangle rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
 
                 // Transform the rectangle by the transform matrix
                 var transform = pevent.Graphics.Transform;
@@ -583,6 +583,7 @@ namespace Pixelaria.Views.Controls
                 if (BackgroundImageLayout == ImageLayout.Tile)
                 {
                     TextureBrush tex = new TextureBrush(BackgroundImage) { WrapMode = WrapMode.Tile };
+                    tex.TranslateTransform(points[0].X, points[0].Y);
 
                     pevent.Graphics.FillPolygon(tex, points);
 
