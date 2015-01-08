@@ -231,7 +231,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
 
-            btn_visible.Image = _layerVisible ? _layerHiddenImage : _layerVisibleImage;
+            btn_visible.Image = _layerVisible ? _layerVisibleImage : _layerHiddenImage;
             btn_locked.Image = _layerLocked ? _layerLockedImage : _layerUnlockedImage;
         }
 
