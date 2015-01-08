@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -80,8 +81,13 @@ namespace Pixelaria.Filters
         /// Applies this OffsetFilter to a Bitmap
         /// </summary>
         /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
-        public void ApplyToBitmap(Bitmap bitmap)
+        public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
+            // 
+            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
+            // 
+
             if(!Modifying)
                 return;
 
@@ -96,16 +102,26 @@ namespace Pixelaria.Filters
             int w = bitmap.Width;
             int h = bitmap.Height;
 
-            int strokeColorInt = StrokeColor.ToArgb();
+            int strokeColorInt = StrokeColor.ToArgb() & 0xFFFFFF;
 
             int strokeRadius = StrokeRadius + (Smooth ? 1 : 0);
+            int strokeRadiusSqrd = strokeRadius * strokeRadius;
+
+            int* scan0I = (int*)fbi.Scan0;
+            int* scan0O = (int*)fbo.Scan0;
+
+            int strideWidthI = fbi.Stride;
+
+            bool smooth = Smooth;
+
+            Stopwatch sw = Stopwatch.StartNew();
 
             // Apply the stroke
             for (int y = 0; y < h; y++)
             {
                 for (int x = 0; x < w; x++)
                 {
-                    int a = (fbi.GetPixelInt(x, y) >> 24) & 0xFF;
+                    int a = (*(scan0I + strideWidthI * y + x) >> 24) & 0xFF;
 
                     // If the pixel has an alpha of 0, it can't apply any stroke
                     if (a == 0)
@@ -116,30 +132,33 @@ namespace Pixelaria.Filters
 
                     for (int sy = minY; sy <= maxY; sy++)
                     {
+                        // We cache the Y pointer offset here so we don't need to recalculate for each column of pixels over and over
+                        int yMod = strideWidthI * sy;
+
                         for (int sx = minX; sx <= maxX; sx++)
                         {
                             // Don't apply any stroke on top of fully opaque pixels
-                            if ((sx == x && sy == y) || ((fbi.GetPixelInt(sx, sy) >> 24) & 0xFF) == 255)
+                            if ((*(scan0I + yMod + sx) & 0xFF000000) == 0xFF000000 || (sx == x && sy == y))
                                 continue;
 
-                            double dx = sx - x;
-                            double dy = sy - y;
-                            double dis = Math.Sqrt(dx * dx + dy * dy);
+                            int dx = sx - x;
+                            int dy = sy - y;
+                            int dis = dx * dx + dy * dy;
 
-                            if (dis > strokeRadius)
+                            if (dis > strokeRadiusSqrd)
                                 continue;
 
                             const int outA = 255;
-                            int outC = (outA << 24) + (strokeColorInt & 0xFFFFFF);
+                            int outC = (outA << 24) + strokeColorInt;
 
-                            if(Smooth)
+                            if (smooth)
                             {
-                                float oldA = ((fbo.GetPixelInt(sx, sy) >> 24) & 0xFF) / 255.0f;
+                                float oldA = ((*(scan0O + yMod + sx) >> 24) & 0xFF) / 255.0f;
 
-                                outC = (Math.Min(255, (int)((oldA + (1 - (dis) / strokeRadius)) * 0xFF)) << 24) + (strokeColorInt & 0xFFFFFF);
+                                outC = (Math.Min(255, (int)((oldA + (1 - Math.Sqrt(dis) / strokeRadius)) * 0xFF)) << 24) + strokeColorInt;
 					        }
 
-                            fbo.SetPixel(sx, sy, outC);
+                            *(scan0O + yMod + sx) = outC;
                         }
                     }
                 }
@@ -164,6 +183,9 @@ namespace Pixelaria.Filters
             gphOut.Dispose();
 
             bmo.Dispose();
+
+            sw.Stop();
+            Debug.WriteLine((sw.ElapsedTicks / (double)Stopwatch.Frequency) + "s");
         }
 
         /// <summary>
