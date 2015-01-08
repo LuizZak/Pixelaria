@@ -38,7 +38,7 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Checkers pattern used as the default tile
         /// </summary>
-        private static Image _checkersPattern = Resources.checkers_pattern;
+        private static readonly Image CheckersPattern = Resources.checkers_pattern;
 
         /// <summary>
         /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating
@@ -121,7 +121,7 @@ namespace Pixelaria.Utils
         /// </returns>
         public static Image GetDefaultTile()
         {
-            return _checkersPattern;
+            return CheckersPattern;
         }
 
         /// <summary>
