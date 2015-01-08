@@ -800,6 +800,10 @@ namespace Pixelaria.Views.Controls
                 // Paint the current paint tool's foreground
                 if (EditingEnabled)
                 {
+                    pe.Graphics.ResetTransform();
+
+                    UpdateGraphicsTransform(pe.Graphics);
+
                     _currentPaintTool.PaintForeground(pe);
                 }
             }
