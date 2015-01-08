@@ -107,6 +107,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets the current value specified by this ColorSlider, ranging from [0 - 1]
         /// </summary>
+        [Browsable(false)]
         public float CurrentValue
         {
             get

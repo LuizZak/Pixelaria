@@ -116,6 +116,7 @@
             this.tcs_transparency.Name = "tcs_transparency";
             this.tcs_transparency.Size = new System.Drawing.Size(96, 10);
             this.tcs_transparency.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.tcs_transparency, "Change layer display transparency");
             this.tcs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.tcs_transparency_ColorChanged);
             // 
             // pb_layerImage
