@@ -2061,6 +2061,7 @@ namespace Pixelaria.Views.ModelViews
                     _frameView._undoSystem.RegisterUndo(new AddLayerUndoTask(args.FrameLayer, this));
 
                 _frameView.MarkModified();
+                UpdateEditActiveLayer();
             }
 
             // 
