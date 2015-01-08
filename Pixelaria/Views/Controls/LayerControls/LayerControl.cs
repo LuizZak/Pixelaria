@@ -26,8 +26,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+
 using Pixelaria.Data;
 using Pixelaria.Utils;
+using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.LayerControls
 {
@@ -86,6 +88,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _layerLocked;
 
         /// <summary>
+        /// The transparency for the layer
+        /// </summary>
+        private float _transparency;
+
+        /// <summary>
         /// Gets or sets a value specifying whether the layer is visible
         /// </summary>
         public bool LayerVisible
@@ -130,13 +137,37 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
+        /// Gets or sets the display transparency for the layer
+        /// </summary>
+        public float Transparency
+        {
+            get { return _transparency; }
+            set
+            {
+                float clamped = Math.Min(1.0f, Math.Max(0.0f, value));
+
+                if (Math.Abs(clamped - _transparency) < float.Epsilon)
+                    return;
+
+                _transparency = clamped;
+
+                UpdateDisplay(false);
+
+                if (LayerStatusChanged != null)
+                {
+                    LayerStatusChanged(this, new LayerControlStatusChangedEventArgs(LayerStatus));
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the display status for this layer control
         /// </summary>
         public LayerStatus LayerStatus
         {
             get
             {
-                return new LayerStatus(_layerVisible, _layerLocked);
+                return new LayerStatus(_layerVisible, _layerLocked, _transparency);
             }
         }
 
@@ -218,6 +249,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             // Update startup values
             _layerVisible = true;
             _layerLocked = false;
+            _transparency = 1.0f;
 
             UpdateDisplay();
         }
@@ -225,9 +257,13 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Updates the display of the current layer
         /// </summary>
-        public void UpdateDisplay()
+        /// <param name="refreshBitmap">Whether to refresh the layer preview bitmap</param>
+        public void UpdateDisplay(bool refreshBitmap = true)
         {
-            UpdateBitmapDisplay();
+            if (refreshBitmap)
+            {
+                UpdateBitmapDisplay();
+            }
 
             lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
 
@@ -377,6 +413,14 @@ namespace Pixelaria.Views.Controls.LayerControls
                 Invalidate();
             }
         }
+
+        // 
+        // Tiny Color Slider color changed event
+        // 
+        private void tcs_transparency_ColorChanged(object sender, ColorChangedEventArgs eventArgs)
+        {
+            Transparency = eventArgs.NewColor.Af;
+        }
     }
 
     /// <summary>
@@ -430,19 +474,26 @@ namespace Pixelaria.Views.Controls.LayerControls
         public readonly bool Visible;
 
         /// <summary>
-        /// Whetehr the layer is locked
+        /// Whether the layer is locked
         /// </summary>
         public readonly bool Locked;
+
+        /// <summary>
+        /// The display transparency for the layer, ranging from 0 - 1
+        /// </summary>
+        public readonly float Transparency;
 
         /// <summary>
         /// Creates a new LayerStatus struct
         /// </summary>
         /// <param name="visible">Whether the layer is currently visible</param>
         /// <param name="locked">Whether the layer is currently locked</param>
-        public LayerStatus(bool visible, bool locked)
+        /// <param name="transparency">The display transparency for the layer, ranging from 0 - 1</param>
+        public LayerStatus(bool visible, bool locked, float transparency)
         {
             Visible = visible;
             Locked = locked;
+            Transparency = transparency;
         }
     }
 

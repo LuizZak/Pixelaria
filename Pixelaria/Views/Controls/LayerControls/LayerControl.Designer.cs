@@ -35,8 +35,9 @@
             this.btn_locked = new System.Windows.Forms.Button();
             this.btn_remove = new System.Windows.Forms.Button();
             this.lbl_layerName = new System.Windows.Forms.Label();
-            this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tcs_transparency = new Pixelaria.Views.Controls.TinyColorSlider();
+            this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -109,6 +110,14 @@
             this.lbl_layerName.Text = "Layer 1";
             this.lbl_layerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // tcs_transparency
+            // 
+            this.tcs_transparency.Location = new System.Drawing.Point(24, 92);
+            this.tcs_transparency.Name = "tcs_transparency";
+            this.tcs_transparency.Size = new System.Drawing.Size(96, 10);
+            this.tcs_transparency.TabIndex = 9;
+            this.tcs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.tcs_transparency_ColorChanged);
+            // 
             // pb_layerImage
             // 
             this.pb_layerImage.AllowDrag = false;
@@ -116,15 +125,17 @@
             this.pb_layerImage.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.pb_layerImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pb_layerImage.ClipBackgroundToImage = true;
+            this.pb_layerImage.HorizontalScrollValue = 0;
             this.pb_layerImage.ImageInterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             this.pb_layerImage.ImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pb_layerImage.Location = new System.Drawing.Point(24, 19);
             this.pb_layerImage.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("pb_layerImage.MaximumZoom")));
             this.pb_layerImage.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("pb_layerImage.MinimumZoom")));
             this.pb_layerImage.Name = "pb_layerImage";
-            this.pb_layerImage.Size = new System.Drawing.Size(96, 81);
+            this.pb_layerImage.Size = new System.Drawing.Size(96, 67);
             this.pb_layerImage.TabIndex = 7;
             this.pb_layerImage.TabStop = false;
+            this.pb_layerImage.VerticalScrollValue = 0;
             this.pb_layerImage.Zoom = ((System.Drawing.PointF)(resources.GetObject("pb_layerImage.Zoom")));
             this.pb_layerImage.ZoomFactor = 1.414214F;
             this.pb_layerImage.Click += new System.EventHandler(this.pb_layerImage_Click);
@@ -136,6 +147,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.tcs_transparency);
             this.Controls.Add(this.lbl_layerName);
             this.Controls.Add(this.pb_layerImage);
             this.Controls.Add(this.btn_remove);
@@ -159,5 +171,6 @@
         private ZoomablePictureBox pb_layerImage;
         private System.Windows.Forms.Label lbl_layerName;
         private System.Windows.Forms.ToolTip toolTip1;
+        private TinyColorSlider tcs_transparency;
     }
 }

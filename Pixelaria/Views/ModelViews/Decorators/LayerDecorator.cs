@@ -21,8 +21,10 @@
 */
 
 using System.Drawing;
+using System.Drawing.Imaging;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
+using Pixelaria.Filters;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.LayerControls;
@@ -78,16 +80,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
             base.DecorateUnderBitmap(bitmap);
 
-            // Iterate through and render each layer up to the current layer
-            IFrameLayer[] layers = _layerController.FrameLayers;
-
-            for (int i = 0; i < _layerController.ActiveLayerIndex; i++)
-            {
-                if (_layerStatuses[i].Visible)
-                {
-                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap, false);
-                }
-            }
+            ApplyOnBitmap(bitmap, LayerSide.BottomLayers);
         }
 
         // 
@@ -101,6 +94,16 @@ namespace Pixelaria.Views.ModelViews.Decorators
             {
                 FastBitmap.ClearBitmap(bitmap, Color.Transparent);
             }
+            // Transparent layer
+            else if (_layerStatuses[_layerController.ActiveLayerIndex].Transparency < 1)
+            {
+                TransparencyFilter filter = new TransparencyFilter
+                {
+                    Transparency = _layerStatuses[_layerController.ActiveLayerIndex].Transparency
+                };
+
+                filter.ApplyToBitmap(bitmap);
+            }
         }
 
         // 
@@ -110,16 +113,63 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
             base.DecorateOverBitmap(bitmap);
 
+            ApplyOnBitmap(bitmap, LayerSide.TopLayers);
+        }
+
+        /// <summary>
+        /// Applies the layer rendering on a given set of bitmaps
+        /// </summary>
+        /// <param name="bitmap">The bitmap to apply the layer rendering on</param>
+        /// <param name="side">Specifies which side of the layers to draw</param>
+        private void ApplyOnBitmap(Bitmap bitmap, LayerSide side)
+        {
             // Iterate through and render each layer up to the current layer
             IFrameLayer[] layers = _layerController.FrameLayers;
 
-            for (int i = _layerController.ActiveLayerIndex + 1; i < layers.Length; i++)
+            int min = (side == LayerSide.BottomLayers ? 0 : _layerController.ActiveLayerIndex + 1);
+            int max = (side == LayerSide.BottomLayers ? _layerController.ActiveLayerIndex : layers.Length);
+
+            for (int i = min; i < max; i++)
             {
-                if (_layerStatuses[i].Visible)
+                if (_layerStatuses[i].Visible && _layerStatuses[i].Transparency > 0)
                 {
-                    Utilities.FlattenBitmaps(bitmap, layers[i].LayerBitmap, false);
+                    var layerBitmap = layers[i].LayerBitmap;
+
+                    if (_layerStatuses[i].Transparency >= 1)
+                    {
+                        Utilities.FlattenBitmaps(bitmap, layerBitmap, false);
+                    }
+                    else
+                    {
+                        Graphics g = Graphics.FromImage(bitmap);
+
+                        var cm = new ColorMatrix
+                        {
+                            Matrix33 = _layerStatuses[i].Transparency
+                        };
+
+                        ImageAttributes attributes = new ImageAttributes();
+                        attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+                        g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// Specifies which layers to render during a call to ApplyOnBitmap
+        /// </summary>
+        private enum LayerSide
+        {
+            /// <summary>
+            /// Specifies to render the bottom layers
+            /// </summary>
+            BottomLayers,
+            /// <summary>
+            /// Specifies to render the top layers
+            /// </summary>
+            TopLayers
         }
     }
 }
