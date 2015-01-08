@@ -533,6 +533,7 @@ namespace Pixelaria.Views.ModelViews
 
                 _undoSystem.RegisterUndo(undoTask);
 
+                MarkModified();
                 RefreshView();
             }
             else

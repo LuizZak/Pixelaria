@@ -20,6 +20,8 @@ Legend:
 
 -- Current Version
 
+. AnimationView
+  * Fixed applying filters not marking the animation as modified.
 
 
 -- 1.17.0b
