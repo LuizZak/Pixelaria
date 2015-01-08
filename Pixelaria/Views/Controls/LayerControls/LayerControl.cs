@@ -98,6 +98,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         private float _transparency;
 
         /// <summary>
+        /// Whether this layer control is currently selected
+        /// </summary>
+        private bool _selected;
+
+        /// <summary>
         /// Gets or sets a value specifying whether the layer is visible
         /// </summary>
         public bool LayerVisible
@@ -188,6 +193,22 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
+        /// Gets or sets a value specifying whether this layer control is currently selected
+        /// </summary>
+        public bool Selected
+        {
+            get { return _selected; }
+            set
+            {
+                if (_selected == value)
+                    return;
+
+                _selected = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
         /// The delegate for the LayerStatusChanged event
         /// </summary>
         /// <param name="sender">The sender of the event</param>
@@ -212,16 +233,16 @@ namespace Pixelaria.Views.Controls.LayerControls
         public event EventHandler RemoveLayerSelected;
 
         /// <summary>
-        /// Delegate for the LayerSelected event
+        /// Delegate for the LayerClicked event
         /// </summary>
         /// <param name="sender">The sender of the event</param>
-        /// <param name="layer">The layer that was selected</param>
-        public delegate void LayerSelectedEventHandler(object sender, LayerControl layer);
+        /// <param name="layer">The layer that was clicked</param>
+        public delegate void LayerClickedEventHandler(object sender, LayerControl layer);
 
         /// <summary>
-        /// Event called whenever the user selects the layer
+        /// Event called whenever the user clicks the layer
         /// </summary>
-        public event LayerSelectedEventHandler LayerSelected;
+        public event LayerClickedEventHandler LayerClicked;
 
         /// <summary>
         /// Delegate for the LayerControlDragged event
@@ -296,7 +317,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             base.OnPaintBackground(e);
             
             // During a drag operation, draw a marquee around the control
-            if(_draggingLayer)
+            if(_draggingLayer || Selected)
             {
                 Pen p = new Pen(Color.Black)
                 {
@@ -347,15 +368,6 @@ namespace Pixelaria.Views.Controls.LayerControls
             {
                 RemoveLayerSelected(this, new EventArgs());
             }
-        }
-
-        // 
-        // Layer Image picture box click
-        // 
-        private void pb_layerImage_Click(object sender, EventArgs e)
-        {
-            if (!_draggingLayer && LayerSelected != null)
-                LayerSelected(this, this);
         }
 
         // 
@@ -420,6 +432,9 @@ namespace Pixelaria.Views.Controls.LayerControls
                 LayerImageReleased(this, e);
                 Invalidate();
             }
+
+            if (!_draggingLayer && LayerClicked != null && e.Button == MouseButtons.Left)
+                LayerClicked(this, this);
         }
 
         // 

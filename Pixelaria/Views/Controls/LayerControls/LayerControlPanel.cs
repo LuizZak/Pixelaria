@@ -64,6 +64,22 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
+        /// Gets an array of all the layer controls that are currently selected
+        /// </summary>
+        public LayerControl[] SelectedControls
+        {
+            get { return _layerControls.Where(control => control.Selected).ToArray(); }
+        }
+
+        /// <summary>
+        /// Gets an array of all the layers that are currently selected on the layer controls
+        /// </summary>
+        public IFrameLayer[] SelectedLayers
+        {
+            get { return _layerControls.Where(control => control.Selected).Select(control => control.Layer).ToArray(); }
+        }
+
+        /// <summary>
         /// Occurs whenever the status of any of the layer controls is changed
         /// </summary>
         public event EventHandler LayerStatusesUpdated;
@@ -142,6 +158,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             _layerControls[args.FirstLayerIndex] = secondLayer;
 
             ArrangeControls();
+            ClearSelection();
         }
 
         // 
@@ -276,7 +293,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             LayerControl control = new LayerControl(layer);
 
-            control.LayerSelected += OnLayerControlSelected;
+            control.LayerClicked += OnLayerControlClicked;
             control.LayerStatusChanged += OnLayerStatusChanged;
             control.DuplicateLayerSelected += OnDuplicateLayerSelected;
             control.RemoveLayerSelected += OnRemoveLayerSelected;
@@ -293,6 +310,8 @@ namespace Pixelaria.Views.Controls.LayerControls
             {
                 ArrangeControls();
             }
+
+            ClearSelection();
         }
 
         /// <summary>
@@ -303,7 +322,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void RemoveLayerControl(LayerControl control, bool arrangeAfter = true)
         {
             control.LayerStatusChanged -= OnLayerStatusChanged;
-            control.LayerSelected -= OnLayerControlSelected;
+            control.LayerClicked -= OnLayerControlClicked;
             control.DuplicateLayerSelected -= OnDuplicateLayerSelected;
             control.RemoveLayerSelected -= OnRemoveLayerSelected;
             control.LayerControlDragged -= OnLayerControlDragged;
@@ -321,6 +340,8 @@ namespace Pixelaria.Views.Controls.LayerControls
             {
                 ArrangeControls();
             }
+
+            ClearSelection();
         }
 
         /// <summary>
@@ -354,6 +375,17 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
+        /// Clears the selection of all the currently selected layers
+        /// </summary>
+        private void ClearSelection()
+        {
+            foreach (var control in _layerControls)
+            {
+                control.Selected = false;
+            }
+        }
+
+        /// <summary>
         /// Gets the layer control for the specified layer, or null, if none was found
         /// </summary>
         /// <param name="layer">A valid IFrameLayer that is currently registered on this layer control panel</param>
@@ -383,9 +415,14 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Selected event handler
         // 
-        private void OnLayerControlSelected(object sender, LayerControl control)
+        private void OnLayerControlClicked(object sender, LayerControl control)
         {
-            _controller.ActiveLayerIndex = control.Layer.Index;
+            if(!ModifierKeys.HasFlag(Keys.Shift))
+            {
+                ClearSelection();
+
+                _controller.ActiveLayerIndex = control.Layer.Index;
+            }
         }
         // 
         // Layer Status Changed event handler
@@ -410,7 +447,8 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (control == null)
                 return;
 
-            _controller.DuplicateLayer(control.Layer.Index);
+            // Duplicate and select the layer
+            _controller.ActiveLayerIndex = _controller.DuplicateLayer(control.Layer.Index).Index;
         }
         // 
         // Remove Layer layer control button click
@@ -468,7 +506,21 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             // Get the index of the control being dragged
             LayerControl control = sender as LayerControl;
-            if (control == null || !_swappingControls)
+            if (control == null)
+                return;
+
+            // Select layers
+            if (ModifierKeys.HasFlag(Keys.Shift) && !_swappingControls)
+            {
+                control.Selected = !control.Selected;
+
+                return;
+            }
+
+            ClearSelection();
+
+            // Swap layers
+            if (!_swappingControls)
                 return;
 
             _swappingControls = false;
@@ -491,5 +543,13 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         #endregion
+
+        // 
+        // Container Panel mouse click
+        // 
+        private void pnl_container_Click(object sender, EventArgs e)
+        {
+            ClearSelection();
+        }
     }
 }
