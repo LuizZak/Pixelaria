@@ -131,7 +131,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             get { return _secondColor; }
             set
             {
-                if (_firstColor == value)
+                if (_secondColor == value)
                     return;
 
                 _secondColor = value;

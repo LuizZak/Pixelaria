@@ -31,6 +31,7 @@ Legend:
   + Added menu bar submenu for layer operations.
   * Holding down Space bar now enables panning the canvas.
   * Fixed the layer preview images being rendered with a slight offset in relation to the background image.
+  * Fixed color picking operation failing sometimes while trying to pick the second color.
 
 . Increased rendering speed of the Stroke filter.
 
