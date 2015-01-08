@@ -69,7 +69,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             this.txt_value.TextChanged += new System.EventHandler(this.rtb_value_TextChanged);
             this.txt_value.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rtb_value_KeyDown);
             // 
-            // panel1
+            // pnl_textHolder
             // 
             this.pnl_textHolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_textHolder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;

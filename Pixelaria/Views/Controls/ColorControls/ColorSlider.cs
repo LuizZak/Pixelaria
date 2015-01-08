@@ -904,12 +904,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>A Rectangle object that represents the slider knob's bounds</returns>
         protected virtual Rectangle GetKnobRectangleBounds()
         {
-            float xOffset = GetSliderXOffset();
-            Rectangle sliderRect = GetSliderRectangleBounds();
-
-            RectangleF rec = new RectangleF(xOffset - sliderRect.Height / 2.0f, sliderRect.Top, sliderRect.Height, sliderRect.Height);
-
-            return Rectangle.Truncate(rec);
+            return Rectangle.Truncate(GetKnobRectangleFBounds());
         }
 
         /// <summary>
