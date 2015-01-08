@@ -888,10 +888,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 bool registerUndo = true;
 
-                var paintOperation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
-                if (paintOperation != null && paintOperation.SelectionBitmap != null)
+                if (operation != null && operation.SelectionBitmap != null)
                 {
-                    SelectionPaintTool op = paintOperation;
+                    SelectionPaintTool op = operation;
 
                     switch (op.OperationType)
                     {
