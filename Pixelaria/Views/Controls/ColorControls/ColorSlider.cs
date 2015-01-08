@@ -113,6 +113,13 @@ namespace Pixelaria.Views.Controls.ColorControls
             {
                 return currentValue;
             }
+            set
+            {
+                float newValue = Math.Max(0, Math.Min(1, value));
+
+                if(Math.Abs(newValue - currentValue) > float.Epsilon)
+                    SetColorComponentValue(value);
+            }
         }
 
         /// <summary>
