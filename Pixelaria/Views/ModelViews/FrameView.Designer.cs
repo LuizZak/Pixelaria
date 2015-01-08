@@ -148,6 +148,9 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_nextFrame = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsm_switchBlendingMode = new System.Windows.Forms.ToolStripMenuItem();
+            this.layersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_toggleVisibleLayers = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_resetLayerTransparencies = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_emptyFilter = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filterPresets = new System.Windows.Forms.ToolStripMenuItem();
@@ -1058,6 +1061,7 @@ namespace Pixelaria.Views.ModelViews
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
+            this.layersToolStripMenuItem,
             this.tsm_filters});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -1205,6 +1209,33 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_switchBlendingMode.Size = new System.Drawing.Size(234, 22);
             this.tsm_switchBlendingMode.Text = "Switch Blending Mode";
             this.tsm_switchBlendingMode.Click += new System.EventHandler(this.tsm_switchBlendingMode_Click);
+            // 
+            // layersToolStripMenuItem
+            // 
+            this.layersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsm_toggleVisibleLayers,
+            this.tsm_resetLayerTransparencies});
+            this.layersToolStripMenuItem.Name = "layersToolStripMenuItem";
+            this.layersToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
+            this.layersToolStripMenuItem.Text = "Layers";
+            // 
+            // tsm_toggleVisibleLayers
+            // 
+            this.tsm_toggleVisibleLayers.Image = global::Pixelaria.Properties.Resources.filter_enable_icon;
+            this.tsm_toggleVisibleLayers.Name = "tsm_toggleVisibleLayers";
+            this.tsm_toggleVisibleLayers.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
+            this.tsm_toggleVisibleLayers.Size = new System.Drawing.Size(250, 22);
+            this.tsm_toggleVisibleLayers.Text = "Hide/show other layers";
+            this.tsm_toggleVisibleLayers.Click += new System.EventHandler(this.tsm_toggleVisibleLayers_Click);
+            // 
+            // tsm_resetLayerTransparencies
+            // 
+            this.tsm_resetLayerTransparencies.Image = global::Pixelaria.Properties.Resources.filter_transparency_icon;
+            this.tsm_resetLayerTransparencies.Name = "tsm_resetLayerTransparencies";
+            this.tsm_resetLayerTransparencies.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
+            this.tsm_resetLayerTransparencies.Size = new System.Drawing.Size(250, 22);
+            this.tsm_resetLayerTransparencies.Text = "Reset layer transparencies";
+            this.tsm_resetLayerTransparencies.Click += new System.EventHandler(this.tsm_resetLayerTransparencies_Click);
             // 
             // tsm_filters
             // 
@@ -1444,5 +1475,8 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.GroupBox gb_otherGroup;
         private System.Windows.Forms.CheckBox cb_airbrushMode;
         private LayerControlPanel lcp_layers;
+        private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsm_toggleVisibleLayers;
+        private System.Windows.Forms.ToolStripMenuItem tsm_resetLayerTransparencies;
     }
 }

@@ -73,6 +73,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _pressingLayer;
 
         /// <summary>
+        /// Whether to not update the transparency slider during Transparency property changes
+        /// </summary>
+        private bool _ignoreTransparencySliderUpdates;
+
+        /// <summary>
         /// Specifies the point where the player pressed down on the layer's image
         /// </summary>
         private Point _layerPressPoint;
@@ -150,6 +155,9 @@ namespace Pixelaria.Views.Controls.LayerControls
                     return;
 
                 _transparency = clamped;
+
+                if (!_ignoreTransparencySliderUpdates)
+                    tcs_transparency.CurrentValue = value;
 
                 UpdateDisplay(false);
 
@@ -419,7 +427,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void tcs_transparency_ColorChanged(object sender, ColorChangedEventArgs eventArgs)
         {
+            _ignoreTransparencySliderUpdates = true;
+
             Transparency = eventArgs.NewColor.Af;
+
+            _ignoreTransparencySliderUpdates = false;
         }
     }
 

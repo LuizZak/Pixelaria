@@ -1354,6 +1354,26 @@ namespace Pixelaria.Views.ModelViews
 
         #endregion
 
+        #region Layers menu
+
+        // 
+        // Show/Hide Other Layers toolstrip menu button click
+        // 
+        private void tsm_toggleVisibleLayers_Click(object sender, EventArgs e)
+        {
+            lcp_layers.ToggleNonActiveLayersVisibility();
+        }
+
+        // 
+        // Reset Layer Transparencies toolstrip menu button click
+        // 
+        private void tsm_resetLayerTransparencies_Click(object sender, EventArgs e)
+        {
+            lcp_layers.ResetTransparencies();
+        }
+
+        #endregion
+
         #region Filters menu
 
         // 

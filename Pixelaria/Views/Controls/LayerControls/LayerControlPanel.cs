@@ -51,6 +51,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _swappingControls;
 
         /// <summary>
+        /// Whether to ignore layer stauts change events comming from the LayerControls
+        /// </summary>
+        private bool _ignoreLayerStatusEvents;
+
+        /// <summary>
         /// Gets the array of layer status for each layer
         /// </summary>
         public LayerStatus[] LayerStatuses
@@ -189,6 +194,60 @@ namespace Pixelaria.Views.Controls.LayerControls
             ArrangeControls();
 
             UpdateActiveLayerDisplay();
+        }
+
+        /// <summary>
+        /// Toggles the visibility of the non-active layers
+        /// </summary>
+        public void ToggleNonActiveLayersVisibility()
+        {
+            // The event can only happen when there is more than 1 layer registered
+            if (_controller.LayerCount == 1)
+                return;
+
+            _ignoreLayerStatusEvents = true;
+
+            // Find the index of the first non-active layer
+            int index = _controller.ActiveLayerIndex == _controller.LayerCount - 1 ? _controller.LayerCount - 2 : _controller.LayerCount - 1;
+
+            bool newValue = !_layerControls[index].LayerVisible;
+
+            // Switch the layer visibility
+            foreach (var control in _layerControls)
+            {
+                if(control.Layer.Index != _controller.ActiveLayerIndex)
+                    control.LayerVisible = newValue;
+            }
+
+            _ignoreLayerStatusEvents = false;
+
+            // Call the notification event
+            if (LayerStatusesUpdated != null)
+            {
+                LayerStatusesUpdated(this, new EventArgs());
+            }
+        }
+
+        /// <summary>
+        /// Resets the transparencies of all the layers to be fully opaque again
+        /// </summary>
+        public void ResetTransparencies()
+        {
+            _ignoreLayerStatusEvents = true;
+
+            // Switch the layer visibility
+            foreach (var control in _layerControls)
+            {
+                control.Transparency = 1;
+            }
+
+            _ignoreLayerStatusEvents = false;
+
+            // Call the notification event
+            if (LayerStatusesUpdated != null)
+            {
+                LayerStatusesUpdated(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -333,6 +392,9 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerStatusChanged(object sender, LayerControlStatusChangedEventArgs args)
         {
+            if (_ignoreLayerStatusEvents)
+                return;
+
             if (LayerStatusesUpdated != null)
             {
                 LayerStatusesUpdated(this, new EventArgs());

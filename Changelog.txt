@@ -27,7 +27,8 @@ Legend:
   * Fixed applying filters not marking the animation as modified.
 
 . FrameView
-  + Adding slider for changing display transparency of layers.
+  + Added slider for changing display transparency of layers.
+  + Added menu bar submenu for layer operations.
   * Holding down Space bar now enables panning the canvas.
   * Fixed the layer preview images being rendered with a slight offset in relation to the background image.
 
