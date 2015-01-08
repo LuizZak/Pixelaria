@@ -699,7 +699,7 @@ namespace Pixelaria.Views.Controls
                         }
                     }
 
-                    pe.Graphics.DrawImage(copy, new Point());
+                    pe.Graphics.DrawImage(copy, 0, 0);
 
                     pe.Graphics.ResetTransform();
                 }
