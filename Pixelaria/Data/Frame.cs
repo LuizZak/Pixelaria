@@ -809,6 +809,14 @@ namespace Pixelaria.Data
             }
 
             /// <summary>
+            /// Gets the size of this layer
+            /// </summary>
+            public Size Size
+            {
+                get { return new Size(Width, Height); }
+            }
+
+            /// <summary>
             /// Gets the index of this layer on the origin frame
             /// </summary>
             public int Index { get; set; }
@@ -1026,6 +1034,11 @@ namespace Pixelaria.Data
         /// Gets this layer's bitmap content
         /// </summary>
         Bitmap LayerBitmap { get; }
+
+        /// <summary>
+        /// Gets the size of this layer
+        /// </summary>
+        Size Size { get; }
 
         /// <summary>
         /// Clones this Frame Layer object
