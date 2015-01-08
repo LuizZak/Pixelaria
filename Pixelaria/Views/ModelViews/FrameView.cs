@@ -1929,6 +1929,7 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.FrameChanged += OnFrameChanged;
                 _layerController.LayerCreated += OnLayerCreated;
                 _layerController.LayerRemoved += OnLayerRemoved;
+                _layerController.LayerImageUpdated += OnLayerImageUpdated;
                 _layerController.LayersSwapped += OnLayersSwapped;
             }
 
@@ -1947,6 +1948,7 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.ActiveLayerIndexChanged -= OnActiveLayerIndexChanged;
                 _layerController.LayerCreated -= OnLayerCreated;
                 _layerController.LayerRemoved -= OnLayerRemoved;
+                _layerController.LayerImageUpdated -= OnLayerImageUpdated;
                 _layerController.LayersSwapped -= OnLayersSwapped;
             }
 
@@ -2023,7 +2025,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // 
-            // Layers Swapped event handler
+            // Layer Removed event handler
             // 
             private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
             {
@@ -2048,7 +2050,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // 
-            // Layers Swapped event handler
+            // Layer Created event handler
             // 
             private void OnLayerCreated(object sender, LayerControllerLayerCreatedEventArgs args)
             {
@@ -2060,6 +2062,26 @@ namespace Pixelaria.Views.ModelViews
                     _frameView._undoSystem.RegisterUndo(new AddLayerUndoTask(args.FrameLayer, this));
 
                 _frameView.MarkModified();
+            }
+
+            // 
+            // Layer Image Updated event handler
+            // 
+            private void OnLayerImageUpdated(object sender, LayerControllerLayerImageUpdatedEventArgs args)
+            {
+                // Update the layer image
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+
+                // Create and undo task
+                BitmapUndoTask undoTask = new BitmapUndoTask(args.FrameLayer.LayerBitmap, "Modify layer image");
+                undoTask.SetOldBitmap(args.OldLayerBitmap);
+                undoTask.SetNewBitmap(args.FrameLayer.LayerBitmap);
+
+                _frameView._undoSystem.RegisterUndo(undoTask);
+
+                // Update the layer image
+                _frameView.lcp_layers.UpdateLayersDisplay();
+                _frameView.iepb_frame.PictureBox.Invalidate();
             }
 
             // 
