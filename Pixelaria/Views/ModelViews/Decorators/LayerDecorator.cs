@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using Pixelaria.Controllers.LayerControlling;
@@ -141,17 +142,20 @@ namespace Pixelaria.Views.ModelViews.Decorators
                     }
                     else
                     {
-                        Graphics g = Graphics.FromImage(bitmap);
-
-                        var cm = new ColorMatrix
+                        using(Graphics g = Graphics.FromImage(bitmap))
                         {
-                            Matrix33 = _layerStatuses[i].Transparency
-                        };
+                            var cm = new ColorMatrix
+                            {
+                                Matrix33 = _layerStatuses[i].Transparency
+                            };
 
-                        ImageAttributes attributes = new ImageAttributes();
-                        attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                            ImageAttributes attributes = new ImageAttributes();
+                            attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                        g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
+                            g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
+
+                            g.Flush();
+                        }
                     }
                 }
             }
