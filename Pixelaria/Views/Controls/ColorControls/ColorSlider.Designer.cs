@@ -51,8 +51,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         private void InitializeComponent()
         {
             this.txt_value = new System.Windows.Forms.TextBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel1.SuspendLayout();
+            this.pnl_textHolder = new System.Windows.Forms.Panel();
+            this.pnl_textHolder.SuspendLayout();
             this.SuspendLayout();
             // 
             // txt_value
@@ -71,30 +71,30 @@ namespace Pixelaria.Views.Controls.ColorControls
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.txt_value);
-            this.panel1.Location = new System.Drawing.Point(208, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(31, 17);
-            this.panel1.TabIndex = 2;
+            this.pnl_textHolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnl_textHolder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnl_textHolder.Controls.Add(this.txt_value);
+            this.pnl_textHolder.Location = new System.Drawing.Point(208, 0);
+            this.pnl_textHolder.Name = "pnl_textHolder";
+            this.pnl_textHolder.Size = new System.Drawing.Size(31, 17);
+            this.pnl_textHolder.TabIndex = 2;
             // 
             // ColorSlider
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.pnl_textHolder);
             this.Name = "ColorSlider";
             this.Size = new System.Drawing.Size(240, 38);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pnl_textHolder.ResumeLayout(false);
+            this.pnl_textHolder.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.TextBox txt_value;
-        private System.Windows.Forms.Panel panel1;
+        protected System.Windows.Forms.TextBox txt_value;
+        protected System.Windows.Forms.Panel pnl_textHolder;
     }
 }

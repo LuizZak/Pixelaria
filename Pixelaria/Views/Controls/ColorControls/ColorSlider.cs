@@ -41,37 +41,47 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// The active color for this ColorSlider
         /// </summary>
-        private AhslColor _activeColor = Color.White.ToAhsl();
+        protected AhslColor activeColor = Color.White.ToAhsl();
 
         /// <summary>
         /// The color component this ColorSlider is currently manipulating
         /// </summary>
-        private ColorSliderComponent _colorComponent;
+        protected ColorSliderComponent colorComponent;
 
         /// <summary>
         /// Whether the mouse is currently over the slider area
         /// </summary>
-        private bool _mouseOverSlider;
+        protected bool mouseOverSlider;
         
         /// <summary>
         /// Whether the mouse is currently over the knob area
         /// </summary>
-        private bool _mouseOverKnob;
+        protected bool mouseOverKnob;
 
         /// <summary>
         /// Whether the mouse is currently dragging the knob on this ColorSlider
         /// </summary>
-        private bool _mouseDragging;
+        protected bool mouseDragging;
 
         /// <summary>
         /// An offset applied to the mouse position while dragging the knob
         /// </summary>
-        private float _knobDraggingOffset;
+        protected float knobDraggingOffset;
 
         /// <summary>
         /// The current value specified by this ColorSlider, ranging from [0 - 1]
         /// </summary>
-        private float _currentValue;
+        protected float currentValue;
+
+        /// <summary>
+        /// The fixed height for this color slider
+        /// </summary>
+        protected int fixedControlHeight;
+
+        /// <summary>
+        /// Whether to render the label
+        /// </summary>
+        protected bool drawLabel = true;
 
         /// <summary>
         /// Gets or sets the color component this ColorSlider is currently manipulating
@@ -84,11 +94,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             get
             {
-                return _colorComponent;
+                return colorComponent;
             }
             set
             {
-                _colorComponent = value;
+                colorComponent = value;
                 RecalculateValue();
                 Invalidate();
             }
@@ -101,7 +111,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             get
             {
-                return _currentValue;
+                return currentValue;
             }
         }
 
@@ -127,7 +137,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             get
             {
-                return _activeColor;
+                return activeColor;
             }
             set
             {
@@ -141,6 +151,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public ColorSlider()
         {
+            fixedControlHeight = 38;
+
             InitializeComponent();
 
             ColorComponent = ColorSliderComponent.Alpha;
@@ -164,16 +176,17 @@ namespace Pixelaria.Views.Controls.ColorControls
                 // Test agains the current knob position, if the mouse is over the knob, setup an offset so
                 // the mouse drags relative to the current knob's position
                 Rectangle knobBounds = GetKnobRectangleBounds();
+                knobBounds.Inflate(4, 0);
                 
-                _knobDraggingOffset = 0;
+                knobDraggingOffset = 0;
 
                 if (knobBounds.Contains(e.Location))
                 {
-                    _knobDraggingOffset = e.Location.X - GetSliderXOffset();
+                    knobDraggingOffset = e.Location.X - GetSliderXOffset();
                 }
 
                 UpdateValueForMouseEvent(e);
-                _mouseDragging = true;
+                mouseDragging = true;
 
                 InvalidateSlider();
             }
@@ -186,36 +199,39 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             base.OnMouseMove(e);
 
-            if (_mouseDragging)
+            if (mouseDragging)
             {
                 UpdateValueForMouseEvent(e);
             }
             else
             {
-                if (GetSliderRectangleBounds().Contains(e.Location) && !_mouseOverSlider)
+                if (GetSliderRectangleBounds().Contains(e.Location) && !mouseOverSlider)
                 {
-                    _mouseOverSlider = true;
+                    mouseOverSlider = true;
                     InvalidateSlider();
                 }
                 else if (!GetSliderRectangleBounds().Contains(e.Location))
                 {
-                    if(_mouseOverSlider)
+                    if(mouseOverSlider)
                     {
-                        _mouseOverSlider = false;
+                        mouseOverSlider = false;
                         InvalidateSlider();
                     }
                 }
 
-                if (GetKnobRectangleBounds().Contains(e.Location) && !_mouseOverKnob)
+                Rectangle knobRect = GetKnobRectangleBounds();
+                knobRect.Inflate(4, 0);
+
+                if (knobRect.Contains(e.Location) && !mouseOverKnob)
                 {
-                    _mouseOverKnob = true;
+                    mouseOverKnob = true;
                     InvalidateKnob();
                 }
-                else if (!GetKnobRectangleBounds().Contains(e.Location))
+                else if (!knobRect.Contains(e.Location))
                 {
-                    if (_mouseOverKnob)
+                    if (mouseOverKnob)
                     {
-                        _mouseOverKnob = false;
+                        mouseOverKnob = false;
                         InvalidateKnob();
                     }
                 }
@@ -229,10 +245,10 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             base.OnMouseUp(e);
 
-            if (_mouseDragging)
+            if (mouseDragging)
             {
                 InvalidateSlider();
-                _mouseDragging = false;
+                mouseDragging = false;
             }
         }
 
@@ -243,15 +259,15 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             base.OnMouseLeave(e);
 
-            if (_mouseOverSlider)
+            if (mouseOverSlider)
             {
-                _mouseOverSlider = false;
+                mouseOverSlider = false;
                 InvalidateSlider();
             }
 
-            if (_mouseOverKnob)
+            if (mouseOverKnob)
             {
-                _mouseOverKnob = false;
+                mouseOverKnob = false;
                 InvalidateKnob();
             }
         }
@@ -263,7 +279,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="e">The mouse event args to use to manipulate the mouse</param>
         private void UpdateValueForMouseEvent(MouseEventArgs e)
         {
-            float value = GetValueForXOffset(e.X - _knobDraggingOffset);
+            float value = GetValueForXOffset(e.X - knobDraggingOffset);
 
             SetColorComponentValue(value);
         }
@@ -336,7 +352,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             string valueString = "" + GetColorComponentValueRaw();
 
-            _currentValue = GetColorComponentValue();
+            currentValue = GetColorComponentValue();
             _ignoreTextField = true;
             txt_value.Text = valueString;
             _ignoreTextField = false;
@@ -354,15 +370,15 @@ namespace Pixelaria.Views.Controls.ColorControls
             // Check if any redraw is required
             if (IgnoreActiveColorAlpha())
             {
-                if (Math.Abs(_activeColor.Hf - color.Hf) < float.Epsilon && Math.Abs(_activeColor.Sf - color.Sf) < float.Epsilon && Math.Abs(_activeColor.Lf - color.Lf) < float.Epsilon)
+                if (Math.Abs(activeColor.Hf - color.Hf) < float.Epsilon && Math.Abs(activeColor.Sf - color.Sf) < float.Epsilon && Math.Abs(activeColor.Lf - color.Lf) < float.Epsilon)
                 {
-                    _activeColor = color;
+                    activeColor = color;
 
                     return;
                 }
             }
 
-            _activeColor = color;
+            activeColor = color;
 
             Rectangle invalidateRect = GetSliderRectangleBounds();
             invalidateRect.Height = Height - invalidateRect.Top;
@@ -400,11 +416,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// An integer number that represents the offset for the slider that represents the
         /// current active color's component's value on this slider
         /// </returns>
-        private int GetSliderXOffset()
+        protected int GetSliderXOffset()
         {
             Rectangle rec = GetSliderRectangleBounds();
 
-            return (int)(rec.Left + rec.Height / 2 + _currentValue * (rec.Width - rec.Height));
+            return (int)(rec.Left + rec.Height / 2 + currentValue * (rec.Width - rec.Height));
         }
 
         /// <summary>
@@ -431,21 +447,21 @@ namespace Pixelaria.Views.Controls.ColorControls
             {
                 // Global alpha channel
                 case ColorSliderComponent.Alpha:
-                    return _activeColor.Af;
+                    return activeColor.Af;
                 // RGB
                 case ColorSliderComponent.Red:
-                    return _activeColor.Rf;
+                    return activeColor.Rf;
                 case ColorSliderComponent.Green:
-                    return _activeColor.Gf;
+                    return activeColor.Gf;
                 case ColorSliderComponent.Blue:
-                    return _activeColor.Bf;
+                    return activeColor.Bf;
                 // HSL
                 case ColorSliderComponent.Hue:
-                    return _activeColor.Hf;
+                    return activeColor.Hf;
                 case ColorSliderComponent.Saturation:
-                    return _activeColor.Sf;
+                    return activeColor.Sf;
                 case ColorSliderComponent.Lightness:
-                    return _activeColor.Lf;
+                    return activeColor.Lf;
 
                 default:
                     return 0;
@@ -463,11 +479,11 @@ namespace Pixelaria.Views.Controls.ColorControls
             InvalidateKnob();
 
             //
-            AhslColor oldColor = _activeColor;
+            AhslColor oldColor = activeColor;
 
-            _currentValue = value;
+            currentValue = value;
 
-            AhslColor newColor = _activeColor;
+            AhslColor newColor = activeColor;
 
             switch (ColorComponent)
             {
@@ -477,13 +493,13 @@ namespace Pixelaria.Views.Controls.ColorControls
                     break;
                 // RGB
                 case ColorSliderComponent.Red:
-                    newColor = AhslColor.FromArgb(_activeColor.Af, value, _activeColor.Gf, _activeColor.Bf);
+                    newColor = AhslColor.FromArgb(activeColor.Af, value, activeColor.Gf, activeColor.Bf);
                     break;
                 case ColorSliderComponent.Green:
-                    newColor = AhslColor.FromArgb(_activeColor.Af, _activeColor.Rf, value, _activeColor.Bf);
+                    newColor = AhslColor.FromArgb(activeColor.Af, activeColor.Rf, value, activeColor.Bf);
                     break;
                 case ColorSliderComponent.Blue:
-                    newColor = AhslColor.FromArgb(_activeColor.Af, _activeColor.Rf, _activeColor.Gf, value);
+                    newColor = AhslColor.FromArgb(activeColor.Af, activeColor.Rf, activeColor.Gf, value);
                     break;
                 // HSL
                 case ColorSliderComponent.Hue:
@@ -502,7 +518,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             // Fire the event now
             if (ColorChanged != null)
             {
-                ColorChanged(this, new ColorChangedEventArgs(oldColor, _activeColor, _colorComponent));
+                ColorChanged(this, new ColorChangedEventArgs(oldColor, activeColor, colorComponent));
             }
         }
 
@@ -519,19 +535,19 @@ namespace Pixelaria.Views.Controls.ColorControls
             switch (ColorComponent)
             {
                 case ColorSliderComponent.Alpha:
-                    return _activeColor.A;
+                    return activeColor.A;
                 case ColorSliderComponent.Red:
-                    return _activeColor.R;
+                    return activeColor.R;
                 case ColorSliderComponent.Green:
-                    return _activeColor.G;
+                    return activeColor.G;
                 case ColorSliderComponent.Blue:
-                    return _activeColor.B;
+                    return activeColor.B;
                 case ColorSliderComponent.Hue:
-                    return _activeColor.H;
+                    return activeColor.H;
                 case ColorSliderComponent.Saturation:
-                    return _activeColor.S;
+                    return activeColor.S;
                 case ColorSliderComponent.Lightness:
-                    return _activeColor.L;
+                    return activeColor.L;
 
                 default:
                     return 0;
@@ -580,7 +596,10 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             Graphics g = e.Graphics;
 
-            DrawLabel(g);
+            if(drawLabel)
+            {
+                DrawLabel(g);
+            }
 
             // Setup the Graphic's properties
             GraphicsState state = g.Save();
@@ -666,7 +685,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             fillBrush.Dispose();
 
             // Draw the outline
-            Pen pen = (Pen)(_mouseOverSlider ? (_mouseDragging ? Pens.Black : Pens.Gray) : Pens.DarkGray).Clone();
+            Pen pen = (Pen)(mouseOverSlider ? (mouseDragging ? Pens.Black : Pens.Gray) : Pens.DarkGray).Clone();
             pen.Width = 2;
             g.DrawPath(pen, path);
 
@@ -687,7 +706,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             g.DrawPath(basePen, knobPath);
 
             basePen.Color = Color.White;
-            basePen.Width = (_mouseOverKnob || _mouseDragging ? 3 : 2);
+            basePen.Width = (mouseOverKnob || mouseDragging ? 3 : 2);
             g.DrawPath(basePen, knobPath);
 
             knobPath.Dispose();
@@ -697,7 +716,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Generates and returns a GraphicsPath that represents the outline of the slider's area
         /// </summary>
         /// <returns>A GraphicsPath that represents the outline of the slider's area</returns>
-        private GraphicsPath GenerateSliderGraphicsPath()
+        protected GraphicsPath GenerateSliderGraphicsPath()
         {
             GraphicsPath path = new GraphicsPath();
             Rectangle rect = GetSliderRectangleBounds();
@@ -711,23 +730,21 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Generates and returns a GraphicsPath that represents the outline of the slider's knob
         /// </summary>
         /// <returns>A GraphicsPath that represents the outline of the slider's knob</returns>
-        private GraphicsPath GenerateKnobGraphicsPath()
+        protected virtual GraphicsPath GenerateKnobGraphicsPath()
         {
-            float xOffset = GetSliderXOffset();
+            GraphicsPath path = new GraphicsPath();
+            RectangleF rec = GetKnobRectangleFBounds();
 
-            Rectangle sliderRect = GetSliderRectangleBounds();
+            path.AddEllipse(rec);
 
-            GraphicsPath knobPath = new GraphicsPath();
-            knobPath.AddEllipse(new RectangleF(xOffset - sliderRect.Height / 2.0f, sliderRect.Top, sliderRect.Height, sliderRect.Height));
-
-            return knobPath;
+            return path;
         }
 
         /// <summary>
         /// Generates and returns a LinearGradientBrush that is used to draw the slider's background area
         /// </summary>
         /// <returns>A LinearGradientBrush that is used to draw the slider's background area</returns>
-        private LinearGradientBrush GenerateSliderGradient()
+        protected LinearGradientBrush GenerateSliderGradient()
         {
             ColorBlend blend;
             LinearGradientBrush brush;
@@ -739,7 +756,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             rec.Width -= rec.Height;
 
             // Hue is a special case
-            if (_colorComponent == ColorSliderComponent.Hue)
+            if (colorComponent == ColorSliderComponent.Hue)
             {
                 // 7 steps chosen for the 7 colors of the spectrum. This produces a gradient that is precise enough to display the whole hue range for the slider
                 const int steps = 7;
@@ -797,9 +814,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         /// <param name="componentValue">The component value, ranging from [0 - 1]</param>
         /// <returns>A color with the current active component set to be of the given value</returns>
-        private Color GetColorWithActiveComponentSet(float componentValue)
+        protected Color GetColorWithActiveComponentSet(float componentValue)
         {
-            AhslColor retColor = _activeColor;
+            AhslColor retColor = activeColor;
 
             switch (ColorComponent)
             {
@@ -876,7 +893,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Returns a Rectangle object that represents the slider's bounds
         /// </summary>
         /// <returns>A Rectangle object that represents the slider's bounds</returns>
-        private Rectangle GetSliderRectangleBounds()
+        protected virtual Rectangle GetSliderRectangleBounds()
         {
             return new Rectangle(2, 19, Width - 4, 15);
         }
@@ -885,12 +902,28 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Returns a Rectangle object that represents the slider knob's bounds
         /// </summary>
         /// <returns>A Rectangle object that represents the slider knob's bounds</returns>
-        private Rectangle GetKnobRectangleBounds()
+        protected virtual Rectangle GetKnobRectangleBounds()
         {
-            RectangleF bounds = GenerateKnobGraphicsPath().GetBounds();
-            bounds.Inflate(4, 0);
+            float xOffset = GetSliderXOffset();
+            Rectangle sliderRect = GetSliderRectangleBounds();
 
-            return Rectangle.Truncate(bounds);
+            RectangleF rec = new RectangleF(xOffset - sliderRect.Height / 2.0f, sliderRect.Top, sliderRect.Height, sliderRect.Height);
+
+            return Rectangle.Truncate(rec);
+        }
+
+        /// <summary>
+        /// Returns a Rectangle object that represents the slider knob's bounds
+        /// </summary>
+        /// <returns>A Rectangle object that represents the slider knob's bounds</returns>
+        protected virtual RectangleF GetKnobRectangleFBounds()
+        {
+            float xOffset = GetSliderXOffset();
+            Rectangle sliderRect = GetSliderRectangleBounds();
+
+            RectangleF rec = new RectangleF(xOffset - sliderRect.Height / 2.0f, sliderRect.Top, sliderRect.Height, sliderRect.Height);
+
+            return rec;
         }
 
         #endregion
@@ -901,7 +934,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>Whether this color slider should ignore updates to the alpha transparency of the active color and always render it as 1.0</returns>
         protected bool IgnoreActiveColorAlpha()
         {
-            return _colorComponent != ColorSliderComponent.Alpha;
+            return colorComponent != ColorSliderComponent.Alpha;
         }
 
         //
@@ -911,9 +944,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         {
             // EDIT: ADD AN EXTRA HEIGHT VALIDATION TO AVOID INITIALIZATION PROBLEMS
             // BITWISE 'AND' OPERATION: IF ZERO THEN HEIGHT IS NOT INVOLVED IN THIS OPERATION
-            if ((specified & BoundsSpecified.Height) == 0 || (specified & BoundsSpecified.Width) == 0 || height == 38)
+            if ((specified & BoundsSpecified.Height) == 0 || (specified & BoundsSpecified.Width) == 0 || height == fixedControlHeight)
             {
-                base.SetBoundsCore(x, y, Math.Max(80, width), 38, specified);
+                base.SetBoundsCore(x, y, Math.Max(80, width), fixedControlHeight, specified);
             }
         }
 
