@@ -36,6 +36,11 @@ namespace Pixelaria.Utils
     public static class ImageUtilities
     {
         /// <summary>
+        /// Checkers pattern used as the default tile
+        /// </summary>
+        private static Image _checkersPattern = Resources.checkers_pattern;
+
+        /// <summary>
         /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating
         /// with the given interpolation mode.
         /// Note that trying to resize a frame while it's inside an animation, and that animation's dimensions don't match
@@ -116,7 +121,7 @@ namespace Pixelaria.Utils
         /// </returns>
         public static Image GetDefaultTile()
         {
-            return Resources.checkers_pattern;
+            return _checkersPattern;
         }
 
         /// <summary>
