@@ -40,18 +40,27 @@
             this.pnl_container = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.cms_filters = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.zpb_original = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.gb_filterControlContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).BeginInit();
+            this.panel1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_original)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_loadPreset
             // 
             this.btn_loadPreset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_loadPreset.Image = global::Pixelaria.Properties.Resources.folder_open;
-            this.btn_loadPreset.Location = new System.Drawing.Point(384, 288);
+            this.btn_loadPreset.Location = new System.Drawing.Point(382, 2);
             this.btn_loadPreset.Name = "btn_loadPreset";
             this.btn_loadPreset.Size = new System.Drawing.Size(75, 21);
             this.btn_loadPreset.TabIndex = 44;
@@ -64,7 +73,7 @@
             // 
             this.btn_deletePreset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_deletePreset.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_deletePreset.Location = new System.Drawing.Point(546, 289);
+            this.btn_deletePreset.Location = new System.Drawing.Point(544, 2);
             this.btn_deletePreset.Name = "btn_deletePreset";
             this.btn_deletePreset.Size = new System.Drawing.Size(77, 21);
             this.btn_deletePreset.TabIndex = 43;
@@ -77,7 +86,7 @@
             // 
             this.btn_savePreset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_savePreset.Image = global::Pixelaria.Properties.Resources.save_icon;
-            this.btn_savePreset.Location = new System.Drawing.Point(465, 288);
+            this.btn_savePreset.Location = new System.Drawing.Point(463, 2);
             this.btn_savePreset.Name = "btn_savePreset";
             this.btn_savePreset.Size = new System.Drawing.Size(75, 21);
             this.btn_savePreset.TabIndex = 42;
@@ -91,16 +100,16 @@
             this.cb_filterPresets.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cb_filterPresets.FormattingEnabled = true;
-            this.cb_filterPresets.Location = new System.Drawing.Point(43, 289);
+            this.cb_filterPresets.Location = new System.Drawing.Point(49, 2);
             this.cb_filterPresets.Name = "cb_filterPresets";
-            this.cb_filterPresets.Size = new System.Drawing.Size(335, 21);
+            this.cb_filterPresets.Size = new System.Drawing.Size(327, 21);
             this.cb_filterPresets.TabIndex = 41;
             this.cb_filterPresets.Text = "New Preset";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(-3, 292);
+            this.label2.Location = new System.Drawing.Point(3, 5);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(40, 13);
             this.label2.TabIndex = 40;
@@ -113,9 +122,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gb_filterControlContainer.Controls.Add(this.btn_addFilter);
             this.gb_filterControlContainer.Controls.Add(this.pnl_container);
-            this.gb_filterControlContainer.Location = new System.Drawing.Point(0, 316);
+            this.gb_filterControlContainer.Location = new System.Drawing.Point(3, 29);
             this.gb_filterControlContainer.Name = "gb_filterControlContainer";
-            this.gb_filterControlContainer.Size = new System.Drawing.Size(623, 260);
+            this.gb_filterControlContainer.Size = new System.Drawing.Size(618, 264);
             this.gb_filterControlContainer.TabIndex = 39;
             this.gb_filterControlContainer.TabStop = false;
             this.gb_filterControlContainer.Text = "Filter Options";
@@ -140,14 +149,15 @@
             this.pnl_container.AutoScroll = true;
             this.pnl_container.Location = new System.Drawing.Point(3, 47);
             this.pnl_container.Name = "pnl_container";
-            this.pnl_container.Size = new System.Drawing.Size(617, 207);
+            this.pnl_container.Size = new System.Drawing.Size(612, 211);
             this.pnl_container.TabIndex = 0;
             // 
             // label1
             // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.Image = global::Pixelaria.Properties.Resources.go_next;
             this.label1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.label1.Location = new System.Drawing.Point(289, 135);
+            this.label1.Location = new System.Drawing.Point(289, 123);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(45, 36);
             this.label1.TabIndex = 37;
@@ -159,22 +169,55 @@
             this.cms_filters.Name = "cms_filters";
             this.cms_filters.Size = new System.Drawing.Size(61, 4);
             // 
-            // zpb_preview
+            // panel1
             // 
-            this.zpb_preview.AllowScrollbars = false;
-            this.zpb_preview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.zpb_preview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.zpb_preview.ClipBackgroundToImage = true;
-            this.zpb_preview.ImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.zpb_preview.Location = new System.Drawing.Point(340, 0);
-            this.zpb_preview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MaximumZoom")));
-            this.zpb_preview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MinimumZoom")));
-            this.zpb_preview.Name = "zpb_preview";
-            this.zpb_preview.Size = new System.Drawing.Size(283, 283);
-            this.zpb_preview.TabIndex = 38;
-            this.zpb_preview.TabStop = false;
-            this.zpb_preview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.Zoom")));
-            this.zpb_preview.ZoomFactor = 1.414214F;
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.gb_filterControlContainer);
+            this.panel1.Controls.Add(this.btn_loadPreset);
+            this.panel1.Controls.Add(this.cb_filterPresets);
+            this.panel1.Controls.Add(this.btn_deletePreset);
+            this.panel1.Controls.Add(this.btn_savePreset);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(624, 296);
+            this.panel1.TabIndex = 45;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.zpb_original, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.zpb_preview, 2, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 1;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(624, 282);
+            this.tableLayoutPanel1.TabIndex = 46;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.panel1);
+            this.splitContainer1.Size = new System.Drawing.Size(624, 582);
+            this.splitContainer1.SplitterDistance = 282;
+            this.splitContainer1.TabIndex = 2;
             // 
             // zpb_original
             // 
@@ -182,37 +225,64 @@
             this.zpb_original.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_original.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_original.ClipBackgroundToImage = true;
+            this.zpb_original.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.zpb_original.HorizontalScrollValue = 0;
             this.zpb_original.ImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.zpb_original.Location = new System.Drawing.Point(0, 0);
+            this.zpb_original.Location = new System.Drawing.Point(3, 3);
             this.zpb_original.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_original.MaximumZoom")));
             this.zpb_original.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_original.MinimumZoom")));
             this.zpb_original.Name = "zpb_original";
-            this.zpb_original.Size = new System.Drawing.Size(283, 283);
+            this.zpb_original.Size = new System.Drawing.Size(276, 276);
             this.zpb_original.TabIndex = 36;
             this.zpb_original.TabStop = false;
+            this.zpb_original.VerticalScrollValue = 0;
             this.zpb_original.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_original.Zoom")));
             this.zpb_original.ZoomFactor = 1.414214F;
+            this.zpb_original.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_original_ZoomChanged);
+            this.zpb_original.HorizontalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
+            this.zpb_original.VerticalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
+            // 
+            // zpb_preview
+            // 
+            this.zpb_preview.AllowScrollbars = false;
+            this.zpb_preview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_preview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.zpb_preview.ClipBackgroundToImage = true;
+            this.zpb_preview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.zpb_preview.HorizontalScrollValue = 0;
+            this.zpb_preview.ImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.zpb_preview.Location = new System.Drawing.Point(345, 3);
+            this.zpb_preview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MaximumZoom")));
+            this.zpb_preview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MinimumZoom")));
+            this.zpb_preview.Name = "zpb_preview";
+            this.zpb_preview.Size = new System.Drawing.Size(276, 276);
+            this.zpb_preview.TabIndex = 38;
+            this.zpb_preview.TabStop = false;
+            this.zpb_preview.VerticalScrollValue = 0;
+            this.zpb_preview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.Zoom")));
+            this.zpb_preview.ZoomFactor = 1.414214F;
+            this.zpb_preview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_preview_ZoomChanged);
+            this.zpb_preview.HorizontalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
+            this.zpb_preview.VerticalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
             // 
             // FilterSelector
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.btn_loadPreset);
-            this.Controls.Add(this.btn_deletePreset);
-            this.Controls.Add(this.btn_savePreset);
-            this.Controls.Add(this.cb_filterPresets);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.gb_filterControlContainer);
-            this.Controls.Add(this.zpb_preview);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.zpb_original);
+            this.Controls.Add(this.splitContainer1);
             this.Name = "FilterSelector";
             this.Size = new System.Drawing.Size(624, 582);
             this.gb_filterControlContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.zpb_original)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -230,6 +300,9 @@
         private System.Windows.Forms.Label label1;
         private ZoomablePictureBox zpb_original;
         private System.Windows.Forms.ContextMenuStrip cms_filters;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.SplitContainer splitContainer1;
 
 
     }

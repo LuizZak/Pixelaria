@@ -20,6 +20,8 @@ Legend:
 
 -- Current Version
 
+* Updated the filter selection interface to enable free resizing.
+
 . AnimationView
   * Fixed applying filters not marking the animation as modified.
 

@@ -111,8 +111,6 @@ namespace Pixelaria.Views.Controls
             btn_savePreset.Click += btn_savePreset_Click;
             btn_deletePreset.Click += btn_deletePreset_Click;
             btn_loadPreset.Click += btn_loadPreset_Click;
-            zpb_preview.ZoomChanged += zpb_preview_ZoomChanged;
-            zpb_original.ZoomChanged += zpb_original_ZoomChanged;
 
             _filterContainers = new List<FilterContainer>();
 
@@ -133,6 +131,8 @@ namespace Pixelaria.Views.Controls
             UpdateFilterList();
             UpdateFilterPresetList();
             UpdateFilterPresetButtons();
+
+            Resize += FilterSelector_Resize;
         }
 
         /// <summary>
@@ -154,11 +154,7 @@ namespace Pixelaria.Views.Controls
 
             _ignoreZoomEvents = false;
 
-            if (_bitmapOriginal.Width >= zpb_preview.Width || _bitmapOriginal.Height >= zpb_preview.Height)
-            {
-                zpb_original.ImageLayout = ImageLayout.None;
-                zpb_preview.ImageLayout = ImageLayout.None;
-            }
+            UpdateImageLayouts();
 
             foreach (FilterContainer container in _filterContainers)
             {
@@ -166,6 +162,26 @@ namespace Pixelaria.Views.Controls
             }
 
             UpdateVisualization();
+        }
+
+        /// <summary>
+        /// Updates the image layouts for the picture boxes
+        /// </summary>
+        private void UpdateImageLayouts()
+        {
+            if (_bitmapOriginal == null)
+                return;
+
+            if (_bitmapOriginal.Width * zpb_preview.Zoom.X >= zpb_preview.Width || _bitmapOriginal.Height * zpb_preview.Zoom.Y >= zpb_preview.Height)
+            {
+                zpb_original.ImageLayout = ImageLayout.None;
+                zpb_preview.ImageLayout = ImageLayout.None;
+            }
+            else
+            {
+                zpb_original.ImageLayout = ImageLayout.Center;
+                zpb_preview.ImageLayout = ImageLayout.Center;
+            }
         }
 
         /// <summary>
@@ -206,7 +222,7 @@ namespace Pixelaria.Views.Controls
         {
             foreach (FilterControl filter in filters)
             {
-                LoadFilterControl(filter, false);
+                AddFilterControl(filter, false);
             }
 
             UpdateVisualization();
@@ -226,11 +242,11 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Loads the given FilterControl on this BaseFilterView
+        /// Adds a given FilterControl on this BaseFilterView
         /// </summary>
         /// <param name="filterControl">The filter control to load on this BaseFilterView</param>
         /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
-        public void LoadFilterControl(FilterControl filterControl, bool updateVisualization = true)
+        public void AddFilterControl(FilterControl filterControl, bool updateVisualization = true)
         {
             filterControl.Initialize(_bitmapOriginal);
 
@@ -463,6 +479,15 @@ namespace Pixelaria.Views.Controls
         }
 
         // 
+        // Resize event handler
+        // 
+        void FilterSelector_Resize(object sender, EventArgs e)
+        {
+            UpdateImageLayouts();
+            UpdateLayout();
+        }
+
+        // 
         // FilterControl Filter Updated event handler
         // 
         private void FilterUpdated(object sender, EventArgs e)
@@ -582,7 +607,7 @@ namespace Pixelaria.Views.Controls
         private void tsm_filterItem_Click(object sender, EventArgs e)
         {
             // Creates the filter and adds it to the list of filters
-            LoadFilterControl(FilterStore.Instance.CreateFilterControl(((ToolStripMenuItem)sender).Tag as string));
+            AddFilterControl(FilterStore.Instance.CreateFilterControl(((ToolStripMenuItem)sender).Tag as string));
         }
 
         // 
@@ -596,6 +621,9 @@ namespace Pixelaria.Views.Controls
             _ignoreZoomEvents = true;
             zpb_preview.Zoom = new PointF(e.NewZoom, e.NewZoom);
             _ignoreZoomEvents = false;
+
+            zpb_Scroll(zpb_preview, null);
+            UpdateImageLayouts();
         }
 
         // 
@@ -609,6 +637,26 @@ namespace Pixelaria.Views.Controls
             _ignoreZoomEvents = true;
             zpb_original.Zoom = new PointF(e.NewZoom, e.NewZoom);
             _ignoreZoomEvents = false;
+
+            zpb_Scroll(zpb_original, null);
+            UpdateImageLayouts();
+        }
+
+        // 
+        // Picture Box scroll event
+        // 
+        private void zpb_Scroll(object sender, ScrollEventArgs e)
+        {
+            if (sender == zpb_original)
+            {
+                zpb_preview.HorizontalScrollValue = zpb_original.HorizontalScrollValue;
+                zpb_preview.VerticalScrollValue = zpb_original.VerticalScrollValue;
+            }
+            else
+            {
+                zpb_original.HorizontalScrollValue = zpb_preview.HorizontalScrollValue;
+                zpb_original.VerticalScrollValue = zpb_preview.VerticalScrollValue;
+            }
         }
 
         // 
