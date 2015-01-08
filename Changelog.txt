@@ -26,6 +26,9 @@ Legend:
 . AnimationView
   * Fixed applying filters not marking the animation as modified.
 
+. FrameView
+  * Holding down Space bar now enables panning the canvas.
+
 . Increased rendering speed of the Stroke filter.
 
 
