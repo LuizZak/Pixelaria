@@ -378,8 +378,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Animation anim1 = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
             Animation anim2 = AnimationGenerator.GenerateAnimation("TestAnim1", 32, 32, 16);
 
-            Assert.AreEqual(16 * 16 * 10 * 4, anim1.CalculateMemoryUsageInBytes(), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 10.240 bytes");
-            Assert.AreEqual(32 * 32 * 16 * 4, anim2.CalculateMemoryUsageInBytes(), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 65.536 bytes");
+            Assert.AreEqual(16 * 16 * 10 * 4, anim1.CalculateMemoryUsageInBytes(true), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 10.240 bytes");
+            Assert.AreEqual(32 * 32 * 16 * 4, anim2.CalculateMemoryUsageInBytes(true), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 65.536 bytes");
         }
 
         [TestMethod]
