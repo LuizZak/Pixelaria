@@ -75,6 +75,17 @@ namespace Pixelaria.Controllers.LayerControlling
         public event LayerRemovedEventHandler LayerRemoved;
 
         /// <summary>
+        /// Delegate for the LayerImageUpdated event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void LayerImageUpdatedEventHandler(object sender, LayerControllerLayerImageUpdatedEventArgs args);
+        /// <summary>
+        /// Event fired whenever a call to SetLayerBitmap is made
+        /// </summary>
+        public event LayerImageUpdatedEventHandler LayerImageUpdated;
+
+        /// <summary>
         /// Delegate for the FrameChanged event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
@@ -275,6 +286,31 @@ namespace Pixelaria.Controllers.LayerControlling
         }
 
         /// <summary>
+        /// Sets the bitmap of a specified layer
+        /// </summary>
+        /// <param name="layerIndex">The index of the layer to update the bitmap of</param>
+        /// <param name="bitmap">The new bitmap for the layer</param>
+        public void SetLayerBitmap(int layerIndex, Bitmap bitmap)
+        {
+            Bitmap oldBitmap = null;
+
+            // Make a copy of the bitmap before modifying it for the event
+            var frameLayer = _frame.GetLayerAt(layerIndex);
+
+            if (LayerImageUpdated != null)
+            {
+                oldBitmap = frameLayer.LayerBitmap.Clone(new Rectangle(Point.Empty, frameLayer.Size), frameLayer.LayerBitmap.PixelFormat);
+            }
+
+            _frame.SetLayerBitmap(layerIndex, bitmap);
+
+            if (LayerImageUpdated != null)
+            {
+                LayerImageUpdated(this, new LayerControllerLayerImageUpdatedEventArgs(frameLayer, oldBitmap));
+            }
+        }
+
+        /// <summary>
         /// Duplicates the specified layer index
         /// </summary>
         /// <param name="layerIndex">The layer to duplicate</param>
@@ -314,7 +350,7 @@ namespace Pixelaria.Controllers.LayerControlling
         public int SecondLayerIndex { get; private set; }
 
         /// <summary>
-        /// Creates a new instance of the LayersSwappedEventArgs class
+        /// Creates a new instance of the LayerControllerLayersSwappedEventArgs class
         /// </summary>
         /// <param name="firstLayerIndex">The first layer that was swapped</param>
         /// <param name="secondLayerIndex">The second layer that was swapped</param>
@@ -336,7 +372,7 @@ namespace Pixelaria.Controllers.LayerControlling
         public IFrameLayer FrameLayer { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the LayerCreatedEventArgs class
+        /// Initializes a new instance of the LayerControllerLayerCreatedEventArgs class
         /// </summary>
         /// <param name="frameLayer">The frame layer that was created</param>
         public LayerControllerLayerCreatedEventArgs(IFrameLayer frameLayer)
@@ -356,12 +392,39 @@ namespace Pixelaria.Controllers.LayerControlling
         public IFrameLayer FrameLayer { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the LayerRemovedEventArgs class
+        /// Initializes a new instance of the LayerControllerLayerRemovedEventArgs class
         /// </summary>
         /// <param name="frameLayer">The layer that was removed</param>
         public LayerControllerLayerRemovedEventArgs(IFrameLayer frameLayer)
         {
             FrameLayer = frameLayer;
+        }
+    }
+
+    /// <summary>
+    /// Specifies the event arguments for a LayerImageUpdated event
+    /// </summary>
+    public class LayerControllerLayerImageUpdatedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the layer that was updated
+        /// </summary>
+        public IFrameLayer FrameLayer { get; private set; }
+
+        /// <summary>
+        /// Gets the old bitmap before the layer image was updated. This is an independent copy of the layer's bitmap object
+        /// </summary>
+        public Bitmap OldLayerBitmap { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the LayerControllerLayerImageUpdatedEventArgs class
+        /// </summary>
+        /// <param name="frameLayer">The layer that was updated</param>
+        /// <param name="oldLayerBitmap">The old layer bitmap before the layer image was updated</param>
+        public LayerControllerLayerImageUpdatedEventArgs(IFrameLayer frameLayer, Bitmap oldLayerBitmap)
+        {
+            FrameLayer = frameLayer;
+            OldLayerBitmap = oldLayerBitmap;
         }
     }
 
