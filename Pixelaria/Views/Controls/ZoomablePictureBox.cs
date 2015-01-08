@@ -90,6 +90,22 @@ namespace Pixelaria.Views.Controls
         public event ZoomChangedEventHandler ZoomChanged;
 
         /// <summary>
+        /// Occurs whenever the horizontal scroll of the control changes
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the horizontal scroll of the changes")]
+        public event ScrollEventHandler HorizontalScroll;
+
+        /// <summary>
+        /// Occurs whenever the vertical scroll of the control changes
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the vertical scroll of the changes")]
+        public event ScrollEventHandler VerticalScroll;
+
+        /// <summary>
         /// Gets or sets whether this ZoomablePictureBox should show a white outline around the image area
         /// </summary>
         [Browsable(true)]
@@ -229,6 +245,40 @@ namespace Pixelaria.Views.Controls
         [DefaultValue(typeof(Point), "0, 0")]
         [Description("The offset of the image")]
         public Point Offset { get { return offsetPoint; } set { offsetPoint = value; ClipTransform(); Invalidate(); } }
+
+        /// <summary>
+        /// Gets or sets the horizontal scroll of this control
+        /// </summary>
+        [Browsable(false)]
+        public int HorizontalScrollValue
+        {
+            get { return hScrollBar.Value; }
+            set
+            {
+                hScrollBar.Value = value;
+                offsetPoint.X = value;
+                Invalidate();
+
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the vertical scroll of this control
+        /// </summary>
+        [Browsable(false)]
+        public int VerticalScrollValue
+        {
+            get { return vScrollBar.Value; }
+            set
+            {
+                vScrollBar.Value = value;
+                offsetPoint.Y = value;
+                Invalidate();
+
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Default constructor for the ZoomablePictureBox
@@ -433,6 +483,11 @@ namespace Pixelaria.Views.Controls
         {
             offsetPoint.X = e.NewValue;
             Invalidate();
+
+            if (HorizontalScroll != null)
+            {
+                HorizontalScroll(this, e);
+            }
         }
 
         // 
@@ -442,6 +497,11 @@ namespace Pixelaria.Views.Controls
         {
             offsetPoint.Y = e.NewValue;
             Invalidate();
+
+            if (VerticalScroll != null)
+            {
+                VerticalScroll(this, e);
+            }
         }
 
         // 
@@ -587,6 +647,17 @@ namespace Pixelaria.Views.Controls
             if (draggingViewport)
             {
                 offsetPoint = new Point(-MousePosition.X + mouseOffset.X, -MousePosition.Y + mouseOffset.Y);
+
+                // Fire scroll events
+                if (HorizontalScroll != null)
+                {
+                    HorizontalScroll(this, new ScrollEventArgs(ScrollEventType.ThumbPosition, offsetPoint.X));
+                }
+                if (VerticalScroll != null)
+                {
+                    VerticalScroll(this, new ScrollEventArgs(ScrollEventType.ThumbPosition, offsetPoint.Y));
+                }
+
                 ClipTransform();
                 Invalidate();
             }
