@@ -257,7 +257,16 @@ namespace Pixelaria.Views.Controls.PaintTools
                 FinishOperation(true);
             }
 
-            StartOperation(new Rectangle(0, 0, pictureBox.Image.Width, pictureBox.Image.Height), null, SelectionOperationType.Moved);
+            // Find the minimum rectangle for the selection
+            Rectangle selectionRectangle = ImageUtilities.FindMinimumImageArea(pictureBox.Bitmap);
+
+            // If the whole area is empty, select the whole bitmap area
+            if (selectionRectangle.Size == Size.Empty)
+            {
+                selectionRectangle = new Rectangle(0, 0, pictureBox.Image.Width, pictureBox.Image.Height);
+            }
+
+            StartOperation(selectionRectangle, null, SelectionOperationType.Moved);
         }
 
         /// <summary>

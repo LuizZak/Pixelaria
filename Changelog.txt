@@ -30,6 +30,8 @@ Legend:
   + Now multiple layers can be selected with the Shift key. This is useful during operations that require multiple layers selected.
   + Added slider for changing display transparency of layers.
   + Added menu bar submenu for layer operations.
+  + Now when selecting the whole image with Ctrl+A, the selected region will default to the minimum non-transparent area of the image.
+  
   * Holding down Space bar now enables panning the canvas.
   * Fixed the layer preview images being rendered with a slight offset in relation to the background image.
   * Fixed color picking operation failing sometimes while trying to pick the second color.
