@@ -37,6 +37,7 @@ Legend:
   * Fixed color picking operation failing sometimes while trying to pick the second color.
   * Fixed bugs regarding layer rendering.
   * Fixed bug where duplicating a layer with an active selection clearing the selected area.
+  * Fixed saving the active frame with Ctrl+S only saving the currently active layer.
 
 . Increased rendering speed of the Stroke filter.
 

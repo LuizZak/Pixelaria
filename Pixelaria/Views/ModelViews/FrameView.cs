@@ -490,7 +490,7 @@ namespace Pixelaria.Views.ModelViews
                 fileName += "_" + _frameToEdit.Index;
             }
 
-            _controller.ShowSaveImage(_viewFrameBitmap, fileName, this);
+            _controller.ShowSaveImage(_viewFrame.GetComposedBitmap(), fileName, this);
         }
 
         /// <summary>
