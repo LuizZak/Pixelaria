@@ -48,6 +48,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="args">The arguments for the event</param>
         public delegate void LayersSwappedEventHandler(object sender, LayerControllerLayersSwappedEventArgs args);
         /// <summary>
+        /// Event fired before two layers are swapped  with the layer controller.
+        /// This event is called before any modification is made to the underlying frame
+        /// </summary>
+        public event LayersSwappedEventHandler BeforeLayersSwapped;
+        /// <summary>
         /// Event fired whenever a call to SwapLayers is made
         /// </summary>
         public event LayersSwappedEventHandler LayersSwapped;
@@ -59,9 +64,30 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="args">The arguments for the event</param>
         public delegate void LayerCreatedEventHandler(object sender, LayerControllerLayerCreatedEventArgs args);
         /// <summary>
+        /// Event fired before a layer is created with the layer controller.
+        /// This event is called before any modification is made to the underlying frame
+        /// </summary>
+        public event EventHandler BeforeLayerCreated;
+        /// <summary>
         /// Event fired whenever a call to CreateLayer or AddLayer is made
         /// </summary>
         public event LayerCreatedEventHandler LayerCreated;
+
+        /// <summary>
+        /// Delegate for the LayerDuplicated event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void LayerDuplicatedEventHandler(object sender, LayerControllerLayerDuplicatedEventArgs args);
+        /// <summary>
+        /// Event fired before a layer is duplicated with the layer controller.
+        /// This event is called before any modification is made to the underlying frame
+        /// </summary>
+        public event LayerDuplicatedEventHandler BeforeLayerDuplicated;
+        /// <summary>
+        /// Event fired whenever a call to DuplicateLayer is made
+        /// </summary>
+        public event LayerDuplicatedEventHandler LayerDuplicated;
 
         /// <summary>
         /// Delegate for the LayerRemoved event
@@ -69,6 +95,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="sender">The sender for the event</param>
         /// <param name="args">The arguments for the event</param>
         public delegate void LayerRemovedEventHandler(object sender, LayerControllerLayerRemovedEventArgs args);
+        /// <summary>
+        /// Event fired before a layer is removed with the layer controller.
+        /// This event is called before any modification is made to the underlying frame
+        /// </summary>
+        public event LayerRemovedEventHandler BeforeLayerRemoved;
         /// <summary>
         /// Event fired whenever a call to RemoveLayer is made
         /// </summary>
@@ -102,6 +133,10 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="sender">The sender for the event</param>
         /// <param name="args">The arguments for the event</param>
         public delegate void ActiveLayerIndexChangedEventHandler(object sender, ActiveLayerIndexChangedEventArgs args);
+        /// <summary>
+        /// Event fired before the current active layer index is changed.
+        /// </summary>
+        public event ActiveLayerIndexChangedEventHandler BeforeActiveLayerIndexChanged;
         /// <summary>
         /// Event fired whenever the current active layer index is changed
         /// </summary>
@@ -141,6 +176,11 @@ namespace Pixelaria.Controllers.LayerControlling
 
                 if(value < 0 || value >= _frame.LayerCount)
                     throw new ArgumentOutOfRangeException("value", @"The value specified must be >= 0 and smaller than the layer count");
+
+                if (BeforeActiveLayerIndexChanged != null)
+                {
+                    BeforeActiveLayerIndexChanged(this, new ActiveLayerIndexChangedEventArgs(value));
+                }
 
                 _activeLayerIndex = value;
 
@@ -200,6 +240,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="layerIndex">The index at which to create the layer</param>
         public IFrameLayer CreateLayer(int layerIndex = -1)
         {
+            if (BeforeLayerCreated != null)
+            {
+                BeforeLayerCreated(this, new EventArgs());
+            }
+
             IFrameLayer layer = _frame.CreateLayer(layerIndex);
 
             if (LayerCreated != null)
@@ -218,6 +263,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <returns>The layer that was created</returns>
         public IFrameLayer AddLayer(Bitmap bitmap, int index = -1)
         {
+            if (BeforeLayerCreated != null)
+            {
+                BeforeLayerCreated(this, new EventArgs());
+            }
+
             IFrameLayer layer = _frame.AddLayer(bitmap, index);
 
             if (LayerCreated != null)
@@ -235,6 +285,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="index">The index to add the layer at</param>
         public void AddLayer(IFrameLayer layer, int index = -1)
         {
+            if (BeforeLayerCreated != null)
+            {
+                BeforeLayerCreated(this, new EventArgs());
+            }
+
             _frame.AddLayer(layer, index);
 
             if (LayerCreated != null)
@@ -250,6 +305,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="layer2">The index of the second layer to swap</param>
         public void SwapLayers(int layer1, int layer2)
         {
+            if (BeforeLayersSwapped != null)
+            {
+                BeforeLayersSwapped(this, new LayerControllerLayersSwappedEventArgs(layer1, layer2));
+            }
+
             _frame.SwapLayers(layer1, layer2);
 
             if (LayersSwapped != null)
@@ -277,7 +337,15 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             IFrameLayer layer = _frame.GetLayerAt(layerIndex);
 
+            if (BeforeLayerRemoved != null)
+            {
+                BeforeLayerRemoved(this, new LayerControllerLayerRemovedEventArgs(layer));
+            }
+
             _frame.RemoveLayerAt(layerIndex, dispose);
+
+            // Normalize active layer
+            _activeLayerIndex = ActiveLayerIndex;
 
             if (LayerRemoved != null)
             {
@@ -317,17 +385,23 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <returns>An IFrameLayer for the newly duplicated layer</returns>
         public IFrameLayer DuplicateLayer(int layerIndex)
         {
+            if (BeforeLayerDuplicated != null)
+            {
+                BeforeLayerDuplicated(this, new LayerControllerLayerDuplicatedEventArgs(layerIndex));
+            }
+
             // Duplicate the layer up
             IFrameLayer layer = _frame.GetLayerAt(layerIndex).Clone();
 
+            // Use the class' AddLayer method to take advantage of the event firing
             if (layerIndex == _frame.LayerCount - 1)
-                _frame.AddLayer(layer);
+                AddLayer(layer);
             else
-                _frame.AddLayer(layer, layerIndex + 1);
+                AddLayer(layer, layerIndex + 1);
 
-            if (LayerCreated != null)
+            if (LayerDuplicated != null)
             {
-                LayerCreated(this, new LayerControllerLayerCreatedEventArgs(layer));
+                LayerDuplicated(this, new LayerControllerLayerDuplicatedEventArgs(layerIndex));
             }
 
             return layer;
@@ -425,6 +499,26 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             FrameLayer = frameLayer;
             OldLayerBitmap = oldLayerBitmap;
+        }
+    }
+
+    /// <summary>
+    /// Specifies the event arguments for a LayerDuplicated event
+    /// </summary>
+    public class LayerControllerLayerDuplicatedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The layer that was duplicated
+        /// </summary>
+        public int LayerIndex { get; private set; }
+
+        /// <summary>
+        /// Creates a new instance of the LayerControllerLayerDuplicatedEventArgs class
+        /// </summary>
+        /// <param name="layerIndex">The layer that was duplicated</param>
+        public LayerControllerLayerDuplicatedEventArgs(int layerIndex)
+        {
+            LayerIndex = layerIndex;
         }
     }
 
