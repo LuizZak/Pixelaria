@@ -46,16 +46,16 @@ namespace Pixelaria.Controllers.LayerControlling
         /// </summary>
         /// <param name="sender">The sender for the event</param>
         /// <param name="args">The arguments for the event</param>
-        public delegate void LayersSwappedEventHandler(object sender, LayerControllerLayersSwappedEventArgs args);
+        public delegate void LayersSwappedEventHandler(object sender, LayerControllerLayerMovedEventArgs args);
         /// <summary>
         /// Event fired before two layers are swapped  with the layer controller.
         /// This event is called before any modification is made to the underlying frame
         /// </summary>
-        public event LayersSwappedEventHandler BeforeLayersSwapped;
+        public event LayersSwappedEventHandler BeforeLayerMoved;
         /// <summary>
         /// Event fired whenever a call to SwapLayers is made
         /// </summary>
-        public event LayersSwappedEventHandler LayersSwapped;
+        public event LayersSwappedEventHandler LayerMoved;
 
         /// <summary>
         /// Delegate for the LayerCreated event
@@ -299,32 +299,54 @@ namespace Pixelaria.Controllers.LayerControlling
         }
 
         /// <summary>
-        /// Swaps two layers from the frame
+        /// Moves a layer from one point to another in the frame.
+        /// If the layer index and the new index are the same, nothing is done
         /// </summary>
-        /// <param name="layer1">The index of the first layer to swap</param>
-        /// <param name="layer2">The index of the second layer to swap</param>
-        public void SwapLayers(int layer1, int layer2)
+        /// <param name="layerIndex">The index of the layer to swap</param>
+        /// <param name="newIndex">The index of the second layer to swap</param>
+        public void MoveLayer(int layerIndex, int newIndex)
         {
-            if (BeforeLayersSwapped != null)
+            if (layerIndex == newIndex)
+                return;
+
+            // Notify before event
+            if (BeforeLayerMoved != null)
             {
-                BeforeLayersSwapped(this, new LayerControllerLayersSwappedEventArgs(layer1, layer2));
+                BeforeLayerMoved(this, new LayerControllerLayerMovedEventArgs(layerIndex, newIndex));
             }
 
-            _frame.SwapLayers(layer1, layer2);
-
-            if (LayersSwapped != null)
+            // Move layer
+            if(layerIndex < newIndex)
             {
-                LayersSwapped(this, new LayerControllerLayersSwappedEventArgs(layer1, layer2));
+                // Move layer by swapping it until it is in the new desired place
+                for (int i = layerIndex; i < newIndex; i++)
+                {
+                    _frame.SwapLayers(i, i + 1);
+                }
+            }
+            else if (layerIndex > newIndex)
+            {
+                // Move layer by swapping it until it is in the new desired place
+                for (int i = layerIndex; i > newIndex; i--)
+                {
+                    _frame.SwapLayers(i, i - 1);
+                }
+            }
+
+            // Notify after event
+            if (LayerMoved != null)
+            {
+                LayerMoved(this, new LayerControllerLayerMovedEventArgs(layerIndex, newIndex));
             }
 
             // Update active layer index
-            if (ActiveLayerIndex == layer1)
+            if (ActiveLayerIndex == layerIndex)
             {
-                ActiveLayerIndex = layer2;
+                ActiveLayerIndex = newIndex;
             }
-            else if (ActiveLayerIndex == layer2)
+            else if (ActiveLayerIndex == newIndex)
             {
-                ActiveLayerIndex = layer1;
+                ActiveLayerIndex = layerIndex;
             }
         }
 
@@ -409,29 +431,29 @@ namespace Pixelaria.Controllers.LayerControlling
     }
 
     /// <summary>
-    /// Specifies the event arguments for a LayersSwapped event
+    /// Specifies the event arguments for a LayersMoved event
     /// </summary>
-    public class LayerControllerLayersSwappedEventArgs : EventArgs
+    public class LayerControllerLayerMovedEventArgs : EventArgs
     {
         /// <summary>
-        /// The first layer that was swapped
+        /// The index of the layer that was moved
         /// </summary>
-        public int FirstLayerIndex { get; private set; }
+        public int LayerIndex { get; private set; }
 
         /// <summary>
-        /// The second layer that was swapped
+        /// The new index of the layer that was moved
         /// </summary>
-        public int SecondLayerIndex { get; private set; }
+        public int NewIndex { get; private set; }
 
         /// <summary>
-        /// Creates a new instance of the LayerControllerLayersSwappedEventArgs class
+        /// Creates a new instance of the LayerControllerLayerMovedEventArgs class
         /// </summary>
-        /// <param name="firstLayerIndex">The first layer that was swapped</param>
-        /// <param name="secondLayerIndex">The second layer that was swapped</param>
-        public LayerControllerLayersSwappedEventArgs(int firstLayerIndex, int secondLayerIndex)
+        /// <param name="layerIndex">The index of the layer that was moved</param>
+        /// <param name="newIndex">The new index of the layer that was moved</param>
+        public LayerControllerLayerMovedEventArgs(int layerIndex, int newIndex)
         {
-            FirstLayerIndex = firstLayerIndex;
-            SecondLayerIndex = secondLayerIndex;
+            LayerIndex = layerIndex;
+            NewIndex = newIndex;
         }
     }
 

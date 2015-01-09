@@ -48,7 +48,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Whether the user is currently swapping controls
         /// </summary>
-        private bool _swappingControls;
+        private bool _movingControls;
 
         /// <summary>
         /// Whether to ignore layer stauts change events comming from the LayerControls
@@ -121,7 +121,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             _controller.LayerCreated += OnLayerCreated;
             _controller.LayerRemoved += OnLayerRemoved;
-            _controller.LayersSwapped += OnLayersSwapped;
+            _controller.LayerMoved += OnLayerMoved;
             _controller.FrameChanged += OnFrameChanged;
             _controller.ActiveLayerIndexChanged += OnActiveLayerIndexChanged;
 
@@ -149,9 +149,9 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         // 
-        // Layers Swapped event handler
+        // Layer Moved event handler
         // 
-        private void OnLayersSwapped(object sender, LayerControllerLayersSwappedEventArgs args)
+        private void OnLayerMoved(object sender, LayerControllerLayerMovedEventArgs args)
         {
             LayerControl secondLayer = _layerControls[args.SecondLayerIndex];
             _layerControls[args.SecondLayerIndex] = _layerControls[args.FirstLayerIndex];
@@ -476,7 +476,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (control == null)
                 return;
 
-            _swappingControls = true;
+            _movingControls = true;
 
             // Swap controls via the index of the controls
             int index = _layerControls.IndexOf(control);
@@ -519,11 +519,11 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             ClearSelection();
 
-            // Swap layers
-            if (!_swappingControls)
+            // Move layers
+            if (!_movingControls)
                 return;
 
-            _swappingControls = false;
+            _movingControls = false;
 
             int index = control.Layer.Index;
             int newIndex = _layerControls.IndexOf(control);
@@ -538,7 +538,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             if (newIndex >= 0 && newIndex < _controller.LayerCount)
             {
-                _controller.SwapLayers(index, newIndex);
+                _controller.MoveLayer(index, newIndex);
             }
         }
 

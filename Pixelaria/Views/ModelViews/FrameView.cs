@@ -1929,7 +1929,7 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.LayerCreated += OnLayerCreated;
                 _layerController.LayerRemoved += OnLayerRemoved;
                 _layerController.LayerImageUpdated += OnLayerImageUpdated;
-                _layerController.LayersSwapped += OnLayersSwapped;
+                _layerController.LayerMoved += OnLayerMoved;
                 _layerController.BeforeLayerDuplicated += OnBeforeLayerDuplicated;
             }
 
@@ -1949,7 +1949,7 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.LayerCreated -= OnLayerCreated;
                 _layerController.LayerRemoved -= OnLayerRemoved;
                 _layerController.LayerImageUpdated -= OnLayerImageUpdated;
-                _layerController.LayersSwapped -= OnLayersSwapped;
+                _layerController.LayerMoved -= OnLayerMoved;
             }
 
             // 
@@ -2015,13 +2015,13 @@ namespace Pixelaria.Views.ModelViews
             // 
             // Layers Swapped event handler
             // 
-            private void OnLayersSwapped(object sender, LayerControllerLayersSwappedEventArgs args)
+            private void OnLayerMoved(object sender, LayerControllerLayerMovedEventArgs args)
             {
                 _frameView.MarkModified();
 
                 // Add the undo task
                 if (_generateUndos)
-                    _frameView._undoSystem.RegisterUndo(new LayerSwappedUndoTask(args.FirstLayerIndex, args.SecondLayerIndex, this));
+                    _frameView._undoSystem.RegisterUndo(new LayerSwappedUndoTask(args.LayerIndex, args.NewIndex, this));
             }
 
             // 
@@ -2350,7 +2350,7 @@ namespace Pixelaria.Views.ModelViews
                 public void Undo()
                 {
                     _binder._generateUndos = false;
-                    _binder._layerController.SwapLayers(_secondIndex, _firstIndex);
+                    _binder._layerController.MoveLayer(_secondIndex, _firstIndex);
                     _binder._generateUndos = true;
                 }
 
@@ -2361,7 +2361,7 @@ namespace Pixelaria.Views.ModelViews
                 {
                     // Remove the layer
                     _binder._generateUndos = false;
-                    _binder._layerController.SwapLayers(_firstIndex, _secondIndex);
+                    _binder._layerController.MoveLayer(_firstIndex, _secondIndex);
                     _binder._generateUndos = true;
                 }
                 
