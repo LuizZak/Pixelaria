@@ -138,7 +138,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
 
                     if (_layerStatuses[i].Transparency >= 1)
                     {
-                        Utilities.FlattenBitmaps(bitmap, layerBitmap, false);
+                        ImageUtilities.FlattenBitmaps(bitmap, layerBitmap, false);
                     }
                     else
                     {
