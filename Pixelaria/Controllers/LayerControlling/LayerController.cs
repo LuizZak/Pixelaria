@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using Pixelaria.Data;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Controllers.LayerControlling
 {
@@ -115,6 +116,22 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Event fired whenever a call to SetLayerBitmap is made
         /// </summary>
         public event LayerImageUpdatedEventHandler LayerImageUpdated;
+
+        /// <summary>
+        /// Delegate for the LayersCombined event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void LayersCombineEventHandler(object sender, LayerControllerLayersCombinedEventArgs args);
+        /// <summary>
+        /// Event fired before a set of layers are combined with the layer controller.
+        /// This event is called before any modification is made to the underlying frame
+        /// </summary>
+        public event LayersCombineEventHandler BeforeLayersCombined;
+        /// <summary>
+        /// Event fired whenever a call to CombineLayers is made
+        /// </summary>
+        public event LayersCombineEventHandler LayersCombined;
 
         /// <summary>
         /// Delegate for the FrameChanged event
@@ -376,11 +393,11 @@ namespace Pixelaria.Controllers.LayerControlling
         }
 
         /// <summary>
-        /// Sets the bitmap of a specified layer
+        /// Copies a specified bitmap to a layer on a given index
         /// </summary>
         /// <param name="layerIndex">The index of the layer to update the bitmap of</param>
         /// <param name="bitmap">The new bitmap for the layer</param>
-        public void SetLayerBitmap(int layerIndex, Bitmap bitmap)
+        public void UpdateLayerBitmap(int layerIndex, Bitmap bitmap)
         {
             Bitmap oldBitmap = null;
 
@@ -427,6 +444,43 @@ namespace Pixelaria.Controllers.LayerControlling
             }
 
             return layer;
+        }
+
+        /// <summary>
+        /// Combines all the provided layers. Combining layers results in the removal of all layers but the bottom-most one, where
+        /// the image of the combined layers will be set
+        /// </summary>
+        /// <param name="layers">The layers to combine</param>
+        public void CombineLayers(IFrameLayer[] layers)
+        {
+            if (BeforeLayersCombined != null)
+            {
+                BeforeLayersCombined(this, new LayerControllerLayersCombinedEventArgs(layers));
+            }
+
+            // Combine the layers by first removing all the layers but the bottom-most one
+            Bitmap combinedBitmap = new Bitmap(_frame.Width, _frame.Height);
+
+            for (int i = 0; i < layers.Length; i++)
+            {
+                // Combine the bitmap
+                ImageUtilities.FlattenBitmaps(combinedBitmap, layers[i].LayerBitmap, true);
+
+                if (i != 0)
+                {
+                    RemoveLayer(layers[i].Index, false);
+                }
+            }
+
+            // Switch image of the last bitmap
+            UpdateLayerBitmap(layers[0].Index, combinedBitmap);
+
+            combinedBitmap.Dispose();
+
+            if (LayersCombined != null)
+            {
+                LayersCombined(this, new LayerControllerLayersCombinedEventArgs(layers));
+            }
         }
     }
 
@@ -530,17 +584,37 @@ namespace Pixelaria.Controllers.LayerControlling
     public class LayerControllerLayerDuplicatedEventArgs : EventArgs
     {
         /// <summary>
-        /// The layer that was duplicated
+        /// Gets the index of the layer that was duplicated
         /// </summary>
         public int LayerIndex { get; private set; }
 
         /// <summary>
         /// Creates a new instance of the LayerControllerLayerDuplicatedEventArgs class
         /// </summary>
-        /// <param name="layerIndex">The layer that was duplicated</param>
+        /// <param name="layerIndex">The index of the layer that was duplicated</param>
         public LayerControllerLayerDuplicatedEventArgs(int layerIndex)
         {
             LayerIndex = layerIndex;
+        }
+    }
+
+    /// <summary>
+    /// Specifies the event arguments for a LayersCombined event
+    /// </summary>
+    public class LayerControllerLayersCombinedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the layers that were combined
+        /// </summary>
+        public IFrameLayer[] LayersCombined { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the LayerControllerLayersCombinedEventArgs class
+        /// </summary>
+        /// <param name="layersCombined">The layers that were combined</param>
+        public LayerControllerLayersCombinedEventArgs(IFrameLayer[] layersCombined)
+        {
+            LayersCombined = layersCombined;
         }
     }
 

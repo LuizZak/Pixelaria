@@ -1931,6 +1931,9 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.LayerImageUpdated += OnLayerImageUpdated;
                 _layerController.LayerMoved += OnLayerMoved;
                 _layerController.BeforeLayerDuplicated += OnBeforeLayerDuplicated;
+
+                _layerController.BeforeLayersCombined += OnBeforeLayersCombined;
+                _layerController.LayersCombined += OnLayersCombined;
             }
 
             /// <summary>
@@ -1974,6 +1977,7 @@ namespace Pixelaria.Views.ModelViews
 
                 // Update the layer image
                 _frameView.lcp_layers.UpdateLayersDisplay();
+                UpdateEditActiveLayer();
             }
 
             #region ImageEditPanel.PictureBox event handlers
@@ -2085,14 +2089,6 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // 
-            // Frame Changed event handler
-            // 
-            private void OnFrameChanged(object sender, LayerControllerFrameChangedEventArgs args)
-            {
-                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
-            }
-
-            // 
             // Before Layer Duplicated event handler
             // 
             private void OnBeforeLayerDuplicated(object sender, LayerControllerLayerDuplicatedEventArgs eventArgs)
@@ -2106,6 +2102,30 @@ namespace Pixelaria.Views.ModelViews
                         operation.FinishOperation(true);
                     }
                 }
+            }
+
+            // 
+            // Before Layers Combined event handler
+            // 
+            private void OnBeforeLayersCombined(object sender, LayerControllerLayersCombinedEventArgs args)
+            {
+                _frameView._undoSystem.StartGroupUndo("Combine Layers");
+            }
+
+            // 
+            // Layers Combined event handler
+            // 
+            private void OnLayersCombined(object sender, LayerControllerLayersCombinedEventArgs args)
+            {
+                _frameView._undoSystem.FinishGroupUndo();
+            }
+
+            // 
+            // Frame Changed event handler
+            // 
+            private void OnFrameChanged(object sender, LayerControllerFrameChangedEventArgs args)
+            {
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
             }
 
             // 

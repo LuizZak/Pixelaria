@@ -28,6 +28,7 @@ Legend:
 
 . FrameView
   + Now multiple layers can be selected with the Shift key. This is useful during operations that require multiple layers selected.
+  + Added right-click menu button to combine selected layers.
   + Added slider for changing display transparency of layers.
   + Added menu bar submenu for layer operations.
   + Now when selecting the whole image with Ctrl+A, the selected region will default to the minimum non-transparent area of the image.

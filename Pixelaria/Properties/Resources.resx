@@ -117,13 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="frame_os_prev" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\frame_os_prev.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="UnexistingFileInFileList_RemoveQuestion" xml:space="preserve">
     <value>The file does not exists. Remove from the file list?</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="filter_enable_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_enable_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -139,11 +136,11 @@
   <data name="Error_AlertTile" xml:space="preserve">
     <value>Error</value>
   </data>
-  <data name="brush_size_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\brush_size_6.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="anim_preview_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\anim_preview_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rectangle_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rectangle_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="spray_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\spray_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -157,6 +154,12 @@
   <data name="anim_resize_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\anim_resize_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="emblem-symbolic-link" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\emblem-symbolic-link.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="frame_os_order" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\frame_os_order.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="circle_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\circle_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -169,8 +172,8 @@
   <data name="ExportSheetImage_NoAnimationsInSheet" xml:space="preserve">
     <value>There are no animations on the sheet! Add at least one animation to the sheet before exporting an image.</value>
   </data>
-  <data name="picker_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\picker_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="edit_undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\edit_undo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="edit-redo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\edit-redo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -178,32 +181,26 @@
   <data name="brush_size_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\brush_size_5.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="padlock_open" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\padlock_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="picker_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\picker_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="zoom_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\zoom_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="folder_open" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\folder_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="UnsavedChangesAlert_AskSave" xml:space="preserve">
     <value>There are unsaved changes to the currently opened bundle. Save the current bundle first?</value>
   </data>
-  <data name="action_check1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\action_check1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="filter_lightness" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_lightness.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Numbers_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Numbers_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="plus_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\plus_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="bucket_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\bucket_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="document_properties" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\document_properties.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Numbers_7" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_7.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="pxl_icon_256x256" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\pxl_icon_256x256.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -234,6 +231,12 @@
   </data>
   <data name="frame_save_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_save_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="padlock_closed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\padlock_closed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="preset_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\preset_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Numbers_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Numbers_6.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -290,6 +293,9 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="action_delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\action_delete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="line_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\line_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="pencil_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\pencil_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -302,23 +308,23 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="frame_insert_new_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_insert_new_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="process-stop" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\process-stop.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="edit_copy" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\edit_copy.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="pencil_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\pencil_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="checkers_pattern" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\checkers_pattern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="action_check1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\action_check1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="NoAnimationSheetsToExportInfo" xml:space="preserve">
     <value>There are no animation sheets to export! Create a sheet with at least one animation in it before exporting.</value>
   </data>
   <data name="filter_hue" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_hue.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="brush_size_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\brush_size_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="filter_scale_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_scale_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -329,6 +335,9 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="sheet_new" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sheet_new.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Numbers_8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_8.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="circle_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\circle_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -338,8 +347,8 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="edit-paste" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\edit-paste.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="preset_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\preset_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="picker_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\picker_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="frame_os_next" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_os_next.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -359,8 +368,8 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="sheet_save_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sheet_save_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="rectangle_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\rectangle_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="document_properties" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\document_properties.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="line_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\line_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -371,17 +380,17 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="document-save" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\document-save.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="checkers_pattern" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\checkers_pattern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="filter_transparency_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_transparency_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="folder_open" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\folder_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="brush_size_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\brush_size_6.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Numbers_7" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Numbers_7.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="edit_undo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit_undo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="minus_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\minus_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="frame_preview_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_preview_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -395,8 +404,8 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="frame_new_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_new_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="line_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\line_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="padlock_open" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\padlock_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="filter_stroke" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filter_stroke.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -407,14 +416,11 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
   <data name="edit-cut" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\edit-cut.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="plus_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\plus_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="process-stop" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\process-stop.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="eraser_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\eraser_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="save_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\save_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ErrorLoadingFile" xml:space="preserve">
     <value>There was an error loading the file! It may be corrupted or not a valid Pixelaria file.</value>
@@ -435,20 +441,17 @@ Do you wish to edit the export path now?</value>
   <data name="frame_insert_new_icon1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_insert_new_icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="emblem-symbolic-link" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\emblem-symbolic-link.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Numbers_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Numbers_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="brush_size_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\brush_size_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="minus_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\minus_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="save_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\save_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="frame_onionskin_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_onionskin_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="MainForm_ConfirmDeleteAnimationShee" xml:space="preserve">
-    <value>Delete the selected animation sheet?</value>
   </data>
   <data name="eraser_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\eraser_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -456,8 +459,8 @@ Do you wish to edit the export path now?</value>
   <data name="spray_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\spray_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="frame_os_order" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\frame_os_order.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="picker_cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\picker_cursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Numbers_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Numbers_5.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -754,16 +757,16 @@ POSSIBILITY OF SUCH DAMAGES.
   <data name="Numbers_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Numbers_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Numbers_8" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Numbers_8.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="MainForm_ConfirmDeleteAnimationShee" xml:space="preserve">
+    <value>Delete the selected animation sheet?</value>
   </data>
   <data name="new_sheet" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\new_sheet.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="brush_size_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\brush_size_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="frame_os_prev" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\frame_os_prev.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="padlock_closed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\padlock_closed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="layer_flatten_layers" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\layer_flatten_layers.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

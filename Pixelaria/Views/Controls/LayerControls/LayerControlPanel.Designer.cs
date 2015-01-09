@@ -16,7 +16,10 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.pnl_container = new System.Windows.Forms.Panel();
             this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.cms_layersRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmb_combineLayers = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
+            this.cms_layersRightClick.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -63,6 +66,21 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.labeledPanel1.Size = new System.Drawing.Size(125, 18);
             this.labeledPanel1.TabIndex = 0;
             // 
+            // contextMenuStrip1
+            // 
+            this.cms_layersRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmb_combineLayers});
+            this.cms_layersRightClick.Name = "cms_layersRightClick";
+            this.cms_layersRightClick.Size = new System.Drawing.Size(160, 48);
+            // 
+            // cmb_combineLayers
+            // 
+            this.cmb_combineLayers.Image = global::Pixelaria.Properties.Resources.layer_flatten_layers;
+            this.cmb_combineLayers.Name = "cmb_combineLayers";
+            this.cmb_combineLayers.Size = new System.Drawing.Size(159, 22);
+            this.cmb_combineLayers.Text = "Combine Layers";
+            this.cmb_combineLayers.Click += new System.EventHandler(this.cmb_combineLayers_Click);
+            // 
             // LayerControlPanel
             // 
             this.Controls.Add(this.pnl_container);
@@ -72,6 +90,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.Name = "LayerControlPanel";
             this.Size = new System.Drawing.Size(125, 332);
             this.panel1.ResumeLayout(false);
+            this.cms_layersRightClick.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -79,5 +98,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private Button btn_createNewLayer;
         private ToolTip toolTip1;
         private System.ComponentModel.IContainer components;
+        private ContextMenuStrip cms_layersRightClick;
+        private ToolStripMenuItem cmb_combineLayers;
     }
 }

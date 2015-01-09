@@ -796,6 +796,16 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap layer_flatten_layers {
+            get {
+                object obj = ResourceManager.GetObject("layer_flatten_layers", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to                     GNU GENERAL PUBLIC LICENSE
         ///                       Version 2, June 1991
         ///

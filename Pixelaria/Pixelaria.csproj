@@ -658,6 +658,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\layer_flatten_layers.png" />
     <None Include="Resources\padlock_closed.png" />
     <None Include="Resources\padlock_open.png" />
     <None Include="Resources\frame_os_order.png" />

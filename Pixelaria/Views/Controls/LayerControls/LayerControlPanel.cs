@@ -56,6 +56,14 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _ignoreLayerStatusEvents;
 
         /// <summary>
+        /// Gets the LayerControl for the currently active layer
+        /// </summary>
+        public LayerControl ActiveLayerControl
+        {
+            get { return _layerControls[_controller.ActiveLayerIndex]; }
+        }
+
+        /// <summary>
         /// Gets the array of layer status for each layer
         /// </summary>
         public LayerStatus[] LayerStatuses
@@ -153,9 +161,9 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerMoved(object sender, LayerControllerLayerMovedEventArgs args)
         {
-            LayerControl secondLayer = _layerControls[args.SecondLayerIndex];
-            _layerControls[args.SecondLayerIndex] = _layerControls[args.FirstLayerIndex];
-            _layerControls[args.FirstLayerIndex] = secondLayer;
+            LayerControl secondLayer = _layerControls[args.NewIndex];
+            _layerControls[args.NewIndex] = _layerControls[args.LayerIndex];
+            _layerControls[args.LayerIndex] = secondLayer;
 
             ArrangeControls();
             ClearSelection();
@@ -386,6 +394,25 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
+        /// Combines all currently selected layers
+        /// </summary>
+        private void CombineLayers()
+        {
+            _controller.CombineLayers(SelectedLayers);
+        }
+
+        /// <summary>
+        /// Shows the context menu to be displayed when the user right clicks on the layers
+        /// </summary>
+        private void ShowLayersContextMenu()
+        {
+            // Update usability of the buttons
+            cmb_combineLayers.Enabled = SelectedControls.Length > 1;
+
+            cms_layersRightClick.Show(MousePosition);
+        }
+
+        /// <summary>
         /// Gets the layer control for the specified layer, or null, if none was found
         /// </summary>
         /// <param name="layer">A valid IFrameLayer that is currently registered on this layer control panel</param>
@@ -417,7 +444,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerControlClicked(object sender, LayerControl control)
         {
-            if(!ModifierKeys.HasFlag(Keys.Shift))
+            if (!ModifierKeys.HasFlag(Keys.Shift) && !ModifierKeys.HasFlag(Keys.Control))
             {
                 ClearSelection();
 
@@ -509,12 +536,42 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (control == null)
                 return;
 
-            // Select layers
-            if (ModifierKeys.HasFlag(Keys.Shift) && !_swappingControls)
+            // Open context menu
+            if (mouseEventArgs.Button == MouseButtons.Right)
             {
-                control.Selected = !control.Selected;
+                // If no controls are selected, select the control that was pressed
+                if (SelectedControls.Length == 0)
+                {
+                    control.Selected = true;
+                }
+
+                ShowLayersContextMenu();
 
                 return;
+            }
+
+            // Select layers
+            if (!_movingControls)
+            {
+                if (ModifierKeys.HasFlag(Keys.Shift))
+                {
+                    ClearSelection();
+
+                    // Select all layers from the current active layer to the selected control layer
+                    for (int i = Math.Min(ActiveLayerControl.Layer.Index, control.Layer.Index); i <= Math.Max(ActiveLayerControl.Layer.Index, control.Layer.Index); i++)
+                    {
+                        _layerControls[i].Selected = true;
+                    }
+
+                    return;
+                }
+                if (ModifierKeys.HasFlag(Keys.Control))
+                {
+                    // Select the control
+                    control.Selected = !control.Selected;
+
+                    return;
+                }
             }
 
             ClearSelection();
@@ -540,6 +597,18 @@ namespace Pixelaria.Views.Controls.LayerControls
             {
                 _controller.MoveLayer(index, newIndex);
             }
+        }
+
+        #endregion
+
+        #region Layers Context Menu
+
+        // 
+        // Combine Layers context menu
+        // 
+        private void cmb_combineLayers_Click(object sender, EventArgs e)
+        {
+            CombineLayers();
         }
 
         #endregion
