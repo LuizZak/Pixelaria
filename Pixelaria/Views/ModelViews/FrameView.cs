@@ -1930,6 +1930,7 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.LayerRemoved += OnLayerRemoved;
                 _layerController.LayerImageUpdated += OnLayerImageUpdated;
                 _layerController.LayersSwapped += OnLayersSwapped;
+                _layerController.BeforeLayerDuplicated += OnBeforeLayerDuplicated;
             }
 
             /// <summary>
@@ -2061,7 +2062,6 @@ namespace Pixelaria.Views.ModelViews
                     _frameView._undoSystem.RegisterUndo(new AddLayerUndoTask(args.FrameLayer, this));
 
                 _frameView.MarkModified();
-                UpdateEditActiveLayer();
             }
 
             // 
@@ -2093,11 +2093,27 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // 
+            // Before Layer Duplicated event handler
+            // 
+            private void OnBeforeLayerDuplicated(object sender, LayerControllerLayerDuplicatedEventArgs eventArgs)
+            {
+                // If the duplicated layer is the one currently active, finish any pending operations
+                if(_layerController.ActiveLayerIndex == eventArgs.LayerIndex)
+                {
+                    var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
+                    if (operation != null)
+                    {
+                        operation.FinishOperation(true);
+                    }
+                }
+            }
+
+            // 
             // Active Layer Index Changed event handler
             // 
             private void OnActiveLayerIndexChanged(object sender, ActiveLayerIndexChangedEventArgs args)
             {
-                // Finish any pending operations left
+                // Finish any pending operations
                 var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
                 if (operation != null)
                 {
