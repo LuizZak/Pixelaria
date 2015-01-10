@@ -827,6 +827,11 @@ namespace Pixelaria.Data
             public int Index { get; set; }
 
             /// <summary>
+            /// Gets or sets the name for this layer
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
             /// Gets this layer's bitmap content
             /// </summary>
             public Bitmap LayerBitmap
@@ -846,6 +851,7 @@ namespace Pixelaria.Data
             /// <param name="layerBitmap">The bitmap to bind to this layer</param>
             public FrameLayer(Bitmap layerBitmap)
             {
+                Name = string.Empty;
                 _layerBitmap = layerBitmap;
             }
 
@@ -855,7 +861,7 @@ namespace Pixelaria.Data
             /// <returns>A clone of this frame layer's object</returns>
             public IFrameLayer Clone()
             {
-                FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, _layerBitmap.PixelFormat));
+                FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, _layerBitmap.PixelFormat)) { Name = Name };
 
                 layer.CopyFromBitmap(_layerBitmap);
 
@@ -1029,6 +1035,11 @@ namespace Pixelaria.Data
         /// Gets the index of this layer on the origin frame
         /// </summary>
         int Index { get; }
+
+        /// <summary>
+        /// Gets or sets the name for this layer object
+        /// </summary>
+        string Name { get; set; }
 
         /// <summary>
         /// Gets the frame that owns this IFrameLayer object
