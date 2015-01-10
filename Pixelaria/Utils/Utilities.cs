@@ -30,7 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-
+using System.Windows.Forms;
 using Pixelaria.Data;
 
 namespace Pixelaria.Utils
@@ -479,6 +479,23 @@ namespace Pixelaria.Utils
             gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
             gfxPath.AddArc(bounds.X, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
             gfxPath.CloseAllFigures();
+        }
+
+        /// <summary>
+        /// Finds the control that is currently focused under the given control.
+        /// If no other control is focused, the passed control is returned
+        /// </summary>
+        /// <param name="control">The control to start searching under</param>
+        /// <returns>The control that is currently focused under the specified control</returns>
+        public static Control FindFocusedControl(Control control)
+        {
+            var container = control as IContainerControl;
+            while (container != null)
+            {
+                control = container.ActiveControl;
+                container = control as IContainerControl;
+            }
+            return control;
         }
     }
 }

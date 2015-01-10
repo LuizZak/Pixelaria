@@ -22,6 +22,8 @@ Legend:
 
 - When moving slices of the image with the selection tool, the preview panel's image is not updated accordingly.
 
+- When combining layers, the frame preview image is not updated properly.
+>> Fixed on Current Release
 
 -- v1.17.0b
 

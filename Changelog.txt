@@ -27,6 +27,7 @@ Legend:
   * Fixed applying filters not marking the animation as modified.
 
 . FrameView
+  + Added ability to rename layers by double clicking the layer label.
   + Now multiple layers can be selected with the Shift key. This is useful during operations that require multiple layers selected.
   + Added right-click menu button to combine selected layers.
   + Added slider for changing display transparency of layers.

@@ -36,6 +36,7 @@
             this.btn_remove = new System.Windows.Forms.Button();
             this.lbl_layerName = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.txt_layerNameEditBox = new System.Windows.Forms.TextBox();
             this.tcs_transparency = new Pixelaria.Views.Controls.TinyColorSlider();
             this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).BeginInit();
@@ -109,9 +110,23 @@
             this.lbl_layerName.TabIndex = 8;
             this.lbl_layerName.Text = "Layer 1";
             this.lbl_layerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lbl_layerName.DoubleClick += new System.EventHandler(this.lbl_layerName_DoubleClick);
+            // 
+            // txt_layerNameEditBox
+            // 
+            this.txt_layerNameEditBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txt_layerNameEditBox.Location = new System.Drawing.Point(24, 3);
+            this.txt_layerNameEditBox.Name = "txt_layerNameEditBox";
+            this.txt_layerNameEditBox.Size = new System.Drawing.Size(96, 13);
+            this.txt_layerNameEditBox.TabIndex = 10;
+            this.txt_layerNameEditBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txt_layerNameEditBox.Visible = false;
+            this.txt_layerNameEditBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_layerNameEditBox_KeyDown);
+            this.txt_layerNameEditBox.Leave += new System.EventHandler(this.txt_layerNameEditBox_Leave);
             // 
             // tcs_transparency
             // 
+            this.tcs_transparency.CurrentValue = 1F;
             this.tcs_transparency.Location = new System.Drawing.Point(24, 92);
             this.tcs_transparency.Name = "tcs_transparency";
             this.tcs_transparency.Size = new System.Drawing.Size(96, 10);
@@ -147,6 +162,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.txt_layerNameEditBox);
             this.Controls.Add(this.tcs_transparency);
             this.Controls.Add(this.lbl_layerName);
             this.Controls.Add(this.pb_layerImage);
@@ -159,6 +175,7 @@
             this.Size = new System.Drawing.Size(125, 105);
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -172,5 +189,6 @@
         private System.Windows.Forms.Label lbl_layerName;
         private System.Windows.Forms.ToolTip toolTip1;
         private TinyColorSlider tcs_transparency;
+        private System.Windows.Forms.TextBox txt_layerNameEditBox;
     }
 }

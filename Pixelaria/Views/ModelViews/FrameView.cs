@@ -1678,6 +1678,10 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void FrameView_KeyDown(object sender, KeyEventArgs e)
         {
+            // If the current focus is inside a text field, do not enable shortcuts
+            if (Utilities.FindFocusedControl(this) is TextBoxBase)
+                return;
+            
             // Switch the tool
             switch (e.KeyCode)
             {
@@ -1862,7 +1866,7 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         /// <summary>
-        /// Class that binds the frame view and layer controller
+        /// Class that binds the frame view and layer controller, handling control of the process of undo/redo and display updating between the two controls
         /// </summary>
         private class FrameViewLayerControllerBinder
         {
@@ -1931,6 +1935,7 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.LayerImageUpdated += OnLayerImageUpdated;
                 _layerController.LayerMoved += OnLayerMoved;
                 _layerController.BeforeLayerDuplicated += OnBeforeLayerDuplicated;
+                _layerController.LayerNameUpdated += OnLayerNameUpdated;
 
                 _layerController.BeforeLayersCombined += OnBeforeLayersCombined;
                 _layerController.LayersCombined += OnLayersCombined;
@@ -1949,10 +1954,16 @@ namespace Pixelaria.Views.ModelViews
                 _frameView.iepb_frame.UndoSystem.RedoPerformed -= OnUndoTaskPerformed;
 
                 _layerController.ActiveLayerIndexChanged -= OnActiveLayerIndexChanged;
+                _layerController.FrameChanged -= OnFrameChanged;
                 _layerController.LayerCreated -= OnLayerCreated;
                 _layerController.LayerRemoved -= OnLayerRemoved;
                 _layerController.LayerImageUpdated -= OnLayerImageUpdated;
                 _layerController.LayerMoved -= OnLayerMoved;
+                _layerController.BeforeLayerDuplicated -= OnBeforeLayerDuplicated;
+                _layerController.LayerNameUpdated -= OnLayerNameUpdated;
+
+                _layerController.BeforeLayersCombined -= OnBeforeLayersCombined;
+                _layerController.LayersCombined -= OnLayersCombined;
             }
 
             // 
@@ -2087,6 +2098,19 @@ namespace Pixelaria.Views.ModelViews
                 _frameView.lcp_layers.UpdateLayersDisplay();
                 _frameView.iepb_frame.PictureBox.Invalidate();
             }
+            // 
+            // Layer Name Updated event handler
+            // 
+            private void OnLayerNameUpdated(object sender, LayerControllerLayerNameUpdatedEventArgs args)
+            {
+                _frameView.MarkModified();
+
+                if(_generateUndos)
+                {
+                    // Register the undo
+                    _frameView._undoSystem.RegisterUndo(new LayerRenamedUndoTask(this, args.FrameLayer, args.OldLayerName, args.FrameLayer.Name));
+                }
+            }
 
             // 
             // Before Layer Duplicated event handler
@@ -2111,13 +2135,13 @@ namespace Pixelaria.Views.ModelViews
             {
                 _frameView._undoSystem.StartGroupUndo("Combine Layers");
             }
-
             // 
             // Layers Combined event handler
             // 
             private void OnLayersCombined(object sender, LayerControllerLayersCombinedEventArgs args)
             {
                 _frameView._undoSystem.FinishGroupUndo();
+                _frameView.RefreshFramePreview();
             }
 
             // 
@@ -2392,6 +2416,84 @@ namespace Pixelaria.Views.ModelViews
                 public string GetDescription()
                 {
                     return "Swap Layers";
+                }
+            }
+
+            /// <summary>
+            /// Represents an undo operation for a Set Layer Name operation
+            /// </summary>
+            private class LayerRenamedUndoTask : ILayerUndoTask
+            {
+                /// <summary>
+                /// The binder controller
+                /// </summary>
+                private readonly FrameViewLayerControllerBinder _binder;
+
+                /// <summary>
+                /// The layer that was renamed
+                /// </summary>
+                private readonly IFrameLayer _layer;
+
+                /// <summary>
+                /// The old name prior to the renaming
+                /// </summary>
+                private readonly string _oldName;
+
+                /// <summary>
+                /// The new name after the renaming
+                /// </summary>
+                private readonly string _newName;
+
+                /// <summary>
+                /// Initializes a new instance of the LayerRenamedUndoTask class
+                /// </summary>
+                /// <param name="binder">The binder controller</param>
+                /// <param name="layer">The layer that was renamed</param>
+                /// <param name="oldName">The old name prior to the renaming</param>
+                /// <param name="newName">The new name after the renaming</param>
+                public LayerRenamedUndoTask(FrameViewLayerControllerBinder binder, IFrameLayer layer, string oldName, string newName)
+                {
+                    _binder = binder;
+                    _layer = layer;
+                    _oldName = oldName;
+                    _newName = newName;
+                }
+
+                /// <summary>
+                /// Clears this task
+                /// </summary>
+                public void Clear()
+                {
+
+                }
+
+                /// <summary>
+                /// Undoes the task
+                /// </summary>
+                public void Undo()
+                {
+                    _binder._generateUndos = false;
+                    _binder._layerController.SetLayerName(_layer.Index, _oldName);
+                    _binder._generateUndos = true;
+                }
+
+                /// <summary>
+                /// Redoes the task
+                /// </summary>
+                public void Redo()
+                {
+                    _binder._generateUndos = false;
+                    _binder._layerController.SetLayerName(_layer.Index, _newName);
+                    _binder._generateUndos = true;
+                }
+
+                /// <summary>
+                /// Returns the description for this undo task
+                /// </summary>
+                /// <returns>The description for this undo task</returns>
+                public string GetDescription()
+                {
+                    return "Layer Renamed";
                 }
             }
 

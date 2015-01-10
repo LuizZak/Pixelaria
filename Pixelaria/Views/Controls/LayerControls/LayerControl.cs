@@ -103,6 +103,16 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _selected;
 
         /// <summary>
+        /// Whether the user is currently editing the layer's name
+        /// </summary>
+        private bool _editingName;
+
+        /// <summary>
+        /// The last active control before the layer edit operation started
+        /// </summary>
+        private Control _lastActiveControl;
+
+        /// <summary>
         /// Gets or sets a value specifying whether the layer is visible
         /// </summary>
         public bool LayerVisible
@@ -238,7 +248,6 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <param name="sender">The sender of the event</param>
         /// <param name="layer">The layer that was clicked</param>
         public delegate void LayerClickedEventHandler(object sender, LayerControl layer);
-
         /// <summary>
         /// Event called whenever the user clicks the layer
         /// </summary>
@@ -250,11 +259,21 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <param name="sender">The sender of the event</param>
         /// <param name="args">The event arguments for the event</param>
         public delegate void LayerControlDraggedEventHandler(object sender, LayerControlDragEventArgs args);
-
         /// <summary>
         /// Occurs whenever the user drags the layer in order to swap it with another layer up or down
         /// </summary>
         public event LayerControlDraggedEventHandler LayerControlDragged;
+
+        /// <summary>
+        /// Delegate for the LayerNameEdited event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="newName">The new display name for the layer</param>
+        public delegate void LayerControlNameEditedEventHandler(object sender, string newName);
+        /// <summary>
+        /// Occurs whenever the user finishes editing the display name for a layer
+        /// </summary>
+        public event LayerControlNameEditedEventHandler LayerNameEdited;
 
         /// <summary>
         /// Occurs whenever the user presses on the layer image area
@@ -294,7 +313,16 @@ namespace Pixelaria.Views.Controls.LayerControls
                 UpdateBitmapDisplay();
             }
 
-            lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
+            if (string.IsNullOrEmpty(_layer.Name))
+            {
+                lbl_layerName.ForeColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
+                lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
+            }
+            else
+            {
+                lbl_layerName.ForeColor = Color.Black;
+                lbl_layerName.Text = _layer.Name;
+            }
 
             btn_visible.Image = _layerVisible ? _layerVisibleImage : _layerHiddenImage;
             btn_locked.Image = _layerLocked ? _layerLockedImage : _layerUnlockedImage;
@@ -307,6 +335,50 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             pb_layerImage.Image = _layer.LayerBitmap;
             pb_layerImage.Invalidate();
+        }
+
+        /// <summary>
+        /// Begins the edit layer name operation
+        /// </summary>
+        private void BeginEditLayerName()
+        {
+            _lastActiveControl = Utilities.FindFocusedControl(FindForm());
+
+            _editingName = true;
+
+            txt_layerNameEditBox.Text = lbl_layerName.Text;
+
+            txt_layerNameEditBox.Visible = true;
+            txt_layerNameEditBox.Focus();
+            txt_layerNameEditBox.SelectAll();
+        }
+
+        /// <summary>
+        /// Ends the layer name editing, optionally commiting the edit
+        /// </summary>
+        /// <param name="commit">Whether to commit the edit and edit the underlying layer's name</param>
+        private void EndEditLayerName(bool commit)
+        {
+            if (!_editingName)
+                return;
+
+            // Do not fire any change notification if the label has not changed
+            if (commit && txt_layerNameEditBox.Text != lbl_layerName.Text)
+            {
+                if (LayerNameEdited != null)
+                {
+                    LayerNameEdited(this, txt_layerNameEditBox.Text);
+                }
+            }
+
+            _editingName = false;
+            txt_layerNameEditBox.Visible = false;
+
+            var form = FindForm();
+            if (form != null)
+                form.ActiveControl = _lastActiveControl;
+
+            _lastActiveControl = null;
         }
 
         // 
@@ -447,6 +519,37 @@ namespace Pixelaria.Views.Controls.LayerControls
             Transparency = eventArgs.NewColor.Af;
 
             _ignoreTransparencySliderUpdates = false;
+        }
+
+        // 
+        // Layer Name label double click
+        // 
+        private void lbl_layerName_DoubleClick(object sender, EventArgs e)
+        {
+            BeginEditLayerName();
+        }
+
+        // 
+        // Layer Name text box key down
+        // 
+        private void txt_layerNameEditBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                EndEditLayerName(true);
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                EndEditLayerName(false);
+            }
+        }
+
+        // 
+        // Layer Name text box focus leave
+        // 
+        private void txt_layerNameEditBox_Leave(object sender, EventArgs e)
+        {
+            EndEditLayerName(true);
         }
     }
 

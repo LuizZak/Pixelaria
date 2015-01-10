@@ -113,9 +113,20 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="args">The arguments for the event</param>
         public delegate void LayerImageUpdatedEventHandler(object sender, LayerControllerLayerImageUpdatedEventArgs args);
         /// <summary>
-        /// Event fired whenever a call to SetLayerBitmap is made
+        /// Event fired whenever a call to UpdateLayerBitmap is made
         /// </summary>
         public event LayerImageUpdatedEventHandler LayerImageUpdated;
+
+        /// <summary>
+        /// Delegate for the LayerNameUpdated event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void LayerNameUpdatedEventHandler(object sender, LayerControllerLayerNameUpdatedEventArgs args);
+        /// <summary>
+        /// Event fired whenever a call to SetLayerName is made
+        /// </summary>
+        public event LayerNameUpdatedEventHandler LayerNameUpdated;
 
         /// <summary>
         /// Delegate for the LayersCombined event
@@ -418,6 +429,24 @@ namespace Pixelaria.Controllers.LayerControlling
         }
 
         /// <summary>
+        /// Renames a specific layer
+        /// </summary>
+        /// <param name="layerIndex">The index of the layer to rename</param>
+        /// <param name="newName">The new name for the layer</param>
+        public void SetLayerName(int layerIndex, string newName)
+        {
+            var layer = _frame.GetLayerAt(layerIndex);
+            string oldName = layer.Name;
+
+            layer.Name = newName;
+
+            if (LayerNameUpdated != null)
+            {
+                LayerNameUpdated(this, new LayerControllerLayerNameUpdatedEventArgs(layer, oldName));
+            }
+        }
+
+        /// <summary>
         /// Duplicates the specified layer index
         /// </summary>
         /// <param name="layerIndex">The layer to duplicate</param>
@@ -575,6 +604,33 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             FrameLayer = frameLayer;
             OldLayerBitmap = oldLayerBitmap;
+        }
+    }
+
+    /// <summary>
+    /// Specifies the event arguments for a LayerNameUpdated event
+    /// </summary>
+    public class LayerControllerLayerNameUpdatedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the layer that was updated
+        /// </summary>
+        public IFrameLayer FrameLayer { get; private set; }
+
+        /// <summary>
+        /// Gets the old name before the layer name was updated
+        /// </summary>
+        public string OldLayerName { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the LayerControllerLayerNameUpdatedEventArgs class
+        /// </summary>
+        /// <param name="frameLayer">The layer that was updated</param>
+        /// <param name="oldLayerName">Gets the old name before the layer name was updated</param>
+        public LayerControllerLayerNameUpdatedEventArgs(IFrameLayer frameLayer, string oldLayerName)
+        {
+            FrameLayer = frameLayer;
+            OldLayerName = oldLayerName;
         }
     }
 

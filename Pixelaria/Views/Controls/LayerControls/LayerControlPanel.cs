@@ -132,6 +132,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             _controller.LayerMoved += OnLayerMoved;
             _controller.FrameChanged += OnFrameChanged;
             _controller.ActiveLayerIndexChanged += OnActiveLayerIndexChanged;
+            _controller.LayerNameUpdated += OnLayerNameUpdated;
 
             if (_controller.Frame != null)
                 ReloadLayers();
@@ -189,6 +190,15 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             // Update selected layer
             UpdateActiveLayerDisplay();
+        }
+
+        // 
+        // Layer Name Updated event handler
+        // 
+        private void OnLayerNameUpdated(object sender, LayerControllerLayerNameUpdatedEventArgs args)
+        {
+            // Update the display of the layer control associated with the layer
+            GetLayerControlForLayer(args.FrameLayer).UpdateDisplay();
         }
 
         // 
@@ -306,6 +316,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             control.DuplicateLayerSelected += OnDuplicateLayerSelected;
             control.RemoveLayerSelected += OnRemoveLayerSelected;
             control.LayerControlDragged += OnLayerControlDragged;
+            control.LayerNameEdited += OnLayerNameEdited;
 
             control.LayerImagePressed += OnLayerImagePressed;
             control.LayerImageReleased += OnLayerImageReleased;
@@ -334,6 +345,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             control.DuplicateLayerSelected -= OnDuplicateLayerSelected;
             control.RemoveLayerSelected -= OnRemoveLayerSelected;
             control.LayerControlDragged -= OnLayerControlDragged;
+            control.LayerNameEdited -= OnLayerNameEdited;
 
             control.LayerImagePressed -= OnLayerImagePressed;
             control.LayerImageReleased -= OnLayerImageReleased;
@@ -517,6 +529,18 @@ namespace Pixelaria.Views.Controls.LayerControls
             _layerControls[newIndex] = layerControl;
 
             ArrangeControls();
+        }
+
+        // 
+        // Layer Name Edited event handler
+        // 
+        private void OnLayerNameEdited(object sender, string newName)
+        {
+            LayerControl control = sender as LayerControl;
+            if (control == null)
+                return;
+
+            _controller.SetLayerName(control.Layer.Index, newName);
         }
 
         // 
