@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -38,22 +39,15 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to save the bitmap to</param>
         public static void SaveImageToStream(Bitmap bitmap, Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            // Save the image to a temporary memory stream so the write doesn't mess the original stream
+            using(MemoryStream memStream = new MemoryStream())
+            {
+                bitmap.Save(memStream, ImageFormat.Png);
 
-            // Save the space for the image size on the stream
-            long sizeOffset = stream.Position;
-            writer.Write((long)0);
-
-            // Save the frame image
-            bitmap.Save(stream, ImageFormat.Png);
-
-            // Skip back to the image size offset and save the size
-            long streamEnd = stream.Position;
-            stream.Position = sizeOffset;
-            writer.Write(streamEnd - sizeOffset - 8);
-
-            // Skip back to the end to keep saving
-            stream.Position = streamEnd;
+                // Write the bitmap size and contents to the target stream
+                stream.Write(BitConverter.GetBytes(memStream.Length), 0, 8);
+                stream.Write(memStream.GetBuffer(), 0, (int)memStream.Length);
+            }
         }
 
         /// <summary>
@@ -67,24 +61,25 @@ namespace Pixelaria.Data.Persistence
             // Read the size of the frame texture
             long textSize = reader.ReadInt64();
 
-            MemoryStream memStream = new MemoryStream();
+            Bitmap bitmap = null;
 
-            long pos = stream.Position;
+            using (MemoryStream memStream = new MemoryStream())
+            {
+                long pos = stream.Position;
 
-            byte[] buff = new byte[textSize];
-            stream.Read(buff, 0, buff.Length);
-            stream.Position = pos + textSize;
+                byte[] buff = new byte[textSize];
+                stream.Read(buff, 0, buff.Length);
+                stream.Position = pos + textSize;
 
-            memStream.Write(buff, 0, buff.Length);
+                memStream.Write(buff, 0, buff.Length);
 
-            Image img = Image.FromStream(memStream);
+                Bitmap img = (Bitmap)Image.FromStream(memStream);
 
-            // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
-            Bitmap bitmap = new Bitmap(img);
+                // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
+                bitmap = img.Clone(new Rectangle(Point.Empty, img.Size), img.PixelFormat);
 
-            img.Dispose();
-
-            memStream.Dispose();
+                img.Dispose();
+            }
 
             return bitmap;
         }

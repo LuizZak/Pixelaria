@@ -20,13 +20,14 @@ Legend:
 
 -- Current Release
 
+* Fixed images loaded from files having pixels of sligthly different colors sometimes.
 
 
 
 -- v1.17.4b
 
 * Updated the filter selection interface to enable free resizing.
-* Fixing Stroke filter starting with a wrongly attributed 100 value.
+* Fixed Stroke filter starting with a wrongly attributed 100 value.
 
 . AnimationView
   * Fixed applying filters not marking the animation as modified.
