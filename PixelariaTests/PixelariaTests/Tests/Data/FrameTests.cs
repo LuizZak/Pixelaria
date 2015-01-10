@@ -232,7 +232,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreEqual(frame, frame.GetLayerAt(0).Frame, "The Frame reference of the layer must match the frame that it was added to");
             Assert.AreEqual(3, frame.LayerCount, "The layer count must go up for each new layer added");
             Assert.AreEqual(1, frame.GetLayerAt(1).Index, "A layer's index must reflect its current position on the owning frame's layer list");
-            Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(1).LayerBitmap), "The layer bitmaps insertion must obey the index provided on AddLayer");
+            Assert.IsTrue(ImageUtilities.ImagesAreIdentical(layer2, frame.GetLayerAt(1).LayerBitmap), "The layer bitmaps insertion must obey the index provided on AddLayer");
         }
 
         /// <summary>
@@ -272,8 +272,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreEqual(0, frame.GetLayerAt(0).Index, "A layer's index must reflect its current position on the owning frame's layer list");
             Assert.AreEqual(2, frame.GetLayerAt(2).Index, "A layer's index must reflect its current position on the owning frame's layer list");
 
-            Assert.IsTrue(Utilities.ImagesAreIdentical(layer2, frame.GetLayerAt(0).LayerBitmap), "The layers have not been swapped correctly");
-            Assert.IsTrue(Utilities.ImagesAreIdentical(layer0, frame.GetLayerAt(2).LayerBitmap), "The layers have not been swapped correctly");
+            Assert.IsTrue(ImageUtilities.ImagesAreIdentical(layer2, frame.GetLayerAt(0).LayerBitmap), "The layers have not been swapped correctly");
+            Assert.IsTrue(ImageUtilities.ImagesAreIdentical(layer0, frame.GetLayerAt(2).LayerBitmap), "The layers have not been swapped correctly");
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             frame.SetLayerBitmap(1, layer1);
 
             // Test layer swapping by comparing the bitmaps
-            Assert.IsTrue(Utilities.ImagesAreIdentical(layer1, frame.GetLayerAt(1).LayerBitmap), "The layer bitmap has not been updated correctly");
+            Assert.IsTrue(ImageUtilities.ImagesAreIdentical(layer1, frame.GetLayerAt(1).LayerBitmap), "The layer bitmap has not been updated correctly");
         }
         
         /// <summary>
@@ -317,7 +317,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             // Test layer swapping by comparing the bitmaps
             Assert.AreEqual(null, layer.Frame, "After removing a layer from a frame, its Frame reference must be null");
-            Assert.IsTrue(Utilities.ImagesAreIdentical(bitmap, frame.GetLayerAt(0).LayerBitmap), "The layer does not appear to have been correctly removed");
+            Assert.IsTrue(ImageUtilities.ImagesAreIdentical(bitmap, frame.GetLayerAt(0).LayerBitmap), "The layer does not appear to have been correctly removed");
         }
 
         /// <summary>

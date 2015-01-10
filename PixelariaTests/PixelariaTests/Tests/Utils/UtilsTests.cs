@@ -42,12 +42,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             Bitmap bitmap2 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Test the equality
-            Assert.IsTrue(Utilities.ImagesAreIdentical(bitmap1, bitmap2), "ImagesAreIdentical should return true for images that are equal down to each pixel");
+            Assert.IsTrue(ImageUtilities.ImagesAreIdentical(bitmap1, bitmap2), "ImagesAreIdentical should return true for images that are equal down to each pixel");
 
             // Generate a different random bitmap
             bitmap2 = FrameGenerator.GenerateRandomBitmap(64, 64, 11);
 
-            Assert.IsFalse(Utilities.ImagesAreIdentical(bitmap1, bitmap2), "ImagesAreIdentical should return false for images that are not equal down to each pixel");
+            Assert.IsFalse(ImageUtilities.ImagesAreIdentical(bitmap1, bitmap2), "ImagesAreIdentical should return false for images that are not equal down to each pixel");
         }
     }
 }

@@ -289,7 +289,7 @@ namespace Pixelaria.Views.ModelViews
                 lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
                 lbl_framesOnSheet.Text = (_bundleSheetExport.FrameCount - _bundleSheetExport.ReusedFrameCount) + "";
                 lbl_reusedFrames.Text = (_bundleSheetExport.ReusedFrameCount) + "";
-                lbl_memoryUsage.Text = Utilities.FormatByteSize(Utilities.MemoryUsageOfImage(img));
+                lbl_memoryUsage.Text = Utilities.FormatByteSize(ImageUtilities.MemoryUsageOfImage(img));
 
                 if (pnl_alertPanel.Visible && lbl_alertLabel.Text == AnimationMessages.TextNoAnimationInSheetToGeneratePreview)
                 {

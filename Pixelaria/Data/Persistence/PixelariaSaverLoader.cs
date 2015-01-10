@@ -270,7 +270,7 @@ namespace Pixelaria.Data.Persistence
             else
             {
                 memStream.Position = 0;
-                hash = Utilities.GetHashForStream(memStream);
+                hash = ImageUtilities.GetHashForStream(memStream);
             }
 
             memStream.Dispose();

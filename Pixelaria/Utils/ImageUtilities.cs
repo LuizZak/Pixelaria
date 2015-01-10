@@ -21,10 +21,13 @@
 */
 
 using System;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 
@@ -245,6 +248,142 @@ namespace Pixelaria.Utils
                         fastTarget.SetPixel(x, y, Utilities.FlattenColor(fastTarget.GetPixel(x, y), fastForeBitmap.GetPixel(x, y)));
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// The hashing algorithm used for hashing the bitmaps
+        /// </summary>
+        private static readonly HashAlgorithm ShaM = new SHA256Managed();
+
+        /// <summary>
+        /// Returns a hash for the given Bitmap object
+        /// </summary>
+        /// <param name="bitmap">The bitmap to get the hash of</param>
+        /// <returns>The hash of the given bitmap</returns>
+        public static byte[] GetHashForBitmap(Bitmap bitmap)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                bitmap.Save(stream, ImageFormat.Png);
+
+                stream.Position = 0;
+
+                // Compute a hash for the image
+                byte[] hash = GetHashForStream(stream);
+
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Returns a hash for the given Stream object
+        /// </summary>
+        /// <param name="stream">The stream to get the hash of</param>
+        /// <returns>The hash of the given stream</returns>
+        public static byte[] GetHashForStream(Stream stream)
+        {
+            // Compute a hash for the image
+            return ShaM.ComputeHash(stream);
+        }
+
+        /// <summary>
+        /// Returns the memory usage of the given image, in bytes
+        /// </summary>
+        /// <returns>Total memory usage, in bytes</returns>
+        [Pure]
+        public static long MemoryUsageOfImage(Image image)
+        {
+            return image.Width * image.Height * BitsPerPixelForFormat(image.PixelFormat) / 8;
+        }
+
+        /// <summary>
+        /// Returns the total bits per pixel used by the given PixelFormat type
+        /// </summary>
+        /// <param name="pixelFormat">The PixelFormat to get the pixel usage from</param>
+        /// <returns>The total bits per pixel used by the given PixelFormat type</returns>
+        [Pure]
+        public static int BitsPerPixelForFormat(PixelFormat pixelFormat)
+        {
+            return Image.GetPixelFormatSize(pixelFormat);
+        }
+
+        /// <summary>
+        /// Returns whether the two given images are identical to the pixel level.
+        /// If the image dimensions are mis-matched, or any of the references is null, the method returns false.
+        /// </summary>
+        /// <param name="image1">The first image to compare</param>
+        /// <param name="image2">The second image to compare</param>
+        /// <returns>True whether the two images are identical, false otherwise</returns>
+        [Pure]
+        public static bool ImagesAreIdentical(Image image1, Image image2)
+        {
+            if (image1 == null || image2 == null)
+                return false;
+
+            if (image1 == image2)
+                return true;
+
+            if (image1.Size != image2.Size)
+                return false;
+
+            Bitmap bit1 = null;
+            Bitmap bit2 = null;
+
+            try
+            {
+                var bitmap1 = image1 as Bitmap;
+                var bitmap2 = image2 as Bitmap;
+
+                bit1 = (bitmap1 ?? new Bitmap(image1));
+                bit2 = (bitmap2 ?? new Bitmap(image2));
+
+                return CompareMemCmp(bit1, bit2);
+            }
+            finally
+            {
+                if (bit1 != null && bit1 != image1)
+                    bit1.Dispose();
+                if (bit2 != null && bit2 != image2)
+                    bit2.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Compares two memory sections and returns 0 if the memory segments are identical
+        /// </summary>
+        /// <param name="b1">The pointer to the first memory segment</param>
+        /// <param name="b2">The pointer to the second memory segment</param>
+        /// <param name="count">The number of bytes to compare</param>
+        /// <returns>0 if the memory segments are identical</returns>
+        [Pure]
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int memcmp(IntPtr b1, IntPtr b2, long count);
+
+        /// <summary>
+        /// Compares the memory portions of the two Bitmaps 
+        /// </summary>
+        /// <param name="b1">The first bitmap to compare</param>
+        /// <param name="b2">The second bitmap to compare</param>
+        /// <returns>Whether the two bitmaps are identical</returns>
+        [Pure]
+        private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
+        {
+            if (b1 == null || b2 == null) return false;
+
+            BitmapData bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            BitmapData bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            int len = bd1.Stride * b1.Height;
+
+            try
+            {
+                return memcmp(bd1.Scan0, bd2.Scan0, len) == 0;
+            }
+            finally
+            {
+                b1.UnlockBits(bd1);
+                b2.UnlockBits(bd2);
             }
         }
     }

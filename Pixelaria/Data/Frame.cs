@@ -707,10 +707,10 @@ namespace Pixelaria.Data
 
             // For composed mode, use the memory usage of the first layer
             if (composed)
-                return Utilities.MemoryUsageOfImage(_layers[0].LayerBitmap);
+                return ImageUtilities.MemoryUsageOfImage(_layers[0].LayerBitmap);
 
             // Calculate the usage of each layer individually
-            return _layers.Sum(layer => Utilities.MemoryUsageOfImage(layer.LayerBitmap));
+            return _layers.Sum(layer => ImageUtilities.MemoryUsageOfImage(layer.LayerBitmap));
         }
 
         /// <summary>
@@ -725,7 +725,7 @@ namespace Pixelaria.Data
 
             using (var bitmap = GetComposedBitmap())
             {
-                _hash = Utilities.GetHashForBitmap(bitmap);
+                _hash = ImageUtilities.GetHashForBitmap(bitmap);
             }
         }
 
@@ -964,7 +964,7 @@ namespace Pixelaria.Data
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return Utilities.ImagesAreIdentical(_layerBitmap, other._layerBitmap) && Index == other.Index;
+                return ImageUtilities.ImagesAreIdentical(_layerBitmap, other._layerBitmap) && Index == other.Index;
             }
 
             /// <summary>
