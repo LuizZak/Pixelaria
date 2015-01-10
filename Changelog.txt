@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.17.4b
+                  v1.17.5b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -20,6 +20,10 @@ Legend:
 
 -- Current Release
 
+
+-- v1.17.5b
+
+* Hotfixing crash related to loading bundle files from earlier versions of the program.
 * Fixed images loaded from files having pixels of sligthly different colors sometimes.
 
 

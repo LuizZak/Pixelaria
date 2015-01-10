@@ -22,7 +22,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 
@@ -183,7 +182,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 var bitmap = PersistenceHelper.LoadImageFromStream(stream);
                 frame.SetFrameBitmap(bitmap, false);
             }
-            else if (blockVersion > 1 && blockVersion <= CurrentVersion)
+            else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
             {
                 LoadLayersFromStream(stream, frame);
             }
