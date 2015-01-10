@@ -1019,5 +1019,17 @@ namespace Pixelaria.Controllers
         {
             return _defaultExporter.ExportBundleSheet(exportSettings, anims, callback);
         }
+
+        /// <summary>
+        /// Shows an interface for saving a sprite strip version of the specified animation
+        /// </summary>
+        /// <param name="animation">The animation to save a sprite strip out of</param>
+        public void ShowSaveAnimationStrip(Animation animation)
+        {
+            using (Image stripImage = DefaultExporter.GenerateSpriteStrip(animation))
+            {
+                ShowSaveImage(stripImage, animation.Name);
+            }
+        }
     }
 }

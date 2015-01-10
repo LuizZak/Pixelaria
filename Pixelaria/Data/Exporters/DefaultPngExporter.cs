@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -251,6 +252,35 @@ namespace Pixelaria.Data.Exporters
             packer.Pack(atlas, progressHandler);
 
             return atlas;
+        }
+
+        /// <summary>
+        /// Generates an image that represents the sequential sprite strip from the specified animation.
+        /// If the animation contains no frames, an empty 1x1 image is returned
+        /// </summary>
+        /// <param name="animation">The animation to generate the sprite strip image from</param>
+        /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
+        public Image GenerateSpriteStrip(Animation animation)
+        {
+            // If the frame count is 0, return an empty 1x1 image
+            if (animation.FrameCount == 0)
+            {
+                return new Bitmap(1, 1, PixelFormat.Format32bppArgb);
+            }
+
+            // Create the image
+            Bitmap stripBitmap = new Bitmap(animation.Width * animation.FrameCount, animation.Height);
+
+            // Copy the frames into the strip bitmap now
+            foreach (var frame in animation.Frames)
+            {
+                using (Bitmap composed = frame.GetComposedBitmap())
+                {
+                    FastBitmap.CopyRegion(composed, stripBitmap, new Rectangle(Point.Empty, frame.Size), new Rectangle(new Point(frame.Index * frame.Width, 0), frame.Size));
+                }
+            }
+
+            return stripBitmap;
         }
     }
 }

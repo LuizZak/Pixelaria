@@ -1266,6 +1266,14 @@ namespace Pixelaria.Views.ModelViews
             AddFramesFromFiles();
         }
 
+        // 
+        // Save Animation Strip
+        // 
+        private void tsm_saveAnimationStrip_Click(object sender, EventArgs e)
+        {
+            _controller.ShowSaveAnimationStrip(_viewAnimation);
+        }
+
         #endregion
 
         #region Edit menu

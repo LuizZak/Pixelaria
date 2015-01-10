@@ -52,7 +52,7 @@ namespace Pixelaria.Views
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Bundle");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Bundle");
             this.ts_mainStrip = new System.Windows.Forms.ToolStrip();
             this.tsb_new = new System.Windows.Forms.ToolStripButton();
             this.tsb_open = new System.Windows.Forms.ToolStripButton();
@@ -67,7 +67,7 @@ namespace Pixelaria.Views
             this.cms_bundleNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_createNewAnimation = new System.Windows.Forms.ToolStripMenuItem();
             this.cmb_importAnimation = new System.Windows.Forms.ToolStripMenuItem();
-            this.createNewBundleSheetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_createNewAnimationSheet = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_bundleSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.mm_menu = new System.Windows.Forms.MainMenu(this.components);
@@ -93,15 +93,16 @@ namespace Pixelaria.Views
             this.mi_about = new System.Windows.Forms.MenuItem();
             this.cms_sheetNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_deleteSheet = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsm_sheetCreateAnimation = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsm_sheetImportAnimation = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsm_duplicateSheet = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportSheetImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_sheetCreateAnimation = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_sheetImportAnimation = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_duplicateSheet = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_exportSheetImage = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsm_editSheetProperties = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_editSheetProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.cms_animationNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_deleteAnim = new System.Windows.Forms.ToolStripMenuItem();
-            this.duplicateAnimationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_duplicateAnimation = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmb_saveAnimationStrip = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_editAnimProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.splitter1 = new System.Windows.Forms.Splitter();
@@ -228,7 +229,7 @@ namespace Pixelaria.Views
             this.cms_bundleNodeRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_createNewAnimation,
             this.cmb_importAnimation,
-            this.createNewBundleSheetToolStripMenuItem,
+            this.cmb_createNewAnimationSheet,
             this.toolStripMenuItem1,
             this.cmb_bundleSettings});
             this.cms_bundleNodeRightClick.Name = "cms_nodeRightClick";
@@ -250,13 +251,13 @@ namespace Pixelaria.Views
             this.cmb_importAnimation.Text = "Import Animation...";
             this.cmb_importAnimation.Click += new System.EventHandler(this.cmb_importAnimationClick);
             // 
-            // createNewBundleSheetToolStripMenuItem
+            // cmb_createNewAnimationSheet
             // 
-            this.createNewBundleSheetToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.sheet_new;
-            this.createNewBundleSheetToolStripMenuItem.Name = "createNewBundleSheetToolStripMenuItem";
-            this.createNewBundleSheetToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
-            this.createNewBundleSheetToolStripMenuItem.Text = "Create New Animation Sheet...";
-            this.createNewBundleSheetToolStripMenuItem.Click += new System.EventHandler(this.createNewBundleSheetToolStripMenuItem_Click);
+            this.cmb_createNewAnimationSheet.Image = global::Pixelaria.Properties.Resources.sheet_new;
+            this.cmb_createNewAnimationSheet.Name = "cmb_createNewAnimationSheet";
+            this.cmb_createNewAnimationSheet.Size = new System.Drawing.Size(235, 22);
+            this.cmb_createNewAnimationSheet.Text = "Create New Animation Sheet...";
+            this.cmb_createNewAnimationSheet.Click += new System.EventHandler(this.createNewBundleSheetToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -420,12 +421,12 @@ namespace Pixelaria.Views
             // 
             this.cms_sheetNodeRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_deleteSheet,
-            this.tsm_sheetCreateAnimation,
-            this.tsm_sheetImportAnimation,
-            this.tsm_duplicateSheet,
-            this.exportSheetImageToolStripMenuItem,
+            this.cmb_sheetCreateAnimation,
+            this.cmb_sheetImportAnimation,
+            this.cmb_duplicateSheet,
+            this.cmb_exportSheetImage,
             this.toolStripMenuItem2,
-            this.tsm_editSheetProperties});
+            this.cmb_editSheetProperties});
             this.cms_sheetNodeRightClick.Name = "cms_sheetNodeRightClick";
             this.cms_sheetNodeRightClick.Size = new System.Drawing.Size(204, 142);
             // 
@@ -437,87 +438,96 @@ namespace Pixelaria.Views
             this.cmb_deleteSheet.Text = "Delete Sheet";
             this.cmb_deleteSheet.Click += new System.EventHandler(this.cmb_deleteSheet_Click);
             // 
-            // tsm_sheetCreateAnimation
+            // cmb_sheetCreateAnimation
             // 
-            this.tsm_sheetCreateAnimation.Image = global::Pixelaria.Properties.Resources.anim_new_icon;
-            this.tsm_sheetCreateAnimation.Name = "tsm_sheetCreateAnimation";
-            this.tsm_sheetCreateAnimation.Size = new System.Drawing.Size(203, 22);
-            this.tsm_sheetCreateAnimation.Text = "Create New Animation...";
-            this.tsm_sheetCreateAnimation.Click += new System.EventHandler(this.tsm_sheetCreateAnimation_Click);
+            this.cmb_sheetCreateAnimation.Image = global::Pixelaria.Properties.Resources.anim_new_icon;
+            this.cmb_sheetCreateAnimation.Name = "cmb_sheetCreateAnimation";
+            this.cmb_sheetCreateAnimation.Size = new System.Drawing.Size(203, 22);
+            this.cmb_sheetCreateAnimation.Text = "Create New Animation...";
+            this.cmb_sheetCreateAnimation.Click += new System.EventHandler(this.tsm_sheetCreateAnimation_Click);
             // 
-            // tsm_sheetImportAnimation
+            // cmb_sheetImportAnimation
             // 
-            this.tsm_sheetImportAnimation.Image = global::Pixelaria.Properties.Resources.edit_undo;
-            this.tsm_sheetImportAnimation.Name = "tsm_sheetImportAnimation";
-            this.tsm_sheetImportAnimation.Size = new System.Drawing.Size(203, 22);
-            this.tsm_sheetImportAnimation.Text = "Import Animation...";
-            this.tsm_sheetImportAnimation.Click += new System.EventHandler(this.tsm_sheetImportAnimation_Click);
+            this.cmb_sheetImportAnimation.Image = global::Pixelaria.Properties.Resources.edit_undo;
+            this.cmb_sheetImportAnimation.Name = "cmb_sheetImportAnimation";
+            this.cmb_sheetImportAnimation.Size = new System.Drawing.Size(203, 22);
+            this.cmb_sheetImportAnimation.Text = "Import Animation...";
+            this.cmb_sheetImportAnimation.Click += new System.EventHandler(this.tsm_sheetImportAnimation_Click);
             // 
-            // tsm_duplicateSheet
+            // cmb_duplicateSheet
             // 
-            this.tsm_duplicateSheet.Image = global::Pixelaria.Properties.Resources.sheet_duplicate_icon;
-            this.tsm_duplicateSheet.Name = "tsm_duplicateSheet";
-            this.tsm_duplicateSheet.Size = new System.Drawing.Size(203, 22);
-            this.tsm_duplicateSheet.Text = "Duplicate Sheet";
-            this.tsm_duplicateSheet.Click += new System.EventHandler(this.tsm_duplicateSheet_Click);
+            this.cmb_duplicateSheet.Image = global::Pixelaria.Properties.Resources.sheet_duplicate_icon;
+            this.cmb_duplicateSheet.Name = "cmb_duplicateSheet";
+            this.cmb_duplicateSheet.Size = new System.Drawing.Size(203, 22);
+            this.cmb_duplicateSheet.Text = "Duplicate Sheet";
+            this.cmb_duplicateSheet.Click += new System.EventHandler(this.tsm_duplicateSheet_Click);
             // 
-            // exportSheetImageToolStripMenuItem
+            // cmb_exportSheetImage
             // 
-            this.exportSheetImageToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.sheet_save_icon;
-            this.exportSheetImageToolStripMenuItem.Name = "exportSheetImageToolStripMenuItem";
-            this.exportSheetImageToolStripMenuItem.Size = new System.Drawing.Size(203, 22);
-            this.exportSheetImageToolStripMenuItem.Text = "Export Sheet Image...";
-            this.exportSheetImageToolStripMenuItem.Click += new System.EventHandler(this.exportSheetImageToolStripMenuItem_Click);
+            this.cmb_exportSheetImage.Image = global::Pixelaria.Properties.Resources.sheet_save_icon;
+            this.cmb_exportSheetImage.Name = "cmb_exportSheetImage";
+            this.cmb_exportSheetImage.Size = new System.Drawing.Size(203, 22);
+            this.cmb_exportSheetImage.Text = "Export Sheet Image...";
+            this.cmb_exportSheetImage.Click += new System.EventHandler(this.tsm_exportSheetImage_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(200, 6);
             // 
-            // tsm_editSheetProperties
+            // cmb_editSheetProperties
             // 
-            this.tsm_editSheetProperties.Image = global::Pixelaria.Properties.Resources.edit_properties;
-            this.tsm_editSheetProperties.Name = "tsm_editSheetProperties";
-            this.tsm_editSheetProperties.Size = new System.Drawing.Size(203, 22);
-            this.tsm_editSheetProperties.Text = "Edit Properties";
-            this.tsm_editSheetProperties.Click += new System.EventHandler(this.tsm_editSheetPropertiesClick);
+            this.cmb_editSheetProperties.Image = global::Pixelaria.Properties.Resources.edit_properties;
+            this.cmb_editSheetProperties.Name = "cmb_editSheetProperties";
+            this.cmb_editSheetProperties.Size = new System.Drawing.Size(203, 22);
+            this.cmb_editSheetProperties.Text = "Edit Properties";
+            this.cmb_editSheetProperties.Click += new System.EventHandler(this.tsm_editSheetPropertiesClick);
             // 
             // cms_animationNodeRightClick
             // 
             this.cms_animationNodeRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_deleteAnim,
-            this.duplicateAnimationToolStripMenuItem,
+            this.cmb_duplicateAnimation,
+            this.cmb_saveAnimationStrip,
             this.toolStripMenuItem3,
             this.cmb_editAnimProperties});
             this.cms_animationNodeRightClick.Name = "contextMenuStrip1";
-            this.cms_animationNodeRightClick.Size = new System.Drawing.Size(184, 76);
+            this.cms_animationNodeRightClick.Size = new System.Drawing.Size(194, 98);
             // 
             // cmb_deleteAnim
             // 
             this.cmb_deleteAnim.Image = global::Pixelaria.Properties.Resources.action_delete;
             this.cmb_deleteAnim.Name = "cmb_deleteAnim";
-            this.cmb_deleteAnim.Size = new System.Drawing.Size(183, 22);
+            this.cmb_deleteAnim.Size = new System.Drawing.Size(193, 22);
             this.cmb_deleteAnim.Text = "Delete Animation";
             this.cmb_deleteAnim.Click += new System.EventHandler(this.cmb_deleteAnim_Click);
             // 
-            // duplicateAnimationToolStripMenuItem
+            // cmb_duplicateAnimation
             // 
-            this.duplicateAnimationToolStripMenuItem.Image = global::Pixelaria.Properties.Resources.edit_copy;
-            this.duplicateAnimationToolStripMenuItem.Name = "duplicateAnimationToolStripMenuItem";
-            this.duplicateAnimationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.duplicateAnimationToolStripMenuItem.Text = "Duplicate Animation";
-            this.duplicateAnimationToolStripMenuItem.Click += new System.EventHandler(this.duplicateAnimationToolStripMenuItem_Click);
+            this.cmb_duplicateAnimation.Image = global::Pixelaria.Properties.Resources.edit_copy;
+            this.cmb_duplicateAnimation.Name = "cmb_duplicateAnimation";
+            this.cmb_duplicateAnimation.Size = new System.Drawing.Size(193, 22);
+            this.cmb_duplicateAnimation.Text = "Duplicate Animation";
+            this.cmb_duplicateAnimation.Click += new System.EventHandler(this.cmb_duplicateAnimation_Click);
+            // 
+            // cmb_saveAnimationStrip
+            // 
+            this.cmb_saveAnimationStrip.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
+            this.cmb_saveAnimationStrip.Name = "cmb_saveAnimationStrip";
+            this.cmb_saveAnimationStrip.Size = new System.Drawing.Size(193, 22);
+            this.cmb_saveAnimationStrip.Text = "Save Animation Strip...";
+            this.cmb_saveAnimationStrip.Click += new System.EventHandler(this.cmb_saveAnimationStrip_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(180, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(190, 6);
             // 
             // cmb_editAnimProperties
             // 
             this.cmb_editAnimProperties.Image = global::Pixelaria.Properties.Resources.edit_properties;
             this.cmb_editAnimProperties.Name = "cmb_editAnimProperties";
-            this.cmb_editAnimProperties.Size = new System.Drawing.Size(183, 22);
+            this.cmb_editAnimProperties.Size = new System.Drawing.Size(193, 22);
             this.cmb_editAnimProperties.Text = "Edit Properties";
             this.cmb_editAnimProperties.Click += new System.EventHandler(this.cmb_editAnimProperties_Click);
             // 
@@ -550,10 +560,10 @@ namespace Pixelaria.Views
             this.tv_bundleAnimations.LoadedProjectTree = null;
             this.tv_bundleAnimations.Location = new System.Drawing.Point(0, 25);
             this.tv_bundleAnimations.Name = "tv_bundleAnimations";
-            treeNode1.Name = "Node0";
-            treeNode1.Text = "Bundle";
+            treeNode2.Name = "Node0";
+            treeNode2.Text = "Bundle";
             this.tv_bundleAnimations.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
+            treeNode2});
             this.tv_bundleAnimations.SelectedImageIndex = 0;
             this.tv_bundleAnimations.Size = new System.Drawing.Size(275, 692);
             this.tv_bundleAnimations.TabIndex = 2;
@@ -612,10 +622,10 @@ namespace Pixelaria.Views
         private System.Windows.Forms.MenuItem mi_cascade;
         private System.Windows.Forms.MenuItem mi_tileHorizontally;
         private System.Windows.Forms.MenuItem mi_arrangeIcons;
-        private System.Windows.Forms.ToolStripMenuItem createNewBundleSheetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cmb_createNewAnimationSheet;
         private System.Windows.Forms.ToolStripButton tsb_createAnimationSheet;
         private System.Windows.Forms.ContextMenuStrip cms_sheetNodeRightClick;
-        private System.Windows.Forms.ToolStripMenuItem tsm_editSheetProperties;
+        private System.Windows.Forms.ToolStripMenuItem cmb_editSheetProperties;
         private System.Windows.Forms.ToolStripButton tsb_new;
         private System.Windows.Forms.ToolStripButton tsb_open;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -626,8 +636,8 @@ namespace Pixelaria.Views
         private System.Windows.Forms.MenuItem menuItem8;
         private System.Windows.Forms.MenuItem menuItem6;
         private System.Windows.Forms.MenuItem mi_saveAs;
-        private System.Windows.Forms.ToolStripMenuItem tsm_sheetCreateAnimation;
-        private System.Windows.Forms.ToolStripMenuItem tsm_sheetImportAnimation;
+        private System.Windows.Forms.ToolStripMenuItem cmb_sheetCreateAnimation;
+        private System.Windows.Forms.ToolStripMenuItem cmb_sheetImportAnimation;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ContextMenuStrip cms_animationNodeRightClick;
@@ -638,11 +648,12 @@ namespace Pixelaria.Views
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton tsb_exportButton;
         private System.Windows.Forms.Splitter splitter1;
-        private System.Windows.Forms.ToolStripMenuItem duplicateAnimationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem tsm_duplicateSheet;
-        private System.Windows.Forms.ToolStripMenuItem exportSheetImageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cmb_duplicateAnimation;
+        private System.Windows.Forms.ToolStripMenuItem cmb_duplicateSheet;
+        private System.Windows.Forms.ToolStripMenuItem cmb_exportSheetImage;
         private System.Windows.Forms.MenuItem mi_fileBug;
         private System.Windows.Forms.MenuItem menuItem3;
         private System.Windows.Forms.ImageList il_treeView;
+        private System.Windows.Forms.ToolStripMenuItem cmb_saveAnimationStrip;
     }
 }

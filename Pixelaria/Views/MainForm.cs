@@ -1148,7 +1148,7 @@ namespace Pixelaria.Views
         // 
         // Export Animation Sheet context menu click
         // 
-        private void exportSheetImageToolStripMenuItem_Click(object sender, EventArgs e)
+        private void tsm_exportSheetImage_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
             AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
@@ -1190,7 +1190,7 @@ namespace Pixelaria.Views
         // 
         // Duplicat Animation context menu button click
         // 
-        private void duplicateAnimationToolStripMenuItem_Click(object sender, EventArgs e)
+        private void cmb_duplicateAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
             Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
@@ -1198,6 +1198,20 @@ namespace Pixelaria.Views
             if (anim != null)
             {
                 Controller.ShowDuplicateAnimation(anim);
+            }
+        }
+
+        // 
+        // Save Animation Strip context menu button click
+        // 
+        private void cmb_saveAnimationStrip_Click(object sender, EventArgs e)
+        {
+            // Get the currently selected AnimationSheet node
+            Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
+
+            if (anim != null)
+            {
+                Controller.ShowSaveAnimationStrip(anim);
             }
         }
 

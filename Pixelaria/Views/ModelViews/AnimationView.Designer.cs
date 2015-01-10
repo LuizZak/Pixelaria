@@ -54,6 +54,7 @@ namespace Pixelaria.Views.ModelViews
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationView));
             this.il_framesThumbs = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
             this.cb_enablePreview = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.animationPreviewPanel = new Pixelaria.Views.ModelViews.AnimationPreviewPanel();
@@ -130,7 +131,7 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_addFrameFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_pasteFrames = new System.Windows.Forms.ToolStripMenuItem();
-            this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
+            this.tsm_saveAnimationStrip = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -173,6 +174,15 @@ namespace Pixelaria.Views.ModelViews
             this.splitContainer1.Size = new System.Drawing.Size(792, 411);
             this.splitContainer1.SplitterDistance = 210;
             this.splitContainer1.TabIndex = 2;
+            // 
+            // labeledPanel1
+            // 
+            this.labeledPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labeledPanel1.Location = new System.Drawing.Point(0, 0);
+            this.labeledPanel1.Name = "labeledPanel1";
+            this.labeledPanel1.PanelTitle = "Animation Preview";
+            this.labeledPanel1.Size = new System.Drawing.Size(210, 18);
+            this.labeledPanel1.TabIndex = 2;
             // 
             // cb_enablePreview
             // 
@@ -484,7 +494,8 @@ namespace Pixelaria.Views.ModelViews
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsm_addFrameFromFile});
+            this.tsm_addFrameFromFile,
+            this.tsm_saveAnimationStrip});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -493,7 +504,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_addFrameFromFile.Image = global::Pixelaria.Properties.Resources.frame_open_icon;
             this.tsm_addFrameFromFile.Name = "tsm_addFrameFromFile";
-            this.tsm_addFrameFromFile.Size = new System.Drawing.Size(187, 22);
+            this.tsm_addFrameFromFile.Size = new System.Drawing.Size(190, 22);
             this.tsm_addFrameFromFile.Text = "&Add frame from file...";
             this.tsm_addFrameFromFile.Click += new System.EventHandler(this.tsm_addFrameFromFile_Click);
             // 
@@ -862,14 +873,13 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_pasteFrames.Text = "Paste";
             this.cmb_pasteFrames.Click += new System.EventHandler(this.cmb_pasteFrames_Click);
             // 
-            // labeledPanel1
+            // tsm_saveAnimationStrip
             // 
-            this.labeledPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.labeledPanel1.Location = new System.Drawing.Point(0, 0);
-            this.labeledPanel1.Name = "labeledPanel1";
-            this.labeledPanel1.PanelTitle = "Animation Preview";
-            this.labeledPanel1.Size = new System.Drawing.Size(210, 18);
-            this.labeledPanel1.TabIndex = 2;
+            this.tsm_saveAnimationStrip.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
+            this.tsm_saveAnimationStrip.Name = "tsm_saveAnimationStrip";
+            this.tsm_saveAnimationStrip.Size = new System.Drawing.Size(190, 22);
+            this.tsm_saveAnimationStrip.Text = "Save animation strip...";
+            this.tsm_saveAnimationStrip.Click += new System.EventHandler(this.tsm_saveAnimationStrip_Click);
             // 
             // AnimationView
             // 
@@ -995,5 +1005,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem cmb_addFrameFromFile;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
         private Controls.LabeledPanel labeledPanel1;
+        private System.Windows.Forms.ToolStripMenuItem tsm_saveAnimationStrip;
     }
 }

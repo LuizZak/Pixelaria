@@ -78,5 +78,13 @@ namespace Pixelaria.Data.Exporters
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
         TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null);
+
+        /// <summary>
+        /// Generates an image that represents the sequential sprite strip from the specified animation.
+        /// If the animation contains no frames, an empty 1x1 image is returned
+        /// </summary>
+        /// <param name="animation">The animation to generate the sprite strip image from</param>
+        /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
+        Image GenerateSpriteStrip(Animation animation);
     }
 }
