@@ -138,6 +138,7 @@
     <Compile Include="Algorithms\PaintOperations\PencilPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Controllers\LayerControlling\LayerController.cs" />
+    <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
