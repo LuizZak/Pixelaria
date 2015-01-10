@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.17.0b
+                  v1.17.4b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright © 2013 Luiz Fernando Silva
@@ -22,8 +22,12 @@ Legend:
 
 - When moving slices of the image with the selection tool, the preview panel's image is not updated accordingly.
 
+
+-- v1.17.4b
+
 - When combining layers, the frame preview image is not updated properly.
->> Fixed on Current Release
+>> Fixed on v1.17.4b
+
 
 -- v1.17.0b
 

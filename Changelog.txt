@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.17.0b
+                  v1.17.4b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright ù© 2013 Luiz Fernando Silva
@@ -18,7 +18,12 @@ Legend:
 * Fix/Change
 . Note
 
--- Current Version
+-- Current Release
+
+
+
+
+-- v1.17.4b
 
 * Updated the filter selection interface to enable free resizing.
 * Fixing Stroke filter starting with a wrongly attributed 100 value.
