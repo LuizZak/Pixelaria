@@ -20,14 +20,8 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data.Persistence;
 using Pixelaria.Utils;
@@ -63,9 +57,6 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             // Load the bitmaps back up again one at a time
             Bitmap loadedBitmap1 = PersistenceHelper.LoadImageFromStream(stream);
             Bitmap loadedBitmap2 = PersistenceHelper.LoadImageFromStream(stream);
-
-            Color c1 = bitmap1.GetPixel(47, 36);
-            Color c2 = loadedBitmap1.GetPixel(47, 36);
 
             // Compare images
             Assert.IsTrue(ImageUtilities.ImagesAreIdentical(bitmap1, loadedBitmap1), "An image loaded from a stream must match completely the image that was saved");

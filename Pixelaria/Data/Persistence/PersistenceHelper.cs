@@ -61,7 +61,7 @@ namespace Pixelaria.Data.Persistence
             // Read the size of the frame texture
             long textSize = reader.ReadInt64();
 
-            Bitmap bitmap = null;
+            Bitmap bitmap;
 
             using (MemoryStream memStream = new MemoryStream())
             {
