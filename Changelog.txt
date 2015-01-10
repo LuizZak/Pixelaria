@@ -20,6 +20,10 @@ Legend:
 
 -- Current Release
 
+. AnimationView
+  + Added ability to load multiple frames from files at once.
+
+
 
 -- v1.17.5b
 

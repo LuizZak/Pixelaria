@@ -874,7 +874,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
         /// <param name="owner">An optional owner for the file dialog</param>
-        /// <returns>The selected load path, or an empty string if the user has not chosen a load path</returns>
+        /// <returns>The selected image, or null if the user has not chosen an image</returns>
         public Image ShowLoadImage(string fileName = "", IWin32Window owner = null)
         {
             string filePath;
@@ -888,7 +888,7 @@ namespace Pixelaria.Controllers
         /// <param name="filePath">The file path that was chosen for the file. Returned as an empty string when no file was chosen</param>
         /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
         /// <param name="owner">An optional owner for the file dialog</param>
-        /// <returns>The selected load path, or an empty string if the user has not chosen a load path</returns>
+        /// <returns>>The selected image, or null if the user has not chosen an image</returns>
         public Image ShowLoadImage(out string filePath, string fileName = "", IWin32Window owner = null)
         {
             filePath = string.Empty;
@@ -911,6 +911,53 @@ namespace Pixelaria.Controllers
                 {
                     filePath = "";
                     MessageBox.Show(@"Error loading selected image. It may not be in a valid image file format.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Shows a dialog to load multiple images from disk, and returns the loaded image files.
+        /// Returns null if the user has canceled
+        /// </summary>
+        /// <param name="owner">An optional owner for the file dialog</param>
+        /// <returns>The images the user opened, or null, if no images were chosen</returns>
+        public Image[] ShowLoadImages(IWin32Window owner = null)
+        {
+            string[] filePaths;
+            return ShowLoadImages(out filePaths, owner);
+        }
+
+        /// <summary>
+        /// Shows a dialog to load multiple images from disk, and returns the loaded image files.
+        /// Returns null if the user has canceled
+        /// </summary>
+        /// <param name="filePaths">The file paths that were chosen for the files. Returned as an empty array when no files were chosen</param>
+        /// <param name="owner">An optional owner for the file dialog</param>
+        /// <returns>The images the user opened, or null, if no images were chosen</returns>
+        public Image[] ShowLoadImages(out string[] filePaths, IWin32Window owner = null)
+        {
+            filePaths = new string[0];
+
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
+                Multiselect = true
+            };
+
+            if (ofd.ShowDialog(owner) == DialogResult.OK)
+            {
+                filePaths = ofd.FileNames;
+
+                try
+                {
+                    return filePaths.Select(Image.FromFile).ToArray();
+                }
+                catch (Exception)
+                {
+                    filePaths = new string[0];
+                    MessageBox.Show(@"Error loading selected images. They may not all be valid image file formats.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 

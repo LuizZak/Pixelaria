@@ -976,40 +976,53 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Displays an interface for adding frames from external files
         /// </summary>
-        private void AddFrameFromFile()
+        private void AddFramesFromFiles()
         {
-            Image image = _controller.ShowLoadImage(owner: this);
-            
+            Image[] images = _controller.ShowLoadImages(this);
+
+            // If the array is null, no images were chosen
+            if (images == null)
+            {
+                return;
+            }
+
             try
             {
-                Bitmap tempBit = (Bitmap)image;
-
-                var bit = new Bitmap(tempBit);
-
-                tempBit.Dispose();
-
                 FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
 
-                if (bit.Size != _viewAnimation.Size)
+                foreach (var image in images)
                 {
-                    FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
+                    if (image.Size != _viewAnimation.Size)
+                    {
+                        FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frames being loaded have a different resolution than the target animation. Please select the scaling options for the frames:");
 
-                    if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
-                    {
-                        sizeMatching = sizeMatchingForm.GeneratedSettings;
-                    }
-                    else
-                    {
+                        if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
+                        {
+                            sizeMatching = sizeMatchingForm.GeneratedSettings;
+                            break;
+                        }
+
                         return;
                     }
                 }
 
+                List<Frame> frames = new List<Frame>();
+
+                foreach (Image image in images)
+                {
+                    Bitmap tempBit = (Bitmap)image;
+                    var bit = tempBit.Clone(new Rectangle(Point.Empty, tempBit.Size), tempBit.PixelFormat);
+                    tempBit.Dispose();
+
+                    Frame frame = _controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
+                    frame.SetFrameBitmap(bit);
+
+                    frames.Add(frame);
+                }
+
                 AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
-                Frame frame = _controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
-                frame.SetFrameBitmap(bit);
-
-                _viewAnimation.AddFrames(new [] { frame }, sizeMatching);
+                _viewAnimation.AddFrames(frames.ToArray(), sizeMatching);
 
                 undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
@@ -1250,7 +1263,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_addFrameFromFile_Click(object sender, EventArgs e)
         {
-            AddFrameFromFile();
+            AddFramesFromFiles();
         }
 
         #endregion
@@ -1533,7 +1546,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cmb_addFrameFromFile_Click(object sender, EventArgs e)
         {
-            AddFrameFromFile();
+            AddFramesFromFiles();
         }
 
         // 

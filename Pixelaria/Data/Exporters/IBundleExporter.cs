@@ -77,6 +77,6 @@ namespace Pixelaria.Data.Exporters
         /// <param name="sheet">The AnimationSheet to generate the TextureAtlas of</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
-        TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null);        
+        TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null);
     }
 }
