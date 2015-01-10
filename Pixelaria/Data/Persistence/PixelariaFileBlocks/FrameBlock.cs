@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Text;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -32,6 +33,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
     /// </summary>
     public class FrameBlock : FileBlock
     {
+        /// <summary>
+        /// The current block version for this frame block
+        /// </summary>
+        private const int CurrentVersion = 2;
+
         /// <summary>
         /// The frame bieng manipulated by this FrameBlock
         /// </summary>
@@ -61,7 +67,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             : this()
         {
             _frame = frame;
-            blockVersion = 1;
+            blockVersion = CurrentVersion;
         }
 
         /// <summary>
@@ -141,8 +147,22 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             for (int i = 0; i < frame.LayerCount; i++)
             {
-                SaveImageToStream(frame.GetLayerAt(i).LayerBitmap, stream);
+                SaveLayerToStream(frame.GetLayerAt(i), stream);
             }
+        }
+
+        /// <summary>
+        /// Saves the contents of a layer to a stream
+        /// </summary>
+        /// <param name="layer">The layer to save</param>
+        /// <param name="stream">The stream to save the layer to</param>
+        private void SaveLayerToStream(IFrameLayer layer, Stream stream)
+        {
+            // Save the layer's name
+            BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8);
+            writer.Write(layer.Name);
+
+            SaveImageToStream(layer.LayerBitmap, stream);
         }
 
         /// <summary>
@@ -188,7 +208,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 var bitmap = LoadImageFromStream(stream);
                 frame.SetFrameBitmap(bitmap, false);
             }
-            else if (blockVersion == 1)
+            else if (blockVersion > 1 && blockVersion <= CurrentVersion)
             {
                 LoadLayersFromStream(stream, frame);
             }
@@ -230,13 +250,37 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             for (int i = 0; i < layerCount; i++)
             {
-                Bitmap layerBitmap = LoadImageFromStream(stream);
-
-                frame.AddLayer(layerBitmap);
+                LoadLayerFromStream(frame, stream);
             }
 
             // Remove the first default layer of the frame
             frame.RemoveLayerAt(0);
+        }
+
+        /// <summary>
+        /// Loads a single layer from a specified stream
+        /// </summary>
+        /// <param name="frame">The frame to load the layer into</param>
+        /// <param name="stream">The stream to load the layer from</param>
+        private void LoadLayerFromStream(Frame frame, Stream stream)
+        {
+            // Load the layer's name
+            string name = null;
+
+            if(blockVersion >= 2)
+            {
+                BinaryReader reader = new BinaryReader(stream, Encoding.UTF8);
+                name = reader.ReadString();
+            }
+
+            Bitmap layerBitmap = LoadImageFromStream(stream);
+            IFrameLayer layer = frame.AddLayer(layerBitmap);
+
+            // Add the attributes that were loaded earlier
+            if (name != null)
+            {
+                layer.Name = name;
+            }
         }
 
         /// <summary>
