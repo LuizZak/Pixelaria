@@ -22,6 +22,8 @@ Legend:
 
 + Added ability to sabe a specified animation as a single sequential sprite strip image.
 
+* Fixed resizing images with the Stretch mode making them slightly offset.
+
 . AnimationView
   + Added ability to load multiple frames from files at once.
 

@@ -106,6 +106,7 @@ namespace Pixelaria.Utils
             Graphics graphics = Graphics.FromImage(newTexture);
 
             graphics.InterpolationMode = interpolationMode;
+            graphics.PixelOffsetMode = PixelOffsetMode.Half;
             graphics.DrawImage(image, newBounds);
 
             graphics.Flush();
