@@ -349,6 +349,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                         ColorPickAtPoint(pencil);
                     }
                 }
+
+                lastMousePosition = mouseControlPoint;
             }
         }
 

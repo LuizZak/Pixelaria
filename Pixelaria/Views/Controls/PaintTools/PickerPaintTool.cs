@@ -24,7 +24,6 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
 namespace Pixelaria.Views.Controls.PaintTools

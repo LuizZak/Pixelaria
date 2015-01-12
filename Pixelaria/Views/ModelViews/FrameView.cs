@@ -1852,9 +1852,12 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void OnColorPicked(object sender, PaintToolColorPickedEventArgs args)
         {
-            Color colorAt = _viewFrameBitmap.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
-
-            iepb_frame.FireColorChangeEvent(colorAt);
+            // Pick the color from the composed bitmap
+            using(var composed = FrameRenderer.ComposeFrame(_viewFrame, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
+            {
+                Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
+                iepb_frame.FireColorChangeEvent(colorAt);
+            }
         }
 
         // 
