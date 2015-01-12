@@ -42,6 +42,7 @@ using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews.Decorators;
 
 using Pixelaria.Utils;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -404,6 +405,12 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="paintTool">The new paint operation to replace the current one</param>
         private void ChangePaintOperation(IPaintTool paintTool)
         {
+            var basePaintTool = iepb_frame.CurrentPaintTool as BasePaintTool;
+            if (basePaintTool != null)
+            {
+                basePaintTool.ColorPicked -= OnColorPicked;
+            }
+
             iepb_frame.CurrentPaintTool = paintTool;
 
             gb_sizeGroup.Visible = paintTool is ISizedPaintTool;
@@ -413,6 +420,10 @@ namespace Pixelaria.Views.ModelViews
             if (paintTool is IAirbrushPaintTool)
             {
                 (paintTool as IAirbrushPaintTool).AirbrushMode = cb_airbrushMode.Checked;
+            }
+            if (paintTool is BasePaintTool)
+            {
+                (paintTool as BasePaintTool).ColorPicked += OnColorPicked;
             }
 
             // Focus on the canvas
@@ -1756,6 +1767,8 @@ namespace Pixelaria.Views.ModelViews
             cp_mainColorPicker.SetCurrentColor(eventArgs.Color);
         }
 
+        #region Image Edit Panel events
+
         // 
         // Image Edit Panel color select event handler
         // 
@@ -1830,6 +1843,18 @@ namespace Pixelaria.Views.ModelViews
         private void iepb_frame_MouseLeave(object sender, EventArgs e)
         {
             UpdateMouseLocationLabel();
+        }
+
+        #endregion
+
+        // 
+        // Paint Tool Color Picked event handler
+        // 
+        private void OnColorPicked(object sender, PaintToolColorPickedEventArgs args)
+        {
+            Color colorAt = _viewFrameBitmap.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
+
+            iepb_frame.FireColorChangeEvent(colorAt);
         }
 
         // 

@@ -24,6 +24,12 @@ Legend:
 
 - Setting the FPS of an animation down to zero and putting it back up again freezes the animation playback.
 
+- Sometimes, pasting an image portion on a layer pastes the image on another, non-active layer.
+
+- Opening an animation that has 0 FPS skips the first frame over to the second on the preview panel.
+
+- Selecting a color with the middle mouse button out of bounds results in an exception window.
+>> Fixed on Current Release
 
 -- v1.17.4b
 

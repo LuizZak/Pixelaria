@@ -28,7 +28,7 @@ using System.Windows.Forms;
 
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
-
+using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
@@ -136,9 +136,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
             else if (e.Button == MouseButtons.Middle)
             {
-                _firstColor = pictureBox.Bitmap.GetPixel(point.X, point.Y);
-
-                pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
+                ColorPickAtPoint(point);
             }
         }
 
@@ -159,9 +157,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (mouse != mouseLast && WithinBounds(mouse))
                 {
-                    _firstColor = pictureBox.Bitmap.GetPixel(mouse.X, mouse.Y);
-
-                    pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
+                    ColorPickAtPoint(mouse);
                 }
             }
 

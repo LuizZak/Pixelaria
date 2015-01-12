@@ -28,6 +28,7 @@ using System.Windows.Forms;
 
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
+using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
@@ -320,14 +321,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             {
                 mouseDown = true;
 
-                // Set pen to first color because color picking always changes the first color
-                penId = 0;
-
-                Color colorAt = pictureBox.Bitmap.GetPixel(absolutePencil.X, absolutePencil.Y);
-
-                pictureBox.OwningPanel.FireColorChangeEvent(colorAt);
-
-                pictureBox.Invalidate();
+                ColorPickAtPoint(absolutePencil);
             }
         }
 
@@ -350,13 +344,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 }
                 else if (e.Button == MouseButtons.Middle)
                 {
-                    if (pencil != pencilLast && WithinBounds(pencil))
+                    if (pencil != pencilLast)
                     {
-                        Color colorAt = pictureBox.Bitmap.GetPixel(pencil.X, pencil.Y);
-
-                        pictureBox.OwningPanel.FireColorChangeEvent(colorAt);
-
-                        pictureBox.Invalidate();
+                        ColorPickAtPoint(pencil);
                     }
                 }
             }

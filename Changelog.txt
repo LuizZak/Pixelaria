@@ -24,6 +24,10 @@ Legend:
 
 * Fixed resizing images with the Stretch mode making them slightly offset.
 
+. FrameView
+  * Fixed clicking a recently selected area without moving it marking the window with unsaved changes even though nothing was modified.
+  * Fixed crash related to trying to color pick out of bounds of the image with the pencil and bucket tools.
+
 . AnimationView
   + Added ability to load multiple frames from files at once.
 

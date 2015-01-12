@@ -542,7 +542,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                     movingSelection = false;
                     displaySelection = true;
 
-                    if(_operationMode != SelectionOperationType.Paste)
+                    if(_operationMode != SelectionOperationType.Paste && selectedArea != selectedStartArea)
                         pictureBox.MarkModified();
 
                     UpdateClipboardState();

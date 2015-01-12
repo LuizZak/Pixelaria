@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
@@ -57,6 +58,18 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         public virtual bool Loaded { get; protected set; }
 
         /// <summary>
+        /// Delegate for the ColorPicked event
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void ColorPickedEventHandler(object sender, PaintToolColorPickedEventArgs args);
+
+        /// <summary>
+        /// Occurs whenever the user picks a color with this BasePaintTool
+        /// </summary>
+        public event ColorPickedEventHandler ColorPicked;
+
+        /// <summary>
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
@@ -68,7 +81,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Finalizes this Paint Operation
         /// </summary>
-        public virtual void Destroy() { }
+        public virtual void Destroy(){}
 
         /// <summary>
         /// Changes the bitmap currently being edited
@@ -139,6 +152,22 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         protected virtual bool WithinBounds(Point point)
         {
             return point.X >= 0 && point.Y >= 0 && point.X < pictureBox.Image.Width && point.Y < pictureBox.Image.Height;
+        }
+
+        /// <summary>
+        /// Performs a color pick at the specified image coordinates.
+        /// If the coordinates at not within the image area, nothing is done
+        /// </summary>
+        /// <param name="point">The point ot color pick at</param>
+        protected void ColorPickAtPoint(Point point)
+        {
+            if (!WithinBounds(point))
+                return;
+
+            if (ColorPicked != null)
+            {
+                ColorPicked(this, new PaintToolColorPickedEventArgs(point));
+            }
         }
 
         /// <summary>
@@ -219,6 +248,26 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             Rectangle rec = new Rectangle(topLeft, (Size)Point.Subtract(botRight, (Size)topLeft));
             return rec;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for a BasePaintTool.ColorPicked event
+    /// </summary>
+    public class PaintToolColorPickedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the point at which the user picked the color at
+        /// </summary>
+        public Point ImagePoint { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the PaintToolColorPickedEventArgs class
+        /// </summary>
+        /// <param name="imagePoint">The point at which the user picked the color at</param>
+        public PaintToolColorPickedEventArgs(Point imagePoint)
+        {
+            ImagePoint = imagePoint;
         }
     }
 }

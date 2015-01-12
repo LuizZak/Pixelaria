@@ -95,12 +95,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (absolute != lastMousePointAbsolute)
                 {
-                    if (WithinBounds(absolute))
-                    {
-                        Color color = pictureBox.Bitmap.GetPixel(absolute.X, absolute.Y);
-
-                        pictureBox.OwningPanel.FireColorChangeEvent(color, e.Button == MouseButtons.Left ? ColorPickerColor.FirstColor : ColorPickerColor.SecondColor);
-                    }
+                    ColorPickAtPoint(absolute);
                 }
 
                 lastMousePointAbsolute = absolute;
