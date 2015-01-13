@@ -28,7 +28,6 @@ using System.Windows.Forms;
 
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
-using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {

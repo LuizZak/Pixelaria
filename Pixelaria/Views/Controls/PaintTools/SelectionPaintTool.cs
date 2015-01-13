@@ -627,6 +627,27 @@ namespace Pixelaria.Views.Controls.PaintTools
                 selectedArea.Y++;
                 pictureBox.Invalidate(GetSelectionArea(true));
             }
+            // Undoing
+            else if (e.KeyCode == Keys.Z && e.Modifiers == Keys.Control)
+            {
+                if (OperationType == SelectionOperationType.Moved)
+                {
+                    // If the selection area is not the same as the start...
+                    if (selectedArea != selectedStartArea)
+                    {
+                        pictureBox.Invalidate(GetSelectionArea(true));
+
+                        selectedArea = selectedStartArea;
+
+                        pictureBox.Invalidate(GetSelectionArea(true));
+                    }
+                    // If it's the same area, cancel the operation
+                    else
+                    {
+                        CancelOperation(true);
+                    }
+                }
+            }
         }
 
         /// <summary>

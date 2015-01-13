@@ -25,9 +25,11 @@ Legend:
 * Fixed resizing images with the Stretch mode making them slightly offset.
 
 . FrameView
+  + Now hitting Ctrl+Z cancels selection operations.
   * Now the color picker (and related middle mouse button click) picks from all the layers at once. Holding control enables color picking taking into account the layers' transparencies.
   * Fixed clicking a recently selected area without moving it marking the window with unsaved changes even though nothing was modified.
   * Fixed crash related to trying to color pick out of bounds of the image with the pencil and bucket tools.
+  * Fixed moving hidden layers around not updating the visibility of the layers correctly.
 
 . AnimationView
   + Added ability to load multiple frames from files at once.

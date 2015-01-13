@@ -1994,6 +1994,31 @@ namespace Pixelaria.Views.ModelViews
                 _layerController.LayersCombined -= OnLayersCombined;
             }
 
+            /// <summary>
+            /// Updates the layer statuses of the currently displayed layers on the layer picture box decorator
+            /// </summary>
+            private void UpdateLayerStatuses()
+            {
+                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
+
+                // Invalidate frame to update visibility
+                _frameView.iepb_frame.PictureBox.Invalidate();
+            }
+
+            /// <summary>
+            /// Updates the bitmap being currently edited based on the active layer of the layer control
+            /// </summary>
+            private void UpdateEditActiveLayer()
+            {
+                // Update the bitmap being edited
+                _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
+                _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap, false);
+
+                // Update editability of the current layer
+                var status = _frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex];
+                _frameView.iepb_frame.EditingEnabled = !status.Locked && status.Visible;
+            }
+
             // 
             // Undo/Redo Performed event handler
             // 
@@ -2041,14 +2066,11 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnLayerStatusesUpdated(object sender, EventArgs eventArgs)
             {
-                _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
-
                 // Update editability of the current layer
                 var status = _frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex];
                 _frameView.iepb_frame.EditingEnabled = !status.Locked && status.Visible;
 
-                // Invalidate frame to update visibility
-                _frameView.iepb_frame.PictureBox.Invalidate();
+                UpdateLayerStatuses();
             }
 
             #endregion
@@ -2060,6 +2082,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             private void OnLayerMoved(object sender, LayerControllerLayerMovedEventArgs args)
             {
+                UpdateLayerStatuses();
+
                 _frameView.MarkModified();
 
                 // Add the undo task
@@ -2193,20 +2217,6 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 UpdateEditActiveLayer();
-            }
-
-            /// <summary>
-            /// Updates the bitmap being currently edited based on the active layer of the layer control
-            /// </summary>
-            private void UpdateEditActiveLayer()
-            {
-                // Update the bitmap being edited
-                _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
-                _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap, false);
-
-                // Update editability of the current layer
-                var status = _frameView.lcp_layers.LayerStatuses[_layerController.ActiveLayerIndex];
-                _frameView.iepb_frame.EditingEnabled = !status.Locked && status.Visible;
             }
 
             #endregion
