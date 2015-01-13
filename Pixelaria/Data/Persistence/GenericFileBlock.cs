@@ -28,7 +28,7 @@ namespace Pixelaria.Data.Persistence
     /// <summary>
     /// Represents a base class for block data objects to be used by the persistence manager to encode/decode data sequentially from streams
     /// </summary>
-    public abstract class BaseBlock : IDisposable
+    public abstract class GenericFileBlock : IDisposable
     {
         /// <summary>
         /// Gets the ID of this block

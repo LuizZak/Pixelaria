@@ -20,10 +20,7 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.IO;
 
 using Pixelaria.Data.Persistence.PixelariaFileBlocks;
@@ -164,8 +161,6 @@ namespace Pixelaria.Data.Persistence
             PixelariaFile file = new PixelariaFile(bundle, path);
 
             SaveFileToDisk(file);
-
-            file.CurrentStream.Close();
         }
 
         /// <summary>
@@ -353,228 +348,6 @@ namespace Pixelaria.Data.Persistence
     }
 
     /// <summary>
-    /// Encapsulates a Pixelaria .plx file
-    /// </summary>
-    public class PixelariaFile : IDisposable
-    {
-        /// <summary>
-        /// The version of this Pixelaria file
-        /// </summary>
-        protected int version = 9;
-
-        /// <summary>
-        /// The Bundle binded to this PixelariaFile
-        /// </summary>
-        protected Bundle bundle;
-
-        /// <summary>
-        /// The stream containing this file
-        /// </summary>
-        protected Stream stream;
-
-        /// <summary>
-        /// The path to the .plx file to manipulate
-        /// </summary>
-        protected string filePath;
-
-        /// <summary>
-        /// The list of blocks currently on the file
-        /// </summary>
-        protected List<FileBlock> blockList;
-
-        /// <summary>
-        /// Gets or sets the version of this PixelariaFile
-        /// </summary>
-        public int Version { get { return version; } set { version = value; } }
-
-        /// <summary>
-        /// Gets the Bundle binded to this PixelariaFile
-        /// </summary>
-        public Bundle LoadedBundle
-        {
-            get { return bundle; }
-        }
-
-        /// <summary>
-        /// Gets the current stream containing the file
-        /// </summary>
-        public Stream CurrentStream
-        {
-            get { return stream; }
-            set { stream = value; }
-        }
-
-        /// <summary>
-        /// The path to the .plx file to manipulate
-        /// </summary>
-        public string FilePath
-        {
-            get { return filePath; }
-        }
-
-        /// <summary>
-        /// Gets the list of blocks currently in this PixelariaFile
-        /// </summary>
-        public FileBlock[] Blocks
-        {
-            get { return blockList.ToArray(); }
-        }
-
-        /// <summary>
-        /// Gets the number of blocks inside this PixelariaFile
-        /// </summary>
-        public int BlockCount { get { return blockList.Count; } }
-
-        /// <summary>
-        /// Initializes a new instance of the PixelariaFile class
-        /// </summary>
-        /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
-        /// <param name="filePath">The path to the .plx file to manipulate</param>
-        public PixelariaFile(Bundle bundle, string filePath)
-        {
-            this.filePath = filePath;
-            this.bundle = bundle;
-            blockList = new List<FileBlock>();
-
-            AddDefaultBlocks();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the PixelariaFile class
-        /// </summary>
-        /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
-        /// <param name="stream">The stream used to load/save the PixelariaFile</param>
-        public PixelariaFile(Bundle bundle, Stream stream)
-        {
-            filePath = "";
-            this.bundle = bundle;
-            this.stream = stream;
-            blockList = new List<FileBlock>();
-
-            AddDefaultBlocks();
-        }
-
-        /// <summary>
-        /// Disposes of this PixelariaFile and all used resources
-        /// </summary>
-        public void Dispose()
-        {
-            foreach (FileBlock block in blockList)
-            {
-                block.Dispose();
-            }
-            blockList.Clear();
-            blockList = null;
-        }
-
-        /// <summary>
-        /// Adds a block to this file's composition
-        /// </summary>
-        /// <param name="block">The block to add to this PixelariaFile</param>
-        public void AddBlock(FileBlock block)
-        {
-            blockList.Add(block);
-            block.OwningFile = this;
-        }
-
-        /// <summary>
-        /// <para>Adds the default block definitions to this PixelariaFile.</para>
-        /// <para>The default blocks added are:</para>
-        /// <list type="bullet">
-        /// <item><description>AnimationBlock</description></item>
-        /// <item><description>AnimationSheetBlock</description></item>
-        /// <item><description>ProjectTreeBlock</description></item>
-        /// </list>
-        /// </summary>
-        public void AddDefaultBlocks()
-        {
-            foreach (Animation animation in bundle.Animations)
-            {
-                AddBlock(new AnimationHeaderBlock(animation));
-            }
-            if (GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
-            {
-                AddBlock(new AnimationSheetBlock());
-            }
-            if (GetBlocksByType(typeof(ProjectTreeBlock)).Length == 0)
-            {
-                AddBlock(new ProjectTreeBlock());
-            }
-        }
-
-        /// <summary>
-        /// Removes a block from this file's composition
-        /// </summary>
-        /// <param name="block">The block to remove</param>
-        /// <param name="dispose">Whether to dispose of the block after its removal</param>
-        public void RemoveBlock(FileBlock block, bool dispose = true)
-        {
-            blockList.Remove(block);
-            if (dispose)
-            {
-                block.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Removes all file blocks in this file's composition
-        /// </summary>
-        public void ClearBlockList()
-        {
-            foreach (var block in blockList)
-            {
-                block.Dispose();
-            }
-
-            blockList.Clear();
-        }
-
-        /// <summary>
-        /// Prepares the blocks with the currently loaded bundle
-        /// </summary>
-        public void PrepareBlocksWithBundle()
-        {
-            // Clear disposable blocks
-            for (int i = 0; i < blockList.Count; i++)
-            {
-                if (blockList[i].RemoveOnPrepare)
-                {
-                    RemoveBlock(blockList[i]);
-                    i--;
-                }
-            }
-
-            // No for-loop because the block list may be modified during preparation
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (int i = 0; i < blockList.Count; i++)
-            {
-                blockList[i].PrepareFromBundle(bundle);
-            }
-        }
-
-        /// <summary>
-        /// Returns a list of blocks that match a given type
-        /// </summary>
-        /// <param name="blockType">The block type to match</param>
-        /// <returns>A list of all the blocks that match the given type</returns>
-        public FileBlock[] GetBlocksByType(Type blockType)
-        {
-            return blockList.Where(block => block.GetType() == blockType).ToArray();
-        }
-
-        /// <summary>
-        /// Gets all the blocks inside this PixelariaFile that match the given blockID
-        /// </summary>
-        /// <param name="blockId">The blockID to match</param>
-        /// <returns>All the blocks that match the given ID inside this PixelariaFile</returns>
-        // ReSharper disable once InconsistentNaming
-        public FileBlock[] GetBlocksByID(short blockId)
-        {
-            return blockList.Where(block => block.BlockID == blockId).ToArray();
-        }
-    }
-
-    /// <summary>
     /// Encapsulates a Version 9 and later block-composed file loader
     /// </summary>
     public class PixelariaFileLoader
@@ -605,45 +378,8 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void Load()
         {
-            // Get the stream to load the file from
-            Stream stream = _file.CurrentStream;
-            bool closeStream = false;
-            if(stream == null)
-            {
-                _file.CurrentStream = stream = new FileStream(_file.FilePath, FileMode.Open, FileAccess.Read);
-                closeStream = true;
-            }
-
-            // Read the header
-            BinaryReader reader = new BinaryReader(stream);
-
-            // Signature Block
-            if (reader.ReadByte() != 'P' || reader.ReadByte() != 'X' || reader.ReadByte() != 'L')
-            {
-                return;
-            }
-
-            if (_resetBundle)
-            {
-                // Reset the bundle beforehands
-                _file.LoadedBundle.Clear();
-            }
-
-            // Bundle Header block
-            _file.Version = reader.ReadInt32();
-            _file.LoadedBundle.Name = reader.ReadString();
-            _file.LoadedBundle.ExportPath = reader.ReadString();
-
-            // Load the blocks
-            while (stream.Position < stream.Length)
-            {
-                _file.AddBlock(FileBlock.FromStream(stream, _file));
-            }
-
-            if (closeStream)
-            {
-                stream.Close();
-            }
+            _file.ResetBundleOnLoad = _resetBundle;
+            _file.Load();
         }
 
         /// <summary>
@@ -654,9 +390,7 @@ namespace Pixelaria.Data.Persistence
         public static void Load(PixelariaFile file, bool resetBundle = true)
         {
             // TODO: Verify correctess of clearing the pixelaria file's internal blocks list before loading the file from the stream again
-            file.ClearBlockList();
             PixelariaFileLoader loader = new PixelariaFileLoader(file, resetBundle);
-            file.PrepareBlocksWithBundle();
             loader.Load();
         }
     }
@@ -685,44 +419,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void Save()
         {
-            // Get the stream to load the file from
-            Stream stream = _file.CurrentStream;
-            bool closeStream = false;
-            if (stream == null)
-            {
-                _file.CurrentStream = stream = new FileStream(_file.FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                closeStream = true;
-            }
-
-            stream.SetLength(0);
-
-            // Save the header
-            BinaryWriter writer = new BinaryWriter(stream);
-
-            // Signature Block
-            writer.Write((byte)'P');
-            writer.Write((byte)'X');
-            writer.Write((byte)'L');
-            
-            // Bundle Header block
-            writer.Write(_file.Version);
-            writer.Write(_file.LoadedBundle.Name);
-            writer.Write(_file.LoadedBundle.ExportPath);
-
-            // Save the blocks
-            foreach (FileBlock block in _file.Blocks)
-            {
-                block.PrepareFromBundle(_file.LoadedBundle);
-                block.SaveToStream(stream);
-            }
-
-            // Truncate the stream so any unwanted extra data is not left pending, that can lead to potential crashes when reading the file back again
-            stream.SetLength(stream.Position);
-
-            if (closeStream)
-            {
-                stream.Close();
-            }
+            _file.Save();
         }
 
         /// <summary>
@@ -732,7 +429,6 @@ namespace Pixelaria.Data.Persistence
         public static void Save(PixelariaFile file)
         {
             PixelariaFileSaver saver = new PixelariaFileSaver(file);
-            file.PrepareBlocksWithBundle();
             saver.Save();
         }
     }

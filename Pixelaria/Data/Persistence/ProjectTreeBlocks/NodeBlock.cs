@@ -25,7 +25,7 @@ namespace Pixelaria.Data.Persistence.ProjectTreeBlocks
     /// <summary>
     /// Represents a base class for nodes in the Project Tree Persistence system
     /// </summary>
-    public class NodeBlock : BaseBlock
+    public class NodeBlock : GenericFileBlock
     {
         /// <summary>Represents a trailing code (meaning, no more blocks)</summary>
         public const short BLOCKID_TRAILING   = 0x000;

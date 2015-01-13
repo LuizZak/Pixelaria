@@ -27,7 +27,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
     /// <summary>
     /// Base class for Pixelaria .plx file format blocks
     /// </summary>
-    public class FileBlock : BaseBlock
+    public class FileBlock : GenericFileBlock
     {
         /// <summary>
         /// Gets or sets the file this block is currently present in

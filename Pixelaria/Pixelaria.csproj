@@ -139,7 +139,9 @@
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Controllers\LayerControlling\LayerController.cs" />
     <Compile Include="Data\FrameRenderer.cs" />
+    <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
+    <Compile Include="Data\Persistence\PixelariaFile.cs" />
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
@@ -162,7 +164,7 @@
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationHeaderBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationSheetBlock.cs" />
-    <Compile Include="Data\Persistence\BaseBlock.cs" />
+    <Compile Include="Data\Persistence\GenericFileBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\FileBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\FrameBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\ProjectTreeBlock.cs" />
