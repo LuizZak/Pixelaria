@@ -440,7 +440,7 @@ namespace Pixelaria.Filters
             for (int i = 0; i < count; i++)
             {
                 _filters[i] = FilterStore.Instance.CreateFilter(reader.ReadString());
-                _filters[i].LoadFromStream(stream);
+                _filters[i].LoadFromStream(stream, 1);
             }
         }
 

@@ -44,6 +44,14 @@ namespace Pixelaria.Filters
         public string Name { get { return "Hue"; } }
 
         /// <summary>
+        /// Gets the version of the filter to be used during persistence operations
+        /// </summary>
+        public int Version
+        {
+            get { return 1; }
+        }
+
+        /// <summary>
         /// HUE value ranging from 0 - 360
         /// </summary>
         public int Hue;
@@ -100,7 +108,8 @@ namespace Pixelaria.Filters
         /// Loads the properties of this filter from the given stream
         /// </summary>
         /// <param name="stream">A Stream to load the data from</param>
-        public void LoadFromStream(Stream stream)
+        /// <param name="version">The version of the filter data that is stored on the stream</param>
+        public void LoadFromStream(Stream stream, int version)
         {
             BinaryReader reader = new BinaryReader(stream);
 
@@ -124,6 +133,14 @@ namespace Pixelaria.Filters
         /// Gets the unique display name of this filter
         /// </summary>
         public string Name { get { return "Saturation"; } }
+
+        /// <summary>
+        /// Gets the version of the filter to be used during persistence operations
+        /// </summary>
+        public int Version
+        {
+            get { return 1; }
+        }
 
         /// <summary>
         /// Saturation value ranging from 0 - 100
@@ -218,7 +235,8 @@ namespace Pixelaria.Filters
         /// Loads the properties of this filter from the given stream
         /// </summary>
         /// <param name="stream">A Stream to load the data from</param>
-        public void LoadFromStream(Stream stream)
+        /// <param name="version">The version of the filter data that is stored on the stream</param>
+        public void LoadFromStream(Stream stream, int version)
         {
             BinaryReader reader = new BinaryReader(stream);
 
@@ -243,6 +261,14 @@ namespace Pixelaria.Filters
         /// Gets the unique display name of this filter
         /// </summary>
         public string Name { get { return "Lightness"; } }
+
+        /// <summary>
+        /// Gets the version of the filter to be used during persistence operations
+        /// </summary>
+        public int Version
+        {
+            get { return 1; }
+        }
 
         /// <summary>
         /// Lightness value ranging from 0 - 100
@@ -328,7 +354,8 @@ namespace Pixelaria.Filters
         /// Loads the properties of this filter from the given stream
         /// </summary>
         /// <param name="stream">A Stream to load the data from</param>
-        public void LoadFromStream(Stream stream)
+        /// <param name="version">The version of the filter data that is stored on the stream</param>
+        public void LoadFromStream(Stream stream, int version)
         {
             BinaryReader reader = new BinaryReader(stream);
 

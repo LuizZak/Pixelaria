@@ -44,6 +44,14 @@ namespace Pixelaria.Filters
         public string Name { get { return "Scale"; } }
 
         /// <summary>
+        /// Gets the version of the filter to be used during persistence operations
+        /// </summary>
+        public int Version
+        {
+            get { return 1; }
+        }
+
+        /// <summary>
         /// Gets or sets the X scale component as a floating point value
         /// </summary>
         public float ScaleX { get; set; }
@@ -125,7 +133,8 @@ namespace Pixelaria.Filters
         /// Loads the properties of this filter from the given stream
         /// </summary>
         /// <param name="stream">A Stream to load the data from</param>
-        public void LoadFromStream(Stream stream)
+        /// <param name="version">The version of the filter data that is stored on the stream</param>
+        public void LoadFromStream(Stream stream, int version)
         {
             BinaryReader reader = new BinaryReader(stream);
 

@@ -43,6 +43,11 @@ namespace Pixelaria.Filters
         string Name { get; }
 
         /// <summary>
+        /// Gets the version of the filter to be used during persistence operations
+        /// </summary>
+        int Version { get; }
+
+        /// <summary>
         /// Applies this filter to an image
         /// </summary>
         /// <param name="target">The image to apply the filter to</param>
@@ -58,6 +63,7 @@ namespace Pixelaria.Filters
         /// Loads the properties of this filter from the given stream
         /// </summary>
         /// <param name="stream">A Stream to load the data from</param>
-        void LoadFromStream(Stream stream);
+        /// <param name="version">The version of the filter data that is stored on the stream</param>
+        void LoadFromStream(Stream stream, int version);
     }
 }
