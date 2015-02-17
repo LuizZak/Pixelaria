@@ -7,12 +7,12 @@
                   v1.17.5b
 
 Pixel Art Animation Creation and Exporting Tool
-     Copyright ù© 2013 Luiz Fernando Silva
+     Copyright ¬ù¬© 2013 Luiz Fernando Silva
 
 
 - Changelog
 
-Legend:
+Caption:
 
 + Addition
 * Fix/Change
