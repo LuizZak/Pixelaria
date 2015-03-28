@@ -94,7 +94,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreNotEqual(anim1, anim2, "Animations with different values for the ExportSettings must not be equal");
 
             anim2.ExportSettings = anim1.ExportSettings;
-            anim2.PlaybackSettings.FPS = 0;
+
+            var playbackSettings = anim2.PlaybackSettings;
+            playbackSettings.FPS = 0;
+            anim2.PlaybackSettings = playbackSettings;
 
             Assert.AreNotEqual(anim1, anim2, "Animations with different values for the ExportSettings must not be equal");
         }

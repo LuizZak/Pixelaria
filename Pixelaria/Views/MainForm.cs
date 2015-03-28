@@ -44,11 +44,6 @@ namespace Pixelaria.Views
     public partial class MainForm : Form
     {
         /// <summary>
-        /// The Controller instance that owns this MainForm
-        /// </summary>
-        public Controller Controller;
-
-        /// <summary>
         /// Event handler for the recent file menu item list click
         /// </summary>
         private readonly EventHandler _recentFileClick;
@@ -57,6 +52,11 @@ namespace Pixelaria.Views
         /// The root tree node for the tree view
         /// </summary>
         private TreeNode _rootNode;
+
+        /// <summary>
+        /// Gets or sets the Controller instance that owns this MainForm
+        /// </summary>
+        public Controller Controller { get; set; }
 
         /// <summary>
         /// Creates a new instance of the MainForm class

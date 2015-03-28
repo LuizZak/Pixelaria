@@ -115,7 +115,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             Animation anim = new Animation(name, width, height)
             {
                 ID = id,
-                PlaybackSettings = { FPS = fps, FrameSkip = frameskip }
+                PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameskip }
             };
 
             int frameCount = reader.ReadInt32();

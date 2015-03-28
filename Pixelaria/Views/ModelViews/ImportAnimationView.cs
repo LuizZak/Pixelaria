@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using Pixelaria.Controllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Importers;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -54,7 +55,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The current preview animation
         /// </summary>
-        Animation _currentPreviewAnimation;
+        PreviewAnimation _currentPreviewAnimation;
 
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
@@ -180,9 +181,19 @@ namespace Pixelaria.Views.ModelViews
 
                 if (nud_frameCount.Value != 0)
                 {
-                    _currentPreviewAnimation = _controller.DefaultImporter.ImportAnimationFromImage(txt_animationName.Text, _spriteSheet, _sheetSettings);
-                    _currentPreviewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
-                    _currentPreviewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
+                    _currentPreviewAnimation = new PreviewAnimation
+                    {
+                        SourceBitmap = (Bitmap)_spriteSheet,
+                        SheetSettings = _sheetSettings,
+                        FrameBounds = _controller.DefaultImporter.GenerateFrameBounds(_spriteSheet, _sheetSettings)
+                    };
+
+                    var playback = _currentPreviewAnimation.PlaybackSettings;
+
+                    playback.FPS = (int)nud_fps.Value;
+                    playback.FrameSkip = cb_frameskip.Checked;
+
+                    _currentPreviewAnimation.PlaybackSettings = playback;
                 }
 
                 ap_animationPreview.LoadAnimation(_currentPreviewAnimation);
@@ -219,12 +230,21 @@ namespace Pixelaria.Views.ModelViews
         private void ImportAnimation()
         {
             // Quit if no valid animation is currently being displayed
-            if (_currentPreviewAnimation == null || _currentPreviewAnimation.FrameCount <= 0)
+            if (nud_frameCount.Value == 0 || _currentPreviewAnimation == null || _currentPreviewAnimation.FrameCount <= 0)
                 return;
 
-            _currentPreviewAnimation.Name = txt_animationName.Text;
+            var anim = _controller.DefaultImporter.ImportAnimationFromImage(txt_animationName.Text, _spriteSheet, _sheetSettings);
 
-            _controller.AddAnimation(_currentPreviewAnimation, true, _parentSheet);
+            var playback = _currentPreviewAnimation.PlaybackSettings;
+
+            playback.FPS = (int)nud_fps.Value;
+            playback.FrameSkip = cb_frameskip.Checked;
+
+            anim.PlaybackSettings = playback;
+
+            anim.Name = txt_animationName.Text;
+
+            _controller.AddAnimation(anim, true, _parentSheet);
 
             _currentPreviewAnimation = null;
             ap_animationPreview.LoadAnimation(null);
@@ -338,7 +358,11 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_currentPreviewAnimation != null)
             {
-                _currentPreviewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
+                var playback = _currentPreviewAnimation.PlaybackSettings;
+
+                playback.FPS = (int)nud_fps.Value;
+
+                _currentPreviewAnimation.PlaybackSettings = playback;
             }
         }
 
@@ -349,10 +373,13 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_currentPreviewAnimation != null)
             {
-                _currentPreviewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
+                var playback = _currentPreviewAnimation.PlaybackSettings;
+
+                playback.FrameSkip = cb_frameskip.Checked;
+
+                _currentPreviewAnimation.PlaybackSettings = playback;
             }
         }
-
 
         // 
         // Fit Width Left button click
@@ -462,6 +489,69 @@ namespace Pixelaria.Views.ModelViews
             nud_height.Value = _spriteSheet.Height / (int)ch;
 
             RefreshSheetSettings();
+        }
+
+        /// <summary>
+        /// Preview animation used to display preview of animation imports on the form's animation view
+        /// </summary>
+        private class PreviewAnimation : IAnimation
+        {
+            /// <summary>
+            /// The source image to splice
+            /// </summary>
+            public Bitmap SourceBitmap;
+
+            /// <summary>
+            /// The current SheetSettings being edited on the form
+            /// </summary>
+            public SheetSettings SheetSettings;
+
+            /// <summary>
+            /// The bounds for each frame imported
+            /// </summary>
+            public Rectangle[] FrameBounds;
+
+            public void Dispose()
+            {
+                
+            }
+
+            public string Name
+            {
+                get { return "Preview"; }
+            }
+
+            public int Width
+            {
+                get { return SheetSettings.FrameWidth; }
+            }
+
+            public int Height
+            {
+                get { return SheetSettings.FrameHeight; }
+            }
+
+            public Size Size
+            {
+                get { return new Size(Width, Height); }
+            }
+
+            public int FrameCount
+            {
+                get { return FrameBounds.Length; }
+            }
+
+            public AnimationPlaybackSettings PlaybackSettings { get; set; }
+
+            public AnimationExportSettings ExportSettings { get; set; }
+
+            public Bitmap GetComposedBitmapForFrame(int frameIndex)
+            {
+                // Splice the source image
+                var bounds = FrameBounds[frameIndex];
+
+                return FastBitmap.SliceBitmap(SourceBitmap, bounds);
+            }
         }
     }
 }

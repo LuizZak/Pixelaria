@@ -139,6 +139,7 @@
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Controllers\LayerControlling\LayerController.cs" />
     <Compile Include="Data\FrameRenderer.cs" />
+    <Compile Include="Data\IAnimation.cs" />
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />

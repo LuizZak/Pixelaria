@@ -176,48 +176,52 @@ namespace Pixelaria.Views.Controls
             if (Image != null)
             {
                 RectangleF[] rects = null;
-                int[] reuseCont = null;
+                int[] reuseCount = null;
 
                 if (_sheetExport != null)
                 {
-                    rects = (from frameRect in _sheetExport.FrameRects select (RectangleF)frameRect.SheetArea).ToArray();
-                    reuseCont = _sheetExport.ReuseCounts;
+                    rects = (_sheetExport.FrameRects.Select(f => (RectangleF)f.SheetArea)).ToArray();
+                    reuseCount = _sheetExport.ReuseCounts;
                 }
                 else if (Importer != null && _frameRects != null)
                 {
-                    rects = (from frameRect in _frameRects select (RectangleF)frameRect).ToArray();
-                    reuseCont = (from i in _frameRects select 1).ToArray();
+                    rects = (_frameRects.Select(f => (RectangleF)f)).ToArray();
+                    reuseCount = _frameRects.Select(f => 1).ToArray();
                 }
 
                 pe.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
 
                 if (rects != null)
                 {
-                    List<RectangleF> drawnRects = new List<RectangleF>();
+                    var drawnRects = new HashSet<RectangleF>();
 
                     // Draw the frame bounds now
-                    for(int i = 0; i < rects.Length; i++)
+                    int j = 0;
+                    foreach (RectangleF fRect in rects)
                     {
-                        if (drawnRects.Contains(rects[i]))
-                            continue;
-                        drawnRects.Add(rects[i]);
-
-                        RectangleF r = rects[i];
+                        RectangleF r = fRect;
                         r.X += 0.5f;
                         r.Y += 0.5f;
+
+                        j++;
 
                         if (!pe.Graphics.ClipBounds.IntersectsWith(r))
                             continue;
 
+                        // Avoid redrawing the same frame bound multiple times
+                        if (drawnRects.Contains(fRect))
+                            continue;
+                        drawnRects.Add(fRect);
+
                         pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
 
                         // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
-                        Point pixelPoint = new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f));
-
                         if (_displayReusedCount)
                         {
+                            Point pixelPoint = new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f));
+
                             int digitsScale = 3;
-                            int frameCount = reuseCont[i] + 1;
+                            int frameCount = reuseCount[j] + 1;
 
                             while ((r.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2) && digitsScale > 1)
                                 digitsScale--;

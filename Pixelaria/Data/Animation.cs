@@ -33,7 +33,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Describes an Animation in the program
     /// </summary>
-    public class Animation : IDisposable, IDObject
+    public class Animation : IDObject, IAnimation
     {
         /// <summary>
         /// The frames of this animation
@@ -73,12 +73,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// The playbar settings for this Animation
         /// </summary>
-        public AnimationPlaybackSettings PlaybackSettings;
+        public AnimationPlaybackSettings PlaybackSettings { get; set; }
 
         /// <summary>
         /// The export settings of this animation
         /// </summary>
-        public AnimationExportSettings ExportSettings;
+        public AnimationExportSettings ExportSettings { get; set; }
 
         /// <summary>
         /// Gets the list of frames for this Animation
@@ -513,6 +513,16 @@ namespace Pixelaria.Data
         public IFrame GetFrameByID(int id)
         {
             return _frames.FirstOrDefault(frame => frame.ID == id);
+        }
+
+        /// <summary>
+        /// Gets the composed bitmap for a specified frame index
+        /// </summary>
+        /// <param name="frameIndex">The index of the frame to get the composed bitmap of</param>
+        /// <returns>The composed bitmap for the frame at the specified index on this animation</returns>
+        public Bitmap GetComposedBitmapForFrame(int frameIndex)
+        {
+            return GetFrameAtIndex(frameIndex).GetComposedBitmap();
         }
 
         // Override object.Equals

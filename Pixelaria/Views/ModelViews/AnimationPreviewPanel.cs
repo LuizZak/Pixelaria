@@ -37,7 +37,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The current animation set to play on this AnimationPreviewPanel
         /// </summary>
-        private Animation _currentAnimation;
+        private IAnimation _currentAnimation;
 
         /// <summary>
         /// Timer used to animate the animation preview
@@ -102,7 +102,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="animation">The animation to load</param>
         /// <param name="resetPlayback">Whether to reset the playback of the animation back to the start</param>
-        public void LoadAnimation(Animation animation, bool resetPlayback = true)
+        public void LoadAnimation(IAnimation animation, bool resetPlayback = true)
         {
             pnl_preview.Image = null;
 
@@ -186,7 +186,7 @@ namespace Pixelaria.Views.ModelViews
                 _frameBitmap.Dispose();
             }
 
-            _frameBitmap = _currentAnimation.GetFrameAtIndex(newFrame).GetComposedBitmap();
+            _frameBitmap = _currentAnimation.GetComposedBitmapForFrame(newFrame);
 
             pnl_preview.Image = _frameBitmap;
         }

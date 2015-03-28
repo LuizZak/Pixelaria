@@ -1589,7 +1589,12 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void nud_fps_ValueChanged(object sender, EventArgs e)
         {
-            _viewAnimation.PlaybackSettings.FPS = (int)nud_fps.Value;
+            var playback = _viewAnimation.PlaybackSettings;
+
+            playback.FPS = (int)nud_fps.Value;
+
+            _viewAnimation.PlaybackSettings = playback;
+
             MarkModified();
         }
 
@@ -1598,7 +1603,12 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cb_frameskip_CheckedChanged(object sender, EventArgs e)
         {
-            _viewAnimation.PlaybackSettings.FrameSkip = cb_frameskip.Checked;
+            var playback = _viewAnimation.PlaybackSettings;
+
+            playback.FrameSkip = cb_frameskip.Checked;
+
+            _viewAnimation.PlaybackSettings = playback;
+
             MarkModified();
         }
 

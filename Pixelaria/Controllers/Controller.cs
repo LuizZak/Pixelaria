@@ -172,9 +172,9 @@ namespace Pixelaria.Controllers
 
             if (mainForm != null)
             {
+                mainForm.Controller = this;
                 // Initialize the basic fields
                 _mainForm = mainForm;
-                _mainForm.Controller = this;
                 _mainForm.UpdateRecentFilesList();
 
                 // Start with a new empty bundle
@@ -321,7 +321,7 @@ namespace Pixelaria.Controllers
         {
             Animation anim = new Animation(name, width, height)
             {
-                PlaybackSettings = { FPS = fps, FrameSkip = frameskip }
+                PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameskip }
             };
 
             // Create a dummy frame
@@ -883,7 +883,8 @@ namespace Pixelaria.Controllers
 
         /// <summary>
         /// Shows a dialog to load an image from disk, and returns the loaded image file.
-        /// Returns null if the user has canceled
+        /// Returns null if the user has canceled.
+        /// The image loaded is automatically converted into a 32bpp transparent bitmap image format
         /// </summary>
         /// <param name="filePath">The file path that was chosen for the file. Returned as an empty string when no file was chosen</param>
         /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
@@ -895,7 +896,7 @@ namespace Pixelaria.Controllers
 
             OpenFileDialog ofd = new OpenFileDialog
             {
-                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
+                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff|All image formats (*.png, *.jpg, *.gif, *.tiff, *.bmp)|*.png;*.jpg;*.gif;*.tiff;*.bmp",
                 FileName = fileName
             };
 
@@ -905,7 +906,10 @@ namespace Pixelaria.Controllers
 
                 try
                 {
-                    return Image.FromFile(ofd.FileName);
+                    using (var img = Image.FromFile(ofd.FileName))
+                    {
+                        return PreparedImage(img);
+                    }
                 }
                 catch (Exception)
                 {
@@ -931,7 +935,8 @@ namespace Pixelaria.Controllers
 
         /// <summary>
         /// Shows a dialog to load multiple images from disk, and returns the loaded image files.
-        /// Returns null if the user has canceled
+        /// Returns null if the user has canceled.
+        /// The images loaded are automatically converted into 32bpp transparent bitmap image format
         /// </summary>
         /// <param name="filePaths">The file paths that were chosen for the files. Returned as an empty array when no files were chosen</param>
         /// <param name="owner">An optional owner for the file dialog</param>
@@ -942,7 +947,7 @@ namespace Pixelaria.Controllers
 
             OpenFileDialog ofd = new OpenFileDialog
             {
-                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
+                Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff|All image formats (*.png, *.jpg, *.gif, *.tiff, *.bmp)|*.png;*.jpg;*.gif;*.tiff;*.bmp",
                 Multiselect = true
             };
 
@@ -952,7 +957,13 @@ namespace Pixelaria.Controllers
 
                 try
                 {
-                    return filePaths.Select(Image.FromFile).ToArray();
+                    var sources = filePaths.Select(Image.FromFile).ToArray();
+                    var baked = sources.Select(PreparedImage);
+                    
+                    // Dispose of the images
+                    Array.ForEach(sources.ToArray(), image => image.Dispose());
+
+                    return baked.ToArray();
                 }
                 catch (Exception)
                 {
@@ -962,6 +973,22 @@ namespace Pixelaria.Controllers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns an Image object that contains the contents of a given image baked into a 32bpp bitmap image
+        /// </summary>
+        /// <param name="image">The image to prepare</param>
+        /// <returns>The image that was prepared from the given image</returns>
+        private Image PreparedImage(Image image)
+        {
+            var bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bitmap))
+            {
+                g.DrawImageUnscaled(image, 0, 0);
+            }
+
+            return bitmap;
         }
 
         ////////////////////////////////////////////////////////////////////////////////

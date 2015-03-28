@@ -170,14 +170,15 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                 string animName = animNode.Attributes["name"].InnerText;
                 int animWidth = int.Parse(animNode.Attributes["width"].InnerText);
                 int animHeight = int.Parse(animNode.Attributes["height"].InnerText);
-                int frameCount = animNode.ChildNodes.Count;
                 int fps = int.Parse(animNode.Attributes["fps"].InnerText);
                 bool frameskip = animNode.Attributes["frameskip"].InnerText == "true";
 
                 Animation anim = new Animation(animName, animWidth, animHeight);
 
-                anim.PlaybackSettings.FPS = fps;
-                anim.PlaybackSettings.FrameSkip = frameskip;
+                var playbackSettings = anim.PlaybackSettings;
+                playbackSettings.FPS = fps;
+                playbackSettings.FrameSkip = frameskip;
+                anim.PlaybackSettings = playbackSettings;
 
                 foreach (XmlNode frameNode in animNode.ChildNodes)
                 {

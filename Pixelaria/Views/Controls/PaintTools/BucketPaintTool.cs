@@ -28,7 +28,6 @@ using System.Windows.Forms;
 
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
