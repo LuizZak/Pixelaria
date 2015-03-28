@@ -242,6 +242,10 @@ namespace Pixelaria.Views.Controls.PaintTools
                     int v = stack.Pop();
                     int x = (v >> 16);
                     int y = (v & 0xFFFF);
+                    
+                    // Expand horizontal area
+                    minX = x < minX ? x : minX;
+                    maxX = x > maxX ? x : maxX;
 
                     var y1 = y;
 
@@ -250,22 +254,22 @@ namespace Pixelaria.Views.Controls.PaintTools
                     y1++;
                     bool spanLeft = false, spanRight = false;
 
-                    while (y1 < height && *(scan0 + x + y1 * strideWidth) == pColorI)
+                    int row = y1 * strideWidth;
+
+                    // Expand vertical area before traversal
+                    minY = y1 < minY ? y1 : minY;
+                    maxY = y1 > maxY ? y1 : maxY;
+
+                    while (y1 < height && *(scan0 + x + row) == pColorI)
                     {
                         // Expand affected region boundaries
-                        minX = x < minX ? x : minX;
-                        maxX = x > maxX ? x : maxX;
-
-                        minY = y1 < minY ? y1 : minY;
-                        maxY = y1 > maxY ? y1 : maxY;
-
-                        *(scan0 + x + y1 * strideWidth) = newColorI;
+                        *(scan0 + x + row) = newColorI;
 
                         uint pixel;
 
                         if (x > 0)
                         {
-                            pixel = *(scan0 + (x - 1) + y1 * strideWidth);
+                            pixel = *(scan0 + (x - 1) + row);
 
                             if (!spanLeft && pixel == pColorI)
                             {
@@ -281,7 +285,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                         if (x < width - 1)
                         {
-                            pixel = *(scan0 + (x + 1) + y1 * strideWidth);
+                            pixel = *(scan0 + (x + 1) + row);
 
                             if (!spanRight && pixel == pColorI)
                             {
@@ -294,7 +298,12 @@ namespace Pixelaria.Views.Controls.PaintTools
                             }
                         }
                         y1++;
+                        row = y1 * strideWidth;
                     }
+
+                    // Expand vertical area after y traversal
+                    minY = y1 < minY ? y1 : minY;
+                    maxY = y1 > maxY ? y1 : maxY;
                 }
             }
 
