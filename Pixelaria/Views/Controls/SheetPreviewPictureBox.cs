@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -37,6 +38,16 @@ namespace Pixelaria.Views.Controls
     /// </summary>
     public class SheetPreviewPictureBox : ZoomablePictureBox
     {
+        /// <summary>
+        /// The array of images used to represent the pixel digits
+        /// </summary>
+        private static Image[] _pixelDigitsImages;
+
+        /// <summary>
+        /// The bitmap sheet containing the boundaries for the frame rectangles
+        /// </summary>
+        private Bitmap _frameRectSheet;
+
         /// <summary>
         /// The current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
@@ -58,11 +69,6 @@ namespace Pixelaria.Views.Controls
         private bool _displayReusedCount;
 
         /// <summary>
-        /// The array of images used to represent the pixel digits
-        /// </summary>
-        private Image[] _pixelDigitsImages;
-        
-        /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
         /// </summary>
         public IDefaultImporter Importer { get; set; }
@@ -70,12 +76,31 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
-        public SheetSettings SheetSettings { get { return _sheetSettings; } set { _sheetSettings = value; _frameRects = Importer.GenerateFrameBounds(Image, _sheetSettings); Invalidate(); } }
+        public SheetSettings SheetSettings
+        {
+            get { return _sheetSettings; }
+            set
+            {
+                _sheetSettings = value;
+                _frameRects = Importer.GenerateFrameBounds(Image, _sheetSettings);
+                RefreshFrameBoundsPreview();
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
         /// </summary>
-        public BundleSheetExport SheetExport { get { return _sheetExport; } set { _sheetExport = value; Invalidate(); } }
+        public BundleSheetExport SheetExport
+        {
+            get { return _sheetExport; }
+            set
+            {
+                _sheetExport = value;
+                RefreshFrameBoundsPreview();
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether to display the number of frames that have been reused when drawing the frame bounds
@@ -86,20 +111,32 @@ namespace Pixelaria.Views.Controls
             get { return _displayReusedCount; }
             set
             {
-                if (_pixelDigitsImages == null)
-                {
-                    LoadPixelDigitImages();
-                }
-
                 _displayReusedCount = value;
+                RefreshFrameBoundsPreview();
                 Invalidate();
             }
         }
 
         /// <summary>
+        /// Static constructor for the SheetPreviewPictureBox class
+        /// </summary>
+        static SheetPreviewPictureBox()
+        {
+            LoadPixelDigitImages();
+        }
+
+        /// <summary>
+        /// Descrutor for the SheetPreviewPictureBox class
+        /// </summary>
+        ~SheetPreviewPictureBox()
+        {
+            _frameRectSheet.Dispose();
+        }
+
+        /// <summary>
         /// Loads the pixel digit images
         /// </summary>
-        private void LoadPixelDigitImages()
+        private static void LoadPixelDigitImages()
         {
             _pixelDigitsImages = new Image[10];
 
@@ -132,6 +169,7 @@ namespace Pixelaria.Views.Controls
             _sheetSettings = sheetSettings;
 
             _frameRects = Importer.GenerateFrameBounds(Image, sheetSettings);
+            RefreshFrameBoundsPreview();
 
             Invalidate();
 
@@ -150,6 +188,8 @@ namespace Pixelaria.Views.Controls
             Image = bundleSheetExport.Sheet;
             _sheetExport = bundleSheetExport;
 
+            RefreshFrameBoundsPreview();
+
             Invalidate();
 
             UpdateScrollbars();
@@ -163,18 +203,34 @@ namespace Pixelaria.Views.Controls
             _sheetExport = null;
             _frameRects = null;
 
+            RefreshFrameBoundsPreview();
+
             Invalidate();
         }
 
-        // 
-        // OnPaint event handler. Draws the underlying sheet, and the frame rectangles on the sheet
-        // 
-        protected override void OnPaint(PaintEventArgs pe)
+        /// <summary>
+        /// Refreshes the frame bounds preview image
+        /// </summary>
+        private void RefreshFrameBoundsPreview()
         {
-            base.OnPaint(pe);
-
-            if (Image != null)
+            if (_frameRectSheet != null)
             {
+                _frameRectSheet.Dispose();
+            }
+
+            if (Image == null)
+                return;
+
+            _frameRectSheet = new Bitmap(Image.Width, Image.Height);
+
+            using(var graphics = Graphics.FromImage(_frameRectSheet))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                graphics.PixelOffsetMode = PixelOffsetMode.Half;
+
+                // Lay the frame rectangles on top of the image
                 RectangleF[] rects = null;
                 int[] reuseCount = null;
 
@@ -189,8 +245,6 @@ namespace Pixelaria.Views.Controls
                     reuseCount = _frameRects.Select(f => 1).ToArray();
                 }
 
-                pe.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
-
                 if (rects != null)
                 {
                     var drawnRects = new HashSet<RectangleF>();
@@ -202,18 +256,18 @@ namespace Pixelaria.Views.Controls
                         RectangleF r = fRect;
                         r.X += 0.5f;
                         r.Y += 0.5f;
-
-                        j++;
-
-                        if (!pe.Graphics.ClipBounds.IntersectsWith(r))
-                            continue;
+                        r.Width -= 0.5f;
+                        r.Height -= 0.5f;
 
                         // Avoid redrawing the same frame bound multiple times
                         if (drawnRects.Contains(fRect))
-                            continue;
+                        {
+                            j++;
+                            continue; 
+                        }
                         drawnRects.Add(fRect);
 
-                        pe.Graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
+                        graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
 
                         // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
                         if (_displayReusedCount)
@@ -221,15 +275,28 @@ namespace Pixelaria.Views.Controls
                             Point pixelPoint = new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f));
 
                             int digitsScale = 3;
-                            int frameCount = reuseCount[j] + 1;
+                            int frameCount = reuseCount[j++] + 1;
 
                             while ((r.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2) && digitsScale > 1)
                                 digitsScale--;
 
-                            RenderPixelNumber(pe.Graphics, pixelPoint, frameCount, digitsScale);
+                            RenderPixelNumber(graphics, pixelPoint, frameCount, digitsScale);
                         }
                     }
                 }
+            }
+        }
+
+        // 
+        // OnPaint event handler. Draws the underlying sheet, and the frame rectangles on the sheet
+        // 
+        protected override void OnPaint(PaintEventArgs pe)
+        {
+            base.OnPaint(pe);
+
+            if(_frameRectSheet != null)
+            {
+                pe.Graphics.DrawImageUnscaled(_frameRectSheet, 0, 0);
             }
         }
 
