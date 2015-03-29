@@ -47,7 +47,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The current animation frame being displayed
         /// </summary>
-        private int _currentFrame;
+        private int _currentFrame = -1;
 
         /// <summary>
         /// Whether the current animation is playing
@@ -119,7 +119,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (resetPlayback)
                 {
-                    if (_currentAnimation.PlaybackSettings.FPS == 0)
+                    if (_currentAnimation.PlaybackSettings.FPS == 0 || _currentAnimation.FrameCount <= 1)
                     {
                         cb_playPreview.Checked = false;
                         InternalSetPlayback(false);
@@ -303,7 +303,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         void animationTimer_Tick(object sender, EventArgs e)
         {
-            if (tlc_timeline.DraggingFrame || _currentAnimation == null || _currentAnimation.FrameCount == 0 || ParentForm == null)
+            if (tlc_timeline.DraggingFrame || _currentAnimation == null || _currentAnimation.FrameCount <= 1 || ParentForm == null)
                 return;
 
             int newFrame = _currentFrame + 1;

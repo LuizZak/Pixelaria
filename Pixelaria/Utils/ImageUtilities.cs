@@ -232,7 +232,10 @@ namespace Pixelaria.Utils
                 using(Graphics gfx = Graphics.FromImage(target))
                 {
                     gfx.CompositingMode = CompositingMode.SourceOver;
-                    gfx.DrawImageUnscaled(foreBitmap, 0, 0);
+                    gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    gfx.SmoothingMode = SmoothingMode.HighSpeed;
+                    
+                    gfx.DrawImage(foreBitmap, 0, 0);
 
                     gfx.Flush();
                 }
@@ -240,13 +243,16 @@ namespace Pixelaria.Utils
                 return;
             }
 
+            int width = target.Width;
+            int height = target.Height;
+
             using (FastBitmap fastTarget = target.FastLock(), fastForeBitmap = foreBitmap.FastLock())
             {
-                for (int y = 0; y < target.Height; y++)
+                for (int y = 0; y < height; y++)
                 {
-                    for (int x = 0; x < target.Width; x++)
+                    for (int x = 0; x < width; x++)
                     {
-                        fastTarget.SetPixel(x, y, Utilities.FlattenColor(fastTarget.GetPixel(x, y), fastForeBitmap.GetPixel(x, y)));
+                        fastTarget.SetPixel(x, y, Utilities.FlattenColor(fastTarget.GetPixelUInt(x, y), fastForeBitmap.GetPixelUInt(x, y)));
                     }
                 }
             }
