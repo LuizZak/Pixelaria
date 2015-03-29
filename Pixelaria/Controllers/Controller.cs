@@ -985,7 +985,8 @@ namespace Pixelaria.Controllers
             var bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
             using (var g = Graphics.FromImage(bitmap))
             {
-                g.DrawImageUnscaled(image, 0, 0);
+                g.DrawImage(image, 0, 0, image.Width, image.Height);
+                g.Flush();
             }
 
             return bitmap;

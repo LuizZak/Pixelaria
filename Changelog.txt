@@ -1,4 +1,4 @@
-             *   *   *   *   *
+﻿             *   *   *   *   *
                               
              *   Pixelaria   *
                               
@@ -23,6 +23,8 @@ Caption:
 + Added ability to sabe a specified animation as a single sequential sprite strip image.
 
 * Fixed resizing images with the Stretch mode making them slightly offset.
+* Improved performance of the preview updating in the animation import view.
+* Fixed crash related to non standard image formats in the animation import view.
 
 . FrameView
   + Now hitting Ctrl+Z cancels selection operations.
