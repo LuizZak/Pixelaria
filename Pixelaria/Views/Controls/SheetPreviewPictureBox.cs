@@ -30,6 +30,7 @@ using System.Windows.Forms;
 
 using Pixelaria.Data.Exports;
 using Pixelaria.Data.Importers;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls
 {
@@ -130,7 +131,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         ~SheetPreviewPictureBox()
         {
-            _frameRectSheet.Dispose();
+            if (_frameRectSheet != null)
+                _frameRectSheet.Dispose();
         }
 
         /// <summary>
@@ -223,65 +225,93 @@ namespace Pixelaria.Views.Controls
 
             _frameRectSheet = new Bitmap(Image.Width, Image.Height);
 
-            using(var graphics = Graphics.FromImage(_frameRectSheet))
+            // Lay the frame rectangles on top of the image
+            Rectangle[] rects = null;
+            int[] reuseCount = null;
+
+            if (_sheetExport != null)
             {
-                graphics.CompositingMode = CompositingMode.SourceCopy;
-                graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-                graphics.PixelOffsetMode = PixelOffsetMode.Half;
+                rects = (_sheetExport.FrameRects.Select(f => f.SheetArea)).ToArray();
+                reuseCount = _sheetExport.ReuseCounts;
+            }
+            else if (Importer != null && _frameRects != null)
+            {
+                rects = _frameRects;
+                reuseCount = _frameRects.Select(f => 1).ToArray();
+            }
 
-                // Lay the frame rectangles on top of the image
-                RectangleF[] rects = null;
-                int[] reuseCount = null;
+            if (rects == null) return;
 
-                if (_sheetExport != null)
+            var drawnRects = new HashSet<Rectangle>();
+
+            using(var fast = _frameRectSheet.FastLock())
+            {
+                // Draw the frame bounds now
+                uint color = unchecked((uint)Color.Red.ToArgb());
+                foreach (Rectangle fRect in rects)
                 {
-                    rects = (_sheetExport.FrameRects.Select(f => (RectangleF)f.SheetArea)).ToArray();
-                    reuseCount = _sheetExport.ReuseCounts;
-                }
-                else if (Importer != null && _frameRects != null)
-                {
-                    rects = (_frameRects.Select(f => (RectangleF)f)).ToArray();
-                    reuseCount = _frameRects.Select(f => 1).ToArray();
-                }
+                    // Avoid redrawing the same frame bound multiple times
+                    if (drawnRects.Contains(fRect))
+                        continue;
+                    drawnRects.Add(fRect);
 
-                if (rects != null)
-                {
-                    var drawnRects = new HashSet<RectangleF>();
+                    // Draw the rectangle using a fast bitmap for quick pixel modification
+                    int l = fRect.Left, r = fRect.Right, t = fRect.Top, b = fRect.Bottom;
 
-                    // Draw the frame bounds now
-                    int j = 0;
-                    foreach (RectangleF fRect in rects)
+                    // Top and bottom lines
+                    for (int x = l; x < r; x++)
                     {
-                        RectangleF r = fRect;
-                        r.X += 0.5f;
-                        r.Y += 0.5f;
-                        r.Width -= 0.5f;
-                        r.Height -= 0.5f;
+                        fast.SetPixel(x, t, color);
+                        fast.SetPixel(x, b - 1, color);
+                    }
 
-                        // Avoid redrawing the same frame bound multiple times
-                        if (drawnRects.Contains(fRect))
-                        {
-                            j++;
-                            continue; 
-                        }
-                        drawnRects.Add(fRect);
+                    // Left and right lines
+                    for (int y = t; y < b; y++)
+                    {
+                        fast.SetPixel(l, y, color);
+                        fast.SetPixel(r - 1, y, color);
+                    }
+                }
+            }
 
-                        graphics.DrawRectangle(Pens.Red, r.X, r.Y, r.Width, r.Height);
+            if (!_displayReusedCount)
+                return;
 
-                        // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
-                        if (_displayReusedCount)
-                        {
-                            Point pixelPoint = new Point((int)Math.Floor(r.X + 0.5f), (int)Math.Floor(r.Y + 0.5f));
+            drawnRects.Clear();
 
-                            int digitsScale = 3;
-                            int frameCount = reuseCount[j++] + 1;
+            using (var g = Graphics.FromImage(_frameRectSheet))
+            {
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.CompositingMode = CompositingMode.SourceCopy;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
 
-                            while ((r.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 || r.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2) && digitsScale > 1)
-                                digitsScale--;
+                // Draw the reuse count now
+                for (int i = 0; i < rects.Length; i++)
+                {
+                    var fRect = rects[i];
 
-                            RenderPixelNumber(graphics, pixelPoint, frameCount, digitsScale);
-                        }
+                    fRect.X += 1;
+                    fRect.Y += 1;
+
+                    // Avoid redrawing the same frame bound multiple times
+                    if (drawnRects.Contains(fRect))
+                        continue;
+                    drawnRects.Add(fRect);
+
+                    // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
+                    if (_displayReusedCount)
+                    {
+                        Point pixelPoint = fRect.Location;
+
+                        int digitsScale = 3;
+                        int frameCount = reuseCount[i] + 1;
+
+                        while ((fRect.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 ||
+                                fRect.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2)
+                               && digitsScale > 1)
+                            digitsScale--;
+
+                        RenderPixelNumber(g, pixelPoint, frameCount, digitsScale);
                     }
                 }
             }
@@ -318,7 +348,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="point">The point to render the number at</param>
         /// <param name="number">The number to render</param>
         /// <param name="digitsScale">The scaling to use. Set to 1 to pass the default scale</param>
-        void RenderPixelNumber(Graphics g, Point point, int number, int digitsScale = 1)
+        static void RenderPixelNumber(Graphics g, Point point, int number, int digitsScale = 1)
         {
             string numberString = Math.Abs(number).ToString();
             int x = 0;
@@ -349,7 +379,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="digit">A valid digit between 0-9</param>
         /// <returns>An image that represents the given digit</returns>
-        Image ImageForDigit(int digit)
+        static Image ImageForDigit(int digit)
         {
             if (digit < 0 || digit >= _pixelDigitsImages.Length)
                 return _pixelDigitsImages[0];
