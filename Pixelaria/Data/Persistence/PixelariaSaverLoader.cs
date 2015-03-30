@@ -23,7 +23,6 @@
 using System.Drawing;
 using System.IO;
 
-using Pixelaria.Data.Persistence.PixelariaFileBlocks;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence

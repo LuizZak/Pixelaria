@@ -1207,19 +1207,16 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Decorates the under image, using the given event arguments
         /// </summary>
-        /// <param name="bitmap"></param>
         public virtual void DecorateUnderBitmap(Bitmap bitmap) { }
 
         /// <summary>
         /// Decorates the main image, using the given event arguments
         /// </summary>
-        /// <param name="bitmap"></param>
         public virtual void DecorateMainBitmap(Bitmap bitmap) { }
 
         /// <summary>
         /// Decorates the front image, using the given event arguments
         /// </summary>
-        /// <param name="bitmap"></param>
         public virtual void DecorateOverBitmap(Bitmap bitmap) { }
     }
 }

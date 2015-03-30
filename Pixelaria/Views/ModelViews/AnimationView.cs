@@ -795,12 +795,10 @@ namespace Pixelaria.Views.ModelViews
                 AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 // Maintain a copy of the list of added frames so the control can select them after
-                List<IFrame> copiedFrames = new List<IFrame>();
-                foreach (IFrame frame in frameListClip.Frames)
-                {
-                    Frame newFrame = _controller.FrameFactory.CloneFrame(frame);
-                    copiedFrames.Add(newFrame);
-                }
+                var copiedFrames =
+                    frameListClip.Frames.Select(frame => _controller.FrameFactory.CloneFrame(frame))
+                        .Cast<IFrame>()
+                        .ToList();
 
                 _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
@@ -811,7 +809,7 @@ namespace Pixelaria.Views.ModelViews
                 RefreshView();
 
                 // Select the newly added frames
-                foreach (IFrame frame in copiedFrames)
+                foreach (var frame in copiedFrames)
                 {
                     GetListViewItemForFrame(frame).Selected = true;
                 }

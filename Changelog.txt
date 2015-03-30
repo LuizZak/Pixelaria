@@ -4,7 +4,7 @@
                               
              *   *   *   *   *
 
-                  v1.17.5b
+                  v1.17.7b
 
 Pixel Art Animation Creation and Exporting Tool
      Copyright © 2013 Luiz Fernando Silva
@@ -20,7 +20,11 @@ Caption:
 
 -- Current Release
 
-+ Added ability to sabe a specified animation as a single sequential sprite strip image.
+
+
+-- 1.17.7b
+
++ Added ability to save a specified animation as a single sequential sprite strip image.
 
 * Fixed resizing images with the Stretch mode making them slightly offset.
 * Improved performance of the preview updating in the animation import view.

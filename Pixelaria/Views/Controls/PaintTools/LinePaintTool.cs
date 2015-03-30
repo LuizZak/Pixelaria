@@ -38,11 +38,6 @@ namespace Pixelaria.Views.Controls.PaintTools
     public class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
     {
         /// <summary>
-        /// The compositing mode for this paint operation
-        /// </summary>
-        private CompositingMode _compositingMode;
-
-        /// <summary>
         /// Graphics used to draw on the bitmap
         /// </summary>
         private Graphics _graphics;
@@ -89,7 +84,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
         /// </summary>
-        public CompositingMode CompositingMode { get { return _compositingMode; } set { _compositingMode = value; } }
+        public CompositingMode CompositingMode { get; set; }
 
         /// <summary>
         /// Initialies a new instance of the LinePaintTool class, setting the two drawing colors
@@ -148,7 +143,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             if (mouseDown && (mouseButton == MouseButtons.Left || mouseButton == MouseButtons.Right))
             {
-                PerformLineOperation((mouseButton == MouseButtons.Left ? _firstColor : _secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, _compositingMode, Size, false);
+                PerformLineOperation((mouseButton == MouseButtons.Left ? _firstColor : _secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, CompositingMode, Size, false);
             }
         }
 
@@ -203,7 +198,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 {
                     Color color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
 
-                    PerPixelUndoTask task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, _compositingMode, Size, true);
+                    PerPixelUndoTask task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, CompositingMode, Size, true);
 
                     if(task.PixelHistoryTracker.PixelCount > 0)
                     {
@@ -258,18 +253,10 @@ namespace Pixelaria.Views.Controls.PaintTools
             };
 
             operation.StartOpertaion(false);
-
             operation.DrawTo(secondPoint.X, secondPoint.Y);
-
             operation.FinishOperation();
 
-
-            if (recordUndo)
-            {
-                return generator.UndoTask;
-            }
-
-            return null;
+            return recordUndo ? generator.UndoTask : null;
         }
     }
 }

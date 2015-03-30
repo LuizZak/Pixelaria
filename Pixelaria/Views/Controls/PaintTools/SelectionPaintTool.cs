@@ -104,11 +104,6 @@ namespace Pixelaria.Views.Controls.PaintTools
         protected Bitmap selectionBitmap;
 
         /// <summary>
-        /// The mode of the current selection operation
-        /// </summary>
-        private SelectionOperationType _operationMode;
-
-        /// <summary>
         /// The undo event handler
         /// </summary>
         private UndoSystem.UndoEventHandler _undoHandler;
@@ -130,7 +125,17 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets the area the selection is currently occupying in the canvas
         /// </summary>
-        public Rectangle SelectionArea { get { return selectedArea; } set { selectedArea = value; pictureBox.Invalidate(GetSelectionArea(true)); } }
+        public Rectangle SelectionArea
+        {
+            get { return selectedArea; }
+            set
+            {
+                // Invalidate before and after the modification
+                pictureBox.Invalidate(GetSelectionArea(true));
+                selectedArea = value;
+                pictureBox.Invalidate(GetSelectionArea(true));
+            }
+        }
 
         /// <summary>
         /// Gets the area the selection was snipped from
@@ -140,7 +145,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets the operation currently being performed by this SelectionPaintOperation
         /// </summary>
-        public SelectionOperationType OperationType { get { return _operationMode; } }
+        public SelectionOperationType OperationType { get; private set; }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
@@ -295,7 +300,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public void Cut()
         {
-            _operationMode = SelectionOperationType.Cut;
+            OperationType = SelectionOperationType.Cut;
 
             Copy();
 
@@ -340,7 +345,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             {
                 FinishOperation(true);
 
-                _operationMode = SelectionOperationType.Paste;
+                OperationType = SelectionOperationType.Paste;
 
                 // Get the top-left pixel to place the selection at
                 Point loc = GetAbsolutePoint(new PointF(0, 0));
@@ -464,7 +469,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if (!selectedArea.Contains(p))
             {
-                if (selected && (selectedArea != selectedStartArea || ForceApplyChanges || _operationMode == SelectionOperationType.Paste))
+                if (selected && (selectedArea != selectedStartArea || ForceApplyChanges || OperationType == SelectionOperationType.Paste))
                 {
                     FinishOperation(true);
                 }
@@ -542,7 +547,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                     movingSelection = false;
                     displaySelection = true;
 
-                    if(_operationMode != SelectionOperationType.Paste && selectedArea != selectedStartArea)
+                    if(OperationType != SelectionOperationType.Paste && selectedArea != selectedStartArea)
                         pictureBox.MarkModified();
 
                     UpdateClipboardState();
@@ -557,7 +562,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                         selected = true;
                         _animTimer.Start();
 
-                        _operationMode = SelectionOperationType.Moved;
+                        OperationType = SelectionOperationType.Moved;
 
                         selectedStartArea = selectedArea;
 
@@ -585,68 +590,67 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.KeyDown(e);
 
             // Selection delete
-            if (e.KeyCode == Keys.Delete)
+            switch (e.KeyCode)
             {
-                if (selected)
-                {
-                    if (_operationMode == SelectionOperationType.Paste)
+                case Keys.Delete:
+                    if (selected)
                     {
-                        CancelOperation(false);
-                    }
-                    else
-                    {
-                        FinishOperation(false);
-                        pictureBox.MarkModified();
-                    }
+                        if (OperationType == SelectionOperationType.Paste)
+                        {
+                            CancelOperation(false);
+                        }
+                        else
+                        {
+                            FinishOperation(false);
+                            pictureBox.MarkModified();
+                        }
 
-                    _operationMode = SelectionOperationType.Cut;
-                }
-            }
-            // Selection moving
-            else if (e.KeyCode == Keys.Left)
-            {
-                pictureBox.Invalidate(GetSelectionArea(true));
-                selectedArea.X--;
-                pictureBox.Invalidate(GetSelectionArea(true));
-            }
-            else if (e.KeyCode == Keys.Right)
-            {
-                pictureBox.Invalidate(GetSelectionArea(true));
-                selectedArea.X++;
-                pictureBox.Invalidate(GetSelectionArea(true));
-            }
-            else if (e.KeyCode == Keys.Up)
-            {
-                pictureBox.Invalidate(GetSelectionArea(true));
-                selectedArea.Y--;
-                pictureBox.Invalidate(GetSelectionArea(true));
-            }
-            else if (e.KeyCode == Keys.Down)
-            {
-                pictureBox.Invalidate(GetSelectionArea(true));
-                selectedArea.Y++;
-                pictureBox.Invalidate(GetSelectionArea(true));
-            }
-            // Undoing
-            else if (e.KeyCode == Keys.Z && e.Modifiers == Keys.Control)
-            {
-                if (OperationType == SelectionOperationType.Moved)
-                {
-                    // If the selection area is not the same as the start...
-                    if (selectedArea != selectedStartArea)
-                    {
-                        pictureBox.Invalidate(GetSelectionArea(true));
-
-                        selectedArea = selectedStartArea;
-
-                        pictureBox.Invalidate(GetSelectionArea(true));
+                        OperationType = SelectionOperationType.Cut;
                     }
-                    // If it's the same area, cancel the operation
-                    else
+                    break;
+
+                case Keys.Left:
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    selectedArea.X--;
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    break;
+
+                case Keys.Right:
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    selectedArea.X++;
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    break;
+
+                case Keys.Up:
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    selectedArea.Y--;
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    break;
+
+                case Keys.Down:
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    selectedArea.Y++;
+                    pictureBox.Invalidate(GetSelectionArea(true));
+                    break;
+
+                default:
+                    if (e.KeyCode == Keys.Z && e.Modifiers == Keys.Control)
                     {
-                        CancelOperation(true);
+                        if (OperationType == SelectionOperationType.Moved)
+                        {
+                            // If the selection area is not the same as the start...
+                            if (selectedArea != selectedStartArea)
+                            {
+                                SelectionArea = selectedStartArea;
+                            }
+                            // If it's the same area, cancel the operation
+                            else
+                            {
+                                CancelOperation(true);
+                            }
+                        }
                     }
-                }
+                    break;
             }
         }
 
@@ -696,7 +700,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="pasteBitmap">The bitmap to paste</param>
         public void StartOperation(Rectangle area, Bitmap pasteBitmap)
         {
-            StartOperation(area, pasteBitmap, _operationMode);
+            StartOperation(area, pasteBitmap, OperationType);
         }
 
         /// <summary>
@@ -709,7 +713,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             pictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection", true);
 
-            _operationMode = operation;
+            OperationType = operation;
 
             ForceApplyChanges = false;
 
@@ -759,7 +763,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (!selected)
                 return;
 
-            if (_operationMode == SelectionOperationType.Moved && drawOnCanvas)
+            if (OperationType == SelectionOperationType.Moved && drawOnCanvas)
             {
                 if (selectionBitmap != null)
                 {
@@ -797,7 +801,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             UpdateClipboardState();
 
             // Default the operation mode to 'Moved'
-            _operationMode = SelectionOperationType.Moved;
+            OperationType = SelectionOperationType.Moved;
         }
 
         /// <summary>
@@ -834,10 +838,10 @@ namespace Pixelaria.Views.Controls.PaintTools
                 graphics = null;
             }
 
-            if (selectedArea != selectedStartArea || _operationMode != SelectionOperationType.Moved || ForceApplyChanges)
+            if (selectedArea != selectedStartArea || OperationType != SelectionOperationType.Moved || ForceApplyChanges)
             {
                 // Record the undo operation
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(pictureBox.Bitmap, selectionBitmap, originalSlice, selectedStartArea, selectedArea, _operationMode, compositingMode));
+                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(pictureBox.Bitmap, selectionBitmap, originalSlice, selectedStartArea, selectedArea, OperationType, compositingMode));
 
                 pictureBox.MarkModified();
             }
@@ -860,7 +864,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             UpdateClipboardState();
 
             // Default the operation mode to 'Moved'
-            _operationMode = SelectionOperationType.Moved;
+            OperationType = SelectionOperationType.Moved;
 
             pictureBox.OwningPanel.UndoSystem.FinishGroupUndo();
         }

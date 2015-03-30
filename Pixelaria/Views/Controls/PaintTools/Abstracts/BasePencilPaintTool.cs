@@ -303,24 +303,26 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             Point absolutePencil = Point.Round(GetAbsolutePoint(mouseControlPoint));
 
             // Mouse down
-            if (e.Button == MouseButtons.Left)
+            switch (e.Button)
             {
-                penId = 0;
+                // Left
+                case MouseButtons.Left:
+                    penId = 0;
 
-                StartOperation(absolutePencil);
-            }
-            else if (e.Button == MouseButtons.Right)
-            {
-                penId = 1;
+                    StartOperation(absolutePencil);
+                    break;
+                // Right
+                case MouseButtons.Right:
+                    penId = 1;
 
-                StartOperation(absolutePencil);
-            }
-            // Color pick
-            else if (e.Button == MouseButtons.Middle)
-            {
-                mouseDown = true;
+                    StartOperation(absolutePencil);
+                    break;
+                // Middle
+                case MouseButtons.Middle:
+                    mouseDown = true;
 
-                ColorPickAtPoint(absolutePencil);
+                    ColorPickAtPoint(absolutePencil);
+                    break;
             }
         }
 
