@@ -284,6 +284,8 @@ namespace Pixelaria.Data
             }
 
             dup.Name = anim.Name + "_" + n;
+            // Duplicate the ID
+            dup.ID = GetNextValidAnimationID();
 
             return dup;
         }
@@ -437,6 +439,9 @@ namespace Pixelaria.Data
             {
                 DuplicateAnimation(anim, dup, false);
             }
+
+            // Duplicate the ID
+            dup.ID = GetNextValidAnimationSheetID();
 
             return dup;
         }

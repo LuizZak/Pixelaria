@@ -20,6 +20,8 @@ Legend:
 
 -- Current Release
 
+- The layer panel does not display a vertical scroll bar when the layer views overflow the container.
+
 - When moving slices of the image with the selection tool, the preview panel's image is not updated accordingly.
 
 - Setting the FPS of an animation down to zero and putting it back up again freezes the animation playback.

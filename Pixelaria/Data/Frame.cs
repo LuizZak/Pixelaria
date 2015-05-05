@@ -388,7 +388,7 @@ namespace Pixelaria.Data
                 throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "bitmap");
             }
 
-            FrameLayer layer = (FrameLayer)CreateLayer(layerIndex);
+            var layer = (FrameLayer)CreateLayer(layerIndex);
 
             layer.CopyFromBitmap(bitmap);
 
