@@ -143,7 +143,7 @@ namespace Pixelaria.Data
         /// <returns>an Animation object that is the exact copy of this Animation</returns>
         public Animation Clone()
         {
-            Animation anim = new Animation(Name, Width, Height);
+            var anim = new Animation(Name, Width, Height);
 
             anim.CopyFrom(this, false);
 
@@ -546,7 +546,7 @@ namespace Pixelaria.Data
             Animation other = (Animation) obj;
 
             if (Name != other.Name || _frames == null || other._frames == null || _frames.Count != other._frames.Count || Width != other.Width || Height != other.Height ||
-                !ExportSettings.Equals(other.ExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings))
+                !ExportSettings.Equals(other.ExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings) || ID != other.ID)
                 return false;
 
             // Check frame-by-frame for an innequality

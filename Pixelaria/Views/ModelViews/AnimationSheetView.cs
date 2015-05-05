@@ -370,10 +370,7 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The new AnimationSheet object</returns>
         public AnimationSheet GenerateAnimationSheet()
         {
-            AnimationSheet sheet = new AnimationSheet(txt_sheetName.Text) { ExportSettings = RepopulateExportSettings() };
-
-
-            return sheet;
+            return new AnimationSheet(txt_sheetName.Text) { ExportSettings = RepopulateExportSettings() };
         }
 
         // 

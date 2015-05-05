@@ -77,6 +77,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Animation anim2 = anim1.Clone();
 
             Assert.AreEqual(anim1, anim2,  "The animations after a Clone() operation must be equal");
+            Assert.AreNotSame(anim1, anim2);
 
             // Change the animations by adding frames
             anim2.CreateFrame();

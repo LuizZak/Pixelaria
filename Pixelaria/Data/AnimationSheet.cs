@@ -68,6 +68,7 @@ namespace Pixelaria.Data
         /// <param name="name">The name for this animation sheet</param>
         public AnimationSheet(string name)
         {
+            ID = -1;
             Name = name;
             _animations = new List<Animation>();
         }

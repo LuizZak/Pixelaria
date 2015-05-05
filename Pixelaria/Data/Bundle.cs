@@ -115,14 +115,14 @@ namespace Pixelaria.Data
             SaveFile = "";
 
             // Animation clearing
-            foreach (Animation anim in _animations)
+            foreach (var anim in _animations)
             {
                 anim.Dispose();
             }
             _animations.Clear();
 
             // Animation sheet clearing
-            foreach (AnimationSheet sheet in _animationSheets)
+            foreach (var sheet in _animationSheets)
             {
                 sheet.ClearAnimationList();
             }
@@ -195,6 +195,11 @@ namespace Pixelaria.Data
             if (anim.ID == -1)
                 anim.ID = GetNextValidAnimationID();
 
+            if (GetAnimationByID(anim.ID) != null)
+            {
+                throw new ArgumentException("Trying to add an animation that has a conflict of IDs with an animation already on this bundle.");
+            }
+
             _animations.Add(anim);
             anim.OwnerBundle = this;
 
@@ -257,7 +262,9 @@ namespace Pixelaria.Data
         /// <returns>The new animation that was duplicated</returns>
         public Animation DuplicateAnimation(Animation anim, AnimationSheet sheet, bool rearrange = true)
         {
-            Animation dup = anim.Clone();
+            var dup = anim.Clone();
+
+            dup.ID = GetNextValidAnimationID();
 
             sheet = (sheet ?? GetOwningAnimationSheet(anim));
 
@@ -284,8 +291,6 @@ namespace Pixelaria.Data
             }
 
             dup.Name = anim.Name + "_" + n;
-            // Duplicate the ID
-            dup.ID = GetNextValidAnimationID();
 
             return dup;
         }
@@ -362,6 +367,11 @@ namespace Pixelaria.Data
             if(sheet.ID == -1)
                 sheet.ID = GetNextValidAnimationSheetID();
 
+            if (GetAnimationSheetByID(sheet.ID) != null)
+            {
+                throw new ArgumentException("Trying to add an animation sheet that has a conflict of IDs with an animation sheet already on this bundle.");
+            }
+
             _animationSheets.Add(sheet);
 
             foreach (var animation in sheet.Animations)
@@ -428,20 +438,19 @@ namespace Pixelaria.Data
             string dupName = sheet.Name + "_" + n;
 
             // Create the duplicated animation sheet
-            AnimationSheet dup = new AnimationSheet(dupName);
+            var dup = new AnimationSheet(dupName)
+            {
+                ID = GetNextValidAnimationSheetID(),
+                ExportSettings = sheet.ExportSettings
+            };
 
             AddAnimationSheet(dup);
-
-            dup.ExportSettings = sheet.ExportSettings;
 
             // Duplicate the animations
             foreach (Animation anim in sheet.Animations)
             {
                 DuplicateAnimation(anim, dup, false);
             }
-
-            // Duplicate the ID
-            dup.ID = GetNextValidAnimationSheetID();
 
             return dup;
         }
@@ -597,7 +606,7 @@ namespace Pixelaria.Data
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Bundle other = (Bundle) obj;
+            var other = (Bundle)obj;
 
             if (Name != other.Name || ExportPath != other.ExportPath || SaveFile != other.SaveFile ||
                 _animations == null || other._animations == null || _animationSheets == null ||

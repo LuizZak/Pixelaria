@@ -20,6 +20,7 @@ Caption:
 
 -- Current Release
 
+* Fixed issues that occurred after saving files after duplicating animations/animation sheets.
 
 
 -- 1.17.7b

@@ -785,7 +785,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         public void ShowCreateAnimationSheet()
         {
-            AnimationSheetView ed = new AnimationSheetView(this);
+            var ed = new AnimationSheetView(this);
 
             if (ed.ShowDialog(_mainForm) == DialogResult.OK)
             {
