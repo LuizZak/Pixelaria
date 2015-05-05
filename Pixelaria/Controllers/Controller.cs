@@ -145,6 +145,44 @@ namespace Pixelaria.Controllers
         /// </summary>
         public RecentFileList CurrentRecentFileList { get { return _recentFileList; } }
 
+        #region Eventing
+
+        /// <summary>
+        /// Delegate for animation-related events
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void AnimationEventHandler(object sender, AnimationEventArgs args);
+
+        /// <summary>
+        /// Delegate for animation sheet-related events
+        /// </summary>
+        /// <param name="sender">The sender for the event</param>
+        /// <param name="args">The arguments for the event</param>
+        public delegate void AnimationSheetEventHandler(object sender, AnimationSheetEventArgs args);
+
+        /// <summary>
+        /// Event fired whenever an animation has been added to a bundle
+        /// </summary>
+        public event AnimationEventHandler AnimationAdded;
+
+        /// <summary>
+        /// Event fired whenever an animation has been removed from a bundle
+        /// </summary>
+        public event AnimationEventHandler AnimationRemoved;
+
+        /// <summary>
+        /// Event fired whenever an animation sheet has been added to a bundle
+        /// </summary>
+        public event AnimationSheetEventHandler AnimationSheetAdded;
+
+        /// <summary>
+        /// Event fired whenever an animation sheet has been removed from a bundle
+        /// </summary>
+        public event AnimationSheetEventHandler AnimationSheetRemoved;
+
+        #endregion
+
         /// <summary>
         /// Controller constructor
         /// </summary>
@@ -352,6 +390,11 @@ namespace Pixelaria.Controllers
                 _mainForm.AddAnimation(anim);
             }
 
+            if (AnimationAdded != null)
+            {
+                AnimationAdded(this, new AnimationEventArgs(anim));
+            }
+
             MarkUnsavedChanges(true);
         }
 
@@ -364,6 +407,11 @@ namespace Pixelaria.Controllers
             _currentBundle.RemoveAnimation(anim);
 
             _mainForm.RemoveAnimation(anim);
+
+            if (AnimationRemoved != null)
+            {
+                AnimationRemoved(this, new AnimationEventArgs(anim));
+            }
 
             MarkUnsavedChanges(true);
 
@@ -437,6 +485,11 @@ namespace Pixelaria.Controllers
                 _mainForm.AddAnimationSheet(sheet);
             }
 
+            if (AnimationSheetAdded != null)
+            {
+                AnimationSheetAdded(this, new AnimationSheetEventArgs(sheet));
+            }
+
             MarkUnsavedChanges(true);
         }
 
@@ -460,6 +513,11 @@ namespace Pixelaria.Controllers
             _currentBundle.RemoveAnimationSheet(sheet, false);
 
             _mainForm.RemoveAnimationSheet(sheet);
+
+            if (AnimationSheetRemoved != null)
+            {
+                AnimationSheetRemoved(this, new AnimationSheetEventArgs(sheet));
+            }
 
             MarkUnsavedChanges(true);
         }
@@ -1058,6 +1116,44 @@ namespace Pixelaria.Controllers
             {
                 ShowSaveImage(stripImage, animation.Name);
             }
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for an animation-related event
+    /// </summary>
+    public class AnimationEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the animation binded to this event
+        /// </summary>
+        public Animation Animation { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the AnimationEventArgs class with an animation to attach to this event argument
+        /// </summary>
+        public AnimationEventArgs(Animation animation)
+        {
+            Animation = animation;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for an animation sheet-related event
+    /// </summary>
+    public class AnimationSheetEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the animation sheet binded to this event
+        /// </summary>
+        public AnimationSheet AnimationSheet { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the AnimationSheetEventArgs class with an animation sheet to attach to this event argument
+        /// </summary>
+        public AnimationSheetEventArgs(AnimationSheet animationSheet)
+        {
+            AnimationSheet = animationSheet;
         }
     }
 }
