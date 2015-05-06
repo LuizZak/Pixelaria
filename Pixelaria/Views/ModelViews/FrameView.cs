@@ -87,7 +87,7 @@ namespace Pixelaria.Views.ModelViews
         private Bitmap _viewFrameBitmap;
 
         /// <summary>
-        /// Previous frame index
+        /// Previous frame index, used to fire frame changed events
         /// </summary>
         private int _oldFrameIndex;
 
@@ -1950,6 +1950,7 @@ namespace Pixelaria.Views.ModelViews
             private void HookEvents()
             {
                 _frameView.lcp_layers.LayerStatusesUpdated += OnLayerStatusesUpdated;
+                _frameView.EditFrameChanged += frameView_EditFrameChanged;
 
                 _frameView.iepb_frame.PictureBox.Modified += PictureBoxOnModified;
 
@@ -2043,6 +2044,18 @@ namespace Pixelaria.Views.ModelViews
                 _frameView.lcp_layers.UpdateLayersDisplay();
                 UpdateEditActiveLayer();
             }
+
+            #region FrameView event handlers
+
+            // 
+            // FrameView Current Frame Changed event handler
+            // 
+            void frameView_EditFrameChanged(object sender, EditFrameChangedEventArgs args)
+            {
+                _layerController.ActiveLayerIndex = _layerController.LayerCount - 1;
+            }
+
+            #endregion
 
             #region ImageEditPanel.PictureBox event handlers
 

@@ -24,6 +24,7 @@ Caption:
 
 . FrameView
   + Added scroll bars to the layers panel.
+  . Now the top-most layer is selected when a frame is opened to be edited.
 
 
 -- 1.17.7b
