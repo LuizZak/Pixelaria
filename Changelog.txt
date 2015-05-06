@@ -22,6 +22,9 @@ Caption:
 
 * Fixed issues that occurred after saving files after duplicating animations/animation sheets.
 
+. FrameView
+  + Added scroll bars to the layers panel.
+
 
 -- 1.17.7b
 

@@ -51,6 +51,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.pnl_container.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnl_container.AutoScroll = true;
             this.pnl_container.Location = new System.Drawing.Point(0, 49);
             this.pnl_container.Name = "pnl_container";
             this.pnl_container.Size = new System.Drawing.Size(125, 283);
@@ -66,12 +67,12 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.labeledPanel1.Size = new System.Drawing.Size(125, 18);
             this.labeledPanel1.TabIndex = 0;
             // 
-            // contextMenuStrip1
+            // cms_layersRightClick
             // 
             this.cms_layersRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmb_combineLayers});
             this.cms_layersRightClick.Name = "cms_layersRightClick";
-            this.cms_layersRightClick.Size = new System.Drawing.Size(160, 48);
+            this.cms_layersRightClick.Size = new System.Drawing.Size(160, 26);
             // 
             // cmb_combineLayers
             // 

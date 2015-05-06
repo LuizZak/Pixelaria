@@ -162,11 +162,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerMoved(object sender, LayerControllerLayerMovedEventArgs args)
         {
-            LayerControl secondLayer = _layerControls[args.NewIndex];
-            _layerControls[args.NewIndex] = _layerControls[args.LayerIndex];
-            _layerControls[args.LayerIndex] = secondLayer;
-
-            ArrangeControls();
+            SwapLayerControls(args.NewIndex, args.LayerIndex);
             ClearSelection();
         }
 
@@ -309,7 +305,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <param name="arrangeAfter">Whether to call the ArrangeControls method after adding the control</param>
         private void AddLayerControl(IFrameLayer layer, bool arrangeAfter = true)
         {
-            LayerControl control = new LayerControl(layer);
+            var control = new LayerControl(layer);
 
             control.LayerClicked += OnLayerControlClicked;
             control.LayerStatusChanged += OnLayerStatusChanged;
@@ -340,16 +336,6 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <param name="arrangeAfter">Whether to call the ArrangeControls method after removing the control</param>
         private void RemoveLayerControl(LayerControl control, bool arrangeAfter = true)
         {
-            control.LayerStatusChanged -= OnLayerStatusChanged;
-            control.LayerClicked -= OnLayerControlClicked;
-            control.DuplicateLayerSelected -= OnDuplicateLayerSelected;
-            control.RemoveLayerSelected -= OnRemoveLayerSelected;
-            control.LayerControlDragged -= OnLayerControlDragged;
-            control.LayerNameEdited -= OnLayerNameEdited;
-
-            control.LayerImagePressed -= OnLayerImagePressed;
-            control.LayerImageReleased -= OnLayerImageReleased;
-
             control.Dispose();
 
             Controls.Remove(control);
@@ -434,6 +420,30 @@ namespace Pixelaria.Views.Controls.LayerControls
             return _layerControls.FirstOrDefault(control => ReferenceEquals(control.Layer, layer));
         }
 
+        /// <summary>
+        /// Swaps two layer controls over, using their indexes on the layer control array
+        /// </summary>
+        /// <param name="layerIndex1">The first layer control to swap</param>
+        /// <param name="layerIndex2">The second layer control to swap</param>
+        private void SwapLayerControls(int layerIndex1, int layerIndex2)
+        {
+            pnl_container.SuspendLayout();
+
+            var layerControl1 = _layerControls[layerIndex1];
+            var layerControl2 = _layerControls[layerIndex2];
+
+            // Swap positions
+            var loc1 = layerControl1.Location;
+            layerControl1.Location = layerControl2.Location;
+            layerControl2.Location = loc1;
+
+            // Swap indices
+            _layerControls[layerIndex1] = layerControl2;
+            _layerControls[layerIndex2] = layerControl1;
+
+            pnl_container.ResumeLayout(true);
+        }
+
         // 
         // Create New Layer button click
         // 
@@ -482,7 +492,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnDuplicateLayerSelected(object sender, EventArgs eventArgs)
         {
             // Convert the sender
-            LayerControl control = sender as LayerControl;
+            var control = sender as LayerControl;
             if (control == null)
                 return;
 
@@ -495,7 +505,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnRemoveLayerSelected(object sender, EventArgs eventArgs)
         {
             // Convert the sender
-            LayerControl control = sender as LayerControl;
+            var control = sender as LayerControl;
             if (control == null)
                 return;
 
@@ -511,7 +521,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerControlDragged(object sender, LayerControlDragEventArgs args)
         {
             // Get the index of the control being dragged
-            LayerControl control = sender as LayerControl;
+            var control = sender as LayerControl;
             if (control == null)
                 return;
 
@@ -524,11 +534,10 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (newIndex < 0 || newIndex >= _controller.LayerCount)
                 return;
 
-            var layerControl = _layerControls[index];
-            _layerControls[index] = _layerControls[newIndex];
-            _layerControls[newIndex] = layerControl;
+            SwapLayerControls(index, newIndex);
 
-            ArrangeControls();
+            // Keep the swapped layer in focus
+            pnl_container.ScrollControlIntoView(control);
         }
 
         // 
@@ -536,7 +545,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerNameEdited(object sender, string newName)
         {
-            LayerControl control = sender as LayerControl;
+            var control = sender as LayerControl;
             if (control == null)
                 return;
 
@@ -556,7 +565,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerImageReleased(object sender, MouseEventArgs mouseEventArgs)
         {
             // Get the index of the control being dragged
-            LayerControl control = sender as LayerControl;
+            var control = sender as LayerControl;
             if (control == null)
                 return;
 
@@ -613,9 +622,7 @@ namespace Pixelaria.Views.Controls.LayerControls
                 return;
 
             // Reset the layer control index
-            var layerControl = _layerControls[index];
-            _layerControls[index] = _layerControls[newIndex];
-            _layerControls[newIndex] = layerControl;
+            SwapLayerControls(index, newIndex);
 
             if (newIndex >= 0 && newIndex < _controller.LayerCount)
             {

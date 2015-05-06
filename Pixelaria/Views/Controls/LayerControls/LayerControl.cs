@@ -461,33 +461,30 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void pb_layerImage_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_pressingLayer)
+            if (!_pressingLayer) return;
+
+            if (_layerPressPoint.Distance(e.Location) > 20)
             {
-                if (_layerPressPoint.Distance(e.Location) > 20)
-                {
-                    _draggingLayer = true;
-                    Invalidate();
-                }
+                _draggingLayer = true;
+                Invalidate();
+            }
 
-                if (_draggingLayer)
+            if (_draggingLayer)
+            {
+                if (e.Location.Y < -pb_layerImage.Location.Y - 5)
                 {
-                    if (e.Location.Y < -pb_layerImage.Location.Y - 5)
+                    if (LayerControlDragged != null)
                     {
-                        if (LayerControlDragged != null)
-                        {
-                            LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Up));
-                        }
-                    }
-                    else if (e.Location.Y - pb_layerImage.Location.Y > Height + 5)
-                    {
-                        if (LayerControlDragged != null)
-                        {
-                            LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Down));
-                        }
+                        LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Up));
                     }
                 }
-
-                Debug.WriteLine(e.Location);
+                else if (e.Location.Y - pb_layerImage.Location.Y > Height + 5)
+                {
+                    if (LayerControlDragged != null)
+                    {
+                        LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Down));
+                    }
+                }
             }
         }
 
