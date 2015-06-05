@@ -290,7 +290,8 @@ namespace Pixelaria.Views
             }
 
             // Create the tree node now
-            il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White));
+            if(animation.FrameCount > 0)
+                il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White));
 
             int addIndex = Controller.GetAnimationIndex(animation);
 
@@ -550,10 +551,7 @@ namespace Pixelaria.Views
             foreach (var form in MdiChildren)
             {
                 var view = (ModifiableContentView)form;
-                if(view != null)
-                {
-                    view.ApplyChanges();
-                }
+                view?.ApplyChanges();
             }
 
             Controller.ShowSaveBundle(forceNew);
@@ -864,7 +862,7 @@ namespace Pixelaria.Views
         private void TreeViewMouseDown(object sender, MouseEventArgs e)
         {
             //throw new NotImplementedException();
-            if (e.Clicks == 2 && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is AnimationSheet && tv_bundleAnimations.Bounds.Contains(e.Location) && Math.Sqrt((_lastMousePoint.X - e.Location.X) * (_lastMousePoint.X - e.Location.X) + (_lastMousePoint.Y - e.Location.Y) * (_lastMousePoint.Y - e.Location.Y)) < 5)
+            if (e.Clicks == 2 && tv_bundleAnimations.SelectedNode?.Tag is AnimationSheet && tv_bundleAnimations.Bounds.Contains(e.Location) && Math.Sqrt((_lastMousePoint.X - e.Location.X) * (_lastMousePoint.X - e.Location.X) + (_lastMousePoint.Y - e.Location.Y) * (_lastMousePoint.Y - e.Location.Y)) < 5)
             {
                 _cancelExpandCollapseForNode = tv_bundleAnimations.SelectedNode;
             }
@@ -1015,9 +1013,9 @@ namespace Pixelaria.Views
         private void mi_addAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (tv_bundleAnimations.SelectedNode == null || !(tv_bundleAnimations.SelectedNode.Tag is AnimationSheet) ? null : (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag);
+            AnimationSheet sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
 
-            if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
+            if (sheet == null && tv_bundleAnimations.SelectedNode?.Tag is Animation)
             {
                 sheet = Controller.GetOwningAnimationSheet((Animation)tv_bundleAnimations.SelectedNode.Tag);
             }
@@ -1031,9 +1029,9 @@ namespace Pixelaria.Views
         private void tsb_createAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (tv_bundleAnimations.SelectedNode == null || !(tv_bundleAnimations.SelectedNode.Tag is AnimationSheet) ? null : (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag);
+            AnimationSheet sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
 
-            if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
+            if (sheet == null && tv_bundleAnimations.SelectedNode?.Tag is Animation)
             {
                 sheet = Controller.GetOwningAnimationSheet((Animation)tv_bundleAnimations.SelectedNode.Tag);
             }
@@ -1055,9 +1053,9 @@ namespace Pixelaria.Views
         private void tsb_importAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (tv_bundleAnimations.SelectedNode == null || !(tv_bundleAnimations.SelectedNode.Tag is AnimationSheet) ? null : (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag);
+            AnimationSheet sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
 
-            if (sheet == null && tv_bundleAnimations.SelectedNode != null && tv_bundleAnimations.SelectedNode.Tag is Animation)
+            if (sheet == null && tv_bundleAnimations.SelectedNode?.Tag is Animation)
             {
                 sheet = Controller.GetOwningAnimationSheet((Animation)tv_bundleAnimations.SelectedNode.Tag);
             }
@@ -1256,5 +1254,13 @@ namespace Pixelaria.Views
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Class that controls the presentation of a project tree view
+    /// </summary>
+    public class ProjectTreeViewController
+    {
+        
     }
 }

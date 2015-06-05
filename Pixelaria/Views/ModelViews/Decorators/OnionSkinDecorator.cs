@@ -93,10 +93,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// </summary>
         public override void Destroy()
         {
-            if (onionSkin != null)
-            {
-                onionSkin.Dispose();
-            }
+            onionSkin?.Dispose();
 
             frameView.EditFrameChanged -= _frameChangedEventHandler;
         }

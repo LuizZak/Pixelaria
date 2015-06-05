@@ -178,10 +178,7 @@ namespace Pixelaria.Views.Controls
         /// Gets whether the user is currently dragging the frame
         /// </summary>
         [Browsable(false)]
-        public bool DraggingFrame
-        {
-            get { return draggingFrame; }
-        }
+        public bool DraggingFrame => draggingFrame;
 
         /// <summary>
         /// Gets or sets this TimelineControl's minimum value
@@ -769,8 +766,7 @@ namespace Pixelaria.Views.Controls
                     Invalidate();
 
                     // Invoke the change event
-                    if (RangeChanged != null)
-                        RangeChanged.Invoke(this, new RangeChangedEventArgs(GetRange()));
+                    RangeChanged?.Invoke(this, new RangeChangedEventArgs(GetRange()));
                 }
             }
             // The user is dragging the view
@@ -837,8 +833,7 @@ namespace Pixelaria.Views.Controls
                     // Show the tooltip:
                     toolTip.Show("" + (drag.Value), this, (int)(drag.ScaledX), -25, 1000);
 
-                    if (RangeChanged != null)
-                        RangeChanged.Invoke(this, new RangeChangedEventArgs(GetRange()));
+                    RangeChanged?.Invoke(this, new RangeChangedEventArgs(GetRange()));
                 }
 
                 // Set the knob mouse over setting:
@@ -1484,10 +1479,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets this knob's scaled X component based on the parent TimelineControl's size
         /// </summary>
-        public double ScaledX
-        {
-            get { return GetRealX(); }
-        }
+        public double ScaledX => GetRealX();
 
         /// <summary>
         /// Gets or sets this knob's drawing offset
@@ -1537,8 +1529,7 @@ namespace Pixelaria.Views.Controls
         {
             PointF realDrawOffset = new PointF(drawOffset.X + (float)ScaledX,drawOffset.Y + parent.TimelineHeight);
 
-            if (_b != null)
-                _b.Dispose();
+            _b?.Dispose();
 
             // Fill it with a gray color if the parent is disabled
             if (!parent.Enabled)

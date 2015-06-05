@@ -524,10 +524,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             SetActiveColor(newColor);
 
             // Fire the event now
-            if (ColorChanged != null)
-            {
-                ColorChanged(this, new ColorChangedEventArgs(oldColor, activeColor, colorComponent));
-            }
+            ColorChanged?.Invoke(this, new ColorChangedEventArgs(oldColor, activeColor, colorComponent));
         }
 
         /// <summary>

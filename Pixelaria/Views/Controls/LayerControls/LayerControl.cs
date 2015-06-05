@@ -22,7 +22,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -127,10 +126,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
                 UpdateDisplay();
 
-                if (LayerStatusChanged != null)
-                {
-                    LayerStatusChanged(this, new LayerControlStatusChangedEventArgs(LayerStatus));
-                }
+                LayerStatusChanged?.Invoke(this, new LayerControlStatusChangedEventArgs(LayerStatus));
             }
         }
 
@@ -149,10 +145,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
                 UpdateDisplay();
 
-                if (LayerStatusChanged != null)
-                {
-                    LayerStatusChanged(this, new LayerControlStatusChangedEventArgs(LayerStatus));
-                }
+                LayerStatusChanged?.Invoke(this, new LayerControlStatusChangedEventArgs(LayerStatus));
             }
         }
 
@@ -176,31 +169,19 @@ namespace Pixelaria.Views.Controls.LayerControls
 
                 UpdateDisplay(false);
 
-                if (LayerStatusChanged != null)
-                {
-                    LayerStatusChanged(this, new LayerControlStatusChangedEventArgs(LayerStatus));
-                }
+                LayerStatusChanged?.Invoke(this, new LayerControlStatusChangedEventArgs(LayerStatus));
             }
         }
 
         /// <summary>
         /// Gets the display status for this layer control
         /// </summary>
-        public LayerStatus LayerStatus
-        {
-            get
-            {
-                return new LayerStatus(_layerVisible, _layerLocked, _transparency);
-            }
-        }
+        public LayerStatus LayerStatus => new LayerStatus(_layerVisible, _layerLocked, _transparency);
 
         /// <summary>
         /// Gets the layer this layer control is binded to
         /// </summary>
-        public IFrameLayer Layer
-        {
-            get { return _layer; }
-        }
+        public IFrameLayer Layer => _layer;
 
         /// <summary>
         /// Gets or sets a value specifying whether this layer control is currently selected
@@ -365,10 +346,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             // Do not fire any change notification if the label has not changed
             if (commit && txt_layerNameEditBox.Text != lbl_layerName.Text)
             {
-                if (LayerNameEdited != null)
-                {
-                    LayerNameEdited(this, txt_layerNameEditBox.Text);
-                }
+                LayerNameEdited?.Invoke(this, txt_layerNameEditBox.Text);
             }
 
             _editingName = false;
@@ -425,10 +403,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void btn_duplicate_Click(object sender, EventArgs e)
         {
-            if (DuplicateLayerSelected != null)
-            {
-                DuplicateLayerSelected(this, new EventArgs());
-            }
+            DuplicateLayerSelected?.Invoke(this, new EventArgs());
         }
 
         // 
@@ -436,10 +411,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void btn_remove_Click(object sender, EventArgs e)
         {
-            if (RemoveLayerSelected != null)
-            {
-                RemoveLayerSelected(this, new EventArgs());
-            }
+            RemoveLayerSelected?.Invoke(this, new EventArgs());
         }
 
         // 
@@ -450,10 +422,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             _layerPressPoint = e.Location;
             _pressingLayer = true;
 
-            if (LayerImagePressed != null)
-            {
-                LayerImagePressed(this, e);
-            }
+            LayerImagePressed?.Invoke(this, e);
         }
 
         // 
@@ -473,17 +442,11 @@ namespace Pixelaria.Views.Controls.LayerControls
             {
                 if (e.Location.Y < -pb_layerImage.Location.Y - 5)
                 {
-                    if (LayerControlDragged != null)
-                    {
-                        LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Up));
-                    }
+                    LayerControlDragged?.Invoke(this, new LayerControlDragEventArgs(LayerDragDirection.Up));
                 }
                 else if (e.Location.Y - pb_layerImage.Location.Y > Height + 5)
                 {
-                    if (LayerControlDragged != null)
-                    {
-                        LayerControlDragged(this, new LayerControlDragEventArgs(LayerDragDirection.Down));
-                    }
+                    LayerControlDragged?.Invoke(this, new LayerControlDragEventArgs(LayerDragDirection.Down));
                 }
             }
         }

@@ -39,7 +39,7 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Gets the type of the data currently stored in this ProgramClipboard
         /// </summary>
-        public string CurrentDataType { get { return _currentData == null ? "" : _currentData.GetDataType; } }
+        public string CurrentDataType => _currentData == null ? "" : _currentData.GetDataType;
 
         /// <summary>
         /// The delegate for the clipboard events
@@ -67,10 +67,7 @@ namespace Pixelaria.Data.Clipboard
 
             _currentData = dataObject;
 
-            if (ClipboardChanged != null)
-            {
-                ClipboardChanged.Invoke(this, new ClipboardEventArgs(_currentData, ClipboardEventType.Set));
-            }
+            ClipboardChanged?.Invoke(this, new ClipboardEventArgs(_currentData, ClipboardEventType.Set));
         }
 
         /// <summary>
@@ -90,10 +87,7 @@ namespace Pixelaria.Data.Clipboard
             _currentData.Clear();
             _currentData = null;
 
-            if (ClipboardChanged != null)
-            {
-                ClipboardChanged.Invoke(this, new ClipboardEventArgs(null, ClipboardEventType.Clear));
-            }
+            ClipboardChanged?.Invoke(this, new ClipboardEventArgs(null, ClipboardEventType.Clear));
         }
     }
 
@@ -174,7 +168,7 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Gets the frames currently added to this FrameListClipboardObject instance
         /// </summary>
-        public IFrame[] Frames { get { return _frameList.ToArray(); } }
+        public IFrame[] Frames => _frameList.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
@@ -223,7 +217,7 @@ namespace Pixelaria.Data.Clipboard
         /// Returns a string that specifies the data type of this ClipboardObject instance
         /// </summary>
         /// <returns>a string that specifies the data type of this ClipboardObject instance</returns>
-        public string GetDataType { get { return DataType; } }
+        public string GetDataType => DataType;
     }
 
     /// <summary>
@@ -244,7 +238,7 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Gets the animations currently added to this FrameListClipboardObject instance
         /// </summary>
-        public Animation[] Aniamtions { get { return _animList.ToArray(); } }
+        public Animation[] Aniamtions => _animList.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
@@ -293,7 +287,7 @@ namespace Pixelaria.Data.Clipboard
         /// Returns a string that specifies the data type of this ClipboardObject instance
         /// </summary>
         /// <returns>a string that specifies the data type of this ClipboardObject instance</returns>
-        public string GetDataType { get { return DataType; } }
+        public string GetDataType => DataType;
     }
 
     /// <summary>
@@ -314,7 +308,7 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Gets the stream that contains the image data
         /// </summary>
-        public Stream ImageStream { get { return _imageStream; } }
+        public Stream ImageStream => _imageStream;
 
         /// <summary>
         /// Initializes a new instance of the ImageStreamClipboardObject class with a stream to initialzie the stream with
@@ -337,6 +331,6 @@ namespace Pixelaria.Data.Clipboard
         /// Returns a string that specifies the data type of this ClipboardObject instance
         /// </summary>
         /// <returns>a string that specifies the data type of this ClipboardObject instance</returns>
-        public string GetDataType { get { return DataType; } }
+        public string GetDataType => DataType;
     }
 }

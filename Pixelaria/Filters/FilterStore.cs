@@ -49,17 +49,17 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets the list of filters of the program
         /// </summary>
-        public string[] FiltersList { get { return GetFilterList(); } }
+        public string[] FiltersList => GetFilterList();
 
         /// <summary>
         /// Gets the list of icons for the filters
         /// </summary>
-        public Image[] FilterIconList { get { return GetFilterIconList(); } }
+        public Image[] FilterIconList => GetFilterIconList();
 
         /// <summary>
         /// Gets the list of filter presets of the program
         /// </summary>
-        public FilterPreset[] FilterPrests { get { return _filterPresets.ToArray(); } }
+        public FilterPreset[] FilterPrests => _filterPresets.ToArray();
 
         /// <summary>
         /// Gets the singleton instance of the FilterStore for the program

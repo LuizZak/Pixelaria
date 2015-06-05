@@ -70,39 +70,39 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// The frame sheet
         /// </summary>
-        public Image Sheet { get { return _sheet; } }
+        public Image Sheet => _sheet;
 
         /// <summary>
         /// Gets the number of frames on this BundleSheetExport
         /// </summary>
-        public int FrameCount { get { return _frameRects.Length; } }
+        public int FrameCount => _frameRects.Length;
 
         /// <summary>
         /// Gets the number of reused frames on this BundleSheetExport
         /// </summary>
-        public int ReusedFrameCount { get { return _reusedFrameCount; } }
+        public int ReusedFrameCount => _reusedFrameCount;
 
         /// <summary>
         /// Gets the FrameRect for the frame at the given index on this BundleSheetExport
         /// </summary>
         /// <param name="i">An index</param>
         /// <returns>The FrameRect stored at that index</returns>
-        public FrameRect this[int i] { get { return _frameRects[i]; } }
+        public FrameRect this[int i] => _frameRects[i];
 
         /// <summary>
         /// Gets the array of FrameRect objects inside this BundleSheetExport
         /// </summary>
-        public FrameRect[] FrameRects { get { return _frameRects; } }
+        public FrameRect[] FrameRects => _frameRects;
 
         /// <summary>
         /// Gets the array of frames reused for all the frame rectangle bounds
         /// </summary>
-        public int[] ReuseCounts { get { return _reuseCount; } }
+        public int[] ReuseCounts => _reuseCount;
 
         /// <summary>
         /// Gets or sets the export settings to be used when exporting the Bundle Sheet
         /// </summary>
-        public AnimationExportSettings ExportSettings { get { return _exportSettings; } }
+        public AnimationExportSettings ExportSettings => _exportSettings;
 
         /// <summary>
         /// Default constructor for the BundleSheetExport class
@@ -282,17 +282,17 @@ namespace Pixelaria.Data.Exports
             /// <summary>
             /// Gets the Frame represented by this FrameRect
             /// </summary>
-            public IFrame Frame { get { return _frame; } }
+            public IFrame Frame => _frame;
 
             /// <summary>
             /// Gets the area the frame occupies inside the sheet
             /// </summary>
-            public Rectangle SheetArea { get { return _sheetArea; } }
+            public Rectangle SheetArea => _sheetArea;
 
             /// <summary>
             /// Gets the area of the frame that is used on the sheet
             /// </summary>
-            public Rectangle FrameArea { get { return _frameArea; } }
+            public Rectangle FrameArea => _frameArea;
 
             /// <summary>
             /// Creates a new FrameRect using the given parameters

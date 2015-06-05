@@ -37,10 +37,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// The animation being manipulated by this animation header block
         /// </summary>
-        public Animation Animation
-        {
-            get { return _animation; }
-        }
+        public Animation Animation => _animation;
 
         /// <summary>
         /// Initializes a new instance of the AnimationHeaderBlock class

@@ -89,7 +89,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the list of FilterContainer objects that are currently applying filters to the bitmap
         /// </summary>
-        public FilterContainer[] FilterContainers { get { return _filterContainers.ToArray(); } }
+        public FilterContainer[] FilterContainers => _filterContainers.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the FilterSelector class
@@ -141,8 +141,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="bitmap">The new bitmap to apply the filters to</param>
         public void SetImage(Bitmap bitmap)
         {
-            if(_bitmapPreview != null)
-                _bitmapPreview.Dispose();
+            _bitmapPreview?.Dispose();
 
             _bitmapOriginal = bitmap;
             _bitmapPreview = bitmap.Clone() as Bitmap;
@@ -752,10 +751,7 @@ namespace Pixelaria.Views.Controls
                 {
                     Location = newPos;
 
-                    if (ContainerDragging != null)
-                    {
-                        ContainerDragging.Invoke(this, new EventArgs());
-                    }
+                    ContainerDragging?.Invoke(this, new EventArgs());
                 }
             }
 

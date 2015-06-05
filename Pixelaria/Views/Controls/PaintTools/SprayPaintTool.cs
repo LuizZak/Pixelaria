@@ -99,10 +99,8 @@ namespace Pixelaria.Views.Controls.PaintTools
             _sprayTimer.Stop();
             _sprayTimer.Dispose();
 
-            if (firstPenBitmap != null)
-                firstPenBitmap.Dispose();
-            if (secondPenBitmap != null)
-                secondPenBitmap.Dispose();
+            firstPenBitmap?.Dispose();
+            secondPenBitmap?.Dispose();
 
             base.Destroy();
         }
@@ -221,14 +219,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             base.UpdatePen();
 
-            if (firstPenBitmap != null)
-            {
-                firstPenBitmap.Dispose();
-            }
-            if (secondPenBitmap != null)
-            {
-                secondPenBitmap.Dispose();
-            }
+            firstPenBitmap?.Dispose();
+            secondPenBitmap?.Dispose();
 
             firstPenBitmap = new Bitmap(size + 1, size + 1, PixelFormat.Format32bppArgb);
 

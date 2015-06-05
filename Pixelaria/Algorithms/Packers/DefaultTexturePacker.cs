@@ -451,12 +451,12 @@ namespace Pixelaria.Algorithms.Packers
             /// <summary>
             /// Gets the matrix of similar frames stored in a multi-dimensional list
             /// </summary>
-            public List<List<IFrame>> SimilarFramesMatrix { get { return _similarFramesMatrix; } }
+            public List<List<IFrame>> SimilarFramesMatrix => _similarFramesMatrix;
 
             /// <summary>
             /// Gets the ictionary of indexes assigned to similar frames used to store the index of the corresponding frame in the similarMatrix field
             /// </summary>
-            public Dictionary<IFrame, int> SimilarMatrixIndexDictionary { get { return _similarMatrixIndexDictionary; } }
+            public Dictionary<IFrame, int> SimilarMatrixIndexDictionary => _similarMatrixIndexDictionary;
 
             /// <summary>
             /// Whether to compute the minimum areas of the frames before comparing them
@@ -466,7 +466,7 @@ namespace Pixelaria.Algorithms.Packers
             /// <summary>
             /// Gets the number of cached compare fragments currently stores
             /// </summary>
-            public int CachedCompareCount { get { return _fragDictionary.Count; } }
+            public int CachedCompareCount => _fragDictionary.Count;
 
             /// <summary>
             /// Gets the number of cached similar fragments currently stores

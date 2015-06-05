@@ -37,14 +37,14 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Returns the list of files currently in this RecentFileList object
         /// </summary>
-        public int FileCount { get { return _fileList.Length; } }
+        public int FileCount => _fileList.Length;
 
         /// <summary>
         /// Returns the file path at the given index
         /// </summary>
         /// <param name="index">The index to get the file path</param>
         /// <returns>The file path at the given index</returns>
-        public string this[int index] { get { return _fileList[index]; } }
+        public string this[int index] => _fileList[index];
 
         /// <summary>
         /// Initializes a new instance of the RecentFileList class

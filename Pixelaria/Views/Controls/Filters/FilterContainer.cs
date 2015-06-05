@@ -72,7 +72,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Gets the FilterControl currently held by this FilterContainer
         /// </summary>
-        public FilterControl FilterControl { get { return _filterControl; } }
+        public FilterControl FilterControl => _filterControl;
 
         /// <summary>
         /// Gets or sets the background color for the control.
@@ -129,12 +129,12 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Gets where the mouse was held down on this control's drag area
         /// </summary>
-        public Point MouseDownPoint { get { return _mouseDownPoint; } }
+        public Point MouseDownPoint => _mouseDownPoint;
 
         /// <summary>
         /// Gets this filter container's state
         /// </summary>
-        public FilterContainerState ContainerState { get { return _containerState; } }
+        public FilterContainerState ContainerState => _containerState;
 
         /// <summary>
         /// Occurs whenever the user starts dragging the FilterControl
@@ -266,10 +266,7 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (_mouseDown && _mouseDownPoint.Distance(e.Location) > 5 && !_dragging)
             {
-                if (ContainerDragStart != null)
-                {
-                    ContainerDragStart.Invoke(this, new EventArgs());
-                }
+                ContainerDragStart?.Invoke(this, new EventArgs());
 
                 _dragging = true;
             }
@@ -284,10 +281,7 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (_dragging)
             {
-                if (ContainerDragEnd != null)
-                {
-                    ContainerDragEnd.Invoke(this, new EventArgs());
-                }
+                ContainerDragEnd?.Invoke(this, new EventArgs());
             }
 
             _mouseDown = false;
@@ -338,8 +332,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void btn_remove_Click(object sender, EventArgs e)
         {
-            if(_owningSelector != null)
-                _owningSelector.RemoveFilterControl(this);
+            _owningSelector?.RemoveFilterControl(this);
         }
 
         // 

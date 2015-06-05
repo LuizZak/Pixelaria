@@ -265,8 +265,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 mouseDown = false;
             }
 
-            if (graphics != null)
-                graphics.Dispose();
+            graphics?.Dispose();
 
             graphics = newBitmap != null ? Graphics.FromImage(newBitmap) : null;
         }

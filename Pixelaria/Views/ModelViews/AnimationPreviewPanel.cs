@@ -181,10 +181,7 @@ namespace Pixelaria.Views.ModelViews
 
             lbl_currentFrame.Text = "" + (newFrame + 1);
 
-            if (_frameBitmap != null)
-            {
-                _frameBitmap.Dispose();
-            }
+            _frameBitmap?.Dispose();
 
             _frameBitmap = _currentAnimation.GetComposedBitmapForFrame(newFrame);
 

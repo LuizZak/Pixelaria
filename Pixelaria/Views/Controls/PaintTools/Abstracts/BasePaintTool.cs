@@ -164,10 +164,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             if (!WithinBounds(point))
                 return;
 
-            if (ColorPicked != null)
-            {
-                ColorPicked(this, new PaintToolColorPickedEventArgs(point));
-            }
+            ColorPicked?.Invoke(this, new PaintToolColorPickedEventArgs(point));
         }
 
         /// <summary>

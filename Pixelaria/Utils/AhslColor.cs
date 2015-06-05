@@ -35,115 +35,72 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
         /// </summary>
-        public int A
-        {
-            get { return (int) (_af * 255.0f); }
-        }
+        public int A => (int) (_af * 255.0f);
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 360
         /// </summary>
-        public int H
-        {
-            get { return (int) (_hf * 360.0f); }
-        }
+        public int H => (int) (_hf * 360.0f);
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 100
         /// </summary>
-        public int S
-        {
-            get { return (int) (_sf * 100.0f); }
-        }
+        public int S => (int) (_sf * 100.0f);
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 100
         /// </summary>
-        public int L
-        {
-            get { return (int) (_lf * 100.0f); }
-        }
+        public int L => (int) (_lf * 100.0f);
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public int R
-        {
-            get { return ToColor().R; }
-        }
+        public int R => ToColor().R;
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public int G
-        {
-            get { return ToColor().G; }
-
-        }
+        public int G => ToColor().G;
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public int B
-        {
-            get { return ToColor().B; }
-        }
+        public int B => ToColor().B;
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float Rf
-        {
-            get { return ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[1]; }
-        }
+        public float Rf => ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[1];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float Gf
-        {
-            get { return ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[2]; }
-        }
+        public float Gf => ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[2];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float Bf
-        {
-            get { return ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[3]; }
-        }
+        public float Bf => ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[3];
 
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 1
         /// </summary>
-        public float Af
-        {
-            get { return _af; }
-        }
+        public float Af => _af;
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 1
         /// </summary>
-        public float Hf
-        {
-            get { return _hf; }
-        }
+        public float Hf => _hf;
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 1
         /// </summary>
-        public float Sf
-        {
-            get { return _sf; }
-        }
+        public float Sf => _sf;
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 1
         /// </summary>
-        public float Lf
-        {
-            get { return _lf; }
-        }
+        public float Lf => _lf;
 
         /// <summary>
         /// The alpha component as a value ranging from 0 - 1

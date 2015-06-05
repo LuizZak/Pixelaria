@@ -241,8 +241,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 pixelsDrawn.RegisterPixel(pointX, pointY, oldColorArgb, newColorArgb);
             }
 
-            if (Notifier != null)
-                Notifier.PlottedPixel(new Point(pointX, pointY), (int)oldColorArgb, (int)newColorArgb);
+            Notifier?.PlottedPixel(new Point(pointX, pointY), (int)oldColorArgb, (int)newColorArgb);
         }
 
         /// <summary>
@@ -343,10 +342,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 pixelsDrawn = new PixelHistoryTracker(true, targetBitmap.Width);
             }
 
-            if (Notifier != null)
-            {
-                Notifier.OperationStarted(AccumulateAlpha);
-            }
+            Notifier?.OperationStarted(AccumulateAlpha);
         }
 
         /// <summary>
@@ -363,10 +359,7 @@ namespace Pixelaria.Algorithms.PaintOperations
             }
 
             // Send notifications
-            if (Notifier != null)
-            {
-                Notifier.OperationFinished(pixelsDrawn);
-            }
+            Notifier?.OperationFinished(pixelsDrawn);
 
             pixelsDrawn = null;
         }

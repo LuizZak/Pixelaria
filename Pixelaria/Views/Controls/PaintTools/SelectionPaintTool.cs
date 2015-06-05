@@ -115,7 +115,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets whether there's an area currently selected
         /// </summary>
-        public bool Selected { get { return selected; } }
+        public bool Selected => selected;
 
         /// <summary>
         /// Gets or sets the bitmap that represents the currently selected graphics
@@ -140,7 +140,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets the area the selection was snipped from
         /// </summary>
-        public Rectangle SelectionStartArea { get { return selectedStartArea; } }
+        public Rectangle SelectionStartArea => selectedStartArea;
 
         /// <summary>
         /// Gets the operation currently being performed by this SelectionPaintOperation
@@ -717,10 +717,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             ForceApplyChanges = false;
 
-            if (selectionBitmap != null)
-            {
-                selectionBitmap.Dispose();
-            }
+            selectionBitmap?.Dispose();
 
             selected = true;
             selectedArea = area;
@@ -786,8 +783,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             pictureBox.Cursor = ToolCursor;
 
-            if (selectionBitmap != null)
-                selectionBitmap.Dispose();
+            selectionBitmap?.Dispose();
             selectionBitmap = null;
 
             movingSelection = false;
@@ -985,7 +981,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             {
                 _targetbitmap = targetBitmap;
                 _selectionBitmap = (Bitmap)selectionBitmap.Clone();
-                _originalSlice = (originalSlice == null ? null : (Bitmap)originalSlice.Clone());
+                _originalSlice = (Bitmap)originalSlice?.Clone();
                 _selectionStartArea = selectionStartArea;
                 _area = area;
                 _operationType = operationType;
@@ -997,15 +993,9 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Clear()
             {
-                if (_originalSlice != null)
-                {
-                    _originalSlice.Dispose();
-                }
+                _originalSlice?.Dispose();
 
-                if (_selectionBitmap != null)
-                {
-                    _selectionBitmap.Dispose();
-                }
+                _selectionBitmap?.Dispose();
             }
 
             /// <summary>

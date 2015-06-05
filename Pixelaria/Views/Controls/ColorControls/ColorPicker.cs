@@ -233,10 +233,7 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             UpdateSliders();
 
-            if (ColorPick != null)
-            {
-                ColorPick(this, new ColorPickEventArgs(oldColor.ToColor(), color.ToColor(), _selectedColor));
-            }
+            ColorPick?.Invoke(this, new ColorPickEventArgs(oldColor.ToColor(), color.ToColor(), _selectedColor));
         }
 
         /// <summary>

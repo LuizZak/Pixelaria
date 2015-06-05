@@ -217,10 +217,7 @@ namespace Pixelaria.Views.Controls
                 Invalidate();
 
                 // Fire the zoom changed event
-                if (ZoomChanged != null)
-                {
-                    ZoomChanged.Invoke(this, new ZoomChangedEventArgs(oldZoom, scale.X));
-                }
+                ZoomChanged?.Invoke(this, new ZoomChangedEventArgs(oldZoom, scale.X));
             }
         }
 
@@ -412,8 +409,8 @@ namespace Pixelaria.Views.Controls
             scale.X = Math.Max(MinimumZoom.X, Math.Min(MaximumZoom.X, scale.X));
             scale.Y = Math.Max(MinimumZoom.Y, Math.Min(MaximumZoom.Y, scale.Y));
 
-            offsetPoint.X = Math.Max(0, Math.Min((int)(Image == null ? 0 : Image.Width * scale.X - (Width - vScrollBar.Width)), offsetPoint.X));
-            offsetPoint.Y = Math.Max(0, Math.Min((int)(Image == null ? 0 : Image.Height * scale.Y - (Height - hScrollBar.Height)), offsetPoint.Y));
+            offsetPoint.X = Math.Max(0, Math.Min((int)(Image?.Width * scale.X - (Width - vScrollBar.Width) ?? 0), offsetPoint.X));
+            offsetPoint.Y = Math.Max(0, Math.Min((int)(Image?.Height * scale.Y - (Height - hScrollBar.Height) ?? 0), offsetPoint.Y));
 
             if (Image != null)
             {
@@ -489,10 +486,7 @@ namespace Pixelaria.Views.Controls
             offsetPoint.X = e.NewValue;
             Invalidate();
 
-            if (HorizontalScroll != null)
-            {
-                HorizontalScroll(this, e);
-            }
+            HorizontalScroll?.Invoke(this, e);
         }
 
         // 
@@ -503,10 +497,7 @@ namespace Pixelaria.Views.Controls
             offsetPoint.Y = e.NewValue;
             Invalidate();
 
-            if (VerticalScroll != null)
-            {
-                VerticalScroll(this, e);
-            }
+            VerticalScroll?.Invoke(this, e);
         }
 
         // 
@@ -657,14 +648,8 @@ namespace Pixelaria.Views.Controls
                 offsetPoint = new Point(-MousePosition.X + mouseOffset.X, -MousePosition.Y + mouseOffset.Y);
 
                 // Fire scroll events
-                if (HorizontalScroll != null)
-                {
-                    HorizontalScroll(this, new ScrollEventArgs(ScrollEventType.ThumbPosition, offsetPoint.X));
-                }
-                if (VerticalScroll != null)
-                {
-                    VerticalScroll(this, new ScrollEventArgs(ScrollEventType.ThumbPosition, offsetPoint.Y));
-                }
+                HorizontalScroll?.Invoke(this, new ScrollEventArgs(ScrollEventType.ThumbPosition, offsetPoint.X));
+                VerticalScroll?.Invoke(this, new ScrollEventArgs(ScrollEventType.ThumbPosition, offsetPoint.Y));
 
                 ClipTransform();
                 Invalidate();

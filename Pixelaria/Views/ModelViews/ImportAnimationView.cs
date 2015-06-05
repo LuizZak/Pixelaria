@@ -134,10 +134,7 @@ namespace Pixelaria.Views.ModelViews
                 return;
 
             // Dispose of the current sprite sheet if it's loaded
-            if (_spriteSheet != null)
-            {
-                _spriteSheet.Dispose();
-            }
+            _spriteSheet?.Dispose();
 
             txt_fileName.Text = filePath;
 
@@ -255,10 +252,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void ImportAnimationView_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (_spriteSheet != null)
-            {
-                _spriteSheet.Dispose();
-            }
+            _spriteSheet?.Dispose();
             _currentPreviewAnimation = null;
             ap_animationPreview.LoadAnimation(null);
         }
@@ -516,30 +510,15 @@ namespace Pixelaria.Views.ModelViews
                 
             }
 
-            public string Name
-            {
-                get { return "Preview"; }
-            }
+            public string Name => "Preview";
 
-            public int Width
-            {
-                get { return SheetSettings.FrameWidth; }
-            }
+            public int Width => SheetSettings.FrameWidth;
 
-            public int Height
-            {
-                get { return SheetSettings.FrameHeight; }
-            }
+            public int Height => SheetSettings.FrameHeight;
 
-            public Size Size
-            {
-                get { return new Size(Width, Height); }
-            }
+            public Size Size => new Size(Width, Height);
 
-            public int FrameCount
-            {
-                get { return FrameBounds.Length; }
-            }
+            public int FrameCount => FrameBounds.Length;
 
             public AnimationPlaybackSettings PlaybackSettings { get; set; }
 

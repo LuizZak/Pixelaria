@@ -45,10 +45,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// The frame bieng manipulated by this FrameBlock
         /// </summary>
-        public IFrame Frame
-        {
-            get { return _frame; }
-        }
+        public IFrame Frame => _frame;
 
         /// <summary>
         /// Initializes a new instance of the FrameBlock class

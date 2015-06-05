@@ -58,6 +58,7 @@ namespace Pixelaria.Views.MiscViews
             this.pb_stageProgress = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.treeView1 = new System.Windows.Forms.TreeView();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,13 +68,13 @@ namespace Pixelaria.Views.MiscViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pb_progress.Location = new System.Drawing.Point(9, 32);
             this.pb_progress.Name = "pb_progress";
-            this.pb_progress.Size = new System.Drawing.Size(396, 23);
+            this.pb_progress.Size = new System.Drawing.Size(396, 15);
             this.pb_progress.TabIndex = 0;
             // 
             // lbl_progress
             // 
             this.lbl_progress.AutoSize = true;
-            this.lbl_progress.Location = new System.Drawing.Point(6, 116);
+            this.lbl_progress.Location = new System.Drawing.Point(6, 579);
             this.lbl_progress.Name = "lbl_progress";
             this.lbl_progress.Size = new System.Drawing.Size(87, 13);
             this.lbl_progress.TabIndex = 2;
@@ -82,7 +83,7 @@ namespace Pixelaria.Views.MiscViews
             // btn_ok
             // 
             this.btn_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_ok.Location = new System.Drawing.Point(349, 157);
+            this.btn_ok.Location = new System.Drawing.Point(349, 613);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 23);
             this.btn_ok.TabIndex = 3;
@@ -95,6 +96,7 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.treeView1);
             this.groupBox1.Controls.Add(this.pb_stageProgress);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.lbl_progress);
@@ -102,7 +104,7 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox1.Controls.Add(this.pb_progress);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(412, 139);
+            this.groupBox1.Size = new System.Drawing.Size(412, 595);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Export Progress";
@@ -110,15 +112,15 @@ namespace Pixelaria.Views.MiscViews
             // pb_stageProgress
             // 
             this.pb_stageProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pb_stageProgress.Location = new System.Drawing.Point(9, 90);
+            this.pb_stageProgress.Location = new System.Drawing.Point(9, 561);
             this.pb_stageProgress.Name = "pb_stageProgress";
-            this.pb_stageProgress.Size = new System.Drawing.Size(396, 23);
+            this.pb_stageProgress.Size = new System.Drawing.Size(396, 15);
             this.pb_stageProgress.TabIndex = 3;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 74);
+            this.label2.Location = new System.Drawing.Point(6, 545);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(71, 13);
             this.label2.TabIndex = 2;
@@ -133,12 +135,19 @@ namespace Pixelaria.Views.MiscViews
             this.label1.TabIndex = 1;
             this.label1.Text = "Total:";
             // 
+            // treeView1
+            // 
+            this.treeView1.Location = new System.Drawing.Point(9, 53);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.Size = new System.Drawing.Size(396, 489);
+            this.treeView1.TabIndex = 5;
+            // 
             // BundleExportProgressView
             // 
             this.AcceptButton = this.btn_ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(436, 192);
+            this.ClientSize = new System.Drawing.Size(436, 648);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btn_ok);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -164,5 +173,6 @@ namespace Pixelaria.Views.MiscViews
         private System.Windows.Forms.ProgressBar pb_stageProgress;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TreeView treeView1;
     }
 }

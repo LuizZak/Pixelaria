@@ -36,20 +36,17 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return !(Hue == 0 && Relative); } }
+        public bool Modifying => !(Hue == 0 && Relative);
 
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name { get { return "Hue"; } }
+        public string Name => "Hue";
 
         /// <summary>
         /// Gets the version of the filter to be used during persistence operations
         /// </summary>
-        public int Version
-        {
-            get { return 1; }
-        }
+        public int Version => 1;
 
         /// <summary>
         /// HUE value ranging from 0 - 360
@@ -127,20 +124,17 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return !(Saturation == 0 && Relative) && !(Saturation == 100 && Multiply); } }
+        public bool Modifying => !(Saturation == 0 && Relative) && !(Saturation == 100 && Multiply);
 
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name { get { return "Saturation"; } }
+        public string Name => "Saturation";
 
         /// <summary>
         /// Gets the version of the filter to be used during persistence operations
         /// </summary>
-        public int Version
-        {
-            get { return 1; }
-        }
+        public int Version => 1;
 
         /// <summary>
         /// Saturation value ranging from 0 - 100
@@ -255,20 +249,17 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return !(Lightness == 0 && Relative) && !(Lightness == 100 && Multiply); } }
+        public bool Modifying => !(Lightness == 0 && Relative) && !(Lightness == 100 && Multiply);
 
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name { get { return "Lightness"; } }
+        public string Name => "Lightness";
 
         /// <summary>
         /// Gets the version of the filter to be used during persistence operations
         /// </summary>
-        public int Version
-        {
-            get { return 1; }
-        }
+        public int Version => 1;
 
         /// <summary>
         /// Lightness value ranging from 0 - 100

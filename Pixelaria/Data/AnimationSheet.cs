@@ -50,12 +50,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets an array of the animations currently in this animation sheet
         /// </summary>
-        public Animation[] Animations { get { return _animations.ToArray(); } }
+        public Animation[] Animations => _animations.ToArray();
 
         /// <summary>
         /// Gets the number of animations in this AnimationSheet
         /// </summary>
-        public int AnimationCount { get { return _animations.Count; } }
+        public int AnimationCount => _animations.Count;
 
         /// <summary>
         /// Gets or sets the export settings for this animation sheet

@@ -73,40 +73,37 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the width of this frame
         /// </summary>
-        public int Width { get { return _width; } }
+        public int Width => _width;
 
         /// <summary>
         /// Gets the height of this frame
         /// </summary>
-        public int Height { get { return _height; } }
+        public int Height => _height;
 
         /// <summary>
         /// Gets the size of this animation's frames
         /// </summary>
-        public Size Size { get { return new Size(_width, _height); } }
+        public Size Size => new Size(_width, _height);
 
         /// <summary>
         /// Gets the total number of layers stored on this Frame object
         /// </summary>
-        public int LayerCount
-        {
-            get { return _layers.Count; }
-        }
+        public int LayerCount => _layers.Count;
 
         /// <summary>
         /// Gets the index of this frame on the parent animation
         /// </summary>
-        public int Index { get { return _animation.GetFrameIndex(this); } }
+        public int Index => _animation.GetFrameIndex(this);
 
         /// <summary>
         /// Gets the animation this frame belongs to
         /// </summary>
-        public Animation Animation { get { return _animation; } }
+        public Animation Animation => _animation;
 
         /// <summary>
         /// Gets the hash of this Frame texture
         /// </summary>
-        public byte[] Hash { get { return _hash; } }
+        public byte[] Hash => _hash;
 
         /// <summary>
         /// Gets or sets the ID of this frame
@@ -116,10 +113,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets whether this frame has been initialized
         /// </summary>
-        public bool Initialized
-        {
-            get { return _initialized; }
-        }
+        public bool Initialized => _initialized;
 
         /// <summary>
         /// Creates a new instance of the Frame class
@@ -385,7 +379,7 @@ namespace Pixelaria.Data
 
             if (bitmap.Width != _width || bitmap.Height != _height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
             {
-                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "bitmap");
+                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", nameof(bitmap));
             }
 
             var layer = (FrameLayer)CreateLayer(layerIndex);
@@ -415,7 +409,7 @@ namespace Pixelaria.Data
 
             if (layer.Width != _width || layer.Height != _height)
             {
-                throw new ArgumentException(@"The provided layer's dimensions must match the size of this frame", "layer");
+                throw new ArgumentException(@"The provided layer's dimensions must match the size of this frame", nameof(layer));
             }
 
             if (!(layer is FrameLayer))
@@ -516,7 +510,7 @@ namespace Pixelaria.Data
 
             if (layerBitmap.Width != _width || layerBitmap.Height != _height || Image.GetPixelFormatSize(layerBitmap.PixelFormat) != 32)
             {
-                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", "layerBitmap");
+                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", nameof(layerBitmap));
             }
 
             //_layers[layerIndex].LayerBitmap = layerBitmap;
@@ -800,26 +794,17 @@ namespace Pixelaria.Data
             /// <summary>
             /// Gets this layer's width
             /// </summary>
-            public int Width
-            {
-                get { return _layerBitmap.Width; }
-            }
+            public int Width => _layerBitmap.Width;
 
             /// <summary>
             /// Gets this layer's height
             /// </summary>
-            public int Height
-            {
-                get { return _layerBitmap.Height; }
-            }
+            public int Height => _layerBitmap.Height;
 
             /// <summary>
             /// Gets the size of this layer
             /// </summary>
-            public Size Size
-            {
-                get { return new Size(Width, Height); }
-            }
+            public Size Size => new Size(Width, Height);
 
             /// <summary>
             /// Gets the index of this layer on the origin frame
@@ -894,8 +879,7 @@ namespace Pixelaria.Data
                     return;
                 }
 
-                if(_layerBitmap != null)
-                    _layerBitmap.Dispose();
+                _layerBitmap?.Dispose();
 
                 _disposed = true;
             }
@@ -946,7 +930,7 @@ namespace Pixelaria.Data
             {
                 if (bitmap.Width != _layerBitmap.Width || bitmap.Height != _layerBitmap.Height)
                 {
-                    throw new ArgumentException(@"The provided bitmap's dimensions don't match this bitmap's dimensions", "bitmap");
+                    throw new ArgumentException(@"The provided bitmap's dimensions don't match this bitmap's dimensions", nameof(bitmap));
                 }
 
                 // Copy the pixels
@@ -987,7 +971,7 @@ namespace Pixelaria.Data
             /// <returns>The hash code for this FrameLayer</returns>
             public override int GetHashCode()
             {
-                return (_layerBitmap != null ? _layerBitmap.GetHashCode() : 0) ^ (Index * 367);
+                return (_layerBitmap?.GetHashCode() ?? 0) ^ (Index * 367);
             }
 
             /// <summary>

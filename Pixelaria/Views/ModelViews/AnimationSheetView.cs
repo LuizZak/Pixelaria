@@ -62,7 +62,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the current AnimationSheet being edited
         /// </summary>
-        public AnimationSheet CurrentSheet { get { return _sheetToEdit; } }
+        public AnimationSheet CurrentSheet => _sheetToEdit;
 
         /// <summary>
         /// Initializes a new instance of the AnimationSheetEditor class

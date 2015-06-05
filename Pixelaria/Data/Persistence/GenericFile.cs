@@ -65,23 +65,17 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// The path to the .plx file to manipulate
         /// </summary>
-        public string FilePath
-        {
-            get { return filePath; }
-        }
+        public string FilePath => filePath;
 
         /// <summary>
         /// Gets the list of blocks currently in this PixelariaFile
         /// </summary>
-        public T[] Blocks
-        {
-            get { return blockList.ToArray(); }
-        }
+        public T[] Blocks => blockList.ToArray();
 
         /// <summary>
         /// Gets the number of blocks inside this PixelariaFile
         /// </summary>
-        public int BlockCount { get { return blockList.Count; } }
+        public int BlockCount => blockList.Count;
 
         /// <summary>
         /// Disposes of this GenericFile and all used resources
@@ -322,7 +316,7 @@ namespace Pixelaria.Data.Persistence
                 set
                 {
                     if(value.Length != MagicNumbersLength)
-                        throw new ArgumentException(@"The magic numbers must have exactly " + MagicNumbersLength + @" bytes as defined by the type.", "value");
+                        throw new ArgumentException(@"The magic numbers must have exactly " + MagicNumbersLength + @" bytes as defined by the type.", nameof(value));
 
                     magicNumberBytes = value;
                 }
@@ -338,7 +332,7 @@ namespace Pixelaria.Data.Persistence
                 set
                 {
                     if (value.Length != MagicNumbersLength)
-                        throw new ArgumentException(@"The expected magic numbers must have exactly " + MagicNumbersLength + @" bytes as defined by the type.", "value");
+                        throw new ArgumentException(@"The expected magic numbers must have exactly " + MagicNumbersLength + @" bytes as defined by the type.", nameof(value));
 
                     expectedMagicNumberBytes = value;
                 }
@@ -348,10 +342,7 @@ namespace Pixelaria.Data.Persistence
             /// Gets a value specifying whether this file header is valid.
             /// The validity is checked by comparing the magic number bytes with the expected magic number bytes
             /// </summary>
-            public bool IsValid
-            {
-                get { return ExpectedMagicNumberBytes.SequenceEqual(MagicNumberBytes); }
-            }
+            public bool IsValid => ExpectedMagicNumberBytes.SequenceEqual(MagicNumberBytes);
 
             /// <summary>
             /// Gets or sets the version for this file header

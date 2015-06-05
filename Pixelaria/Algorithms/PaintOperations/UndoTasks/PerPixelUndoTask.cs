@@ -44,10 +44,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <summary>
         /// Gets the pixel history tracker for this PerPixelUndoTask class
         /// </summary>
-        public PixelHistoryTracker PixelHistoryTracker
-        {
-            get { return _pixelHistoryTracker; }
-        }
+        public PixelHistoryTracker PixelHistoryTracker => _pixelHistoryTracker;
 
         /// <summary>
         /// Initializes a new instance of the PixelUndoTask

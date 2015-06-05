@@ -35,20 +35,17 @@ namespace Pixelaria.Filters
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying { get { return Transparency < 1; } }
+        public bool Modifying => Transparency < 1;
 
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name { get { return "Transparency"; } }
+        public string Name => "Transparency";
 
         /// <summary>
         /// Gets the version of the filter to be used during persistence operations
         /// </summary>
-        public int Version
-        {
-            get { return 1; }
-        }
+        public int Version => 1;
 
         /// <summary>
         /// Gets or sets the Transparency component as a floating point value ranging from [0 - 1]

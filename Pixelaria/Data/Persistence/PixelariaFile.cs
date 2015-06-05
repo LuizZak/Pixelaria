@@ -55,10 +55,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// Gets the Bundle binded to this PixelariaFile
         /// </summary>
-        public Bundle LoadedBundle
-        {
-            get { return bundle; }
-        }
+        public Bundle LoadedBundle => bundle;
 
         /// <summary>
         /// Initializes a new instance of the PixelariaFile class

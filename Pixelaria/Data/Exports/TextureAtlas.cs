@@ -253,39 +253,39 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets the number of frames in this TextureAtlas
         /// </summary>
-        public int FrameCount { get { return _frameList.Count; } }
+        public int FrameCount => _frameList.Count;
 
         /// <summary>
         /// Gets the internal list of frames for this texture atlas
         /// </summary>
-        public List<IFrame> FrameList { get { return _frameList; } }
+        public List<IFrame> FrameList => _frameList;
 
         /// <summary>
         /// Gets the list of frame bounds.
         /// The bounds rectangle represents the rectangle of the frame image that is represented on the exported sheet image
         /// </summary>
-        public List<Rectangle> BoundsList { get { return _boundsList; } }
+        public List<Rectangle> BoundsList => _boundsList;
 
         /// <summary>
         /// Gets the list of frame origins.
         /// The origin rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
         /// </summary>
-        public List<Rectangle> OriginsList { get { return _originsList; } }
+        public List<Rectangle> OriginsList => _originsList;
 
         /// <summary>
         /// Gets the list of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.
         /// </summary>
-        public List<int> ReuseCount { get { return _reuseCount; } }
+        public List<int> ReuseCount => _reuseCount;
 
         /// <summary>
         /// Gets this atlas' width
         /// </summary>
-        public int AtlasWidth { get { return _atlasRectangle.Width; } }
+        public int AtlasWidth => _atlasRectangle.Width;
 
         /// <summary>
         /// Gets this atlas' height
         /// </summary>
-        public int AtlasHeight { get { return _atlasRectangle.Height; } }
+        public int AtlasHeight => _atlasRectangle.Height;
 
         /// <summary>
         /// Gets or sets this atlas' area rectangle

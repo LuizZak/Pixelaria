@@ -311,10 +311,7 @@ namespace Pixelaria.Views.Controls
                 // Launch the feedback for the drag operation
                 evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.AfterDragEnd, evArgs.EventBehavior, _draggedItems, dropItem);
 
-                if (DragOperation != null)
-                {
-                    DragOperation(evArgs);
-                }
+                DragOperation?.Invoke(evArgs);
 
                 // Set drag node and temp drop node to null
                 _draggedItems = null;
@@ -346,33 +343,16 @@ namespace Pixelaria.Views.Controls
             Cancel = false;
             Allow = true;
 
-            _eventType = eventType;
+            EventType = eventType;
             EventBehavior = eventBehavior;
-            _draggedItems = draggedItems;
-            _targetItem = (eventType == ListViewItemDragEventType.DragStart ? null : targetItem);
+            DraggedItems = draggedItems;
+            TargetItem = (eventType == ListViewItemDragEventType.DragStart ? null : targetItem);
         }
-
-        /// <summary>
-        /// The type of this event
-        /// </summary>
-        private readonly ListViewItemDragEventType _eventType;
-
-        /// <summary>
-        /// The items being dragged
-        /// </summary>
-        private readonly List<ListViewItem> _draggedItems;
-
-        /// <summary>
-        /// The item that the dragged item was dropped at.
-        /// If the EventType is set to ListViewItemDragEventType.DragEnd, this
-        /// value is null
-        /// </summary>
-        private readonly ListViewItem _targetItem;
 
         /// <summary>
         /// Gets the type of this event
         /// </summary>
-        public ListViewItemDragEventType EventType { get { return _eventType; } }
+        public ListViewItemDragEventType EventType { get; }
 
         /// <summary>
         /// Gets or sets the behavior of this event.
@@ -383,14 +363,14 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the items being dragged
         /// </summary>
-        public List<ListViewItem> DraggedItems { get { return _draggedItems; } }
+        public List<ListViewItem> DraggedItems { get; }
 
         /// <summary>
         /// Gets the item that the dragged node was dropped at.
         /// If the EventType is set to TreeViewNodeDragEventType.DragEnd, this
         /// value is null
         /// </summary>
-        public ListViewItem TargetItem { get { return _targetItem; } }
+        public ListViewItem TargetItem { get; }
 
         /// <summary>
         /// Gets or sets a value that specifies whether the drag operation is to be canceled

@@ -49,18 +49,12 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <summary>
         /// Gets an enumerable object for the pixels affected in this pixel history
         /// </summary>
-        public IEnumerable<PixelUndo> StoredPixelsEnumerable
-        {
-            get { return _pixelDictionary.Values; }
-        }
+        public IEnumerable<PixelUndo> StoredPixelsEnumerable => _pixelDictionary.Values;
 
         /// <summary>
         /// Gets the number of items stored in this PixelHistoryTracker
         /// </summary>
-        public int PixelCount
-        {
-            get { return _pixelDictionary.Count; }
-        }
+        public int PixelCount => _pixelDictionary.Count;
 
         /// <summary>
         /// Initializes a new isntance of the pixel history tracker

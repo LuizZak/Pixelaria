@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The common clipboard for all the AnimationViews
         /// </summary>
-        public static DataClipboard Clipboard { get; private set; }
+        public static DataClipboard Clipboard { get; }
 
         /// <summary>
         /// The current animation being displayed
@@ -97,7 +97,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the current animation being displayed on this AnimationView
         /// </summary>
-        public Animation CurrentAnimation { get { return _currentAnimation; } }
+        public Animation CurrentAnimation => _currentAnimation;
 
         /// <summary>
         /// Static constructor for the AnimationView class
@@ -1173,10 +1173,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Dispose of the view animation
-            if (_viewAnimation != null)
-            {
-                _viewAnimation.Dispose();
-            }
+            _viewAnimation?.Dispose();
 
             il_framesThumbs.Images.Clear();
             il_framesThumbs.Dispose();
@@ -1699,13 +1696,9 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void Clear()
             {
-                if (_oldAnimation != null)
-                {
-                    _oldAnimation.Dispose();
-                }
+                _oldAnimation?.Dispose();
 
-                if (_compoundTask != null)
-                    _compoundTask.Clear();
+                _compoundTask?.Clear();
             }
 
             /// <summary>

@@ -154,7 +154,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the frame currently loaded on this form
         /// </summary>
-        public Frame FrameLoaded { get { return _frameToEdit; } }
+        public Frame FrameLoaded => _frameToEdit;
 
         /// <summary>
         /// Delegate for the EdirFrameChanged event
@@ -320,7 +320,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 // Update selection paint operations
                 var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
-                if (operation != null && operation.SelectionBitmap != null)
+                if (operation?.SelectionBitmap != null)
                 {
                     operation.FinishOperation(true);
                 }
@@ -440,19 +440,13 @@ namespace Pixelaria.Views.ModelViews
         private void LoadFrame(IFrame frame)
         {
             // Dispose of the current view frame
-            if (_viewFrame != null)
-            {
-                _viewFrame.Dispose();
-            }
+            _viewFrame?.Dispose();
 
-            if (_onionSkin != null)
-            {
-                _onionSkin.Dispose();
-            }
+            _onionSkin?.Dispose();
 
             if (!(frame is Frame))
             {
-                throw new ArgumentException(@"The provided frame object must be derived from the Frame class", "frame");
+                throw new ArgumentException(@"The provided frame object must be derived from the Frame class", nameof(frame));
             }
 
             _frameToEdit = (Frame)frame;
@@ -461,10 +455,7 @@ namespace Pixelaria.Views.ModelViews
 
             RefreshTitleBar();
 
-            if (_viewFrameBitmap != null)
-            {
-                _viewFrameBitmap.Dispose();
-            }
+            _viewFrameBitmap?.Dispose();
 
             _viewFrameBitmap = _viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
             iepb_frame.LoadBitmap(_viewFrameBitmap);
@@ -477,10 +468,7 @@ namespace Pixelaria.Views.ModelViews
                 RefreshFramePreview();
             }
 
-            if (EditFrameChanged != null)
-            {
-                EditFrameChanged.Invoke(this, new EditFrameChangedEventArgs(_oldFrameIndex, frame.Index));
-            }
+            EditFrameChanged?.Invoke(this, new EditFrameChangedEventArgs(_oldFrameIndex, frame.Index));
 
             _oldFrameIndex = frame.Index;
 
@@ -780,8 +768,7 @@ namespace Pixelaria.Views.ModelViews
 
             var selectionPaintOperation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
 
-            if (selectionPaintOperation != null)
-                selectionPaintOperation.SelectAll();
+            selectionPaintOperation?.SelectAll();
 
             // Select the picture box so it receives keyboard input
             var findForm = FindForm();
@@ -865,7 +852,7 @@ namespace Pixelaria.Views.ModelViews
 
             // Apply the filter to a selection
             var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
-            if (operation != null && operation.SelectionBitmap != null)
+            if (operation?.SelectionBitmap != null)
             {
                 SelectionPaintTool op = operation;
 
@@ -899,7 +886,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 bool registerUndo = true;
 
-                if (operation != null && operation.SelectionBitmap != null)
+                if (operation?.SelectionBitmap != null)
                 {
                     SelectionPaintTool op = operation;
 
@@ -911,8 +898,7 @@ namespace Pixelaria.Views.ModelViews
 
                             op.CancelOperation(true, false);
 
-                            if (but != null)
-                                but.SetNewBitmap(undoTarget);
+                            but?.SetNewBitmap(undoTarget);
 
                             op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
                             op.SelectionArea = area;
@@ -926,8 +912,7 @@ namespace Pixelaria.Views.ModelViews
                 }
                 else
                 {
-                    if (but != null)
-                        but.SetNewBitmap(undoTarget);
+                    but?.SetNewBitmap(undoTarget);
                 }
 
                 // Update the display
@@ -940,8 +925,7 @@ namespace Pixelaria.Views.ModelViews
             }
             else
             {
-                if (but != null)
-                    but.Clear();
+                but?.Clear();
             }
 
             UpdateFilterPresetList();
@@ -1400,7 +1384,7 @@ namespace Pixelaria.Views.ModelViews
         private void tsm_filterItem_Click(object sender, EventArgs e)
         {
             var item = sender as ToolStripMenuItem;
-            if (item != null && item.Tag is string)
+            if (item?.Tag is string)
                 DisplayFilterPreset(new FilterPreset("New Preset", new[] { FilterStore.Instance.CreateFilter((string)item.Tag) }));
         }
 
@@ -1410,7 +1394,7 @@ namespace Pixelaria.Views.ModelViews
         private void tsm_presetItem_Click(object sender, EventArgs e)
         {
             var item = sender as ToolStripMenuItem;
-            if (item != null && item.Tag is string)
+            if (item?.Tag is string)
                 DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName((string)item.Tag));
         }
 
@@ -2111,10 +2095,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 // Deal with operations going on on the current frame
                 var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
-                if (operation != null)
-                {
-                    operation.FinishOperation(true);
-                }
+                operation?.FinishOperation(true);
 
                 // Add the undo task
                 if (_generateUndos)
@@ -2186,10 +2167,7 @@ namespace Pixelaria.Views.ModelViews
                 if(_layerController.ActiveLayerIndex == eventArgs.LayerIndex)
                 {
                     var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
-                    if (operation != null)
-                    {
-                        operation.FinishOperation(true);
-                    }
+                    operation?.FinishOperation(true);
                 }
             }
 
@@ -2224,10 +2202,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 // Finish any pending operations
                 var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
-                if (operation != null)
-                {
-                    operation.FinishOperation(true);
-                }
+                operation?.FinishOperation(true);
 
                 UpdateEditActiveLayer();
             }

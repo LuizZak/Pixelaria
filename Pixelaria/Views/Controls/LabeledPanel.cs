@@ -57,10 +57,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets a rectangle that represents the title area for this labeled panel control
         /// </summary>
-        protected Rectangle TitleRectangle
-        {
-            get { return new Rectangle(Point.Empty, new Size(Width, 17)); }
-        }
+        protected Rectangle TitleRectangle => new Rectangle(Point.Empty, new Size(Width, 17));
 
         // 
         // OnPaintBackground event handler

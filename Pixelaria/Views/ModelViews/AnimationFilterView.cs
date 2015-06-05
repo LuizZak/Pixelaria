@@ -97,10 +97,7 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="frame">The </param>
         private void SetDisplayFrame(IFrame frame)
         {
-            if (_currentFrameBitmap != null)
-            {
-                _currentFrameBitmap.Dispose();
-            }
+            _currentFrameBitmap?.Dispose();
 
             _currentFrameBitmap = frame.GetComposedBitmap();
 

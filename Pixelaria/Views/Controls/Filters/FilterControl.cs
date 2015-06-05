@@ -51,12 +51,12 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Gets the name of this filter
         /// </summary>
-        public virtual string FilterName { get { return filter.Name; } }
+        public virtual string FilterName => filter.Name;
 
         /// <summary>
         /// Gets the filter loaded on this FilterControl
         /// </summary>
-        public IFilter Filter { get { return filter; } }
+        public IFilter Filter => filter;
 
         /// <summary>
         /// Initializes this FilterControl with the given Bitmap
@@ -72,10 +72,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         protected override void Dispose(bool disposing)
         {
-            if (preview != null)
-            {
-                preview.Dispose();
-            }
+            preview?.Dispose();
 
             base.Dispose(disposing);
         }
@@ -118,10 +115,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public void FireFilterUpdated()
         {
-            if (FilterUpdated != null)
-            {
-                FilterUpdated.Invoke(this, new EventArgs());
-            }
+            FilterUpdated?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

@@ -42,19 +42,14 @@ namespace Pixelaria.Data
         List<AnimationSheet> _animationSheets;
 
         /// <summary>
-        /// A project tree that represents the tree visualization for the project contents
-        /// </summary>
-        readonly ProjectTree _bundleProjectTree;
-
-        /// <summary>
         /// Gets the array of animations on this bundle
         /// </summary>
-        public Animation[] Animations { get { return _animations.ToArray(); } }
+        public Animation[] Animations => _animations.ToArray();
 
         /// <summary>
         /// Gets the array of animation sheets on this bundle
         /// </summary>
-        public AnimationSheet[] AnimationSheets { get { return _animationSheets.ToArray(); } }
+        public AnimationSheet[] AnimationSheets => _animationSheets.ToArray();
 
         /// <summary>
         /// Gets or sets the name of this bundle
@@ -75,7 +70,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the a project tree that represents the tree visualization for the project contents
         /// </summary>
-        public ProjectTree BundleProjectTree { get { return _bundleProjectTree; } }
+        public ProjectTree BundleProjectTree { get; }
 
         /// <summary>
         /// Initializes a new instance of the Bundle class
@@ -91,7 +86,7 @@ namespace Pixelaria.Data
             _animationSheets = new List<AnimationSheet>();
 
             // Initialize the bundle tree
-            _bundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
+            BundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
         }
 
         /// <summary>
@@ -503,10 +498,7 @@ namespace Pixelaria.Data
                 RemoveAnimationFromAnimationSheet(anim, curSheet);
             }
 
-            if (sheet != null)
-            {
-                sheet.AddAnimation(anim);
-            }
+            sheet?.AddAnimation(anim);
         }
 
         /// <summary>

@@ -58,7 +58,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the size of this animation's frames
         /// </summary>
-        public Size Size { get { return new Size(Width, Height); } }
+        public Size Size => new Size(Width, Height);
 
         /// <summary>
         /// Gets or sets the ID for this Animation
@@ -68,7 +68,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the number of frames of this Animaion
         /// </summary>
-        public int FrameCount { get { return _frames.Count; } }
+        public int FrameCount => _frames.Count;
 
         /// <summary>
         /// The playbar settings for this Animation
@@ -83,14 +83,14 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the list of frames for this Animation
         /// </summary>
-        public IFrame[] Frames { get { return _frames.ToArray(); } }
+        public IFrame[] Frames => _frames.ToArray();
 
         /// <summary>
         /// Gets a frame at the given index in this animation
         /// </summary>
         /// <param name="index">The index of a frame to get. It must be between [0 - FrameCount[</param>
         /// <returns>The frame at the given index in this animation</returns>
-        public IFrame this[int index] { get { return GetFrameAtIndex(index); } }
+        public IFrame this[int index] => GetFrameAtIndex(index);
 
         /// <summary>
         /// Gets or sets the bundle this animation is contained within
@@ -326,7 +326,7 @@ namespace Pixelaria.Data
 
             if (!ignoreSize && (frame.Width != Width || frame.Height != Height))
             {
-                throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, "frame");
+                throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, nameof(frame));
             }
 
             frame.Added(this);
@@ -361,7 +361,7 @@ namespace Pixelaria.Data
 
             if ((frame.Width != Width || frame.Height != Height))
             {
-                throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, "frame");
+                throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, nameof(frame));
             }
 
             if (ReferenceEquals(_frames[index], frame))
@@ -458,7 +458,7 @@ namespace Pixelaria.Data
         {
             if (!ReferenceEquals(frame.Animation, this))
             {
-                throw new ArgumentException(AnimationMessages.Exception_UnlistedFrameRemoval, "frame");
+                throw new ArgumentException(AnimationMessages.Exception_UnlistedFrameRemoval, nameof(frame));
             }
 
             frame.Removed();

@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
         /// </summary>
-        public Cursor ToolCursor { get { return Cursors.Default; } }
+        public Cursor ToolCursor => Cursors.Default;
 
         /// <summary>
         /// Gets whether this Paint Tool has resources loaded

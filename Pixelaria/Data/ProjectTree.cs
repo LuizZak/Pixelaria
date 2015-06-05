@@ -38,7 +38,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the root node for this project tree
         /// </summary>
-        public NestedProjectTreeNode RootNode { get { return _rootNode; } }
+        public NestedProjectTreeNode RootNode => _rootNode;
 
         /// <summary>
         /// Initializes a new instance of the ProjectTree class
@@ -103,10 +103,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the parent node for this project tree node
         /// </summary>
-        public NestedProjectTreeNode ParentNode
-        {
-            get { return parentNode; }
-        }
+        public NestedProjectTreeNode ParentNode => parentNode;
 
         /// <summary>
         /// Adds a project tree node as a child of another project tree node
@@ -120,14 +117,14 @@ namespace Pixelaria.Data
             {
                 if (node.parentNode != parent)
                 {
-                    throw new ArgumentException(@"The provided node is not a child of this node", "node");
+                    throw new ArgumentException(@"The provided node is not a child of this node", nameof(node));
                 }
             }
             else
             {
                 if (node.parentNode != null)
                 {
-                    throw new ArgumentException(@"Cannot add as a child a node that is already parented by another node", "node");
+                    throw new ArgumentException(@"Cannot add as a child a node that is already parented by another node", nameof(node));
                 }
             }
 
@@ -163,10 +160,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the children nodes for this project tree node
         /// </summary>
-        public ProjectTreeNode[] ChildrenNodes
-        {
-            get { return childrenNodes.ToArray(); }
-        }
+        public ProjectTreeNode[] ChildrenNodes => childrenNodes.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the ProjectTreeNode class

@@ -131,8 +131,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         ~SheetPreviewPictureBox()
         {
-            if (_frameRectSheet != null)
-                _frameRectSheet.Dispose();
+            _frameRectSheet?.Dispose();
         }
 
         /// <summary>
@@ -215,10 +214,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void RefreshFrameBoundsPreview()
         {
-            if (_frameRectSheet != null)
-            {
-                _frameRectSheet.Dispose();
-            }
+            _frameRectSheet?.Dispose();
 
             if (Image == null)
                 return;

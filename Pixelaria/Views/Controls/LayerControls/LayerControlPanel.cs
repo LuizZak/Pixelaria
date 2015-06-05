@@ -58,10 +58,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Gets the LayerControl for the currently active layer
         /// </summary>
-        public LayerControl ActiveLayerControl
-        {
-            get { return _layerControls[_controller.ActiveLayerIndex]; }
-        }
+        public LayerControl ActiveLayerControl => _layerControls[_controller.ActiveLayerIndex];
 
         /// <summary>
         /// Gets the array of layer status for each layer
@@ -111,7 +108,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             ClearAllControls();
 
-            if(_controller != null && _controller.Frame != null)
+            if(_controller?.Frame != null)
             {
                 SetController(controller);
             }
@@ -253,10 +250,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             _ignoreLayerStatusEvents = false;
 
             // Call the notification event
-            if (LayerStatusesUpdated != null)
-            {
-                LayerStatusesUpdated(this, new EventArgs());
-            }
+            LayerStatusesUpdated?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -275,10 +269,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             _ignoreLayerStatusEvents = false;
 
             // Call the notification event
-            if (LayerStatusesUpdated != null)
-            {
-                LayerStatusesUpdated(this, new EventArgs());
-            }
+            LayerStatusesUpdated?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -481,10 +472,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (_ignoreLayerStatusEvents)
                 return;
 
-            if (LayerStatusesUpdated != null)
-            {
-                LayerStatusesUpdated(this, new EventArgs());
-            }
+            LayerStatusesUpdated?.Invoke(this, new EventArgs());
         }
         // 
         // Duplicate Layer layer control button click

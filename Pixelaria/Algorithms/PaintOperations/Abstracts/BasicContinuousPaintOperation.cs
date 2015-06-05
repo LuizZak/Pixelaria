@@ -62,10 +62,7 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         /// <summary>
         /// Gets whether this operation has been started by calling the StartOperation() method
         /// </summary>
-        public bool OperationStarted
-        {
-            get { return operationStarted; }
-        }
+        public bool OperationStarted => operationStarted;
 
         /// <summary>
         /// Intiailzies a new instance of the BasicContinuousPaintOperation class, with a target bitmap for the operation

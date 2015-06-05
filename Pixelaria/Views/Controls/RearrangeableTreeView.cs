@@ -174,7 +174,7 @@ namespace Pixelaria.Views.Controls
             }
             else
             {
-                if (ImageList != null && ImageList.Images[_draggedNode.ImageKey] != null)
+                if (ImageList?.Images[_draggedNode.ImageKey] != null)
                     gfx.DrawImage(ImageList.Images[_draggedNode.ImageKey], 0, 0);
             }
 
@@ -429,10 +429,7 @@ namespace Pixelaria.Views.Controls
                 // Launch the feedback for the drag operation
                 evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.AfterDragEnd, evArgs.EventBehavior, _draggedNode, dropNode);
 
-                if (DragOperation != null)
-                {
-                    DragOperation(evArgs);
-                }
+                DragOperation?.Invoke(evArgs);
 
                 // Set drag node and temp drop node to null
                 _draggedNode = null;
@@ -510,33 +507,16 @@ namespace Pixelaria.Views.Controls
             Cancel = false;
             Allow = true;
 
-            _eventType = eventType;
+            EventType = eventType;
             EventBehavior = eventBehavior;
-            _draggedNode = draggedNode;
-            _targetNode = (eventType == TreeViewNodeDragEventType.DragStart ? null : targetNode);
+            DraggedNode = draggedNode;
+            TargetNode = (eventType == TreeViewNodeDragEventType.DragStart ? null : targetNode);
         }
-
-        /// <summary>
-        /// The type of this event
-        /// </summary>
-        private readonly TreeViewNodeDragEventType _eventType;
-
-        /// <summary>
-        /// The node being dragged
-        /// </summary>
-        private readonly TreeNode _draggedNode;
-
-        /// <summary>
-        /// The node that the dragged node was dropped at.
-        /// If the EventType is set to TreeViewNodeDragEventType.DragEnd, this
-        /// value is null
-        /// </summary>
-        private readonly TreeNode _targetNode;
 
         /// <summary>
         /// Gets the type of this event
         /// </summary>
-        public TreeViewNodeDragEventType EventType { get { return _eventType; } }
+        public TreeViewNodeDragEventType EventType { get; }
 
         /// <summary>
         /// Gets or sets the behavior of this event.
@@ -547,14 +527,14 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the node being dragged
         /// </summary>
-        public TreeNode DraggedNode { get { return _draggedNode; } }
+        public TreeNode DraggedNode { get; }
 
         /// <summary>
         /// Gets the node that the dragged node was dropped at.
         /// If the EventType is set to TreeViewNodeDragEventType.DragEnd, this
         /// value is null
         /// </summary>
-        public TreeNode TargetNode { get { return _targetNode; } }
+        public TreeNode TargetNode { get; }
 
         /// <summary>
         /// Gets or sets a value that specifies whether the drag operation is to be canceled

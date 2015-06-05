@@ -143,10 +143,7 @@ namespace Pixelaria.Data.Exporters
                 xml.Save(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name + ".xml");
             }
 
-            if (proxyHandler != null)
-            {
-                proxyHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
-            }
+            proxyHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
         }
 
         /// <summary>

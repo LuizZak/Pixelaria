@@ -127,7 +127,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the internal picture box currently loaded into this ImageEditPanel
         /// </summary>
-        public InternalPictureBox PictureBox { get { return _internalPictureBox; } }
+        public InternalPictureBox PictureBox => _internalPictureBox;
 
         /// <summary>
         /// Gets or sets the modifiable to notify when changes are made to the bitmap
@@ -176,9 +176,9 @@ namespace Pixelaria.Views.Controls
             {
                 _editingEnabled = value;
 
-                if (!_editingEnabled && CurrentPaintTool is IAreaOperation)
+                if (!_editingEnabled)
                 {
-                    ((IAreaOperation)CurrentPaintTool).CancelOperation(true);
+                    (CurrentPaintTool as IAreaOperation)?.CancelOperation(true);
                 }
             }
         }
@@ -299,10 +299,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void MarkModified()
         {
-            if (NotifyTo != null)
-            {
-                NotifyTo.MarkModified();
-            }
+            NotifyTo?.MarkModified();
         }
 
         /// <summary>
@@ -312,10 +309,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="colorIndex">Which color index to fire the event fore. Defaults to the current color</param>
         public void FireColorChangeEvent(Color color, ColorPickerColor colorIndex = ColorPickerColor.CurrentColor)
         {
-            if(ColorSelect != null)
-            {
-                ColorSelect.Invoke(this, new ColorPickEventArgs(color, color, colorIndex));
-            }
+            ColorSelect?.Invoke(this, new ColorPickEventArgs(color, color, colorIndex));
         }
 
         /// <summary>
@@ -326,10 +320,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="canPaste">Whether there's content to be pasted on the object</param>
         public void FireClipboardStateEvent(bool canCopy, bool canCut, bool canPaste)
         {
-            if (ClipboardStateChanged != null)
-            {
-                ClipboardStateChanged.Invoke(this, new ClipboardStateEventArgs(canCopy, canCut, canPaste));
-            }
+            ClipboardStateChanged?.Invoke(this, new ClipboardStateEventArgs(canCopy, canCut, canPaste));
         }
 
         /// <summary>
@@ -339,10 +330,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="status">The status for the event</param>
         public void FireOperationStatusEvent(IPaintTool tool, string status)
         {
-            if (OperationStatusChanged != null)
-            {
-                OperationStatusChanged.Invoke(this, new OperationStatusEventArgs(tool, status));
-            }
+            OperationStatusChanged?.Invoke(this, new OperationStatusEventArgs(tool, status));
         }
 
         /// <summary>
@@ -423,17 +411,17 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
             /// </summary>
-            public ImageEditPanel OwningPanel { get { return _owningPanel; } }
+            public ImageEditPanel OwningPanel => _owningPanel;
 
             /// <summary>
             /// Gets the Bitmap associated with this InternalPictureBox
             /// </summary>
-            public Bitmap Bitmap { get { return Image as Bitmap; } }
+            public Bitmap Bitmap => Image as Bitmap;
 
             /// <summary>
             /// Gets the buffer bitmap that the paint operations will use in order to buffer screen previews
             /// </summary>
-            public Bitmap Buffer { get { return _buffer; } }
+            public Bitmap Buffer => _buffer;
 
             /// <summary>
             /// Gets or sets the bitmap to display under the current image
@@ -453,12 +441,12 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets the coordinate of the mouse, in absolute image pixels 
             /// </summary>
-            public Point MousePoint { get { return _mousePoint; } }
+            public Point MousePoint => _mousePoint;
 
             /// <summary>
             /// Gets whether the mouse is currently over the image on the panel
             /// </summary>
-            public bool MouseOverImage { get { return _mouseOverImage; } }
+            public bool MouseOverImage => _mouseOverImage;
 
             /// <summary>
             /// Gets or sets whether to display a grid over the image
@@ -468,15 +456,12 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets a value specifying whether editing is currently enabled on this PictureBox
             /// </summary>
-            public bool EditingEnabled { get { return _owningPanel.EditingEnabled; } }
+            public bool EditingEnabled => _owningPanel.EditingEnabled;
 
             /// <summary>
             /// Gets a value specifying whether the space keyboard key is currently being held down
             /// </summary>
-            public bool SpaceHeld
-            {
-                get { return _spaceHeld; }
-            }
+            public bool SpaceHeld => _spaceHeld;
 
             /// <summary>
             /// Initializes a new instance of the InternalPictureBox class
@@ -502,10 +487,7 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public new void Dispose()
             {
-                if (_currentPaintTool != null)
-                {
-                    _currentPaintTool.Destroy();
-                }
+                _currentPaintTool?.Destroy();
 
                 foreach(PictureBoxDecorator decorator in _pictureBoxDecorators)
                 {
@@ -539,20 +521,13 @@ namespace Pixelaria.Views.Controls
             {
                 Image = bitmap;
 
-                if (_buffer != null)
-                    _buffer.Dispose();                
+                _buffer?.Dispose();
 
                 _buffer = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
 
                 // Create the under and over images
-                if (_overImage != null)
-                {
-                    _overImage.Dispose();
-                }
-                if (_underImage != null)
-                {
-                    _underImage.Dispose();
-                }
+                _overImage?.Dispose();
+                _underImage?.Dispose();
 
                 _overImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
                 _underImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
@@ -614,10 +589,7 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public void MarkModified()
             {
-                if (NotifyTo != null)
-                {
-                    NotifyTo.MarkModified();
-                }
+                NotifyTo?.MarkModified();
 
                 NotifyBitmapModified();
             }
@@ -627,10 +599,7 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public void NotifyBitmapModified()
             {
-                if (Modified != null)
-                {
-                    Modified(this, new EventArgs());
-                }
+                Modified?.Invoke(this, new EventArgs());
             }
 
             /// <summary>
@@ -1095,11 +1064,9 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public override void Clear()
         {
-            if (_oldBitmap != null)
-                _oldBitmap.Dispose();
+            _oldBitmap?.Dispose();
 
-            if (_newBitmap != null)
-                _newBitmap.Dispose();
+            _newBitmap?.Dispose();
         }
 
         /// <summary>
@@ -1168,10 +1135,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the reference to the picture box to decorate
         /// </summary>
-        public ImageEditPanel.InternalPictureBox PictureBox
-        {
-            get { return pictureBox; }
-        }
+        public ImageEditPanel.InternalPictureBox PictureBox => pictureBox;
 
         /// <summary>
         /// Initializes a new instance of the PictureBoxDecorator class

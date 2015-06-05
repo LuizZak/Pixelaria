@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -31,12 +30,12 @@ namespace Pixelaria.Views.MiscViews
         public AboutBox()
         {
             InitializeComponent();
-            Text = String.Format("About {0}", AssemblyTitle);
+            Text = $"About {AssemblyTitle}";
             labelProductName.Text = AssemblyProduct;
-            labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
+            labelVersion.Text = $"Version {AssemblyVersion}";
             labelCopyright.Text = AssemblyCopyright;
             labelCompanyName.Text = AssemblyCompany;
-            textBoxDescription.Text = String.Format("{0}\n{1}", AssemblyDescription, Properties.Resources.License);
+            textBoxDescription.Text = $"{AssemblyDescription}\n{Properties.Resources.License}";
         }
 
         #region Assembly Attribute Accessors
@@ -58,13 +57,7 @@ namespace Pixelaria.Views.MiscViews
             }
         }
 
-        public string AssemblyVersion
-        {
-            get
-            {
-                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            }
-        }
+        public string AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public string AssemblyDescription
         {

@@ -170,10 +170,7 @@ namespace Pixelaria.Views.Controls.ColorControls
                 return;
 
             // Gets the color the user clicked on
-            if (ColorSelect != null)
-            {
-                ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
-            }
+            ColorSelect?.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
 
             _mouseDown = true;
         }
@@ -206,10 +203,7 @@ namespace Pixelaria.Views.Controls.ColorControls
                 if (_mouseDown && _mouseOver)
                 {
                     // Gets the color the user clicked on
-                    if (ColorSelect != null)
-                    {
-                        ColorSelect.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
-                    }
+                    ColorSelect?.Invoke(this, new ColorSelectEventArgs(GetColorUnderMouse()));
                 }
             }
 
@@ -312,19 +306,19 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets the array of colors currently on this ColorSwatch
         /// </summary>
-        public Color[] Colors { get { return colorList.ToArray(); } }
-        
+        public Color[] Colors => colorList.ToArray();
+
         /// <summary>
         /// The number of colors on this ColorSwatch
         /// </summary>
-        public int ColorCount { get { return colorList.Count; } }
+        public int ColorCount => colorList.Count;
 
         /// <summary>
         /// Gets the color at the given index on this swatch
         /// </summary>
         /// <param name="index">The index of the color to get</param>
         /// <returns>The color at the given index on this swatch</returns>
-        public Color this[int index] { get { return colorList[index]; } }
+        public Color this[int index] => colorList[index];
 
         /// <summary>
         /// Initializes a new instance of the ColorSwatch class

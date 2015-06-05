@@ -141,17 +141,13 @@ namespace Pixelaria.Views.MiscViews
             if (_animation.FrameCount <= 0)
                 return;
 
-            if (_viewFrame != null)
-            {
-                _viewFrame.Dispose();
-            }
+            _viewFrame?.Dispose();
 
             _viewFrame = _animation[0].Clone();
 
             _viewFrame.Resize(GeneratedSettings.NewWidth, GeneratedSettings.NewHeight, GeneratedSettings.PerFrameScalingMethod, GeneratedSettings.InterpolationMode);
 
-            if (_viewBitmap != null)
-                _viewBitmap.Dispose();
+            _viewBitmap?.Dispose();
 
             _viewBitmap = _viewFrame.GetComposedBitmap();
             
@@ -202,8 +198,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void AnimationResizeView_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (zpb_preview.Image != null)
-                zpb_preview.Image.Dispose();
+            zpb_preview.Image?.Dispose();
 
             if (_viewFrame != null)
             {

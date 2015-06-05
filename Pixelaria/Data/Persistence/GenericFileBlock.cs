@@ -34,37 +34,25 @@ namespace Pixelaria.Data.Persistence
         /// Gets the ID of this block
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public short BlockID
-        {
-            get { return blockID; }
-        }
+        public short BlockID => blockID;
 
         /// <summary>
         /// <para>Gets the version of the contents of this block.</para>
         /// <para>The version is unrelated to the File version and is used to verify what is inside the content portion</para>
         /// </summary>
-        public short BlockVersion
-        {
-            get { return blockVersion; }
-        }
+        public short BlockVersion => blockVersion;
 
         /// <summary>
         /// <para>Gets the length of this block data on the stream.</para>
         /// <para>This does not include the block ID, block size and block data</para>
         /// </summary>
-        public long BlockLength
-        {
-            get { return blockLength; }
-        }
+        public long BlockLength => blockLength;
 
         /// <summary>
         /// <para>Gets the starting position of the block on the stream.</para>
         /// <para>The position is relative to the first byte of the Block ID</para>
         /// </summary>
-        public long BlockOffset
-        {
-            get { return blockOffset; }
-        }
+        public long BlockOffset => blockOffset;
 
         /// <summary>
         /// Disposes of this BaseBlock and all related resources
@@ -148,7 +136,7 @@ namespace Pixelaria.Data.Persistence
 
             if (stream.Length - stream.Position < blockLength)
             {
-                throw new ArgumentException(@"The stream provided does not have the required " + blockLength + @" bytes needed to load this file block.", "stream");
+                throw new ArgumentException(@"The stream provided does not have the required " + blockLength + @" bytes needed to load this file block.", nameof(stream));
             }
 
             _blockContent = reader.ReadBytes((int)blockLength);

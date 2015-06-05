@@ -66,29 +66,9 @@ namespace Pixelaria.Controllers
         readonly MainForm _mainForm;
 
         /// <summary>
-        /// The default animation importer
-        /// </summary>
-        readonly IDefaultImporter _defaultImporter;
-
-        /// <summary>
         /// The default animation exporter
         /// </summary>
         readonly IBundleExporter _defaultExporter;
-
-        /// <summary>
-        /// The Animation fields validator
-        /// </summary>
-        readonly IAnimationValidator _animationValidator;
-
-        /// <summary>
-        /// The AnimationSheet fields validator
-        /// </summary>
-        readonly IAnimationSheetValidator _animationSheetValidator;
-
-        /// <summary>
-        /// The frame factory
-        /// </summary>
-        readonly IFrameFactory _frameFactory;
 
         /// <summary>
         /// Whether the current bundle has unsaved changes
@@ -103,47 +83,47 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the current bundle opened on the application
         /// </summary>
-        public Bundle CurrentBundle { get { return _currentBundle; } }
+        public Bundle CurrentBundle => _currentBundle;
 
         /// <summary>
         /// Gets an array of the current files opened in the program
         /// </summary>
-        public PixelariaFile[] Files { get { return _files.ToArray(); } }
+        public PixelariaFile[] Files => _files.ToArray();
 
         /// <summary>
         /// Gets the current IDefaultImporter of the program
         /// </summary>
-        public IDefaultImporter DefaultImporter { get { return _defaultImporter; } }
+        public IDefaultImporter DefaultImporter { get; }
 
         /// <summary>
         /// Gets the current IDefaultExporter of the program
         /// </summary>
-        public IBundleExporter DefaultExporter { get { return _defaultExporter; } }
+        public IBundleExporter DefaultExporter => _defaultExporter;
 
         /// <summary>
         /// Gets the current IAnimationValidator of the program
         /// </summary>
-        public IAnimationValidator AnimationValidator { get { return _animationValidator; } }
+        public IAnimationValidator AnimationValidator { get; }
 
         /// <summary>
         /// Gets the current IAnimationSheetValidator of the program
         /// </summary>
-        public IAnimationSheetValidator AnimationSheetValidator { get { return _animationSheetValidator; } }
+        public IAnimationSheetValidator AnimationSheetValidator { get; }
 
         /// <summary>
         /// Gets the current IFrameFactory of the program
         /// </summary>
-        public IFrameFactory FrameFactory { get { return _frameFactory; } }
+        public IFrameFactory FrameFactory { get; }
 
         /// <summary>
         /// Gets whether the current bundle has unsaved changes
         /// </summary>
-        public bool UnsavedChanges { get { return _unsavedChanges; } }
+        public bool UnsavedChanges => _unsavedChanges;
 
         /// <summary>
         /// Gets the current RecentFileList for the program
         /// </summary>
-        public RecentFileList CurrentRecentFileList { get { return _recentFileList; } }
+        public RecentFileList CurrentRecentFileList => _recentFileList;
 
         #region Eventing
 
@@ -192,15 +172,15 @@ namespace Pixelaria.Controllers
             _files = new List<PixelariaFile>();
 
             // Initialize the factories
-            _frameFactory = new DefaultFrameFactory(this);
+            FrameFactory = new DefaultFrameFactory(this);
 
             // Initialize the validators and exporters
             DefaultValidator defValidator = new DefaultValidator(this);
 
-            _animationValidator = defValidator;
-            _animationSheetValidator = defValidator;
+            AnimationValidator = defValidator;
+            AnimationSheetValidator = defValidator;
 
-            _defaultImporter = new DefaultPngImporter();
+            DefaultImporter = new DefaultPngImporter();
             _defaultExporter = new DefaultPngExporter();
 
             // Initialize the Settings singleton
@@ -320,8 +300,7 @@ namespace Pixelaria.Controllers
         {
             PixelariaFile file = GetPixelariaFileByBundle(bundle);
 
-            if (file != null)
-                file.Dispose();
+            file?.Dispose();
 
             bundle.Dispose();
         }
@@ -390,10 +369,7 @@ namespace Pixelaria.Controllers
                 _mainForm.AddAnimation(anim);
             }
 
-            if (AnimationAdded != null)
-            {
-                AnimationAdded(this, new AnimationEventArgs(anim));
-            }
+            AnimationAdded?.Invoke(this, new AnimationEventArgs(anim));
 
             MarkUnsavedChanges(true);
         }
@@ -408,10 +384,7 @@ namespace Pixelaria.Controllers
 
             _mainForm.RemoveAnimation(anim);
 
-            if (AnimationRemoved != null)
-            {
-                AnimationRemoved(this, new AnimationEventArgs(anim));
-            }
+            AnimationRemoved?.Invoke(this, new AnimationEventArgs(anim));
 
             MarkUnsavedChanges(true);
 
@@ -485,10 +458,7 @@ namespace Pixelaria.Controllers
                 _mainForm.AddAnimationSheet(sheet);
             }
 
-            if (AnimationSheetAdded != null)
-            {
-                AnimationSheetAdded(this, new AnimationSheetEventArgs(sheet));
-            }
+            AnimationSheetAdded?.Invoke(this, new AnimationSheetEventArgs(sheet));
 
             MarkUnsavedChanges(true);
         }
@@ -514,10 +484,7 @@ namespace Pixelaria.Controllers
 
             _mainForm.RemoveAnimationSheet(sheet);
 
-            if (AnimationSheetRemoved != null)
-            {
-                AnimationSheetRemoved(this, new AnimationSheetEventArgs(sheet));
-            }
+            AnimationSheetRemoved?.Invoke(this, new AnimationSheetEventArgs(sheet));
 
             MarkUnsavedChanges(true);
         }
@@ -862,10 +829,7 @@ namespace Pixelaria.Controllers
 
             imageFormat = ImageFormatForExtension(Path.GetExtension(fileName), imageFormat);
 
-            if (imageToSave != null)
-            {
-                imageToSave.Save(savePath, imageFormat);
-            }
+            imageToSave?.Save(savePath, imageFormat);
 
             return savePath;
         }
