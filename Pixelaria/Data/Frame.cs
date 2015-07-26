@@ -411,23 +411,23 @@ namespace Pixelaria.Data
             {
                 throw new ArgumentException(@"The provided layer's dimensions must match the size of this frame", nameof(layer));
             }
-
-            if (!(layer is FrameLayer))
-            {
-                throw new ArgumentException("The provided layers's type is not compatible with this Frame object");
-            }
-
             if (layer.Frame != null)
             {
                 throw new ArgumentException("The specified layer is already stored in a Frame object");
             }
 
-            if (layerIndex == -1)
-                _layers.Add((FrameLayer)layer);
-            else
-                _layers.Insert(layerIndex, (FrameLayer)layer);
+            var frameLayer = layer as FrameLayer;
+            if (frameLayer == null)
+            {
+                throw new ArgumentException("The provided layers's type is not compatible with this Frame object");
+            }
 
-            ((FrameLayer)layer).Frame = this;
+            if (layerIndex == -1 || layerIndex == _layers.Count)
+                _layers.Add(frameLayer);
+            else
+                _layers.Insert(layerIndex, frameLayer);
+
+            frameLayer.Frame = this;
 
             UpdateLayerIndices();
         }

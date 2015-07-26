@@ -440,14 +440,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void btn_createNewLayer_Click(object sender, EventArgs e)
         {
-            if (_controller.ActiveLayerIndex == _controller.LayerCount - 1)
-            {
-                _controller.ActiveLayerIndex = _controller.CreateLayer().Index;
-            }
-            else
-            {
-                _controller.ActiveLayerIndex = _controller.CreateLayer(_controller.ActiveLayerIndex + 1).Index;
-            }
+            _controller.ActiveLayerIndex = _controller.CreateLayer(_controller.ActiveLayerIndex + 1).Index;
         }
 
         #region Layer Control event handlers
