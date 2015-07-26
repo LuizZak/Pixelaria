@@ -36,7 +36,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    public class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation
+    public class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation, IUndoIntercepterPaintTool
     {
         /// <summary>
         /// Timer used to animate the selection area
@@ -652,6 +652,47 @@ namespace Pixelaria.Views.Controls.PaintTools
                     }
                     break;
             }
+        }
+
+        /// <summary>
+        /// Forces this paint tool to intercept the undo operation, returning whether this Paint Tool has intercepted the undo operation successfully.
+        /// While intercpting an undo, a paint tool might perform actions of its own
+        /// </summary>
+        /// <returns>Whether the current paint tool intercepted the undo task. When the return is true, no undo operation might be performed from an owning object</returns>
+        public bool InterceptUndo()
+        {
+            if (!Selected)
+                return false;
+
+            if (OperationType == SelectionOperationType.Paste)
+            {
+                CancelOperation(false);
+                return true;
+            }
+
+            if (OperationType != SelectionOperationType.Moved)
+                return false;
+
+            // If the selection area is not the same as the start...
+            if (selectedArea != selectedStartArea)
+            {
+                SelectionArea = selectedStartArea;
+                return true;
+            }
+
+            // If it's the same area, cancel the operation
+            CancelOperation(true);
+            return false;
+        }
+
+        /// <summary>
+        /// Forces this paint tool to intercept the redo operation, returning whether this Paint Tool has intercepted the redooperation successfully.
+        /// While intercpting a redo, a paint tool might perform actions of its own
+        /// </summary>
+        /// <returns>Whether the current paint tool intercepted the redo task. When the return is true, no redo operation might be performed from an owning object</returns>
+        public bool InterceptRedo()
+        {
+            return false;
         }
 
         /// <summary>

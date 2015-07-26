@@ -693,7 +693,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Undo()
         {
-            iepb_frame.UndoSystem.Undo();
+            if(!iepb_frame.InterceptUndo())
+            {
+                iepb_frame.UndoSystem.Undo();
+            }
         }
 
         /// <summary>
@@ -701,7 +704,10 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Redo()
         {
-            iepb_frame.UndoSystem.Redo();
+            if (!iepb_frame.InterceptRedo())
+            {
+                iepb_frame.UndoSystem.Redo();
+            }
         }
 
         /// <summary>

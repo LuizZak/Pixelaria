@@ -334,6 +334,30 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Forces the current paint tool to intercept the undo operation, returning whether the Paint Tool has intercepted the undo operation successfully.
+        /// While intercpting an undo, a paint tool might perform actions of its own
+        /// </summary>
+        /// <returns>Whether the current paint tool intercepted the undo task. When the return is true, no undo operation might be performed</returns>
+        public bool InterceptUndo()
+        {
+            var intercepter = CurrentPaintTool as IUndoIntercepterPaintTool;
+
+            return intercepter != null && intercepter.InterceptUndo();
+        }
+
+        /// <summary>
+        /// Forces the current paint tool to intercept the redo operation, returning whether the Paint Tool has intercepted the redo operation successfully.
+        /// While intercpting a redo, a paint tool might perform actions of its own
+        /// </summary>
+        /// <returns>Whether the current paint tool intercepted the redo task. When the return is true, no redo operation might be performed</returns>
+        public bool InterceptRedo()
+        {
+            var intercepter = CurrentPaintTool as IUndoIntercepterPaintTool;
+
+            return intercepter != null && intercepter.InterceptRedo();
+        }
+
+        /// <summary>
         /// Internal picture box that actually displays the bitmap to edit
         /// </summary>
         public class InternalPictureBox : ZoomablePictureBox, IDisposable

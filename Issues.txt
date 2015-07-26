@@ -28,6 +28,9 @@ Legend:
 
 - Opening an animation that has 0 FPS skips the first frame over to the second on the preview panel.
 
+- Moving a selection and hitting Undo undoes a previous action instead of moving the selection back to its original place.
+>> Fixed on Current Release
+
 - Selecting a color with the middle mouse button out of bounds results in an exception window.
 >> Fixed on Current Release
 

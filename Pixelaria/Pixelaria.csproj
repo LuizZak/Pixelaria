@@ -148,6 +148,7 @@
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
     </Compile>
