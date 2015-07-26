@@ -1035,7 +1035,6 @@ namespace Pixelaria.Views.Controls.PaintTools
             public void Clear()
             {
                 _originalSlice?.Dispose();
-
                 _selectionBitmap?.Dispose();
             }
 
@@ -1088,7 +1087,6 @@ namespace Pixelaria.Views.Controls.PaintTools
                         gfx.SetClip(_selectionStartArea);
                         gfx.Clear(Color.Transparent);
                         gfx.Clip = reg;
-                        //gfx.DrawImage(selectionBitmap, area.X, area.Y);
                         gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
                         break;
                     case SelectionOperationType.Cut:
@@ -1099,7 +1097,6 @@ namespace Pixelaria.Views.Controls.PaintTools
                         break;
                     case SelectionOperationType.Paste:
                         // Draw the original slice back
-                        //gfx.DrawImage(selectionBitmap, area.X, area.Y);
                         gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
                         break;
                 }
