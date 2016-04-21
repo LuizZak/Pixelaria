@@ -20,6 +20,9 @@ Caption:
 
 -- Current Release
 
++ Added ability to delete selected Animation/Animation Sheets with the Delete key on the main interface.
++ New Animation and New Animation Sheet forms now open with a default unique untitled name pre-filled in.
+
 * Fixed issues that occurred after saving files after duplicating animations/animation sheets.
 
 . FrameView

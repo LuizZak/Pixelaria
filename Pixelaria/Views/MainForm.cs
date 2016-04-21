@@ -661,7 +661,7 @@ namespace Pixelaria.Views
         /// </summary>
         /// <param name="tag">The object to get the tree node representation of</param>
         /// <returns>The TreeNode that represents the given object</returns>
-        public TreeNode GetTreeNodeFor(Object tag)
+        public TreeNode GetTreeNodeFor(object tag)
         {
             // Do a breadth-first search on the tree-view
             TreeNode currentNode = _rootNode;
@@ -686,6 +686,44 @@ namespace Pixelaria.Views
             }
         }
 
+        /// <summary>
+        /// Gets the type for the currently selected tree view node.
+        /// Returns null, if no node is currently selected
+        /// </summary>
+        /// <returns>The type for the currently selected node, or null, if none was available</returns>
+        private TreeViewNodeType? GetTypeForSelectedNode()
+        {
+            if (tv_bundleAnimations.SelectedNode == null)
+                return null;
+
+            return GetTypeForNode(tv_bundleAnimations.SelectedNode);
+        }
+
+        /// <summary>
+        /// Gets the type for the given tree view node
+        /// </summary>
+        /// <param name="node">The node to get the type of</param>
+        /// <returns>The type for the given node</returns>
+        private TreeViewNodeType GetTypeForNode(TreeNode node)
+        {
+            if (node.Tag is Bundle)
+            {
+                return TreeViewNodeType.Bundle;
+            }
+
+            if (node.Tag is Animation)
+            {
+                return TreeViewNodeType.Animation;
+            }
+            
+            if (node.Tag is AnimationSheet)
+            {
+                return TreeViewNodeType.AnimationSheet;
+            }
+
+            return TreeViewNodeType.Unknown;
+        }
+
         #endregion
 
         #region Interface Event Handlers
@@ -704,13 +742,7 @@ namespace Pixelaria.Views
             }
         }
 
-        //
-        // TreeView Node Double Click event handler
-        // 
-        private void AnimationNodeDoubleClickHandler(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            OpenSelectedNode();
-        }
+        #region Keyboard
 
         // 
         // TreeView Key Down event handler
@@ -722,6 +754,40 @@ namespace Pixelaria.Views
                 OpenSelectedNode();
                 tv_bundleAnimations.Focus();
             }
+
+            if (e.KeyCode == Keys.Delete)
+            {
+                var nodeType = GetTypeForSelectedNode();
+
+                if (nodeType == null)
+                    return;
+
+                switch (nodeType.Value)
+                {
+                    case TreeViewNodeType.Animation:
+                        // Get the currently selected Animation node
+                        Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
+                        ConfirmDeleteAnimation(anim);
+                        break;
+                    case TreeViewNodeType.AnimationSheet:
+                        // Get the currently selected AnimationSheet node
+                        AnimationSheet sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
+                        ConfirmDeleteAnimationSheet(sheet);
+                        break;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Mouse
+
+        //
+        // TreeView Node Double Click event handler
+        // 
+        private void AnimationNodeDoubleClickHandler(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            OpenSelectedNode();
         }
 
         // 
@@ -868,6 +934,8 @@ namespace Pixelaria.Views
             }
             _lastMousePoint = e.Location;
         }
+
+        #endregion
 
         // 
         // TreeView Before Node Collapse event handler
@@ -1252,8 +1320,31 @@ namespace Pixelaria.Views
 
             aboutBox.ShowDialog(this);
         }
-
+        
         #endregion
+
+        /// <summary>
+        /// Specifies the type of a tree view node
+        /// </summary>
+        enum TreeViewNodeType
+        {
+            /// <summary>
+            /// Specifies a bundle node
+            /// </summary>
+            Bundle,
+            /// <summary>
+            /// Specifies an animation node
+            /// </summary>
+            Animation,
+            /// <summary>
+            /// Specifies an animation sheet node
+            /// </summary>
+            AnimationSheet,
+            /// <summary>
+            /// Specifies an unknown node type
+            /// </summary>
+            Unknown
+        }
     }
 
     /// <summary>
