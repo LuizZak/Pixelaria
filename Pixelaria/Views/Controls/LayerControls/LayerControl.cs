@@ -82,6 +82,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         private Point _layerPressPoint;
 
         /// <summary>
+        /// Whether the layer control is currently collapsed
+        /// </summary>
+        private bool _collapsed;
+
+        /// <summary>
         /// Whether the layer being displayed is currently visible
         /// </summary>
         private bool _layerVisible;
@@ -110,6 +115,23 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// The last active control before the layer edit operation started
         /// </summary>
         private Control _lastActiveControl;
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the layer control is currently collapsed or expanded
+        /// </summary>
+        public bool Collapsed
+        {
+            get { return _collapsed; }
+            set
+            {
+                if (_collapsed == value)
+                    return;
+
+                _collapsed = value;
+
+                UpdateDisplay();
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value specifying whether the layer is visible
@@ -289,6 +311,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <param name="refreshBitmap">Whether to refresh the layer preview bitmap</param>
         public void UpdateDisplay(bool refreshBitmap = true)
         {
+            if (_collapsed)
+            {
+                Layout();
+            }
+
             if (refreshBitmap)
             {
                 UpdateBitmapDisplay();
@@ -307,6 +334,14 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             btn_visible.Image = _layerVisible ? _layerVisibleImage : _layerHiddenImage;
             btn_locked.Image = _layerLocked ? _layerLockedImage : _layerUnlockedImage;
+        }
+
+        /// <summary>
+        /// Lays out the contents of this layer control, taking collapsing in consideration
+        /// </summary>
+        private void Layout()
+        {
+            
         }
 
         /// <summary>
@@ -380,6 +415,14 @@ namespace Pixelaria.Views.Controls.LayerControls
                 Rectangle rec = new Rectangle(Point.Empty, new Size(Width - 1, Height - 1));
                 e.Graphics.DrawRectangle(p, rec);
             }
+        }
+
+        // 
+        // Collapse/Expand button
+        // 
+        private void btn_collapse_Click(object sender, EventArgs e)
+        {
+            Collapsed = !Collapsed;
         }
 
         // 

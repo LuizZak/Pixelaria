@@ -666,6 +666,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\action_remove_gray.png" />
+    <None Include="Resources\action_add_grey.png" />
     <None Include="Resources\layer_flatten_layers.png" />
     <None Include="Resources\padlock_closed.png" />
     <None Include="Resources\padlock_open.png" />

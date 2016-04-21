@@ -36,6 +36,7 @@
             this.btn_remove = new System.Windows.Forms.Button();
             this.lbl_layerName = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.btn_collapse = new System.Windows.Forms.Button();
             this.txt_layerNameEditBox = new System.Windows.Forms.TextBox();
             this.tcs_transparency = new Pixelaria.Views.Controls.TinyColorSlider();
             this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
@@ -112,8 +113,25 @@
             this.lbl_layerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lbl_layerName.DoubleClick += new System.EventHandler(this.lbl_layerName_DoubleClick);
             // 
+            // btn_collapse
+            // 
+            this.btn_collapse.FlatAppearance.BorderSize = 0;
+            this.btn_collapse.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ScrollBar;
+            this.btn_collapse.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_collapse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_collapse.Image = global::Pixelaria.Properties.Resources.action_remove_gray;
+            this.btn_collapse.Location = new System.Drawing.Point(4, 2);
+            this.btn_collapse.Name = "btn_collapse";
+            this.btn_collapse.Size = new System.Drawing.Size(16, 16);
+            this.btn_collapse.TabIndex = 11;
+            this.toolTip1.SetToolTip(this.btn_collapse, "Collapse/Expand");
+            this.btn_collapse.UseVisualStyleBackColor = true;
+            this.btn_collapse.Visible = false;
+            this.btn_collapse.Click += new System.EventHandler(this.btn_collapse_Click);
+            // 
             // txt_layerNameEditBox
             // 
+            this.txt_layerNameEditBox.AcceptsReturn = true;
             this.txt_layerNameEditBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_layerNameEditBox.Location = new System.Drawing.Point(24, 3);
             this.txt_layerNameEditBox.Name = "txt_layerNameEditBox";
@@ -162,6 +180,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.btn_collapse);
             this.Controls.Add(this.txt_layerNameEditBox);
             this.Controls.Add(this.tcs_transparency);
             this.Controls.Add(this.lbl_layerName);
@@ -190,5 +209,6 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private TinyColorSlider tcs_transparency;
         private System.Windows.Forms.TextBox txt_layerNameEditBox;
+        private System.Windows.Forms.Button btn_collapse;
     }
 }
