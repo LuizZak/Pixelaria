@@ -113,6 +113,13 @@ namespace Pixelaria.Filters
             Hue = reader.ReadInt32();
             Relative = reader.ReadBoolean();
         }
+
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as HueFilter;
+
+            return other != null && Hue == other.Hue && Relative == other.Relative && Version == other.Version;
+        }
     }
 
     /// <summary>
@@ -238,6 +245,13 @@ namespace Pixelaria.Filters
             Relative = reader.ReadBoolean();
             Multiply = reader.ReadBoolean();
         }
+        
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as SaturationFilter;
+
+            return other != null && Saturation == other.Saturation && Relative == other.Relative && KeepGrays == other.KeepGrays && Multiply == other.Multiply && Version == other.Version;
+        }
     }
 
     /// <summary>
@@ -353,6 +367,13 @@ namespace Pixelaria.Filters
             Lightness = reader.ReadInt32();
             Relative = reader.ReadBoolean();
             Multiply = reader.ReadBoolean();
+        }
+
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as LightnessFilter;
+
+            return other != null && Lightness == other.Lightness && Relative == other.Relative && Multiply == other.Multiply && Version == other.Version;
         }
     }
 }

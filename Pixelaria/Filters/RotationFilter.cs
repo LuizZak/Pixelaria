@@ -128,5 +128,12 @@ namespace Pixelaria.Filters
             RotateAroundCenter = reader.ReadBoolean();
             PixelQuality = reader.ReadBoolean();
         }
+
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as RotationFilter;
+
+            return other != null && Math.Abs(Rotation - other.Rotation) < float.Epsilon && RotateAroundCenter == other.RotateAroundCenter && PixelQuality == other.PixelQuality && Version == other.Version;
+        }
     }
 }

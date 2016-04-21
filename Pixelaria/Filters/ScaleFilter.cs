@@ -141,5 +141,12 @@ namespace Pixelaria.Filters
             Centered = reader.ReadBoolean();
             PixelQuality = reader.ReadBoolean();
         }
+
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as ScaleFilter;
+
+            return other != null && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon && Math.Abs(ScaleY - other.ScaleY) < float.Epsilon && Centered == other.Centered && PixelQuality == other.PixelQuality && Version == other.Version;
+        }
     }
 }

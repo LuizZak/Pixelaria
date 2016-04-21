@@ -168,5 +168,12 @@ namespace Pixelaria.Filters
             FadeFactor = reader.ReadSingle();
             FadeAlpha = reader.ReadBoolean();
         }
+
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as FadeFilter;
+
+            return other != null && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon && FadeColor == other.FadeColor && FadeAlpha == other.FadeAlpha && Version == other.Version;
+        }
     }
 }

@@ -65,5 +65,12 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to load the data from</param>
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         void LoadFromStream(Stream stream, int version);
+
+        /// <summary>
+        /// Returns whether this filter instance matches the given IFilter instance completely
+        /// </summary>
+        /// <param name="filter">The other filter to compare</param>
+        /// <returns>true if this filter matches the given filter's type and parameters; false otherwise</returns>
+        bool Equals(IFilter filter);
     }
 }

@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using Pixelaria.Controllers;
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls.Filters;
@@ -88,8 +88,10 @@ namespace Pixelaria.Views.ModelViews
         {
             fs_filters.ApplyFilter();
 
+            FiltersController.Instance.AddFilters(fs_filters.Filters);
+
             DialogResult = DialogResult.OK;
             Close();
-        }      
+        }
     }
 }

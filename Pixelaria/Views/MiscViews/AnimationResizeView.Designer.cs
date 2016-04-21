@@ -58,6 +58,7 @@ namespace Pixelaria.Views.MiscViews
             this.rb_frameScaling_placeAtCenter = new System.Windows.Forms.RadioButton();
             this.rb_frameScaling_placeAtTopLeft = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rb_frameScaling_zoom = new System.Windows.Forms.RadioButton();
             this.nud_width = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -74,7 +75,10 @@ namespace Pixelaria.Views.MiscViews
             this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
-            this.rb_frameScaling_zoom = new System.Windows.Forms.RadioButton();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_width)).BeginInit();
@@ -84,6 +88,8 @@ namespace Pixelaria.Views.MiscViews
             ((System.ComponentModel.ISupportInitialize)(this.nud_scaleX)).BeginInit();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox3
@@ -158,6 +164,10 @@ namespace Pixelaria.Views.MiscViews
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label8);
+            this.groupBox2.Controls.Add(this.label7);
+            this.groupBox2.Controls.Add(this.numericUpDown2);
+            this.groupBox2.Controls.Add(this.numericUpDown1);
             this.groupBox2.Controls.Add(this.rb_frameScaling_zoom);
             this.groupBox2.Controls.Add(this.rb_frameScaling_stretch);
             this.groupBox2.Controls.Add(this.rb_frameScaling_placeAtCenter);
@@ -168,6 +178,16 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Frame Scaling Method";
+            // 
+            // rb_frameScaling_zoom
+            // 
+            this.rb_frameScaling_zoom.AutoSize = true;
+            this.rb_frameScaling_zoom.Location = new System.Drawing.Point(6, 88);
+            this.rb_frameScaling_zoom.Name = "rb_frameScaling_zoom";
+            this.rb_frameScaling_zoom.Size = new System.Drawing.Size(52, 17);
+            this.rb_frameScaling_zoom.TabIndex = 3;
+            this.rb_frameScaling_zoom.Text = "Zoom";
+            this.rb_frameScaling_zoom.UseVisualStyleBackColor = true;
             // 
             // nud_width
             // 
@@ -356,7 +376,7 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox4.Controls.Add(this.zpb_preview);
             this.groupBox4.Location = new System.Drawing.Point(290, 12);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(279, 304);
+            this.groupBox4.Size = new System.Drawing.Size(279, 287);
             this.groupBox4.TabIndex = 17;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Preview";
@@ -369,14 +389,16 @@ namespace Pixelaria.Views.MiscViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.zpb_preview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_preview.ClipBackgroundToImage = true;
+            this.zpb_preview.HorizontalScrollValue = 0;
             this.zpb_preview.Location = new System.Drawing.Point(6, 16);
             this.zpb_preview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MaximumZoom")));
             this.zpb_preview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.MinimumZoom")));
             this.zpb_preview.Name = "zpb_preview";
             this.zpb_preview.ShowImageArea = true;
-            this.zpb_preview.Size = new System.Drawing.Size(267, 282);
+            this.zpb_preview.Size = new System.Drawing.Size(267, 265);
             this.zpb_preview.TabIndex = 0;
             this.zpb_preview.TabStop = false;
+            this.zpb_preview.VerticalScrollValue = 0;
             this.zpb_preview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.Zoom")));
             this.zpb_preview.ZoomFactor = 1.414214F;
             // 
@@ -384,7 +406,7 @@ namespace Pixelaria.Views.MiscViews
             // 
             this.btn_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
-            this.btn_ok.Location = new System.Drawing.Point(427, 322);
+            this.btn_ok.Location = new System.Drawing.Point(427, 305);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(61, 23);
             this.btn_ok.TabIndex = 10;
@@ -399,7 +421,7 @@ namespace Pixelaria.Views.MiscViews
             this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_cancel.Location = new System.Drawing.Point(494, 322);
+            this.btn_cancel.Location = new System.Drawing.Point(494, 305);
             this.btn_cancel.Name = "btn_cancel";
             this.btn_cancel.Size = new System.Drawing.Size(75, 23);
             this.btn_cancel.TabIndex = 11;
@@ -408,15 +430,37 @@ namespace Pixelaria.Views.MiscViews
             this.btn_cancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btn_cancel.UseVisualStyleBackColor = true;
             // 
-            // rb_frameScaling_zoom
+            // numericUpDown1
             // 
-            this.rb_frameScaling_zoom.AutoSize = true;
-            this.rb_frameScaling_zoom.Location = new System.Drawing.Point(6, 88);
-            this.rb_frameScaling_zoom.Name = "rb_frameScaling_zoom";
-            this.rb_frameScaling_zoom.Size = new System.Drawing.Size(52, 17);
-            this.rb_frameScaling_zoom.TabIndex = 3;
-            this.rb_frameScaling_zoom.Text = "Zoom";
-            this.rb_frameScaling_zoom.UseVisualStyleBackColor = true;
+            this.numericUpDown1.Location = new System.Drawing.Point(201, 19);
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(65, 20);
+            this.numericUpDown1.TabIndex = 5;
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Location = new System.Drawing.Point(201, 42);
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(65, 20);
+            this.numericUpDown2.TabIndex = 6;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(147, 21);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(48, 13);
+            this.label7.TabIndex = 7;
+            this.label7.Text = "Offset X:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(147, 44);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(48, 13);
+            this.label8.TabIndex = 8;
+            this.label8.Text = "Offset Y:";
             // 
             // AnimationResizeView
             // 
@@ -424,7 +468,7 @@ namespace Pixelaria.Views.MiscViews
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_cancel;
-            this.ClientSize = new System.Drawing.Size(581, 356);
+            this.ClientSize = new System.Drawing.Size(581, 339);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
@@ -448,6 +492,8 @@ namespace Pixelaria.Views.MiscViews
             ((System.ComponentModel.ISupportInitialize)(this.nud_scaleX)).EndInit();
             this.groupBox4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.zpb_preview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -478,5 +524,9 @@ namespace Pixelaria.Views.MiscViews
         private System.Windows.Forms.GroupBox groupBox4;
         private Controls.ZoomablePictureBox zpb_preview;
         private System.Windows.Forms.RadioButton rb_frameScaling_zoom;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
     }
 }

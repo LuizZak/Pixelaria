@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -133,6 +134,13 @@ namespace Pixelaria.Filters
             BinaryReader reader = new BinaryReader(stream);
 
             Transparency = reader.ReadSingle();
+        }
+
+        public bool Equals(IFilter filter)
+        {
+            var other = filter as TransparencyFilter;
+
+            return other != null && Math.Abs(Transparency - other.Transparency) < float.Epsilon && Version == other.Version;
         }
     }
 }

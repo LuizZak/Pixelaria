@@ -702,6 +702,16 @@ namespace Pixelaria.Data
         public int NewWidth;
 
         /// <summary>
+        /// The X offset to apply to the image
+        /// </summary>
+        public int OffsetX;
+
+        /// <summary>
+        /// The Y offset to apply to the image
+        /// </summary>
+        public int OffsetY;
+
+        /// <summary>
         /// The method of frame scaling to apply to individual frames when adding frames of different dimensions
         /// to an Animation
         /// </summary>

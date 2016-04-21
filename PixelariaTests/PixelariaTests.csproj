@@ -70,6 +70,7 @@
     <Compile Include="PixelariaTests\Tests\Data\Persistence\FileBlocksTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceHelperTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="PixelariaTests\Tests\Filters\FilterPresetTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PencilPaintOperationTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />

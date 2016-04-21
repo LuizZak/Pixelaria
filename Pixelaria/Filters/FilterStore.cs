@@ -405,6 +405,20 @@ namespace Pixelaria.Filters
         }
 
         /// <summary>
+        /// Returns whether this filter preset matches the given filter preset.
+        /// Filter preset comparision is made by filters, the preset name and filter order is ignored
+        /// </summary>
+        /// <param name="other">Anoher filter preset to compare</param>
+        /// <returns>true if all filters match the filters on the given preset; false otherwise</returns>
+        public bool Equals(FilterPreset other)
+        {
+            if (_filters.Length != other._filters.Length)
+                return false;
+
+            return _filters.Select(f1 => other._filters.Any(f1.Equals)).All(found => found);
+        }
+
+        /// <summary>
         /// Saves this FilterPreset to a stream
         /// </summary>
         /// <param name="stream">A stream to save this filter preset to</param>
