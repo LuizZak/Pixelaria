@@ -928,6 +928,20 @@ namespace Pixelaria.Views.Controls.ColorControls
 
         #endregion
 
+        #region Layout listeners overrides
+
+        // 
+        // Size Changed
+        // 
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+
+            Invalidate();
+        }
+
+        #endregion
+
         /// <summary>
         /// Returns whether this color slider should ignore updates to the alpha transparency of the active color and always render it as 1.0
         /// </summary>

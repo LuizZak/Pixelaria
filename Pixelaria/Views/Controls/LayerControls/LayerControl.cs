@@ -27,6 +27,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
+using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.ColorControls;
 
@@ -41,20 +42,20 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Cached version of the layer hidden image
         /// </summary>
-        private readonly Image _layerHiddenImage = Properties.Resources.filter_disable_icon;
+        private readonly Image _layerHiddenImage = Resources.filter_disable_icon;
         /// <summary>
         /// Cached version of the layer visible image
         /// </summary>
-        private readonly Image _layerVisibleImage = Properties.Resources.filter_enable_icon;
+        private readonly Image _layerVisibleImage = Resources.filter_enable_icon;
 
         /// <summary>
         /// Cached version of the layer locked image
         /// </summary>
-        private readonly Image _layerLockedImage = Properties.Resources.padlock_closed;
+        private readonly Image _layerLockedImage = Resources.padlock_closed;
         /// <summary>
         /// Cached version of the layer unlocked image
         /// </summary>
-        private readonly Image _layerUnlockedImage = Properties.Resources.padlock_open;
+        private readonly Image _layerUnlockedImage = Resources.padlock_open;
 
         /// <summary>
         /// The layer this layer control is binded to
@@ -70,6 +71,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// Whether the user is currently pressing down on the layer bitmap
         /// </summary>
         private bool _pressingLayer;
+
+        /// <summary>
+        /// Whether the user is currently pressing down on the container (this) control
+        /// </summary>
+        private bool _pressingContainer;
 
         /// <summary>
         /// Whether to not update the transparency slider during Transparency property changes
@@ -128,6 +134,8 @@ namespace Pixelaria.Views.Controls.LayerControls
                     return;
 
                 _collapsed = value;
+
+                btn_collapse.Image = _collapsed ? Resources.action_add_grey : Resources.action_remove_gray;
 
                 UpdateDisplay();
             }
@@ -289,6 +297,11 @@ namespace Pixelaria.Views.Controls.LayerControls
         public event MouseEventHandler LayerImageReleased;
 
         /// <summary>
+        /// Occurs whenever the user collapses/expands the layer through the button on the layer's interface
+        /// </summary>
+        public event EventHandler LayerCollapeChanged;
+
+        /// <summary>
         /// Initializes a new instance of the LayerControl class
         /// </summary>
         /// <param name="layer">The layer this control will bind to</param>
@@ -311,10 +324,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <param name="refreshBitmap">Whether to refresh the layer preview bitmap</param>
         public void UpdateDisplay(bool refreshBitmap = true)
         {
-            if (_collapsed)
-            {
-                Layout();
-            }
+            LayoutItems();
 
             if (refreshBitmap)
             {
@@ -339,9 +349,34 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Lays out the contents of this layer control, taking collapsing in consideration
         /// </summary>
-        private void Layout()
+        private void LayoutItems()
         {
-            
+            if (Collapsed)
+            {
+                btn_locked.Location = new Point(24, 19);
+                btn_duplicate.Location = new Point(48, 19);
+                btn_remove.Location = new Point(72, 19);
+
+                tcs_transparency.Location = new Point(4, 43);
+                tcs_transparency.Size = new Size(116, 10);
+
+                Size = new Size(125, 58);
+
+                pb_layerImage.Hide();
+            }
+            else
+            {
+                btn_locked.Location = new Point(3, 40);
+                btn_duplicate.Location = new Point(3, 61);
+                btn_remove.Location = new Point(3, 82);
+
+                tcs_transparency.Location = new Point(24, 92);
+                tcs_transparency.Size = new Size(96, 10);
+
+                Size = new Size(125, 105);
+
+                pb_layerImage.Show();
+            }
         }
 
         /// <summary>
@@ -423,6 +458,8 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void btn_collapse_Click(object sender, EventArgs e)
         {
             Collapsed = !Collapsed;
+
+            LayerCollapeChanged?.Invoke(this, new EventArgs());
         }
 
         // 
@@ -510,6 +547,62 @@ namespace Pixelaria.Views.Controls.LayerControls
 
             if (!_draggingLayer && LayerClicked != null && e.Button == MouseButtons.Left)
                 LayerClicked(this, this);
+        }
+
+        // 
+        // Self mouse down
+        // 
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            _pressingContainer = true;
+        }
+
+        // 
+        // Self mouse move
+        // 
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if(_pressingContainer)
+            {
+                if (_layerPressPoint.Distance(e.Location) > 20)
+                {
+                    _draggingLayer = true;
+                    Invalidate();
+                }
+            }
+
+            if (_draggingLayer)
+            {
+                if (e.Location.Y < -pb_layerImage.Location.Y - 5)
+                {
+                    LayerControlDragged?.Invoke(this, new LayerControlDragEventArgs(LayerDragDirection.Up));
+                }
+                else if (e.Location.Y - pb_layerImage.Location.Y > Height + 5)
+                {
+                    LayerControlDragged?.Invoke(this, new LayerControlDragEventArgs(LayerDragDirection.Down));
+                }
+            }
+        }
+
+        // 
+        // Self mouse up
+        // 
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            _draggingLayer = false;
+            _pressingContainer = false;
+
+            if (LayerImageReleased != null)
+            {
+                LayerImageReleased(this, e);
+                Invalidate();
+            }
         }
 
         // 

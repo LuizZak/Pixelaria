@@ -29,6 +29,7 @@ Caption:
 . FrameView
   + Added scroll bars to the layers panel.
   + Added a special preset menu that is populated with the last used filter presets.
+  + Added ability to collapse/expand layers in the layers panel.
   * Fixed cases of activating disabled keyboard shortcuts changing the paint tools (i.e. pressing Ctrl+Q/Ctrl+E with no previous/next frames available).
   * Fixed timeline and zoom UI elements spilling out of the visible bounds of the view.
   * Fixed color picker not picking the color sometimes.

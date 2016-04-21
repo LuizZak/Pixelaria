@@ -126,7 +126,6 @@
             this.btn_collapse.TabIndex = 11;
             this.toolTip1.SetToolTip(this.btn_collapse, "Collapse/Expand");
             this.btn_collapse.UseVisualStyleBackColor = true;
-            this.btn_collapse.Visible = false;
             this.btn_collapse.Click += new System.EventHandler(this.btn_collapse_Click);
             // 
             // txt_layerNameEditBox

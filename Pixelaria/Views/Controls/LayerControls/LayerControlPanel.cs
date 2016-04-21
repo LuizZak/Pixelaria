@@ -304,6 +304,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             control.RemoveLayerSelected += OnRemoveLayerSelected;
             control.LayerControlDragged += OnLayerControlDragged;
             control.LayerNameEdited += OnLayerNameEdited;
+            control.LayerCollapeChanged += OnLayerCollapseChanged;
 
             control.LayerImagePressed += OnLayerImagePressed;
             control.LayerImageReleased += OnLayerImageReleased;
@@ -515,10 +516,27 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (newIndex < 0 || newIndex >= _controller.LayerCount)
                 return;
 
+            pnl_container.SuspendLayout();
+
             SwapLayerControls(index, newIndex);
+            ArrangeControls();
+
+            pnl_container.ResumeLayout();
 
             // Keep the swapped layer in focus
             pnl_container.ScrollControlIntoView(control);
+        }
+
+        // 
+        // Layer Collapse changed
+        // 
+        private void OnLayerCollapseChanged(object sender, EventArgs e)
+        {
+            pnl_container.SuspendLayout();
+
+            ArrangeControls();
+
+            pnl_container.ResumeLayout();
         }
 
         // 
