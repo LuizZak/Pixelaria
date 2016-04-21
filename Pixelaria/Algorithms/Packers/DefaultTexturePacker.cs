@@ -380,6 +380,12 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="frameList">The list of frames to identify the identical copies</param>
         private void MarkIdenticalFramesFromList(List<IFrame> frameList)
         {
+            // Pre-update the frame hashes
+            foreach (var frame in frameList)
+            {
+                frame.UpdateHash();
+            }
+
             for (int i = 0; i < frameList.Count; i++)
             {
                 for (int j = i + 1; j < frameList.Count; j++)

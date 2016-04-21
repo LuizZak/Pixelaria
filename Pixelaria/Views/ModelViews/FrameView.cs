@@ -817,30 +817,44 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void UpdateFilterPresetList()
         {
-            // Remove old filter items
-            tsm_filterPresets.DropDownItems.Clear();
+            // Populate filter presets and last filter presets
+            PopulateMenuItem(tsm_filterPresets, FilterStore.Instance.FilterPrests, _presetClickEventHandler, (f, index) => f.Name);
 
-            // Fetch the list of filters
-            FilterPreset[] presets = FilterStore.Instance.FilterPrests;
+            PopulateMenuItem(tsm_lastUsedFilterPresets, FiltersController.Instance.Presets, tsm_lastUsedPresetItem_Click, (f, index) => index);
+        }
+
+        /// <summary>
+        /// Populates the given toolstrip menu item with the given preset items
+        /// </summary>
+        /// <param name="menuItem">The menu item to populate</param>
+        /// <param name="presets">The list of filter presets to populate with</param>
+        /// <param name="handler">The event handler to call on click</param>
+        /// <param name="tagMethod">A delegte for generating the ToolStripMenu tags</param>
+        private void PopulateMenuItem(ToolStripMenuItem menuItem, FilterPreset[] presets, EventHandler handler, Func<FilterPreset, int, object> tagMethod)
+        {
+            // Remove old filter items
+            menuItem.DropDownItems.Clear();
+            tsm_lastUsedFilterPresets.DropDownItems.Clear();
 
             if (presets.Length == 0)
             {
                 ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
 
-                tsm_filterPresets.DropDownItems.Add(tsmEmptyItem);
+                menuItem.DropDownItems.Add(tsmEmptyItem);
             }
 
             // Create and add all the new filter items
-            foreach (FilterPreset preset in presets)
+            for (int i = 0; i < presets.Length; i++)
             {
+                FilterPreset preset = presets[i];
                 ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
                 {
-                    Tag = preset.Name
+                    Tag = tagMethod(preset, i)
                 };
 
-                tsmPresetItem.Click += _presetClickEventHandler;
+                tsmPresetItem.Click += handler;
 
-                tsm_filterPresets.DropDownItems.Add(tsmPresetItem);
+                menuItem.DropDownItems.Add(tsmPresetItem);
             }
         }
 
@@ -1404,6 +1418,16 @@ namespace Pixelaria.Views.ModelViews
                 DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName((string)item.Tag));
         }
 
+        // 
+        // Latest Used Preset menu item click
+        // 
+        private void tsm_lastUsedPresetItem_Click(object sender, EventArgs e)
+        {
+            var item = sender as ToolStripMenuItem;
+            if (item?.Tag is int)
+                DisplayFilterPreset(FiltersController.Instance.Presets[(int)item.Tag]);
+        }
+
         #endregion
 
         #endregion
@@ -1683,45 +1707,49 @@ namespace Pixelaria.Views.ModelViews
             if (Utilities.FindFocusedControl(this) is TextBoxBase)
                 return;
             
-            // Switch the tool
-            switch (e.KeyCode)
+            // Do not switch tools if the control key is being held down
+            if(!e.Modifiers.HasFlag(Keys.Control))
             {
-                // Pencil
-                case Keys.D:
-                    rb_pencil.Checked = true;
-                    break;
-                // Eraser
-                case Keys.E:
-                    rb_eraser.Checked = true;
-                    break;
-                // Color Picker
-                case Keys.C:
-                    rb_picker.Checked = true;
-                    break;
-                // Line
-                case Keys.V:
-                    rb_line.Checked = true;
-                    break;
-                // Rectangle
-                case Keys.R:
-                    rb_rectangle.Checked = true;
-                    break;
-                // Ellipse
-                case Keys.Q:
-                    rb_circle.Checked = true;
-                    break;
-                // Bucket Fill
-                case Keys.F:
-                    rb_bucket.Checked = true;
-                    break;
-                // Selection
-                case Keys.S:
-                    rb_selection.Checked = true;
-                    break;
-                // Zoom
-                case Keys.Z:
-                    rb_zoom.Checked = true;
-                    break;
+                // Switch the tool
+                switch (e.KeyCode)
+                {
+                    // Pencil
+                    case Keys.D:
+                        rb_pencil.Checked = true;
+                        break;
+                    // Eraser
+                    case Keys.E:
+                        rb_eraser.Checked = true;
+                        break;
+                    // Color Picker
+                    case Keys.C:
+                        rb_picker.Checked = true;
+                        break;
+                    // Line
+                    case Keys.V:
+                        rb_line.Checked = true;
+                        break;
+                    // Rectangle
+                    case Keys.R:
+                        rb_rectangle.Checked = true;
+                        break;
+                    // Ellipse
+                    case Keys.Q:
+                        rb_circle.Checked = true;
+                        break;
+                    // Bucket Fill
+                    case Keys.F:
+                        rb_bucket.Checked = true;
+                        break;
+                    // Selection
+                    case Keys.S:
+                        rb_selection.Checked = true;
+                        break;
+                    // Zoom
+                    case Keys.Z:
+                        rb_zoom.Checked = true;
+                        break;
+                }
             }
         }
 
@@ -1846,7 +1874,23 @@ namespace Pixelaria.Views.ModelViews
             using(var composed = FrameRenderer.ComposeFrame(_viewFrame, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
             {
                 Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
-                iepb_frame.FireColorChangeEvent(colorAt);
+
+                ColorPickerColor colorIndex;
+
+                switch (args.ColorIndex)
+                {
+                    case ColorIndex.FirstColor:
+                        colorIndex = ColorPickerColor.FirstColor;
+                        break;
+                    case ColorIndex.SecondColor:
+                        colorIndex = ColorPickerColor.SecondColor;
+                        break;
+                    default:
+                        colorIndex = ColorPickerColor.CurrentColor;
+                        break;
+                }
+
+                iepb_frame.FireColorChangeEvent(colorAt, colorIndex);
             }
         }
 
@@ -2525,7 +2569,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <returns>The description for this undo task</returns>
                 public string GetDescription()
                 {
-                    return "Layer Renamed";
+                    return "Rename Layer";
                 }
             }
 

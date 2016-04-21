@@ -36,22 +36,20 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestAnimationSheetClone()
         {
-            AnimationSheet sheet1 = AnimationSheetGenerator.GenerateAnimationSheet("TestSheet", 2, 64, 64, 10, 0);
-            AnimationSheet sheet2 = sheet1.Clone();
+            var sheet1 = AnimationSheetGenerator.GenerateAnimationSheet("TestSheet", 2, 64, 64, 10, 0);
+            var sheet2 = sheet1.Clone();
 
             Assert.AreEqual(sheet1, sheet2, "Animation sheets copied with the Clone() method must be equal");
 
             // Modify one of the sheet's properties
             var frame = sheet2.Animations[0].Frames[0] as Frame;
-            if (frame != null)
-                frame.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+            frame?.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's animation's frame, it must no longer be considered equal to the original");
 
             // Modify one of the sheet's properties
             frame = sheet2.Animations[0].Frames[0] as Frame;
-            if (frame != null)
-                frame.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+            frame?.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
             sheet2.ExportSettings = new AnimationExportSettings {ExportXml = !sheet1.ExportSettings.ExportXml};
 
@@ -61,13 +59,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestAnimationSheetFrameCount()
         {
-            Random r = new Random();
+            var r = new Random();
 
             for (int i = 0; i < 10; i++)
             {
-                int animCount = r.Next(1, 10);
-                int frameCount = r.Next(1, 10);
-                AnimationSheet sheet1 = AnimationSheetGenerator.GenerateAnimationSheet("TestSheet", animCount, 64, 64, frameCount, 0);
+                var animCount = r.Next(1, 10);
+                var frameCount = r.Next(1, 10);
+                var sheet1 = AnimationSheetGenerator.GenerateAnimationSheet("TestSheet", animCount, 64, 64, frameCount, 0);
 
                 Assert.AreEqual(sheet1.GetFrameCount(), animCount * frameCount, "GetFrameCount() must return the frame count of all the animations in a sprite sheet");
             }
@@ -76,10 +74,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestAnimationIndex()
         {
-            AnimationSheet sheet = new AnimationSheet("TestSheet");
-            Animation anim1 = new Animation("TestAnim1", 16, 16);
-            Animation anim2 = new Animation("TestAnim2", 16, 16);
-            Animation anim3 = new Animation("TestAnim2", 16, 16);
+            var sheet = new AnimationSheet("TestSheet");
+            var anim1 = new Animation("TestAnim1", 16, 16);
+            var anim2 = new Animation("TestAnim2", 16, 16);
+            var anim3 = new Animation("TestAnim2", 16, 16);
 
             sheet.AddAnimation(anim1);
             sheet.AddAnimation(anim2);
@@ -92,10 +90,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestAnimationInsert()
         {
-            AnimationSheet sheet = new AnimationSheet("TestSheet");
-            Animation anim1 = new Animation("TestAnim1", 16, 16);
-            Animation anim2 = new Animation("TestAnim2", 16, 16);
-            Animation anim3 = new Animation("TestAnim3", 16, 16);
+            var sheet = new AnimationSheet("TestSheet");
+            var anim1 = new Animation("TestAnim1", 16, 16);
+            var anim2 = new Animation("TestAnim2", 16, 16);
+            var anim3 = new Animation("TestAnim3", 16, 16);
 
             sheet.AddAnimation(anim1);
             sheet.InsertAnimation(anim2, 0);

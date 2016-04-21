@@ -204,14 +204,14 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             frame.AddLayer(FrameGenerator.GenerateRandomBitmap(64, 64, 3));
 
             Bitmap target = frame.GetComposedBitmap();
-
+            
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
             byte[] goodHash = { 0xBF, 0x8F, 0x9B, 0x56, 0xBE, 0x8D, 0xF5, 0xD2, 0x99, 0x1C, 0x9B, 0xEC, 0x56, 0xB8, 0x6D, 0xA9, 0x41, 0xBB, 0x31, 0x66, 0xD, 0xB2, 0xDC, 0x66, 0xF3, 0x5C, 0x9A, 0xDE, 0x59, 0xC2, 0xC2, 0x52 };
 
             byte[] currentHash = GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "FrameLayering");
-
+            
             Assert.IsTrue(goodHash.SequenceEqual(currentHash), "The hash for the composed frame does not match the good hash stored. Verify the output image for an analysis of what went wrong");
         }
 

@@ -139,7 +139,8 @@ namespace Pixelaria.Views.ModelViews
 
             RefreshView();
 
-            animationPreviewPanel.SetPlayback(true);
+            if(animation.PlaybackSettings.FPS != 0)
+                animationPreviewPanel.SetPlayback(true);
         }
 
         protected override void OnCreateControl()
@@ -375,6 +376,8 @@ namespace Pixelaria.Views.ModelViews
             // Validate once more before closing the form to make sure the changes are valid
             if (!ValidateFields())
                 return;
+
+            ActiveControl = null;
 
             ApplyChanges();
 

@@ -57,6 +57,8 @@ namespace Pixelaria.Views.ModelViews
 
             InitializeComponent();
 
+            txt_animationName.Text = controller.GetUniqueUntitledAnimationName();
+
             ValidateFields();
         }
 

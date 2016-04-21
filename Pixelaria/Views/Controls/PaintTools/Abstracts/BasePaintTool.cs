@@ -159,12 +159,13 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// If the coordinates at not within the image area, nothing is done
         /// </summary>
         /// <param name="point">The point ot color pick at</param>
-        protected void ColorPickAtPoint(Point point)
+        /// <param name="colorIndex">The color index to pick for</param>
+        protected void ColorPickAtPoint(Point point, ColorIndex colorIndex)
         {
             if (!WithinBounds(point))
                 return;
 
-            ColorPicked?.Invoke(this, new PaintToolColorPickedEventArgs(point));
+            ColorPicked?.Invoke(this, new PaintToolColorPickedEventArgs(point, colorIndex));
         }
 
         /// <summary>
@@ -249,6 +250,25 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     }
 
     /// <summary>
+    /// The color index for a paint tool color pick event
+    /// </summary>
+    public enum ColorIndex
+    {
+        /// <summary>
+        /// The first color
+        /// </summary>
+        FirstColor,
+        /// <summary>
+        /// The second color
+        /// </summary>
+        SecondColor,
+        /// <summary>
+        /// Indiferent, let the implementer decide the color
+        /// </summary>
+        Indiferent
+    }
+
+    /// <summary>
     /// Event arguments for a BasePaintTool.ColorPicked event
     /// </summary>
     public class PaintToolColorPickedEventArgs : EventArgs
@@ -259,12 +279,19 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         public Point ImagePoint { get; private set; }
 
         /// <summary>
+        /// Gets the color index for the color pick
+        /// </summary>
+        public ColorIndex ColorIndex { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the PaintToolColorPickedEventArgs class
         /// </summary>
         /// <param name="imagePoint">The point at which the user picked the color at</param>
-        public PaintToolColorPickedEventArgs(Point imagePoint)
+        /// <param name="colorIndex">The color index to pick at</param>
+        public PaintToolColorPickedEventArgs(Point imagePoint, ColorIndex colorIndex)
         {
             ImagePoint = imagePoint;
+            ColorIndex = colorIndex;
         }
     }
 }

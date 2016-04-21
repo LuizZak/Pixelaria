@@ -106,6 +106,8 @@ namespace Pixelaria.Views.ModelViews
                 btn_apply.Enabled = false;
 
                 Text = AnimationMessages.TextNewAnimationSheet;
+                
+                txt_sheetName.Text = _controller.GetUniqueUntitledAnimationSheetName();
 
                 return;
             }

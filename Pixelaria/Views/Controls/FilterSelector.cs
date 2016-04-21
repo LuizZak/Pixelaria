@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
@@ -90,6 +91,11 @@ namespace Pixelaria.Views.Controls
         /// Gets the list of FilterContainer objects that are currently applying filters to the bitmap
         /// </summary>
         public FilterContainer[] FilterContainers => _filterContainers.ToArray();
+
+        /// <summary>
+        /// Gets the array of filters currently displayed on this filter selector
+        /// </summary>
+        public IFilter[] Filters => _filterContainers.Select(f => f.FilterControl.Filter).ToArray();
 
         /// <summary>
         /// Initializes a new instance of the FilterSelector class

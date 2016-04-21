@@ -497,6 +497,8 @@ namespace Pixelaria.Views.Controls.LayerControls
             if (e.KeyCode == Keys.Enter)
             {
                 EndEditLayerName(true);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
             else if (e.KeyCode == Keys.Escape)
             {

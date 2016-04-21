@@ -320,7 +320,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 case MouseButtons.Middle:
                     mouseDown = true;
 
-                    ColorPickAtPoint(absolutePencil);
+                    ColorPickAtPoint(absolutePencil, ColorIndex.Indiferent);
                     break;
             }
         }
@@ -346,7 +346,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 {
                     if (pencil != pencilLast)
                     {
-                        ColorPickAtPoint(pencil);
+                        ColorPickAtPoint(pencil, ColorIndex.Indiferent);
                     }
                 }
 

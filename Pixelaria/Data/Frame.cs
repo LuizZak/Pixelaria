@@ -575,7 +575,7 @@ namespace Pixelaria.Data
             {
                 ImageUtilities.FlattenBitmaps(composedBitmap, _layers[i].LayerBitmap, true);
             }
-
+            
             return composedBitmap;
         }
 

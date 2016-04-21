@@ -79,7 +79,13 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="e">The event args for this event</param>
         public override void MouseDown(MouseEventArgs e)
         {
-            MouseMove(e);
+            if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
+            {
+                Point absolute = GetAbsolutePoint(e.Location);
+                ColorPickAtPoint(absolute, e.Button == MouseButtons.Left ? ColorIndex.FirstColor : ColorIndex.SecondColor);
+
+                lastMousePointAbsolute = absolute;
+            }
         }
 
         /// <summary>
@@ -94,7 +100,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (absolute != lastMousePointAbsolute)
                 {
-                    ColorPickAtPoint(absolute);
+                    ColorPickAtPoint(absolute, e.Button == MouseButtons.Left ? ColorIndex.FirstColor : ColorIndex.SecondColor);
                 }
 
                 lastMousePointAbsolute = absolute;

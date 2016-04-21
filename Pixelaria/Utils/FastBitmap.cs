@@ -635,7 +635,7 @@ namespace Pixelaria.Utils
 
             Rectangle sliceRectangle = Rectangle.Intersect(new Rectangle(Point.Empty, source.Size), region);
 
-            if (sliceRectangle.Width <= 0 || sliceRectangle.Height <= 0)
+            if (sliceRectangle.IsEmpty)
             {
                 throw new ArgumentException(@"The provided region must not lie outside of the bitmap's region completely", nameof(region));
             }

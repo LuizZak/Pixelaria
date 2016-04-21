@@ -154,6 +154,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_emptyFilter = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filterPresets = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_lastUsedFilterPresets = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsl_coordinates = new System.Windows.Forms.ToolStripStatusLabel();
@@ -375,7 +376,7 @@ namespace Pixelaria.Views.ModelViews
             this.tc_currentFrame.Range = new System.Drawing.Point(0, 10);
             this.tc_currentFrame.ScrollScaleWidth = 1D;
             this.tc_currentFrame.ScrollX = 0D;
-            this.tc_currentFrame.Size = new System.Drawing.Size(636, 41);
+            this.tc_currentFrame.Size = new System.Drawing.Size(545, 41);
             this.tc_currentFrame.TabIndex = 2;
             this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
             // 
@@ -413,7 +414,7 @@ namespace Pixelaria.Views.ModelViews
             0,
             131072});
             this.anud_zoom.Name = "anud_zoom";
-            this.anud_zoom.Size = new System.Drawing.Size(614, 35);
+            this.anud_zoom.Size = new System.Drawing.Size(523, 35);
             this.anud_zoom.TabIndex = 0;
             this.anud_zoom.Value = new decimal(new int[] {
             1,
@@ -1242,6 +1243,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_filters.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsm_emptyFilter,
             this.tsm_filterPresets,
+            this.tsm_lastUsedFilterPresets,
             this.toolStripMenuItem4});
             this.tsm_filters.Name = "tsm_filters";
             this.tsm_filters.Size = new System.Drawing.Size(50, 20);
@@ -1251,7 +1253,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_emptyFilter.Image = global::Pixelaria.Properties.Resources.document_new;
             this.tsm_emptyFilter.Name = "tsm_emptyFilter";
-            this.tsm_emptyFilter.Size = new System.Drawing.Size(111, 22);
+            this.tsm_emptyFilter.Size = new System.Drawing.Size(124, 22);
             this.tsm_emptyFilter.Text = "Empty";
             this.tsm_emptyFilter.Click += new System.EventHandler(this.tsm_emptyFilter_Click);
             // 
@@ -1259,13 +1261,20 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tsm_filterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
             this.tsm_filterPresets.Name = "tsm_filterPresets";
-            this.tsm_filterPresets.Size = new System.Drawing.Size(111, 22);
+            this.tsm_filterPresets.Size = new System.Drawing.Size(124, 22);
             this.tsm_filterPresets.Text = "Presets";
+            // 
+            // tsm_lastUsedFilterPresets
+            // 
+            this.tsm_lastUsedFilterPresets.Image = global::Pixelaria.Properties.Resources.preset_icon;
+            this.tsm_lastUsedFilterPresets.Name = "tsm_lastUsedFilterPresets";
+            this.tsm_lastUsedFilterPresets.Size = new System.Drawing.Size(124, 22);
+            this.tsm_lastUsedFilterPresets.Text = "Last Used";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(108, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(121, 6);
             // 
             // statusStrip1
             // 
@@ -1478,5 +1487,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tsm_toggleVisibleLayers;
         private System.Windows.Forms.ToolStripMenuItem tsm_resetLayerTransparencies;
+        private System.Windows.Forms.ToolStripMenuItem tsm_lastUsedFilterPresets;
     }
 }

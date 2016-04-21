@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using Pixelaria.Controllers;
 using Pixelaria.Data;
 using Pixelaria.Filters;
 
@@ -148,6 +148,9 @@ namespace Pixelaria.Views.ModelViews
                         }
                     }
                 }
+
+                // Save the preset
+                FiltersController.Instance.AddFilters(fs_filters.Filters);
             }
         }
 

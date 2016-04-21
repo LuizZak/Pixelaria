@@ -108,7 +108,7 @@ namespace Pixelaria.Views.ModelViews
 
             _currentAnimation = animation;
 
-            if (animation != null && animation.FrameCount != 0)
+            if (animation != null && animation.FrameCount != 0 && animation.PlaybackSettings.FPS != 0)
             {
                 // Clip the current frame to be within the range of the animation
                 _currentFrame = Math.Max(0, Math.Min(animation.FrameCount - 1, _currentFrame));
@@ -144,6 +144,7 @@ namespace Pixelaria.Views.ModelViews
 
                 RefreshPreviewPanel();
 
+                _animationTimer.Stop();
                 _animationTimer.Interval = 1000;
             }
         }
@@ -316,6 +317,8 @@ namespace Pixelaria.Views.ModelViews
             if (_currentAnimation.PlaybackSettings.FPS == 0)
             {
                 InternalSetPlayback(false);
+
+                cb_playPreview.Checked = false;
             }
             else
             {

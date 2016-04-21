@@ -24,9 +24,16 @@ Caption:
 + New Animation and New Animation Sheet forms now open with a default unique untitled name pre-filled in.
 
 * Fixed issues that occurred after saving files after duplicating animations/animation sheets.
+* Fixed bugs related to detection of repeated frames in animation sheets.
 
 . FrameView
   + Added scroll bars to the layers panel.
+  + Added a special preset menu that is populated with the last used filter presets.
+  * Fixed cases of activating disabled keyboard shortcuts changing the paint tools (i.e. pressing Ctrl+Q/Ctrl+E with no previous/next frames available).
+  * Fixed timeline and zoom UI elements spilling out of the visible bounds of the view.
+  * Fixed color picker not picking the color sometimes.
+  * Now picking colors with the Color Picker tool with the right mouse button sets the second color.
+  * Removed 'ding' sound when hitting Enter while editing a layer's name.
   . Now the top-most layer is selected when a frame is opened to be edited.
 
 

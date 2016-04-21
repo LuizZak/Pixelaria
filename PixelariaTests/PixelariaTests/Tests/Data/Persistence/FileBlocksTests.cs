@@ -40,12 +40,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         [TestMethod]
         public void TestFileBlockIds()
         {
-            FileBlock fileBlock = new FileBlock();
-            AnimationBlock animBlock = new AnimationBlock();
-            AnimationHeaderBlock animHeaderBlock = new AnimationHeaderBlock();
-            AnimationSheetBlock sheetBlock = new AnimationSheetBlock();
-            FrameBlock frameBlock = new FrameBlock();
-            ProjectTreeBlock treeBlock = new ProjectTreeBlock();
+            var fileBlock = new FileBlock();
+            var animBlock = new AnimationBlock();
+            var animHeaderBlock = new AnimationHeaderBlock();
+            var sheetBlock = new AnimationSheetBlock();
+            var frameBlock = new FrameBlock();
+            var treeBlock = new ProjectTreeBlock();
 
             // Assert block IDs
             Assert.AreEqual(FileBlock.BLOCKID_NULL, fileBlock.BlockID,
@@ -99,8 +99,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         public void TestBlockRead()
         {
             // Create a memory stream to generate the data to work with
-            MemoryStream memStream = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(memStream);
+            var memStream = new MemoryStream();
+            var writer = new BinaryWriter(memStream);
             byte[] contents = { 0xFF, 0xFE, 0xFD, 0xFC };
             byte[] offsetBytes = { 0, 0, 0, 0 };
 
@@ -121,7 +121,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             // We reset to just past the offset so the block offset property can be tested as well
             memStream.Position = offsetBytes.Length;
 
-            FileBlock block = FileBlock.FromStream(memStream, null);
+            var block = FileBlock.FromStream(memStream, null);
 
             Assert.AreEqual(FileBlock.BLOCKID_NULL, block.BlockID, "The block's ID must match the data that was read off the stream");
             Assert.AreEqual(offsetBytes.Length, block.BlockOffset, "The block's length must match the block content's size in bytes");
@@ -137,9 +137,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         public void TestBlockWrite()
         {
             // Create a memory stream to generate the data to work with
-            MemoryStream memStream = new MemoryStream();
-            MemoryStream writeMemStream = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(memStream);
+            var memStream = new MemoryStream();
+            var writeMemStream = new MemoryStream();
+            var writer = new BinaryWriter(memStream);
             byte[] contents = { 0xFF, 0xFE, 0xFD, 0xFC };
             byte[] offsetBytes = { 0, 0, 0, 0 };
 
@@ -161,7 +161,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             // We reset to just past the offset so the block offset property can be tested as well
             memStream.Position = offsetBytes.Length;
 
-            FileBlock block = FileBlock.FromStream(memStream, null);
+            var block = FileBlock.FromStream(memStream, null);
 
             block.SaveToStream(writeMemStream);
 
@@ -177,8 +177,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         public void TestBlockReadError()
         {
             // Create a memory stream to generate the data to work with
-            MemoryStream memStream = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(memStream);
+            var memStream = new MemoryStream();
+            var writer = new BinaryWriter(memStream);
             byte[] contents = { 0xFF, 0xFE, 0xFD, 0xFC };
             byte[] offsetBytes = { 0, 0, 0, 0 };
 

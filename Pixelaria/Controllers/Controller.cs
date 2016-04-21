@@ -546,6 +546,40 @@ namespace Pixelaria.Controllers
             return _currentBundle.GetOwningAnimationSheet(anim);
         }
 
+        /// <summary>
+        /// Returns a unique animation name, used for filling in default animation names
+        /// </summary>
+        /// <returns>A unique animation name to use as a default name</returns>
+        public string GetUniqueUntitledAnimationName()
+        {
+            string prefix = "Untitled-";
+            int postfix = 1;
+
+            while (_currentBundle.GetAnimationByName(prefix + postfix) != null)
+            {
+                postfix++;
+            }
+
+            return prefix + postfix;
+        }
+
+        /// <summary>
+        /// Returns a unique animation sheet name, used for filling in default animation sheet names
+        /// </summary>
+        /// <returns>A unique animation sheet name to use as a default name</returns>
+        public string GetUniqueUntitledAnimationSheetName()
+        {
+            string prefix = "Untitled-";
+            int postfix = 1;
+
+            while (_currentBundle.GetAnimationSheetByName(prefix + postfix) != null)
+            {
+                postfix++;
+            }
+
+            return prefix + postfix;
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
         //////////
         ////////// PixelariaFile Related Methods
