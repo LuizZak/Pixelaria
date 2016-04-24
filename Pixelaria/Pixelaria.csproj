@@ -511,6 +511,9 @@
     <EmbeddedResource Include="Views\Controls\LayerControls\LayerControl.resx">
       <DependentUpon>LayerControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\TinyColorSlider.resx">
+      <DependentUpon>TinyColorSlider.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -666,6 +669,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\maximize.png" />
+    <None Include="Resources\minimize.png" />
     <None Include="Resources\action_remove_gray.png" />
     <None Include="Resources\action_add_grey.png" />
     <None Include="Resources\layer_flatten_layers.png" />

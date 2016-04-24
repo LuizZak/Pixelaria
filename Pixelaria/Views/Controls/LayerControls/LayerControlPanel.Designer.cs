@@ -12,6 +12,8 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             this.components = new System.ComponentModel.Container();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btn_expand = new System.Windows.Forms.Button();
+            this.btn_collapse = new System.Windows.Forms.Button();
             this.btn_createNewLayer = new System.Windows.Forms.Button();
             this.pnl_container = new System.Windows.Forms.Panel();
             this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
@@ -26,11 +28,41 @@ namespace Pixelaria.Views.Controls.LayerControls
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.btn_expand);
+            this.panel1.Controls.Add(this.btn_collapse);
             this.panel1.Controls.Add(this.btn_createNewLayer);
             this.panel1.Location = new System.Drawing.Point(0, 20);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(125, 26);
             this.panel1.TabIndex = 1;
+            // 
+            // btn_expand
+            // 
+            this.btn_expand.FlatAppearance.BorderSize = 0;
+            this.btn_expand.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_expand.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_expand.Image = global::Pixelaria.Properties.Resources.action_add_grey;
+            this.btn_expand.Location = new System.Drawing.Point(76, 3);
+            this.btn_expand.Name = "btn_expand";
+            this.btn_expand.Size = new System.Drawing.Size(20, 20);
+            this.btn_expand.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.btn_expand, "Expand All");
+            this.btn_expand.UseVisualStyleBackColor = true;
+            this.btn_expand.Click += new System.EventHandler(this.btn_expand_Click);
+            // 
+            // btn_collapse
+            // 
+            this.btn_collapse.FlatAppearance.BorderSize = 0;
+            this.btn_collapse.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btn_collapse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_collapse.Image = global::Pixelaria.Properties.Resources.action_remove_gray;
+            this.btn_collapse.Location = new System.Drawing.Point(102, 3);
+            this.btn_collapse.Name = "btn_collapse";
+            this.btn_collapse.Size = new System.Drawing.Size(20, 20);
+            this.btn_collapse.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.btn_collapse, "Collapse All");
+            this.btn_collapse.UseVisualStyleBackColor = true;
+            this.btn_collapse.Click += new System.EventHandler(this.btn_collapse_Click);
             // 
             // btn_createNewLayer
             // 
@@ -101,5 +133,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private System.ComponentModel.IContainer components;
         private ContextMenuStrip cms_layersRightClick;
         private ToolStripMenuItem cmb_combineLayers;
+        private Button btn_collapse;
+        private Button btn_expand;
     }
 }

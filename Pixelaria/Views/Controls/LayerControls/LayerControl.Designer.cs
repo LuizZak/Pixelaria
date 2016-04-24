@@ -37,8 +37,8 @@
             this.lbl_layerName = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.btn_collapse = new System.Windows.Forms.Button();
-            this.txt_layerNameEditBox = new System.Windows.Forms.TextBox();
             this.tcs_transparency = new Pixelaria.Views.Controls.TinyColorSlider();
+            this.txt_layerNameEditBox = new System.Windows.Forms.TextBox();
             this.pb_layerImage = new Pixelaria.Views.Controls.ZoomablePictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pb_layerImage)).BeginInit();
             this.SuspendLayout();
@@ -128,6 +128,16 @@
             this.btn_collapse.UseVisualStyleBackColor = true;
             this.btn_collapse.Click += new System.EventHandler(this.btn_collapse_Click);
             // 
+            // tcs_transparency
+            // 
+            this.tcs_transparency.CurrentValue = 1F;
+            this.tcs_transparency.Location = new System.Drawing.Point(24, 92);
+            this.tcs_transparency.Name = "tcs_transparency";
+            this.tcs_transparency.Size = new System.Drawing.Size(96, 10);
+            this.tcs_transparency.TabIndex = 9;
+            this.toolTip1.SetToolTip(this.tcs_transparency, "Change layer display transparency");
+            this.tcs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.tcs_transparency_ColorChanged);
+            // 
             // txt_layerNameEditBox
             // 
             this.txt_layerNameEditBox.AcceptsReturn = true;
@@ -140,16 +150,6 @@
             this.txt_layerNameEditBox.Visible = false;
             this.txt_layerNameEditBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_layerNameEditBox_KeyDown);
             this.txt_layerNameEditBox.Leave += new System.EventHandler(this.txt_layerNameEditBox_Leave);
-            // 
-            // tcs_transparency
-            // 
-            this.tcs_transparency.CurrentValue = 1F;
-            this.tcs_transparency.Location = new System.Drawing.Point(24, 92);
-            this.tcs_transparency.Name = "tcs_transparency";
-            this.tcs_transparency.Size = new System.Drawing.Size(96, 10);
-            this.tcs_transparency.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.tcs_transparency, "Change layer display transparency");
-            this.tcs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.tcs_transparency_ColorChanged);
             // 
             // pb_layerImage
             // 

@@ -273,6 +273,43 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
+        /// Expands all layers in this layer control panel
+        /// </summary>
+        public void ExpandAll()
+        {
+            pnl_container.SuspendLayout();
+
+            foreach (var control in _layerControls)
+            {
+                control.Collapsed = false;
+            }
+
+            pnl_container.ResumeLayout(true);
+
+            ArrangeControls();
+        }
+
+        /// <summary>
+        /// Collapses all layers in this layer control panel
+        /// </summary>
+        public void CollapseAll()
+        {
+            pnl_container.SuspendLayout();
+
+            foreach (var control in _layerControls)
+            {
+                control.Collapsed = true;
+            }
+
+            pnl_container.ResumeLayout(true);
+
+            // We perform two calls here so one re-orders the controls, while the second
+            // shrinks the container panel and re-orders it again in the correct placements
+            ArrangeControls();
+            ArrangeControls();
+        }
+
+        /// <summary>
         /// Clears all the layer controls currently registered
         /// </summary>
         private void ClearAllControls()
@@ -442,6 +479,22 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void btn_createNewLayer_Click(object sender, EventArgs e)
         {
             _controller.ActiveLayerIndex = _controller.CreateLayer(_controller.ActiveLayerIndex + 1).Index;
+        }
+        
+        // 
+        // Expand All button click
+        // 
+        private void btn_expand_Click(object sender, EventArgs e)
+        {
+            ExpandAll();
+        }
+
+        // 
+        // Collapse All button click
+        // 
+        private void btn_collapse_Click(object sender, EventArgs e)
+        {
+            CollapseAll();
         }
 
         #region Layer Control event handlers

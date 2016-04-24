@@ -357,12 +357,10 @@ namespace Pixelaria.Views.Controls.LayerControls
                 btn_duplicate.Location = new Point(48, 19);
                 btn_remove.Location = new Point(72, 19);
 
-                tcs_transparency.Location = new Point(4, 43);
-                tcs_transparency.Size = new Size(116, 10);
-
-                Size = new Size(125, 58);
+                Size = new Size(125, 43);
 
                 pb_layerImage.Hide();
+                tcs_transparency.Hide();
             }
             else
             {
@@ -370,12 +368,10 @@ namespace Pixelaria.Views.Controls.LayerControls
                 btn_duplicate.Location = new Point(3, 61);
                 btn_remove.Location = new Point(3, 82);
 
-                tcs_transparency.Location = new Point(24, 92);
-                tcs_transparency.Size = new Size(96, 10);
-
                 Size = new Size(125, 105);
 
                 pb_layerImage.Show();
+                tcs_transparency.Show();
             }
         }
 
@@ -451,6 +447,8 @@ namespace Pixelaria.Views.Controls.LayerControls
                 e.Graphics.DrawRectangle(p, rec);
             }
         }
+
+        #region Event Handlers
 
         // 
         // Collapse/Expand button
@@ -603,6 +601,9 @@ namespace Pixelaria.Views.Controls.LayerControls
                 LayerImageReleased(this, e);
                 Invalidate();
             }
+
+            if (!_draggingLayer && LayerClicked != null && e.Button == MouseButtons.Left)
+                LayerClicked(this, this);
         }
 
         // 
@@ -649,6 +650,8 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             EndEditLayerName(true);
         }
+
+        #endregion
     }
 
     /// <summary>

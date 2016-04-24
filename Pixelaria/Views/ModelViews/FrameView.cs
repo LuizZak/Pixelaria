@@ -72,11 +72,6 @@ namespace Pixelaria.Views.ModelViews
         private readonly FrameViewLayerControllerBinder _binder;
 
         /// <summary>
-        /// The frame to edit on this form
-        /// </summary>
-        private Frame _frameToEdit;
-
-        /// <summary>
         /// The copy of the frame that is actually edited by this form
         /// </summary>
         private Frame _viewFrame;
@@ -154,7 +149,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the frame currently loaded on this form
         /// </summary>
-        public Frame FrameLoaded => _frameToEdit;
+        public Frame FrameLoaded { get; private set; }
 
         /// <summary>
         /// Delegate for the EdirFrameChanged event
@@ -328,7 +323,7 @@ namespace Pixelaria.Views.ModelViews
                 ModifiedFrames = true;
 
                 // Apply changes made to the frame
-                _frameToEdit.CopyFrom(_viewFrame);
+                FrameLoaded.CopyFrom(_viewFrame);
 
                 base.ApplyChanges();
 
@@ -342,13 +337,13 @@ namespace Pixelaria.Views.ModelViews
         private void RefreshView()
         {
             // Update the enabled state of the Previous Frame and Next Frame buttons
-            tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = _frameToEdit.Index > 0;
-            tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = _frameToEdit.Index < _frameToEdit.Animation.FrameCount - 1;
+            tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = FrameLoaded.Index > 0;
+            tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = FrameLoaded.Index < FrameLoaded.Animation.FrameCount - 1;
 
             // Update the frame display
             tc_currentFrame.Minimum = 1;
-            tc_currentFrame.Maximum = _frameToEdit.Animation.FrameCount;
-            tc_currentFrame.CurrentFrame = (_frameToEdit.Index + 1);
+            tc_currentFrame.Maximum = FrameLoaded.Animation.FrameCount;
+            tc_currentFrame.CurrentFrame = (FrameLoaded.Index + 1);
 
             // Refresh the undo and redo buttons
             RefreshUndoRedo();
@@ -388,7 +383,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshTitleBar()
         {
-            Text = @"Frame Editor [" + (_frameToEdit.Index + 1) + @"/" + _frameToEdit.Animation.FrameCount + @"] - [" + _frameToEdit.Animation.Name + @"]" + (modified ? "*" : "");
+            Text = @"Frame Editor [" + (FrameLoaded.Index + 1) + @"/" + FrameLoaded.Animation.FrameCount + @"] - [" + FrameLoaded.Animation.Name + @"]" + (modified ? "*" : "");
         }
 
         /// <summary>
@@ -449,8 +444,8 @@ namespace Pixelaria.Views.ModelViews
                 throw new ArgumentException(@"The provided frame object must be derived from the Frame class", nameof(frame));
             }
 
-            _frameToEdit = (Frame)frame;
-            _viewFrame = _frameToEdit.Clone();
+            FrameLoaded = (Frame)frame;
+            _viewFrame = FrameLoaded.Clone();
             _layerController.Frame = _viewFrame;
 
             RefreshTitleBar();
@@ -482,11 +477,11 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ExportFrame()
         {
-            string fileName = _frameToEdit.Animation.Name;
+            string fileName = FrameLoaded.Animation.Name;
 
-            if (_frameToEdit.Animation.FrameCount > 1)
+            if (FrameLoaded.Animation.FrameCount > 1)
             {
-                fileName += "_" + _frameToEdit.Index;
+                fileName += "_" + FrameLoaded.Index;
             }
 
             _controller.ShowSaveImage(_viewFrame.GetComposedBitmap(), fileName, this);
@@ -530,7 +525,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                LoadFrame(_frameToEdit.Animation.Frames[_frameToEdit.Index - 1]);
+                LoadFrame(FrameLoaded.Animation.Frames[FrameLoaded.Index - 1]);
             }
         }
 
@@ -541,7 +536,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                LoadFrame(_frameToEdit.Animation.Frames[_frameToEdit.Index + 1]);
+                LoadFrame(FrameLoaded.Animation.Frames[FrameLoaded.Index + 1]);
             }
         }
 
@@ -554,7 +549,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                LoadFrame(_frameToEdit.Animation.Frames[index]);
+                LoadFrame(FrameLoaded.Animation.Frames[index]);
             }
         }
 
@@ -565,11 +560,11 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                Frame frame = _controller.FrameFactory.CloneFrame(_frameToEdit);
+                Frame frame = _controller.FrameFactory.CloneFrame(FrameLoaded);
 
-                _frameToEdit.Animation.AddFrame(frame, _frameToEdit.Index + 1);
+                FrameLoaded.Animation.AddFrame(frame, FrameLoaded.Index + 1);
 
-                LoadFrame(_frameToEdit.Animation[_frameToEdit.Index + 1]);
+                LoadFrame(FrameLoaded.Animation[FrameLoaded.Index + 1]);
 
                 ModifiedFrames = true;
             }
@@ -582,11 +577,11 @@ namespace Pixelaria.Views.ModelViews
         {
             if (ConfirmChanges() != DialogResult.Cancel)
             {
-                Frame frame = _controller.FrameFactory.CloneFrame(_frameToEdit);
+                Frame frame = _controller.FrameFactory.CloneFrame(FrameLoaded);
 
-                _frameToEdit.Animation.AddFrame(frame);
+                FrameLoaded.Animation.AddFrame(frame);
 
-                LoadFrame(_frameToEdit.Animation[_frameToEdit.Animation.FrameCount - 1]);
+                LoadFrame(FrameLoaded.Animation[FrameLoaded.Animation.FrameCount - 1]);
 
                 ModifiedFrames = true;
             }
@@ -1384,6 +1379,22 @@ namespace Pixelaria.Views.ModelViews
         private void tsm_resetLayerTransparencies_Click(object sender, EventArgs e)
         {
             lcp_layers.ResetTransparencies();
+        }
+
+        // 
+        // Expand All Layers button
+        // 
+        private void tsm_expandAllLayers_Click(object sender, EventArgs e)
+        {
+            lcp_layers.ExpandAll();
+        }
+
+        // 
+        // Collapse All Layers button
+        // 
+        private void tsm_collapseAllLayers_Click(object sender, EventArgs e)
+        {
+            lcp_layers.CollapseAll();
         }
 
         #endregion

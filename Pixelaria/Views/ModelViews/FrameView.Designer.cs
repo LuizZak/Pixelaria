@@ -151,6 +151,9 @@ namespace Pixelaria.Views.ModelViews
             this.layersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_toggleVisibleLayers = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_resetLayerTransparencies = new System.Windows.Forms.ToolStripMenuItem();
+            this.controlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_expandAllLayers = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_collapseAllLayers = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_emptyFilter = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filterPresets = new System.Windows.Forms.ToolStripMenuItem();
@@ -1215,7 +1218,8 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.layersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsm_toggleVisibleLayers,
-            this.tsm_resetLayerTransparencies});
+            this.tsm_resetLayerTransparencies,
+            this.controlToolStripMenuItem});
             this.layersToolStripMenuItem.Name = "layersToolStripMenuItem";
             this.layersToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.layersToolStripMenuItem.Text = "Layers";
@@ -1237,6 +1241,29 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_resetLayerTransparencies.Size = new System.Drawing.Size(250, 22);
             this.tsm_resetLayerTransparencies.Text = "Reset layer transparencies";
             this.tsm_resetLayerTransparencies.Click += new System.EventHandler(this.tsm_resetLayerTransparencies_Click);
+            // 
+            // controlToolStripMenuItem
+            // 
+            this.controlToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsm_expandAllLayers,
+            this.tsm_collapseAllLayers});
+            this.controlToolStripMenuItem.Name = "controlToolStripMenuItem";
+            this.controlToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.controlToolStripMenuItem.Text = "Control";
+            // 
+            // tsm_expandAllLayers
+            // 
+            this.tsm_expandAllLayers.Name = "tsm_expandAllLayers";
+            this.tsm_expandAllLayers.Size = new System.Drawing.Size(152, 22);
+            this.tsm_expandAllLayers.Text = "Expand All";
+            this.tsm_expandAllLayers.Click += new System.EventHandler(this.tsm_expandAllLayers_Click);
+            // 
+            // tsm_collapseAllLayers
+            // 
+            this.tsm_collapseAllLayers.Name = "tsm_collapseAllLayers";
+            this.tsm_collapseAllLayers.Size = new System.Drawing.Size(152, 22);
+            this.tsm_collapseAllLayers.Text = "Collapse All";
+            this.tsm_collapseAllLayers.Click += new System.EventHandler(this.tsm_collapseAllLayers_Click);
             // 
             // tsm_filters
             // 
@@ -1488,5 +1515,8 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_toggleVisibleLayers;
         private System.Windows.Forms.ToolStripMenuItem tsm_resetLayerTransparencies;
         private System.Windows.Forms.ToolStripMenuItem tsm_lastUsedFilterPresets;
+        private System.Windows.Forms.ToolStripMenuItem controlToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsm_expandAllLayers;
+        private System.Windows.Forms.ToolStripMenuItem tsm_collapseAllLayers;
     }
 }
