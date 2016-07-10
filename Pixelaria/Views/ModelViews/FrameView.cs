@@ -218,6 +218,7 @@ namespace Pixelaria.Views.ModelViews
             iepb_frame.PictureBox.MouseMove += iepb_frame_MouseMove;
             iepb_frame.PictureBox.MouseLeave += iepb_frame_MouseLeave;
             iepb_frame.PictureBox.MouseEnter += iepb_frame_MouseEnter;
+            iepb_frame.PictureBox.InterceptableMouseDown += iepb_frame_interceptableMouseDown;
             iepb_frame.UndoSystem.UndoRegistered += UndoSystem_UndoRegistered;
             iepb_frame.UndoSystem.UndoPerformed += UndoSystem_UndoPerformed;
             iepb_frame.UndoSystem.RedoPerformed += UndoSystem_RedoPerformed;
@@ -965,6 +966,31 @@ namespace Pixelaria.Views.ModelViews
                 if (tsl_coordinates.Visible)
                     tsl_coordinates.Visible = false;
             }
+        }
+
+        /// <summary>
+        /// Selects the first layer in which the given point in image coordinates is not fully transparent.
+        /// In case all layers are transparent under the point, the bottom-most layer is selected.
+        /// This method alters the currently selected layer
+        /// </summary>
+        /// <param name="point">The point to test on</param>
+        private void SelectFirstVisibleLayerAtImagePoint(Point point)
+        {
+            // Traverse every layer, from top to bottom
+            for (int i = _layerController.FrameLayers.Length - 1; i >= 0; i--)
+            {
+                var frameLayer = _layerController.FrameLayers[i];
+                var pixel = frameLayer.LayerBitmap.GetPixel(point.X, point.Y);
+
+                if (pixel.A > 0)
+                {
+                    _layerController.ActiveLayerIndex = i;
+                    return;
+                }
+            }
+
+            // Failed to find a non-transparent layer - select the bottom-most layer
+            _layerController.ActiveLayerIndex = 0;
         }
 
         #region Event Handlers
@@ -1848,6 +1874,20 @@ namespace Pixelaria.Views.ModelViews
         private void iepb_frame_OperationStatusChanged(object sender, OperationStatusEventArgs eventArgs)
         {
             tsl_operationLabel.Text = eventArgs.Status;
+        }
+
+        // 
+        // Image Edit Panel interceptable mouse down
+        // 
+        private void iepb_frame_interceptableMouseDown(object sender, InternalPictureBoxMouseEventArgs eventArgs)
+        {
+            // Select first visible layer under mouse point, if the user is hitting Left Click + Alt
+            if (eventArgs.Button != MouseButtons.Left || ModifierKeys != Keys.Alt)
+                return;
+            
+            SelectFirstVisibleLayerAtImagePoint(eventArgs.ImageLocation);
+
+            eventArgs.Handled = true;
         }
 
         // 

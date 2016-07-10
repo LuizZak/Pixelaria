@@ -335,7 +335,7 @@ namespace Pixelaria.Views.Controls
 
         /// <summary>
         /// Forces the current paint tool to intercept the undo operation, returning whether the Paint Tool has intercepted the undo operation successfully.
-        /// While intercpting an undo, a paint tool might perform actions of its own
+        /// While intercepting an undo, a paint tool might perform actions of its own
         /// </summary>
         /// <returns>Whether the current paint tool intercepted the undo task. When the return is true, no undo operation might be performed</returns>
         public bool InterceptUndo()
@@ -347,7 +347,7 @@ namespace Pixelaria.Views.Controls
 
         /// <summary>
         /// Forces the current paint tool to intercept the redo operation, returning whether the Paint Tool has intercepted the redo operation successfully.
-        /// While intercpting a redo, a paint tool might perform actions of its own
+        /// While intercepting a redo, a paint tool might perform actions of its own
         /// </summary>
         /// <returns>Whether the current paint tool intercepted the redo task. When the return is true, no redo operation might be performed</returns>
         public bool InterceptRedo()
@@ -386,6 +386,11 @@ namespace Pixelaria.Views.Controls
             /// The image to display over the current image
             /// </summary>
             private Bitmap _overImage;
+
+            /// <summary>
+            /// Whether the mouse is currently held down on this picture box
+            /// </summary>
+            private bool _mouseDown;
 
             /// <summary>
             /// Whether to display the current image
@@ -486,6 +491,16 @@ namespace Pixelaria.Views.Controls
             /// Gets a value specifying whether the space keyboard key is currently being held down
             /// </summary>
             public bool SpaceHeld => _spaceHeld;
+
+            /// <summary>
+            /// Specifies the delegate signature for custom interceptable mouse events of this panel
+            /// </summary>
+            public delegate void InternalPictureBoxMouseEvent(object sender, InternalPictureBoxMouseEventArgs eventArgs);
+
+            /// <summary>
+            /// An event for mouse down that may be interceptable by a listener
+            /// </summary>
+            public event InternalPictureBoxMouseEvent InterceptableMouseDown;
 
             /// <summary>
             /// Initializes a new instance of the InternalPictureBox class
@@ -816,6 +831,15 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseDown(e);
 
+                var location = GetAbsolutePoint(e.Location);
+
+                var args = new InternalPictureBoxMouseEventArgs(e.Button, e.Clicks, e.X, e.Y, location.X, location.Y, e.Delta);
+                InterceptableMouseDown?.Invoke(this, args);
+
+                // Event was handled
+                if (args.Handled)
+                    return;
+
                 var findForm = FindForm();
                 if (findForm != null)
                     findForm.ActiveControl = this;
@@ -825,6 +849,8 @@ namespace Pixelaria.Views.Controls
                     if (Image != null)
                         _currentPaintTool.MouseDown(e);
                 }
+
+                _mouseDown = true;
             }
 
             // 
@@ -852,8 +878,10 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseUp(e);
 
-                if (EditingEnabled && Image != null)
+                if (_mouseDown && EditingEnabled && Image != null)
                     _currentPaintTool.MouseUp(e);
+
+                _mouseDown = false;
             }
 
             // 
@@ -1206,5 +1234,38 @@ namespace Pixelaria.Views.Controls
         /// Decorates the front image, using the given event arguments
         /// </summary>
         public virtual void DecorateOverBitmap(Bitmap bitmap) { }
+    }
+
+    /// <summary>
+    /// A mouse event fired by the internal picture box of an image edit panel.
+    /// This event allows listeners to intercept and handle mouse events of an internal picture box
+    /// </summary>
+    public class InternalPictureBoxMouseEventArgs : MouseEventArgs
+    {
+        /// <summary>
+        /// Whether this event was properly handled by the event listener
+        /// </summary>
+        public bool Handled;
+
+        /// <summary>
+        /// The x coordinate of this point, on image coordinates
+        /// </summary>
+        public int ImageX;
+
+        /// <summary>
+        /// The Y coordinate of this point, on image coordinates
+        /// </summary>
+        public int ImageY;
+
+        /// <summary>
+        /// Gets the point of this event, on absolute image coordinates
+        /// </summary>
+        public Point ImageLocation => new Point(ImageX, ImageY);
+
+        public InternalPictureBoxMouseEventArgs(MouseButtons button, int clicks, int x, int y, int mouseX, int mouseY, int delta) : base(button, clicks, x, y, delta)
+        {
+            ImageX = mouseX;
+            ImageY = mouseY;
+        }
     }
 }
