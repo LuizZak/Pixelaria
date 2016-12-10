@@ -86,5 +86,12 @@ namespace Pixelaria.Data.Exporters
         /// <param name="animation">The animation to generate the sprite strip image from</param>
         /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
         Image GenerateSpriteStrip(Animation animation);
+
+        /// <summary>
+        /// Returns a number from 0-1 describing the export progress for a given animation sheet.
+        /// 0 means unstarted, 1 means the animation sheet was generated.
+        /// </summary>
+        /// <param name="sheet">The animation sheet to get the progress of</param>
+        float ProgressForAnimationSheet(AnimationSheet sheet);
     }
 }

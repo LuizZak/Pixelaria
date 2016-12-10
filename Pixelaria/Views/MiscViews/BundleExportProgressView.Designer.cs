@@ -50,15 +50,17 @@ namespace Pixelaria.Views.MiscViews
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BundleExportProgressView));
             this.pb_progress = new System.Windows.Forms.ProgressBar();
             this.lbl_progress = new System.Windows.Forms.Label();
             this.btn_ok = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tv_sheets = new Pixelaria.Views.MiscViews.BundleExportProgressView.BufferedTreeView();
+            this.il_treeView = new System.Windows.Forms.ImageList(this.components);
             this.pb_stageProgress = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.treeView1 = new System.Windows.Forms.TreeView();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -96,7 +98,7 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.treeView1);
+            this.groupBox1.Controls.Add(this.tv_sheets);
             this.groupBox1.Controls.Add(this.pb_stageProgress);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.lbl_progress);
@@ -108,6 +110,24 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Export Progress";
+            // 
+            // tv_sheets
+            // 
+            this.tv_sheets.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
+            this.tv_sheets.ImageIndex = 0;
+            this.tv_sheets.ImageList = this.il_treeView;
+            this.tv_sheets.Location = new System.Drawing.Point(9, 53);
+            this.tv_sheets.Name = "tv_sheets";
+            this.tv_sheets.SelectedImageIndex = 0;
+            this.tv_sheets.Size = new System.Drawing.Size(396, 489);
+            this.tv_sheets.TabIndex = 5;
+            this.tv_sheets.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.tv_sheets_DrawNode);
+            // 
+            // il_treeView
+            // 
+            this.il_treeView.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("il_treeView.ImageStream")));
+            this.il_treeView.TransparentColor = System.Drawing.Color.Transparent;
+            this.il_treeView.Images.SetKeyName(0, "sheet_icon.png");
             // 
             // pb_stageProgress
             // 
@@ -135,13 +155,6 @@ namespace Pixelaria.Views.MiscViews
             this.label1.TabIndex = 1;
             this.label1.Text = "Total:";
             // 
-            // treeView1
-            // 
-            this.treeView1.Location = new System.Drawing.Point(9, 53);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(396, 489);
-            this.treeView1.TabIndex = 5;
-            // 
             // BundleExportProgressView
             // 
             this.AcceptButton = this.btn_ok;
@@ -150,6 +163,7 @@ namespace Pixelaria.Views.MiscViews
             this.ClientSize = new System.Drawing.Size(436, 648);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btn_ok);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -173,6 +187,7 @@ namespace Pixelaria.Views.MiscViews
         private System.Windows.Forms.ProgressBar pb_stageProgress;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TreeView treeView1;
+        private BufferedTreeView tv_sheets;
+        private System.Windows.Forms.ImageList il_treeView;
     }
 }

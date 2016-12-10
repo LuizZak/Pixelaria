@@ -21,6 +21,10 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -50,6 +54,12 @@ namespace Pixelaria.Views.MiscViews
         private bool _canClose = true;
 
         /// <summary>
+        /// Dictionary used to keep track of changes to sheet exports.
+        /// Used to invalidate only the treeview region related to a specific sheet
+        /// </summary>
+        private Dictionary<int, float> _progressTrack = new Dictionary<int, float>(); 
+
+        /// <summary>
         /// Initializes a new instance of the BundleExportProgressView class
         /// </summary>
         /// <param name="bundle">The bundle to export</param>
@@ -60,6 +70,10 @@ namespace Pixelaria.Views.MiscViews
 
             _bundle = bundle;
             _exporter = exporter;
+
+            tv_sheets.BeforeSelect += (sender, args) => { args.Cancel = true; };
+
+            CreateTreeView(bundle);
         }
 
         /// <summary>
@@ -69,11 +83,22 @@ namespace Pixelaria.Views.MiscViews
         {
             btn_ok.Visible = false;
             _canClose = false;
-            
+
+            _progressTrack = new Dictionary<int, float>();
+            foreach (var sheet in _bundle.AnimationSheets)
+            {
+                _progressTrack[sheet.ID] = 0;
+            }
+
             _exporter.ExportBundle(_bundle, ExportHandler);
 
             _canClose = true;
             btn_ok.Visible = true;
+
+            // Set the control's style so it won't flicker at every draw call:
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                          ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.UserPaint, true);
         }
 
         // 
@@ -96,6 +121,8 @@ namespace Pixelaria.Views.MiscViews
             {
                 lbl_progress.Text = @"Export successful!";
             }
+
+            InvalidateTreeView();
 
             Update();
             Application.DoEvents();
@@ -132,6 +159,119 @@ namespace Pixelaria.Views.MiscViews
         private void btn_ok_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        #region Tree View
+
+        private void InvalidateTreeView()
+        {
+            foreach (var sheet in _bundle.AnimationSheets)
+            {
+                // Verify progress for this sheet has changed
+                float cur;
+                if (!_progressTrack.TryGetValue(sheet.ID, out cur))
+                    continue;
+
+                float real = _exporter.ProgressForAnimationSheet(sheet);
+
+                if (Math.Abs(cur - real) < float.Epsilon)
+                    continue;
+                
+                _progressTrack[sheet.ID] = real;
+
+                // Invalidate bounds for redrawing of tree view
+                var node = NodeForSheet(sheet);
+                if (node == null)
+                    continue;
+
+                var bounds = node.Bounds;
+
+                bounds.X = bounds.Right;
+                bounds.Width = tv_sheets.Width - bounds.Left;
+
+                tv_sheets.Invalidate(bounds);
+            }
+        }
+
+        private void CreateTreeView(Bundle bundle)
+        {
+            foreach (var sheet in bundle.AnimationSheets)
+            {
+                var node = new TreeNode(sheet.Name)
+                {
+                    ImageIndex = 0,
+                    Tag = sheet
+                };
+
+                tv_sheets.Nodes.Add(node);
+            }
+        }
+
+        private AnimationSheet SheetForNode(TreeNode node)
+        {
+            return node.Tag as AnimationSheet;
+        }
+
+        private TreeNode NodeForSheet(AnimationSheet sheet)
+        {
+            return tv_sheets.Nodes.OfType<TreeNode>().FirstOrDefault(node => Equals(node.Tag as AnimationSheet, sheet));
+        }
+
+        private float ProgressForSheet(AnimationSheet sheet)
+        {
+            return _exporter.ProgressForAnimationSheet(sheet);
+        }
+
+        #region Rendering
+
+        private void tv_sheets_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            e.DrawDefault = true;
+
+            var sheet = SheetForNode(e.Node);
+            if (sheet == null)
+                return;
+
+            float progress = ProgressForSheet(sheet);
+                
+            int width = tv_sheets.Width - e.Bounds.Right;
+            if (width > 200)
+                width = 200;
+
+            // Figure out bounds
+            var boundsForProgress = new Rectangle(tv_sheets.Width - width - 5, e.Bounds.Top, width - 10, e.Bounds.Height);
+            boundsForProgress.Inflate(0, -3);
+
+            // Draw background
+            ProgressBarRenderer.DrawHorizontalBar(e.Graphics, boundsForProgress);
+
+            // Draw foreground
+            var fillForProgress = boundsForProgress;
+            fillForProgress.Width = (int)(progress * fillForProgress.Width);
+
+            e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(6, 176, 37)), fillForProgress);
+        }
+
+        #endregion
+
+        #endregion
+
+        /// <summary>
+        /// Buffered tree view suitable for flicker-less rendering
+        /// </summary>
+        public class BufferedTreeView : TreeView 
+        {
+            protected override void OnHandleCreated(EventArgs e)
+            {
+                SendMessage(Handle, TVM_SETEXTENDEDSTYLE, (IntPtr)TVS_EX_DOUBLEBUFFER, (IntPtr)TVS_EX_DOUBLEBUFFER);
+                base.OnHandleCreated(e);
+            }
+            // Pinvoke:
+            private const int TVM_SETEXTENDEDSTYLE = 0x1100 + 44;
+            private const int TVM_GETEXTENDEDSTYLE = 0x1100 + 45;
+            private const int TVS_EX_DOUBLEBUFFER = 0x0004;
+            [DllImport("user32.dll")]
+            private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
         }
     }
 }

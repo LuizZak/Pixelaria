@@ -39,6 +39,8 @@ namespace Pixelaria.Data.Exporters
     /// </summary>
     public class DefaultPngExporter : IBundleExporter
     {
+        Dictionary<int, float> _sheetProgress = new Dictionary<int, float>(); 
+
         /// <summary>
         /// Exports the given Bundle
         /// </summary>
@@ -216,7 +218,12 @@ namespace Pixelaria.Data.Exporters
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
         public TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null)
         {
-            return GenerateAtlasFromAnimations(sheet.ExportSettings, sheet.Animations, sheet.Name, progressHandler);
+            return GenerateAtlasFromAnimations(sheet.ExportSettings, sheet.Animations, sheet.Name, args =>
+            {
+                progressHandler?.Invoke(args);
+
+                _sheetProgress[sheet.ID] = (float)args.StageProgress / 100;
+            });
         }
 
         /// <summary>
@@ -278,6 +285,12 @@ namespace Pixelaria.Data.Exporters
             }
 
             return stripBitmap;
+        }
+
+        public float ProgressForAnimationSheet(AnimationSheet sheet)
+        {
+            float p;
+            return _sheetProgress.TryGetValue(sheet.ID, out p) ? p : 0;
         }
     }
 }
