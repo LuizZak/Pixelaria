@@ -90,13 +90,13 @@ namespace Pixelaria.Controllers.Exporters
                         stageProgresses[j] = (float)args.StageProgress / 100;
                         progressAction();
                     });
-
+                    
                     try
                     {
                         var sheetJson = new BundleSheetJson(exp.Result, sheet.Name, Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
                         exports.Add(sheetJson);
                     }
-                    catch (Exception)
+                    catch (TaskCanceledException)
                     {
                         // unused
                     }
