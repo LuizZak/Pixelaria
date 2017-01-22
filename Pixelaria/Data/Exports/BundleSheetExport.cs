@@ -27,10 +27,11 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml;
+
 using Newtonsoft.Json;
-using Pixelaria.Utils;
 using Formatting = Newtonsoft.Json.Formatting;
+
+using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Exports
 {
@@ -146,11 +147,17 @@ namespace Pixelaria.Data.Exports
             if (!_exportSettings.ExportJson)
                 return;
 
-            // Root node for JSON
-            var root = new Dictionary<string, object>();
+            SaveDescriptorToDisk(sheetPath, jsonPath);
+        }
 
-            root["file"] = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(jsonPath));
-
+        /// <summary>
+        /// Saves the animation descriptor to the given path.
+        /// The descriptor is a JSON file containing information about the animations and frames exported.
+        /// </summary>
+        /// <param name="sheetPath">The path of the animation sheet image to reference in the descriptor file</param>
+        /// <param name="descriptorPath">The path of the descriptor file</param>
+        public void SaveDescriptorToDisk(string sheetPath, string descriptorPath)
+        {
             var animations = new List<Dictionary<string, object>>();
 
             foreach (var anim in _animations)
@@ -163,7 +170,7 @@ namespace Pixelaria.Data.Exports
                     ["fps"] = anim.PlaybackSettings.FPS,
                     ["frameskip"] = anim.PlaybackSettings.FrameSkip
                 };
-                
+
                 // Write down frame bounds now
                 var frameBounds = new List<Dictionary<string, object>>();
 
@@ -178,17 +185,22 @@ namespace Pixelaria.Data.Exports
 
                     var bounds = new Dictionary<string, object>
                     {
-                        ["index"] = frame.Index,
-                        ["sheetX"] = rect.SheetArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
-                        ["sheetY"] = rect.SheetArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
-                        ["sheetW"] = rect.SheetArea.Width + (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding : 0),
-                        ["sheetH"] = rect.SheetArea.Height + (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding : 0),
-                        ["frameX"] = rect.FrameArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
-                        ["frameY"] = rect.FrameArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
-                        ["frameW"] = rect.FrameArea.Width,
-                        ["frameH"] = rect.FrameArea.Height
+                        ["sheet"] = new Dictionary<string, object>
+                        {
+                            ["x"] = rect.SheetArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
+                            ["y"] = rect.SheetArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
+                            ["width"] = rect.SheetArea.Width + (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding : 0),
+                            ["height"] = rect.SheetArea.Height + (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding : 0)
+                        },
+                        ["frame"] = new Dictionary<string, object>
+                        {
+                            ["x"] = rect.FrameArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
+                            ["y"] = rect.FrameArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
+                            ["width"] = rect.FrameArea.Width,
+                            ["height"] = rect.FrameArea.Height
+                        }
                     };
-                    
+
                     frameBounds.Add(bounds);
                 }
 
@@ -197,75 +209,15 @@ namespace Pixelaria.Data.Exports
                 animations.Add(animation);
             }
 
-            root["animations"] = animations;
-
-            var s = new JsonSerializerSettings();
-            var json = JsonConvert.SerializeObject(root, Formatting.Indented);
-
-            File.WriteAllText(jsonPath, json, Encoding.UTF8);
-
-#if false
-
-    // Compose the XML file now
-            XmlDocument xml = new XmlDocument();
-
-            xml.AppendChild(xml.CreateNode(XmlNodeType.XmlDeclaration, "sheet", ""));
-
-            XmlNode rootNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
-
-            if (rootNode.Attributes != null)
-                rootNode.Attributes.Append(xml.CreateAttribute("file")).InnerText = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(jsonPath));
-
-            // Append the animation sheets now
-            foreach (Animation anim in _animations)
+            // Root node for JSON
+            var root = new Dictionary<string, object>
             {
-                XmlNode animationNode = xml.CreateNode(XmlNodeType.Element, "anim", "");
-
-                if (animationNode.Attributes != null)
-                {
-                    animationNode.Attributes.Append(xml.CreateAttribute("name")).InnerText = anim.Name;
-                    animationNode.Attributes.Append(xml.CreateAttribute("width")).InnerText = anim.Width + "";
-                    animationNode.Attributes.Append(xml.CreateAttribute("height")).InnerText = anim.Height + "";
-                    animationNode.Attributes.Append(xml.CreateAttribute("fps")).InnerText = anim.PlaybackSettings.FPS + "";
-                    animationNode.Attributes.Append(xml.CreateAttribute("frameskip")).InnerText = anim.PlaybackSettings.FrameSkip.ToString().ToLower();
-                }
-
-                // Write down the frame bounds now
-                for (int i = 0; i < anim.FrameCount; i++)
-                {
-                    IFrame frame = anim.GetFrameAtIndex(i);
-
-                    if (!ContainsFrame(frame))
-                        continue;
-
-                    FrameRect rect = GetFrameRectForFrame(frame);
-
-                    XmlNode frameNode = xml.CreateNode(XmlNodeType.Element, "frame", "");
-
-                    if (frameNode.Attributes != null)
-                    {
-                        frameNode.Attributes.Append(xml.CreateAttribute("index")).InnerText = frame.Index + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("sheetX")).InnerText = rect.SheetArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("sheetY")).InnerText = rect.SheetArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("sheetW")).InnerText = rect.SheetArea.Width + (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding : 0) + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("sheetH")).InnerText = rect.SheetArea.Height + (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding : 0) + "";
-
-                        frameNode.Attributes.Append(xml.CreateAttribute("frameX")).InnerText = rect.FrameArea.X - (_exportSettings.UsePaddingOnXml ? _exportSettings.XPadding / 2 : 0) + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("frameY")).InnerText = rect.FrameArea.Y - (_exportSettings.UsePaddingOnXml ? _exportSettings.YPadding / 2 : 0) + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("frameW")).InnerText = rect.FrameArea.Width + "";
-                        frameNode.Attributes.Append(xml.CreateAttribute("frameH")).InnerText = rect.FrameArea.Height + "";
-                    }
-
-                    animationNode.AppendChild(frameNode);
-                }
-
-                rootNode.AppendChild(animationNode);
-            }
-
-            xml.AppendChild(rootNode);
-
-            xml.Save(jsonPath);
-#endif
+                ["file"] = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(descriptorPath)),
+                ["animations"] = animations
+            };
+            
+            var json = JsonConvert.SerializeObject(root, Formatting.Indented);
+            File.WriteAllText(descriptorPath, json, Encoding.UTF8);
         }
 
         /// <summary>

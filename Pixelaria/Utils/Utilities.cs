@@ -39,7 +39,7 @@ namespace Pixelaria.Utils
     public static class Utilities
     {
         /// <summary>
-        /// Helper method used to create relative paths when saving sheet paths down to the .xml file
+        /// Helper method used to create relative paths
         /// </summary>
         /// <param name="filespec">The file path</param>
         /// <param name="folder">The base folder to create the relative path</param>

@@ -23,8 +23,12 @@
 using System;
 using System.Drawing;
 using System.IO;
-using System.Xml;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using Pixelaria.Utils;
@@ -74,9 +78,11 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <param name="failMessage">The message to print if the test fails</param>
         private void TestSheetExportWithSettings(AnimationExportSettings settings, string failMessage = "Exported animation sheets should be equivalent to their original sheets")
         {
-            // In theory, if you export a sheet and import it back just the way it was described on the generated XML file, it will equal the original sheet completely
-            OriginalSheet = new AnimationSheet("Sheet1");
-            OriginalSheet.ExportSettings = settings;
+            // In theory, if you export a sheet and import it back just the way it was described on the generated json file, it will equal the original sheet completely
+            OriginalSheet = new AnimationSheet("Sheet1")
+            {
+                ExportSettings = settings
+            };
 
             for (int i = 0; i < 10; i++)
             {
@@ -92,7 +98,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             Directory.CreateDirectory(_tempExportPath);
 
             string exportPath = _tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name;
-            string xmlPath = exportPath + ".xml";
+            string jsonPath = exportPath + ".json";
 
             // Export and save to disk
             IBundleExporter exporter = new DefaultPngExporter();
@@ -100,7 +106,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
             // Import it back up
-            SheetFromDisk = (AnimationSheet)ImportBundle(xmlPath);
+            SheetFromDisk = (AnimationSheet)ImportBundle(jsonPath);
             SheetFromDisk.ExportSettings = OriginalSheet.ExportSettings;
 
             Assert.AreEqual(OriginalSheet, SheetFromDisk, failMessage);
@@ -120,61 +126,84 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         }
 
         /// <summary>
-        /// Import a bundle from .png and .xml pair files
+        /// Import a bundle from .png and .json pair files
         /// </summary>
-        /// <param name="bundlePath">The common path name of the .png and .xml bundle, with a .xml extension</param>
+        /// <param name="bundlePath">The common path name of the .png and .json bundle, with a .json extension</param>
         public static object ImportBundle(string bundlePath)
         {
-            var xml = new XmlDocument();
-            xml.Load(bundlePath);
+            string json = File.ReadAllText(Path.ChangeExtension(bundlePath, "json"));
 
-            // Read the sheet file path
-            foreach (XmlNode childNode in xml.ChildNodes)
+            var sheet = (JObject)JsonConvert.DeserializeObject(json);
+            
+            var file = (string)sheet.SelectToken("file");
+            if (file == null)
+                return null;
+
+            string path = Path.GetDirectoryName(bundlePath) + "\\" + Path.GetFileName(file);
+
+            byte[] bytes = File.ReadAllBytes(path);
+            Bitmap texture;
+            using (var stream = new MemoryStream(bytes))
             {
-                if (childNode.Name == "sheet")
-                {
-                    string path = Path.GetDirectoryName(bundlePath) + "\\" + Path.GetFileName(childNode.Attributes["file"].InnerText);
+                Image original = Image.FromStream(stream);
 
-                    byte[] bytes = File.ReadAllBytes(path);
+                texture = (Bitmap)original.Clone();
 
-                    Bitmap texture = null;
-
-                    using(MemoryStream stream = new MemoryStream(bytes))
-                    {
-                        Image original = Image.FromStream(stream);
-
-                        texture = (Bitmap)original.Clone();
-
-                        original.Dispose();
-                    }
-
-                    return ImportAnimationSheet(texture, xml);
-                }
+                original.Dispose();
             }
 
-            return null;
+            return ImportAnimationSheet(texture, sheet);
         }
 
         /// <summary>
-        /// Imports a bundle composed from the given Texture2D and XmlDocument file
+        /// Imports a bundle composed from the given Texture2D and JObject (json) file
         /// </summary>
         /// <param name="texture">The Texture2D sheet</param>
-        /// <param name="document">The .xml sheet description</param>
-        public static AnimationSheet ImportAnimationSheet(Bitmap texture, XmlDocument document)
+        /// <param name="json">The .json sheet description</param>
+        public static AnimationSheet ImportAnimationSheet(Bitmap texture, JObject json)
         {
-            XmlNode sheetNode = document.ChildNodes[1];
+            // Impors a JSON formatted as follows:
+            /*
+            {
+                "file": "<name>.png",
+                "animations": [
+                    {
+                        "name": "<name>",
+                        "width": 24,
+                        "height": 23,
+                        "fps": 14,
+                        "frameskip": false,
+                        "frames": [
+                            {
+                                "sheet": {
+                                    "x": 58,
+                                    "y": 47,
+                                    "width": 15,
+                                    "height": 21
+                                },
+                                "frame": {
+                                    "x": 3,
+                                    "y": 2,
+                                    "width": 15,
+                                    "height": 21
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+            */
 
-            // Load the animations from the .xml
-            AnimationSheet sheet = new AnimationSheet(Path.GetFileNameWithoutExtension(sheetNode.Attributes["file"].Value));
+            AnimationSheet sheet = new AnimationSheet(Path.GetFileNameWithoutExtension((string)json.SelectToken("file")));
 
-            foreach (XmlNode animNode in sheetNode.ChildNodes)
+            foreach (var child in json.SelectToken("animations").Children())
             {
                 // Load the animation properties
-                string animName = animNode.Attributes["name"].InnerText;
-                int animWidth = int.Parse(animNode.Attributes["width"].InnerText);
-                int animHeight = int.Parse(animNode.Attributes["height"].InnerText);
-                int fps = int.Parse(animNode.Attributes["fps"].InnerText);
-                bool frameskip = animNode.Attributes["frameskip"].InnerText == "true";
+                string animName = (string)child.SelectToken("name");
+                int animWidth = (int)child.SelectToken("width");
+                int animHeight = (int)child.SelectToken("height");
+                int fps = (int)child.SelectToken("fps");
+                bool frameskip = (bool)child.SelectToken("frameskip");
 
                 Animation anim = new Animation(animName, animWidth, animHeight);
 
@@ -182,18 +211,20 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                 playbackSettings.FPS = fps;
                 playbackSettings.FrameSkip = frameskip;
                 anim.PlaybackSettings = playbackSettings;
-
-                foreach (XmlNode frameNode in animNode.ChildNodes)
+                
+                foreach (var frameNode in child.SelectToken("frames").Children())
                 {
-                    int index = int.Parse(frameNode.Attributes["index"].InnerText);
-                    int sheetX = int.Parse(frameNode.Attributes["sheetX"].InnerText);
-                    int sheetY = int.Parse(frameNode.Attributes["sheetY"].InnerText);
-                    int sheetW = int.Parse(frameNode.Attributes["sheetW"].InnerText);
-                    int sheetH = int.Parse(frameNode.Attributes["sheetH"].InnerText);
-                    int frameX = int.Parse(frameNode.Attributes["frameX"].InnerText);
-                    int frameY = int.Parse(frameNode.Attributes["frameY"].InnerText);
-                    int frameW = int.Parse(frameNode.Attributes["frameW"].InnerText);
-                    int frameH = int.Parse(frameNode.Attributes["frameH"].InnerText);
+                    var frameSheet = frameNode.SelectToken("sheet");
+                    var frameLocal = frameNode.SelectToken("frame");
+
+                    int sheetX = (int)frameSheet.SelectToken("x");
+                    int sheetY = (int)frameSheet.SelectToken("y");
+                    int sheetW = (int)frameSheet.SelectToken("width");
+                    int sheetH = (int)frameSheet.SelectToken("height");
+                    int frameX = (int)frameLocal.SelectToken("x");
+                    int frameY = (int)frameLocal.SelectToken("y");
+                    int frameW = (int)frameLocal.SelectToken("width");
+                    int frameH = (int)frameLocal.SelectToken("height");
 
                     Rectangle bounds = new Rectangle(sheetX, sheetY, sheetW, sheetH);
                     Rectangle origins = new Rectangle(frameX, frameY, frameW, frameH);

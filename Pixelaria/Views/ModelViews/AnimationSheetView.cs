@@ -128,8 +128,8 @@ namespace Pixelaria.Views.ModelViews
             cb_highPrecision.Checked = _sheetToEdit.ExportSettings.HighPrecisionAreaMatching;
             cb_allowUordering.Checked = _sheetToEdit.ExportSettings.AllowUnorderedFrames;
             cb_useUniformGrid.Checked = _sheetToEdit.ExportSettings.UseUniformGrid;
-            cb_padFramesOnXml.Checked = _sheetToEdit.ExportSettings.UsePaddingOnJson;
-            cb_exportXml.Checked = _sheetToEdit.ExportSettings.ExportJson;
+            cb_padFramesOnJson.Checked = _sheetToEdit.ExportSettings.UsePaddingOnJson;
+            cb_exportJson.Checked = _sheetToEdit.ExportSettings.ExportJson;
             nud_xPadding.Value = _sheetToEdit.ExportSettings.XPadding;
             nud_yPadding.Value = _sheetToEdit.ExportSettings.YPadding;
 
@@ -241,8 +241,8 @@ namespace Pixelaria.Views.ModelViews
             _exportSettings.HighPrecisionAreaMatching = cb_highPrecision.Checked;
             _exportSettings.AllowUnorderedFrames = cb_allowUordering.Checked;
             _exportSettings.UseUniformGrid = cb_useUniformGrid.Checked;
-            _exportSettings.UsePaddingOnJson = cb_padFramesOnXml.Checked;
-            _exportSettings.ExportJson = cb_exportXml.Checked;
+            _exportSettings.UsePaddingOnJson = cb_padFramesOnJson.Checked;
+            _exportSettings.ExportJson = cb_exportJson.Checked;
             _exportSettings.XPadding = (int)nud_xPadding.Value;
             _exportSettings.YPadding = (int)nud_yPadding.Value;
 

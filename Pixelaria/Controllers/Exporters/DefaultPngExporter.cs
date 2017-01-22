@@ -29,14 +29,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
+
 using Newtonsoft.Json;
+using Formatting = Newtonsoft.Json.Formatting;
+
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace Pixelaria.Controllers.Exporters
 {
@@ -62,7 +63,7 @@ namespace Pixelaria.Controllers.Exporters
             // Start with initial values for the progress export of every sheet
             float[] stageProgresses = new float[bundle.AnimationSheets.Count];
             var exports = new List<BundleSheetJson>();
-            
+
             var progressAction = new Action(() =>
             {
                 if (progressHandler == null)
@@ -87,13 +88,14 @@ namespace Pixelaria.Controllers.Exporters
                 {
                     var exp = ExportBundleSheet(sheet, cancellationToken, args =>
                     {
-                        stageProgresses[j] = (float)args.StageProgress / 100;
+                        stageProgresses[j] = (float) args.StageProgress / 100;
                         progressAction();
                     });
-                    
+
                     try
                     {
-                        var sheetJson = new BundleSheetJson(exp.Result, sheet.Name, Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
+                        var sheetJson = new BundleSheetJson(exp.Result, sheet.Name,
+                            Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
                         exports.Add(sheetJson);
                     }
                     catch (TaskCanceledException)
@@ -103,10 +105,7 @@ namespace Pixelaria.Controllers.Exporters
                 }));
             }
 
-            var concurrent = new Task(() =>
-            {
-                StartAndWaitAllThrottled(generationList, 7, cancellationToken);
-            });
+            var concurrent = new Task(() => { StartAndWaitAllThrottled(generationList, 7, cancellationToken); });
 
             concurrent.Start();
 
@@ -116,7 +115,7 @@ namespace Pixelaria.Controllers.Exporters
             {
                 return;
             }
-            
+
             //
             // 2. Save the sheets to disk
             //
@@ -126,10 +125,11 @@ namespace Pixelaria.Controllers.Exporters
 
                 if (progressHandler != null)
                 {
-                    int progress = (int)((float)i / exports.Count * 100);
-                    progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress, 50 + progress / 2));
+                    int progress = (int) ((float) i / exports.Count * 100);
+                    progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress,
+                        50 + progress / 2));
                 }
-                
+
                 exp.BundleSheet.SaveToDisk(exp.ExportPath);
             }
 
@@ -137,86 +137,41 @@ namespace Pixelaria.Controllers.Exporters
             // 3. Compose the main bundle .json
             //
 
+            if (exports.Any(export => export.BundleSheet.ExportSettings.ExportJson))
             {
-                var json = new Dictionary<string, object>();
-
-                var exp = new List<Dictionary<string, object>>();
-
-                var count = 0;
+                var jsonSheetList = new List<Dictionary<string, object>>();
+                
                 foreach (var export in exports)
                 {
                     if (!export.BundleSheet.ExportSettings.ExportJson)
                         continue;
-
-                    count ++;
                     
                     var sheet = new Dictionary<string, object>();
 
                     // Path of final JSON file
-                    var filePath = Utilities.GetRelativePath(Path.ChangeExtension(export.ExportPath, "json"), bundle.ExportPath);
+                    var filePath = Utilities.GetRelativePath(Path.ChangeExtension(export.ExportPath, "json"),
+                        bundle.ExportPath);
 
                     sheet["name"] = export.SheetName;
                     sheet["file"] = filePath;
 
-                    exp.Add(sheet);
+                    jsonSheetList.Add(sheet);
                 }
 
-                json["sheets"] = exp;
-
-                if (count > 1)
+                var json = new Dictionary<string, object>
                 {
-                    string finalPath = Path.ChangeExtension(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name, "json");
-                    string output = JsonConvert.SerializeObject(json, Formatting.Indented);
+                    ["sheets"] = jsonSheetList
+                };
+                
+                string finalPath = Path.ChangeExtension(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name, "json");
+                string output = JsonConvert.SerializeObject(json, Formatting.Indented);
 
-                    File.WriteAllText(finalPath, output, Encoding.UTF8);
-                }
+                File.WriteAllText(finalPath, output, Encoding.UTF8);
             }
 
             progressHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
-
-            return;
-
-            #region XML
-
-            var xml = new XmlDocument();
-
-            xml.AppendChild(xml.CreateNode(XmlNodeType.XmlDeclaration, "sheetList", ""));
-
-            var rootNode = xml.CreateNode(XmlNodeType.Element, "sheetList", "");
-
-            // Count number of exported sheets
-            int expCount = 0;
-            // Append the animation sheets now
-            for (int i = 0; i < exports.Count; i++)
-            {
-                if (!exports[i].BundleSheet.ExportSettings.ExportJson)
-                    continue;
-
-                expCount++;
-
-                string sheetXml = exports[i].ExportPath;
-
-                XmlNode sheetNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
-
-                if (sheetNode.Attributes != null)
-                    sheetNode.Attributes.Append(xml.CreateAttribute("path")).InnerText =
-                        Utilities.GetRelativePath(sheetXml + ".xml", bundle.ExportPath);
-
-                rootNode.AppendChild(sheetNode);
-            }
-
-            if (expCount > 0)
-            {
-                xml.AppendChild(rootNode);
-                xml.Save(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name + ".xml");
-            }
-
-            progressHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
-
-            #endregion
-
         }
-        
+
         /// <summary>
         /// Exports the given animations into a BundleSheetExport and returns the created sheet
         /// </summary>

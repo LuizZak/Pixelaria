@@ -67,8 +67,8 @@ namespace Pixelaria.Views.ModelViews
             this.cb_highPrecision = new System.Windows.Forms.CheckBox();
             this.cb_allowUordering = new System.Windows.Forms.CheckBox();
             this.cb_useUniformGrid = new System.Windows.Forms.CheckBox();
-            this.cb_exportXml = new System.Windows.Forms.CheckBox();
-            this.cb_padFramesOnXml = new System.Windows.Forms.CheckBox();
+            this.cb_exportJson = new System.Windows.Forms.CheckBox();
+            this.cb_padFramesOnJson = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btn_generatePreview = new System.Windows.Forms.Button();
@@ -221,8 +221,8 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel1.Controls.Add(this.cb_highPrecision);
             this.flowLayoutPanel1.Controls.Add(this.cb_allowUordering);
             this.flowLayoutPanel1.Controls.Add(this.cb_useUniformGrid);
-            this.flowLayoutPanel1.Controls.Add(this.cb_exportXml);
-            this.flowLayoutPanel1.Controls.Add(this.cb_padFramesOnXml);
+            this.flowLayoutPanel1.Controls.Add(this.cb_exportJson);
+            this.flowLayoutPanel1.Controls.Add(this.cb_padFramesOnJson);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(6, 19);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(5);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -331,39 +331,41 @@ namespace Pixelaria.Views.ModelViews
             this.cb_useUniformGrid.Size = new System.Drawing.Size(102, 17);
             this.cb_useUniformGrid.TabIndex = 11;
             this.cb_useUniformGrid.Text = "Use uniform grid";
-            this.tt_mainTooltip.SetToolTip(this.cb_useUniformGrid, resources.GetString("cb_useUniformGrid.ToolTip"));
+            this.tt_mainTooltip.SetToolTip(this.cb_useUniformGrid, "Whether to place the frames in a uniform grid that is sized\naccording to the smal" +
+        "lest dimensions capable of fitting all\nthe frames. Setting this option overrides" +
+        " the\n\'Force minimum dimensions\' option.");
             this.cb_useUniformGrid.UseVisualStyleBackColor = true;
             this.cb_useUniformGrid.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
-            // cb_exportXml
+            // cb_exportJson
             // 
-            this.cb_exportXml.AutoSize = true;
-            this.cb_exportXml.Checked = true;
-            this.cb_exportXml.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.flowLayoutPanel1.SetFlowBreak(this.cb_exportXml, true);
-            this.cb_exportXml.Location = new System.Drawing.Point(3, 164);
-            this.cb_exportXml.Name = "cb_exportXml";
-            this.helpProvider1.SetShowHelp(this.cb_exportXml, true);
-            this.cb_exportXml.Size = new System.Drawing.Size(76, 17);
-            this.cb_exportXml.TabIndex = 10;
-            this.cb_exportXml.Text = "Export Xml";
-            this.tt_mainTooltip.SetToolTip(this.cb_exportXml, resources.GetString("cb_exportXml.ToolTip"));
-            this.cb_exportXml.UseVisualStyleBackColor = true;
-            this.cb_exportXml.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
+            this.cb_exportJson.AutoSize = true;
+            this.cb_exportJson.Checked = true;
+            this.cb_exportJson.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.flowLayoutPanel1.SetFlowBreak(this.cb_exportJson, true);
+            this.cb_exportJson.Location = new System.Drawing.Point(3, 164);
+            this.cb_exportJson.Name = "cb_exportJson";
+            this.helpProvider1.SetShowHelp(this.cb_exportJson, true);
+            this.cb_exportJson.Size = new System.Drawing.Size(81, 17);
+            this.cb_exportJson.TabIndex = 10;
+            this.cb_exportJson.Text = "Export Json";
+            this.tt_mainTooltip.SetToolTip(this.cb_exportJson, resources.GetString("cb_exportJson.ToolTip"));
+            this.cb_exportJson.UseVisualStyleBackColor = true;
+            this.cb_exportJson.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
-            // cb_padFramesOnXml
+            // cb_padFramesOnJson
             // 
-            this.cb_padFramesOnXml.AutoSize = true;
-            this.flowLayoutPanel1.SetFlowBreak(this.cb_padFramesOnXml, true);
-            this.cb_padFramesOnXml.Location = new System.Drawing.Point(3, 187);
-            this.cb_padFramesOnXml.Name = "cb_padFramesOnXml";
-            this.helpProvider1.SetShowHelp(this.cb_padFramesOnXml, true);
-            this.cb_padFramesOnXml.Size = new System.Drawing.Size(152, 17);
-            this.cb_padFramesOnXml.TabIndex = 8;
-            this.cb_padFramesOnXml.Text = "Pad frame bounds on XML";
-            this.tt_mainTooltip.SetToolTip(this.cb_padFramesOnXml, resources.GetString("cb_padFramesOnXml.ToolTip"));
-            this.cb_padFramesOnXml.UseVisualStyleBackColor = true;
-            this.cb_padFramesOnXml.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
+            this.cb_padFramesOnJson.AutoSize = true;
+            this.flowLayoutPanel1.SetFlowBreak(this.cb_padFramesOnJson, true);
+            this.cb_padFramesOnJson.Location = new System.Drawing.Point(3, 187);
+            this.cb_padFramesOnJson.Name = "cb_padFramesOnJson";
+            this.helpProvider1.SetShowHelp(this.cb_padFramesOnJson, true);
+            this.cb_padFramesOnJson.Size = new System.Drawing.Size(152, 17);
+            this.cb_padFramesOnJson.TabIndex = 8;
+            this.cb_padFramesOnJson.Text = "Pad frame bounds on Json";
+            this.tt_mainTooltip.SetToolTip(this.cb_padFramesOnJson, resources.GetString("cb_padFramesOnJson.ToolTip"));
+            this.cb_padFramesOnJson.UseVisualStyleBackColor = true;
+            this.cb_padFramesOnJson.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // label4
             // 
@@ -516,6 +518,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.zpb_sheetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_sheetPreview.ClipBackgroundToImage = true;
+            this.zpb_sheetPreview.HorizontalScrollValue = 0;
             this.zpb_sheetPreview.Importer = null;
             this.zpb_sheetPreview.Location = new System.Drawing.Point(317, 90);
             this.zpb_sheetPreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MaximumZoom")));
@@ -527,6 +530,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 408);
             this.zpb_sheetPreview.TabIndex = 0;
             this.zpb_sheetPreview.TabStop = false;
+            this.zpb_sheetPreview.VerticalScrollValue = 0;
             this.zpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.Zoom")));
             this.zpb_sheetPreview.ZoomFactor = 1.414214F;
             this.zpb_sheetPreview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_sheetPreview_ZoomChanged);
@@ -855,7 +859,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.CheckBox cb_allowUordering;
         private System.Windows.Forms.CheckBox cb_reuseIdenticalFrames;
         private System.Windows.Forms.CheckBox cb_forceMinimumDimensions;
-        private System.Windows.Forms.CheckBox cb_padFramesOnXml;
+        private System.Windows.Forms.CheckBox cb_padFramesOnJson;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
@@ -863,7 +867,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.NumericUpDown nud_xPadding;
         private System.Windows.Forms.HelpProvider helpProvider1;
         private System.Windows.Forms.CheckBox cb_highPrecision;
-        private System.Windows.Forms.CheckBox cb_exportXml;
+        private System.Windows.Forms.CheckBox cb_exportJson;
         private System.Windows.Forms.GroupBox gb_sheetInfo;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lbl_animCount;
