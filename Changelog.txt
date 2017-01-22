@@ -23,8 +23,10 @@ Caption:
 * Now file format for descriptors of exported animations is .json instead of .xml.
   . The animation sheet json contains the same data as the previous .xml format, but formatted more nicely.
   . The main bundle sheet now also contains the list of animations inside each bundle sheet, which can be used to quickly find animations referenced in the sprite sheets.
+
 + Now bundle exports occur concurrently, with multiple sheets being calculated simultaneously.
   . This should significanctly improve export time in multi-core machines.
+
 + Improved bundle export interface to show export progress of individual sheets and cancel export routines mid-way.
 + Added ability to delete selected Animation/Animation Sheets with the Delete key on the main interface.
 + New Animation and New Animation Sheet forms now open with a default unique untitled name pre-filled in.
