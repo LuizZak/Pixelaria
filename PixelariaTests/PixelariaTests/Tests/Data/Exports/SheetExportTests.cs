@@ -106,7 +106,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
             // Import it back up
-            SheetFromDisk = (AnimationSheet)ImportBundle(jsonPath);
+            SheetFromDisk = (AnimationSheet)ImportSheetFile(jsonPath);
             SheetFromDisk.ExportSettings = OriginalSheet.ExportSettings;
 
             Assert.AreEqual(OriginalSheet, SheetFromDisk, failMessage);
@@ -128,18 +128,18 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <summary>
         /// Import a bundle from .png and .json pair files
         /// </summary>
-        /// <param name="bundlePath">The common path name of the .png and .json bundle, with a .json extension</param>
-        public static object ImportBundle(string bundlePath)
+        /// <param name="sheetPath">The common path name of the .png and .json bundle, with a .json extension</param>
+        public static object ImportSheetFile(string sheetPath)
         {
-            string json = File.ReadAllText(Path.ChangeExtension(bundlePath, "json"));
+            string json = File.ReadAllText(Path.ChangeExtension(sheetPath, "json"));
 
             var sheet = (JObject)JsonConvert.DeserializeObject(json);
             
-            var file = (string)sheet.SelectToken("file");
+            var file = (string)sheet.SelectToken("sprite_image");
             if (file == null)
                 return null;
 
-            string path = Path.GetDirectoryName(bundlePath) + "\\" + Path.GetFileName(file);
+            string path = Path.GetDirectoryName(sheetPath) + "\\" + Path.GetFileName(file);
 
             byte[] bytes = File.ReadAllBytes(path);
             Bitmap texture;
@@ -165,7 +165,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             // Impors a JSON formatted as follows:
             /*
             {
-                "file": "<name>.png",
+                "sprite_image": "<name>.png",
                 "animations": [
                     {
                         "name": "<name>",
@@ -194,7 +194,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             }
             */
 
-            AnimationSheet sheet = new AnimationSheet(Path.GetFileNameWithoutExtension((string)json.SelectToken("file")));
+            AnimationSheet sheet = new AnimationSheet(Path.GetFileNameWithoutExtension((string)json.SelectToken("sprite_image")));
 
             foreach (var child in json.SelectToken("animations").Children())
             {

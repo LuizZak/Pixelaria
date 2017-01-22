@@ -211,7 +211,7 @@ namespace Pixelaria.Data.Exports
             // Root node for JSON
             var root = new Dictionary<string, object>
             {
-                ["file"] = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(descriptorPath)),
+                ["sprite_image"] = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(descriptorPath)),
                 ["animations"] = animations
             };
             

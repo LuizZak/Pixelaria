@@ -151,7 +151,7 @@ namespace Pixelaria.Controllers.Exporters
                         bundle.ExportPath);
 
                     sheet["name"] = export.SheetName;
-                    sheet["file"] = filePath;
+                    sheet["sprite_file"] = filePath;
                     
                     // Export animation list
                     var names = export.BundleSheet.Animations.Select(anim => anim.Name);
