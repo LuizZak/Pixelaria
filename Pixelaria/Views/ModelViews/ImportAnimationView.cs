@@ -26,8 +26,8 @@ using System.IO;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
+using Pixelaria.Controllers.Importers;
 using Pixelaria.Data;
-using Pixelaria.Data.Importers;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews

@@ -23,9 +23,10 @@
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
-namespace Pixelaria.Data.Exporters
+namespace Pixelaria.Controllers.Exporters
 {
     /// <summary>
     /// Defines the behavior that must be implemented by exporters in the program
@@ -39,26 +40,7 @@ namespace Pixelaria.Data.Exporters
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         Task ExportBundleConcurrent(Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
-
-        /// <summary>
-        /// Exports the given animations into an image sheet and returns the created sheet
-        /// </summary>
-        /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
-        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>An image sheet representing the animations passed</returns>
-        Task<Image> ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
-
-        /// <summary>
-        /// Exports the given animation sheet into an image sheet and returns the created sheet
-        /// </summary>
-        /// <param name="sheet">The sheet to export</param>
-        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>An image sheet representing the animation sheet passed</returns>
-        Task<Image> ExportAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
-
+        
         /// <summary>
         /// Exports the given animation sheet into a BundleSheetExport and returns the created sheet
         /// </summary>

@@ -22,10 +22,9 @@
 
 using System.IO;
 using System.Linq;
+using Pixelaria.Data;
 
-using Pixelaria.Controllers;
-
-namespace Pixelaria.Data.Validators
+namespace Pixelaria.Controllers.Validators
 {
     /// <summary>
     /// Default validator

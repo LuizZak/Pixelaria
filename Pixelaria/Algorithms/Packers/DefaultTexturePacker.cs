@@ -564,22 +564,20 @@ namespace Pixelaria.Algorithms.Packers
 
                 if (frag != null)
                     return frag.FrameRectangle;
-
-                // TODO: Deal with disposal of GetComposedBitmap()'s return
-                Bitmap frameBitmap = frame.GetComposedBitmap();
-
-                CompareFrag newFrag = new CompareFrag
+                
+                using (var frameBitmap = frame.GetComposedBitmap())
                 {
-                    FrameRectangle = _useMinimumTextureArea
-                        ? ImageUtilities.FindMinimumImageArea(frameBitmap)
-                        : new Rectangle(0, 0, frame.Width, frame.Height)
-                };
+                    var newFrag = new CompareFrag
+                    {
+                        FrameRectangle = _useMinimumTextureArea
+                            ? ImageUtilities.FindMinimumImageArea(frameBitmap)
+                            : new Rectangle(0, 0, frame.Width, frame.Height)
+                    };
 
-                frameBitmap.Dispose();
+                    _fragDictionary[frame] = newFrag;
 
-                _fragDictionary[frame] = newFrag;
-
-                return newFrag.FrameRectangle;
+                    return newFrag.FrameRectangle;
+                }
             }
 
             /// <summary>
@@ -618,7 +616,6 @@ namespace Pixelaria.Algorithms.Packers
                 int index;
                 if (_similarMatrixIndexDictionary.TryGetValue(frame, out index))
                 {
-                    //return _similarFramesMatrix[index][0] == frame ? null : frame;
                     return _similarFramesMatrix[index][0];
                 }
 

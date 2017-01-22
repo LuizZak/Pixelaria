@@ -21,8 +21,10 @@
 */
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -58,6 +60,11 @@ namespace Pixelaria.Views.ModelViews
         /// The current bundle sheet export
         /// </summary>
         BundleSheetExport _bundleSheetExport;
+
+        /// <summary>
+        /// Cancellation token for the sheet generation routine
+        /// </summary>
+        private CancellationTokenSource _sheetCancellation;
 
         /// <summary>
         /// Gets the current AnimationSheet being edited
@@ -253,61 +260,82 @@ namespace Pixelaria.Views.ModelViews
             // Dispose of current preview
             RemovePreview();
 
-            if (_sheetToEdit.Animations.Length > 0)
-            {
-                // Time the bundle export
-                pb_exportProgress.Visible = true;
-
-                BundleExportProgressEventHandler handler = args =>
-                {
-                    pb_exportProgress.Value = args.StageProgress;
-                    pb_exportProgress.Refresh();
-                };
-
-                var form = FindForm();
-                if (form != null)
-                    form.Cursor = Cursors.WaitCursor;
-
-                Stopwatch sw = Stopwatch.StartNew();
-
-                // Export the bundle
-                _bundleSheetExport = _controller.GenerateBundleSheet(_exportSettings, handler, _sheetToEdit.Animations);
-
-                Image img = _bundleSheetExport.Sheet;
-
-                sw.Stop();
-
-                if (form != null)
-                    form.Cursor = Cursors.Default;
-
-                zpb_sheetPreview.SetImage(img);
-
-                pb_exportProgress.Visible = false;
-
-                // Update labels
-                lbl_sheetPreview.Text = AnimationMessages.TextSheetPreviewGenerated + sw.ElapsedMilliseconds + @"ms)";
-
-                lbl_dimensions.Text = img.Width + @"x" + img.Height;
-                lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
-                lbl_framesOnSheet.Text = (_bundleSheetExport.FrameCount - _bundleSheetExport.ReusedFrameCount) + "";
-                lbl_reusedFrames.Text = (_bundleSheetExport.ReusedFrameCount) + "";
-                lbl_memoryUsage.Text = Utilities.FormatByteSize(ImageUtilities.MemoryUsageOfImage(img));
-
-                if (pnl_alertPanel.Visible && lbl_alertLabel.Text == AnimationMessages.TextNoAnimationInSheetToGeneratePreview)
-                {
-                    pnl_alertPanel.Visible = false;
-                }
-
-                if (cb_showFrameBounds.Checked)
-                {
-                    ShowFrameBounds();
-                }
-            }
-            else
+            if (_sheetToEdit.Animations.Length <= 0)
             {
                 lbl_alertLabel.Text = AnimationMessages.TextNoAnimationInSheetToGeneratePreview;
                 pnl_alertPanel.Visible = true;
+                return;
             }
+
+            // Time the bundle export
+            pb_exportProgress.Visible = true;
+
+            BundleExportProgressEventHandler handler = args =>
+            {
+                Invoke(new Action(() =>
+                {
+                    pb_exportProgress.Value = args.StageProgress;
+                }));
+            };
+
+            var form = FindForm();
+            if (form != null)
+                form.Cursor = Cursors.WaitCursor;
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            _sheetCancellation = new CancellationTokenSource();
+
+            // Export the bundle
+            var t = _controller.GenerateBundleSheet(_exportSettings, _sheetCancellation.Token, handler, _sheetToEdit.Animations);
+
+            t.ContinueWith((task) =>
+            {
+                Invoke(new Action(() =>
+                {
+                    if (_sheetCancellation.IsCancellationRequested)
+                    {
+                        _sheetCancellation = null;
+                        Close();
+                        return;
+                    }
+
+                    _sheetCancellation = null;
+
+                    _bundleSheetExport = task.Result;
+
+                    Image img = _bundleSheetExport.Sheet;
+
+                    sw.Stop();
+
+                    if (form != null)
+                        form.Cursor = Cursors.Default;
+
+                    zpb_sheetPreview.SetImage(img);
+
+                    pb_exportProgress.Visible = false;
+
+                    // Update labels
+                    lbl_sheetPreview.Text = AnimationMessages.TextSheetPreviewGenerated + sw.ElapsedMilliseconds + @"ms)";
+
+                    lbl_dimensions.Text = img.Width + @"x" + img.Height;
+                    lbl_pixelCount.Text = (img.Width * img.Height).ToString("N0");
+                    lbl_framesOnSheet.Text = (_bundleSheetExport.FrameCount - _bundleSheetExport.ReusedFrameCount) + "";
+                    lbl_reusedFrames.Text = (_bundleSheetExport.ReusedFrameCount) + "";
+                    lbl_memoryUsage.Text = Utilities.FormatByteSize(ImageUtilities.MemoryUsageOfImage(img));
+
+                    if (pnl_alertPanel.Visible &&
+                        lbl_alertLabel.Text == AnimationMessages.TextNoAnimationInSheetToGeneratePreview)
+                    {
+                        pnl_alertPanel.Visible = false;
+                    }
+
+                    if (cb_showFrameBounds.Checked)
+                    {
+                        ShowFrameBounds();
+                    }
+                }));
+            });
         }
 
         /// <summary>
@@ -373,6 +401,18 @@ namespace Pixelaria.Views.ModelViews
         public AnimationSheet GenerateAnimationSheet()
         {
             return new AnimationSheet(txt_sheetName.Text) { ExportSettings = RepopulateExportSettings() };
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (_sheetCancellation != null)
+            {
+                _sheetCancellation.Cancel();
+                e.Cancel = true;
+                return;
+            }
+
+            base.OnFormClosing(e);
         }
 
         // 

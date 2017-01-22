@@ -112,6 +112,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -176,11 +180,11 @@
     <Compile Include="Data\Persistence\ProjectTreeBlocks\NodeBlock.cs" />
     <Compile Include="Data\ProjectTree.cs" />
     <Compile Include="Data\Undo\UndoSystem.cs" />
-    <Compile Include="Data\Validators\DefaultValidator.cs" />
-    <Compile Include="Data\Validators\IAnimationSheetValidator.cs" />
-    <Compile Include="Data\Validators\IAnimationValidator.cs" />
-    <Compile Include="Data\Exporters\DefaultPngExporter.cs" />
-    <Compile Include="Data\Exporters\IBundleExporter.cs" />
+    <Compile Include="Controllers\Validators\DefaultValidator.cs" />
+    <Compile Include="Controllers\Validators\IAnimationSheetValidator.cs" />
+    <Compile Include="Controllers\Validators\IAnimationValidator.cs" />
+    <Compile Include="Controllers\Exporters\DefaultPngExporter.cs" />
+    <Compile Include="Controllers\Exporters\IBundleExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
     <Compile Include="Filters\HSLFilter.cs" />
@@ -190,8 +194,8 @@
     <Compile Include="Filters\ScaleFilter.cs" />
     <Compile Include="Filters\StrokeFilter.cs" />
     <Compile Include="Filters\TransparencyFilter.cs" />
-    <Compile Include="Data\Importers\DefaultPngImporter.cs" />
-    <Compile Include="Data\Importers\IDefaultImporter.cs" />
+    <Compile Include="Controllers\Importers\DefaultPngImporter.cs" />
+    <Compile Include="Controllers\Importers\IDefaultImporter.cs" />
     <Compile Include="Localization\AnimationMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -570,6 +574,7 @@
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -771,6 +776,9 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

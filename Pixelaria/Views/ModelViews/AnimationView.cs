@@ -2128,12 +2128,7 @@ namespace Pixelaria.Views.ModelViews
                 /// The animation to affect with this AnimationResizeUndoTask instance
                 /// </summary>
                 private readonly Animation _animation;
-
-                /// <summary>
-                /// The list of new frames
-                /// </summary>
-                private readonly Bitmap[] _newFrames;
-
+                
                 /// <summary>
                 /// The old size of the animation before resizing
                 /// </summary>
@@ -2153,8 +2148,6 @@ namespace Pixelaria.Views.ModelViews
                 public AnimationResizeUndoTask(Animation animation, Size oldSize, AnimationResizeSettings resizeSettings)
                 {
                     _animation = animation;
-                    // TODO: Deal with ToBitmapArray() here assuming it is always a clone, not a reference to the original bitmap
-                    _newFrames = animation.Frames.ToBitmapArray(true);
                     _oldResizeSettings = new AnimationResizeSettings { InterpolationMode = resizeSettings.InterpolationMode, NewWidth = oldSize.Width, NewHeight = oldSize.Height, PerFrameScalingMethod = resizeSettings.PerFrameScalingMethod };
                     _newResizeSettings = resizeSettings;
                 }
@@ -2164,10 +2157,7 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Clear()
                 {
-                    foreach (Bitmap bit in _newFrames)
-                    {
-                        bit.Dispose();
-                    }
+                    
                 }
 
                 /// <summary>

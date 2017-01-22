@@ -182,7 +182,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             // Create the bitmap
             Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
-            // Add the three plots
+            // Add the two plots
             bitmap.SetPixel(4, 2, Color.Red);
             bitmap.SetPixel(2, 4, Color.Red);
 
@@ -205,7 +205,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             // Create the bitmap
             Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
-            // Add the three plots
+            // Add the plot
             bitmap.SetPixel(2, 2, Color.Red);
 
             // Test the resulting area rectangle

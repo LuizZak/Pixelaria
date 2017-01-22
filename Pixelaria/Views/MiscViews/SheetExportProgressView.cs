@@ -21,12 +21,12 @@
 */
 
 using System;
-using System.Drawing;
+
 using System.Threading;
 using System.Windows.Forms;
 
+using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
-using Pixelaria.Data.Exporters;
 using Pixelaria.Data.Exports;
 
 namespace Pixelaria.Views.MiscViews
@@ -78,13 +78,13 @@ namespace Pixelaria.Views.MiscViews
         {
             btn_ok.Visible = false;
             _canClose = false;
-
-            _exporter.ExportAnimationSheet(_sheet, new CancellationToken(), ExportHandler).ContinueWith(
-                (task) =>
+            
+            _exporter.ExportBundleSheet(_sheet, new CancellationToken(), ExportHandler).ContinueWith(
+                task =>
                 {
                     Invoke(new Action(() =>
                     {
-                        var img = task.Result;
+                        var img = task.Result.Sheet;
 
                         // Save the image now
                         lbl_progress.Text = @"Saving to disk...";

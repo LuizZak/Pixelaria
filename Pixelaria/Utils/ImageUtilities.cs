@@ -28,6 +28,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+
 using Pixelaria.Data;
 using Pixelaria.Properties;
 
@@ -144,7 +145,7 @@ namespace Pixelaria.Utils
             int width = image.Width;
             int height = image.Height;
 
-            using (FastBitmap fastBitmap = image.FastLock())
+            using (var fastBitmap = image.FastLock())
             {
                 // Scan vertically - 1st pass
                 int x;
@@ -159,10 +160,10 @@ namespace Pixelaria.Utils
                             minImageX = x;
                             goto skipx;
                         }
-                        // All pixels scanned, non are opaque
+                        // All pixels scanned, none are opaque
                         if (x == width - 1 && y == height - 1)
                         {
-                            return new Rectangle(0, 0, 0, 0);
+                            return Rectangle.Empty;
                         }
                     }
                 } skipx:
@@ -334,6 +335,9 @@ namespace Pixelaria.Utils
             if (image1.Size != image2.Size)
                 return false;
 
+            if (image1.PixelFormat != image2.PixelFormat)
+                return false;
+
             Bitmap bit1 = null;
             Bitmap bit2 = null;
 
@@ -378,8 +382,8 @@ namespace Pixelaria.Utils
         {
             if (b1 == null || b2 == null) return false;
 
-            BitmapData bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            BitmapData bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
             int len = bd1.Stride * b1.Height;
 

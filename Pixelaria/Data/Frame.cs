@@ -787,19 +787,14 @@ namespace Pixelaria.Data
         protected class FrameLayer : IFrameLayer, IEquatable<FrameLayer>
         {
             /// <summary>
-            /// The bitmap for this layer
-            /// </summary>
-            private Bitmap _layerBitmap;
-
-            /// <summary>
             /// Gets this layer's width
             /// </summary>
-            public int Width => _layerBitmap.Width;
+            public int Width => LayerBitmap.Width;
 
             /// <summary>
             /// Gets this layer's height
             /// </summary>
-            public int Height => _layerBitmap.Height;
+            public int Height => LayerBitmap.Height;
 
             /// <summary>
             /// Gets the size of this layer
@@ -819,11 +814,7 @@ namespace Pixelaria.Data
             /// <summary>
             /// Gets this layer's bitmap content
             /// </summary>
-            public Bitmap LayerBitmap
-            {
-                get { return _layerBitmap; }
-                set { _layerBitmap = value; }
-            }
+            public Bitmap LayerBitmap { get; set; }
 
             /// <summary>
             /// Gets the frame that owns this IFrameLayer object
@@ -837,7 +828,7 @@ namespace Pixelaria.Data
             public FrameLayer(Bitmap layerBitmap)
             {
                 Name = string.Empty;
-                _layerBitmap = layerBitmap;
+                LayerBitmap = layerBitmap;
             }
 
             /// <summary>
@@ -846,9 +837,9 @@ namespace Pixelaria.Data
             /// <returns>A clone of this frame layer's object</returns>
             public IFrameLayer Clone()
             {
-                FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, _layerBitmap.PixelFormat)) { Name = Name };
+                FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, LayerBitmap.PixelFormat)) { Name = Name };
 
-                layer.CopyFromBitmap(_layerBitmap);
+                layer.CopyFromBitmap(LayerBitmap);
 
                 return layer;
             }
@@ -879,7 +870,7 @@ namespace Pixelaria.Data
                     return;
                 }
 
-                _layerBitmap?.Dispose();
+                LayerBitmap?.Dispose();
 
                 _disposed = true;
             }
@@ -913,11 +904,11 @@ namespace Pixelaria.Data
                 if (Width == newWidth && Height == newHeight)
                     return;
 
-                Bitmap newTexture = (Bitmap)ImageUtilities.Resize(_layerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
+                Bitmap newTexture = (Bitmap)ImageUtilities.Resize(LayerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
 
                 // Texture replacement
-                _layerBitmap.Dispose();
-                _layerBitmap = newTexture;
+                LayerBitmap.Dispose();
+                LayerBitmap = newTexture;
             }
 
             /// <summary>
@@ -928,13 +919,13 @@ namespace Pixelaria.Data
             /// <exception cref="ArgumentException">The bitmap's dimensions don't match this layer's dimensions</exception>
             public void CopyFromBitmap(Bitmap bitmap)
             {
-                if (bitmap.Width != _layerBitmap.Width || bitmap.Height != _layerBitmap.Height)
+                if (bitmap.Width != LayerBitmap.Width || bitmap.Height != LayerBitmap.Height)
                 {
                     throw new ArgumentException(@"The provided bitmap's dimensions don't match this bitmap's dimensions", nameof(bitmap));
                 }
 
                 // Copy the pixels
-                FastBitmap.CopyPixels(bitmap, _layerBitmap);
+                FastBitmap.CopyPixels(bitmap, LayerBitmap);
             }
 
             #region Equality members
@@ -948,7 +939,7 @@ namespace Pixelaria.Data
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return ImageUtilities.ImagesAreIdentical(_layerBitmap, other._layerBitmap) && Index == other.Index;
+                return ImageUtilities.ImagesAreIdentical(LayerBitmap, other.LayerBitmap) && Index == other.Index;
             }
 
             /// <summary>
@@ -971,7 +962,7 @@ namespace Pixelaria.Data
             /// <returns>The hash code for this FrameLayer</returns>
             public override int GetHashCode()
             {
-                return (_layerBitmap?.GetHashCode() ?? 0) ^ (Index * 367);
+                return (LayerBitmap?.GetHashCode() ?? 0) ^ (Index * 367);
             }
 
             /// <summary>

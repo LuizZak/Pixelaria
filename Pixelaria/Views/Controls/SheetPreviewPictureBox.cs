@@ -27,9 +27,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-
+using Pixelaria.Controllers.Importers;
 using Pixelaria.Data.Exports;
-using Pixelaria.Data.Importers;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls

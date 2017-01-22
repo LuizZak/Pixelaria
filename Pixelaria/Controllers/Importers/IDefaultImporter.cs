@@ -21,8 +21,9 @@
 */
 
 using System.Drawing;
+using Pixelaria.Data;
 
-namespace Pixelaria.Data.Importers
+namespace Pixelaria.Controllers.Importers
 {
     /// <summary>
     /// Defines a default importer behavior that must be implemented by importers in the program

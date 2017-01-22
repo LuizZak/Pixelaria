@@ -20,7 +20,9 @@
     base directory of this project.
 */
 
-namespace Pixelaria.Data.Validators
+using Pixelaria.Data;
+
+namespace Pixelaria.Controllers.Validators
 {
     /// <summary>
     /// Interface to be implemented by objects that validate Animation objects and fields

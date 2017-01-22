@@ -42,11 +42,11 @@ namespace Pixelaria.Data.Exports
         public TextureAtlas(AnimationExportSettings settings, string name = "")
         {
             _animationList = new List<Animation>();
-            _frameList = new List<IFrame>();
-            _boundsList = new List<Rectangle>();
-            _originsList = new List<Rectangle>();
-            _reuseCount = new List<int>();
-            _exportSettings = settings;
+            FrameList = new List<IFrame>();
+            BoundsList = new List<Rectangle>();
+            OriginsList = new List<Rectangle>();
+            ReuseCount = new List<int>();
+            ExportSettings = settings;
             Information = new TextureAtlasInformation();
 
             Name = name;
@@ -58,10 +58,10 @@ namespace Pixelaria.Data.Exports
         public void Dispose()
         {
             // Clear the lists
-            _frameList.Clear();
-            _boundsList.Clear();
-            _originsList.Clear();
-            _reuseCount.Clear();
+            FrameList.Clear();
+            BoundsList.Clear();
+            OriginsList.Clear();
+            ReuseCount.Clear();
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Pixelaria.Data.Exports
         /// <param name="frame">The frame to pack</param>
         public void InsertFrame(IFrame frame)
         {
-            if (_frameList.ContainsReference(frame))
+            if (FrameList.ContainsReference(frame))
             {
                 return;
             }
@@ -80,10 +80,10 @@ namespace Pixelaria.Data.Exports
                 _animationList.Add(frame.Animation);
             }
 
-            _frameList.Add(frame);
-            _boundsList.Add(new Rectangle());
-            _originsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
-            _reuseCount.Add(0);
+            FrameList.Add(frame);
+            BoundsList.Add(new Rectangle());
+            OriginsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
+            ReuseCount.Add(0);
         }
 
         /// <summary>
@@ -107,33 +107,32 @@ namespace Pixelaria.Data.Exports
             //
             // 1. Create the sheet bitmap
             //
-            Bitmap image = new Bitmap(AtlasWidth, AtlasHeight, PixelFormat.Format32bppArgb);
+            var image = new Bitmap(AtlasWidth, AtlasHeight, PixelFormat.Format32bppArgb);
 
-            //
-            // 2. Draw the frames on the sheet image
-            //
-            // Keep track of frames that were already drawn
-            List<IFrame> renderedFrames = new List<IFrame>();
-            for (int i = 0; i < FrameCount; i++)
+            using (var fastTarget = image.FastLock())
             {
-                IFrame frame = GetFrame(i);
 
-                if (_exportSettings.ReuseIdenticalFramesArea)
+                //
+                // 2. Draw the frames on the sheet image
+                //
+                // Keep track of frames that were already drawn
+                var renderedFrames = new List<IFrame>();
+                for (int i = 0; i < FrameCount; i++)
                 {
-                    if (renderedFrames.Contains(frame))
-                        continue;
+                    var frame = GetFrame(i);
 
-                    renderedFrames.Add(frame);
-                }
+                    if (ExportSettings.ReuseIdenticalFramesArea)
+                    {
+                        if (renderedFrames.Contains(frame))
+                            continue;
 
-                Rectangle frameBounds = GetFrameBoundsRectangle(i);
-                Rectangle originBounds = GetFrameOriginsRectangle(i);
+                        renderedFrames.Add(frame);
+                    }
 
-                using(Bitmap frameBitmap = frame.GetComposedBitmap())
-                {
-                    FastBitmap.CopyRegion(frameBitmap, image, originBounds, frameBounds);
-
-                    frameBitmap.Dispose();
+                    var frameBounds = GetFrameBoundsRectangle(i);
+                    var originBounds = GetFrameOriginsRectangle(i);
+                    
+                    fastTarget.CopyRegion(image, originBounds, frameBounds);
                 }
             }
 
@@ -156,7 +155,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The frame that relies on that index</returns>
         public IFrame GetFrame(int frameIndex)
         {
-            return _frameList[frameIndex];
+            return FrameList[frameIndex];
         }
 
         /// <summary>
@@ -167,7 +166,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The bounding rectangle for the given frame</returns>
         public Rectangle GetFrameBoundsRectangle(int frameIndex)
         {
-            return _boundsList[frameIndex];
+            return BoundsList[frameIndex];
         }
 
         /// <summary>
@@ -178,7 +177,7 @@ namespace Pixelaria.Data.Exports
         /// <param name="rectangle">The bounds Rectangle for the frame index</param>
         public void SetFrameBoundsRectangle(int frameIndex, Rectangle rectangle)
         {
-            _boundsList[frameIndex] = rectangle;
+            BoundsList[frameIndex] = rectangle;
         }
 
         /// <summary>
@@ -189,7 +188,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The origin rectangle for the given frame</returns>
         public Rectangle GetFrameOriginsRectangle(int frameIndex)
         {
-            return _originsList[frameIndex];
+            return OriginsList[frameIndex];
         }
 
         /// <summary>
@@ -200,45 +199,13 @@ namespace Pixelaria.Data.Exports
         /// <param name="rectangle">The origin Rectangle for the frame index</param>
         public void SetFrameOriginsRectangle(int frameIndex, Rectangle rectangle)
         {
-            _originsList[frameIndex] = rectangle;
+            OriginsList[frameIndex] = rectangle;
         }
 
         /// <summary>
         /// List of animations that have their frames placed on this texture atlas
         /// </summary>
         private readonly List<Animation> _animationList;
-
-        /// <summary>
-        /// List of frames to pack
-        /// </summary>
-        private readonly List<IFrame> _frameList;
-
-        /// <summary>
-        /// List of frame bounds.
-        /// The bounds rectangle represents the rectangle of the frame image that is represented on the exported sheet image
-        /// </summary>
-        private readonly List<Rectangle> _boundsList;
-
-        /// <summary>
-        /// List of frame origins.
-        /// The origin rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
-        /// </summary>
-        private readonly List<Rectangle> _originsList;
-
-        /// <summary>
-        /// List of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.
-        /// </summary>
-        private readonly List<int> _reuseCount;
-
-        /// <summary>
-        /// Total area of this TextureAtlas
-        /// </summary>
-        private Rectangle _atlasRectangle;
-
-        /// <summary>
-        /// Export settings used by this TextureAtlas
-        /// </summary>
-        private AnimationExportSettings _exportSettings;
 
         /// <summary>
         /// The information about this texture atlas
@@ -253,48 +220,48 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets the number of frames in this TextureAtlas
         /// </summary>
-        public int FrameCount => _frameList.Count;
+        public int FrameCount => FrameList.Count;
 
         /// <summary>
         /// Gets the internal list of frames for this texture atlas
         /// </summary>
-        public List<IFrame> FrameList => _frameList;
+        public List<IFrame> FrameList { get; }
 
         /// <summary>
         /// Gets the list of frame bounds.
         /// The bounds rectangle represents the rectangle of the frame image that is represented on the exported sheet image
         /// </summary>
-        public List<Rectangle> BoundsList => _boundsList;
+        public List<Rectangle> BoundsList { get; }
 
         /// <summary>
         /// Gets the list of frame origins.
         /// The origin rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
         /// </summary>
-        public List<Rectangle> OriginsList => _originsList;
+        public List<Rectangle> OriginsList { get; }
 
         /// <summary>
         /// Gets the list of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.
         /// </summary>
-        public List<int> ReuseCount => _reuseCount;
+        public List<int> ReuseCount { get; }
 
         /// <summary>
         /// Gets this atlas' width
         /// </summary>
-        public int AtlasWidth => _atlasRectangle.Width;
+        public int AtlasWidth => AtlasRectangle.Width;
 
         /// <summary>
         /// Gets this atlas' height
         /// </summary>
-        public int AtlasHeight => _atlasRectangle.Height;
+        public int AtlasHeight => AtlasRectangle.Height;
 
         /// <summary>
         /// Gets or sets this atlas' area rectangle
         /// </summary>
-        public Rectangle AtlasRectangle { get { return _atlasRectangle; } set { _atlasRectangle = value; } }
+        public Rectangle AtlasRectangle { get; set; }
 
         /// <summary>
         /// Gets this atlas' export settings
         /// </summary>
-        public AnimationExportSettings ExportSettings { get { return _exportSettings; } set { _exportSettings = value; } }
+        public AnimationExportSettings ExportSettings { get; set; }
     }
 }

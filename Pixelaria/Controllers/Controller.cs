@@ -27,15 +27,15 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using Pixelaria.Controllers.Exporters;
+using Pixelaria.Controllers.Importers;
+using Pixelaria.Controllers.Validators;
 using Pixelaria.Data;
-using Pixelaria.Data.Exporters;
 using Pixelaria.Data.Exports;
 using Pixelaria.Data.Factories;
-using Pixelaria.Data.Importers;
 using Pixelaria.Data.Persistence;
-using Pixelaria.Data.Validators;
 using Pixelaria.Properties;
 using Pixelaria.Views;
 using Pixelaria.Views.MiscViews;
@@ -1044,31 +1044,20 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The animation sheet to generate the export of</param>
         /// <returns>An Image that represents the exported image for the animation sheet</returns>
-        public Image GenerateExportForAnimationSheet(AnimationSheet sheet)
+        public Task<BundleSheetExport> GenerateExportForAnimationSheet(AnimationSheet sheet)
         {
-            return GetExporter().ExportAnimationSheet(sheet).Result;
+            return GetExporter().ExportBundleSheet(sheet);
         }
-
-        /// <summary>
-        /// Exports the given animations into an image sheet and returns the created sheet
-        /// </summary>
-        /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
-        /// <returns>An image sheet representing the animations passed</returns>
-        public Image GenerateExport(AnimationExportSettings exportSettings, params Animation[] anims)
-        {
-            return GetExporter().ExportAnimationSheet(exportSettings, anims).Result;
-        }
-
+        
         /// <summary>
         /// Generates a BundleSheetExport object that contains information about the export of a sheet
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public BundleSheetExport GenerateBundleSheet(AnimationExportSettings exportSettings, params Animation[] anims)
+        public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, params Animation[] anims)
         {
-            return GetExporter().ExportBundleSheet(exportSettings, anims).Result;
+            return GetExporter().ExportBundleSheet(exportSettings, anims);
         }
 
         /// <summary>
@@ -1076,12 +1065,13 @@ namespace Pixelaria.Controllers
         /// for export progress callback
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public BundleSheetExport GenerateBundleSheet(AnimationExportSettings exportSettings, BundleExportProgressEventHandler callback, params Animation[] anims)
+        public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params Animation[] anims)
         {
-            return GetExporter().ExportBundleSheet(exportSettings, anims, new CancellationToken(), callback).Result;
+            return GetExporter().ExportBundleSheet(exportSettings, anims, cancellationToken, callback);
         }
 
         /// <summary>

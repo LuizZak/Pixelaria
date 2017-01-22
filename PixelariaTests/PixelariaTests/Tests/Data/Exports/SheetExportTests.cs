@@ -25,8 +25,8 @@ using System.Drawing;
 using System.IO;
 using System.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
-using Pixelaria.Data.Exporters;
 using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 

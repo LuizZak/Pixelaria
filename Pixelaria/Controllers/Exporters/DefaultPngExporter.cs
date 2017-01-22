@@ -29,12 +29,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
+using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
 
-namespace Pixelaria.Data.Exporters
+namespace Pixelaria.Controllers.Exporters
 {
     /// <summary>
     /// Default exporter that uses PNG as the texture format
@@ -58,7 +60,7 @@ namespace Pixelaria.Data.Exporters
             // Start with initial values for the progress export of every sheet
             float[] stageProgresses = new float[bundle.AnimationSheets.Count];
             List<BundleSheetXml> exports = new List<BundleSheetXml>();
-
+            
             var progressAction = new Action(() =>
             {
                 if (progressHandler == null)
@@ -126,7 +128,7 @@ namespace Pixelaria.Data.Exporters
                     progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress, 50 + progress / 2));
                 }
                 
-                exp.bundleSheet.SaveToDisk(exp.xmlPath);
+                exp.BundleSheet.SaveToDisk(exp.XmlPath);
             }
 
             //
@@ -143,12 +145,12 @@ namespace Pixelaria.Data.Exporters
             // Append the animation sheets now
             for (int i = 0; i < exports.Count; i++)
             {
-                if (!exports[i].bundleSheet.ExportSettings.ExportXml)
+                if (!exports[i].BundleSheet.ExportSettings.ExportXml)
                     continue;
 
                 expCount++;
 
-                string sheetXml = exports[i].xmlPath;
+                string sheetXml = exports[i].XmlPath;
 
                 XmlNode sheetNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
@@ -166,36 +168,7 @@ namespace Pixelaria.Data.Exporters
 
             progressHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
         }
-
-        /// <summary>
-        /// Exports the given animations into an image sheet and returns the created sheet
-        /// </summary>
-        /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
-        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>An image sheet representing the animations passed</returns>
-        public async Task<Image> ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
-        {
-            TextureAtlas atlas = await GenerateAtlasFromAnimations(exportSettings, anims, "", cancellationToken, progressHandler);
-
-            return atlas.GenerateSheet();
-        }
-
-        /// <summary>
-        /// Exports the given animation sheet into an image sheet and returns the created sheet
-        /// </summary>
-        /// <param name="sheet">The sheet to export</param>
-        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>An image sheet representing the animation sheet passed</returns>
-        public async Task<Image> ExportAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
-        {
-            Image image = (await GenerateAtlasFromAnimationSheet(sheet, cancellationToken)).GenerateSheet();
-
-            return image;
-        }
-
+        
         /// <summary>
         /// Exports the given animations into a BundleSheetExport and returns the created sheet
         /// </summary>
@@ -324,21 +297,6 @@ namespace Pixelaria.Data.Exporters
         }
 
         /// <summary>
-        /// Bundles an exported BundleSheet and an XML path into one structure
-        /// </summary>
-        private struct BundleSheetXml
-        {
-            public BundleSheetExport bundleSheet;
-            public string xmlPath;
-
-            public BundleSheetXml(BundleSheetExport bundleSheet, string xmlPath)
-            {
-                this.bundleSheet = bundleSheet;
-                this.xmlPath = xmlPath;
-            }
-        }
-
-        /// <summary>
         /// Starts the given tasks and waits for them to complete. This will run, at most, the specified number of tasks in parallel.
         /// <para>NOTE: If one of the given tasks has already been started, an exception will be thrown.</para>
         /// </summary>
@@ -383,6 +341,21 @@ namespace Pixelaria.Data.Exporters
                 // Wait for all of the provided tasks to complete.
                 // We wait on the list of "post" tasks instead of the original tasks, otherwise there is a potential race condition where the throttler&#39;s using block is exited before some Tasks have had their "post" action completed, which references the throttler, resulting in an exception due to accessing a disposed object.
                 Task.WaitAll(postTaskTasks.ToArray(), cancellationToken);
+            }
+        }
+        
+        /// <summary>
+        /// Bundles an exported BundleSheet and an XML path into one structure
+        /// </summary>
+        private struct BundleSheetXml
+        {
+            public readonly BundleSheetExport BundleSheet;
+            public readonly string XmlPath;
+
+            public BundleSheetXml(BundleSheetExport bundleSheet, string xmlPath)
+            {
+                BundleSheet = bundleSheet;
+                XmlPath = xmlPath;
             }
         }
     }

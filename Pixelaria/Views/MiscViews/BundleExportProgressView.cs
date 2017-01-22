@@ -27,9 +27,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-
+using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
-using Pixelaria.Data.Exporters;
 using Pixelaria.Data.Exports;
 
 namespace Pixelaria.Views.MiscViews

@@ -22,9 +22,10 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using Pixelaria.Data;
 using Pixelaria.Utils;
 
-namespace Pixelaria.Data.Importers
+namespace Pixelaria.Controllers.Importers
 {
     /// <summary>
     /// Default importer that uses PNG as the texture format
