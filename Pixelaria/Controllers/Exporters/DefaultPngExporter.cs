@@ -31,8 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
-using Formatting = Newtonsoft.Json.Formatting;
-
+using Newtonsoft.Json.Linq;
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;
@@ -94,8 +93,7 @@ namespace Pixelaria.Controllers.Exporters
 
                     try
                     {
-                        var sheetJson = new BundleSheetJson(exp.Result, sheet.Name,
-                            Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
+                        var sheetJson = new BundleSheetJson(exp.Result, sheet.Name, Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
                         exports.Add(sheetJson);
                     }
                     catch (TaskCanceledException)
@@ -154,6 +152,11 @@ namespace Pixelaria.Controllers.Exporters
 
                     sheet["name"] = export.SheetName;
                     sheet["file"] = filePath;
+                    
+                    // Export animation list
+                    var names = export.BundleSheet.Animations.Select(anim => anim.Name);
+
+                    sheet["animations"] = names;
 
                     jsonSheetList.Add(sheet);
                 }
@@ -164,7 +167,7 @@ namespace Pixelaria.Controllers.Exporters
                 };
                 
                 string finalPath = Path.ChangeExtension(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name, "json");
-                string output = JsonConvert.SerializeObject(json, Formatting.Indented);
+                string output = JsonConvert.SerializeObject(json);
 
                 File.WriteAllText(finalPath, output, Encoding.UTF8);
             }

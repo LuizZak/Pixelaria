@@ -29,7 +29,6 @@ using System.Linq;
 using System.Text;
 
 using Newtonsoft.Json;
-using Formatting = Newtonsoft.Json.Formatting;
 
 using Pixelaria.Utils;
 
@@ -49,11 +48,6 @@ namespace Pixelaria.Data.Exports
         /// The array of frames reused for all the frame rectangle bounds
         /// </summary>
         int[] _reuseCount;
-
-        /// <summary>
-        /// The list of animations in this BundleSheet
-        /// </summary>
-        Animation[] _animations;
 
         /// <summary>
         /// Export settings to be used when exporting the Bundle Sheet
@@ -108,6 +102,11 @@ namespace Pixelaria.Data.Exports
         public AnimationExportSettings ExportSettings => _exportSettings;
 
         /// <summary>
+        /// The list of animations in this BundleSheet
+        /// </summary>
+        public Animation[] Animations { get; private set; }
+
+        /// <summary>
         /// Default constructor for the BundleSheetExport class
         /// </summary>
         private BundleSheetExport()
@@ -160,7 +159,7 @@ namespace Pixelaria.Data.Exports
         {
             var animations = new List<Dictionary<string, object>>();
 
-            foreach (var anim in _animations)
+            foreach (var anim in Animations)
             {
                 var animation = new Dictionary<string, object>
                 {
@@ -216,7 +215,7 @@ namespace Pixelaria.Data.Exports
                 ["animations"] = animations
             };
             
-            var json = JsonConvert.SerializeObject(root, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(root);
             File.WriteAllText(descriptorPath, json, Encoding.UTF8);
         }
 
@@ -267,7 +266,7 @@ namespace Pixelaria.Data.Exports
             {
                 _sheet = image,
                 _exportSettings = atlas.ExportSettings,
-                _animations = atlas.GetAnimationsOnAtlas(),
+                Animations = atlas.GetAnimationsOnAtlas(),
                 _reusedFrameCount = atlas.Information.ReusedFrameOriginsCount,
                 _reuseCount = atlas.ReuseCount.ToArray(),
                 _frameRects = frameRectList.ToArray()
