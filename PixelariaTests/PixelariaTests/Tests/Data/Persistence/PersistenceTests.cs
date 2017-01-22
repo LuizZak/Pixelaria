@@ -259,8 +259,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             writer.Write(settings.HighPrecisionAreaMatching);
             writer.Write(settings.AllowUnorderedFrames);
             writer.Write(settings.UseUniformGrid);
-            writer.Write(settings.UsePaddingOnXml);
-            writer.Write(settings.ExportXml);
+            writer.Write(settings.UsePaddingOnJson);
+            writer.Write(settings.ExportJson);
             writer.Write(settings.XPadding);
             writer.Write(settings.YPadding);
         }

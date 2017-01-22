@@ -130,8 +130,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 HighPrecisionAreaMatching = reader.ReadBoolean(),
                 AllowUnorderedFrames = reader.ReadBoolean(),
                 UseUniformGrid = reader.ReadBoolean(),
-                UsePaddingOnXml = reader.ReadBoolean(),
-                ExportXml = reader.ReadBoolean(),
+                UsePaddingOnJson = reader.ReadBoolean(),
+                ExportJson = reader.ReadBoolean(),
                 XPadding = reader.ReadInt32(),
                 YPadding = reader.ReadInt32()
             };
@@ -179,8 +179,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             writer.Write(settings.HighPrecisionAreaMatching);
             writer.Write(settings.AllowUnorderedFrames);
             writer.Write(settings.UseUniformGrid);
-            writer.Write(settings.UsePaddingOnXml);
-            writer.Write(settings.ExportXml);
+            writer.Write(settings.UsePaddingOnJson);
+            writer.Write(settings.ExportJson);
             writer.Write(settings.XPadding);
             writer.Write(settings.YPadding);
         }

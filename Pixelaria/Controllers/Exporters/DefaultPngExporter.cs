@@ -26,15 +26,17 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-
+using Newtonsoft.Json;
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace Pixelaria.Controllers.Exporters
 {
@@ -59,7 +61,7 @@ namespace Pixelaria.Controllers.Exporters
         {
             // Start with initial values for the progress export of every sheet
             float[] stageProgresses = new float[bundle.AnimationSheets.Count];
-            List<BundleSheetXml> exports = new List<BundleSheetXml>();
+            var exports = new List<BundleSheetJson>();
             
             var progressAction = new Action(() =>
             {
@@ -91,8 +93,8 @@ namespace Pixelaria.Controllers.Exporters
 
                     try
                     {
-                        var sheetXml = new BundleSheetXml(exp.Result, Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
-                        exports.Add(sheetXml);
+                        var sheetJson = new BundleSheetJson(exp.Result, sheet.Name, Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
+                        exports.Add(sheetJson);
                     }
                     catch (Exception)
                     {
@@ -128,12 +130,54 @@ namespace Pixelaria.Controllers.Exporters
                     progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress, 50 + progress / 2));
                 }
                 
-                exp.BundleSheet.SaveToDisk(exp.XmlPath);
+                exp.BundleSheet.SaveToDisk(exp.ExportPath);
             }
 
             //
-            // 3. Compose the main bundle .xml
+            // 3. Compose the main bundle .json
             //
+
+            {
+                var json = new Dictionary<string, object>();
+
+                var exp = new List<Dictionary<string, object>>();
+
+                var count = 0;
+                foreach (var export in exports)
+                {
+                    if (!export.BundleSheet.ExportSettings.ExportJson)
+                        continue;
+
+                    count ++;
+                    
+                    var sheet = new Dictionary<string, object>();
+
+                    // Path of final JSON file
+                    var filePath = Utilities.GetRelativePath(Path.ChangeExtension(export.ExportPath, "json"), bundle.ExportPath);
+
+                    sheet["name"] = export.SheetName;
+                    sheet["file"] = filePath;
+
+                    exp.Add(sheet);
+                }
+
+                json["sheets"] = exp;
+
+                if (count > 1)
+                {
+                    string finalPath = Path.ChangeExtension(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name, "json");
+                    string output = JsonConvert.SerializeObject(json, Formatting.Indented);
+
+                    File.WriteAllText(finalPath, output, Encoding.UTF8);
+                }
+            }
+
+            progressHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
+
+            return;
+
+            #region XML
+
             var xml = new XmlDocument();
 
             xml.AppendChild(xml.CreateNode(XmlNodeType.XmlDeclaration, "sheetList", ""));
@@ -145,17 +189,18 @@ namespace Pixelaria.Controllers.Exporters
             // Append the animation sheets now
             for (int i = 0; i < exports.Count; i++)
             {
-                if (!exports[i].BundleSheet.ExportSettings.ExportXml)
+                if (!exports[i].BundleSheet.ExportSettings.ExportJson)
                     continue;
 
                 expCount++;
 
-                string sheetXml = exports[i].XmlPath;
+                string sheetXml = exports[i].ExportPath;
 
                 XmlNode sheetNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
                 if (sheetNode.Attributes != null)
-                    sheetNode.Attributes.Append(xml.CreateAttribute("path")).InnerText = Utilities.GetRelativePath(sheetXml + ".xml", bundle.ExportPath);
+                    sheetNode.Attributes.Append(xml.CreateAttribute("path")).InnerText =
+                        Utilities.GetRelativePath(sheetXml + ".xml", bundle.ExportPath);
 
                 rootNode.AppendChild(sheetNode);
             }
@@ -167,6 +212,9 @@ namespace Pixelaria.Controllers.Exporters
             }
 
             progressHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
+
+            #endregion
+
         }
         
         /// <summary>
@@ -345,17 +393,19 @@ namespace Pixelaria.Controllers.Exporters
         }
         
         /// <summary>
-        /// Bundles an exported BundleSheet and an XML path into one structure
+        /// Bundles an exported BundleSheet and a path into one structure
         /// </summary>
-        private struct BundleSheetXml
+        private struct BundleSheetJson
         {
             public readonly BundleSheetExport BundleSheet;
-            public readonly string XmlPath;
+            public readonly string SheetName;
+            public readonly string ExportPath;
 
-            public BundleSheetXml(BundleSheetExport bundleSheet, string xmlPath)
+            public BundleSheetJson(BundleSheetExport bundleSheet, string sheetName, string exportPath)
             {
                 BundleSheet = bundleSheet;
-                XmlPath = xmlPath;
+                ExportPath = exportPath;
+                SheetName = sheetName;
             }
         }
     }

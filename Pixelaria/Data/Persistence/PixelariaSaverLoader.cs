@@ -333,9 +333,9 @@ namespace Pixelaria.Data.Persistence
                 AllowUnorderedFrames = reader.ReadBoolean(),
                 // >= Version 7
                 UseUniformGrid = version >= 7 && reader.ReadBoolean(),
-                UsePaddingOnXml = reader.ReadBoolean(),
+                UsePaddingOnJson = reader.ReadBoolean(),
                 // >= Version 5
-                ExportXml = version < 5 || reader.ReadBoolean(),
+                ExportJson = version < 5 || reader.ReadBoolean(),
                 XPadding = reader.ReadInt32(),
                 YPadding = reader.ReadInt32()
             };

@@ -26,9 +26,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
-
+using Newtonsoft.Json;
 using Pixelaria.Utils;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace Pixelaria.Data.Exports
 {
@@ -122,29 +124,89 @@ namespace Pixelaria.Data.Exports
 
         /// <summary>
         /// Saves the contents of this BundleSheetExport to disk, using the given path
-        /// as a base path, and savind the .png and .xml as that base path
+        /// as a base path, and savind the .png and .json as that base path
         /// </summary>
         /// <param name="basePath">The base path to export the animations as</param>
         public void SaveToDisk(string basePath)
         {
-            SaveToDisk(Path.GetFullPath(basePath) + ".png", Path.GetFullPath(basePath) + ".xml");
+            SaveToDisk(Path.GetFullPath(basePath) + ".png", Path.GetFullPath(basePath) + ".json");
         }
 
         /// <summary>
         /// Saves the contents of this BundleSheetExport to the disk
         /// </summary>
         /// <param name="sheetPath">The path to the sprite sheet to save</param>
-        /// <param name="xmlPath">The path to the XML file containing the data for the animations</param>
-        public void SaveToDisk(string sheetPath, string xmlPath)
+        /// <param name="jsonPath">The path to the JSON file containing the data for the animations</param>
+        public void SaveToDisk(string sheetPath, string jsonPath)
         {
             // Save the sprite sheet first
             _sheet.Save(sheetPath, ImageFormat.Png);
 
-            // Early quit - The xml generation is disabled
-            if (!_exportSettings.ExportXml)
+            // Early quit - The json generation is disabled
+            if (!_exportSettings.ExportJson)
                 return;
 
-            // Compose the XML file now
+            // Root node for JSON
+            var root = new Dictionary<string, object>();
+
+            root["file"] = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(jsonPath));
+
+            var animations = new List<Dictionary<string, object>>();
+
+            foreach (var anim in _animations)
+            {
+                var animation = new Dictionary<string, object>
+                {
+                    ["name"] = anim.Name,
+                    ["width"] = anim.Width,
+                    ["height"] = anim.Height,
+                    ["fps"] = anim.PlaybackSettings.FPS,
+                    ["frameskip"] = anim.PlaybackSettings.FrameSkip
+                };
+                
+                // Write down frame bounds now
+                var frameBounds = new List<Dictionary<string, object>>();
+
+                for (int i = 0; i < anim.FrameCount; i++)
+                {
+                    var frame = anim.GetFrameAtIndex(i);
+
+                    if (!ContainsFrame(frame))
+                        continue;
+
+                    var rect = GetFrameRectForFrame(frame);
+
+                    var bounds = new Dictionary<string, object>
+                    {
+                        ["index"] = frame.Index,
+                        ["sheetX"] = rect.SheetArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
+                        ["sheetY"] = rect.SheetArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
+                        ["sheetW"] = rect.SheetArea.Width + (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding : 0),
+                        ["sheetH"] = rect.SheetArea.Height + (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding : 0),
+                        ["frameX"] = rect.FrameArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
+                        ["frameY"] = rect.FrameArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
+                        ["frameW"] = rect.FrameArea.Width,
+                        ["frameH"] = rect.FrameArea.Height
+                    };
+                    
+                    frameBounds.Add(bounds);
+                }
+
+                animation["frames"] = frameBounds;
+
+                animations.Add(animation);
+            }
+
+            root["animations"] = animations;
+
+            var s = new JsonSerializerSettings();
+            var json = JsonConvert.SerializeObject(root, Formatting.Indented);
+
+            File.WriteAllText(jsonPath, json, Encoding.UTF8);
+
+#if false
+
+    // Compose the XML file now
             XmlDocument xml = new XmlDocument();
 
             xml.AppendChild(xml.CreateNode(XmlNodeType.XmlDeclaration, "sheet", ""));
@@ -152,7 +214,7 @@ namespace Pixelaria.Data.Exports
             XmlNode rootNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
             if (rootNode.Attributes != null)
-                rootNode.Attributes.Append(xml.CreateAttribute("file")).InnerText = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(xmlPath));
+                rootNode.Attributes.Append(xml.CreateAttribute("file")).InnerText = Utilities.GetRelativePath(sheetPath, Path.GetDirectoryName(jsonPath));
 
             // Append the animation sheets now
             foreach (Animation anim in _animations)
@@ -202,7 +264,8 @@ namespace Pixelaria.Data.Exports
 
             xml.AppendChild(rootNode);
 
-            xml.Save(xmlPath);
+            xml.Save(jsonPath);
+#endif
         }
 
         /// <summary>

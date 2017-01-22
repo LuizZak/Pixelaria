@@ -51,7 +51,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             frame = sheet2.Animations[0].Frames[0] as Frame;
             frame?.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
-            sheet2.ExportSettings = new AnimationExportSettings {ExportXml = !sheet1.ExportSettings.ExportXml};
+            sheet2.ExportSettings = new AnimationExportSettings {ExportJson = !sheet1.ExportSettings.ExportJson};
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's export settings, it must no longer be considered equal to the original");
         }

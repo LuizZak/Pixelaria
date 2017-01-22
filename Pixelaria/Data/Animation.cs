@@ -114,7 +114,7 @@ namespace Pixelaria.Data
             
             // Create the default settings
             PlaybackSettings = new AnimationPlaybackSettings() { FPS = 30, FrameSkip = false };
-            ExportSettings = new AnimationExportSettings() { FavorRatioOverArea = false, ForceMinimumDimensions = true, ForcePowerOfTwoDimensions = false, ReuseIdenticalFramesArea = true, UsePaddingOnXml = true, AllowUnorderedFrames = true, XPadding = 0, YPadding = 0 };
+            ExportSettings = new AnimationExportSettings() { FavorRatioOverArea = false, ForceMinimumDimensions = true, ForcePowerOfTwoDimensions = false, ReuseIdenticalFramesArea = true, UsePaddingOnJson = true, AllowUnorderedFrames = true, XPadding = 0, YPadding = 0 };
         }
 
         /// <summary>
@@ -644,12 +644,12 @@ namespace Pixelaria.Data
         /// Use this to pad the frame's sheet coordinates and size and avoid the clamped edges effect
         /// when rendering frames using non-point clamp sampler modes
         /// </summary>
-        public bool UsePaddingOnXml;
+        public bool UsePaddingOnJson;
 
         /// <summary>
-        /// Whether to generate accompaning .xml files for the animations on the sheet
+        /// Whether to generate accompaning .json files for the animations on the sheet
         /// </summary>
-        public bool ExportXml;
+        public bool ExportJson;
 
         /// <summary>
         /// Ammount of empty pixels to pad horizontally between frames

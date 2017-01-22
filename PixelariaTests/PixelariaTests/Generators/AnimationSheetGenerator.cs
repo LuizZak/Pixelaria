@@ -67,8 +67,8 @@ namespace PixelariaTests.PixelariaTests.Generators
                 HighPrecisionAreaMatching = false,
                 AllowUnorderedFrames = true,
                 UseUniformGrid = false,
-                UsePaddingOnXml = true,
-                ExportXml = true,
+                UsePaddingOnJson = true,
+                ExportJson = true,
                 XPadding = 0,
                 YPadding = 0
             };
@@ -92,8 +92,8 @@ namespace PixelariaTests.PixelariaTests.Generators
                     HighPrecisionAreaMatching = false,
                     AllowUnorderedFrames = true,
                     UseUniformGrid = false,
-                    UsePaddingOnXml = false,
-                    ExportXml = true,
+                    UsePaddingOnJson = false,
+                    ExportJson = true,
                     XPadding = 0,
                     YPadding = 0
                 },
@@ -106,8 +106,8 @@ namespace PixelariaTests.PixelariaTests.Generators
                     HighPrecisionAreaMatching = false,
                     AllowUnorderedFrames = true,
                     UseUniformGrid = false,
-                    UsePaddingOnXml = false,
-                    ExportXml = true,
+                    UsePaddingOnJson = false,
+                    ExportJson = true,
                     XPadding = 0,
                     YPadding = 0
                 },
@@ -120,8 +120,8 @@ namespace PixelariaTests.PixelariaTests.Generators
                     HighPrecisionAreaMatching = false,
                     AllowUnorderedFrames = false,
                     UseUniformGrid = true,
-                    UsePaddingOnXml = false,
-                    ExportXml = true,
+                    UsePaddingOnJson = false,
+                    ExportJson = true,
                     XPadding = 2,
                     YPadding = 1
                 },
@@ -134,8 +134,8 @@ namespace PixelariaTests.PixelariaTests.Generators
                     HighPrecisionAreaMatching = true,
                     AllowUnorderedFrames = true,
                     UseUniformGrid = true,
-                    UsePaddingOnXml = false,
-                    ExportXml = true,
+                    UsePaddingOnJson = false,
+                    ExportJson = true,
                     XPadding = 2,
                     YPadding = 1
                 },
@@ -148,8 +148,8 @@ namespace PixelariaTests.PixelariaTests.Generators
                     HighPrecisionAreaMatching = true,
                     AllowUnorderedFrames = true,
                     UseUniformGrid = false,
-                    UsePaddingOnXml = false,
-                    ExportXml = true,
+                    UsePaddingOnJson = false,
+                    ExportJson = true,
                     XPadding = 15,
                     YPadding = 10
                 }
