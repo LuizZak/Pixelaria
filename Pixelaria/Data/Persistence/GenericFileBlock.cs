@@ -44,7 +44,7 @@ namespace Pixelaria.Data.Persistence
 
         /// <summary>
         /// <para>Gets the length of this block data on the stream.</para>
-        /// <para>This does not include the block ID, block size and block data</para>
+        /// <para>This does not include the block ID, block size and block version</para>
         /// </summary>
         public long BlockLength => blockLength;
 

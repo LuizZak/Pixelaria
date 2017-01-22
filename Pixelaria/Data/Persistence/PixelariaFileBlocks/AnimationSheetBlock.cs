@@ -63,9 +63,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
-            AnimationSheet[] animationSheets = readyBundle.AnimationSheets;
+            var animationSheets = readyBundle.AnimationSheets;
 
-            writer.Write(animationSheets.Length);
+            writer.Write(animationSheets.Count);
 
             foreach (var animationSheet in animationSheets)
             {

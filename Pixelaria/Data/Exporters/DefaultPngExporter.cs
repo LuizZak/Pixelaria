@@ -26,6 +26,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
@@ -39,97 +41,114 @@ namespace Pixelaria.Data.Exporters
     /// </summary>
     public class DefaultPngExporter : IBundleExporter
     {
-        Dictionary<int, float> _sheetProgress = new Dictionary<int, float>(); 
-
         /// <summary>
-        /// Exports the given Bundle
+        /// Dictionary that maps Animation Sheet IDs to a completion progress, ranging from 0 to 1 inclusive.
+        /// </summary>
+        readonly Dictionary<int, float> _sheetProgress = new Dictionary<int, float>();
+        
+        /// <summary>
+        /// Exports a given Bundle asynchronously, calling a progress handler along the way
         /// </summary>
         /// <param name="bundle">The bundle to export</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        public void ExportBundle(Bundle bundle, BundleExportProgressEventHandler progressHandler = null)
+        /// <returns>A task representing the concurrent export progress</returns>
+        public async Task ExportBundleConcurrent(Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            // The total final stage count is two times the sheet array size (one stage for atlasses, and another stage for saving to disk, for each sheet)
-            int totalStages = bundle.AnimationSheets.Count(sheet => sheet.Animations.Length > 0);
+            // Start with initial values for the progress export of every sheet
+            float[] stageProgresses = new float[bundle.AnimationSheets.Count];
+            List<BundleSheetXml> exports = new List<BundleSheetXml>();
 
-            // Create a proxy handler to handle total progress
-            float totalProgress;
-            float stages = totalStages * 2 + 1;
-            float currentStage = 0;
-
-            BundleExportProgressEventHandler proxyHandler = null;
-
-            // Create the lists needed for the export
-            List<string> xmls = new List<string>();
-            List<BundleSheetExport> bundleSheetList = new List<BundleSheetExport>();
-
-            if (progressHandler != null)
+            var progressAction = new Action(() =>
             {
-                proxyHandler = args =>
-                {
-                    totalProgress = ((currentStage + (float)args.StageProgress / 100) / stages);
+                if (progressHandler == null)
+                    return;
 
+                lock (progressHandler)
+                {
                     // Calculate total progress
-                    progressHandler.Invoke(new BundleExportProgressEventArgs(args.ExportStage, args.StageProgress, (int)Math.Floor(totalProgress * 100), args.StageDescription));
-                };
-            }
-
-            // Export all the animation sheets now
-
-            // 
-            // 1. Export Animation Sheets
-            // 
-            foreach (AnimationSheet sheet in bundle.AnimationSheets)
-            {
-                if (sheet.Animations.Length > 0)
-                {
-                    BundleSheetExport exp = ExportBundleSheet(sheet, proxyHandler);
-
-                    xmls.Add(Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
-
-                    bundleSheetList.Add(exp);
+                    int total = (int) Math.Floor(stageProgresses.Sum() / stageProgresses.Length * 100);
+                    progressHandler(new BundleExportProgressEventArgs(BundleExportStage.TextureAtlasGeneration, total,
+                        total / 2, "Generating sheets"));
                 }
+            });
 
-                currentStage++;
+            var generationList = new List<Task>();
+
+            for (int i = 0; i < bundle.AnimationSheets.Count; i++)
+            {
+                var sheet = bundle.AnimationSheets[i];
+                var j = i;
+                generationList.Add(new Task(() =>
+                {
+                    var exp = ExportBundleSheet(sheet, cancellationToken, args =>
+                    {
+                        stageProgresses[j] = (float)args.StageProgress / 100;
+                        progressAction();
+                    });
+
+                    try
+                    {
+                        var sheetXml = new BundleSheetXml(exp.Result, Path.GetFullPath(bundle.ExportPath) + "\\" + sheet.Name);
+                        exports.Add(sheetXml);
+                    }
+                    catch (Exception)
+                    {
+                        // unused
+                    }
+                }));
             }
 
+            var concurrent = new Task(() =>
+            {
+                StartAndWaitAllThrottled(generationList, 7, cancellationToken);
+            });
+
+            concurrent.Start();
+
+            await concurrent;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            
             //
             // 2. Save the sheets to disk
             //
-            for(int i = 0; i < bundleSheetList.Count; i++)
+            for (int i = 0; i < exports.Count; i++)
             {
-                BundleSheetExport exp = bundleSheetList[i];
+                var exp = exports[i];
 
-                if (proxyHandler != null)
+                if (progressHandler != null)
                 {
-                    int progress = (int)((float)i / bundleSheetList.Count * 100);
-                    proxyHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress, progress));
+                    int progress = (int)((float)i / exports.Count * 100);
+                    progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress, 50 + progress / 2));
                 }
-
-                exp.SaveToDisk(xmls[i]);
-
-                currentStage++;
+                
+                exp.bundleSheet.SaveToDisk(exp.xmlPath);
             }
 
             //
             // 3. Compose the main bundle .xml
             //
-            XmlDocument xml = new XmlDocument();
+            var xml = new XmlDocument();
 
             xml.AppendChild(xml.CreateNode(XmlNodeType.XmlDeclaration, "sheetList", ""));
 
-            XmlNode rootNode = xml.CreateNode(XmlNodeType.Element, "sheetList", "");
+            var rootNode = xml.CreateNode(XmlNodeType.Element, "sheetList", "");
 
             // Count number of exported sheets
             int expCount = 0;
             // Append the animation sheets now
-            for(int i = 0; i < xmls.Count; i++)
+            for (int i = 0; i < exports.Count; i++)
             {
-                if (!bundleSheetList[i].ExportSettings.ExportXml)
+                if (!exports[i].bundleSheet.ExportSettings.ExportXml)
                     continue;
 
                 expCount++;
 
-                string sheetXml = xmls[i];
+                string sheetXml = exports[i].xmlPath;
 
                 XmlNode sheetNode = xml.CreateNode(XmlNodeType.Element, "sheet", "");
 
@@ -145,7 +164,7 @@ namespace Pixelaria.Data.Exporters
                 xml.Save(Path.GetFullPath(bundle.ExportPath) + "\\" + bundle.Name + ".xml");
             }
 
-            proxyHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
+            progressHandler?.Invoke(new BundleExportProgressEventArgs(BundleExportStage.Ended, 100, 100));
         }
 
         /// <summary>
@@ -153,11 +172,12 @@ namespace Pixelaria.Data.Exporters
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
         /// <param name="anims">The list of animations to export</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animations passed</returns>
-        public Image ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, BundleExportProgressEventHandler progressHandler = null)
+        public async Task<Image> ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            TextureAtlas atlas = GenerateAtlasFromAnimations(exportSettings, anims, "", progressHandler);
+            TextureAtlas atlas = await GenerateAtlasFromAnimations(exportSettings, anims, "", cancellationToken, progressHandler);
 
             return atlas.GenerateSheet();
         }
@@ -166,11 +186,12 @@ namespace Pixelaria.Data.Exporters
         /// Exports the given animation sheet into an image sheet and returns the created sheet
         /// </summary>
         /// <param name="sheet">The sheet to export</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animation sheet passed</returns>
-        public Image ExportAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null)
+        public async Task<Image> ExportAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            Image image = GenerateAtlasFromAnimationSheet(sheet).GenerateSheet();
+            Image image = (await GenerateAtlasFromAnimationSheet(sheet, cancellationToken)).GenerateSheet();
 
             return image;
         }
@@ -179,14 +200,15 @@ namespace Pixelaria.Data.Exporters
         /// Exports the given animations into a BundleSheetExport and returns the created sheet
         /// </summary>
         /// <param name="sheet">The sheet to export</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animation sheet passed ready to be saved to disk</returns>
-        public BundleSheetExport ExportBundleSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             //
             // 1. Generate texture atlas
             //
-            using (TextureAtlas atlas = GenerateAtlasFromAnimationSheet(sheet, progressHandler))
+            using (var atlas = await GenerateAtlasFromAnimationSheet(sheet, cancellationToken, progressHandler))
             {
                 //
                 // 2. Generate an export sheet from the texture atlas
@@ -200,11 +222,12 @@ namespace Pixelaria.Data.Exporters
         /// </summary>
         /// <param name="settings">The export settings for the sheet</param>
         /// <param name="anims">The list of animations to export</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        public BundleSheetExport ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            using (TextureAtlas atlas = GenerateAtlasFromAnimations(settings, anims, "", progressHandler))
+            using (var atlas = await GenerateAtlasFromAnimations(settings, anims, "", cancellationToken, progressHandler))
             {
                 return BundleSheetExport.FromAtlas(atlas);
             }
@@ -214,11 +237,12 @@ namespace Pixelaria.Data.Exporters
         /// Generates a TextureAtlas from the given AnimationSheet object
         /// </summary>
         /// <param name="sheet">The AnimationSheet to generate the TextureAtlas of</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
-        public TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null)
+        public async Task<TextureAtlas> GenerateAtlasFromAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            return GenerateAtlasFromAnimations(sheet.ExportSettings, sheet.Animations, sheet.Name, args =>
+            return await GenerateAtlasFromAnimations(sheet.ExportSettings, sheet.Animations, sheet.Name, cancellationToken, args =>
             {
                 progressHandler?.Invoke(args);
 
@@ -232,16 +256,17 @@ namespace Pixelaria.Data.Exporters
         /// <param name="exportSettings">The export settings for the sheet</param>
         /// <param name="anims">The list of animations to export</param>
         /// <param name="name">The name for the generated texture atlas. Used for progress reports</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animations passed</returns>
-        public TextureAtlas GenerateAtlasFromAnimations(AnimationExportSettings exportSettings, Animation[] anims, string name = "", BundleExportProgressEventHandler progressHandler = null)
+        public async Task<TextureAtlas> GenerateAtlasFromAnimations(AnimationExportSettings exportSettings, Animation[] anims, string name = "", CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            TextureAtlas atlas = new TextureAtlas(exportSettings, name);
+            var atlas = new TextureAtlas(exportSettings, name);
 
             //
             // 1. Add the frames to the texture atlas
             //
-            foreach (Animation anim in anims)
+            foreach (var anim in anims)
             {
                 for (int i = 0; i < anim.FrameCount; i++)
                 {
@@ -253,7 +278,7 @@ namespace Pixelaria.Data.Exporters
             // 2. Pack the frames into the atlas
             //
             ITexturePacker packer = new DefaultTexturePacker();
-            packer.Pack(atlas, progressHandler);
+            await packer.Pack(atlas, cancellationToken, progressHandler);
 
             return atlas;
         }
@@ -273,12 +298,12 @@ namespace Pixelaria.Data.Exporters
             }
 
             // Create the image
-            Bitmap stripBitmap = new Bitmap(animation.Width * animation.FrameCount, animation.Height);
+            var stripBitmap = new Bitmap(animation.Width * animation.FrameCount, animation.Height);
 
             // Copy the frames into the strip bitmap now
             foreach (var frame in animation.Frames)
             {
-                using (Bitmap composed = frame.GetComposedBitmap())
+                using (var composed = frame.GetComposedBitmap())
                 {
                     FastBitmap.CopyRegion(composed, stripBitmap, new Rectangle(Point.Empty, frame.Size), new Rectangle(new Point(frame.Index * frame.Width, 0), frame.Size));
                 }
@@ -287,10 +312,78 @@ namespace Pixelaria.Data.Exporters
             return stripBitmap;
         }
 
+        /// <summary>
+        /// Gets the export progress for a given animation sheet.
+        /// </summary>
+        /// <param name="sheet">The sheet to get the current export progress of</param>
+        /// <returns>A value from 0-1 specifying the current export progress for the sheet. In case the sheet is not currently being exported, 0 is returned.</returns>
         public float ProgressForAnimationSheet(AnimationSheet sheet)
         {
             float p;
             return _sheetProgress.TryGetValue(sheet.ID, out p) ? p : 0;
+        }
+
+        /// <summary>
+        /// Bundles an exported BundleSheet and an XML path into one structure
+        /// </summary>
+        private struct BundleSheetXml
+        {
+            public BundleSheetExport bundleSheet;
+            public string xmlPath;
+
+            public BundleSheetXml(BundleSheetExport bundleSheet, string xmlPath)
+            {
+                this.bundleSheet = bundleSheet;
+                this.xmlPath = xmlPath;
+            }
+        }
+
+        /// <summary>
+        /// Starts the given tasks and waits for them to complete. This will run, at most, the specified number of tasks in parallel.
+        /// <para>NOTE: If one of the given tasks has already been started, an exception will be thrown.</para>
+        /// </summary>
+        /// <param name="tasksToRun">The tasks to run.</param>
+        /// <param name="maxTasksToRunInParallel">The maximum number of tasks to run in parallel.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public static void StartAndWaitAllThrottled(IEnumerable<Task> tasksToRun, int maxTasksToRunInParallel, CancellationToken cancellationToken = new CancellationToken())
+        {
+            StartAndWaitAllThrottled(tasksToRun, maxTasksToRunInParallel, -1, cancellationToken);
+        }
+
+        /// <summary>
+        /// Starts the given tasks and waits for them to complete. This will run, at most, the specified number of tasks in parallel.
+        /// <para>NOTE: If one of the given tasks has already been started, an exception will be thrown.</para>
+        /// </summary>
+        /// <param name="tasksToRun">The tasks to run.</param>
+        /// <param name="maxTasksToRunInParallel">The maximum number of tasks to run in parallel.</param>
+        /// <param name="timeoutInMilliseconds">The maximum milliseconds we should allow the max tasks to run in parallel before allowing another task to start. Specify -1 to wait indefinitely.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public static void StartAndWaitAllThrottled(IEnumerable<Task> tasksToRun, int maxTasksToRunInParallel, int timeoutInMilliseconds, CancellationToken cancellationToken = new CancellationToken())
+        {
+            // Convert to a list of tasks so that we don&#39;t enumerate over it multiple times needlessly.
+            var tasks = tasksToRun.ToList();
+
+            using (var throttler = new SemaphoreSlim(maxTasksToRunInParallel))
+            {
+                var postTaskTasks = new List<Task>();
+
+                // Have each task notify the throttler when it completes so that it decrements the number of tasks currently running.
+                tasks.ForEach(t => postTaskTasks.Add(t.ContinueWith(tsk => throttler.Release(), cancellationToken)));
+
+                // Start running each task.
+                foreach (var task in tasks)
+                {
+                    // Increment the number of tasks currently running and wait if too many are running.
+                    throttler.Wait(timeoutInMilliseconds, cancellationToken);
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    task.Start();
+                }
+
+                // Wait for all of the provided tasks to complete.
+                // We wait on the list of "post" tasks instead of the original tasks, otherwise there is a potential race condition where the throttler&#39;s using block is exited before some Tasks have had their "post" action completed, which references the throttler, resulting in an exception due to accessing a disposed object.
+                Task.WaitAll(postTaskTasks.ToArray(), cancellationToken);
+            }
         }
     }
 }

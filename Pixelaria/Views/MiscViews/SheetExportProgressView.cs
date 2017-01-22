@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -78,17 +79,24 @@ namespace Pixelaria.Views.MiscViews
             btn_ok.Visible = false;
             _canClose = false;
 
-            Image img = _exporter.ExportAnimationSheet(_sheet, ExportHandler);
+            _exporter.ExportAnimationSheet(_sheet, new CancellationToken(), ExportHandler).ContinueWith(
+                (task) =>
+                {
+                    Invoke(new Action(() =>
+                    {
+                        var img = task.Result;
 
-            // Save the image now
-            lbl_progress.Text = @"Saving to disk...";
+                        // Save the image now
+                        lbl_progress.Text = @"Saving to disk...";
 
-            img.Save(_savePath);
+                        img.Save(_savePath);
 
-            lbl_progress.Text = @"Export successful!";
+                        lbl_progress.Text = @"Export successful!";
 
-            _canClose = true;
-            btn_ok.Visible = true;
+                        _canClose = true;
+                        btn_ok.Visible = true;
+                    }));
+                });
         }
 
         // 
@@ -96,11 +104,17 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void ExportHandler(BundleExportProgressEventArgs args)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<BundleExportProgressEventArgs>(ExportHandler), args);
+                return;
+            }
+
             pb_progress.Value = args.StageProgress;
 
             if (args.ExportStage == BundleExportStage.TextureAtlasGeneration)
             {
-                lbl_progress.Text = @"Exporting atlas for " + args.StageDescription + @"...";
+                lbl_progress.Text = @"Exporting atlas for " + _sheet.Name + @"...";
             }
             else if (args.ExportStage == BundleExportStage.SavingToDisk)
             {
@@ -110,9 +124,6 @@ namespace Pixelaria.Views.MiscViews
             {
                 lbl_progress.Text = @"Export successful!";
             }
-
-            Update();
-            Application.DoEvents();
         }
 
         // 

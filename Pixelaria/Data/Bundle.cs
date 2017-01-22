@@ -44,12 +44,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the array of animations on this bundle
         /// </summary>
-        public Animation[] Animations => _animations.ToArray();
+        public IReadOnlyList<Animation> Animations => _animations;
 
         /// <summary>
         /// Gets the array of animation sheets on this bundle
         /// </summary>
-        public AnimationSheet[] AnimationSheets => _animationSheets.ToArray();
+        public IReadOnlyList<AnimationSheet> AnimationSheets => _animationSheets;
 
         /// <summary>
         /// Gets or sets the name of this bundle

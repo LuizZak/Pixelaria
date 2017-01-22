@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 
 using Pixelaria.Data;
@@ -54,6 +55,11 @@ namespace Pixelaria.Views.MiscViews
         private bool _canClose = true;
 
         /// <summary>
+        /// Cancellation token used during bundle sheet export
+        /// </summary>
+        private CancellationTokenSource cancellationToken;
+
+        /// <summary>
         /// Dictionary used to keep track of changes to sheet exports.
         /// Used to invalidate only the treeview region related to a specific sheet
         /// </summary>
@@ -81,7 +87,7 @@ namespace Pixelaria.Views.MiscViews
         /// </summary>
         public void StartExport()
         {
-            btn_ok.Visible = false;
+            btn_ok.Text = @"Cancel";
             _canClose = false;
 
             _progressTrack = new Dictionary<int, float>();
@@ -90,15 +96,27 @@ namespace Pixelaria.Views.MiscViews
                 _progressTrack[sheet.ID] = 0;
             }
 
-            _exporter.ExportBundle(_bundle, ExportHandler);
+            cancellationToken = new CancellationTokenSource();
+            
+            _exporter.ExportBundleConcurrent(_bundle, cancellationToken.Token, ExportHandler).ContinueWith((task) =>
+            {
+                // Re-enable interface
+                Invoke(new Action(() =>
+                {
+                    _canClose = true;
 
-            _canClose = true;
-            btn_ok.Visible = true;
+                    if (cancellationToken != null && cancellationToken.IsCancellationRequested)
+                    {
+                        Close();
+                        return;
+                    }
 
-            // Set the control's style so it won't flicker at every draw call:
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                          ControlStyles.AllPaintingInWmPaint |
-                          ControlStyles.UserPaint, true);
+                    cancellationToken = null;
+
+                    btn_ok.Text = @"Ok";
+                    btn_ok.Enabled = true;
+                }));
+            });
         }
 
         // 
@@ -106,12 +124,18 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void ExportHandler(BundleExportProgressEventArgs args)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<BundleExportProgressEventArgs>(ExportHandler), args);
+                return;
+            }
+
             pb_progress.Value = args.TotalProgress;
             pb_stageProgress.Value = args.StageProgress;
 
             if (args.ExportStage == BundleExportStage.TextureAtlasGeneration)
             {
-                lbl_progress.Text = @"Exporting atlas for " + args.StageDescription + @"...";
+                lbl_progress.Text = args.StageDescription;
             }
             else if (args.ExportStage == BundleExportStage.SavingToDisk)
             {
@@ -123,9 +147,6 @@ namespace Pixelaria.Views.MiscViews
             }
 
             InvalidateTreeView();
-
-            Update();
-            Application.DoEvents();
         }
 
         // 
@@ -158,6 +179,13 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
+            if (cancellationToken != null)
+            {
+                cancellationToken.Cancel();
+                btn_ok.Enabled = false;
+                return;
+            }
+
             Close();
         }
 

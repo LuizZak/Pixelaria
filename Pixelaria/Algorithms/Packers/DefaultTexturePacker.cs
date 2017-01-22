@@ -24,7 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-
+using System.Threading;
+using System.Threading.Tasks;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
@@ -42,6 +43,17 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="atlas">The texture atlas to pack</param>
         /// <param name="handler">The event handler for the packing process</param>
         public void Pack(TextureAtlas atlas, BundleExportProgressEventHandler handler = null)
+        {
+            Pack(atlas, new CancellationToken(), handler).Wait();
+        }
+
+        /// <summary>
+        /// Packs a given atlas with a specified progress event handler
+        /// </summary>
+        /// <param name="atlas">The texture atlas to pack</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to abort this task</param>
+        /// <param name="handler">The event handler for the packing process</param>
+        public async Task Pack(TextureAtlas atlas, CancellationToken cancellationToken, BundleExportProgressEventHandler handler = null)
         {
             if (atlas.FrameCount == 0)
             {
@@ -72,13 +84,14 @@ namespace Pixelaria.Algorithms.Packers
             // 3. Find the maximum possible horizontal sheet size
             CalculateMaximumSizes(frameList);
 
-            int minAreaWidth = _maxWidthCapped;
-
             // 4. Iterate through possible widths and match the smallest area to use as a maxWidth
             uint atlasWidth;
             uint atlasHeight;
 
-            minAreaWidth = IterateAtlasSize(atlas, minAreaWidth, out atlasWidth, out atlasHeight);
+            var minAreaTask = new Task<int>(() => IterateAtlasSize(atlas, _maxWidthCapped, out atlasWidth, out atlasHeight, cancellationToken), cancellationToken);
+            minAreaTask.Start();
+
+            int minAreaWidth = await minAreaTask;
 
             atlasWidth = 0;
             atlasHeight = 0;
@@ -111,8 +124,9 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="minAreaWidth">Helper value for calculatingthe minimum area width</param>
         /// <param name="atlasWidth">The out atlas width</param>
         /// <param name="atlasHeight">The out atlas height</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to abort the export process</param>
         /// <returns>The minimum area width that was calculated</returns>
-        private int IterateAtlasSize(TextureAtlas atlas, int minAreaWidth, out uint atlasWidth, out uint atlasHeight)
+        private int IterateAtlasSize(TextureAtlas atlas, int minAreaWidth, out uint atlasWidth, out uint atlasHeight, CancellationToken cancellationToken)
         {
             float minRatio = 0;
             int minArea = int.MaxValue;
@@ -128,6 +142,8 @@ namespace Pixelaria.Algorithms.Packers
 
             for (; curWidth < _maxWidthCapped;)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 atlasWidth = 0;
                 atlasHeight = 0;
                 InternalPack(atlas, ref atlasWidth, ref atlasHeight, (int)curWidth,

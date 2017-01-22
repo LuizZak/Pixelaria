@@ -65,10 +65,10 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             BinaryWriter writer = new BinaryWriter(stream);
 
             // Get the list of animations to save
-            Animation[] animations = readyBundle.Animations;
+            var animations = readyBundle.Animations;
 
             // Save the number of animations inside the file
-            writer.Write(animations.Length);
+            writer.Write(animations.Count);
 
             // Save the animations now
             foreach (var animation in animations)

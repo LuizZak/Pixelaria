@@ -21,6 +21,8 @@
 */
 
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using Pixelaria.Data.Exports;
 
 namespace Pixelaria.Data.Exporters
@@ -31,53 +33,59 @@ namespace Pixelaria.Data.Exporters
     public interface IBundleExporter
     {
         /// <summary>
-        /// Exports the given Bundle
+        /// Exports a given bundle in concurrent fashion, performing multiple bundle sheet encodings at once
         /// </summary>
         /// <param name="bundle">The bundle to export</param>
+        /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        void ExportBundle(Bundle bundle, BundleExportProgressEventHandler progressHandler = null);
+        Task ExportBundleConcurrent(Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Exports the given animations into an image sheet and returns the created sheet
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
         /// <param name="anims">The list of animations to export</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animations passed</returns>
-        Image ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, BundleExportProgressEventHandler progressHandler = null);
+        Task<Image> ExportAnimationSheet(AnimationExportSettings exportSettings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Exports the given animation sheet into an image sheet and returns the created sheet
         /// </summary>
         /// <param name="sheet">The sheet to export</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animation sheet passed</returns>
-        Image ExportAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null);
+        Task<Image> ExportAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Exports the given animation sheet into a BundleSheetExport and returns the created sheet
         /// </summary>
         /// <param name="sheet">The sheet to export</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animation sheet passed ready to be saved to disk</returns>
-        BundleSheetExport ExportBundleSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null);
+        Task<BundleSheetExport> ExportBundleSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Exports the given animations into a BundleSheetExport and returns the created sheet
         /// </summary>
         /// <param name="settings">The export settings for the sheet</param>
         /// <param name="anims">The list of animations to export</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        BundleSheetExport ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, BundleExportProgressEventHandler progressHandler = null);
+        Task<BundleSheetExport> ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Generates a TextureAtlas from the given AnimationSheet object
         /// </summary>
         /// <param name="sheet">The AnimationSheet to generate the TextureAtlas of</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
-        TextureAtlas GenerateAtlasFromAnimationSheet(AnimationSheet sheet, BundleExportProgressEventHandler progressHandler = null);
+        Task<TextureAtlas> GenerateAtlasFromAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Generates an image that represents the sequential sprite strip from the specified animation.

@@ -145,7 +145,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             writer.Write(bundle.ExportPath);
 
             // Animation Block
-            writer.Write(bundle.Animations.Length);
+            writer.Write(bundle.Animations.Count);
 
             foreach (Animation anim in bundle.Animations)
             {
@@ -153,7 +153,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             }
 
             // Sheet block
-            writer.Write(bundle.AnimationSheets.Length);
+            writer.Write(bundle.AnimationSheets.Count);
 
             foreach (AnimationSheet sheet in bundle.AnimationSheets)
             {

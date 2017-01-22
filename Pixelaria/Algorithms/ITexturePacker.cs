@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using System.Threading;
+using System.Threading.Tasks;
 using Pixelaria.Data.Exports;
 
 namespace Pixelaria.Algorithms
@@ -35,5 +37,13 @@ namespace Pixelaria.Algorithms
         /// <param name="atlas">The texture atlas to pack</param>
         /// <param name="handler">The event handler for the packing process</param>
         void Pack(TextureAtlas atlas, BundleExportProgressEventHandler handler = null);
+
+        /// <summary>
+        /// Packs a given atlas with a specified progress event handler
+        /// </summary>
+        /// <param name="atlas">The texture atlas to pack</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the export process</param>
+        /// <param name="handler">The event handler for the packing process</param>
+        Task Pack(TextureAtlas atlas, CancellationToken cancellationToken, BundleExportProgressEventHandler handler = null);
     }
 }
