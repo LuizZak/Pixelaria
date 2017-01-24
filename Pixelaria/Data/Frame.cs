@@ -106,6 +106,11 @@ namespace Pixelaria.Data
         public byte[] Hash => _hash;
 
         /// <summary>
+        /// A short hash of the hash value above - used for faster drops of unequal frames
+        /// </summary>
+        public long _shortHash;
+
+        /// <summary>
         /// Gets or sets the ID of this frame
         /// </summary>
         public int ID { get { return _id; } set { _id = value; } }
@@ -293,6 +298,7 @@ namespace Pixelaria.Data
             UpdateLayerIndices();
 
             _hash = frame.Hash;
+            _shortHash = castFrame._shortHash;
         }
 
         /// <summary>
@@ -316,15 +322,11 @@ namespace Pixelaria.Data
 
             if (_hash == null || frame._hash == null)
                 return false;
-
-            int l = _hash.Length;
-            for (int i = 0; i < l; i++)
-            {
-                if (_hash[i] != frame._hash[i])
-                    return false;
-            }
-
-            return true;
+            
+            if (_shortHash != frame._shortHash) // Check short hash beforehands
+                return false;
+            
+            return Utilities.memcmp(_hash, frame._hash, _hash.Length) == 0;
         }
 
         /// <summary>
@@ -719,7 +721,7 @@ namespace Pixelaria.Data
 
             using (var bitmap = GetComposedBitmap())
             {
-                _hash = ImageUtilities.GetHashForBitmap(bitmap);
+                SetHash(ImageUtilities.GetHashForBitmap(bitmap));
             }
         }
 
@@ -735,6 +737,19 @@ namespace Pixelaria.Data
             }
 
             _hash = newHash;
+
+            // Calculate short hash
+            unchecked
+            {
+                var hashCode = _hash[0].GetHashCode();
+
+                for (int i = 1; i < _hash.Length; i++)
+                {
+                    hashCode = (hashCode * 397) ^ _hash[i].GetHashCode();
+                }
+
+                _shortHash = hashCode;
+            }
         }
 
         // Override object.Equals

@@ -24,8 +24,8 @@ Caption:
   . The animation sheet json contains the same data as the previous .xml format, but formatted more nicely.
   . The main bundle sheet now also contains the list of animations inside each bundle sheet, which can be used to quickly find animations referenced in the sprite sheets.
 
-+ Now bundle exports occur concurrently, with multiple sheets being calculated simultaneously.
-  . This should significanctly improve export time in multi-core machines.
+* Improved bundle animation sheets export speed, and now bundle exports occur concurrently, with multiple sheets being calculated simultaneously.
+  . This should significanctly improve export time, specially in multi-core machines.
 
 + Improved bundle export interface to show export progress of individual sheets and cancel export routines mid-way.
 + Added ability to delete selected Animation/Animation Sheets with the Delete key on the main interface.
@@ -45,6 +45,9 @@ Caption:
   * Now picking colors with the Color Picker tool with the right mouse button sets the second color.
   * Removed 'ding' sound when hitting Enter while editing a layer's name.
   . Now the top-most layer is selected when a frame is opened to be edited.
+
+. AnimationSheetView
+  * Fixed changes to 'Favor ratio over area' checkbox not marking the window with changes pending state.
 
 
 -- 1.17.7b

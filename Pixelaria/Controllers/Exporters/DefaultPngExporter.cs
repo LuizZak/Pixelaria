@@ -31,7 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;
@@ -62,19 +62,15 @@ namespace Pixelaria.Controllers.Exporters
             // Start with initial values for the progress export of every sheet
             float[] stageProgresses = new float[bundle.AnimationSheets.Count];
             var exports = new List<BundleSheetJson>();
-
-            var progressAction = new Action(() =>
+            
+            var progressAction = new Action<AnimationSheet>(sheet =>
             {
                 if (progressHandler == null)
                     return;
 
-                lock (progressHandler)
-                {
-                    // Calculate total progress
-                    int total = (int) Math.Floor(stageProgresses.Sum() / stageProgresses.Length * 100);
-                    progressHandler(new BundleExportProgressEventArgs(BundleExportStage.TextureAtlasGeneration, total,
-                        total / 2, "Generating sheets"));
-                }
+                // Calculate total progress
+                int total = (int) Math.Floor(stageProgresses.Sum() / stageProgresses.Length * 100);
+                progressHandler(new SheetGenerationBundleExportProgressEventArgs(sheet, BundleExportStage.TextureAtlasGeneration, total, total / 2, "Generating sheets"));
             });
 
             var generationList = new List<Task>();
@@ -87,8 +83,8 @@ namespace Pixelaria.Controllers.Exporters
                 {
                     var exp = ExportBundleSheet(sheet, cancellationToken, args =>
                     {
-                        stageProgresses[j] = (float) args.StageProgress / 100;
-                        progressAction();
+                        stageProgresses[j] = (float)args.StageProgress / 100;
+                        progressAction(sheet);
                     });
 
                     try
@@ -124,8 +120,7 @@ namespace Pixelaria.Controllers.Exporters
                 if (progressHandler != null)
                 {
                     int progress = (int) ((float) i / exports.Count * 100);
-                    progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress,
-                        50 + progress / 2));
+                    progressHandler.Invoke(new BundleExportProgressEventArgs(BundleExportStage.SavingToDisk, progress, 50 + progress / 2));
                 }
 
                 exp.BundleSheet.SaveToDisk(exp.ExportPath);

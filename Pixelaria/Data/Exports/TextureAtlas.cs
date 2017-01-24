@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Linq;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Exports
@@ -232,15 +232,21 @@ namespace Pixelaria.Data.Exports
 
         /// <summary>
         /// Gets the list of frame bounds.
-        /// The bounds rectangle represents the rectangle of the frame image that is represented on the exported sheet image
+        /// The bounds rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
         /// </summary>
         public List<Rectangle> BoundsList { get; }
 
         /// <summary>
         /// Gets the list of frame origins.
-        /// The origin rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
+        /// The origin rectangle represents the rectangle of the frame image that is represented on the exported sheet image
         /// </summary>
         public List<Rectangle> OriginsList { get; }
+        
+        /// <summary>
+        /// Gets an array of unique rectangle bounds containeg within this texture atlas, ignoring duplicated frame bounds that where resued for similar frames.
+        /// The array is not ordered in any particular way.
+        /// </summary>
+        public Rectangle[] UniqueBounds => new HashSet<Rectangle>(BoundsList).ToArray();
 
         /// <summary>
         /// Gets the list of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.

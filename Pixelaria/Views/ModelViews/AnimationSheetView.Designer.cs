@@ -242,6 +242,7 @@ namespace Pixelaria.Views.ModelViews
             this.tt_mainTooltip.SetToolTip(this.cb_favorRatioOverArea, "Whether to favor ratio over minimum area.\r\nChecking this will produce a more squa" +
         "re-ish image.\r\nThe output is also produced faster, but may be\r\nslightly bigger i" +
         "n pixel count.");
+            this.cb_favorRatioOverArea.CheckedChanged += new System.EventHandler(this.checkboxes_Change);
             // 
             // cb_forcePowerOfTwoDimensions
             // 

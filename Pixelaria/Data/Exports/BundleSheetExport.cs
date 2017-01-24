@@ -384,6 +384,23 @@ namespace Pixelaria.Data.Exports
     }
 
     /// <summary>
+    /// Specific progress handler for sheet generation phase of bundle exporting
+    /// </summary>
+    public class SheetGenerationBundleExportProgressEventArgs : BundleExportProgressEventArgs
+    {
+        /// <summary>
+        /// Gets the sheet associated with this export progress event argument
+        /// </summary>
+        public AnimationSheet Sheet { get; private set; }
+
+        public SheetGenerationBundleExportProgressEventArgs(AnimationSheet sheet, BundleExportStage exportStage, int stageProgress, int totalProgress, string stageDescription = "") 
+            : base(exportStage, stageProgress, totalProgress, stageDescription)
+        {
+            Sheet = sheet;
+        }
+    }
+
+    /// <summary>
     /// Describes the stage a bundle export is currently at
     /// </summary>
     public enum BundleExportStage

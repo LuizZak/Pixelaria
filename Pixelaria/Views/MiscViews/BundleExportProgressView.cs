@@ -27,6 +27,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
@@ -56,7 +57,17 @@ namespace Pixelaria.Views.MiscViews
         /// <summary>
         /// Cancellation token used during bundle sheet export
         /// </summary>
-        private CancellationTokenSource cancellationToken;
+        private CancellationTokenSource _cancellationToken;
+
+        /// <summary>
+        /// Timer used to count elapsed time exporting the bundle
+        /// </summary>
+        private System.Windows.Forms.Timer _timer;
+
+        /// <summary>
+        /// Date export began
+        /// </summary>
+        private DateTime _exportStart = DateTime.Now;
 
         /// <summary>
         /// Dictionary used to keep track of changes to sheet exports.
@@ -79,6 +90,9 @@ namespace Pixelaria.Views.MiscViews
             tv_sheets.BeforeSelect += (sender, args) => { args.Cancel = true; };
 
             CreateTreeView(bundle);
+
+            _timer = new System.Windows.Forms.Timer { Interval = 50 };
+            _timer.Tick += TimerOnTick;
         }
 
         /// <summary>
@@ -95,27 +109,51 @@ namespace Pixelaria.Views.MiscViews
                 _progressTrack[sheet.ID] = 0;
             }
 
-            cancellationToken = new CancellationTokenSource();
-            
-            _exporter.ExportBundleConcurrent(_bundle, cancellationToken.Token, ExportHandler).ContinueWith((task) =>
+            _cancellationToken = new CancellationTokenSource();
+
+            _timer.Start();
+            _exportStart = DateTime.Now;
+
+            _exporter.ExportBundleConcurrent(_bundle, _cancellationToken.Token, ExportHandler).ContinueWith((task) =>
             {
                 // Re-enable interface
                 Invoke(new Action(() =>
                 {
+                    _timer.Stop();
+                    UpdateElapsedTime();
+
                     _canClose = true;
 
-                    if (cancellationToken != null && cancellationToken.IsCancellationRequested)
+                    if (_cancellationToken != null && _cancellationToken.IsCancellationRequested)
                     {
                         Close();
                         return;
                     }
 
-                    cancellationToken = null;
+                    _cancellationToken = null;
 
                     btn_ok.Text = @"Ok";
                     btn_ok.Enabled = true;
                 }));
             });
+        }
+
+        /// <summary>
+        /// Updates Elapsed Timer label
+        /// </summary>
+        private void UpdateElapsedTime()
+        {
+            var time = DateTime.Now.Subtract(_exportStart);
+
+            lbl_elapsed.Text = $"{time.Minutes:00}:{time.Seconds:00}";
+        }
+
+        // 
+        // Export Timer event handler
+        // 
+        private void TimerOnTick(object sender, EventArgs eventArgs)
+        {
+            UpdateElapsedTime();
         }
 
         // 
@@ -144,8 +182,16 @@ namespace Pixelaria.Views.MiscViews
             {
                 lbl_progress.Text = @"Export successful!";
             }
-
-            InvalidateTreeView();
+            
+            var sheetArgs = args as SheetGenerationBundleExportProgressEventArgs;
+            if (sheetArgs != null)
+            {
+                InvalidateSheetNode(sheetArgs.Sheet);
+            }
+            else
+            {
+                InvalidateTreeView();
+            }
         }
 
         // 
@@ -178,9 +224,9 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            if (cancellationToken != null)
+            if (_cancellationToken != null)
             {
-                cancellationToken.Cancel();
+                _cancellationToken.Cancel();
                 btn_ok.Enabled = false;
                 return;
             }
@@ -194,30 +240,36 @@ namespace Pixelaria.Views.MiscViews
         {
             foreach (var sheet in _bundle.AnimationSheets)
             {
-                // Verify progress for this sheet has changed
-                float cur;
-                if (!_progressTrack.TryGetValue(sheet.ID, out cur))
-                    continue;
-
-                float real = _exporter.ProgressForAnimationSheet(sheet);
-
-                if (Math.Abs(cur - real) < float.Epsilon)
-                    continue;
-                
-                _progressTrack[sheet.ID] = real;
-
                 // Invalidate bounds for redrawing of tree view
-                var node = NodeForSheet(sheet);
-                if (node == null)
-                    continue;
-
-                var bounds = node.Bounds;
-
-                bounds.X = bounds.Right;
-                bounds.Width = tv_sheets.Width - bounds.Left;
-
-                tv_sheets.Invalidate(bounds);
+                InvalidateSheetNode(sheet);
             }
+        }
+
+        private void InvalidateSheetNode(AnimationSheet sheet)
+        {
+            // Verify progress for this sheet has changed
+            float cur;
+            if (!_progressTrack.TryGetValue(sheet.ID, out cur))
+                return;
+
+            float real = _exporter.ProgressForAnimationSheet(sheet);
+
+            if (Math.Abs(real - 1) < float.Epsilon || Math.Abs(cur - real) < float.Epsilon)
+                return;
+
+            _progressTrack[sheet.ID] = real;
+
+            // Invalidate bounds for redrawing of tree view
+            var node = NodeForSheet(sheet);
+            if (node == null)
+                return;
+
+            var bounds = node.Bounds;
+
+            bounds.X = bounds.Right;
+            bounds.Width = tv_sheets.Width - bounds.Left;
+
+            tv_sheets.Invalidate(bounds);
         }
 
         private void CreateTreeView(Bundle bundle)
@@ -241,7 +293,14 @@ namespace Pixelaria.Views.MiscViews
 
         private TreeNode NodeForSheet(AnimationSheet sheet)
         {
-            return tv_sheets.Nodes.OfType<TreeNode>().FirstOrDefault(node => Equals(node.Tag as AnimationSheet, sheet));
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var node in tv_sheets.Nodes)
+            {
+                if (Equals((node as TreeNode)?.Tag as AnimationSheet, sheet))
+                    return (TreeNode)node;
+            }
+
+            return null;
         }
 
         private float ProgressForSheet(AnimationSheet sheet)

@@ -39,6 +39,11 @@ namespace PixelariaTests.PixelariaTests.Generators
         private static readonly Random _seedRandom = new Random();
 
         /// <summary>
+        /// Next available unique ID to use in methods generating frames in this static class
+        /// </summary>
+        public static int NextId = 1;
+
+        /// <summary>
         /// Generates a frame with a given set of parameters.
         /// The seed is used to randomize the frame, and any call with the same width, height and seed will generate the same frame
         /// </summary>
@@ -49,7 +54,11 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <returns>A frame with the passed parameters</returns>
         public static Frame GenerateRandomFrame(int width, int height, int seed = -1, int layerCount = 3)
         {
-            Frame frame = new Frame(null, width, height, false);
+            var frame = new Frame(null, width, height, false)
+            {
+                ID = NextId++
+            };
+
             frame.SetFrameBitmap(GenerateRandomBitmap(width, height, seed));
 
             for (int i = 1; i < layerCount; i++)

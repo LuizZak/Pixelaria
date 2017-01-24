@@ -40,11 +40,13 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <returns>An animation with the passed parameters</returns>
         public static Animation GenerateAnimation(string name, int width, int height, int frameCount, int seed = -1)
         {
-            Animation anim = new Animation(name, width, height);
+            var anim = new Animation(name, width, height);
 
             for (int i = 0; i < frameCount; i++)
             {
-                anim.CreateFrame().SetFrameBitmap(FrameGenerator.GenerateRandomBitmap(width, height, (seed == -1 ? seed : seed + i)));
+                var frame = FrameGenerator.GenerateRandomFrame(width, height, seed == -1 ? seed : seed + i, 1);
+
+                anim.AddFrame(frame);
             }
 
             return anim;

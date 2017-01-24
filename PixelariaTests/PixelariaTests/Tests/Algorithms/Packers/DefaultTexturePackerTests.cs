@@ -35,7 +35,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
     /// Tests the functionality of the DefaultTexturePacker class and related components
     /// </summary>
     [TestClass]
-    public class DefaultTesturePackerTests
+    public class DefaultTexturePackerTests
     {
         [TestMethod]
         public void TestPackEmptyAtlas()
@@ -55,8 +55,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             Animation anim = new Animation("TestAnim", 64, 64);
 
             // Fill the animation with a few empty frames
-            anim.CreateFrame();
-            anim.CreateFrame();
+            anim.CreateFrame().ID = 1;
+            anim.CreateFrame().ID = 2;
 
             TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings());
 

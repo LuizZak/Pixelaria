@@ -61,6 +61,8 @@ namespace Pixelaria.Views.MiscViews
             this.pb_stageProgress = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.lbl_elapsed = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -98,6 +100,8 @@ namespace Pixelaria.Views.MiscViews
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.lbl_elapsed);
             this.groupBox1.Controls.Add(this.tv_sheets);
             this.groupBox1.Controls.Add(this.pb_stageProgress);
             this.groupBox1.Controls.Add(this.label2);
@@ -155,6 +159,26 @@ namespace Pixelaria.Views.MiscViews
             this.label1.TabIndex = 1;
             this.label1.Text = "Total:";
             // 
+            // lbl_elapsed
+            // 
+            this.lbl_elapsed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbl_elapsed.AutoSize = true;
+            this.lbl_elapsed.Location = new System.Drawing.Point(370, 16);
+            this.lbl_elapsed.Name = "lbl_elapsed";
+            this.lbl_elapsed.Size = new System.Drawing.Size(34, 13);
+            this.lbl_elapsed.TabIndex = 6;
+            this.lbl_elapsed.Text = "00:00";
+            // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(294, 16);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(70, 13);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "Elapsed time:";
+            // 
             // BundleExportProgressView
             // 
             this.AcceptButton = this.btn_ok;
@@ -189,5 +213,7 @@ namespace Pixelaria.Views.MiscViews
         private System.Windows.Forms.Label label1;
         private BufferedTreeView tv_sheets;
         private System.Windows.Forms.ImageList il_treeView;
+        private System.Windows.Forms.Label lbl_elapsed;
+        private System.Windows.Forms.Label label4;
     }
 }

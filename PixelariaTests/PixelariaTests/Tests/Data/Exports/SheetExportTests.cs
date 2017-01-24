@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -105,6 +106,17 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             exporter.ExportBundleSheet(OriginalSheet.ExportSettings, OriginalSheet.Animations).Result
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
+            // Export sheet temporarely
+            for (int i = 0; i < OriginalSheet.Animations.Length; i++)
+            {
+                var animation = OriginalSheet.Animations[i];
+                var image = exporter.GenerateSpriteStrip(animation);
+
+                var path = _tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name + "_" + i + ".png";
+
+                image.Save(path, ImageFormat.Png);
+            }
+
             // Import it back up
             SheetFromDisk = (AnimationSheet)ImportSheetFile(jsonPath);
             SheetFromDisk.ExportSettings = OriginalSheet.ExportSettings;
@@ -117,7 +129,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         {
             try
             {
-                Directory.Delete(_tempExportPath, true);
+                //Directory.Delete(_tempExportPath, true);
             }
             catch (Exception)
             {

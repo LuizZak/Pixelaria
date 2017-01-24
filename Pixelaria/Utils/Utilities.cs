@@ -114,7 +114,7 @@ namespace Pixelaria.Utils
         /// <returns>0 if the byte arrays are identical</returns>
         [Pure]
         [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern int memcmp(byte[] b1, byte[] b2, long count);
+        public static extern int memcmp(byte[] b1, byte[] b2, long count);
 
         /// <summary>
         /// Compares two arrays of bytes and returns true if they are identical
