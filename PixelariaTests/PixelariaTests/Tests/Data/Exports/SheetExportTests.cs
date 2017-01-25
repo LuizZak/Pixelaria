@@ -103,7 +103,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
 
             // Export and save to disk
             IBundleExporter exporter = new DefaultPngExporter();
-            exporter.ExportBundleSheet(OriginalSheet.ExportSettings, OriginalSheet.Animations).Result
+            exporter.ExportBundleSheet(OriginalSheet).Result
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
             // Export sheet temporarely

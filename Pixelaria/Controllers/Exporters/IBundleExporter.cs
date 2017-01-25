@@ -53,12 +53,11 @@ namespace Pixelaria.Controllers.Exporters
         /// <summary>
         /// Exports the given animations into a BundleSheetExport and returns the created sheet
         /// </summary>
-        /// <param name="settings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
+        /// <param name="provider">The provider for animations and their respective export settings</param>
         /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        Task<BundleSheetExport> ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
+        Task<BundleSheetExport> ExportBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>
         /// Generates a TextureAtlas from the given AnimationSheet object

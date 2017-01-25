@@ -184,9 +184,9 @@ namespace Pixelaria.Views.MiscViews
             }
             
             var sheetArgs = args as SheetGenerationBundleExportProgressEventArgs;
-            if (sheetArgs != null)
+            if (sheetArgs?.Provider is AnimationSheet)
             {
-                InvalidateSheetNode(sheetArgs.Sheet);
+                InvalidateSheetNode((AnimationSheet)sheetArgs.Provider);
             }
             else
             {

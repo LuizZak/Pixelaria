@@ -371,14 +371,14 @@ namespace Pixelaria.Data.Exports
     public class SheetGenerationBundleExportProgressEventArgs : BundleExportProgressEventArgs
     {
         /// <summary>
-        /// Gets the sheet associated with this export progress event argument
+        /// Gets the animation provider associated with this export progress event argument
         /// </summary>
-        public AnimationSheet Sheet { get; private set; }
+        public IAnimationProvider Provider { get; private set; }
 
-        public SheetGenerationBundleExportProgressEventArgs(AnimationSheet sheet, BundleExportStage exportStage, int stageProgress, int totalProgress, string stageDescription = "") 
+        public SheetGenerationBundleExportProgressEventArgs(IAnimationProvider provider, BundleExportStage exportStage, int stageProgress, int totalProgress, string stageDescription = "") 
             : base(exportStage, stageProgress, totalProgress, stageDescription)
         {
-            Sheet = sheet;
+            Provider = provider;
         }
     }
 

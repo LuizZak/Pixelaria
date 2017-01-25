@@ -30,10 +30,10 @@ namespace Pixelaria.Data
     /// Describes a sheet that list animations that should be exported on the same sprite sheet file.
     /// Bundle sheets each have custom export settings
     /// </summary>
-    public class AnimationSheet : IDObject
+    public class AnimationSheet : IDObject, IAnimationProvider
     {
         /// <summary>
-        /// Animations inside this bundle
+        /// Animations inside this animation sheet
         /// </summary>
         private readonly List<Animation> _animations;
 

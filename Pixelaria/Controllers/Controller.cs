@@ -1057,7 +1057,7 @@ namespace Pixelaria.Controllers
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, params Animation[] anims)
         {
-            return GetExporter().ExportBundleSheet(exportSettings, anims);
+            return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""));
         }
 
         /// <summary>
@@ -1071,7 +1071,7 @@ namespace Pixelaria.Controllers
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params Animation[] anims)
         {
-            return GetExporter().ExportBundleSheet(exportSettings, anims, cancellationToken, callback);
+            return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""), cancellationToken, callback);
         }
 
         /// <summary>

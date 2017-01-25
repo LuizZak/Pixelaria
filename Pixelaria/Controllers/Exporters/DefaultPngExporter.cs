@@ -63,7 +63,7 @@ namespace Pixelaria.Controllers.Exporters
             float[] stageProgresses = new float[bundle.AnimationSheets.Count];
             var exports = new List<BundleSheetJson>();
             
-            var progressAction = new Action<AnimationSheet>(sheet =>
+            var progressAction = new Action<IAnimationProvider>(sheet =>
             {
                 if (progressHandler == null)
                     return;
@@ -194,14 +194,13 @@ namespace Pixelaria.Controllers.Exporters
         /// <summary>
         /// Exports the given animations into a BundleSheetExport and returns the created sheet
         /// </summary>
-        /// <param name="settings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
+        /// <param name="provider">The provider for animations and their respective export settings</param>
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        public async Task<BundleSheetExport> ExportBundleSheet(AnimationExportSettings settings, Animation[] anims, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            return BundleSheetExport.FromAtlas(await GenerateAtlasFromAnimations(settings, anims, "", cancellationToken, progressHandler));
+            return BundleSheetExport.FromAtlas(await GenerateAtlasFromAnimations(provider, "", cancellationToken, progressHandler));
         }
 
         /// <summary>
@@ -213,7 +212,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
         public async Task<TextureAtlas> GenerateAtlasFromAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            return await GenerateAtlasFromAnimations(sheet.ExportSettings, sheet.Animations, sheet.Name, cancellationToken, args =>
+            return await GenerateAtlasFromAnimations(sheet, sheet.Name, cancellationToken, args =>
             {
                 progressHandler?.Invoke(args);
 
@@ -224,20 +223,19 @@ namespace Pixelaria.Controllers.Exporters
         /// <summary>
         /// Exports the given animations into an image sheet and returns the created sheet
         /// </summary>
-        /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
+        /// <param name="provider"></param>
         /// <param name="name">The name for the generated texture atlas. Used for progress reports</param>
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animations passed</returns>
-        public async Task<TextureAtlas> GenerateAtlasFromAnimations(AnimationExportSettings exportSettings, Animation[] anims, string name = "", CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<TextureAtlas> GenerateAtlasFromAnimations(IAnimationProvider provider, string name = "", CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            var atlas = new TextureAtlas(exportSettings, name);
+            var atlas = new TextureAtlas(provider.ExportSettings, name);
 
             //
             // 1. Add the frames to the texture atlas
             //
-            foreach (var anim in anims)
+            foreach (var anim in provider.Animations)
             {
                 for (int i = 0; i < anim.FrameCount; i++)
                 {
