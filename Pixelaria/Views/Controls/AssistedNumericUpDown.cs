@@ -168,6 +168,8 @@ namespace Pixelaria.Views.Controls
             InitializeComponent();
 
             _assistBarColor = Color.CornflowerBlue;
+
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
         }
 
         // 
@@ -177,6 +179,17 @@ namespace Pixelaria.Views.Controls
         {
             if (!_mouseDown)
                 Invalidate();
+        }
+
+        // 
+        // OnResize event handler
+        // 
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // Mark as requiring redraw
+            Invalidate();
         }
 
         // 
