@@ -393,22 +393,32 @@ namespace Pixelaria.Views
         /// Opens a view for the given animation (or brings a view already binded to this animation to the front)
         /// </summary>
         /// <param name="animation">The Animation to open the AnimationView for</param>
+        /// <param name="selectedFrameIndex">An optional value to specify the view which frame to select once it opens</param>
         /// <returns>The created AnimationView</returns>
-        public AnimationView OpenViewForAnimation(Animation animation)
+        public AnimationView OpenViewForAnimation(Animation animation, int selectedFrameIndex = -1)
         {
-            foreach (Form curView in MdiChildren)
+            // Bring view to front, in case animation is already visible
+            foreach (var animationForm in MdiChildren.OfType<AnimationView>())
             {
-                var forAnimation = curView as AnimationView;
+                if (!ReferenceEquals(animationForm.CurrentAnimation, animation))
+                    continue;
 
-                if (forAnimation != null && ReferenceEquals(forAnimation.CurrentAnimation, animation))
+                if (selectedFrameIndex != -1)
                 {
-                    forAnimation.BringToFront();
-                    forAnimation.Focus();
-                    return forAnimation;
+                    animationForm.SelectFrameIndex(selectedFrameIndex);
                 }
+
+                animationForm.BringToFront();
+                animationForm.Focus();
+                return animationForm;
             }
 
-            AnimationView view = new AnimationView(Controller, animation) { MdiParent = this };
+            var view = new AnimationView(Controller, animation) { MdiParent = this };
+
+            if(selectedFrameIndex != -1)
+            {
+                view.SelectFrameIndex(selectedFrameIndex);
+            }
 
             view.Show();
             view.BringToFront();

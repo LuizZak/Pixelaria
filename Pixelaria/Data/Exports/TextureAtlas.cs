@@ -220,14 +220,20 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Returns the reuse count for a frame at a given index on this texture atlas
+        /// Returns the reuse count for a given frame on this texture atlas
         /// </summary>
-        public int ReuseCountForFrameIndex(int frameIndex)
+        public int ReuseCountForFrame(IFrame frame)
         {
-            var frame = FrameList[frameIndex];
             var index = _boundsMap.SheetIndexForFrame(frame);
-
             return _boundsMap.CountOfFramesAtSheetBoundsIndex(index);
+        }
+
+        /// <summary>
+        /// Fetches a copy of the current underlying frame bounds map object
+        /// </summary>
+        public FrameBoundsMap GetFrameBoundsMap()
+        {
+            return _boundsMap.Copy();
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// The dash offset to use when drawing the selection area
         /// </summary>
         private float _dashOffset;
-
+        
         /// <summary>
         /// The currently selected area
         /// </summary>
@@ -430,31 +430,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (!displaySelection || !selected && !drawingSelection)
                 return;
 
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.Default;
-
-            Rectangle rec = GetSelectionArea(false);
-
-            Pen p = new Pen(Color.Black)
-            {
-                DashStyle = DashStyle.Dash,
-                DashOffset = _dashOffset,
-                DashPattern = new[] { 2f, 2f },
-                Alignment = PenAlignment.Inset,
-                Width = 1
-            };
-
-            e.Graphics.DrawRectangle(p, rec);
-
-            p = new Pen(Color.White)
-            {
-                DashStyle = DashStyle.Dash,
-                DashOffset = _dashOffset + 1,
-                DashPattern = new[] { 2f, 2f },
-                Alignment = PenAlignment.Inset,
-                Width = 1
-            };
-
-            e.Graphics.DrawRectangle(p, rec);
+            SelectionPaintToolPainter.PaintSelectionRectangle(e.Graphics, GetSelectionArea(false), _dashOffset);
         }
 
         /// <summary>
@@ -1142,6 +1118,52 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// The selection was pasted on the canvas
             /// </summary>
             Paste
+        }
+        
+        /// <summary>
+        /// A class that abstracts away painting of selection regions on a selection paint tool
+        /// </summary>
+        public class SelectionPaintToolPainter
+        {
+            /// <summary>
+            /// Draws a selection region on a given graphics, with a given dash offset.
+            /// The dash offset can be alternated to produce an animation
+            /// </summary>
+            public static void PaintSelectionRectangle(Graphics graphics, Rectangle region, float dashOffset)
+            {
+                PaintSelectionRectangle(graphics, (RectangleF) region, dashOffset);
+            }
+
+            /// <summary>
+            /// Draws a selection region on a given graphics, with a given dash offset.
+            /// The dash offset can be alternated to produce an animation
+            /// </summary>
+            public static void PaintSelectionRectangle(Graphics graphics, RectangleF region, float dashOffset)
+            {
+                graphics.PixelOffsetMode = PixelOffsetMode.Default;
+
+                var p = new Pen(Color.Black)
+                {
+                    DashStyle = DashStyle.Dash,
+                    DashOffset = dashOffset,
+                    DashPattern = new[] { 2f, 2f },
+                    Alignment = PenAlignment.Inset,
+                    Width = 1
+                };
+
+                graphics.DrawRectangles(p, new []{ region });
+
+                p = new Pen(Color.White)
+                {
+                    DashStyle = DashStyle.Dash,
+                    DashOffset = dashOffset + 1,
+                    DashPattern = new[] { 2f, 2f },
+                    Alignment = PenAlignment.Inset,
+                    Width = 1
+                };
+
+                graphics.DrawRectangles(p, new[] { region });
+            }
         }
     }
 }

@@ -53,6 +53,29 @@ namespace Pixelaria.Data.Exports
         public Rectangle[] SheetBounds => _sheetBounds.ToArray();
 
         /// <summary>
+        /// Inits a new empty instance of the FrameBoundsMap class
+        /// </summary>
+        public FrameBoundsMap()
+        {
+            
+        }
+
+        private FrameBoundsMap(IDictionary<int, int> frameSheetBoundsMap, IDictionary<int, Rectangle> frameLocalBoundsMap, IEnumerable<Rectangle> sheetBounds)
+        {
+            _frameSheetBoundsMap = new Dictionary<int, int>(frameSheetBoundsMap);
+            _frameLocalBoundsMap = new Dictionary<int, Rectangle>(frameLocalBoundsMap);
+            _sheetBounds = new List<Rectangle>(sheetBounds);
+        }
+
+        /// <summary>
+        /// Performs a deep copy of this frame bounds map object
+        /// </summary>
+        public FrameBoundsMap Copy()
+        {
+            return new FrameBoundsMap(_frameSheetBoundsMap, _frameLocalBoundsMap, _sheetBounds);
+        }
+
+        /// <summary>
         /// Register shared bounds for a given set of frames
         /// This method throws an exception if the frame passed in does not have an id set (-1).
         /// </summary>
@@ -231,6 +254,14 @@ namespace Pixelaria.Data.Exports
         public int CountOfFramesAtSheetBoundsIndex(int index)
         {
             return _frameSheetBoundsMap.Keys.Count(key => _frameSheetBoundsMap[key] == index);
+        }
+
+        /// <summary>
+        /// Gets the frame IDs that point to a given BoundsSheet array index
+        /// </summary>
+        public int[] FrameIdsAtSheetIndex(int index)
+        {
+            return _frameSheetBoundsMap.Keys.Where(key => _frameSheetBoundsMap[key] == index).ToArray();
         }
 
         /// <summary>

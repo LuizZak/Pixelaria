@@ -40,66 +40,46 @@ namespace Pixelaria.Data.Exports
     public class BundleSheetExport : IDisposable
     {
         /// <summary>
-        /// The list of FrameRect objects inside this BundleSheetExport
-        /// </summary>
-        FrameRect[] _frameRects;
-
-        /// <summary>
-        /// The array of frames reused for all the frame rectangle bounds
-        /// </summary>
-        int[] _reuseCount;
-
-        /// <summary>
-        /// Export settings to be used when exporting the Bundle Sheet
-        /// </summary>
-        AnimationExportSettings _exportSettings;
-
-        /// <summary>
-        /// The frame sheet itself
-        /// </summary>
-        Image _sheet;
-
-        /// <summary>
-        /// The number of repeated frames
-        /// </summary>
-        int _reusedFrameCount;
-
-        /// <summary>
         /// The frame sheet
         /// </summary>
-        public Image Sheet => _sheet;
+        public Image Sheet { get; private set; }
 
         /// <summary>
         /// Gets the number of frames on this BundleSheetExport
         /// </summary>
-        public int FrameCount => _frameRects.Length;
+        public int FrameCount => FrameRects.Length;
 
         /// <summary>
         /// Gets the number of reused frames on this BundleSheetExport
         /// </summary>
-        public int ReusedFrameCount => _reusedFrameCount;
+        public int ReusedFrameCount { get; private set; }
 
         /// <summary>
         /// Gets the FrameRect for the frame at the given index on this BundleSheetExport
         /// </summary>
         /// <param name="i">An index</param>
         /// <returns>The FrameRect stored at that index</returns>
-        public FrameRect this[int i] => _frameRects[i];
+        public FrameRect this[int i] => FrameRects[i];
+
+        /// <summary>
+        /// The atlas that originated this bundle sheet export
+        /// </summary>
+        public TextureAtlas Atlas { get; private set; }
 
         /// <summary>
         /// Gets the array of FrameRect objects inside this BundleSheetExport
         /// </summary>
-        public FrameRect[] FrameRects => _frameRects;
+        public FrameRect[] FrameRects { get; private set; }
 
         /// <summary>
         /// Gets the array of frames reused for all the frame rectangle bounds
         /// </summary>
-        public int[] ReuseCounts => _reuseCount;
+        public int[] ReuseCounts { get; private set; }
 
         /// <summary>
         /// Gets or sets the export settings to be used when exporting the Bundle Sheet
         /// </summary>
-        public AnimationExportSettings ExportSettings => _exportSettings;
+        public AnimationExportSettings ExportSettings { get; private set; }
 
         /// <summary>
         /// The list of animations in this BundleSheet
@@ -119,7 +99,8 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         public void Dispose()
         {
-            _sheet.Dispose();
+            Atlas.Dispose();
+            Sheet.Dispose();
         }
 
         /// <summary>
@@ -140,10 +121,10 @@ namespace Pixelaria.Data.Exports
         public void SaveToDisk(string sheetPath, string jsonPath)
         {
             // Save the sprite sheet first
-            _sheet.Save(sheetPath, ImageFormat.Png);
+            Sheet.Save(sheetPath, ImageFormat.Png);
 
             // Early quit - The json generation is disabled
-            if (!_exportSettings.ExportJson)
+            if (!ExportSettings.ExportJson)
                 return;
 
             SaveDescriptorToDisk(sheetPath, jsonPath);
@@ -186,15 +167,15 @@ namespace Pixelaria.Data.Exports
                     {
                         ["sheet"] = new Dictionary<string, object>
                         {
-                            ["x"] = rect.SheetArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
-                            ["y"] = rect.SheetArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
-                            ["width"] = rect.SheetArea.Width + (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding : 0),
-                            ["height"] = rect.SheetArea.Height + (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding : 0)
+                            ["x"] = rect.SheetArea.X - (ExportSettings.UsePaddingOnJson ? ExportSettings.XPadding / 2 : 0),
+                            ["y"] = rect.SheetArea.Y - (ExportSettings.UsePaddingOnJson ? ExportSettings.YPadding / 2 : 0),
+                            ["width"] = rect.SheetArea.Width + (ExportSettings.UsePaddingOnJson ? ExportSettings.XPadding : 0),
+                            ["height"] = rect.SheetArea.Height + (ExportSettings.UsePaddingOnJson ? ExportSettings.YPadding : 0)
                         },
                         ["frame"] = new Dictionary<string, object>
                         {
-                            ["x"] = rect.FrameArea.X - (_exportSettings.UsePaddingOnJson ? _exportSettings.XPadding / 2 : 0),
-                            ["y"] = rect.FrameArea.Y - (_exportSettings.UsePaddingOnJson ? _exportSettings.YPadding / 2 : 0),
+                            ["x"] = rect.FrameArea.X - (ExportSettings.UsePaddingOnJson ? ExportSettings.XPadding / 2 : 0),
+                            ["y"] = rect.FrameArea.Y - (ExportSettings.UsePaddingOnJson ? ExportSettings.YPadding / 2 : 0),
                             ["width"] = rect.FrameArea.Width,
                             ["height"] = rect.FrameArea.Height
                         }
@@ -227,7 +208,7 @@ namespace Pixelaria.Data.Exports
         public bool ContainsFrame(IFrame frame)
         {
             // Returns true if any of the sequence's frames returns true to an expression
-            return _frameRects.Any(frameRect => ReferenceEquals(frameRect.Frame, frame));
+            return FrameRects.Any(frameRect => ReferenceEquals(frameRect.Frame, frame));
         }
 
         /// <summary>
@@ -238,7 +219,7 @@ namespace Pixelaria.Data.Exports
         /// <returns>The FrameRect object that represents the given Frame. If no FrameRect represents the given frame, null is returned.</returns>
         public FrameRect GetFrameRectForFrame(IFrame frame)
         {
-            return _frameRects.FirstOrDefault(frameRect => ReferenceEquals(frameRect.Frame, frame));
+            return FrameRects.FirstOrDefault(frameRect => ReferenceEquals(frameRect.Frame, frame));
         }
 
         /// <summary>
@@ -251,12 +232,12 @@ namespace Pixelaria.Data.Exports
             //
             // 1. Generate final export image
             //
-            Image image = atlas.GenerateSheet();
+            var image = atlas.GenerateSheet();
 
             //
             // 2. Copy the frame bounds from the atlas to the bundle sheet
             //
-            List<FrameRect> frameRectList = new List<FrameRect>();
+            var frameRectList = new List<FrameRect>();
             for (int i = 0; i < atlas.FrameCount; i++)
             {
                 frameRectList.Add(new FrameRect(atlas.GetFrame(i), atlas.GetFrameBoundsRectangle(i), atlas.GetFrameOriginsRectangle(i)));
@@ -264,12 +245,13 @@ namespace Pixelaria.Data.Exports
 
             return new BundleSheetExport
             {
-                _sheet = image,
-                _exportSettings = atlas.ExportSettings,
+                Sheet = image,
+                Atlas = atlas,
+                ExportSettings = atlas.ExportSettings,
                 Animations = atlas.GetAnimationsOnAtlas(),
-                _reusedFrameCount = atlas.Information.ReusedFrameOriginsCount,
-                _reuseCount = atlas.FrameList.Select(f => atlas.ReuseCountForFrameIndex(atlas.FrameList.IndexOf(f))).ToArray(),
-                _frameRects = frameRectList.ToArray()
+                ReusedFrameCount = atlas.Information.ReusedFrameOriginsCount,
+                ReuseCounts = atlas.FrameList.Select(atlas.ReuseCountForFrame).ToArray(),
+                FrameRects = frameRectList.ToArray()
             };
         }
 

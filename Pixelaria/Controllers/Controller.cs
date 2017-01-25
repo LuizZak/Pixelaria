@@ -1088,6 +1088,20 @@ namespace Pixelaria.Controllers
     }
 
     /// <summary>
+    /// Partial class for methods related to interface displaying
+    /// </summary>
+    public partial class Controller
+    {
+        /// <summary>
+        /// Opens the interface for the given animation
+        /// </summary>
+        public AnimationView OpenAnimationView(Animation animation, int selectedFrameIndex = -1)
+        {
+            return _mainForm.OpenViewForAnimation(animation, selectedFrameIndex);
+        }
+    }
+
+    /// <summary>
     /// IFrameIdGenerator implementation
     /// </summary>
     public partial class Controller : IFrameIdGenerator

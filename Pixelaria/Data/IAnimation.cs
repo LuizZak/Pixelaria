@@ -33,7 +33,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets or sets the name of this animation
         /// </summary>
-        String Name { get; }
+        string Name { get; }
 
         /// <summary>
         /// Gets the width of this animation's frames

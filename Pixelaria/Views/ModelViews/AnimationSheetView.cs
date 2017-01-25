@@ -21,17 +21,19 @@
 */
 
 using System;
-
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Pixelaria.Algorithms;
+
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
 using Pixelaria.Controllers;
 using Pixelaria.Localization;
+using Pixelaria.Properties;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews
@@ -60,11 +62,6 @@ namespace Pixelaria.Views.ModelViews
         /// The current bundle sheet export
         /// </summary>
         BundleSheetExport _bundleSheetExport;
-
-        /// <summary>
-        /// The current frame bounds map
-        /// </summary>
-        FrameBoundsMap _frameBoundsMap;
 
         /// <summary>
         /// Cancellation token for the sheet generation routine
@@ -358,7 +355,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_bundleSheetExport != null)
             {
-                zpb_sheetPreview.LoadExportSheet(_bundleSheetExport, _frameBoundsMap);
+                zpb_sheetPreview.LoadExportSheet(_bundleSheetExport);
             }
 
             cb_showReuseCount.Enabled = true;
@@ -414,6 +411,81 @@ namespace Pixelaria.Views.ModelViews
         public AnimationSheet GenerateAnimationSheet()
         {
             return new AnimationSheet(txt_sheetName.Text) { ExportSettings = RepopulateExportSettings() };
+        }
+        
+        /// <summary>
+        /// Displays frame context menu for the given sheet preview click action
+        /// </summary>
+        public void DisplayFrameContextMenu(Controls.SheetPreviewFrameBoundsClickEventArgs e)
+        {
+            var index = e.SheetBoundsIndex;
+            var frameBoundsMap = _bundleSheetExport.Atlas.GetFrameBoundsMap();
+
+            // Pull all frames found
+            var frameIds = frameBoundsMap.FrameIdsAtSheetIndex(index);
+
+            // This guy maps a list of tuples containing animations and their respective frames which are contained in the frameIds array above
+            var framesPerAnimation =
+                (
+                    from
+                        animation in _bundleSheetExport.Animations
+                    let list = animation.Frames.Where(frame => frameIds.Contains(frame.ID)).ToList()
+                    where
+                        list.Count > 0
+                    select
+                        new Tuple<Animation, List<IFrame>>(animation, list)
+                ).ToList();
+
+            var menu = new ContextMenuStrip();
+            
+            // Summary
+            var title = new ToolStripMenuItem($"Shared between {frameBoundsMap.CountOfFramesAtSheetBoundsIndex(index)} frame(s):")
+            {
+                Enabled = false
+            };
+
+            menu.Items.Add(title);
+            menu.Items.Add(new ToolStripSeparator());
+
+            foreach (var tuple in framesPerAnimation)
+            {
+                // Animation
+                var animItem = new ToolStripMenuItem(tuple.Item1.Name)
+                {
+                    Image = Resources.anim_icon
+                };
+                
+                foreach (var frame in tuple.Item2)
+                {
+                    var frameItem = new ToolStripMenuItem($"Frame {frame.Index + 1}")
+                    {
+                        Image = Resources.frame_icon
+                    };
+
+                    frameItem.Click += (sender, args) =>
+                    {
+                        // Open frame in controller
+                        var view = _controller.OpenAnimationView(tuple.Item1, frame.Index);
+
+                        view.SetAnimationControlPlayback(false);
+                        view.SetAnimationControlFrameIndex(frame.Index);
+                    };
+
+                    // Add frame labels
+                    animItem.DropDownItems.Add(frameItem);
+                }
+                
+                menu.Items.Add(animItem);
+            }
+
+            // Used to fix drawing of selected frame
+            menu.Closed += (sender, args) =>
+            {
+                zpb_sheetPreview.AllowMouseHover = false;
+                zpb_sheetPreview.AllowMouseHover = true;
+            };
+
+            menu.Show(MousePosition);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -549,6 +621,17 @@ namespace Pixelaria.Views.ModelViews
         private void zpb_sheetPreview_ZoomChanged(object sender, Controls.ZoomChangedEventArgs e)
         {
             anud_zoom.Value = (decimal)e.NewZoom;
+        }
+
+        // 
+        // Sheet Preview right clicked frame rectangle event
+        // 
+        private void sppb_clickedFrameRect(object sender, Controls.SheetPreviewFrameBoundsClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                DisplayFrameContextMenu(e);
+            }
         }
     }
 }

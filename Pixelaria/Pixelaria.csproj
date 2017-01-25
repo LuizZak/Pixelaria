@@ -675,6 +675,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\frame_icon.png" />
+    <None Include="Resources\anim_icon.png" />
     <None Include="Resources\maximize.png" />
     <None Include="Resources\minimize.png" />
     <None Include="Resources\action_remove_gray.png" />

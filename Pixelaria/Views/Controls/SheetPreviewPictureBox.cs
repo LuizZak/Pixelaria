@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -31,6 +30,7 @@ using System.Windows.Forms;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
+using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.Controls
 {
@@ -39,6 +39,16 @@ namespace Pixelaria.Views.Controls
     /// </summary>
     public class SheetPreviewPictureBox : ZoomablePictureBox
     {
+        /// <summary>
+        /// Timer used to animate the selection area
+        /// </summary>
+        private readonly Timer _animTimer;
+
+        /// <summary>
+        /// The dash offset to use when drawing the selection area
+        /// </summary>
+        private float _dashOffset;
+
         /// <summary>
         /// The array of images used to represent the pixel digits
         /// </summary>
@@ -69,7 +79,44 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private bool _displayReusedCount;
 
-        private FrameBoundsMap _exportFrameBoundsMap;
+        /// <summary>
+        /// Current mouse location on this preview picture box
+        /// </summary>
+        private Point _mouseLocation;
+
+        /// <summary>
+        /// Whether the mouse is currently over the control
+        /// </summary>
+        private bool _mouseOver;
+
+        /// <summary>
+        /// Whether the mouse is currently down on this control
+        /// </summary>
+        private bool _mouseDown;
+        
+        /// <summary>
+        /// Whether this picture box should highlight frame rectangles under the mouse with a yellow outline
+        /// </summary>
+        private bool _allowMouseHover;
+        
+        /// <summary>
+        /// Rectangle index the mouse is currently hovering over.
+        /// Used to control redrawing of screen
+        /// </summary>
+        private int _mouseOverRectangleIndex;
+
+        /// <summary>
+        /// Delegate for the SheetPreviewPictureBoxClicked event
+        /// </summary>
+        public delegate void FrameBoundsBoxClicked(object sender, SheetPreviewFrameBoundsClickEventArgs e);
+
+        /// <summary>
+        /// Occurs whenever the user clicks with any mouse button over a frame rectangle
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user clicks with any mouse button over a frame rectangle")]
+        public event FrameBoundsBoxClicked FrameBoundsMouseClicked;
 
         /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
@@ -106,19 +153,6 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Gets or sets the current mappings of frame bounds, to go along a Sheet Export on this sheet preview picture box
-        /// </summary>
-        public FrameBoundsMap ExportFrameBoundsMap
-        {
-            get { return _exportFrameBoundsMap; }
-            set {
-                _exportFrameBoundsMap = value;
-                RefreshFrameBoundsPreview();
-                Invalidate();
-            }
-        }
-
-        /// <summary>
         /// Gets or sets whether to display the number of frames that have been reused when drawing the frame bounds
         /// </summary>
         [DefaultValue(false)]
@@ -134,19 +168,29 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Gets or sets whether this picture box should highlight frame rectangles under the mouse with a yellow outline
+        /// </summary>
+        [Category("Appearance")]
+        [Browsable(true)]
+        [DefaultValue(false)]
+        [Description("Sets whether the control highlights individual frame rectangles as the user hovers over them with the mouse")]
+        public bool AllowMouseHover
+        {
+            get { return _allowMouseHover; }
+            set
+            {
+                _mouseLocation = PointToClient(MousePosition);
+                _allowMouseHover = value;
+                Invalidate();
+            }
+        }
+        
+        /// <summary>
         /// Static constructor for the SheetPreviewPictureBox class
         /// </summary>
         static SheetPreviewPictureBox()
         {
             LoadPixelDigitImages();
-        }
-
-        /// <summary>
-        /// Descrutor for the SheetPreviewPictureBox class
-        /// </summary>
-        ~SheetPreviewPictureBox()
-        {
-            _frameRectSheet?.Dispose();
         }
 
         /// <summary>
@@ -166,6 +210,26 @@ namespace Pixelaria.Views.Controls
             _pixelDigitsImages[7] = Properties.Resources.Numbers_7;
             _pixelDigitsImages[8] = Properties.Resources.Numbers_8;
             _pixelDigitsImages[9] = Properties.Resources.Numbers_9;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the SheetPreviewPictureBox
+        /// </summary>
+        public SheetPreviewPictureBox()
+        {
+            _animTimer = new Timer { Interval = 150 };
+            _animTimer.Tick += animTimer_Tick;
+            _animTimer.Start();
+        }
+        
+        /// <summary>
+        /// Descrutor for the SheetPreviewPictureBox class
+        /// </summary>
+        ~SheetPreviewPictureBox()
+        {
+            _frameRectSheet?.Dispose();
+            _animTimer.Stop();
+            _animTimer.Dispose();
         }
 
         /// <summary>
@@ -196,8 +260,7 @@ namespace Pixelaria.Views.Controls
         /// Loads a bundle sheet export preview
         /// </summary>
         /// <param name="bundleSheetExport">The bundle sheet export containing data about the exported image</param>
-        /// <param name="map">The map of rectangles exported</param>
-        public void LoadExportSheet(BundleSheetExport bundleSheetExport, FrameBoundsMap map)
+        public void LoadExportSheet(BundleSheetExport bundleSheetExport)
         {
             UnloadExportSheet();
 
@@ -239,34 +302,24 @@ namespace Pixelaria.Views.Controls
 
             // Lay the frame rectangles on top of the image
             Rectangle[] rects = null;
-            int[] reuseCount = null;
 
             if (_sheetExport != null)
             {
-                rects = (_sheetExport.FrameRects.Select(f => f.SheetArea)).ToArray();
-                reuseCount = _sheetExport.ReuseCounts;
+                rects = _sheetExport.Atlas.UniqueBounds;
             }
             else if (Importer != null && _frameRects != null)
             {
                 rects = _frameRects;
-                reuseCount = _frameRects.Select(f => 1).ToArray();
             }
 
             if (rects == null) return;
-
-            var drawnRects = new HashSet<Rectangle>();
-
+            
             using(var fast = _frameRectSheet.FastLock())
             {
                 // Draw the frame bounds now
                 uint color = unchecked((uint)Color.Red.ToArgb());
                 foreach (Rectangle fRect in rects)
                 {
-                    // Avoid redrawing the same frame bound multiple times
-                    if (drawnRects.Contains(fRect))
-                        continue;
-                    drawnRects.Add(fRect);
-
                     // Draw the rectangle using a fast bitmap for quick pixel modification
                     int l = fRect.Left, r = fRect.Right, t = fRect.Top, b = fRect.Bottom;
 
@@ -288,9 +341,7 @@ namespace Pixelaria.Views.Controls
 
             if (!_displayReusedCount)
                 return;
-
-            drawnRects.Clear();
-
+            
             using (var g = Graphics.FromImage(_frameRectSheet))
             {
                 g.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -304,19 +355,14 @@ namespace Pixelaria.Views.Controls
 
                     fRect.X += 1;
                     fRect.Y += 1;
-
-                    // Avoid redrawing the same frame bound multiple times
-                    if (drawnRects.Contains(fRect))
-                        continue;
-                    drawnRects.Add(fRect);
-
+                    
                     // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
-                    if (_displayReusedCount)
+                    if (_displayReusedCount && _sheetExport != null)
                     {
                         Point pixelPoint = fRect.Location;
 
                         int digitsScale = 3;
-                        int frameCount = reuseCount[i] + 1;
+                        int frameCount = _sheetExport.Atlas.GetFrameBoundsMap().CountOfFramesAtSheetBoundsIndex(i);
 
                         while ((fRect.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 ||
                                 fRect.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2)
@@ -328,6 +374,18 @@ namespace Pixelaria.Views.Controls
                 }
             }
         }
+        
+        // 
+        // Animation Timer tick
+        // 
+        private void animTimer_Tick(object sender, EventArgs e)
+        {
+            _dashOffset -= 0.5f;
+            if (AllowMouseHover && _mouseOver && ((_frameRects != null && _frameRects.Length > 0) || (_sheetExport != null && _sheetExport.FrameCount > 0)))
+            {
+                Invalidate();
+            }
+        }
 
         // 
         // OnPaint event handler. Draws the underlying sheet, and the frame rectangles on the sheet
@@ -336,9 +394,151 @@ namespace Pixelaria.Views.Controls
         {
             base.OnPaint(pe);
 
-            if(_frameRectSheet != null)
+            // Frame rect sheet display
+            if (_frameRectSheet == null)
+                return;
+
+            pe.Graphics.DrawImageUnscaled(_frameRectSheet, 0, 0);
+
+            // Allow mouse hovering over individual frame bounds
+            if (_mouseOver && AllowMouseHover && (_frameRects != null || _sheetExport != null))
             {
-                pe.Graphics.DrawImageUnscaled(_frameRectSheet, 0, 0);
+                var absolute = GetAbsolutePoint(_mouseLocation);
+                
+                pe.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                foreach (var rect in _frameRects ?? _sheetExport.Atlas.UniqueBounds)
+                {
+                    if (rect.Contains(absolute))
+                    {
+                        SelectionPaintTool.SelectionPaintToolPainter.PaintSelectionRectangle(pe.Graphics, rect, _dashOffset);
+                    }
+                }
+            }
+        }
+        
+        // 
+        // OnMouseDown event handler. Used to pin down selected frame index
+        // 
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            _mouseDown = true;
+        }
+
+        // 
+        // OnMouseDown event handler. Used to pin down selected frame index
+        // 
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            _mouseDown = false;
+
+            if(!ClientRectangle.Contains(PointToClient(MousePosition)) && _mouseOver)
+            {
+                _mouseOver = false;
+                _mouseOverRectangleIndex = -1;
+
+                if (AllowMouseHover)
+                {
+                    Invalidate();
+                }
+            }
+        }
+
+        // 
+        // OnClick event handler. Handles clicks over frame rectangle bounds
+        // 
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            if (FrameBoundsMouseClicked == null)
+                return;
+
+            if (_sheetExport == null)
+                return;
+            
+            var absolute = GetAbsolutePoint(_mouseLocation);
+
+            for (int i = 0; i < _sheetExport.Atlas.UniqueBounds.Length; i++)
+            {
+                var rect = _sheetExport.Atlas.UniqueBounds[i];
+                if (rect.Contains(absolute))
+                {
+                    FrameBoundsMouseClicked(this, new SheetPreviewFrameBoundsClickEventArgs(e.Button, e.Clicks, e.X, e.Y, e.Delta, i));
+                    break;
+                }
+            }
+        }
+        
+        // 
+        // OnMouseMove event handler. Used in conjunction with the AllowMouseHover flag to mark 
+        // 
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            _mouseLocation = e.Location;
+
+            if (AllowMouseHover)
+            {
+                int nextIndex = -1;
+
+                if (_mouseOver && AllowMouseHover && _sheetExport != null)
+                {
+                    var absolute = GetAbsolutePoint(_mouseLocation);
+
+                    for (int i = 0; i < _sheetExport.Atlas.UniqueBounds.Length; i++)
+                    {
+                        var rect = _sheetExport.Atlas.UniqueBounds[i];
+                        if (rect.Contains(absolute))
+                        {
+                            nextIndex = i;
+                        }
+                    }
+                }
+
+                if (_mouseOverRectangleIndex != nextIndex)
+                {
+                    Invalidate();
+                }
+            }
+        }
+
+        // 
+        // OnMouseLeave event handler. Clears the current area under the mouse if the AllowMouseHover flag is true
+        // 
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if(_mouseDown)
+            {
+                _mouseOver = false;
+                _mouseOverRectangleIndex = -1;
+
+                if (AllowMouseHover)
+                {
+                    Invalidate();
+                }
+            }
+        }
+
+        // 
+        // OnMouseEnter event handler. Clears the current area under the mouse if the AllowMouseHover flag is true
+        // 
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+
+            _mouseOver = true;
+
+            if (AllowMouseHover)
+            {
+                Invalidate();
             }
         }
 
@@ -366,23 +566,18 @@ namespace Pixelaria.Views.Controls
             int x = 0;
             foreach (char digitChar in numberString)
             {
-                int digitNum = int.Parse(digitChar + "");
+                int digitNum = int.Parse($"{digitChar}");
 
-                Image frameImage = ImageForDigit(digitNum);
-                Rectangle rect = new Rectangle(point.X + x, point.Y, frameImage.Width * digitsScale, frameImage.Height * digitsScale);
+                var frameImage = ImageForDigit(digitNum);
+                var rect = new Rectangle(point.X + x, point.Y, frameImage.Width * digitsScale, frameImage.Height * digitsScale);
 
                 // Ignore if outside the visible area of the graphics object
-                RectangleF re = g.ClipBounds;
-                if (re.IntersectsWith(rect))
+                if (g.ClipBounds.IntersectsWith(rect))
                 {
                     g.DrawImage(frameImage, rect);
                 }
 
                 x += frameImage.Width - 1; // Subtract 1 so the white margin is not noticeably too large
-
-                // If the passed number is 0, quit now to avoid infinite loops
-                if (number == 0)
-                    return;
             }
         }
 
@@ -397,6 +592,24 @@ namespace Pixelaria.Views.Controls
                 return _pixelDigitsImages[0];
 
             return _pixelDigitsImages[digit];
+        }
+    }
+
+    /// <summary>
+    /// Arguments for event raised when clicking on sheets on a sheet preview picture box
+    /// </summary>
+    public class SheetPreviewFrameBoundsClickEventArgs : MouseEventArgs
+    {
+        /// <summary>
+        /// The index of the sheet bounds on the texture atlas' Frame Bounds Map that represents the frame that was tapped.
+        /// Is -1, if no sheet was under the mouse pointer.
+        /// </summary>
+        public int SheetBoundsIndex { get; }
+        
+        public SheetPreviewFrameBoundsClickEventArgs(MouseButtons button, int clicks, int x, int y, int delta, int sheetBoundsIndex) 
+            : base(button, clicks, x, y, delta)
+        {
+            SheetBoundsIndex = sheetBoundsIndex;
         }
     }
 }

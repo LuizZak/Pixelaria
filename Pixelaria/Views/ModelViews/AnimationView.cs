@@ -55,11 +55,6 @@ namespace Pixelaria.Views.ModelViews
         public static DataClipboard Clipboard { get; }
 
         /// <summary>
-        /// The current animation being displayed
-        /// </summary>
-        private readonly Animation _currentAnimation;
-
-        /// <summary>
         /// The Animation object that is currently used
         /// </summary>
         private readonly Animation _viewAnimation;
@@ -97,7 +92,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the current animation being displayed on this AnimationView
         /// </summary>
-        public Animation CurrentAnimation => _currentAnimation;
+        public Animation CurrentAnimation { get; }
 
         /// <summary>
         /// Static constructor for the AnimationView class
@@ -124,8 +119,8 @@ namespace Pixelaria.Views.ModelViews
 
             _controller = controller;
             _undoSystem = new UndoSystem();
-            _currentAnimation = animation;
-            _viewAnimation = _currentAnimation.Clone();
+            CurrentAnimation = animation;
+            _viewAnimation = CurrentAnimation.Clone();
 
             for (int i = 0; i < _viewAnimation.FrameCount; i++)
             {
@@ -151,6 +146,26 @@ namespace Pixelaria.Views.ModelViews
             MarkUnmodified();
         }
 
+        #region Public-accessible methods
+
+        /// <summary>
+        /// Sets the animation state of the animation playback panel on this animation view
+        /// </summary>
+        public void SetAnimationControlPlayback(bool playing)
+        {
+            animationPreviewPanel.SetPlayback(playing);
+        }
+
+        /// <summary>
+        /// Sets the currently selected frame on the animation control
+        /// </summary>
+        public void SetAnimationControlFrameIndex(int frame)
+        {
+            animationPreviewPanel.ChangeFrame(frame);
+        }
+
+        #endregion
+
         #region Interface Related Methods
 
         /// <summary>
@@ -172,7 +187,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshTitle()
         {
-            Text = @"Animation [" + _currentAnimation.Name + @"]" + (modified ? "*" : "");
+            Text = @"Animation [" + CurrentAnimation.Name + @"]" + (modified ? "*" : "");
         }
 
         /// <summary>
@@ -354,17 +369,17 @@ namespace Pixelaria.Views.ModelViews
                 _viewAnimation.Name = txt_animName.Text;
 
                 // APPLY CHANGES
-                _currentAnimation.CopyFrom(_viewAnimation, false);
+                CurrentAnimation.CopyFrom(_viewAnimation, false);
 
-                for (int i = 0; i < _currentAnimation.FrameCount; i++)
+                for (int i = 0; i < CurrentAnimation.FrameCount; i++)
                 {
-                    _currentAnimation[i].ID = _viewAnimation[i].ID;
+                    CurrentAnimation[i].ID = _viewAnimation[i].ID;
                     // Update invalid (negative) frame IDs
-                    if (_currentAnimation[i].ID == -1)
-                        _currentAnimation[i].ID = _currentAnimation.FrameIdGenerator.GetNextUniqueFrameId();
+                    if (CurrentAnimation[i].ID == -1)
+                        CurrentAnimation[i].ID = CurrentAnimation.FrameIdGenerator.GetNextUniqueFrameId();
                 }
 
-                _controller.UpdatedAnimation(_currentAnimation);
+                _controller.UpdatedAnimation(CurrentAnimation);
                 _controller.MarkUnsavedChanges(true);
             }
 
@@ -394,7 +409,7 @@ namespace Pixelaria.Views.ModelViews
         private bool ValidateFields()
         {
             // Animation name
-            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animName.Text, _currentAnimation);
+            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animName.Text, CurrentAnimation);
             if (validation != "")
             {
                 txt_animName.BackColor = Color.LightPink;
@@ -659,6 +674,14 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         #region Frame Related Methods
+
+        /// <summary>
+        /// Selects a given frame index on this view
+        /// </summary>
+        public void SelectFrameIndex(int index)
+        {
+            lv_frames.SelectedIndices.Add(index);
+        }
 
         /// <summary>
         /// Deletes the currently selected frames

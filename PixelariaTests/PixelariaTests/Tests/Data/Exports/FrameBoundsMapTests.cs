@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Pixelaria.Data;
@@ -399,6 +399,26 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             map.SetSheetBoundsForFrame(frame2, new Rectangle());
 
             Assert.AreEqual(map.SheetBounds[map.SheetIndexForFrame(frame3)], rect2);
+        }
+
+        /// <summary>
+        /// Tests fetching frame IDs at a BoundsSheet index using the <see cref="FrameBoundsMap.FrameIdsAtSheetIndex"/> method
+        /// </summary>
+        [TestMethod]
+        public void TestFramesAtBoundsSheetIndex()
+        {
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame3 = FrameGenerator.GenerateRandomFrame(32, 32);
+
+            var map = new FrameBoundsMap();
+
+            map.RegisterFrames(new[] { frame1 }, new Rectangle());
+            map.RegisterFrames(new[] { frame2, frame3 }, new Rectangle());
+
+            Assert.IsTrue(map.FrameIdsAtSheetIndex(map.SheetIndexForFrame(frame1)).Contains(frame1.ID));
+            Assert.IsTrue(map.FrameIdsAtSheetIndex(map.SheetIndexForFrame(frame2)).Contains(frame2.ID));
+            Assert.IsTrue(map.FrameIdsAtSheetIndex(map.SheetIndexForFrame(frame3)).Contains(frame3.ID));
         }
 
         /// <summary>

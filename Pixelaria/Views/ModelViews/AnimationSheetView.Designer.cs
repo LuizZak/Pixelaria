@@ -514,6 +514,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // zpb_sheetPreview
             // 
+            this.zpb_sheetPreview.AllowMouseHover = true;
             this.zpb_sheetPreview.AllowScrollbars = false;
             this.zpb_sheetPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
@@ -536,6 +537,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.VerticalScrollValue = 0;
             this.zpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.Zoom")));
             this.zpb_sheetPreview.ZoomFactor = 2F;
+            this.zpb_sheetPreview.FrameBoundsMouseClicked += new Pixelaria.Views.Controls.SheetPreviewPictureBox.FrameBoundsBoxClicked(this.sppb_clickedFrameRect);
             this.zpb_sheetPreview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_sheetPreview_ZoomChanged);
             // 
             // gb_sheetInfo

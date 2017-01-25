@@ -133,6 +133,16 @@ namespace Pixelaria.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap anim_icon {
+            get {
+                object obj = ResourceManager.GetObject("anim_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap anim_new_icon {
             get {
                 object obj = ResourceManager.GetObject("anim_new_icon", resourceCulture);
@@ -632,6 +642,16 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap frame_edit_icon {
             get {
                 object obj = ResourceManager.GetObject("frame_edit_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap frame_icon {
+            get {
+                object obj = ResourceManager.GetObject("frame_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
