@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using Pixelaria.Data.Factories;
 using Pixelaria.Localization;
 using Pixelaria.Utils;
 
@@ -91,11 +92,12 @@ namespace Pixelaria.Data
         /// <param name="index">The index of a frame to get. It must be between [0 - FrameCount[</param>
         /// <returns>The frame at the given index in this animation</returns>
         public IFrame this[int index] => GetFrameAtIndex(index);
-
+        
         /// <summary>
-        /// Gets or sets the bundle this animation is contained within
+        /// Gets or sets a frame ID generator for generating unique frame IDs when needed.
+        /// In case no frame ID generator is provided, all frames created by this animation's methods will have an id of -1
         /// </summary>
-        public Bundle OwnerBundle { get; set; }
+        public IFrameIdGenerator FrameIdGenerator { get; set; }
 
         /// <summary>
         /// Creates a new Animation with 0 frames
@@ -103,7 +105,7 @@ namespace Pixelaria.Data
         /// <param name="name">The name of this animation</param>
         /// <param name="width">The starting width of this Animation</param>
         /// <param name="height">The starting height of this Animation</param>
-        public Animation(String name, int width, int height)
+        public Animation(string name, int width, int height)
         {
             ID = -1;
             _frames = new List<IFrame>();
@@ -195,8 +197,8 @@ namespace Pixelaria.Data
                 {
                     IFrame cloneFrame = frame.Clone();
 
-                    if (OwnerBundle != null)
-                        cloneFrame.ID = OwnerBundle.GetNextValidFrameID();
+                    if (FrameIdGenerator != null)
+                        cloneFrame.ID = FrameIdGenerator.GetNextUniqueFrameId();
 
                     AddFrame(cloneFrame);
                 }
@@ -331,8 +333,8 @@ namespace Pixelaria.Data
 
             frame.Added(this);
 
-            if (frame.ID == -1 && OwnerBundle != null)
-                frame.ID = OwnerBundle.GetNextValidFrameID();
+            if (frame.ID == -1 && FrameIdGenerator != null)
+                frame.ID = FrameIdGenerator.GetNextUniqueFrameId();
 
             if (index == -1)
             {
@@ -433,9 +435,9 @@ namespace Pixelaria.Data
 
             frame.Initialize(this, Width, Height);
 
-            if (OwnerBundle != null)
+            if (FrameIdGenerator != null)
             {
-                frame.ID = OwnerBundle.GetNextValidFrameID();
+                frame.ID = FrameIdGenerator.GetNextUniqueFrameId();
             }
 
             if (position == -1)

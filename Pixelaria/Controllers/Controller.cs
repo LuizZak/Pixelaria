@@ -49,7 +49,7 @@ namespace Pixelaria.Controllers
     /// <summary>
     /// Main application controller
     /// </summary>
-    public class Controller
+    public partial class Controller
     {
         /// <summary>
         /// The list of currently opened files
@@ -1084,6 +1084,20 @@ namespace Pixelaria.Controllers
             {
                 ShowSaveImage(stripImage, animation.Name);
             }
+        }
+    }
+
+    /// <summary>
+    /// IFrameIdGenerator implementation
+    /// </summary>
+    public partial class Controller : IFrameIdGenerator
+    {
+        public int GetNextUniqueFrameId()
+        {
+            if(CurrentBundle == null)
+                throw new InvalidOperationException(@"No bundle setup - cannot generate unique IDs");
+
+            return CurrentBundle.GetNextUniqueFrameId();
         }
     }
 

@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-using Pixelaria.Controllers;
+using System;
 
 namespace Pixelaria.Data.Factories
 {
@@ -30,17 +30,17 @@ namespace Pixelaria.Data.Factories
     public class DefaultFrameFactory : IFrameFactory
     {
         /// <summary>
-        /// A reference to the main controller
+        /// A frame ID generator for generating unique frame IDs with
         /// </summary>
-        private readonly Controller _controller;
+        public IFrameIdGenerator FrameIdGenerator { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the DefaultFrameFactory class
         /// </summary>
-        /// <param name="controller">The controller to attach this factory to</param>
-        public DefaultFrameFactory(Controller controller)
+        /// <param name="bundle">The bundle to attach this factory to</param>
+        public DefaultFrameFactory(IFrameIdGenerator bundle)
         {
-            _controller = controller;
+            FrameIdGenerator = bundle;
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace Pixelaria.Data.Factories
         /// <returns>The newly created frame</returns>
         public Frame CreateFrame(int width, int height, Animation anim = null, bool initHash = true)
         {
-            Frame frame = new Frame(anim, width, height, initHash)
+            var frame = new Frame(anim, width, height, initHash)
             {
-                ID = _controller.CurrentBundle.GetNextValidFrameID()
+                ID = GetNextUniqueFrameId()
             };
 
             return frame;
@@ -67,11 +67,27 @@ namespace Pixelaria.Data.Factories
         /// <returns>A clone copy of the given frame</returns>
         public Frame CloneFrame(IFrame frame)
         {
-            Frame newFrame = frame.Clone();
+            var newFrame = frame.Clone();
 
-            newFrame.ID = _controller.CurrentBundle.GetNextValidFrameID();
+            newFrame.ID = GetNextUniqueFrameId();
 
             return newFrame;
+        }
+
+        /// <summary>
+        /// Returns a unique ID that is fit to be used as a unique identifier for a frame.
+        /// This method always returns the same value until a frame with the given ID is inserted on the bundle of the controller associated
+        /// with this factory.
+        /// If no frame ID generator is currently set, an <see cref="InvalidOperationException"/> is raised.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">No bundle is setup on the controller</exception>
+        public int GetNextUniqueFrameId()
+        {
+            var generator = FrameIdGenerator;
+            if (generator == null)
+                throw new InvalidOperationException(@"No frame ID generator is set - cannot generate unique IDs");
+
+            return generator.GetNextUniqueFrameId();
         }
     }
 
@@ -95,5 +111,16 @@ namespace Pixelaria.Data.Factories
         /// </summary>
         /// <returns>A clone copy of the given frame</returns>
         Frame CloneFrame(IFrame frame);
+    }
+
+    /// <summary>
+    /// Interface for objects fit for providing unique IDs to objects that require so
+    /// </summary>
+    public interface IFrameIdGenerator
+    {
+        /// <summary>
+        /// Returns a unique ID that is fit to be used as a unique identifier for a frame
+        /// </summary>
+        int GetNextUniqueFrameId();
     }
 }

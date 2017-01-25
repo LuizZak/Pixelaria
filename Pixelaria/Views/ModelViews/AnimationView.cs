@@ -359,6 +359,9 @@ namespace Pixelaria.Views.ModelViews
                 for (int i = 0; i < _currentAnimation.FrameCount; i++)
                 {
                     _currentAnimation[i].ID = _viewAnimation[i].ID;
+                    // Update invalid (negative) frame IDs
+                    if (_currentAnimation[i].ID == -1)
+                        _currentAnimation[i].ID = _currentAnimation.FrameIdGenerator.GetNextUniqueFrameId();
                 }
 
                 _controller.UpdatedAnimation(_currentAnimation);
@@ -428,8 +431,7 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The list of selected frames</returns>
         private List<IFrame> GetSelectedFrames()
         {
-            // For each index in the selected indices, get the tags, and filter the result to types of IFrame
-            return (from int index in lv_frames.SelectedIndices select lv_frames.Items[index].Tag).OfType<IFrame>().ToList();
+            return (from ListViewItem selected in lv_frames.SelectedItems select selected.Tag).OfType<IFrame>().ToList();
         }
 
         /// <summary>
@@ -666,10 +668,10 @@ namespace Pixelaria.Views.ModelViews
             if (lv_frames.SelectedItems.Count <= 0)
                 return;
 
-            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+            var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
             // Delete selected frames
-            foreach (IFrame frame in GetSelectedFrames())
+            foreach (var frame in GetSelectedFrames())
             {
                 _viewAnimation.RemoveFrame(frame);
             }
@@ -688,18 +690,19 @@ namespace Pixelaria.Views.ModelViews
         private void CopySelectedFrames()
         {
             // Struct initialization
-            FrameListClipboardObject frameListClip = new FrameListClipboardObject();
+            var frameListClip = new FrameListClipboardObject();
+            var selected = GetSelectedFrames();
 
-            int cnt = 0;
-
-            foreach (IFrame frame in GetSelectedFrames())
+            for (int i = 0; i < selected.Count; i++)
             {
+                IFrame frame = selected[i];
                 IFrame clonedFrame = frame.Clone();
 
-                if (cnt == 0)
+                // Copy first frame into clipboard
+                if (i == 0)
                 {
                     // Copy the frame to the clipboard too
-                    MemoryStream stream = new MemoryStream();
+                    var stream = new MemoryStream();
 
                     using (var bitmap = clonedFrame.GetComposedBitmap())
                     {
@@ -712,10 +715,8 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 frameListClip.AddFrame(clonedFrame);
-
-                cnt++;
             }
-            
+
             Clipboard.SetObject(frameListClip);
         }
 
@@ -725,11 +726,12 @@ namespace Pixelaria.Views.ModelViews
         private void CutSelectedFrames()
         {
             // Struct initialization
-            FrameListClipboardObject frameListClip = new FrameListClipboardObject();
+            var frameListClip = new FrameListClipboardObject();
+            var selected = GetSelectedFrames();
 
-            foreach (ListViewItem item in lv_frames.SelectedItems)
+            foreach (var frame in selected)
             {
-                frameListClip.AddFrame(((Frame)item.Tag).Clone());
+                frameListClip.AddFrame(frame.Clone());
             }
 
             Clipboard.SetObject(frameListClip);
@@ -760,13 +762,16 @@ namespace Pixelaria.Views.ModelViews
             if (Clipboard.CurrentDataType == FrameListClipboardObject.DataType)
             {
                 // Frame clipboard data fetching
-                FrameListClipboardObject frameListClip = (FrameListClipboardObject)Clipboard.GetObject();
+                var frameListClip = (FrameListClipboardObject)Clipboard.GetObject();
 
-                FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings() {  AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize,
-                                                                                            InterpolationMode = InterpolationMode.NearestNeighbor,
-                                                                                            PerFrameScalingMethod = PerFrameScalingMethod.PlaceAtTopLeft };
+                var sizeMatching = new FrameSizeMatchingSettings()
+                {
+                    AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize,
+                    InterpolationMode = InterpolationMode.NearestNeighbor,
+                    PerFrameScalingMethod = PerFrameScalingMethod.PlaceAtTopLeft
+                };
 
-                if(_viewAnimation.FrameCount > 0)
+                if (_viewAnimation.FrameCount > 0)
                 {
                     // Check if there are any frames with different dimensions than the current animation
                     if (frameListClip.Frames.Any(frame => frame.Width != _viewAnimation.Width || frame.Height != _viewAnimation.Height))
@@ -795,7 +800,7 @@ namespace Pixelaria.Views.ModelViews
                 if (index == -1)
                     index = lv_frames.Items.Count;
 
-                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+                var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 // Maintain a copy of the list of added frames so the control can select them after
                 var copiedFrames =
@@ -821,26 +826,26 @@ namespace Pixelaria.Views.ModelViews
             else if (Clipboard.CurrentDataType == ImageStreamClipboardObject.DataType)
             {
                 // Recreate the frame from the image stream
-                ImageStreamClipboardObject imgStr = Clipboard.GetObject() as ImageStreamClipboardObject;
+                var imgStr = Clipboard.GetObject() as ImageStreamClipboardObject;
 
                 if (imgStr == null)
                     return;
 
-                Bitmap bitmap = Image.FromStream(imgStr.ImageStream) as Bitmap;
+                var bitmap = Image.FromStream(imgStr.ImageStream) as Bitmap;
 
                 if (bitmap == null)
                     return;
 
-                Frame frame = _controller.FrameFactory.CreateFrame(bitmap.Width, bitmap.Height, null, false);
+                var frame = _controller.FrameFactory.CreateFrame(bitmap.Width, bitmap.Height, null, false);
 
                 frame.SetFrameBitmap(bitmap);
 
-                FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
+                var sizeMatching = new FrameSizeMatchingSettings();
 
                 // Check if there are any frames with different dimensions than the current animation
                 if (frame.Width != _viewAnimation.Width || frame.Height != _viewAnimation.Height)
                 {
-                    FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView();
+                    var sizeMatchingForm = new FramesRescaleSettingsView();
 
                     if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
                     {
@@ -855,9 +860,9 @@ namespace Pixelaria.Views.ModelViews
                 // Gets the index to position the frames
                 int index = -1;
 
-                List<Frame> copiedFrames = new List<Frame> { frame };
+                var copiedFrames = new List<Frame> { frame };
 
-                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+                var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 for (int i = 0; i < lv_frames.SelectedIndices.Count; i++)
                 {
@@ -876,7 +881,7 @@ namespace Pixelaria.Views.ModelViews
                 RefreshView();
 
                 // Select the newly added frames
-                foreach (Frame f in copiedFrames)
+                foreach (var f in copiedFrames)
                 {
                     GetListViewItemForFrame(f).Selected = true;
                 }
@@ -901,7 +906,7 @@ namespace Pixelaria.Views.ModelViews
                 index = -1;
             }
 
-            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+            var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
             _viewAnimation.CreateFrame(index);
             undoTask.RecordChanges();

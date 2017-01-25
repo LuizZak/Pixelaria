@@ -48,6 +48,7 @@ Caption:
 
 . AnimationSheetView
   * Fixed changes to 'Favor ratio over area' checkbox not marking the window with changes pending state.
+  * Added better zoom control interface, similar to the one on the FrameView (except limited to 100 instead of 160).
 
 
 -- 1.17.7b

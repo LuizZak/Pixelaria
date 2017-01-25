@@ -100,11 +100,12 @@ namespace Pixelaria.Views.ModelViews
             this.label7 = new System.Windows.Forms.Label();
             this.lbl_dimensions = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.lbl_zoomLevel = new System.Windows.Forms.Label();
             this.cb_showFrameBounds = new System.Windows.Forms.CheckBox();
             this.btn_apply = new System.Windows.Forms.Button();
             this.cb_showReuseCount = new System.Windows.Forms.CheckBox();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
+            this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).BeginInit();
@@ -118,6 +119,7 @@ namespace Pixelaria.Views.ModelViews
             this.gb_sheetInfo.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.gb_exportSummary.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_zoomIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_ok
@@ -126,7 +128,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btn_ok.Enabled = false;
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
-            this.btn_ok.Location = new System.Drawing.Point(365, 541);
+            this.btn_ok.Location = new System.Drawing.Point(365, 540);
             this.btn_ok.Name = "btn_ok";
             this.helpProvider1.SetShowHelp(this.btn_ok, true);
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
@@ -142,7 +144,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_cancel.Location = new System.Drawing.Point(446, 541);
+            this.btn_cancel.Location = new System.Drawing.Point(446, 540);
             this.btn_cancel.Name = "btn_cancel";
             this.helpProvider1.SetShowHelp(this.btn_cancel, true);
             this.btn_cancel.Size = new System.Drawing.Size(75, 29);
@@ -407,7 +409,7 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_alertPanel.Controls.Add(this.pictureBox2);
             this.pnl_alertPanel.Controls.Add(this.lbl_alertLabel);
-            this.pnl_alertPanel.Location = new System.Drawing.Point(12, 541);
+            this.pnl_alertPanel.Location = new System.Drawing.Point(12, 540);
             this.pnl_alertPanel.Name = "pnl_alertPanel";
             this.helpProvider1.SetShowHelp(this.pnl_alertPanel, true);
             this.pnl_alertPanel.Size = new System.Drawing.Size(347, 29);
@@ -439,7 +441,7 @@ namespace Pixelaria.Views.ModelViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_errorPanel.Controls.Add(this.pictureBox1);
             this.pnl_errorPanel.Controls.Add(this.lbl_error);
-            this.pnl_errorPanel.Location = new System.Drawing.Point(12, 541);
+            this.pnl_errorPanel.Location = new System.Drawing.Point(12, 540);
             this.pnl_errorPanel.Name = "pnl_errorPanel";
             this.helpProvider1.SetShowHelp(this.pnl_errorPanel, true);
             this.pnl_errorPanel.Size = new System.Drawing.Size(347, 29);
@@ -528,12 +530,12 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.SheetExport = null;
             this.helpProvider1.SetShowHelp(this.zpb_sheetPreview, true);
             this.zpb_sheetPreview.ShowImageArea = true;
-            this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 408);
+            this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 379);
             this.zpb_sheetPreview.TabIndex = 0;
             this.zpb_sheetPreview.TabStop = false;
             this.zpb_sheetPreview.VerticalScrollValue = 0;
             this.zpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.Zoom")));
-            this.zpb_sheetPreview.ZoomFactor = 1.414214F;
+            this.zpb_sheetPreview.ZoomFactor = 2F;
             this.zpb_sheetPreview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_sheetPreview_ZoomChanged);
             // 
             // gb_sheetInfo
@@ -600,7 +602,7 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel2.Location = new System.Drawing.Point(12, 74);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.helpProvider1.SetShowHelp(this.flowLayoutPanel2, true);
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(299, 461);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(299, 460);
             this.flowLayoutPanel2.TabIndex = 29;
             // 
             // gb_exportSummary
@@ -725,22 +727,11 @@ namespace Pixelaria.Views.ModelViews
             this.label6.TabIndex = 0;
             this.label6.Text = "Dimensions:";
             // 
-            // lbl_zoomLevel
-            // 
-            this.lbl_zoomLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lbl_zoomLevel.AutoSize = true;
-            this.lbl_zoomLevel.Location = new System.Drawing.Point(317, 501);
-            this.lbl_zoomLevel.Name = "lbl_zoomLevel";
-            this.helpProvider1.SetShowHelp(this.lbl_zoomLevel, true);
-            this.lbl_zoomLevel.Size = new System.Drawing.Size(51, 13);
-            this.lbl_zoomLevel.TabIndex = 30;
-            this.lbl_zoomLevel.Text = "Zoom: 1x";
-            // 
             // cb_showFrameBounds
             // 
             this.cb_showFrameBounds.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cb_showFrameBounds.AutoSize = true;
-            this.cb_showFrameBounds.Location = new System.Drawing.Point(317, 517);
+            this.cb_showFrameBounds.Location = new System.Drawing.Point(317, 516);
             this.cb_showFrameBounds.Name = "cb_showFrameBounds";
             this.helpProvider1.SetShowHelp(this.cb_showFrameBounds, true);
             this.cb_showFrameBounds.Size = new System.Drawing.Size(167, 17);
@@ -755,7 +746,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_apply.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btn_apply.Enabled = false;
             this.btn_apply.Image = global::Pixelaria.Properties.Resources.download;
-            this.btn_apply.Location = new System.Drawing.Point(527, 541);
+            this.btn_apply.Location = new System.Drawing.Point(527, 540);
             this.btn_apply.Name = "btn_apply";
             this.helpProvider1.SetShowHelp(this.btn_apply, true);
             this.btn_apply.Size = new System.Drawing.Size(75, 29);
@@ -771,7 +762,7 @@ namespace Pixelaria.Views.ModelViews
             this.cb_showReuseCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cb_showReuseCount.AutoSize = true;
             this.cb_showReuseCount.Enabled = false;
-            this.cb_showReuseCount.Location = new System.Drawing.Point(490, 517);
+            this.cb_showReuseCount.Location = new System.Drawing.Point(490, 516);
             this.cb_showReuseCount.Name = "cb_showReuseCount";
             this.helpProvider1.SetShowHelp(this.cb_showReuseCount, true);
             this.cb_showReuseCount.Size = new System.Drawing.Size(103, 17);
@@ -786,17 +777,61 @@ namespace Pixelaria.Views.ModelViews
             this.tt_mainTooltip.InitialDelay = 500;
             this.tt_mainTooltip.ReshowDelay = 100;
             // 
+            // pb_zoomIcon
+            // 
+            this.pb_zoomIcon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pb_zoomIcon.Image = global::Pixelaria.Properties.Resources.zoom_icon;
+            this.pb_zoomIcon.Location = new System.Drawing.Point(317, 475);
+            this.pb_zoomIcon.Name = "pb_zoomIcon";
+            this.pb_zoomIcon.Size = new System.Drawing.Size(16, 16);
+            this.pb_zoomIcon.TabIndex = 35;
+            this.pb_zoomIcon.TabStop = false;
+            // 
+            // anud_zoom
+            // 
+            this.anud_zoom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.anud_zoom.AssistBarColor = System.Drawing.Color.CornflowerBlue;
+            this.anud_zoom.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.anud_zoom.DecimalPlaces = 2;
+            this.anud_zoom.Increment = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            this.anud_zoom.Location = new System.Drawing.Point(339, 475);
+            this.anud_zoom.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.anud_zoom.Minimum = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            this.anud_zoom.Name = "anud_zoom";
+            this.anud_zoom.Size = new System.Drawing.Size(263, 35);
+            this.anud_zoom.TabIndex = 34;
+            this.anud_zoom.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.anud_zoom.ValueChanged += new System.EventHandler(this.anud_zoom_ValueChanged);
+            // 
             // AnimationSheetView
             // 
             this.AcceptButton = this.btn_ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_cancel;
-            this.ClientSize = new System.Drawing.Size(614, 582);
+            this.ClientSize = new System.Drawing.Size(614, 581);
+            this.Controls.Add(this.pb_zoomIcon);
+            this.Controls.Add(this.anud_zoom);
             this.Controls.Add(this.cb_showReuseCount);
             this.Controls.Add(this.btn_apply);
             this.Controls.Add(this.cb_showFrameBounds);
-            this.Controls.Add(this.lbl_zoomLevel);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.pnl_alertPanel);
             this.Controls.Add(this.pnl_errorPanel);
@@ -833,6 +868,7 @@ namespace Pixelaria.Views.ModelViews
             this.flowLayoutPanel2.ResumeLayout(false);
             this.gb_exportSummary.ResumeLayout(false);
             this.gb_exportSummary.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_zoomIcon)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -885,7 +921,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label lbl_framesOnSheet;
         private System.Windows.Forms.Label lbl_reusedFrames;
         private System.Windows.Forms.ProgressBar pb_exportProgress;
-        private System.Windows.Forms.Label lbl_zoomLevel;
         private System.Windows.Forms.ToolTip tt_mainTooltip;
         private System.Windows.Forms.CheckBox cb_useUniformGrid;
         private System.Windows.Forms.Label lbl_memoryUsage;
@@ -893,5 +928,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.CheckBox cb_showFrameBounds;
         private System.Windows.Forms.Button btn_apply;
         private System.Windows.Forms.CheckBox cb_showReuseCount;
+        private System.Windows.Forms.PictureBox pb_zoomIcon;
+        private Controls.AssistedNumericUpDown anud_zoom;
     }
 }

@@ -23,13 +23,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pixelaria.Data.Factories;
 
 namespace Pixelaria.Data
 {
     /// <summary>
     /// A bundle is an object that holds animations
     /// </summary>
-    public class Bundle : IDisposable
+    public class Bundle : IDisposable, IFrameIdGenerator
     {
         /// <summary>
         /// List of animations on this Bundle
@@ -196,13 +197,13 @@ namespace Pixelaria.Data
             }
 
             _animations.Add(anim);
-            anim.OwnerBundle = this;
+            anim.FrameIdGenerator = this;
 
             // Iterate through the frames and check their ids
             foreach (IFrame frame in anim.Frames)
             {
                 if (frame.ID == -1)
-                    frame.ID = GetNextValidFrameID();
+                    frame.ID = GetNextUniqueFrameId();
                 else
                     _nextFrameId = Math.Max(_nextFrameId, frame.ID + 1);
             }
@@ -242,7 +243,7 @@ namespace Pixelaria.Data
                 }
             }
 
-            anim.OwnerBundle = null;
+            anim.FrameIdGenerator = null;
 
             _animations.Remove(anim);
         }
@@ -538,8 +539,7 @@ namespace Pixelaria.Data
         /// Gets the next valid Frame ID based on the IDs of the current frames
         /// </summary>
         /// <returns>An integer that is safe to be used as an ID for a frame</returns>
-        // ReSharper disable once InconsistentNaming
-        public int GetNextValidFrameID()
+        public int GetNextUniqueFrameId()
         {
             int id = _nextFrameId++;
 

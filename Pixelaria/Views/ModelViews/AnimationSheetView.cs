@@ -21,7 +21,7 @@
 */
 
 using System;
-using System.ComponentModel;
+
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -106,8 +106,10 @@ namespace Pixelaria.Views.ModelViews
 
                 gb_sheetInfo.Visible = false;
                 gb_exportSummary.Visible = false;
+                
+                anud_zoom.Visible = false;
+                pb_zoomIcon.Visible = false;
 
-                lbl_zoomLevel.Visible = false;
                 cb_showFrameBounds.Visible = false;
                 cb_showReuseCount.Visible = false;
                 btn_apply.Enabled = false;
@@ -132,6 +134,8 @@ namespace Pixelaria.Views.ModelViews
             cb_exportJson.Checked = _sheetToEdit.ExportSettings.ExportJson;
             nud_xPadding.Value = _sheetToEdit.ExportSettings.XPadding;
             nud_yPadding.Value = _sheetToEdit.ExportSettings.YPadding;
+
+            zpb_sheetPreview.MaximumZoom = new PointF(100, 100);
 
             modified = false;
 
@@ -257,9 +261,6 @@ namespace Pixelaria.Views.ModelViews
             RepopulateExportSettings();
             UpdateCountLabels();
 
-            // Dispose of current preview
-            RemovePreview();
-
             if (_sheetToEdit.Animations.Length <= 0)
             {
                 lbl_alertLabel.Text = AnimationMessages.TextNoAnimationInSheetToGeneratePreview;
@@ -282,17 +283,24 @@ namespace Pixelaria.Views.ModelViews
             if (form != null)
                 form.Cursor = Cursors.WaitCursor;
 
-            Stopwatch sw = Stopwatch.StartNew();
+            btn_generatePreview.Enabled = false;
+
+            var sw = Stopwatch.StartNew();
 
             _sheetCancellation = new CancellationTokenSource();
 
             // Export the bundle
             var t = _controller.GenerateBundleSheet(_exportSettings, _sheetCancellation.Token, handler, _sheetToEdit.Animations);
 
-            t.ContinueWith((task) =>
+            t.ContinueWith(task =>
             {
                 Invoke(new Action(() =>
                 {
+                    btn_generatePreview.Enabled = true;
+
+                    // Dispose of current preview
+                    RemovePreview();
+
                     if (_sheetCancellation.IsCancellationRequested)
                     {
                         _sheetCancellation = null;
@@ -442,6 +450,14 @@ namespace Pixelaria.Views.ModelViews
         }
 
         // 
+        // Zoom anud value changed
+        // 
+        private void anud_zoom_ValueChanged(object sender, EventArgs e)
+        {
+            zpb_sheetPreview.Zoom = new PointF((float)anud_zoom.Value, (float)anud_zoom.Value);
+        }
+
+        // 
         // Generate Preview button click
         // 
         private void btn_generatePreview_Click(object sender, EventArgs e)
@@ -527,7 +543,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void zpb_sheetPreview_ZoomChanged(object sender, Controls.ZoomChangedEventArgs e)
         {
-            lbl_zoomLevel.Text = @"Zoom: " + (Math.Ceiling(e.NewZoom * 100) / 100) + @"x";
+            anud_zoom.Value = (decimal)e.NewZoom;
         }
     }
 }
