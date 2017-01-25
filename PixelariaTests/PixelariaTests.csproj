@@ -67,7 +67,7 @@
     <Compile Include="PixelariaTests\Generators\BundleGenerator.cs" />
     <Compile Include="PixelariaTests\Generators\FrameGenerator.cs" />
     <Compile Include="PixelariaTests\Tests\Algorithms\Packers\DefaultTexturePackerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Algorithms\Packers\FrameBoundsMapTests.cs" />
+    <Compile Include="PixelariaTests\Tests\Data\Exports\FrameBoundsMapTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\AnimationSheetTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\AnimationTests.cs" />
     <Compile Include="PixelariaTests\Tests\Data\BundleTests.cs" />

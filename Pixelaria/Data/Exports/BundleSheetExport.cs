@@ -268,7 +268,7 @@ namespace Pixelaria.Data.Exports
                 _exportSettings = atlas.ExportSettings,
                 Animations = atlas.GetAnimationsOnAtlas(),
                 _reusedFrameCount = atlas.Information.ReusedFrameOriginsCount,
-                _reuseCount = atlas.ReuseCount.ToArray(),
+                _reuseCount = atlas.FrameList.Select(f => atlas.ReuseCountForFrameIndex(atlas.FrameList.IndexOf(f))).ToArray(),
                 _frameRects = frameRectList.ToArray()
             };
         }

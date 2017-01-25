@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
+
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Exports
@@ -41,11 +41,9 @@ namespace Pixelaria.Data.Exports
         /// <param name="name">An optional name for the TextureAtlas to be used on progress report</param>
         public TextureAtlas(AnimationExportSettings settings, string name = "")
         {
+            _boundsMap = new FrameBoundsMap();
             _animationList = new List<Animation>();
             FrameList = new List<IFrame>();
-            BoundsList = new List<Rectangle>();
-            OriginsList = new List<Rectangle>();
-            ReuseCount = new List<int>();
             ExportSettings = settings;
             Information = new TextureAtlasInformation();
 
@@ -58,10 +56,8 @@ namespace Pixelaria.Data.Exports
         public void Dispose()
         {
             // Clear the lists
+            _boundsMap = new FrameBoundsMap();
             FrameList.Clear();
-            BoundsList.Clear();
-            OriginsList.Clear();
-            ReuseCount.Clear();
         }
 
         /// <summary>
@@ -80,10 +76,9 @@ namespace Pixelaria.Data.Exports
                 _animationList.Add(frame.Animation);
             }
 
+            _boundsMap.RegisterFrames(new[] { frame }, new Rectangle(0, 0, frame.Width, frame.Height));
+
             FrameList.Add(frame);
-            BoundsList.Add(new Rectangle());
-            OriginsList.Add(new Rectangle(0, 0, frame.Width, frame.Height));
-            ReuseCount.Add(0);
         }
 
         /// <summary>
@@ -169,7 +164,8 @@ namespace Pixelaria.Data.Exports
         /// <returns>The bounding rectangle for the given frame</returns>
         public Rectangle GetFrameBoundsRectangle(int frameIndex)
         {
-            return BoundsList[frameIndex];
+            var frame = FrameList[frameIndex];
+            return _boundsMap.GetSheetBoundsForFrame(frame).GetValueOrDefault();
         }
 
         /// <summary>
@@ -177,10 +173,18 @@ namespace Pixelaria.Data.Exports
         /// area on the atlas sheet the frame occupies. It is relative to the atlas sheet
         /// </summary>
         /// <param name="frameIndex">The index of the frame to set the bounding rectangle</param>
+        /// <param name="moveSharedFrames">Whether to also move frames that are marked as sharing the region of this frame</param>
         /// <param name="rectangle">The bounds Rectangle for the frame index</param>
-        public void SetFrameBoundsRectangle(int frameIndex, Rectangle rectangle)
+        public void SetFrameBoundsRectangle(int frameIndex, Rectangle rectangle, bool moveSharedFrames = false)
         {
-            BoundsList[frameIndex] = rectangle;
+            var frame = FrameList[frameIndex];
+
+            if (!moveSharedFrames)
+            {
+                _boundsMap.SplitSharedSheetBoundsForFrame(frame);
+            }
+
+            _boundsMap.SetSheetBoundsForFrame(frame, rectangle);
         }
 
         /// <summary>
@@ -191,7 +195,8 @@ namespace Pixelaria.Data.Exports
         /// <returns>The origin rectangle for the given frame</returns>
         public Rectangle GetFrameOriginsRectangle(int frameIndex)
         {
-            return OriginsList[frameIndex];
+            var frame = FrameList[frameIndex];
+            return _boundsMap.GetLocalBoundsForFrame(frame).GetValueOrDefault();
         }
 
         /// <summary>
@@ -202,7 +207,27 @@ namespace Pixelaria.Data.Exports
         /// <param name="rectangle">The origin Rectangle for the frame index</param>
         public void SetFrameOriginsRectangle(int frameIndex, Rectangle rectangle)
         {
-            OriginsList[frameIndex] = rectangle;
+            var frame = FrameList[frameIndex];
+            _boundsMap.SetLocalBoundsForFrame(frame, rectangle);
+        }
+
+        /// <summary>
+        /// Sets the frame bounds map for this texture atlas, replacing the current underlying frame bounds object
+        /// </summary>
+        public void SetFrameBoundsMap(FrameBoundsMap map)
+        {
+            _boundsMap = map;
+        }
+
+        /// <summary>
+        /// Returns the reuse count for a frame at a given index on this texture atlas
+        /// </summary>
+        public int ReuseCountForFrameIndex(int frameIndex)
+        {
+            var frame = FrameList[frameIndex];
+            var index = _boundsMap.SheetIndexForFrame(frame);
+
+            return _boundsMap.CountOfFramesAtSheetBoundsIndex(index);
         }
 
         /// <summary>
@@ -226,33 +251,21 @@ namespace Pixelaria.Data.Exports
         public int FrameCount => FrameList.Count;
 
         /// <summary>
+        /// The current frame bounds map for this texture altas, mapping frames to sheet rectangles that may be shared amongst frames
+        /// </summary>
+        private FrameBoundsMap _boundsMap;
+
+        /// <summary>
         /// Gets the internal list of frames for this texture atlas
         /// </summary>
         public List<IFrame> FrameList { get; }
-
-        /// <summary>
-        /// Gets the list of frame bounds.
-        /// The bounds rectangle represents a rectangle on the exported sheet image that the corresponding frame occupies
-        /// </summary>
-        public List<Rectangle> BoundsList { get; }
-
-        /// <summary>
-        /// Gets the list of frame origins.
-        /// The origin rectangle represents the rectangle of the frame image that is represented on the exported sheet image
-        /// </summary>
-        public List<Rectangle> OriginsList { get; }
         
         /// <summary>
         /// Gets an array of unique rectangle bounds containeg within this texture atlas, ignoring duplicated frame bounds that where resued for similar frames.
         /// The array is not ordered in any particular way.
         /// </summary>
-        public Rectangle[] UniqueBounds => new HashSet<Rectangle>(BoundsList).ToArray();
-
-        /// <summary>
-        /// Gets the list of frames reused for each frame index. This list contains all the frames on the sheet, with indices that may repeat over.
-        /// </summary>
-        public List<int> ReuseCount { get; }
-
+        public Rectangle[] UniqueBounds => _boundsMap.SheetBounds;
+        
         /// <summary>
         /// Gets this atlas' width
         /// </summary>

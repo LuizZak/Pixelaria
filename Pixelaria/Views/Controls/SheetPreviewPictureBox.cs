@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
@@ -68,6 +69,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private bool _displayReusedCount;
 
+        private FrameBoundsMap _exportFrameBoundsMap;
+
         /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
         /// </summary>
@@ -89,7 +92,7 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
+        /// Gets or sets the current Sheet Export this SheetPreviewPictureBox is displaying
         /// </summary>
         public BundleSheetExport SheetExport
         {
@@ -97,6 +100,19 @@ namespace Pixelaria.Views.Controls
             set
             {
                 _sheetExport = value;
+                RefreshFrameBoundsPreview();
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current mappings of frame bounds, to go along a Sheet Export on this sheet preview picture box
+        /// </summary>
+        public FrameBoundsMap ExportFrameBoundsMap
+        {
+            get { return _exportFrameBoundsMap; }
+            set {
+                _exportFrameBoundsMap = value;
                 RefreshFrameBoundsPreview();
                 Invalidate();
             }
@@ -180,7 +196,8 @@ namespace Pixelaria.Views.Controls
         /// Loads a bundle sheet export preview
         /// </summary>
         /// <param name="bundleSheetExport">The bundle sheet export containing data about the exported image</param>
-        public void LoadExportSheet(BundleSheetExport bundleSheetExport)
+        /// <param name="map">The map of rectangles exported</param>
+        public void LoadExportSheet(BundleSheetExport bundleSheetExport, FrameBoundsMap map)
         {
             UnloadExportSheet();
 

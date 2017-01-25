@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Algorithms.Packers
 {
@@ -106,21 +105,7 @@ namespace Pixelaria.Algorithms.Packers
             // Replace bounds now
             frameBoundsMap.ReplaceSheetBounds(finalFrameRegions);
 
-            // Unwrap on atlas now
-            //atlas.BoundsList
-            for (int i = 0; i < atlas.FrameList.Count; i++)
-            {
-                var frame = atlas.FrameList[i];
-                var sheetBounds = frameBoundsMap.GetSheetBoundsForFrame(frame);
-
-                if (sheetBounds != null)
-                    atlas.BoundsList[i] = sheetBounds.Value;
-
-                var localBounds = frameBoundsMap.GetLocalBoundsForFrame(frame);
-
-                if(localBounds != null)
-                    atlas.OriginsList[i] = localBounds.Value;
-            }
+            atlas.SetFrameBoundsMap(frameBoundsMap);
 
             // Round up to the closest power of two
             if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
@@ -137,32 +122,7 @@ namespace Pixelaria.Algorithms.Packers
             atlas.AtlasRectangle = new Rectangle(0, 0, (int)atlasWidth, (int)atlasHeight);
             
             // Assign the information on the texture atlas
-            atlas.Information.ReusedFrameOriginsCount = _frameComparision.CachedSimilarCount;
-
-            // Register reusal in atlas
-            atlas.ReuseCount.Clear();
-
-            var simMatrix = _frameComparision.SimilarMatrixIndexDictionary;
-
-            foreach (IFrame frame in atlas.FrameList)
-            {
-                if (atlas.ExportSettings.ReuseIdenticalFramesArea)
-                {
-                    int repCount = 0;
-
-                    int index;
-                    if (simMatrix.TryGetValue(frame.ID, out index))
-                    {
-                        repCount = _frameComparision.SimilarFramesMatrix[index].Count - 1;
-                    }
-
-                    atlas.ReuseCount.Add(repCount);
-                }
-                else
-                {
-                    atlas.ReuseCount.Add(0);
-                }
-            }
+            atlas.Information.ReusedFrameOriginsCount = atlas.FrameCount - frameBoundsMap.SheetBounds.Length;
         }
         
         private FrameBoundsMap PrepareAtlas(TextureAtlas atlas, int frameWidth = -1, int frameHeight = -1)
@@ -170,21 +130,17 @@ namespace Pixelaria.Algorithms.Packers
             var boundsMap = new FrameBoundsMap();
 
             // Register all frames in sequence, first
-            for (int i = 0; i < atlas.FrameList.Count; i++)
+            foreach (var frame in atlas.FrameList)
             {
-                var frame = atlas.FrameList[i];
-
                 ////
                 //// 2. Calculate frame origin
                 ////
-                Rectangle local = new Rectangle(0, 0, (frameWidth == -1 ? frame.Width : frameWidth), (frameHeight == -1 ? frame.Height : frameHeight));
+                var local = new Rectangle(0, 0, (frameWidth == -1 ? frame.Width : frameWidth), (frameHeight == -1 ? frame.Height : frameHeight));
 
                 if (atlas.ExportSettings.ForceMinimumDimensions && !atlas.ExportSettings.UseUniformGrid)
                 {
                     local = _frameComparision.GetFrameArea(frame);
                 }
-
-                atlas.OriginsList[i] = local;
 
                 boundsMap.RegisterFrames(new [] { frame }, local);
             }
@@ -198,7 +154,7 @@ namespace Pixelaria.Algorithms.Packers
             {
                 foreach (var frame in atlas.FrameList)
                 {
-                    IFrame original = _frameComparision.GetOriginalSimilarFrame(frame);
+                    var original = _frameComparision.GetOriginalSimilarFrame(frame);
 
                     if (original != null)
                     {
@@ -648,228 +604,6 @@ namespace Pixelaria.Algorithms.Packers
                 /// The frame's rectangle
                 /// </summary>
                 public Rectangle FrameRectangle;
-            }
-        }
-
-        /// <summary>
-        /// Provides a simple interface for managing sharing of frame bounds so that changes to one frame final sheet rectangle reflects on all other shared frames.
-        /// </summary>
-        public class FrameBoundsMap
-        {
-            /// <summary>
-            /// Maps Frame.ID -> _sheetBounds Rectangle list index
-            /// </summary>
-            private readonly Dictionary<int, int> _frameSheetBoundsMap = new Dictionary<int, int>();
-
-            /// <summary>
-            /// Maps Frame.ID -> local frame image Rectangle
-            /// </summary>
-            private readonly Dictionary<int, Rectangle> _frameLocalBoundsMap = new Dictionary<int, Rectangle>();
-
-            /// <summary>
-            /// List of available frame bounds in global sheet coordinates
-            /// </summary>
-            private readonly List<Rectangle> _sheetBounds = new List<Rectangle>();
-
-            /// <summary>
-            /// Array of available frame bounds in global sheet coordinates
-            /// </summary>
-            public Rectangle[] SheetBounds => _sheetBounds.ToArray();
-
-            /// <summary>
-            /// Register shared bounds for a given set of frames
-            /// This method throws an exception if the frame passed in does not have an id set (-1).
-            /// </summary>
-            /// <param name="frames">Shared frames with the same bounds</param>
-            /// <param name="localBounds">Local bounds for the frames</param>
-            /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-            public void RegisterFrames(IEnumerable<IFrame> frames, Rectangle localBounds)
-            {
-                int sheetIndex = _sheetBounds.Count;
-
-                var localZero = localBounds;
-                localZero.X = 0;
-                localZero.Y = 0;
-
-                _sheetBounds.Add(localZero);
-                
-                // Map values
-                foreach (var frame in frames)
-                {
-                    // Check invalid id
-                    if (frame.ID == -1)
-                        throw new ArgumentException(@"Frame appears to have no valid ID set (negative number).", nameof(frames));
-                    if(!frame.Initialized)
-                        throw new ArgumentException(@"Frame is uninitialized.", nameof(frames));
-
-                    _frameSheetBoundsMap[frame.ID] = sheetIndex;
-                    _frameLocalBoundsMap[frame.ID] = localBounds;
-                }
-            }
-
-            /// <summary>
-            /// Replaces the current list of rectangles with a given rectangle collection.
-            /// The rectangle collection must have the same count of rectangles as the currently registered SheetBounds array.
-            /// An exception is thrown, if the count of new bounds do not match the current count of sheets
-            /// </summary>
-            /// <exception cref="ArgumentException">The newBounds enumerable has a count different than SheetBounds.Count</exception>
-            public void ReplaceSheetBounds(IEnumerable<Rectangle> newBounds)
-            {
-                var newList = new List<Rectangle>(newBounds);
-                if (newList.Count != _sheetBounds.Count)
-                    throw new ArgumentException($"The count of items in the passed enumerable is mismatched: {newList.Count} new bounds vs {_sheetBounds.Count} local bounds", nameof(newBounds));
-                
-                // Straight replace the values
-                _sheetBounds.Clear();
-                _sheetBounds.AddRange(newList);
-            }
-
-            /// <summary>
-            /// Gets the rectangle for a given frame.
-            /// Returns null, if no rectangle was found
-            /// </summary>
-            public Rectangle? GetSheetBoundsForFrame(IFrame frame)
-            {
-                int index;
-                if (_frameSheetBoundsMap.TryGetValue(frame.ID, out index))
-                {
-                    return _sheetBounds[index];
-                }
-
-                return null;
-            }
-
-            /// <summary>
-            /// Gets the local image bounds for a given frame
-            /// </summary>
-            public Rectangle? GetLocalBoundsForFrame(IFrame frame)
-            {
-                Rectangle bounds;
-                if (_frameLocalBoundsMap.TryGetValue(frame.ID, out bounds))
-                {
-                    return bounds;
-                }
-
-                return null;
-            }
-
-            /// <summary>
-            /// Sets the sheet bounds for a specified frame, and all shared frames, in this frame bounds map.
-            /// Does nothing if this frame is not registered on this frame bounds map.
-            /// This method throws an exception if the frame passed in does not have an id set (-1).
-            /// </summary>
-            /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-            public void SetSheetBoundsForFrame(IFrame frame, Rectangle sheetBounds)
-            {
-                // Check invalid id
-                if (frame.ID == -1)
-                    throw new ArgumentException(@"Frame appears to have no valid ID set (negative number).", nameof(frame));
-                if (!frame.Initialized)
-                    throw new ArgumentException(@"Frame is uninitialized.", nameof(frame));
-
-                int index;
-                if (_frameSheetBoundsMap.TryGetValue(frame.ID, out index))
-                {
-                    _sheetBounds[index] = sheetBounds;
-                }
-            }
-
-            /// <summary>
-            /// Marks two frames as sharing the same sheet bounds.
-            /// Any changes to a sheet bound of one frame will reflect when fetching the sheet bounds of the other.
-            /// Both frames must be registered on this frame bounds map previously, otherwise nothing is done and false is retured.
-            /// In case the operation succeeded, true is returned.
-            /// This effectively associates frame2 -> frame1, so any sheet bounds associated with frame2 are no longer associated to it.
-            /// This method throws an exception if the frame passed in does not have an id set (-1).
-            /// </summary>
-            /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-            public bool ShareSheetBoundsForFrames(IFrame frame1, IFrame frame2)
-            {
-                // Check invalid id
-                if (frame1.ID == -1)
-                    throw new ArgumentException(@"Frame appears to have no valid ID set (negative number).", nameof(frame1));
-                if (!frame1.Initialized)
-                    throw new ArgumentException(@"Frame is uninitialized.", nameof(frame1));
-                if (frame1.ID == -2)
-                    throw new ArgumentException(@"Frame appears to have no valid ID set (negative number).", nameof(frame2));
-                if (!frame2.Initialized)
-                    throw new ArgumentException(@"Frame is uninitialized.", nameof(frame2));
-
-                // Missing registration
-                if (!ContainsFrame(frame1) || !ContainsFrame(frame2))
-                {
-                    return false;
-                }
-
-                // Find current indexes on map dictionary
-                int frame1Index = _frameSheetBoundsMap[frame1.ID];
-                int frame2Index = _frameSheetBoundsMap[frame2.ID];
-
-                // Frames already share the same bounds
-                if (frame1Index == frame2Index)
-                    return true;
-
-                // Share from frame1 -> frame2
-                _frameSheetBoundsMap[frame2.ID] = frame1Index;
-
-                CompactMapArray();
-
-                return true;
-            }
-
-            /// <summary>
-            /// Returns whether this frame bounds map contains information pertaininig to a given frame
-            /// </summary>
-            public bool ContainsFrame(IFrame frame)
-            {
-                return _frameSheetBoundsMap.ContainsKey(frame.ID) && _frameLocalBoundsMap.ContainsKey(frame.ID);
-            }
-
-            /// <summary>
-            /// Moves all internal references from one frame sheet map array index to another
-            /// </summary>
-            private void MoveIndex(int oldIndex, int newIndex)
-            {
-                foreach (var key in _frameSheetBoundsMap.Keys.ToArray())
-                {
-                    if (_frameSheetBoundsMap[key] == oldIndex)
-                    {
-                        _frameSheetBoundsMap[key] = newIndex;
-                    }
-                }
-            }
-
-            /// <summary>
-            /// Compacts the data so the sheet array doesn't points to no-longer referenced indexes
-            /// </summary>
-            private void CompactMapArray()
-            {
-                // Ref-counting array
-                var refs = _sheetBounds.Select(v => false).ToList();
-
-                foreach (var value in _frameSheetBoundsMap.Values)
-                {
-                    refs[value] = true;
-                }
-
-                // Find 'false' indexes and remove them, moving indexes back as we go
-                for (int i = 0; i < refs.Count; i++)
-                {
-                    if (refs[i])
-                        continue;
-
-                    // Move all next indexes back
-                    for (int j = i; j < _sheetBounds.Count - 1; j++)
-                    {
-                        MoveIndex(j + 1, j);
-                    }
-
-                    // Remove index, and continue searching
-                    _sheetBounds.RemoveAt(i);
-
-                    refs.RemoveAt(i);
-                    i--;
-                }
             }
         }
     }

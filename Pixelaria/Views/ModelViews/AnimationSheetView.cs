@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-
+using Pixelaria.Algorithms;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
@@ -60,6 +60,11 @@ namespace Pixelaria.Views.ModelViews
         /// The current bundle sheet export
         /// </summary>
         BundleSheetExport _bundleSheetExport;
+
+        /// <summary>
+        /// The current frame bounds map
+        /// </summary>
+        FrameBoundsMap _frameBoundsMap;
 
         /// <summary>
         /// Cancellation token for the sheet generation routine
@@ -353,7 +358,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_bundleSheetExport != null)
             {
-                zpb_sheetPreview.LoadExportSheet(_bundleSheetExport);
+                zpb_sheetPreview.LoadExportSheet(_bundleSheetExport, _frameBoundsMap);
             }
 
             cb_showReuseCount.Enabled = true;

@@ -26,14 +26,14 @@ using System.Drawing;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;
+using Pixelaria.Data.Exports;
 using PixelariaTests.PixelariaTests.Generators;
 
-namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
+namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
 {
     /// <summary>
-    /// Tests DefaultTexturePacker.FrameBoundsMap class and related components
+    /// Tests FrameBoundsMap class and related components
     /// </summary>
     [TestClass]
     public class FrameBoundsMapTests
@@ -44,12 +44,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestFrameRegistering()
         {
-            var frame = FrameGenerator.GenerateRandomFrame(32, 32); frame.ID = 1;
+            var frame = FrameGenerator.GenerateRandomFrame(32, 32);
             var bounds = new Rectangle(0, 10, 32, 32);
 
             var boundsZero = new Rectangle(0, 0, 32, 32);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             Assert.IsNull(map.GetLocalBoundsForFrame(frame));
             Assert.IsFalse(map.ContainsFrame(frame));
@@ -69,13 +69,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestFrameBoundsSharing()
         {
-            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32); frame1.ID = 1;
-            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32); frame2.ID = 2;
-            var frame3 = FrameGenerator.GenerateRandomFrame(32, 32); frame3.ID = 3;
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame3 = FrameGenerator.GenerateRandomFrame(32, 32);
             var bounds1 = new Rectangle(0, 0, 32, 32);
             var bounds2 = new Rectangle(0, 0, 40, 40);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.RegisterFrames(new[] { frame1 }, bounds1);
             map.RegisterFrames(new[] { frame2 }, bounds2);
@@ -101,12 +101,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestFrameBoundsReplacing()
         {
-            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32); frame1.ID = 1;
-            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32); frame2.ID = 2;
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
             var bounds1 = new Rectangle(0, 0, 32, 32);
             var bounds2 = new Rectangle(32, 32, 40, 40);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.RegisterFrames(new[] { frame1 }, bounds1);
             map.RegisterFrames(new[] { frame2 }, bounds2);
@@ -126,12 +126,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestFrameBoundsReplacingShared()
         {
-            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32); frame1.ID = 1;
-            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32); frame2.ID = 2;
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
             var bounds1 = new Rectangle(0, 0, 32, 32);
             var bounds2 = new Rectangle(0, 0, 40, 40);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.RegisterFrames(new[] { frame1 }, bounds1);
             map.RegisterFrames(new[] { frame2 }, bounds2);
@@ -152,13 +152,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestFrameBoundsSetForFrame()
         {
-            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32); frame1.ID = 1;
-            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32); frame2.ID = 2;
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
             var rectangle = new Rectangle(0, 0, 32, 32);
 
             var newBounds = new Rectangle(32, 0, 32, 32);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.RegisterFrames(new[] { frame1 }, rectangle);
             map.RegisterFrames(new[] { frame2 }, rectangle);
@@ -177,6 +177,77 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         }
 
         /// <summary>
+        /// Tests setting of local frame bounds for frames via <see cref="FrameBoundsMap.SetLocalBoundsForFrame"/> method
+        /// </summary>
+        [TestMethod]
+        public void TestSetLocalBoundsForFrame()
+        {
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var originalRect = new Rectangle(5, 5, 15, 15);
+
+            var map = new FrameBoundsMap();
+
+            map.RegisterFrames(new[] { frame1 }, originalRect);
+            map.RegisterFrames(new[] { frame2 }, originalRect);
+
+            var newRect1 = new Rectangle(5, 5, 20, 20);
+            
+            // Set local bounds now
+            map.SetLocalBoundsForFrame(frame1, newRect1);
+
+            Assert.AreEqual(map.GetLocalBoundsForFrame(frame1), newRect1);
+            Assert.AreEqual(map.GetLocalBoundsForFrame(frame2), originalRect); // Check we didn't affect another unrelated frame
+        }
+
+        /// <summary>
+        /// Tests setting of local frame bounds for frames via <see cref="FrameBoundsMap.SetLocalBoundsForFrame"/> method, where frames
+        /// are currently sharing sheet bounds - in this case, settings a local bounds should not affect other shared frames' local bounds
+        /// </summary>
+        [TestMethod]
+        public void TestSetLocalBoundsForFrameShared()
+        {
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var originalRect = new Rectangle(5, 5, 15, 15);
+
+            var map = new FrameBoundsMap();
+
+            map.RegisterFrames(new[] { frame1, frame2 }, originalRect);
+
+            var newRect1 = new Rectangle(5, 5, 20, 20);
+
+            // Set local bounds now
+            map.SetLocalBoundsForFrame(frame1, newRect1);
+
+            Assert.AreEqual(map.GetLocalBoundsForFrame(frame1), newRect1);
+            Assert.AreEqual(map.GetLocalBoundsForFrame(frame2), originalRect); // Check we didn't affect another unrelated frame
+        }
+
+        /// <summary>
+        /// Tests counting of frames referencing a specific sheet index via <see cref="FrameBoundsMap.CountOfFramesAtSheetBoundsIndex"/> method
+        /// </summary>
+        [TestMethod]
+        public void TestCountFramesOnBoundsIndex()
+        {
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+
+            var map = new FrameBoundsMap();
+
+            map.RegisterFrames(new []{ frame1 }, new Rectangle());
+            map.RegisterFrames(new []{ frame2 }, new Rectangle());
+
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(0), 1);
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(1), 1);
+
+            // Share frames and check results now
+            map.ShareSheetBoundsForFrames(frame1, frame2);
+
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(0), 2);
+        }
+
+        /// <summary>
         /// Tests sharing of bounds on sequential list of frames
         /// </summary>
         [TestMethod]
@@ -187,20 +258,17 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             for (int i = 0; i < 100; i++)
             {
                 var frame = FrameGenerator.GenerateRandomFrame(32, 32);
-                frame.ID = i;
                 frames.Add(frame);
             }
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             for (int i = 0; i < frames.Count; i++)
             {
                 var frame = frames[i];
                 map.RegisterFrames(new[] {frame}, new Rectangle(0, 0, 10, 10 + i));
             }
-
-            var rand = new Random();
-
+            
             // Go around now sharing frames
             for (int i = 0; i < frames.Count - 1; i++)
             {
@@ -227,11 +295,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             for (int i = 0; i < 100; i++)
             {
                 var frame = FrameGenerator.GenerateRandomFrame(32, 32);
-                frame.ID = i;
                 frames.Add(frame);
             }
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             foreach (var frame in frames)
             {
@@ -243,8 +310,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             // Go around now sharing frames
             for (int i = 0; i < frames.Count; i++)
             {
-                int lower = rand.Next(0, frames.Count);
-                int upper = rand.Next(0, frames.Count);
+                int lower = rand.Next(i, frames.Count);
+                int upper = rand.Next(i, frames.Count);
 
                 map.ShareSheetBoundsForFrames(frames[lower], frames[upper]);
             }
@@ -256,6 +323,85 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         }
 
         /// <summary>
+        /// Tests splitting a once shared bounds index with another frame via <see cref="FrameBoundsMap.SplitSharedSheetBoundsForFrame"/> method
+        /// </summary>
+        [TestMethod]
+        public void TestSplitSharedFrameBounds()
+        {
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+
+            var map = new FrameBoundsMap();
+
+            map.RegisterFrames(new[] { frame1 }, new Rectangle());
+            map.RegisterFrames(new[] { frame2 }, new Rectangle());
+
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(0), 1);
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(1), 1);
+
+            Assert.AreEqual(map.SheetBounds.Length, 2);
+
+            // Share frames and check results now
+            map.ShareSheetBoundsForFrames(frame1, frame2);
+
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(0), 2);
+
+            Assert.AreEqual(map.SheetBounds.Length, 1);
+
+            // Now split frame2 out of the list to a unique index
+            Assert.IsTrue(map.SplitSharedSheetBoundsForFrame(frame2));
+
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(0), 1);
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(1), 1);
+
+            Assert.AreEqual(map.SheetBounds.Length, 2);
+
+            // Change rectangle of frame2
+            Assert.AreEqual(map.GetSheetBoundsForFrame(frame1), map.GetSheetBoundsForFrame(frame2)); // Currently the same
+
+            map.SetSheetBoundsForFrame(frame2, new Rectangle(0, 0, 20, 20));
+
+            Assert.AreNotEqual(map.GetSheetBoundsForFrame(frame1), map.GetSheetBoundsForFrame(frame2));
+
+            // Tests trying to split a unique frame again results in false being returned, and no changes being recorded
+            Assert.IsFalse(map.SplitSharedSheetBoundsForFrame(frame2));
+
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(0), 1);
+            Assert.AreEqual(map.CountOfFramesAtSheetBoundsIndex(1), 1);
+
+            Assert.AreEqual(map.SheetBounds.Length, 2);
+        }
+
+        /// <summary>
+        /// Tests fetching index at SheetBounds array that maps to a specific frame, shared or not, via <see cref="FrameBoundsMap.SheetIndexForFrame"/> method
+        /// </summary>
+        [TestMethod]
+        public void TestSheetIndexForFrame()
+        {
+            var frame1 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame2 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var frame3 = FrameGenerator.GenerateRandomFrame(32, 32);
+            var rect1 = new Rectangle(0, 0, 20, 20);
+            var rect2 = new Rectangle(0, 0, 32, 32);
+
+            var map = new FrameBoundsMap();
+
+            map.RegisterFrames(new[] { frame1 }, rect1);
+            map.RegisterFrames(new[] { frame2, frame3 }, rect2);
+
+            Assert.AreEqual(map.SheetBounds[map.SheetIndexForFrame(frame1)], rect1);
+            Assert.AreEqual(map.SheetBounds[map.SheetIndexForFrame(frame2)], rect2);
+            Assert.AreEqual(map.SheetBounds[map.SheetIndexForFrame(frame3)], rect2);
+
+            // Try splitting shared index now and making sure it works
+            map.SplitSharedSheetBoundsForFrame(frame3);
+
+            map.SetSheetBoundsForFrame(frame2, new Rectangle());
+
+            Assert.AreEqual(map.SheetBounds[map.SheetIndexForFrame(frame3)], rect2);
+        }
+
+        /// <summary>
         /// Tests that an exception is raised when trying to replace the rectangles of a frame bounds map with a list
         /// of rectangles that has a different count
         /// </summary>
@@ -263,7 +409,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [ExpectedException(typeof(ArgumentException))]
         public void TestFrameBoundReplaceCountMismatch()
         {
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
             
             var replace1 = new Rectangle(10, 20, 30, 40);
 
@@ -279,7 +425,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         {
             var frame = new Frame();
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
             
             map.RegisterFrames(new [] { frame }, new Rectangle());
         }
@@ -294,7 +440,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             var frame1 = new Frame();
             var frame2 = new Frame();
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.ShareSheetBoundsForFrames(frame1, frame2);
         }
@@ -308,7 +454,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         {
             var frame = new Frame();
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.SetSheetBoundsForFrame(frame, new Rectangle());
         }
@@ -322,7 +468,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         {
             var frame = new Frame(null, 32, 32, false);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.RegisterFrames(new[] { frame }, new Rectangle());
         }
@@ -337,7 +483,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             var frame1 = new Frame(null, 32, 32, false);
             var frame2 = new Frame(null, 32, 32, false);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.ShareSheetBoundsForFrames(frame1, frame2);
         }
@@ -351,7 +497,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         {
             var frame = new Frame(null, 32, 32, false);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.SetSheetBoundsForFrame(frame, new Rectangle());
         }
@@ -369,7 +515,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
             var bounds2 = new Rectangle(0, 0, 20, 20);
             var bounds3 = new Rectangle(0, 0, 10, 10);
 
-            var map = new DefaultTexturePacker.FrameBoundsMap();
+            var map = new FrameBoundsMap();
 
             map.RegisterFrames(new [] { frame1 }, bounds1);
             map.RegisterFrames(new[] { frame2 }, bounds2);
