@@ -93,6 +93,11 @@ namespace Pixelaria.Data
             return sheetClone;
         }
 
+        public IAnimation[] GetAnimations()
+        {
+            return _animations.OfType<IAnimation>().ToArray();
+        }
+
         /// <summary>
         /// Adds the given animation to this animation sheet
         /// </summary>

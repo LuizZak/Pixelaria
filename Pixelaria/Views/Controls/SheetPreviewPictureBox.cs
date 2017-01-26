@@ -519,7 +519,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseLeave(e);
 
-            if(_mouseDown)
+            if(!_mouseDown)
             {
                 _mouseOver = false;
                 _mouseOverRectangleIndex = -1;

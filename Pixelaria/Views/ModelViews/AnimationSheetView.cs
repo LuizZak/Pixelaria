@@ -59,6 +59,11 @@ namespace Pixelaria.Views.ModelViews
         private BundleSheetExport _bundleSheetExport;
 
         /// <summary>
+        /// Whether the current sheet export was generated with data from animations that where unsaved at the time
+        /// </summary>
+        private bool _generatedWhileUnsaved;
+
+        /// <summary>
         /// Cancellation token for the sheet generation routine
         /// </summary>
         private CancellationTokenSource _sheetCancellation;
@@ -87,6 +92,31 @@ namespace Pixelaria.Views.ModelViews
 
             InitializeFiends();
             ValidateFields();
+            
+            if(sheetToEdit != null)
+            {
+                // TODO: Better abstract and decouple these references to AnimationView, which are, as of now, a hack.
+
+                // Setup events
+                controller.ViewModifiedChanged += (sender, args) =>
+                {
+                    UpdateUnsavedAnimationsIconState();
+                };
+
+                controller.ViewOpenedClosed += (sender, args) =>
+                {
+                    // Erase current bundle sheet export, in case the animation closed was previously from this view
+                    // This is a work-around 
+                    var animView = sender as AnimationView;
+                    if (animView != null && _controller.GetOwningAnimationSheet(animView.CurrentAnimation)?.ID == CurrentSheet.ID && _generatedWhileUnsaved)
+                    {
+                        zpb_sheetPreview.SheetExport = null;
+                        _bundleSheetExport = null;
+                    }
+
+                    UpdateUnsavedAnimationsIconState();
+                };
+            }
         }
         
         /// <summary>
@@ -269,12 +299,31 @@ namespace Pixelaria.Views.ModelViews
 
             return _exportSettings;
         }
+        
+        /// <summary>
+        /// Updates state of unsaved animations icon
+        /// </summary>
+        private void UpdateUnsavedAnimationsIconState()
+        {
+            // Turn warn icon on if any animation from this sheet has unsaved changes
+            pb_unsavedAnimWarning.Visible = HasUnsavedAnimations();
+        }
+
+        /// <summary>
+        /// Returns whether any of the animations on this sheet is currently opened, with unsaved changes associated with them
+        /// </summary>
+        private bool HasUnsavedAnimations()
+        {
+            return CurrentSheet.Animations.Any(_controller.InterfaceStateProvider.HasUnsavedChangesForAnimation);
+        }
 
         /// <summary>
         /// Generates a preview for the AnimationSheet currently loaded into this form
         /// </summary>
         public void GeneratePreview()
         {
+            _generatedWhileUnsaved = HasUnsavedAnimations();
+
             RepopulateExportSettings();
             UpdateCountLabels();
 
@@ -303,8 +352,11 @@ namespace Pixelaria.Views.ModelViews
 
             _sheetCancellation = new CancellationTokenSource();
 
+            // Get a dynamic provider for better accuracy of animations to export
+            var provider = _controller.GetDynamicProviderForSheet(CurrentSheet, _exportSettings);
+
             // Export the bundle
-            var t = _controller.GenerateBundleSheet(_exportSettings, _sheetCancellation.Token, Handler, CurrentSheet.Animations);
+            var t = _controller.GenerateBundleSheet(provider, _sheetCancellation.Token, Handler);
 
             t.ContinueWith(task =>
             {
@@ -447,6 +499,11 @@ namespace Pixelaria.Views.ModelViews
                     select
                         new Tuple<Animation, List<IFrame>>(animation, list)
                 ).ToList();
+
+            // TODO: This is a work-around for removing frames from an animation without updating the preview, leading to a
+            // dangling frame that is still 'clickeable' on the sheet preview.
+            if (framesPerAnimation.Count == 0)
+                return;
 
             var menu = new ContextMenuStrip();
             

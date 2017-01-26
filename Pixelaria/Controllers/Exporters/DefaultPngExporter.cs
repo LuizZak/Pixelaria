@@ -239,7 +239,7 @@ namespace Pixelaria.Controllers.Exporters
             //
             // 1. Add the frames to the texture atlas
             //
-            foreach (var anim in provider.Animations)
+            foreach (var anim in provider.GetAnimations())
             {
                 for (int i = 0; i < anim.FrameCount; i++)
                 {

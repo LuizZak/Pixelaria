@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Windows.Forms;
 
 namespace Pixelaria.Views.ModelViews
@@ -36,11 +37,28 @@ namespace Pixelaria.Views.ModelViews
         protected bool modified;
 
         /// <summary>
+        /// Event raised whenever the state of the Modified property changes
+        /// </summary>
+        public event EventHandler ModifiedChanged;
+
+        /// <summary>
+        /// Gets a boolean value specifying whether the data on this view has been modified, and is pending to be saved on closing
+        /// </summary>
+        public bool Modified => modified;
+
+        /// <summary>
         /// Called to mark the view as modified
         /// </summary>
         public virtual void MarkModified()
         {
+            bool changed = modified == false;
+
             modified = true;
+
+            if (changed)
+            {
+                ModifiedChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
@@ -48,7 +66,14 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public virtual void MarkUnmodified()
         {
+            bool changed = modified;
+
             modified = false;
+
+            if (changed)
+            {
+                ModifiedChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
         
         /// <summary>
@@ -131,6 +156,11 @@ namespace Pixelaria.Views.ModelViews
     /// </summary>
     public interface IModifiable
     {
+        /// <summary>
+        /// Gets a boolean value specifying whether the data on this modifiable object has been modified, and is pending to be saved or applied
+        /// </summary>
+        bool Modified { get; }
+
         /// <summary>
         /// Marks this object as modified
         /// </summary>

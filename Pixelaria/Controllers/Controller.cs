@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -87,6 +88,12 @@ namespace Pixelaria.Controllers
         public FrameFactory FrameFactory { get; }
 
         /// <summary>
+        /// Gets the interface state provider for this controller, which can be used
+        /// anywhere on the gui interface to check states across forms
+        /// </summary>
+        public IInterfaceStateProvider InterfaceStateProvider { get; }
+
+        /// <summary>
         /// Gets whether the current bundle has unsaved changes
         /// </summary>
         public bool UnsavedChanges { get; private set; }
@@ -132,6 +139,28 @@ namespace Pixelaria.Controllers
         /// </summary>
         public event AnimationSheetEventHandler AnimationSheetRemoved;
 
+        /// <summary>
+        /// Event fired whenever a view has had its Modified state changed.
+        /// This is a forwarded event subscriber, and the 'sender' argument
+        /// matches the view that was modified, not this Controller instance.
+        /// </summary>
+        public event EventHandler ViewModifiedChanged
+        {
+            add { _mainForm.ChildViewModifiedChanged += value; }
+            remove { _mainForm.ChildViewModifiedChanged -= value; }
+        }
+
+        /// <summary>
+        /// Event fired whenever a view has opened or closed on the main form.
+        /// This is a forwarded event subscriber, and the 'sender' argument matches the
+        /// form view which raises this event, not this Controller instance.
+        /// </summary>
+        public event MainForm.ViewOpenedClosedEventDelegate ViewOpenedClosed
+        {
+            add { _mainForm.ViewOpenedClosed += value; }
+            remove { _mainForm.ViewOpenedClosed -= value; }
+        }
+
         #endregion
 
         /// <summary>
@@ -148,6 +177,7 @@ namespace Pixelaria.Controllers
 
             AnimationValidator = defValidator;
             AnimationSheetValidator = defValidator;
+            InterfaceStateProvider = this;
 
             DefaultImporter = new DefaultPngImporter();
 
@@ -1047,6 +1077,19 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
+        /// Gets a dynamic animation provider for a given combination of animation sheet and export settings
+        /// The provider is able to pull unsaved changes from animations within that sheet from the interface and when queried, the array of animations
+        /// will then return always the most up-to-date data from the views.
+        /// </summary>
+        /// <param name="sheet">The animation sheet to wrap on the dynamic provider</param>
+        /// <param name="settings">An overrided set of export settings to use</param>
+        /// <returns>An <see cref="IAnimationProvider"/> instance that provides still unsaved changes from animation views when the property <see cref="IAnimationProvider.Animations"/> is queried.</returns>
+        public IAnimationProvider GetDynamicProviderForSheet(AnimationSheet sheet, AnimationExportSettings settings)
+        {
+            return new DynamicAnimationProvider(this, sheet, settings);
+        }
+
+        /// <summary>
         /// Generates an export image for the given AnimationSheet
         /// </summary>
         /// <param name="sheet">The animation sheet to generate the export of</param>
@@ -1054,17 +1097,6 @@ namespace Pixelaria.Controllers
         public Task<BundleSheetExport> GenerateExportForAnimationSheet(AnimationSheet sheet)
         {
             return GetExporter().ExportBundleSheet(sheet);
-        }
-        
-        /// <summary>
-        /// Generates a BundleSheetExport object that contains information about the export of a sheet
-        /// </summary>
-        /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="anims">The list of animations to export</param>
-        /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, params Animation[] anims)
-        {
-            return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""));
         }
 
         /// <summary>
@@ -1076,9 +1108,22 @@ namespace Pixelaria.Controllers
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params Animation[] anims)
+        public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params IAnimation[] anims)
         {
             return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""), cancellationToken, callback);
+        }
+
+        /// <summary>
+        /// Generates a BundleSheetExport object that contains information about the export of a sheet, using a custom event handler
+        /// for export progress callback
+        /// </summary>
+        /// <param name="provider">The provider for the animations to be generated</param>
+        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
+        /// <param name="callback">The callback delegate to be used during the generation process</param>
+        /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
+        public Task<BundleSheetExport> GenerateBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken, BundleExportProgressEventHandler callback)
+        {
+            return GetExporter().ExportBundleSheet(provider, cancellationToken, callback);
         }
 
         /// <summary>
@@ -1090,6 +1135,53 @@ namespace Pixelaria.Controllers
             using (var stripImage = GetExporter().GenerateSpriteStrip(animation))
             {
                 ShowSaveImage(stripImage, animation.GetAnimationView().Name);
+            }
+        }
+
+        /// <summary>
+        /// Dynamic animation provider used to access unsaved animation states from the interface
+        /// </summary>
+        private class DynamicAnimationProvider : IAnimationProvider
+        {
+            private readonly Controller _controller;
+            private readonly AnimationSheet _sheet;
+
+            public IAnimation[] GetAnimations()
+            {
+                var anims =
+                    new List<AnimationController>(
+                        _sheet
+                            .Animations
+                            .Select(anim =>
+                                new AnimationController(_controller.CurrentBundle, anim)
+                            )
+                    );
+
+                // Get all currently opened animation sheet views from the main form
+                foreach (var animation in _sheet.Animations)
+                {
+                    var view = _controller._mainForm.GetOpenedViewForAnimation(animation);
+                    if (view == null)
+                        continue;
+
+                    var index = anims.FindIndex(cont => cont.MatchesController(view.ViewAnimation));
+                    if (index != -1)
+                    {
+                        anims[index] = view.ViewAnimation;
+                    }
+                }
+
+                return anims.Select(cont => cont.GetAnimationView()).ToArray();
+            }
+
+            public AnimationExportSettings ExportSettings { get; }
+            public string Name => _sheet.Name;
+
+            public DynamicAnimationProvider(Controller controller, AnimationSheet sheet, AnimationExportSettings exportSettings)
+            {
+                _controller = controller;
+                _sheet = sheet;
+                ExportSettings = exportSettings;
             }
         }
     }
@@ -1108,6 +1200,22 @@ namespace Pixelaria.Controllers
         }
     }
     
+    /// <summary>
+    /// Interface state provider implementation
+    /// </summary>
+    public partial class Controller : IInterfaceStateProvider
+    {
+        public bool HasUnsavedChangesForAnimation(Animation animation)
+        {
+            return _mainForm.GetOpenedViewForAnimation(animation)?.Modified ?? false;
+        }
+
+        public bool HasUnsavedChangesForAnimationSheet(AnimationSheet sheet)
+        {
+            return _mainForm.GetOpenedViewForAnimationSheet(sheet)?.Modified ?? false;
+        }
+    }
+
     /// <summary>
     /// Event arguments for an animation-related event
     /// </summary>
@@ -1144,5 +1252,25 @@ namespace Pixelaria.Controllers
         {
             AnimationSheet = animationSheet;
         }
+    }
+
+    /// <summary>
+    /// Interface for objects that can provide information about 
+    /// </summary>
+    public interface IInterfaceStateProvider
+    {
+        /// <summary>
+        /// Returns whether, to the knowledge of this interface state provider, the given animation
+        /// is currently opened in a view with pending changes to save
+        /// </summary>
+        /// <returns>A value specifying whether the animation has unsaved changes in any view this interface state provider is able to reach</returns>
+        bool HasUnsavedChangesForAnimation(Animation animation);
+
+        /// <summary>
+        /// Returns whether, to the knowledge of this interface state provider, the given animation sheet
+        /// is currently opened in a view with pending changes to save
+        /// </summary>
+        /// <returns>A value specifying whether the animation sheet has unsaved changes in any view this interface state provider is able to reach</returns>
+        bool HasUnsavedChangesForAnimationSheet(AnimationSheet sheet);
     }
 }

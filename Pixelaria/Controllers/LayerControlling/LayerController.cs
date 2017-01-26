@@ -258,7 +258,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="layerIndex">The index at which to create the layer</param>
         public IFrameLayer CreateLayer(int layerIndex = -1)
         {
-            BeforeLayerCreated?.Invoke(this, new EventArgs());
+            BeforeLayerCreated?.Invoke(this, EventArgs.Empty);
 
             var layer = _frame.CreateLayer(layerIndex: layerIndex);
 
@@ -275,7 +275,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <returns>The layer that was created</returns>
         public IFrameLayer AddLayer([NotNull] Bitmap bitmap, int index = -1)
         {
-            BeforeLayerCreated?.Invoke(this, new EventArgs());
+            BeforeLayerCreated?.Invoke(this, EventArgs.Empty);
 
             var layer = _frame.CreateLayer(bitmap, layerIndex: index);
 
@@ -291,7 +291,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="index">The index to add the layer at</param>
         public void AddLayer([NotNull] IFrameLayer layer, int index = -1)
         {
-            BeforeLayerCreated?.Invoke(this, new EventArgs());
+            BeforeLayerCreated?.Invoke(this, EventArgs.Empty);
 
             _frame.AddLayer(layer, index);
 

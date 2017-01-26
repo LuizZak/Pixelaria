@@ -319,7 +319,7 @@ namespace Pixelaria.Data.Undo
 
             _currentTask = 0;
 
-            Cleared?.Invoke(this, new EventArgs());
+            Cleared?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

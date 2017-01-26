@@ -524,6 +524,11 @@ namespace Pixelaria.Views.ModelViews
 
             public AnimationExportSettings ExportSettings => new AnimationExportSettings();
 
+            public IFrame GetFrameAtIndex(int i)
+            {
+                throw new NotImplementedException();
+            }
+
             public Bitmap GetComposedBitmapForFrame(int frameIndex)
             {
                 // Splice the source image

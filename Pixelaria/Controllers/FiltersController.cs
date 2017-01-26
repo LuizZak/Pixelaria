@@ -45,7 +45,7 @@ namespace Pixelaria.Controllers
         {
             _presets.Clear();
 
-            FiltersChanged?.Invoke(this, new EventArgs());
+            FiltersChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace Pixelaria.Controllers
 
             _presets.Insert(0, preset);
 
-            FiltersChanged?.Invoke(this, new EventArgs());
+            FiltersChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

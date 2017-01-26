@@ -714,6 +714,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\dialog-warning.png" />
     <None Include="Resources\frame_icon.png" />
     <None Include="Resources\anim_icon.png" />
     <None Include="Resources\maximize.png" />

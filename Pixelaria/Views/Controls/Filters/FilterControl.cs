@@ -115,7 +115,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public void FireFilterUpdated()
         {
-            FilterUpdated?.Invoke(this, new EventArgs());
+            FilterUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

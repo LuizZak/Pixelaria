@@ -448,7 +448,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             Collapsed = !Collapsed;
 
-            LayerCollapeChanged?.Invoke(this, new EventArgs());
+            LayerCollapeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         // 
@@ -472,7 +472,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void btn_duplicate_Click(object sender, EventArgs e)
         {
-            DuplicateLayerSelected?.Invoke(this, new EventArgs());
+            DuplicateLayerSelected?.Invoke(this, EventArgs.Empty);
         }
 
         // 
@@ -480,7 +480,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void btn_remove_Click(object sender, EventArgs e)
         {
-            RemoveLayerSelected?.Invoke(this, new EventArgs());
+            RemoveLayerSelected?.Invoke(this, EventArgs.Empty);
         }
 
         // 

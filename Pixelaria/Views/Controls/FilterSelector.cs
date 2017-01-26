@@ -761,7 +761,7 @@ namespace Pixelaria.Views.Controls
                 {
                     Location = newPos;
 
-                    ContainerDragging?.Invoke(this, new EventArgs());
+                    ContainerDragging?.Invoke(this, EventArgs.Empty);
                 }
             }
 

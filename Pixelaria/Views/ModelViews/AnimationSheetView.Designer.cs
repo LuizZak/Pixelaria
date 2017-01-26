@@ -59,6 +59,7 @@ namespace Pixelaria.Views.ModelViews
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btn_generatePreview = new System.Windows.Forms.Button();
+            this.pb_unsavedAnimWarning = new System.Windows.Forms.PictureBox();
             this.pnl_alertPanel = new System.Windows.Forms.Panel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.lbl_alertLabel = new System.Windows.Forms.Label();
@@ -97,6 +98,7 @@ namespace Pixelaria.Views.ModelViews
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).BeginInit();
             this.pnl_alertPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnl_errorPanel.SuspendLayout();
@@ -144,6 +146,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.pb_unsavedAnimWarning);
             this.groupBox2.Controls.Add(this.pb_exportProgress);
             this.groupBox2.Controls.Add(this.nud_yPadding);
             this.groupBox2.Controls.Add(this.nud_xPadding);
@@ -380,15 +383,31 @@ namespace Pixelaria.Views.ModelViews
             // btn_generatePreview
             // 
             this.btn_generatePreview.Image = global::Pixelaria.Properties.Resources.go_next;
-            this.btn_generatePreview.Location = new System.Drawing.Point(209, 85);
+            this.btn_generatePreview.Location = new System.Drawing.Point(210, 85);
             this.btn_generatePreview.Name = "btn_generatePreview";
             this.helpProvider1.SetShowHelp(this.btn_generatePreview, true);
-            this.btn_generatePreview.Size = new System.Drawing.Size(80, 46);
+            this.btn_generatePreview.Size = new System.Drawing.Size(79, 46);
             this.btn_generatePreview.TabIndex = 2;
             this.btn_generatePreview.Text = "Generate Preview";
             this.btn_generatePreview.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btn_generatePreview.UseVisualStyleBackColor = true;
             this.btn_generatePreview.Click += new System.EventHandler(this.btn_generatePreview_Click);
+            // 
+            // pb_unsavedAnimWarning
+            // 
+            this.pb_unsavedAnimWarning.BackColor = System.Drawing.SystemColors.Control;
+            this.pb_unsavedAnimWarning.BackgroundImage = global::Pixelaria.Properties.Resources.dialog_warning;
+            this.pb_unsavedAnimWarning.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.pb_unsavedAnimWarning.Location = new System.Drawing.Point(210, 63);
+            this.pb_unsavedAnimWarning.Name = "pb_unsavedAnimWarning";
+            this.helpProvider1.SetShowHelp(this.pb_unsavedAnimWarning, true);
+            this.pb_unsavedAnimWarning.Size = new System.Drawing.Size(79, 22);
+            this.pb_unsavedAnimWarning.TabIndex = 15;
+            this.pb_unsavedAnimWarning.TabStop = false;
+            this.tt_mainTooltip.SetToolTip(this.pb_unsavedAnimWarning, "One or more animations of this sheet currently have unsaved changes.\r\nThe generat" +
+        "ed preview account for those changes, but bundle exports\r\nwill not, until change" +
+        "s to these animations are saved.");
+            this.pb_unsavedAnimWarning.Visible = false;
             // 
             // pnl_alertPanel
             // 
@@ -843,6 +862,7 @@ namespace Pixelaria.Views.ModelViews
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).EndInit();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).EndInit();
             this.pnl_alertPanel.ResumeLayout(false);
             this.pnl_alertPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -919,5 +939,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.CheckBox cb_showReuseCount;
         private System.Windows.Forms.PictureBox pb_zoomIcon;
         private Controls.AssistedNumericUpDown anud_zoom;
+        private System.Windows.Forms.PictureBox pb_unsavedAnimWarning;
     }
 }

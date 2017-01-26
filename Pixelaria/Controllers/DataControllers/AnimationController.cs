@@ -49,7 +49,7 @@ namespace Pixelaria.Controllers.DataControllers
         private AnimationController _original;
 
         public IFrameIdGenerator FrameIdGenerator;
-
+        
         /// <summary>
         /// Returns the count of frames in this frame controller
         /// </summary>
@@ -120,6 +120,15 @@ namespace Pixelaria.Controllers.DataControllers
         }
 
         /// <summary>
+        /// Returns whether this and a second animation controller control the same underlying
+        /// animation.
+        /// </summary>
+        public bool MatchesController([NotNull] AnimationController other)
+        {
+            return ReferenceEquals(_animation, other._animation) || _animation.ID == other._animation.ID;
+        }
+
+        /// <summary>
         /// Returns a view-only interface for the underlying animation
         /// </summary>
         public IAnimation GetAnimationView()
@@ -148,6 +157,8 @@ namespace Pixelaria.Controllers.DataControllers
             {
                 newAnim[i].ID = _animation[i].ID;
             }
+
+            newAnim.ID = _animation.ID;
 
             return new AnimationController(_bundle, newAnim) { _original = _original ?? this };
         }

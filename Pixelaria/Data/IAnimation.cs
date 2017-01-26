@@ -70,5 +70,10 @@ namespace Pixelaria.Data
         /// <param name="frameIndex">The index of the frame to get the composed bitmap of</param>
         /// <returns>The composed bitmap for the frame at the specified index on this animation</returns>
         Bitmap GetComposedBitmapForFrame(int frameIndex);
+
+        /// <summary>
+        /// Returns the matching frame at a givne index
+        /// </summary>
+        IFrame GetFrameAtIndex(int i);
     }
 }

@@ -130,6 +130,11 @@ namespace Pixelaria.Views.Controls
         public IModifiable NotifyTo { get; set; }
 
         /// <summary>
+        /// Gets the state of the NotifyTo's Modified property, or false, if NotifyTo is null
+        /// </summary>
+        public bool Modified => NotifyTo?.Modified ?? false;
+        
+        /// <summary>
         /// Gets or sets the current paint operation to perform on this ImageEditPanel
         /// </summary>
         [Browsable(false)]
@@ -579,7 +584,7 @@ namespace Pixelaria.Views.Controls
 
                     if (!MouseOverImage)
                     {
-                        _currentPaintTool.MouseLeave(new EventArgs());
+                        _currentPaintTool.MouseLeave(EventArgs.Empty);
                     }
 
                     Cursor = _currentPaintTool.ToolCursor;
@@ -610,7 +615,7 @@ namespace Pixelaria.Views.Controls
             /// </summary>
             public void NotifyBitmapModified()
             {
-                Modified?.Invoke(this, new EventArgs());
+                Modified?.Invoke(this, EventArgs.Empty);
             }
 
             /// <summary>

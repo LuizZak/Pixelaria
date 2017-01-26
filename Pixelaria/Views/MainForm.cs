@@ -50,6 +50,23 @@ namespace Pixelaria.Views
         private readonly EventHandler _recentFileClick;
 
         /// <summary>
+        /// Delegate for a ViewOpenedClosed event
+        /// </summary>
+        public delegate void ViewOpenedClosedEventDelegate(object sender, ViewOpenCloseEventArgs eventArgs);
+
+        /// <summary>
+        /// Event raised when an MDI child was opened or closed on this form
+        /// This is a forwarded event and the 'sender' argument points to the child view
+        /// </summary>
+        public event ViewOpenedClosedEventDelegate ViewOpenedClosed;
+
+        /// <summary>
+        /// Event raised when an MDI child suffered a change in its 'Modified' state.
+        /// This is a forwarded event and the 'sender' argument points to the view which had its Modified state changed.
+        /// </summary>
+        public event EventHandler ChildViewModifiedChanged;
+
+        /// <summary>
         /// The root tree node for the tree view
         /// </summary>
         private TreeNode _rootNode;
@@ -128,13 +145,15 @@ namespace Pixelaria.Views
         public void UpdateTitleBar([NotNull] Bundle bundle)
         {
             const string version = "Pixelaria v1.17.7b";
+            var saveState = Controller.UnsavedChanges ? "*" : "";
+
             if (bundle.SaveFile != "")
             {
-                Text = $@"{version} [{bundle.Name} - {bundle.SaveFile}]{(Controller.UnsavedChanges ? "*" : "")}";
+                Text = $@"{version} [{bundle.Name} - {bundle.SaveFile}]{saveState}";
             }
             else
             {
-                Text = $@"{version} [{bundle.Name}]{(Controller.UnsavedChanges ? "*" : "")}";
+                Text = $@"{version} [{bundle.Name}]{saveState}";
             }
         }
 
@@ -409,22 +428,19 @@ namespace Pixelaria.Views
         /// <returns>The created AnimationView</returns>
         public AnimationView OpenViewForAnimation(Animation animation, int selectedFrameIndex = -1)
         {
-            // Bring view to front, in case animation is already visible
-            foreach (var animationForm in MdiChildren.OfType<AnimationView>())
+            var currentForm = GetOpenedViewForAnimation(animation);
+            if (currentForm != null)
             {
-                if (!ReferenceEquals(animationForm.CurrentAnimation, animation))
-                    continue;
-
                 if (selectedFrameIndex != -1)
                 {
-                    animationForm.SelectFrameIndex(selectedFrameIndex);
+                    currentForm.SelectFrameIndex(selectedFrameIndex);
                 }
 
-                animationForm.BringToFront();
-                animationForm.Focus();
-                return animationForm;
+                currentForm.BringToFront();
+                currentForm.Focus();
+                return currentForm;
             }
-
+            
             var view = new AnimationView(Controller, animation) { MdiParent = this };
 
             if(selectedFrameIndex != -1)
@@ -435,7 +451,28 @@ namespace Pixelaria.Views
             view.Show();
             view.BringToFront();
 
+            view.ModifiedChanged += (sender, args) => { ChildViewModifiedChanged?.Invoke(sender, args); };
+            
+            // Fire Opened event
+            ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Opened));
+
+            view.FormClosed += (sender, args) =>
+            {
+                ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Closed));
+            };
+
             return view;
+        }
+
+        /// <summary>
+        /// Gets the currently opened view, if any, that is associated with a given animation.
+        /// Returns null, if no view is currently opened for the given animation in this form
+        /// </summary>
+        /// <param name="animation">The animation that might be opened on this form</param>
+        /// <returns>The view for the animation; or null, if none could be found</returns>
+        public AnimationView GetOpenedViewForAnimation(Animation animation)
+        {
+            return MdiChildren.OfType<AnimationView>().FirstOrDefault(view => view.CurrentAnimation.ID == animation.ID);
         }
 
         /// <summary>
@@ -513,11 +550,9 @@ namespace Pixelaria.Views
         /// <returns>The created AnimationView</returns>
         public AnimationSheetView OpenViewForAnimationSheet(AnimationSheet sheet)
         {
-            foreach (var sheetView in MdiChildren.OfType<AnimationSheetView>())
+            var sheetView = GetOpenedViewForAnimationSheet(sheet);
+            if (sheetView != null)
             {
-                if (!ReferenceEquals(sheetView.CurrentSheet, sheet))
-                    continue;
-
                 sheetView.BringToFront();
                 sheetView.Focus();
                 return sheetView;
@@ -528,7 +563,28 @@ namespace Pixelaria.Views
             view.Show();
             view.BringToFront();
 
+            view.ModifiedChanged += (sender, args) => { ChildViewModifiedChanged?.Invoke(sender, args); };
+
+            // Fire Opened event
+            ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Opened));
+
+            view.FormClosed += (sender, args) =>
+            {
+                ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Closed));
+            };
+
             return view;
+        }
+
+        /// <summary>
+        /// Gets the currently opened view, if any, that is associated with a given animation sheet.
+        /// Returns null, if no view is currently opened for the given animation sheet in this form
+        /// </summary>
+        /// <param name="sheet">The animation sheet that might be opened on this form</param>
+        /// <returns>The view for the animation sheet; or null, if none could be found</returns>
+        public AnimationSheetView GetOpenedViewForAnimationSheet(AnimationSheet sheet)
+        {
+            return MdiChildren.OfType<AnimationSheetView>().FirstOrDefault(view => view.CurrentSheet.ID == sheet.ID);
         }
 
         /// <summary>
@@ -1357,6 +1413,34 @@ namespace Pixelaria.Views
             /// Specifies an unknown node type
             /// </summary>
             Unknown
+        }
+    }
+
+    /// <summary>
+    /// Specifies events related to opening and closing of views on a main form
+    /// </summary>
+    public class ViewOpenCloseEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the type of event this event represents
+        /// </summary>
+        public OpenCloseEventType EventType { get; }
+
+        /// <summary>
+        /// Gets the view that was either opened or closed
+        /// </summary>
+        public Form View { get; }
+
+        public ViewOpenCloseEventArgs(Form view, OpenCloseEventType eventType)
+        {
+            View = view;
+            EventType = eventType;
+        }
+
+        public enum OpenCloseEventType
+        {
+            Opened,
+            Closed
         }
     }
 

@@ -403,7 +403,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public override void ApplyChanges()
         {
-            if (modified)
+            if (Modified)
             {
                 // Update selection paint operations
                 var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;

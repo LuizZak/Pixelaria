@@ -28,11 +28,6 @@ namespace Pixelaria.Data
     public interface IAnimationProvider
     {
         /// <summary>
-        /// Animations on this provider
-        /// </summary>
-        Animation[] Animations { get; }
-
-        /// <summary>
         /// Gets the export settings for this animation sheet
         /// </summary>
         AnimationExportSettings ExportSettings { get; }
@@ -43,6 +38,11 @@ namespace Pixelaria.Data
         /// Ideally should be unique among providers in the same algorithm
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Animations on this provider
+        /// </summary>
+        IAnimation[] GetAnimations();
     }
 
     /// <summary>
@@ -50,10 +50,7 @@ namespace Pixelaria.Data
     /// </summary>
     public struct BasicAnimationProvider : IAnimationProvider
     {
-        /// <summary>
-        /// Gets the animations listed on this basic provider
-        /// </summary>
-        public Animation[] Animations { get; }
+        private readonly IAnimation[] _animations;
 
         /// <summary>
         /// Gets the export settings associated with this basic provider
@@ -65,11 +62,19 @@ namespace Pixelaria.Data
         /// </summary>
         public string Name { get; }
 
-        public BasicAnimationProvider(Animation[] animations, AnimationExportSettings exportSettings, string name)
+        public BasicAnimationProvider(IAnimation[] animations, AnimationExportSettings exportSettings, string name)
         {
-            Animations = animations;
+            _animations = animations;
             ExportSettings = exportSettings;
             Name = name;
+        }
+
+        /// <summary>
+        /// Gets the animations listed on this basic provider
+        /// </summary>
+        public IAnimation[] GetAnimations()
+        {
+            return _animations;
         }
     }
 }
