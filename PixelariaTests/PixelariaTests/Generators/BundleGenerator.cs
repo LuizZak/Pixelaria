@@ -21,6 +21,7 @@
 */
 
 using System;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 
 namespace PixelariaTests.PixelariaTests.Generators
@@ -38,9 +39,9 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <returns>A Bundle filled with randomized objects</returns>
         public static Bundle GenerateTestBundle(int seed)
         {
-            Random r = new Random(seed);
+            var r = new Random(seed);
 
-            Bundle bundle = new Bundle("Bundle" + r.Next());
+            var bundle = new Bundle("Bundle" + r.Next());
 
             for (int i = 0; i < 5; i++)
             {
@@ -52,12 +53,13 @@ namespace PixelariaTests.PixelariaTests.Generators
                     foreach (var frame in animation.Frames)
                     {
                         var fr = frame as Frame;
-                        if (fr != null)
+                        if (fr == null) continue;
+
+                        var controller = new FrameController(fr);
+
+                        for (int j = 0; j < r.Next(1, 2); j++)
                         {
-                            for (int j = 0; j < r.Next(1, 2); j++)
-                            {
-                                fr.AddLayer(FrameGenerator.GenerateRandomBitmap(fr.Width, fr.Height, seed + j));
-                            }
+                            controller.AddLayer(FrameGenerator.GenerateRandomBitmap(fr.Width, fr.Height, seed + j));
                         }
                     }
                 }

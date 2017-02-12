@@ -441,6 +441,10 @@ Choosing 'No' will move the sheet's animations to the bundle's root.</value>
     <value>The bundle's export path is not set or is not valid.
 Do you wish to edit the export path now?</value>
   </data>
+  <data name="NonExistantBundleExportPathAlert_AskCreate" xml:space="preserve">
+    <value>The bundle's export path points to an unexistant directory.
+Do you wish to create the directory and export?</value>
+  </data>
   <data name="frame_insert_new_icon1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\frame_insert_new_icon1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

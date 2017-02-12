@@ -54,7 +54,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the animation this frame belongs to
         /// </summary>
-        Animation Animation { get; }
+        Animation Animation { get; set; }
 
         /// <summary>
         /// Gets the hash of this Frame texture

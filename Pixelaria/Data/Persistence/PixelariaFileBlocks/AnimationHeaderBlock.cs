@@ -32,12 +32,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// The animation being manipulated by this animation header block
         /// </summary>
-        private Animation _animation;
-
-        /// <summary>
-        /// The animation being manipulated by this animation header block
-        /// </summary>
-        public Animation Animation => _animation;
+        public Animation Animation { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the AnimationHeaderBlock class
@@ -53,7 +48,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public AnimationHeaderBlock(Animation animation)
             : this()
         {
-            _animation = animation;
+            Animation = animation;
         }
 
         /// <summary>
@@ -62,8 +57,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to load the content portion from</param>
         protected override void LoadContentFromStream(Stream stream)
         {
-            _animation = LoadAnimationFromStream(stream);
-            owningFile.LoadedBundle.AddAnimation(_animation);
+            Animation = LoadAnimationFromStream(stream);
+            owningFile.LoadedBundle.AddAnimation(Animation);
         }
 
         /// <summary>
@@ -72,7 +67,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to save the content portion to</param>
         protected override void SaveContentToStream(Stream stream)
         {
-            SaveAnimationToStream(_animation, stream);
+            SaveAnimationToStream(Animation, stream);
         }
 
         /// <summary>
@@ -84,7 +79,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             base.PrepareFromBundle(bundle);
 
             // Add file blocks for each of the frames for this animation
-            foreach (var frame in _animation.Frames)
+            foreach (var frame in Animation.Frames)
             {
                 owningFile.AddBlock(new FrameBlock(frame));
             }
@@ -98,7 +93,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <returns>The Animation object loaded</returns>
         protected Animation LoadAnimationFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             int id = reader.ReadInt32();
             string name = reader.ReadString();
@@ -107,10 +102,14 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             int fps = reader.ReadInt32();
             bool frameskip = reader.ReadBoolean();
 
-            Animation anim = new Animation(name, width, height)
+            var anim = new Animation(name, width, height)
             {
                 ID = id,
-                PlaybackSettings = new AnimationPlaybackSettings {FPS = fps, FrameSkip = frameskip}
+                PlaybackSettings = new AnimationPlaybackSettings
+                {
+                    FPS = fps,
+                    FrameSkip = frameskip
+                }
             };
 
             return anim;
@@ -123,7 +122,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to save the animation to</param>
         protected void SaveAnimationToStream(Animation animation, Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(animation.ID);
             writer.Write(animation.Name);

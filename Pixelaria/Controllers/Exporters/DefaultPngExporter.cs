@@ -32,6 +32,8 @@ using System.Threading.Tasks;
 using FastBitmapLib;
 using Newtonsoft.Json;
 
+using FastBitmapLib;
+
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
 using Pixelaria.Data;

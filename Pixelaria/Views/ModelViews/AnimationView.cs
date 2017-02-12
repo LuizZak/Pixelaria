@@ -676,6 +676,14 @@ namespace Pixelaria.Views.ModelViews
         #region Frame Related Methods
 
         /// <summary>
+        /// De-selects all currently selected frames
+        /// </summary>
+        public void DeselectFrames()
+        {
+            lv_frames.SelectedIndices.Clear();
+        }
+
+        /// <summary>
         /// Selects a given frame index on this view
         /// </summary>
         public void SelectFrameIndex(int index)

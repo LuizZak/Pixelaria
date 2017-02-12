@@ -70,7 +70,7 @@ namespace Pixelaria.Views.SettingsViews
         private void ValidateFields()
         {
             bool valid = true;
-            const bool alert = false;
+            bool alert = false;
 
             // Bundle name
             if (txt_bundleName.Text.Trim() == "" || _controller.AnimationValidator.ValidateAnimationName(txt_bundleName.Text) != "")
@@ -84,21 +84,29 @@ namespace Pixelaria.Views.SettingsViews
                 txt_bundleName.BackColor = Color.White;
             }
 
-            // Export path
-            if (txt_exportPath.Text != "" && !Directory.Exists(txt_exportPath.Text))
+            // Verify export path is valid
+
+            try
+            {
+                var fullPath = Path.GetFullPath(txt_exportPath.Text);
+
+                // Export path
+                if (!Directory.Exists(fullPath))
+                {
+                    txt_exportPath.BackColor = Color.LightYellow;
+                    lbl_alertLabel.Text = @"The export path does not exist - it will be created on export.";
+                    alert = true;
+                }
+                else
+                {
+                    txt_exportPath.BackColor = Color.White;
+                }
+            }
+            catch (Exception)
             {
                 txt_exportPath.BackColor = Color.LightPink;
                 lbl_error.Text = @"The export path is not valid";
                 valid = false;
-            }
-            else
-            {
-                txt_exportPath.BackColor = Color.White;
-            }
-
-            if (valid)
-            {
-                
             }
 
             pnl_errorPanel.Visible = !valid;

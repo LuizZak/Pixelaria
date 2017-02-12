@@ -45,7 +45,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to load the content portion from</param>
         protected override void LoadContentFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             int animationCount = reader.ReadInt32();
 
@@ -62,7 +62,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to save the content portion to</param>
         protected override void SaveContentToStream(Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             // Get the list of animations to save
             var animations = readyBundle.Animations;
@@ -103,7 +103,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <returns>The Animation object loaded</returns>
         protected Animation LoadAnimationFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             int id = reader.ReadInt32();
             string name = reader.ReadString();
@@ -112,7 +112,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             int fps = reader.ReadInt32();
             bool frameskip = reader.ReadBoolean();
 
-            Animation anim = new Animation(name, width, height)
+            var anim = new Animation(name, width, height)
             {
                 ID = id,
                 PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameskip }
@@ -137,14 +137,14 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <returns>The Frame object loaded</returns>
         protected Frame LoadFrameFromStream(Stream stream, Animation owningAnimation)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             // Read the size of the frame texture
             long textSize = reader.ReadInt64();
 
-            Frame frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
+            var frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
 
-            MemoryStream memStream = new MemoryStream();
+            var memStream = new MemoryStream();
 
             long pos = stream.Position;
 
@@ -153,11 +153,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             stream.Position = pos + textSize;
 
             memStream.Write(buff, 0, buff.Length);
-
-            Image img = Image.FromStream(memStream);
+            
+            var img = Image.FromStream(memStream);
 
             // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
-            Bitmap bitmap = new Bitmap(img);
+            var bitmap = new Bitmap(img);
 
             img.Dispose();
 
@@ -183,7 +183,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to save the animation to</param>
         protected void SaveAnimationToStream(Animation animation, Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(animation.ID);
             writer.Write(animation.Name);
@@ -207,7 +207,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to write the frame to</param>
         protected void SaveFrameToStream(IFrame frame, Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             // Save the space for the image size on the stream
             long sizeOffset = stream.Position;

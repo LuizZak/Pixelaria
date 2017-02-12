@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using Pixelaria.Controllers;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Filters;
 
@@ -123,34 +124,38 @@ namespace Pixelaria.Views.ModelViews
                 return;
             }
 
-            if (fs_filters.ChangesDetected())
+            if (!fs_filters.ChangesDetected())
+                return;
+
+            // TODO: Replace direct _animation usage with an AnimationController instance
+            var range = tc_timeline.GetRange();
+
+            for (int i = range.X - 1; i < range.X + range.Y; i++)
             {
-                Point range = tc_timeline.GetRange();
+                var frame = _animation[i] as Frame;
+                
+                if (frame == null)
+                    continue;
 
-                for (int i = range.X - 1; i < range.X + range.Y; i++)
+                var controller = new FrameController(frame);
+
+                foreach (var container in fs_filters.FilterContainers)
                 {
+                    var bitmap = frame.GetComposedBitmap();
+                    container.ApplyFilter(bitmap);
 
-                    if (_animation[i] is Frame frame)
+                    // Remove all the layers from the frame
+                    while (frame.LayerCount > 1)
                     {
-                        foreach (FilterContainer container in fs_filters.FilterContainers)
-                        {
-                            Bitmap bitmap = frame.GetComposedBitmap();
-                            container.ApplyFilter(bitmap);
-
-                            // Remove all the layers from the frame
-                            while (frame.LayerCount > 1)
-                            {
-                                frame.RemoveLayerAt(frame.LayerCount - 1);
-                            }
-
-                            frame.SetFrameBitmap(bitmap);
-                        }
+                        controller.RemoveLayerAt(frame.LayerCount - 1);
                     }
-                }
 
-                // Save the preset
-                FiltersController.Instance.AddFilters(fs_filters.Filters);
+                    frame.SetFrameBitmap(bitmap);
+                }
             }
+
+            // Save the preset
+            FiltersController.Instance.AddFilters(fs_filters.Filters);
         }
 
         // 

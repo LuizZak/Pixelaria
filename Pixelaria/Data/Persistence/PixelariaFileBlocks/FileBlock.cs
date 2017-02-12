@@ -79,8 +79,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             long offset = stream.Position;
 
             // Reader to read the ID from the stream
-            BinaryReader reader = new BinaryReader(stream);
-            FileBlock block = CreateBlockById(reader.ReadInt16());
+            var reader = new BinaryReader(stream);
+            var block = CreateBlockById(reader.ReadInt16());
 
             // Rewind the stream and read the block now
             stream.Position = offset;

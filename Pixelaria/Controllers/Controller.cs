@@ -29,19 +29,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Controllers.Validators;
+
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Data.Factories;
 using Pixelaria.Data.Persistence;
+
 using Pixelaria.Properties;
+
 using Pixelaria.Views;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
+
 using Settings = Pixelaria.Utils.Settings;
 
 namespace Pixelaria.Controllers
@@ -643,14 +648,28 @@ namespace Pixelaria.Controllers
             }
 
             // The bundle path must be valid
-            if (CurrentBundle.ExportPath.Trim() == "" || !Directory.Exists(CurrentBundle.ExportPath))
+            try
+            {
+                var fullPath = Path.GetFullPath(CurrentBundle.ExportPath);
+
+                if (!Directory.Exists(fullPath))
+                {
+                    if (MessageBox.Show(Resources.NonExistantBundleExportPathAlert_AskCreate, Resources.Question_AlertTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        Directory.CreateDirectory(fullPath);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+            catch (Exception)
             {
                 if (MessageBox.Show(Resources.InvalidBundleExportPathAlert_AskEdit, Resources.Question_AlertTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     _mainForm.OpenBundleSettings(CurrentBundle);
-
-                    if (CurrentBundle.ExportPath.Trim() == "" || !Directory.Exists(CurrentBundle.ExportPath))
-                        return;
+                    return;
                 }
                 else
                 {

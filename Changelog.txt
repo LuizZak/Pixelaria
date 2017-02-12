@@ -34,6 +34,9 @@ Caption:
 * Fixed issues that occurred after saving files after duplicating animations/animation sheets.
 * Fixed bugs related to detection of repeated frames in animation sheets.
 
+* Now when trying to export a bundle to a path that is valid, but not created, the program asks to create it beforehands.
+  . Also now the bundle settings dialog differentiates valid but not created paths with a warning instead of an error.
+
 . FrameView
   + Added an Alt+Left Click shortcut that selects the topmost layer that owns the non-transparent pixel (alpha bigger than 0) under the mouse pointer.
   + Added scroll bars to the layers panel.

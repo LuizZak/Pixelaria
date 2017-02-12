@@ -39,8 +39,8 @@ namespace Pixelaria.Data
         /// <summary>
         /// The list of layers laid on this frame
         /// </summary>
-        private readonly List<FrameLayer> _layers;
-
+        public readonly List<FrameLayer> Layers;
+        
         /// <summary>
         /// Gets the width of this frame
         /// </summary>
@@ -59,7 +59,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the total number of layers stored on this Frame object
         /// </summary>
-        public int LayerCount => _layers.Count;
+        public int LayerCount => Layers.Count;
 
         /// <summary>
         /// Gets the index of this frame on the parent animation
@@ -69,7 +69,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the animation this frame belongs to
         /// </summary>
-        public Animation Animation { get; private set; }
+        public Animation Animation { get; set; }
 
         /// <summary>
         /// Gets the hash of this Frame texture
@@ -96,7 +96,7 @@ namespace Pixelaria.Data
         /// </summary>
         public Frame()
         {
-            _layers = new List<FrameLayer>();
+            Layers = new List<FrameLayer>();
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Pixelaria.Data
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
         public Frame(Animation parentAnimation, int width, int height, bool initHash = true)
         {
-            _layers = new List<FrameLayer>();
+            Layers = new List<FrameLayer>();
             Initialize(parentAnimation, width, height, initHash);
         }
 
@@ -134,7 +134,12 @@ namespace Pixelaria.Data
             Height = height;
             Animation = animation;
 
-            CreateLayer(0);
+            var frameLayer = new FrameLayer(new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
+            {
+                Index = 0
+            };
+            Layers.Add(frameLayer);
+            frameLayer.Frame = this;
 
             if (initHash)
             {
@@ -162,11 +167,11 @@ namespace Pixelaria.Data
         /// </summary>
         private void ClearLayers()
         {
-            foreach (var layer in _layers)
+            foreach (var layer in Layers)
             {
                 layer.Dispose();
             }
-            _layers.Clear();
+            Layers.Clear();
         }
 
         /// <summary>
@@ -263,10 +268,13 @@ namespace Pixelaria.Data
 
             // Clear the current layers and clone from the passed frame
             ClearLayers();
-            _layers.AddRange(castFrame._layers.Select(t => t.Clone() as FrameLayer));
+            Layers.AddRange(castFrame.Layers.Select(t => t.Clone() as FrameLayer));
 
             // Update the indices of the layers
-            UpdateLayerIndices();
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                Layers[i].Index = i;
+            }
 
             Hash = frame.Hash;
             _shortHash = castFrame._shortHash;
@@ -312,199 +320,7 @@ namespace Pixelaria.Data
 
             return false;
         }
-
-        /// <summary>
-        /// Creates a new empty layer on this Frame
-        /// </summary>
-        /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
-        public IFrameLayer CreateLayer(int layerIndex = -1)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
-            {
-                Index = layerIndex == -1 ? _layers.Count : layerIndex
-            };
-
-            AddLayer(layer, layerIndex);
-
-            return layer;
-        }
-
-        /// <summary>
-        /// Adds a layer on this Frame object based on the specified bitmap.
-        /// If the bitmap does not match this frame's dimensions or its pixel format is not 32bpp, an exception is raised
-        /// </summary>
-        /// <param name="bitmap">The bitmap to use as a layer image</param>
-        /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
-        /// <returns>The layer that was just created</returns>
-        /// <exception cref="ArgumentException">The provided bitmap's dimensions does not match this Frame's dimensions, or its pixel format isn't 32bpp</exception>
-        public IFrameLayer AddLayer(Bitmap bitmap, int layerIndex = -1)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            if (bitmap.Width != Width || bitmap.Height != Height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
-            {
-                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", nameof(bitmap));
-            }
-
-            var layer = (FrameLayer)CreateLayer(layerIndex);
-
-            layer.CopyFromBitmap(bitmap);
-
-            return layer;
-        }
-
-        /// <summary>
-        /// Adds the specified layer to this Frame object.
-        /// If the layer's size does not match this frame's dimensions, an exception is raised.
-        /// If the layer's type does not match the internal layer type (or, the layer does not originates from a CreateLayer/AddLayer/GetLayerAt from this object), an exception is raised
-        /// </summary>
-        /// <param name="layer">The layer to add to this frame</param>
-        /// <param name="layerIndex">The index at which to add the layer</param>
-        /// <exception cref="ArgumentException">
-        /// The provided layers's dimensions does not match this Frame's dimensions, or the provided layers's type
-        /// is not compatible with this Frame object, or the provided layer is already stored in a Frame object
-        /// </exception>
-        public void AddLayer(IFrameLayer layer, int layerIndex = -1)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            if (layer.Width != Width || layer.Height != Height)
-            {
-                throw new ArgumentException(@"The provided layer's dimensions must match the size of this frame", nameof(layer));
-            }
-            if (layer.Frame != null)
-            {
-                throw new ArgumentException("The specified layer is already stored in a Frame object");
-            }
-
-            var frameLayer = layer as FrameLayer;
-            if (frameLayer == null)
-            {
-                throw new ArgumentException("The provided layers's type is not compatible with this Frame object");
-            }
-
-            if (layerIndex == -1 || layerIndex == _layers.Count)
-                _layers.Add(frameLayer);
-            else
-                _layers.Insert(layerIndex, frameLayer);
-
-            frameLayer.Frame = this;
-
-            UpdateLayerIndices();
-        }
-
-        /// <summary>
-        /// Removes a layer that is stored on the specified index on this Frame
-        /// </summary>
-        /// <param name="layerIndex">The layer index to remove</param>
-        /// <param name="dispose">Whether to dispose of the layer after removing it</param>
-        public void RemoveLayerAt(int layerIndex, bool dispose = true)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            if(dispose)
-            {
-                _layers[layerIndex].Dispose();
-            }
-
-            _layers[layerIndex].Frame = null;
-
-            _layers.RemoveAt(layerIndex);
-
-            if (_layers.Count == 0)
-                CreateLayer();
-
-            UpdateLayerIndices();
-        }
-
-        /// <summary>
-        /// Gets a layer at the specified index on this Frame object
-        /// </summary>
-        /// <param name="index">The index to get the layer at</param>
-        /// <returns>A layer at the specified index on this Frame object</returns>
-        public IFrameLayer GetLayerAt(int index)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            return _layers[index];
-        }
-
-        /// <summary>
-        /// Swaps layers at the two specified indices
-        /// </summary>
-        /// <param name="firstIndex">The first layer index to swap</param>
-        /// <param name="secondIndex">The second layer index to swap</param>
-        /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
-        public void SwapLayers(int firstIndex, int secondIndex, bool updateHash = true)
-        {
-            var secondLayer = _layers[secondIndex];
-            _layers[secondIndex] = _layers[firstIndex];
-            _layers[firstIndex] = secondLayer;
-
-            UpdateLayerIndices();
-
-            if (updateHash)
-            {
-                UpdateHash();
-            }
-        }
-
-        /// <summary>
-        /// Updates the bitmap of a given layer. If the dimensions of the bitmap don't match 32bpp, an exception is raised
-        /// </summary>
-        /// <param name="layerIndex">The index of the layer to update</param>
-        /// <param name="layerBitmap">The new layer bitmap</param>
-        /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
-        /// <exception cref="ArgumentException">The dimensions of the bitmap don't match this frame's size, or its pixel format isn't 32bpp</exception>
-        public void SetLayerBitmap(int layerIndex, Bitmap layerBitmap, bool updateHash = true)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            if (layerBitmap.Width != Width || layerBitmap.Height != Height || Image.GetPixelFormatSize(layerBitmap.PixelFormat) != 32)
-            {
-                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", nameof(layerBitmap));
-            }
-
-            //_layers[layerIndex].LayerBitmap = layerBitmap;
-            _layers[layerIndex].CopyFromBitmap(layerBitmap);
-
-            if (updateHash)
-            {
-                UpdateHash();
-            }
-        }
-
-        /// <summary>
-        /// Updates the indices for all the layers stored on this frame
-        /// </summary>
-        private void UpdateLayerIndices()
-        {
-            for (int i = 0; i < _layers.Count; i++)
-            {
-                _layers[i].Index = i;
-            }
-        }
-
+        
         /// <summary>
         /// Swaps the current frame bitmap with the given one. If the new bitmap's dimensions
         /// don't match the Frame's dimensions, an ArgumentException is thrown.
@@ -521,8 +337,8 @@ namespace Pixelaria.Data
 
             // Copy to the first layer
             //_layers[0].CopyFromBitmap(bitmap);
-            _layers[0].LayerBitmap.Dispose();
-            _layers[0].LayerBitmap = bitmap;
+            Layers[0].LayerBitmap.Dispose();
+            Layers[0].LayerBitmap = bitmap;
 
             if (updateHash)
                 UpdateHash();
@@ -540,12 +356,12 @@ namespace Pixelaria.Data
             }
 
             Bitmap composedBitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-            FastBitmap.CopyPixels(_layers[0].LayerBitmap, composedBitmap);
+            FastBitmap.CopyPixels(Layers[0].LayerBitmap, composedBitmap);
 
             // Compose the layers by blending all the pixels from each layer into the final image
-            for (int i = 1; i < _layers.Count; i++)
+            for (int i = 1; i < Layers.Count; i++)
             {
-                ImageUtilities.FlattenBitmaps(composedBitmap, _layers[i].LayerBitmap, true);
+                ImageUtilities.FlattenBitmaps(composedBitmap, Layers[i].LayerBitmap, true);
             }
             
             return composedBitmap;
@@ -650,7 +466,7 @@ namespace Pixelaria.Data
             Width = newWidth;
             Height = newHeight;
 
-            foreach (var layer in _layers)
+            foreach (var layer in Layers)
             {
                 layer.Resize(newWidth, newHeight, scalingMethod, interpolationMode);
             }
@@ -673,10 +489,10 @@ namespace Pixelaria.Data
 
             // For composed mode, use the memory usage of the first layer
             if (composed)
-                return ImageUtilities.MemoryUsageOfImage(_layers[0].LayerBitmap);
+                return ImageUtilities.MemoryUsageOfImage(Layers[0].LayerBitmap);
 
             // Calculate the usage of each layer individually
-            return _layers.Sum(layer => ImageUtilities.MemoryUsageOfImage(layer.LayerBitmap));
+            return Layers.Sum(layer => ImageUtilities.MemoryUsageOfImage(layer.LayerBitmap));
         }
 
         /// <summary>
@@ -742,7 +558,7 @@ namespace Pixelaria.Data
 
             Frame other = (Frame) obj;
 
-            if (_layers.Count != other._layers.Count || Hash == null || other.Hash == null || !Utilities.ByteArrayCompare(Hash, other.Hash) ||
+            if (Layers.Count != other.Layers.Count || Hash == null || other.Hash == null || !Utilities.ByteArrayCompare(Hash, other.Hash) ||
                 Width != other.Width || Height != other.Height)
             {
                 return false;
@@ -751,9 +567,9 @@ namespace Pixelaria.Data
             // Compare each layer individually
             // Disable LINQ suggestion because it'd actually be considerably slower
             // ReSharper disable once LoopCanBeConvertedToQuery
-            for (int i = 0; i < _layers.Count; i++)
+            for (int i = 0; i < Layers.Count; i++)
             {
-                if (!_layers[i].Equals(other._layers[i]))
+                if (!Layers[i].Equals(other.Layers[i]))
                     return false;
             }
 
@@ -769,7 +585,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Represents the layer for a frame
         /// </summary>
-        protected class FrameLayer : IFrameLayer, IEquatable<FrameLayer>
+        public class FrameLayer : IFrameLayer, IEquatable<FrameLayer>
         {
             /// <summary>
             /// Gets this layer's width

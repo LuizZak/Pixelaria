@@ -187,6 +187,8 @@ namespace Pixelaria.Views.ModelViews
             _frameBitmap = _currentAnimation.GetComposedBitmapForFrame(newFrame);
 
             pnl_preview.Image = _frameBitmap;
+
+            tlc_timeline.CurrentFrame = _currentFrame;
         }
 
         /// <summary>

@@ -174,7 +174,7 @@ namespace Pixelaria.Data
         /// <returns>The animation created</returns>
         public Animation CreateNewAnimation(string name, int width, int height)
         {
-            Animation anim = new Animation(name, width, height);
+            var anim = new Animation(name, width, height);
 
             _animations.Add(anim);
 

@@ -37,14 +37,9 @@ namespace Pixelaria.Data
     public class Animation : IDObject, IAnimation
     {
         /// <summary>
-        /// The frames of this animation
-        /// </summary>
-        private List<IFrame> _frames;
-
-        /// <summary>
         /// Gets or sets the name of this animation
         /// </summary>
-        public String Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets the width of this animation's frames
@@ -69,7 +64,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the number of frames of this Animaion
         /// </summary>
-        public int FrameCount => _frames.Count;
+        public int FrameCount => Frames.Count;
 
         /// <summary>
         /// The playbar settings for this Animation
@@ -84,7 +79,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the list of frames for this Animation
         /// </summary>
-        public IFrame[] Frames => _frames.ToArray();
+        public List<IFrame> Frames { get; set; }
 
         /// <summary>
         /// Gets a frame at the given index in this animation
@@ -108,7 +103,7 @@ namespace Pixelaria.Data
         public Animation(string name, int width, int height)
         {
             ID = -1;
-            _frames = new List<IFrame>();
+            Frames = new List<IFrame>();
 
             Name = name;
             Width = width;
@@ -129,17 +124,17 @@ namespace Pixelaria.Data
         /// </summary>
         public void Dispose()
         {
-            if (_frames != null)
+            if (Frames != null)
             {
                 // Frames clearing
-                foreach (var frame in _frames)
+                foreach (var frame in Frames)
                 {
                     frame.Dispose();
                 }
-                _frames.Clear();
+                Frames.Clear();
             }
 
-            _frames = null;
+            Frames = null;
 
             GC.SuppressFinalize(this);
         }
@@ -165,13 +160,13 @@ namespace Pixelaria.Data
         /// </summary>
         public void Clear()
         {
-            foreach (IFrame frame in _frames)
+            foreach (IFrame frame in Frames)
             {
                 frame.Removed();
                 frame.Dispose();
             }
 
-            _frames.Clear();
+            Frames.Clear();
         }
 
         /// <summary>
@@ -219,7 +214,7 @@ namespace Pixelaria.Data
         /// <returns>Total memory usage, in bytes</returns>
         public long CalculateMemoryUsageInBytes(bool composed)
         {
-            return _frames.Sum(frame => frame.CalculateMemoryUsageInBytes(composed));
+            return Frames.Sum(frame => frame.CalculateMemoryUsageInBytes(composed));
         }
 
         /// <summary>
@@ -232,7 +227,7 @@ namespace Pixelaria.Data
             Height = sizeMatchingSettings.NewHeight;
 
             // Resize the frames now
-            foreach (IFrame frame in _frames)
+            foreach (IFrame frame in Frames)
             {
                 frame.Resize(sizeMatchingSettings.NewWidth, sizeMatchingSettings.NewHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
@@ -293,7 +288,7 @@ namespace Pixelaria.Data
             }
 
             // Resize the frames now
-            foreach (IFrame frame in _frames)
+            foreach (IFrame frame in Frames)
             {
                 frame.Resize(newAnimWidth, newAnimHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
@@ -328,7 +323,7 @@ namespace Pixelaria.Data
                 throw new ArgumentException("The frame provided has not been intialized");
             }
 
-            if (_frames.ContainsReference(frame))
+            if (Frames.ContainsReference(frame))
             {
                 return;
             }
@@ -345,11 +340,11 @@ namespace Pixelaria.Data
 
             if (index == -1)
             {
-                _frames.Add(frame);
+                Frames.Add(frame);
             }
             else
             {
-                _frames.Insert(index, frame);
+                Frames.Insert(index, frame);
             }
         }
         
@@ -373,12 +368,12 @@ namespace Pixelaria.Data
                 throw new ArgumentException(AnimationMessages.Exception_UnmatchedFramedimensions, nameof(frame));
             }
 
-            if (ReferenceEquals(_frames[index], frame))
+            if (ReferenceEquals(Frames[index], frame))
                 return frame;
 
-            IFrame oldFrame = _frames[index];
+            IFrame oldFrame = Frames[index];
 
-            _frames[index] = frame;
+            Frames[index] = frame;
 
             frame.Added(this);
 
@@ -394,9 +389,9 @@ namespace Pixelaria.Data
         /// <param name="index2">The second index to swap</param>
         public void SwapFrameIndices(int index1, int index2)
         {
-            IFrame temp = _frames[index1];
-            _frames[index1] = _frames[index2];
-            _frames[index2] = temp;
+            IFrame temp = Frames[index1];
+            Frames[index1] = Frames[index2];
+            Frames[index2] = temp;
         }
 
         /// <summary>
@@ -407,15 +402,15 @@ namespace Pixelaria.Data
         /// <returns>The newly duplicated frame</returns>
         public IFrame DuplicateFrame(int frameIndex, int newIndex = -1)
         {
-            IFrame dup = _frames[frameIndex].Clone();
+            IFrame dup = Frames[frameIndex].Clone();
 
             if (newIndex == -1)
             {
-                _frames.Insert(frameIndex + 1, dup);
+                Frames.Insert(frameIndex + 1, dup);
             }
             else
             {
-                _frames.Insert(newIndex, dup);
+                Frames.Insert(newIndex, dup);
             }
 
             return dup;
@@ -449,11 +444,11 @@ namespace Pixelaria.Data
 
             if (position == -1)
             {
-                _frames.Add(frame);
+                Frames.Add(frame);
             }
             else
             {
-                _frames.Insert(position, frame);
+                Frames.Insert(position, frame);
             }
 
             return frame;
@@ -471,7 +466,7 @@ namespace Pixelaria.Data
             }
 
             frame.Removed();
-            _frames.RemoveReference(frame);
+            Frames.RemoveReference(frame);
         }
 
         /// <summary>
@@ -500,7 +495,7 @@ namespace Pixelaria.Data
         /// <returns>An integer representing the index at which the frame resides, or -1 if the frame is not located inside this animation</returns>
         public int GetFrameIndex(IFrame frame)
         {
-            return _frames.IndexOfReference(frame);
+            return Frames.IndexOfReference(frame);
         }
 
         /// <summary>
@@ -510,7 +505,7 @@ namespace Pixelaria.Data
         /// <returns>The Frame at the given index</returns>
         public IFrame GetFrameAtIndex(int index)
         {
-            return _frames[index];
+            return Frames[index];
         }
 
         /// <summary>
@@ -521,7 +516,7 @@ namespace Pixelaria.Data
         // ReSharper disable once InconsistentNaming
         public IFrame GetFrameByID(int id)
         {
-            return _frames.FirstOrDefault(frame => frame.ID == id);
+            return Frames.FirstOrDefault(frame => frame.ID == id);
         }
 
         /// <summary>
@@ -554,16 +549,16 @@ namespace Pixelaria.Data
 
             Animation other = (Animation) obj;
 
-            if (Name != other.Name || _frames == null || other._frames == null || _frames.Count != other._frames.Count || Width != other.Width || Height != other.Height ||
+            if (Name != other.Name || Frames == null || other.Frames == null || Frames.Count != other.Frames.Count || Width != other.Width || Height != other.Height ||
                 !ExportSettings.Equals(other.ExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings) || ID != other.ID)
                 return false;
 
             // Check frame-by-frame for an innequality
             // Disable LINQ suggestion because it'd actually be considerably slower
             // ReSharper disable once LoopCanBeConvertedToQuery
-            for (int i = 0; i < _frames.Count; i++)
+            for (int i = 0; i < Frames.Count; i++)
             {
-                if (!_frames[i].Equals(other._frames[i]))
+                if (!Frames[i].Equals(other.Frames[i]))
                     return false;
             }
 

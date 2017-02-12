@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using FastBitmapLib;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
@@ -75,6 +76,11 @@ namespace Pixelaria.Views.ModelViews
         /// The copy of the frame that is actually edited by this form
         /// </summary>
         private Frame _viewFrame;
+
+        /// <summary>
+        /// The controller for the frame being edited
+        /// </summary>
+        private FrameController _viewFrameController;
 
         /// <summary>
         /// The bitmap for the current frame being displayed
@@ -392,7 +398,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshFramePreview()
         {
-            zpb_framePreview.Image = _viewFrame.GetComposedBitmap();
+            zpb_framePreview.Image = _viewFrameController.GetComposedBitmap();
         }
 
         /// <summary>
@@ -444,11 +450,13 @@ namespace Pixelaria.Views.ModelViews
             _viewFrame = FrameLoaded.Clone();
             _layerController.Frame = _viewFrame;
 
+            _viewFrameController = new FrameController(_viewFrame);
+
             RefreshTitleBar();
 
             _viewFrameBitmap?.Dispose();
 
-            _viewFrameBitmap = _viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
+            _viewFrameBitmap = _viewFrameController.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
             iepb_frame.LoadBitmap(_viewFrameBitmap);
 
             RefreshView();
@@ -480,7 +488,7 @@ namespace Pixelaria.Views.ModelViews
                 fileName += "_" + FrameLoaded.Index;
             }
 
-            _controller.ShowSaveImage(_viewFrame.GetComposedBitmap(), fileName, this);
+            _controller.ShowSaveImage(_viewFrameController.GetComposedBitmap(), fileName, this);
         }
 
         /// <summary>
@@ -493,7 +501,7 @@ namespace Pixelaria.Views.ModelViews
             if (img == null)
                 return;
 
-            if (img.Width > _viewFrame.Width || img.Height > _viewFrame.Height)
+            if (img.Width > _viewFrameController.Width || img.Height > _viewFrameController.Height)
             {
                 FramesRescaleSettingsView frs = new FramesRescaleSettingsView("The selected image is larger than the current image. Please select the scaling mode to apply to the new image:", FramesRescalingOptions.ShowFrameScale | FramesRescalingOptions.ShowDrawingMode);
 
@@ -501,7 +509,7 @@ namespace Pixelaria.Views.ModelViews
                 {
                     FrameSizeMatchingSettings settings = frs.GeneratedSettings;
 
-                    img = ImageUtilities.Resize(img, _viewFrame.Width, _viewFrame.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
+                    img = ImageUtilities.Resize(img, _viewFrameController.Width, _viewFrameController.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
                 }
             }
 
@@ -1916,7 +1924,7 @@ namespace Pixelaria.Views.ModelViews
         private void OnColorPicked(object sender, PaintToolColorPickedEventArgs args)
         {
             // Pick the color from the composed bitmap
-            using(var composed = FrameRenderer.ComposeFrame(_viewFrame, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
+            using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
             {
                 Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
 
@@ -2091,7 +2099,7 @@ namespace Pixelaria.Views.ModelViews
             private void UpdateEditActiveLayer()
             {
                 // Update the bitmap being edited
-                _frameView._viewFrameBitmap = _frameView._viewFrame.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
+                _frameView._viewFrameBitmap = _frameView._viewFrameController.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
                 _frameView.iepb_frame.LoadBitmap(_frameView._viewFrameBitmap, false);
 
                 // Update editability of the current layer

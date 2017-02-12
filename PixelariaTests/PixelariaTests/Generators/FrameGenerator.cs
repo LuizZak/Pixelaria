@@ -23,8 +23,12 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+
 using FastBitmapLib;
+
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
+using Pixelaria.Data.Factories;
 
 namespace PixelariaTests.PixelariaTests.Generators
 {
@@ -59,11 +63,13 @@ namespace PixelariaTests.PixelariaTests.Generators
                 ID = NextId++
             };
 
+            var controller = new FrameController(frame);
+
             frame.SetFrameBitmap(GenerateRandomBitmap(width, height, seed));
 
             for (int i = 1; i < layerCount; i++)
             {
-                frame.AddLayer(GenerateRandomBitmap(width, height, seed + 1));
+                controller.AddLayer(GenerateRandomBitmap(width, height, seed + 1));
             }
 
             return frame;
@@ -130,6 +136,19 @@ namespace PixelariaTests.PixelariaTests.Generators
         public static void RandomizeBitmap(this Frame frame, int seed = -1)
         {
             frame.SetFrameBitmap(GenerateRandomBitmap(frame.Width, frame.Height, seed));
+        }
+    }
+
+    /// <summary>
+    /// Test frame ID generator that generates sequential numbers
+    /// </summary>
+    public class FrameIdGenerator : IFrameIdGenerator
+    {
+        private int _nextId = 0;
+        
+        public int GetNextUniqueFrameId()
+        {
+            return ++_nextId;
         }
     }
 }

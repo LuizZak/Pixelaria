@@ -132,6 +132,13 @@
   <ItemGroup>
     <Compile Include="Algorithms\ITexturePacker.cs" />
     <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationController.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationMetadata.cs" />
+    <Compile Include="Controllers\DataControllers\BundleController.cs" />
+    <Compile Include="Controllers\DataControllers\FrameController.cs" />
+    <Compile Include="Controllers\DataControllers\IAnimationId.cs" />
+    <Compile Include="Controllers\DataControllers\IFrameId.cs" />
+    <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />

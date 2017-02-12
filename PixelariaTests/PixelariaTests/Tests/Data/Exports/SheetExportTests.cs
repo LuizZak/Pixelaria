@@ -30,6 +30,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using FastBitmapLib;
+
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using PixelariaTests.PixelariaTests.Generators;

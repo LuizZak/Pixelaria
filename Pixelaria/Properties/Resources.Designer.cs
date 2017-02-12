@@ -952,6 +952,16 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The bundle&apos;s export path points to an unexistant directory.
+        ///Do you wish to create the directory and export?.
+        /// </summary>
+        internal static string NonExistantBundleExportPathAlert_AskCreate {
+            get {
+                return ResourceManager.GetString("NonExistantBundleExportPathAlert_AskCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Numbers_0 {

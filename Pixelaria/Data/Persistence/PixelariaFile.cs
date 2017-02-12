@@ -107,7 +107,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
-            foreach (Animation animation in bundle.Animations)
+            foreach (var animation in bundle.Animations)
             {
                 AddBlock(new AnimationHeaderBlock(animation));
             }

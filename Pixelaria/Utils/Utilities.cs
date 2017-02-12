@@ -276,8 +276,9 @@ namespace Pixelaria.Utils
         public static uint FlattenColor(uint backColor, uint foreColor)
         {
             // Based off an answer by an anonymous user on StackOverlow http://stackoverflow.com/questions/1718825/blend-formula-for-gdi/2223241#2223241
+            
             byte foreA = (byte)((foreColor >> 24) & 0xFF);
-
+            
             if (foreA == 0)
                 return backColor;
             if (foreA == 255)

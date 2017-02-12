@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -135,14 +136,14 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to save the layers to</param>
         protected void SaveLayersToStream(Frame frame, Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             // Save the number of layers stored on the frame object
             writer.Write(frame.LayerCount);
 
             for (int i = 0; i < frame.LayerCount; i++)
             {
-                SaveLayerToStream(frame.GetLayerAt(i), stream);
+                SaveLayerToStream(frame.Layers[i], stream);
             }
         }
 
@@ -214,7 +215,10 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="frame">The frame to load the layers into</param>
         protected void LoadLayersFromStream(Stream stream, Frame frame)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            // Remove the first default layer of the frame
+            frame.Layers.RemoveAt(0);
+
+            var reader = new BinaryReader(stream);
 
             int layerCount = reader.ReadInt32();
 
@@ -222,9 +226,6 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             {
                 LoadLayerFromStream(frame, stream);
             }
-
-            // Remove the first default layer of the frame
-            frame.RemoveLayerAt(0);
         }
 
         /// <summary>
@@ -234,22 +235,24 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to load the layer from</param>
         private void LoadLayerFromStream(Frame frame, Stream stream)
         {
+            var controller = new FrameController(frame);
+
             // Load the layer's name
             string name = null;
 
             if(blockVersion >= 2)
             {
-                BinaryReader reader = new BinaryReader(stream, Encoding.UTF8);
+                var reader = new BinaryReader(stream, Encoding.UTF8);
                 name = reader.ReadString();
             }
 
-            Bitmap layerBitmap = PersistenceHelper.LoadImageFromStream(stream);
-            IFrameLayer layer = frame.AddLayer(layerBitmap);
+            var layerBitmap = PersistenceHelper.LoadImageFromStream(stream);
+            var layer = controller.AddLayer(layerBitmap);
 
             // Add the attributes that were loaded earlier
             if (name != null)
             {
-                layer.Name = name;
+                controller.SetLayerName(layer.Index, name);
             }
         }
     }
