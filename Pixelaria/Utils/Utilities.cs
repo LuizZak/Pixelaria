@@ -93,13 +93,11 @@ namespace Pixelaria.Utils
 
             while (b > 1024)
             {
+                if (magnitude == sulfixes.Length - 1)
+                    break;
+
                 b /= 1024;
                 magnitude++;
-            }
-
-            if (magnitude >= sulfixes.Length)
-            {
-                magnitude = sulfixes.Length - 1;
             }
 
             return Math.Round(b * 100) / 100 + sulfixes[magnitude];

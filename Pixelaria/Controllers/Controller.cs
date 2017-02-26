@@ -988,12 +988,12 @@ namespace Pixelaria.Controllers
                 try
                 {
                     var sources = filePaths.Select(Image.FromFile).ToArray();
-                    var baked = sources.Select(PreparedImage);
+                    var baked = sources.Select(PreparedImage).ToArray();
                     
                     // Dispose of the images
                     Array.ForEach(sources.ToArray(), image => image.Dispose());
 
-                    return baked.ToArray();
+                    return baked;
                 }
                 catch (Exception)
                 {

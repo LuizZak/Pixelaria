@@ -26,6 +26,7 @@ using System.IO;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data;
 using Pixelaria.Utils;
@@ -56,7 +57,7 @@ namespace Pixelaria.Views.ModelViews
         /// The current preview animation
         /// </summary>
         PreviewAnimation _currentPreviewAnimation;
-
+        
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
         /// </summary>
@@ -168,33 +169,33 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void GenerateAnimationPreview()
         {
-            if (_spriteSheet != null)
+            if (_spriteSheet == null)
+                return;
+
+            if (_currentPreviewAnimation != null)
             {
-                if (_currentPreviewAnimation != null)
-                {
-                    _currentPreviewAnimation.Dispose();
-                    _currentPreviewAnimation = null;
-                }
-
-                if (nud_frameCount.Value != 0)
-                {
-                    _currentPreviewAnimation = new PreviewAnimation
-                    {
-                        SourceBitmap = (Bitmap)_spriteSheet,
-                        SheetSettings = _sheetSettings,
-                        FrameBounds = _controller.DefaultImporter.GenerateFrameBounds(_spriteSheet, _sheetSettings)
-                    };
-
-                    var playback = _currentPreviewAnimation.PlaybackSettings;
-
-                    playback.FPS = (int)nud_fps.Value;
-                    playback.FrameSkip = cb_frameskip.Checked;
-
-                    _currentPreviewAnimation.PlaybackSettings = playback;
-                }
-
-                ap_animationPreview.LoadAnimation(_currentPreviewAnimation);
+                _currentPreviewAnimation.Dispose();
+                _currentPreviewAnimation = null;
             }
+
+            if (nud_frameCount.Value != 0)
+            {
+                _currentPreviewAnimation = new PreviewAnimation
+                {
+                    SourceBitmap = (Bitmap)_spriteSheet,
+                    SheetSettings = _sheetSettings,
+                    FrameBounds = _controller.DefaultImporter.GenerateFrameBounds(_spriteSheet, _sheetSettings)
+                };
+
+                var playback = _currentPreviewAnimation.PlaybackSettings;
+
+                playback.FPS = (int)nud_fps.Value;
+                playback.FrameSkip = cb_frameskip.Checked;
+
+                _currentPreviewAnimation.PlaybackSettings = playback;
+            }
+
+            ap_animationPreview.LoadAnimation(_currentPreviewAnimation);
         }
 
         /// <summary>
