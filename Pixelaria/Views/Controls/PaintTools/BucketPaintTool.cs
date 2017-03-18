@@ -194,9 +194,9 @@ namespace Pixelaria.Views.Controls.PaintTools
         public unsafe static IUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
         {
             // Start the fill operation by getting the color under the user's mouse
-            Color pColor = targetBitmap.GetPixel(point.X, point.Y);
+            var pColor = targetBitmap.GetPixel(point.X, point.Y);
             // Do a pre-blend of the color, if the composition mode is SourceOver
-            Color newColor = (compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color);
+            var newColor = (compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color);
 
             uint pColorI = unchecked((uint)pColor.ToArgb());
             uint newColorI = unchecked((uint)newColor.ToArgb());
@@ -209,7 +209,6 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             // Clone the bitmap to be used on undo/redo
             Bitmap originalBitmap = null;
-
             if (createUndo)
             {
                 originalBitmap = new Bitmap(targetBitmap);
@@ -221,9 +220,12 @@ namespace Pixelaria.Views.Controls.PaintTools
             int maxY = point.Y;
 
             // Initialize the undo task
-            BitmapUndoTask undoTask = new BitmapUndoTask(targetBitmap, "Flood fill");
+            BitmapUndoTask undoTask = null;
 
-            Stack<int> stack = new Stack<int>();
+            if (createUndo)
+                undoTask = new BitmapUndoTask(targetBitmap, "Flood fill");
+
+            var stack = new Stack<int>();
 
             int width = targetBitmap.Width;
             int height = targetBitmap.Height;
@@ -313,7 +315,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
 
             // Generate the undo now
-            Rectangle affectedRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+            var affectedRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
 
             undoTask.DrawPoint = affectedRectangle.Location;
 
