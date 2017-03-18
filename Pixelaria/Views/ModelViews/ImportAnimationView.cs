@@ -26,7 +26,6 @@ using System.IO;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data;
 using Pixelaria.Utils;
