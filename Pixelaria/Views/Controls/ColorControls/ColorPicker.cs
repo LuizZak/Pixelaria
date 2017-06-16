@@ -74,7 +74,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public Color FirstColor
         {
-            get { return _firstColor.ToColor(); }
+            get => _firstColor.ToColor();
             set
             {
                 if (_firstColor.ToColor().ToArgb() == value.ToArgb())
@@ -92,7 +92,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public Color SecondColor
         {
-            get { return _secondColor.ToColor(); }
+            get => _secondColor.ToColor();
             set
             {
                 if (_secondColor.ToColor().ToArgb() == value.ToArgb())
@@ -110,7 +110,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public AhslColor FirstAhslColor
         {
-            get { return _firstColor; }
+            get => _firstColor;
             set
             {
                 if (_firstColor == value)
@@ -128,7 +128,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public AhslColor SecondAhslColor
         {
-            get { return _secondColor; }
+            get => _secondColor;
             set
             {
                 if (_secondColor == value)
@@ -146,7 +146,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public ColorPickerColor SelectedColor
         {
-            get { return _selectedColor; }
+            get => _selectedColor;
             set
             {
                 if (_selectedColor == value)
@@ -364,17 +364,17 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets the color value before the change
         /// </summary>
-        public Color OldColor { get; private set; }
+        public Color OldColor { get; }
 
         /// <summary>
         /// Gets the new color value
         /// </summary>
-        public Color NewColor { get; private set; }
+        public Color NewColor { get; }
 
         /// <summary>
         /// Gets the ColorPicker color index that was changed
         /// </summary>
-        public ColorPickerColor TargetColor { get; private set; }
+        public ColorPickerColor TargetColor { get; }
 
         /// <summary>
         /// Initializes a new instance of the using Pixelaria.Views.ModelViews;

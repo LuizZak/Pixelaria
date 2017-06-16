@@ -44,11 +44,6 @@ namespace Pixelaria.Data.Undo
         private int _currentTask;
 
         /// <summary>
-        /// The maximum ammount of tasks this UndoSystem can store
-        /// </summary>
-        private int _maxTaskCount;
-
-        /// <summary>
         /// The current group undo task
         /// </summary>
         private GroupUndoTask _currentGroupUndoTask;
@@ -98,7 +93,7 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// Gets or sets the maximum ammount of tasks this UndoSystem can store
         /// </summary>
-        public int MaximumTaskCount { get { return _maxTaskCount; } set { _maxTaskCount = value; } }
+        public int MaximumTaskCount { get; set; }
 
         /// <summary>
         /// Gets whether this UndoSystem can currently undo a task
@@ -133,7 +128,7 @@ namespace Pixelaria.Data.Undo
         {
             _undoTasks = new List<IUndoTask>();
             _currentTask = 0;
-            _maxTaskCount = 15;
+            MaximumTaskCount = 15;
         }
 
         /// <summary>
@@ -159,9 +154,9 @@ namespace Pixelaria.Data.Undo
             ClearRedos();
 
             // Task capping
-            if (_undoTasks.Count >= _maxTaskCount)
+            if (_undoTasks.Count >= MaximumTaskCount)
             {
-                while (_undoTasks.Count >= _maxTaskCount)
+                while (_undoTasks.Count >= MaximumTaskCount)
                 {
                     _undoTasks[0].Clear();
 
@@ -509,7 +504,7 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// Gets or sets the task associated with this event
         /// </summary>
-        public IUndoTask Task { get; private set; }
+        public IUndoTask Task { get; }
 
         /// <summary>
         /// Creates a new instance of the UndoEventArgs

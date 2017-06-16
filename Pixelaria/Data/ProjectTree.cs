@@ -201,7 +201,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the bundle for this Bundle project tree node
         /// </summary>
-        public Bundle Bundle { get; private set; }
+        public Bundle Bundle { get; }
 
         /// <summary>
         /// Initializes a new instance of the BundleProjectTreeNode class
@@ -221,7 +221,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the AnimationSheet contained within this animation sheet project tree node
         /// </summary>
-        public AnimationSheet AnimationSheet { get; private set; }
+        public AnimationSheet AnimationSheet { get; }
 
         /// <summary>
         /// Initializes a new instance of the AnimationSheetProjectTreeNode class
@@ -241,7 +241,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the Animation contained within this animation project tree node
         /// </summary>
-        public Animation Animation { get; private set; }
+        public Animation Animation { get; }
 
         /// <summary>
         /// Initializes a new instance of the AnimationProjectTreeNode class

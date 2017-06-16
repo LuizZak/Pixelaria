@@ -45,7 +45,7 @@ namespace Pixelaria.Data.Persistence
         /// <summary>
         /// Gets or sets the version of this PixelariaFile
         /// </summary>
-        public int Version { get { return version; } set { version = value; } }
+        public int Version { get => version; set => version = value; }
 
         /// <summary>
         /// Gets or sets a value specifying whether to reset the bundle when loading from disk

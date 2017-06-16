@@ -34,8 +34,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         public PixelariaFile OwningFile
         {
-            get { return owningFile; }
-            set { owningFile = value; }
+            get => owningFile;
+            set => owningFile = value;
         }
 
         /// <summary>

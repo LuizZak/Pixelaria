@@ -399,7 +399,7 @@ namespace Pixelaria.Utils
             /// <returns>The string contents of the value</returns>
             public string this[string valueName]
             {
-                set { _values[valueName] = value; }
+                set => _values[valueName] = value;
             }
 
             /// <summary>

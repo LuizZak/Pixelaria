@@ -92,10 +92,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         [DefaultValue(ColorSliderComponent.Alpha)]
         public ColorSliderComponent ColorComponent
         {
-            get
-            {
-                return colorComponent;
-            }
+            get => colorComponent;
             set
             {
                 colorComponent = value;
@@ -110,10 +107,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         [Browsable(false)]
         public float CurrentValue
         {
-            get
-            {
-                return currentValue;
-            }
+            get => currentValue;
             set
             {
                 float newValue = Math.Max(0, Math.Min(1, value));
@@ -143,10 +137,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public AhslColor ActiveColor
         {
-            get
-            {
-                return activeColor;
-            }
+            get => activeColor;
             set
             {
                 SetActiveColor(value);
@@ -1008,17 +999,17 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets the original color before the component was updated
         /// </summary>
-        public AhslColor OldColor { get; private set; }
+        public AhslColor OldColor { get; }
 
         /// <summary>
         /// Gets the new color after the component was updated
         /// </summary>
-        public AhslColor NewColor { get; private set; }
+        public AhslColor NewColor { get; }
 
         /// <summary>
         /// Gets the color component that was modified
         /// </summary>
-        public ColorSliderComponent ComponentChanged { get; private set; }
+        public ColorSliderComponent ComponentChanged { get; }
 
         /// <summary>
         /// Initializes a new instance of the ColorChangedEventArgs class

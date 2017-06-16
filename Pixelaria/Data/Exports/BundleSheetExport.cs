@@ -330,24 +330,24 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets the current export stage for the bundle
         /// </summary>
-        public BundleExportStage ExportStage { get; private set; }
+        public BundleExportStage ExportStage { get; }
 
         /// <summary>
         /// Gets the current stage export progress.
         /// The progress ranges from 0 - 100
         /// </summary>
-        public int StageProgress { get; private set; }
+        public int StageProgress { get; }
 
         /// <summary>
         /// Gets the total export progress.
         /// The progress ranges from 0 - 100
         /// </summary>
-        public int TotalProgress { get; private set; }
+        public int TotalProgress { get; }
 
         /// <summary>
         /// Gets the description of the current stage
         /// </summary>
-        public string StageDescription { get; private set; }
+        public string StageDescription { get; }
 
         /// <summary>
         /// Initializes a new instance of the BundleExportProgressEventArgs
@@ -373,7 +373,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets the animation provider associated with this export progress event argument
         /// </summary>
-        public IAnimationProvider Provider { get; private set; }
+        public IAnimationProvider Provider { get; }
 
         public SheetGenerationBundleExportProgressEventArgs(IAnimationProvider provider, BundleExportStage exportStage, int stageProgress, int totalProgress, string stageDescription = "") 
             : base(exportStage, stageProgress, totalProgress, stageDescription)

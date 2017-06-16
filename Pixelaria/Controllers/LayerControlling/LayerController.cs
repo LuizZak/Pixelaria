@@ -175,7 +175,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// </summary>
         public Frame Frame
         {
-            get { return _frame; }
+            get => _frame;
             set
             {
                 if (ReferenceEquals(_frame, value))
@@ -193,7 +193,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// </summary>
         public int ActiveLayerIndex
         {
-            get { return Math.Max(0, Math.Min(_frame.LayerCount - 1, _activeLayerIndex)); }
+            get => Math.Max(0, Math.Min(_frame.LayerCount - 1, _activeLayerIndex));
             set
             {
                 if (_activeLayerIndex == value)
@@ -458,12 +458,12 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// The index of the layer that was moved
         /// </summary>
-        public int LayerIndex { get; private set; }
+        public int LayerIndex { get; }
 
         /// <summary>
         /// The new index of the layer that was moved
         /// </summary>
-        public int NewIndex { get; private set; }
+        public int NewIndex { get; }
 
         /// <summary>
         /// Creates a new instance of the LayerControllerLayerMovedEventArgs class
@@ -485,7 +485,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the layer that was created
         /// </summary>
-        public IFrameLayer FrameLayer { get; private set; }
+        public IFrameLayer FrameLayer { get; }
 
         /// <summary>
         /// Initializes a new instance of the LayerControllerLayerCreatedEventArgs class
@@ -505,7 +505,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the layer that was removed
         /// </summary>
-        public IFrameLayer FrameLayer { get; private set; }
+        public IFrameLayer FrameLayer { get; }
 
         /// <summary>
         /// Initializes a new instance of the LayerControllerLayerRemovedEventArgs class
@@ -525,12 +525,12 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the layer that was updated
         /// </summary>
-        public IFrameLayer FrameLayer { get; private set; }
+        public IFrameLayer FrameLayer { get; }
 
         /// <summary>
         /// Gets the old bitmap before the layer image was updated. This is an independent copy of the layer's bitmap object
         /// </summary>
-        public Bitmap OldLayerBitmap { get; private set; }
+        public Bitmap OldLayerBitmap { get; }
 
         /// <summary>
         /// Initializes a new instance of the LayerControllerLayerImageUpdatedEventArgs class
@@ -552,12 +552,12 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the layer that was updated
         /// </summary>
-        public IFrameLayer FrameLayer { get; private set; }
+        public IFrameLayer FrameLayer { get; }
 
         /// <summary>
         /// Gets the old name before the layer name was updated
         /// </summary>
-        public string OldLayerName { get; private set; }
+        public string OldLayerName { get; }
 
         /// <summary>
         /// Initializes a new instance of the LayerControllerLayerNameUpdatedEventArgs class
@@ -579,7 +579,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the index of the layer that was duplicated
         /// </summary>
-        public int LayerIndex { get; private set; }
+        public int LayerIndex { get; }
 
         /// <summary>
         /// Creates a new instance of the LayerControllerLayerDuplicatedEventArgs class
@@ -599,7 +599,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the layers that were combined
         /// </summary>
-        public IFrameLayer[] LayersCombined { get; private set; }
+        public IFrameLayer[] LayersCombined { get; }
 
         /// <summary>
         /// Initializes a new instance of the LayerControllerLayersCombinedEventArgs class
@@ -619,7 +619,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the frame that was changed to
         /// </summary>
-        public Frame NewFrame { get; private set; }
+        public Frame NewFrame { get; }
 
         /// <summary>
         /// Initializes a new instance of the FrameChangedEventArgs
@@ -639,7 +639,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the new current active layer index
         /// </summary>
-        public int ActiveLayerIndex { get; private set; }
+        public int ActiveLayerIndex { get; }
 
         /// <summary>
         /// Creates a new instance of the ActiveLayerIndexChangedEventArgs class

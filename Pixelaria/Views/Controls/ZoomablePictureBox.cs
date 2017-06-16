@@ -139,7 +139,7 @@ namespace Pixelaria.Views.Controls
         [Description("Whether to clip the background image to the image's size")]
         public bool ClipBackgroundToImage
         {
-            get { return _clipBackgroundToImage; }
+            get => _clipBackgroundToImage;
             set
             {
                 _clipBackgroundToImage = value;
@@ -183,7 +183,7 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public PointF Zoom
         {
-            get { return scale; }
+            get => scale;
             set
             {
                 float oldZoom = scale.X;
@@ -246,7 +246,7 @@ namespace Pixelaria.Views.Controls
         [Category("Appearance")]
         [DefaultValue(typeof(Point), "0, 0")]
         [Description("The offset of the image")]
-        public Point Offset { get { return offsetPoint; } set { offsetPoint = value; ClipTransform(); Invalidate(); } }
+        public Point Offset { get => offsetPoint; set { offsetPoint = value; ClipTransform(); Invalidate(); } }
 
         /// <summary>
         /// Gets or sets the horizontal scroll of this control
@@ -254,7 +254,7 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public int HorizontalScrollValue
         {
-            get { return hScrollBar.Value; }
+            get => hScrollBar.Value;
             set
             {
                 hScrollBar.Value = value;
@@ -271,7 +271,7 @@ namespace Pixelaria.Views.Controls
         [Browsable(false)]
         public int VerticalScrollValue
         {
-            get { return vScrollBar.Value; }
+            get => vScrollBar.Value;
             set
             {
                 vScrollBar.Value = value;
@@ -734,7 +734,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="control">The control to check for inheritance as the child</param>
         /// <param name="parent">The control to check for inheritance as the parent</param>
         /// <returns>Whether a Control is parented by the given Control in some degree</returns>
-        private bool IsControlChildOf(Control control, Control parent)
+        private static bool IsControlChildOf(Control control, Control parent)
         {
             while (control != null)
             {
@@ -756,12 +756,12 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the old zoom before the event
         /// </summary>
-        public float OldZoom { get; private set; }
+        public float OldZoom { get; }
 
         /// <summary>
         /// Gets the new zoom after the event
         /// </summary>
-        public float NewZoom { get; private set; }
+        public float NewZoom { get; }
 
         /// <summary>
         /// Initializes a new instance of the ZoomChangeEventArgs

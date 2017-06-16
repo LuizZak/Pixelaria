@@ -55,7 +55,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         public override Bitmap TargetBitmap
         {
-            get { return base.TargetBitmap; }
+            get => base.TargetBitmap;
             set
             {
                 base.TargetBitmap = value;

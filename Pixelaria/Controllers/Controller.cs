@@ -1123,7 +1123,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the animation binded to this event
         /// </summary>
-        public Animation Animation { get; private set; }
+        public Animation Animation { get; }
 
         /// <summary>
         /// Initializes a new instance of the AnimationEventArgs class with an animation to attach to this event argument
@@ -1142,7 +1142,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the animation sheet binded to this event
         /// </summary>
-        public AnimationSheet AnimationSheet { get; private set; }
+        public AnimationSheet AnimationSheet { get; }
 
         /// <summary>
         /// Initializes a new instance of the AnimationSheetEventArgs class with an animation sheet to attach to this event argument

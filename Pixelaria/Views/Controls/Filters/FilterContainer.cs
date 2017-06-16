@@ -79,7 +79,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public override Color BackColor
         {
-            get { return base.BackColor; }
+            get => base.BackColor;
             set
             {
                 // Adjust the buttons' colors
@@ -101,7 +101,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public bool FilterEnabled
         {
-            get { return _filterEnabled; }
+            get => _filterEnabled;
             set
             {
                 _filterEnabled = value;

@@ -281,7 +281,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets the color value
         /// </summary>
-        public Color Color { get; private set; }
+        public Color Color { get; }
 
         /// <summary>
         /// Initializes a new instance of the ColorChangeEventArgs

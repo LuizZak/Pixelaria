@@ -46,7 +46,7 @@ namespace Pixelaria.Views.Controls
         [Description("The image layout used for the component.")]
         public ImageLayout ImageLayout
         {
-            get { return _imageLayout; }
+            get => _imageLayout;
             set
             {
                 _imageLayout = value;
@@ -76,16 +76,15 @@ namespace Pixelaria.Views.Controls
         // 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            if (Image != null)
-            {
-                pe.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            if (Image == null) return;
 
-                Rectangle rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
+            pe.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                pe.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+            var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
 
-                pe.Graphics.DrawImage(Image, rec);
-            }
+            pe.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+
+            pe.Graphics.DrawImage(Image, rec);
         }
 
         // 

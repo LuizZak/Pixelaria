@@ -77,7 +77,11 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
-        public Image PictureBoxBackgroundImage { get { return _internalPictureBox.BackgroundImage; } set { _internalPictureBox.BackgroundImage = value; } }
+        public Image PictureBoxBackgroundImage
+        {
+            get => _internalPictureBox.BackgroundImage;
+            set => _internalPictureBox.BackgroundImage = value;
+        }
 
         /// <summary>
         /// Delegate for a ColorSelect event
@@ -141,7 +145,7 @@ namespace Pixelaria.Views.Controls
         [DefaultValue(null)]
         public IPaintTool CurrentPaintTool
         {
-            get { return _internalPictureBox.CurrentPaintTool; }
+            get => _internalPictureBox.CurrentPaintTool;
             set
             {
                 if (IsDisposed) 
@@ -164,14 +168,18 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the undo system that handles the undo/redo tasks of this ImageEditPanel
         /// </summary>
-        public UndoSystem UndoSystem { get { return _undoSystem; } set { _undoSystem = value; } }
+        public UndoSystem UndoSystem
+        {
+            get => _undoSystem;
+            set => _undoSystem = value;
+        }
 
         /// <summary>
         /// Gets or sets a value specifying whether editing the image is currently enabled on this image edit panel
         /// </summary>
         public bool EditingEnabled
         {
-            get { return _editingEnabled; }
+            get => _editingEnabled;
             set
             {
                 _editingEnabled = value;
@@ -188,7 +196,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public CompositingMode DefaultCompositingMode
         {
-            get { return _defaultCompositingMode; }
+            get => _defaultCompositingMode;
             set
             {
                 _defaultCompositingMode = value;
@@ -206,7 +214,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public OperationFillMode DefaultFillMode
         {
-            get { return _defaultFillMode; }
+            get => _defaultFillMode;
             set
             {
                 _defaultFillMode = value;
@@ -435,7 +443,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox
             /// </summary>
-            public IPaintTool CurrentPaintTool { get { return _currentPaintTool; } set { if (IsDisposed) return; SetPaintOperation(value); } }
+            public IPaintTool CurrentPaintTool { get => _currentPaintTool; set { if (IsDisposed) return; SetPaintOperation(value); } }
 
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
@@ -455,17 +463,17 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets or sets the bitmap to display under the current image
             /// </summary>
-            public Bitmap UnderImage { get { return _underImage; } set { _underImage = value; Invalidate(); } }
+            public Bitmap UnderImage { get => _underImage; set { _underImage = value; Invalidate(); } }
 
             /// <summary>
             /// Gets or sets the bitmap to display over the current image
             /// </summary>
-            public Bitmap OverImage { get { return _overImage; } set { _overImage = value; Invalidate(); } }
+            public Bitmap OverImage { get => _overImage; set { _overImage = value; Invalidate(); } }
 
             /// <summary>
             /// Gets or sets whether to display the current image
             /// </summary>
-            public bool DisplayImage { get { return _displayImage; } set { if (_displayImage != value) { _displayImage = value; Invalidate(); } } }
+            public bool DisplayImage { get => _displayImage; set { if (_displayImage != value) { _displayImage = value; Invalidate(); } } }
 
             /// <summary>
             /// Gets the coordinate of the mouse, in absolute image pixels 
@@ -480,7 +488,8 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets or sets whether to display a grid over the image
             /// </summary>
-            public bool DisplayGrid { get { return _displayGrid; } set { _displayGrid = value; Invalidate(); } }
+            public bool DisplayGrid { get => _displayGrid;
+                set { _displayGrid = value; Invalidate(); } }
 
             /// <summary>
             /// Gets a value specifying whether editing is currently enabled on this PictureBox
@@ -1050,8 +1059,8 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public Point DrawPoint
         {
-            get { return _drawPoint; }
-            set { _drawPoint = value; }
+            get => _drawPoint;
+            set => _drawPoint = value;
         }
 
         /// <summary>

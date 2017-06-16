@@ -58,8 +58,8 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public Stream CurrentStream
         {
-            get { return stream; }
-            set { stream = value; }
+            get => stream;
+            set => stream = value;
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Pixelaria.Data.Persistence
             /// </summary>
             public byte[] MagicNumberBytes
             {
-                get { return magicNumberBytes; }
+                get => magicNumberBytes;
                 set
                 {
                     if(value.Length != MagicNumbersLength)
@@ -328,7 +328,7 @@ namespace Pixelaria.Data.Persistence
             /// </summary>
             public byte[] ExpectedMagicNumberBytes
             {
-                get { return expectedMagicNumberBytes; }
+                get => expectedMagicNumberBytes;
                 set
                 {
                     if (value.Length != MagicNumbersLength)

@@ -99,12 +99,12 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// Gets the object that was inputed into the clipboard
         /// </summary>
-        public IClipboardObject NewObject { get; private set; }
+        public IClipboardObject NewObject { get; }
 
         /// <summary>
         /// Gets the type of the event
         /// </summary>
-        public ClipboardEventType EventType { get; private set; }
+        public ClipboardEventType EventType { get; }
 
         /// <summary>
         /// Initializes a new class of the ClipboardEventArgs

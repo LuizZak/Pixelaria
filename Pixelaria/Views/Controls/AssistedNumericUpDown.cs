@@ -45,14 +45,26 @@ namespace Pixelaria.Views.Controls
         /// The color to fill the assist bar with
         /// </summary>
         private Color _assistBarColor;
-        
+
         /// <summary>
         /// Gets or sets the minimum value for the assisted numeric up down
         /// </summary>
         [Browsable(true)]
         [Category("Data")]
         [Description("The minimum value for the assisted numeric up down")]
-        public decimal Minimum { get { return nud_controlNud.Minimum; } set { if (nud_controlNud.Minimum != value) { Invalidate(); } nud_controlNud.Minimum = value; } }
+        public decimal Minimum
+        {
+            get => nud_controlNud.Minimum;
+            set
+            {
+                if (nud_controlNud.Minimum != value)
+                {
+                    Invalidate();
+                }
+
+                nud_controlNud.Minimum = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the maximum value for the assisted numeric up down
@@ -60,7 +72,19 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Data")]
         [Description("The maximum value for the assisted numeric up down")]
-        public decimal Maximum { get { return nud_controlNud.Maximum; } set { if (nud_controlNud.Maximum != value) { Invalidate(); } nud_controlNud.Maximum = value; } }
+        public decimal Maximum
+        {
+            get => nud_controlNud.Maximum;
+            set
+            {
+                if (nud_controlNud.Maximum != value)
+                {
+                    Invalidate();
+                }
+
+                nud_controlNud.Maximum = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the value to be incremented when the up or down arrows are clicked
@@ -68,7 +92,11 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Data")]
         [Description("The value to be incremented when the up or down arrows are clicked")]
-        public decimal Increment { get { return nud_controlNud.Increment; } set { nud_controlNud.Increment = value; } }
+        public decimal Increment
+        {
+            get => nud_controlNud.Increment;
+            set => nud_controlNud.Increment = value;
+        }
 
         /// <summary>
         /// Gets or sets the current value for the assisted numeric up down
@@ -78,7 +106,7 @@ namespace Pixelaria.Views.Controls
         [Description("The current value for the assisted numeric up down")]
         public decimal Value
         {
-            get { return nud_controlNud.Value; }
+            get => nud_controlNud.Value;
             set
             {
                 if (nud_controlNud.Value != value)
@@ -121,7 +149,11 @@ namespace Pixelaria.Views.Controls
         [Category("Data")]
         [DefaultValue(0)]
         [Description("the number of decimal places to display in the assisted numeric up down")]
-        public int DecimalPlaces { get { return nud_controlNud.DecimalPlaces; } set { nud_controlNud.DecimalPlaces = value; } } 
+        public int DecimalPlaces
+        {
+            get => nud_controlNud.DecimalPlaces;
+            set => nud_controlNud.DecimalPlaces = value;
+        } 
 
         /// <summary>
         /// Gets or sets whether to allow the precise mouse input to produce decimal values.
@@ -139,7 +171,17 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The color to fill the assist bar with")]
-        public Color AssistBarColor { get { return _assistBarColor; } set { if(_assistBarColor != value) { _assistBarColor = value; Invalidate(); } } }
+        public Color AssistBarColor
+        {
+            get => _assistBarColor;
+            set
+            {
+                if (_assistBarColor == value) return;
+
+                _assistBarColor = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Occurs when the Value property has been changed in some way
@@ -149,15 +191,9 @@ namespace Pixelaria.Views.Controls
         [Description("Occurs when the Value property has been changed in some way.")]
         public event EventHandler ValueChanged
         {
-            add
-            {
-                nud_controlNud.ValueChanged += value;
-            }
+            add => nud_controlNud.ValueChanged += value;
 
-            remove
-            {
-                nud_controlNud.ValueChanged -= value;
-            }
+            remove => nud_controlNud.ValueChanged -= value;
         }
 
         /// <summary>
@@ -169,7 +205,7 @@ namespace Pixelaria.Views.Controls
 
             _assistBarColor = Color.CornflowerBlue;
 
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
         }
 
         // 
