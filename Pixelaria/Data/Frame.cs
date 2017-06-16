@@ -834,7 +834,7 @@ namespace Pixelaria.Data
             /// </summary>
             ~FrameLayer()
             {
-                Dispose(false);
+                Dispose();
             }
 
             #region IDisposable Members
@@ -843,12 +843,11 @@ namespace Pixelaria.Data
             /// Internal variable which checks if Dispose has already been called
             /// </summary>
             private Boolean _disposed;
-
+            
             /// <summary>
-            /// Releases unmanaged and - optionally - managed resources
+            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
-            /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(Boolean disposing)
+            public void Dispose()
             {
                 if (_disposed)
                 {
@@ -858,16 +857,6 @@ namespace Pixelaria.Data
                 LayerBitmap?.Dispose();
 
                 _disposed = true;
-            }
-
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
-            public void Dispose()
-            {
-                // Call the private Dispose(bool) helper and indicate 
-                // that we are explicitly disposing
-                Dispose(true);
 
                 // Tell the garbage collector that the object doesn't require any
                 // cleanup when collected since Dispose was called explicitly.

@@ -67,14 +67,10 @@ namespace Pixelaria.Views
             InitializeComponent();
 
             // Enable double buffering on the MDI client to avoid flickering while redrawing
-            foreach (Control control in Controls)
+            foreach (var control in Controls.OfType<MdiClient>())
             {
-                var client = control as MdiClient;
-                if (client != null)
-                {
-                    MethodInfo method = client.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
-                    method.Invoke(client, new Object[] { ControlStyles.OptimizedDoubleBuffer, true });
-                }
+                var method = control.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
+                method.Invoke(control, new object[] { ControlStyles.OptimizedDoubleBuffer, true });
             }
 
             Menu = mm_menu;
@@ -118,7 +114,7 @@ namespace Pixelaria.Views
         /// </summary>
         public void CloseAllWindows()
         {
-            foreach (Form form in MdiChildren)
+            foreach (var form in MdiChildren)
             {
                 form.Close();
                 form.Dispose();
@@ -134,11 +130,11 @@ namespace Pixelaria.Views
             const string version = "Pixelaria v1.17.7b";
             if (bundle.SaveFile != "")
             {
-                Text = string.Format("{0} [{1} - {2}]{3}", version, bundle.Name, bundle.SaveFile, (Controller.UnsavedChanges ? "*" : ""));
+                Text = $@"{version} [{bundle.Name} - {bundle.SaveFile}]{(Controller.UnsavedChanges ? "*" : "")}";
             }
             else
             {
-                Text = string.Format("{0} [{1}]{2}", version, bundle.Name, (Controller.UnsavedChanges ? "*" : ""));
+                Text = $@"{version} [{bundle.Name}]{(Controller.UnsavedChanges ? "*" : "")}";
             }
         }
 
@@ -161,27 +157,27 @@ namespace Pixelaria.Views
             }
 
             // Start filling the tree view again
-            TreeNode bundleNode = _rootNode = new TreeNode("Bundle");
+            var bundleNode = _rootNode = new TreeNode("Bundle");
 
             bundleNode.Tag = bundle;
 
             // Add the animation sheet nodes
-            foreach (AnimationSheet sheet in bundle.AnimationSheets)
+            foreach (var sheet in bundle.AnimationSheets)
             {
                 AddAnimationSheet(sheet);
             }
 
             // Add the animation nodes
-            foreach (Animation anim in bundle.Animations)
+            foreach (var anim in bundle.Animations)
             {
                 AddAnimation(anim);
             }
 
             // Move nodes from the root to their respective AnimationSheets
-            foreach (AnimationSheet sheet in bundle.AnimationSheets)
+            foreach (var sheet in bundle.AnimationSheets)
             {
-                TreeNode sheetNode = GetTreeNodeFor(sheet);
-                foreach (Animation anim in sheet.Animations)
+                var sheetNode = GetTreeNodeFor(sheet);
+                foreach (var anim in sheet.Animations)
                 {
                     // Get the animation node
                     TreeNode animNode = GetTreeNodeFor(anim);
@@ -433,7 +429,7 @@ namespace Pixelaria.Views
         /// <param name="selectOnAdd">Whether to select the sheet's node after it's added to the interface</param>
         public void AddAnimationSheet(AnimationSheet sheet, bool selectOnAdd = false)
         {
-            TreeNode bundleNode = _rootNode;
+            var bundleNode = _rootNode;
 
             // Find a new valid node position for the animation sheet
             int nodePos;
@@ -447,7 +443,7 @@ namespace Pixelaria.Views
             }
 
             // Create the tree node now
-            TreeNode sheetNode = bundleNode.Nodes.Insert(nodePos, sheet.Name);
+            var sheetNode = bundleNode.Nodes.Insert(nodePos, sheet.Name);
 
             sheetNode.Tag = sheet;
 
@@ -502,18 +498,17 @@ namespace Pixelaria.Views
         /// <returns>The created AnimationView</returns>
         public AnimationSheetView OpenViewForAnimationSheet(AnimationSheet sheet)
         {
-            foreach (Form curView in MdiChildren)
+            foreach (var sheetView in MdiChildren.OfType<AnimationSheetView>())
             {
-                var sheetView = curView as AnimationSheetView;
-                if (sheetView != null && ReferenceEquals(sheetView.CurrentSheet, sheet))
-                {
-                    sheetView.BringToFront();
-                    sheetView.Focus();
-                    return sheetView;
-                }
+                if (!ReferenceEquals(sheetView.CurrentSheet, sheet))
+                    continue;
+
+                sheetView.BringToFront();
+                sheetView.Focus();
+                return sheetView;
             }
 
-            AnimationSheetView view = new AnimationSheetView(Controller, sheet) { MdiParent = this };
+            var view = new AnimationSheetView(Controller, sheet) { MdiParent = this };
 
             view.Show();
             view.BringToFront();
@@ -526,7 +521,7 @@ namespace Pixelaria.Views
         /// </summary>
         public void OpenBundleSettings(Bundle bundle)
         {
-            BundleSettingsView bsv = new BundleSettingsView(Controller, bundle);
+            var bsv = new BundleSettingsView(Controller, bundle);
 
             if (bsv.ShowDialog(this) == DialogResult.OK)
             {
@@ -583,8 +578,7 @@ namespace Pixelaria.Views
             if (tv_bundleAnimations.SelectedNode == null)
                 return;
 
-            var animation = tv_bundleAnimations.SelectedNode.Tag as Animation;
-            if (animation != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is Animation animation)
             {
                 OpenViewForAnimation(animation);
             }

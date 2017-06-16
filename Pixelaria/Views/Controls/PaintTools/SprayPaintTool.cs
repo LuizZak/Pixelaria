@@ -62,8 +62,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public bool AirbrushMode
         {
-            get { return accumulateAlpha; }
-            set { accumulateAlpha = value; }
+            get => accumulateAlpha;
+            set => accumulateAlpha = value;
         }
 
         /// <summary>

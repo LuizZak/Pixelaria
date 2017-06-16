@@ -66,17 +66,23 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
         /// </summary>
-        public virtual Color FirstColor { get { return _firstColor; } set { _firstColor = value; } }
+        public virtual Color FirstColor { get => _firstColor;
+            set => _firstColor = value;
+        }
 
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox
         /// </summary>
-        public virtual Color SecondColor { get { return _secondColor; } set { _secondColor = value; } }
+        public virtual Color SecondColor { get => _secondColor;
+            set => _secondColor = value;
+        }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint tool
         /// </summary>
-        public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
+        public CompositingMode CompositingMode { get => compositingMode;
+            set => compositingMode = value;
+        }
 
         /// <summary>
         /// Initialies a new instance of the BucketPaintTool class, setting the two drawing colors
@@ -191,7 +197,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
         /// <param name="createUndo">Whether to create and return an undo task</param>
         /// <returns>The undo task associated with this operation, or null, if createUndo is false or if the operation failed</returns>
-        public unsafe static IUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
+        public static unsafe IUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
         {
             // Start the fill operation by getting the color under the user's mouse
             var pColor = targetBitmap.GetPixel(point.X, point.Y);

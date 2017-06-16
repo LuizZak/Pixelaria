@@ -127,7 +127,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public bool Collapsed
         {
-            get { return _collapsed; }
+            get => _collapsed;
             set
             {
                 if (_collapsed == value)
@@ -146,7 +146,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public bool LayerVisible
         {
-            get { return _layerVisible; }
+            get => _layerVisible;
             set
             {
                 if (_layerVisible == value)
@@ -165,7 +165,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public bool LayerLocked
         {
-            get { return _layerLocked; }
+            get => _layerLocked;
             set
             {
                 if (_layerLocked == value)
@@ -184,7 +184,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public float Transparency
         {
-            get { return _transparency; }
+            get => _transparency;
             set
             {
                 float clamped = Math.Min(1.0f, Math.Max(0.0f, value));
@@ -218,7 +218,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public bool Selected
         {
-            get { return _selected; }
+            get => _selected;
             set
             {
                 if (_selected == value)
@@ -662,7 +662,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Gets the Status for the layer control
         /// </summary>
-        public LayerStatus Status { get; private set; }
+        public LayerStatus Status { get; }
 
         /// <summary>
         /// Initializes a new LayerControlStatusChangedEventArgs class
@@ -682,7 +682,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Gets the direction of the drag
         /// </summary>
-        public LayerDragDirection DragDirection { get; private set; }
+        public LayerDragDirection DragDirection { get; }
 
         /// <summary>
         /// Initializes a new instance of the LayerControlDragEventArgs class

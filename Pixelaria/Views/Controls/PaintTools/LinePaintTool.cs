@@ -57,11 +57,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public virtual Color FirstColor
         {
-            get { return _firstColor; }
-            set
-            {
-                _firstColor = value;
-            }
+            get => _firstColor;
+            set => _firstColor = value;
         }
 
         /// <summary>
@@ -69,11 +66,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public virtual Color SecondColor
         {
-            get { return _secondColor; }
-            set
-            {
-                _secondColor = value;
-            }
+            get => _secondColor;
+            set => _secondColor = value;
         }
 
         /// <summary>

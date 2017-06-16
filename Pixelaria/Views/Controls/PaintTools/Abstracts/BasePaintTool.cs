@@ -48,8 +48,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public Cursor ToolCursor
         {
-            get { return toolCursor; }
-            protected set { toolCursor = value; }
+            get => toolCursor;
+            protected set => toolCursor = value;
         }
 
         /// <summary>
@@ -276,12 +276,12 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Gets the point at which the user picked the color at
         /// </summary>
-        public Point ImagePoint { get; private set; }
+        public Point ImagePoint { get; }
 
         /// <summary>
         /// Gets the color index for the color pick
         /// </summary>
-        public ColorIndex ColorIndex { get; private set; }
+        public ColorIndex ColorIndex { get; }
 
         /// <summary>
         /// Initializes a new instance of the PaintToolColorPickedEventArgs class

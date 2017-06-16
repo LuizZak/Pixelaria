@@ -434,7 +434,7 @@ namespace Pixelaria.Data.Undo
         /// <param name="tasks">The tasks to add to this GroupUndoTask</param>
         public void AddTasks(IEnumerable<IUndoTask> tasks)
         {
-            foreach (IUndoTask task in tasks)
+            foreach (var task in tasks)
             {
                 AddTask(task);
             }

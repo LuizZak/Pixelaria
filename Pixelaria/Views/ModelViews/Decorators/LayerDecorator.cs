@@ -51,8 +51,8 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// </summary>
         public LayerStatus[] LayerStatuses
         {
-            get { return _layerStatuses; }
-            set { _layerStatuses = value; }
+            get => _layerStatuses;
+            set => _layerStatuses = value;
         }
 
         /// <summary>

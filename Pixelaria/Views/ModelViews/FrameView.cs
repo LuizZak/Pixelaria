@@ -440,12 +440,8 @@ namespace Pixelaria.Views.ModelViews
 
             _onionSkin?.Dispose();
 
-            if (!(frame is Frame))
-            {
-                throw new ArgumentException(@"The provided frame object must be derived from the Frame class", nameof(frame));
-            }
+            FrameLoaded = frame as Frame ?? throw new ArgumentException(@"The provided frame object must be derived from the Frame class", nameof(frame));
 
-            FrameLoaded = (Frame)frame;
             _viewFrame = FrameLoaded.Clone();
             _layerController.Frame = _viewFrame;
 
@@ -2640,12 +2636,12 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the old frame index
         /// </summary>
-        public int OldFrameIndex { get; private set; }
+        public int OldFrameIndex { get; }
 
         /// <summary>
         /// Gets the new frame index
         /// </summary>
-        public int NewFrameIndex { get; private set; }
+        public int NewFrameIndex { get; }
 
         /// <summary>
         /// Initializes a new instance of the EditFrameChangedEventArgs class

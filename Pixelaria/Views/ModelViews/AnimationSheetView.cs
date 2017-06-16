@@ -273,13 +273,10 @@ namespace Pixelaria.Views.ModelViews
             // Time the bundle export
             pb_exportProgress.Visible = true;
 
-            BundleExportProgressEventHandler handler = args =>
+            void Handler(BundleExportProgressEventArgs args)
             {
-                Invoke(new Action(() =>
-                {
-                    pb_exportProgress.Value = args.StageProgress;
-                }));
-            };
+                Invoke(new Action(() => { pb_exportProgress.Value = args.StageProgress; }));
+            }
 
             var form = FindForm();
             if (form != null)
@@ -292,7 +289,7 @@ namespace Pixelaria.Views.ModelViews
             _sheetCancellation = new CancellationTokenSource();
 
             // Export the bundle
-            var t = _controller.GenerateBundleSheet(_exportSettings, _sheetCancellation.Token, handler, _sheetToEdit.Animations);
+            var t = _controller.GenerateBundleSheet(_exportSettings, _sheetCancellation.Token, Handler, _sheetToEdit.Animations);
 
             t.ContinueWith(task =>
             {

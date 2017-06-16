@@ -128,13 +128,13 @@ namespace Pixelaria.Views.Controls.ColorControls
             int x = 0;
             int y = 0;
 
-            foreach (Color color in _colorSwatch.Colors)
+            foreach (var color in _colorSwatch.Colors)
             {
                 Rectangle region = new Rectangle(x * _cellWidth, y * _cellHeight, _cellWidth, _cellHeight);
 
                 if (e.ClipRectangle.IntersectsWith(region))
                 {
-                    SolidBrush brush = new SolidBrush(color);
+                    var brush = new SolidBrush(color);
 
                     e.Graphics.FillRectangle(brush, region);
 
@@ -334,7 +334,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <returns>A ColorSwatches object with the default colors</returns>
         public static ColorSwatch MakeDefault()
         {
-            ColorSwatch colorSwatches = new ColorSwatch();
+            var colorSwatches = new ColorSwatch();
 
             // Code generated swatch that fades a rainbow swatch darker as you go down the rows
             uint[] colors = { 0xFFFF0000, 0xFFFF7F00, 0xFFFFFF00, 0xFF7FFF00, 0xFF00FF00, 0xFF00FF7F, 0xFF00FFFF, 0xFF007FFF, 0xFF0000FF, 0xFF7F00FF, 0xFFFF00FF, 0xFFFF007F, 0xFFFF0000, 

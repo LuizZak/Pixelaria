@@ -120,14 +120,15 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets or sets the bitmap that represents the currently selected graphics
         /// </summary>
-        public Bitmap SelectionBitmap { get { return selectionBitmap; } set { selectionBitmap = value; pictureBox.Invalidate(); } }
+        public Bitmap SelectionBitmap { get => selectionBitmap;
+            set { selectionBitmap = value; pictureBox.Invalidate(); } }
 
         /// <summary>
         /// Gets the area the selection is currently occupying in the canvas
         /// </summary>
         public Rectangle SelectionArea
         {
-            get { return selectedArea; }
+            get => selectedArea;
             set
             {
                 // Invalidate before and after the modification
@@ -150,7 +151,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
         /// </summary>
-        public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; if (selected) { pictureBox.Invalidate(GetSelectionArea(true)); } } }
+        public CompositingMode CompositingMode { get => compositingMode;
+            set { compositingMode = value; if (selected) { pictureBox.Invalidate(GetSelectionArea(true)); } } }
 
         /// <summary>
         /// Gets or sets whether to force the creation of an undo task after the operation is finished even if no significant changes have been made with this paint operation

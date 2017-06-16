@@ -46,7 +46,7 @@ namespace Pixelaria.Views.Controls
         [Description("The display name displayed on top of the panel")]
         public string PanelTitle
         {
-            get { return panelTitle; }
+            get => panelTitle;
             set
             {
                 panelTitle = value;

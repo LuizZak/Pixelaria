@@ -371,19 +371,9 @@ namespace Pixelaria.Views.Controls
         public class InternalPictureBox : ZoomablePictureBox, IDisposable
         {
             /// <summary>
-            /// The ImageEditPanel that owns this InternalPictureBox
-            /// </summary>
-            private readonly ImageEditPanel _owningPanel;
-
-            /// <summary>
             /// The current paint operation
             /// </summary>
             private IPaintTool _currentPaintTool;
-
-            /// <summary>
-            /// The buffer bitmap that the paint operations will use in order to buffer screen previews
-            /// </summary>
-            private Bitmap _buffer;
 
             /// <summary>
             /// The image to display under the current image
@@ -406,24 +396,9 @@ namespace Pixelaria.Views.Controls
             private bool _displayImage;
 
             /// <summary>
-            /// The coordinate of the mouse, in absolute image pixels
-            /// </summary>
-            private Point _mousePoint;
-
-            /// <summary>
-            /// Whether the mouse is currently over the image on the panel
-            /// </summary>
-            private bool _mouseOverImage;
-
-            /// <summary>
             /// Whether to display a grid over the image
             /// </summary>
             private bool _displayGrid;
-
-            /// <summary>
-            /// Whether the space keyboard key is currently being held down
-            /// </summary>
-            private bool _spaceHeld;
 
             /// <summary>
             /// The list of picture box decorators
@@ -448,7 +423,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
             /// </summary>
-            public ImageEditPanel OwningPanel => _owningPanel;
+            public ImageEditPanel OwningPanel { get; }
 
             /// <summary>
             /// Gets the Bitmap associated with this InternalPictureBox
@@ -458,7 +433,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets the buffer bitmap that the paint operations will use in order to buffer screen previews
             /// </summary>
-            public Bitmap Buffer => _buffer;
+            public Bitmap Buffer { get; private set; }
 
             /// <summary>
             /// Gets or sets the bitmap to display under the current image
@@ -478,28 +453,27 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets the coordinate of the mouse, in absolute image pixels 
             /// </summary>
-            public Point MousePoint => _mousePoint;
+            public Point MousePoint { get; private set; }
 
             /// <summary>
             /// Gets whether the mouse is currently over the image on the panel
             /// </summary>
-            public bool MouseOverImage => _mouseOverImage;
+            public bool MouseOverImage { get; private set; }
 
             /// <summary>
             /// Gets or sets whether to display a grid over the image
             /// </summary>
-            public bool DisplayGrid { get => _displayGrid;
-                set { _displayGrid = value; Invalidate(); } }
+            public bool DisplayGrid { get => _displayGrid; set { _displayGrid = value; Invalidate(); } }
 
             /// <summary>
             /// Gets a value specifying whether editing is currently enabled on this PictureBox
             /// </summary>
-            public bool EditingEnabled => _owningPanel.EditingEnabled;
+            public bool EditingEnabled => OwningPanel.EditingEnabled;
 
             /// <summary>
             /// Gets a value specifying whether the space keyboard key is currently being held down
             /// </summary>
-            public bool SpaceHeld => _spaceHeld;
+            public bool SpaceHeld { get; private set; }
 
             /// <summary>
             /// Specifies the delegate signature for custom interceptable mouse events of this panel
@@ -517,14 +491,14 @@ namespace Pixelaria.Views.Controls
             /// <param name="owningPanel">The ImageEditPanel that will own this InternalPictureBox</param>
             public InternalPictureBox(ImageEditPanel owningPanel)
             {
-                _owningPanel = owningPanel;
+                OwningPanel = owningPanel;
 
                 SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
                 ZoomFactor = 2;
                 _displayImage = true;
                 _displayGrid = false;
-                _mousePoint = new Point();
-                _mouseOverImage = false;
+                MousePoint = new Point();
+                MouseOverImage = false;
                 _pictureBoxDecorators = new List<PictureBoxDecorator>();
 
                 SetPaintOperation(new PencilPaintTool());
@@ -556,7 +530,7 @@ namespace Pixelaria.Views.Controls
 
                 _pictureBoxDecorators.Clear();
 
-                _buffer.Dispose();
+                Buffer.Dispose();
 
                 base.Dispose();
             }
@@ -569,16 +543,16 @@ namespace Pixelaria.Views.Controls
             {
                 Image = bitmap;
 
-                _buffer?.Dispose();
+                Buffer?.Dispose();
 
-                _buffer = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+                Buffer = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
 
                 // Create the under and over images
                 _overImage?.Dispose();
                 _underImage?.Dispose();
 
-                _overImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
-                _underImage = new Bitmap(_buffer.Width, _buffer.Height, PixelFormat.Format32bppArgb);
+                _overImage = new Bitmap(Buffer.Width, Buffer.Height, PixelFormat.Format32bppArgb);
+                _underImage = new Bitmap(Buffer.Width, Buffer.Height, PixelFormat.Format32bppArgb);
 
                 if (_currentPaintTool != null)
                 {
@@ -602,7 +576,7 @@ namespace Pixelaria.Views.Controls
             {
                 if (_currentPaintTool != null)
                 {
-                    _owningPanel.FireOperationStatusEvent(_currentPaintTool, "");
+                    OwningPanel.FireOperationStatusEvent(_currentPaintTool, "");
 
                     _currentPaintTool.Destroy();
                 }
@@ -613,7 +587,7 @@ namespace Pixelaria.Views.Controls
                 {
                     _currentPaintTool.Initialize(this);
 
-                    if (!_mouseOverImage)
+                    if (!MouseOverImage)
                     {
                         _currentPaintTool.MouseLeave(new EventArgs());
                     }
@@ -624,11 +598,11 @@ namespace Pixelaria.Views.Controls
                 var operation = _currentPaintTool as ICompositingPaintTool;
                 if (operation != null)
                 {
-                    operation.CompositingMode = _owningPanel._defaultCompositingMode;
+                    operation.CompositingMode = OwningPanel._defaultCompositingMode;
                 }
                 if (_currentPaintTool is IFillModePaintTool)
                 {
-                    (_currentPaintTool as IFillModePaintTool).FillMode = _owningPanel._defaultFillMode;
+                    (_currentPaintTool as IFillModePaintTool).FillMode = OwningPanel._defaultFillMode;
                 }
             }
 
@@ -726,7 +700,7 @@ namespace Pixelaria.Views.Controls
                     UpdateGraphicsTransform(pe.Graphics);
 
                     // Reset the buffer back to the original input bitmap state
-                    FastBitmap.CopyPixels(Bitmap, _buffer);
+                    FastBitmap.CopyPixels(Bitmap, Buffer);
 
                     // Clip to the image's boundaries
                     pe.Graphics.IntersectClip(new RectangleF(0, 0, Image.Width, Image.Height));
@@ -743,11 +717,11 @@ namespace Pixelaria.Views.Controls
                     {
                         foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
                         {
-                            decorator.DecorateMainBitmap(_buffer);
+                            decorator.DecorateMainBitmap(Buffer);
                         }
 
                         // Draw the buffer now
-                        pe.Graphics.DrawImage(_buffer, 0, 0);
+                        pe.Graphics.DrawImage(Buffer, 0, 0);
                     }
 
                     // Draw the over image
@@ -874,9 +848,9 @@ namespace Pixelaria.Views.Controls
                     if (EditingEnabled)
                         _currentPaintTool.MouseMove(e);
 
-                    _mousePoint = GetAbsolutePoint(e.Location);
+                    MousePoint = GetAbsolutePoint(e.Location);
 
-                    _mouseOverImage = _mousePoint.X >= 0 && _mousePoint.Y >= 0 && _mousePoint.X < Image.Width && _mousePoint.Y < Image.Height;
+                    MouseOverImage = MousePoint.X >= 0 && MousePoint.Y >= 0 && MousePoint.X < Image.Width && MousePoint.Y < Image.Height;
                 }
             }
 
@@ -900,7 +874,7 @@ namespace Pixelaria.Views.Controls
             {
                 base.OnMouseLeave(e);
 
-                _mouseOverImage = false;
+                MouseOverImage = false;
 
                 if (Image != null)
                     _currentPaintTool.MouseLeave(e);
@@ -927,10 +901,10 @@ namespace Pixelaria.Views.Controls
                 if (EditingEnabled && Image != null)
                     _currentPaintTool.KeyDown(e);
 
-                if (e.KeyCode == Keys.Space && !_spaceHeld)
+                if (e.KeyCode == Keys.Space && !SpaceHeld)
                 {
                     AllowDrag = true;
-                    _spaceHeld = true;
+                    SpaceHeld = true;
 
                     if (!mouseDown)
                     {
@@ -952,7 +926,7 @@ namespace Pixelaria.Views.Controls
                 if (e.KeyCode == Keys.Space)
                 {
                     AllowDrag = false;
-                    _spaceHeld = false;
+                    SpaceHeld = false;
 
                     if (!mouseDown)
                     {
@@ -971,17 +945,17 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets whether there's content to be copied on the object
         /// </summary>
-        public bool CanCopy { get; private set; }
+        public bool CanCopy { get; }
 
         /// <summary>
         /// Gets whether there's content to be cut on the object
         /// </summary>
-        public bool CanCut { get; private set; }
+        public bool CanCut { get; }
 
         /// <summary>
         /// Gets whether there's content to be pasted on the object
         /// </summary>
-        public bool CanPaste { get; private set; }
+        public bool CanPaste { get; }
 
         /// <summary>
         /// Initializes a new instance of the ClipboardStateEventArgs
@@ -1005,12 +979,12 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the operation status
         /// </summary>
-        public string Status { get; private set; }
+        public string Status { get; }
 
         /// <summary>
         /// Gets the operation that fired the status change
         /// </summary>
-        public IPaintTool Tool { get; private set; }
+        public IPaintTool Tool { get; }
 
         /// <summary>
         /// Creates a new instance of the OperationStatusChange event

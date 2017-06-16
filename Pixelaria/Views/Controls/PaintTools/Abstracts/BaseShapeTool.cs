@@ -69,11 +69,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public virtual Color FirstColor
         {
-            get { return firstColor; }
-            set
-            {
-                firstColor = value;
-            }
+            get => firstColor;
+            set => firstColor = value;
         }
 
         /// <summary>
@@ -81,22 +78,22 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public virtual Color SecondColor
         {
-            get { return secondColor; }
-            set
-            {
-                secondColor = value;
-            }
+            get => secondColor;
+            set => secondColor = value;
         }
 
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
         /// </summary>
-        public CompositingMode CompositingMode { get { return compositingMode; } set { compositingMode = value; } }
+        public CompositingMode CompositingMode { get => compositingMode;
+            set => compositingMode = value;
+        }
 
         /// <summary>
         /// Gets or sets the fill mode for this paint operation
         /// </summary>
-        public OperationFillMode FillMode { get { return fillMode; } set { fillMode = value; if (Loaded) { pictureBox.Invalidate(); } } }
+        public OperationFillMode FillMode { get => fillMode;
+            set { fillMode = value; if (Loaded) { pictureBox.Invalidate(); } } }
 
         /// <summary>
         /// Initialies a new instance of the BaseShapeTool class, setting the two drawing colors

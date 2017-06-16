@@ -116,7 +116,7 @@ namespace Pixelaria.Data.Exports
         {
             var newList = new List<Rectangle>(newBounds);
             if (newList.Count != _sheetBounds.Count)
-                throw new ArgumentException($"The count of items in the passed enumerable is mismatched: {newList.Count} new bounds vs {_sheetBounds.Count} local bounds", nameof(newBounds));
+                throw new ArgumentException($@"The count of items in the passed enumerable is mismatched: {newList.Count} new bounds vs {_sheetBounds.Count} local bounds", nameof(newBounds));
 
             // Straight replace the values
             _sheetBounds.Clear();

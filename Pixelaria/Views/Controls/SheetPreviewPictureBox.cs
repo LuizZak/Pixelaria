@@ -22,9 +22,9 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers.Importers;
@@ -128,7 +128,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public SheetSettings SheetSettings
         {
-            get { return _sheetSettings; }
+            get => _sheetSettings;
             set
             {
                 _sheetSettings = value;
@@ -143,7 +143,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public BundleSheetExport SheetExport
         {
-            get { return _sheetExport; }
+            get => _sheetExport;
             set
             {
                 _sheetExport = value;
@@ -158,7 +158,7 @@ namespace Pixelaria.Views.Controls
         [DefaultValue(false)]
         public bool DisplayReusedCount
         {
-            get { return _displayReusedCount; }
+            get => _displayReusedCount;
             set
             {
                 _displayReusedCount = value;
@@ -176,7 +176,7 @@ namespace Pixelaria.Views.Controls
         [Description("Sets whether the control highlights individual frame rectangles as the user hovers over them with the mouse")]
         public bool AllowMouseHover
         {
-            get { return _allowMouseHover; }
+            get => _allowMouseHover;
             set
             {
                 _mouseLocation = PointToClient(MousePosition);
@@ -457,7 +457,7 @@ namespace Pixelaria.Views.Controls
 
             if (FrameBoundsMouseClicked == null)
                 return;
-
+            
             if (_sheetExport == null)
                 return;
             
@@ -468,7 +468,7 @@ namespace Pixelaria.Views.Controls
                 var rect = _sheetExport.Atlas.UniqueBounds[i];
                 if (rect.Contains(absolute))
                 {
-                    FrameBoundsMouseClicked(this, new SheetPreviewFrameBoundsClickEventArgs(e.Button, e.Clicks, e.X, e.Y, e.Delta, i));
+                    FrameBoundsMouseClicked?.Invoke(this, new SheetPreviewFrameBoundsClickEventArgs(e.Button, e.Clicks, e.X, e.Y, e.Delta, i));
                     break;
                 }
             }

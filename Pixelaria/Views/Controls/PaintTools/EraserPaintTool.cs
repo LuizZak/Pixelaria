@@ -42,7 +42,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public override CompositingMode CompositingMode
         {
-            get { return base.CompositingMode; }
+            get => base.CompositingMode;
             set
             {
                 base.CompositingMode = value;

@@ -121,7 +121,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public virtual Point PencilPoint
         {
-            get { return mouseControlPoint; }
+            get => mouseControlPoint;
             set
             {
                 var start = InvalidatePen();
@@ -140,7 +140,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public virtual Color FirstColor
         {
-            get { return firstColor; }
+            get => firstColor;
             set
             {
                 firstColor = value;
@@ -162,7 +162,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         public virtual Color SecondColor
         {
-            get { return secondColor; }
+            get => secondColor;
             set
             {
                 secondColor = value;
@@ -184,14 +184,15 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         [DefaultValue(1)]
         [Browsable(false)]
-        public virtual int Size { get { return size; } set { size = Math.Max(1, value); UpdatePen(); } }
+        public virtual int Size { get => size;
+            set { size = Math.Max(1, value); UpdatePen(); } }
 
         /// <summary>
         /// Gets or sets the compositing mode for the pen
         /// </summary>
         public virtual CompositingMode CompositingMode
         {
-            get { return compositingMode; }
+            get => compositingMode;
             set
             {
                 compositingMode = value;
