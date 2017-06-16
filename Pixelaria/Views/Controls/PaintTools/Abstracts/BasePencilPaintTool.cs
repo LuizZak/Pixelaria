@@ -124,9 +124,14 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             get { return mouseControlPoint; }
             set
             {
-                InvalidatePen();
+                var start = InvalidatePen();
                 mouseControlPoint = value;
-                InvalidatePen();
+                var end = InvalidatePen();
+
+                // Invalidate entire region
+                var united = Rectangle.Union(start, end);
+
+                pictureBox.Invalidate(united);
             }
         }
 
@@ -447,16 +452,16 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         protected virtual void DrawPencil(Point p, Bitmap bitmap)
         {
             // Find the properties to draw the pen with
-            Color penColor = (penId == 0 ? firstColor : secondColor);
+            var penColor = (penId == 0 ? firstColor : secondColor);
             
             pencilOperation.Color = penColor;
             pencilOperation.DrawTo(p.X, p.Y);
 
             // Calculate the invalidation area
-            Rectangle lastRect = new Rectangle(Point.Subtract(lastMousePosition, new Size(size, size)), new Size(size * 2, size * 2));
-            Rectangle curRect  = new Rectangle(Point.Subtract(p, new Size(size, size)), new Size(size * 2, size * 2));
+            var lastRect = new Rectangle(Point.Subtract(lastMousePosition, new Size(size, size)), new Size(size * 2, size * 2));
+            var curRect  = new Rectangle(Point.Subtract(p, new Size(size, size)), new Size(size * 2, size * 2));
 
-            Rectangle invalidateRect = Rectangle.Union(lastRect, curRect);
+            var invalidateRect = Rectangle.Union(lastRect, curRect);
 
             InvalidateRect(invalidateRect);
 
