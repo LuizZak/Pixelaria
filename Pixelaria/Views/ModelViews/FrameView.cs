@@ -969,9 +969,9 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Selects the first layer in which the given point in image coordinates is not fully transparent.
+        /// Selects the first visible layer in which the given point in image coordinates is not fully transparent.
         /// In case all layers are transparent under the point, the bottom-most layer is selected.
-        /// This method alters the currently selected layer
+        /// This method alters the currently selected layer.
         /// </summary>
         /// <param name="point">The point to test on</param>
         private void SelectFirstVisibleLayerAtImagePoint(Point point)
@@ -979,6 +979,10 @@ namespace Pixelaria.Views.ModelViews
             // Traverse every layer, from top to bottom
             for (int i = _layerController.FrameLayers.Length - 1; i >= 0; i--)
             {
+                // Consider only visible layers
+                if (!lcp_layers.LayerStatuses[i].Visible)
+                    continue;
+
                 var frameLayer = _layerController.FrameLayers[i];
                 var pixel = frameLayer.LayerBitmap.GetPixel(point.X, point.Y);
 
