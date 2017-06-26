@@ -296,7 +296,6 @@ namespace Pixelaria.Views.Controls.ColorControls
             if (_ignoreTextField)
                 return;
 
-            int rawValue;
             int maxValue = GetColorComponentMaxValue();
             float value = 0;
             string valueString = txt_value.Text;
@@ -308,7 +307,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             }
 
             // Parse the value
-            if (int.TryParse(valueString, out rawValue))
+            if (int.TryParse(valueString, out int rawValue))
             {
                 if (rawValue > maxValue)
                 {

@@ -193,9 +193,8 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <returns>A PixelUndo struct containing the information of the pixel, or null, if none was found</returns>
         public PixelUndo? PixelUndoForPixel(int x, int y)
         {
-            PixelUndo undo;
 
-            if (_pixelDictionary.TryGetValue(y * _width + x, out undo))
+            if (_pixelDictionary.TryGetValue(y * _width + x, out PixelUndo undo))
             {
                 return undo;
             }

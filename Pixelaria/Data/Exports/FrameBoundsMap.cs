@@ -129,8 +129,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         public Rectangle? GetSheetBoundsForFrame(IFrame frame)
         {
-            int index;
-            if (_frameSheetBoundsMap.TryGetValue(frame.ID, out index))
+            if (_frameSheetBoundsMap.TryGetValue(frame.ID, out int index))
             {
                 return _sheetBounds[index];
             }
@@ -143,8 +142,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         public Rectangle? GetLocalBoundsForFrame(IFrame frame)
         {
-            Rectangle bounds;
-            if (_frameLocalBoundsMap.TryGetValue(frame.ID, out bounds))
+            if (_frameLocalBoundsMap.TryGetValue(frame.ID, out Rectangle bounds))
             {
                 return bounds;
             }

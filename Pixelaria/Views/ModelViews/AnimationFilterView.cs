@@ -129,9 +129,8 @@ namespace Pixelaria.Views.ModelViews
 
                 for (int i = range.X - 1; i < range.X + range.Y; i++)
                 {
-                    Frame frame = _animation[i] as Frame;
 
-                    if(frame != null)
+                    if (_animation[i] is Frame frame)
                     {
                         foreach (FilterContainer container in fs_filters.FilterContainers)
                         {

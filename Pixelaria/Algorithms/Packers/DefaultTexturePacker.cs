@@ -529,9 +529,8 @@ namespace Pixelaria.Algorithms.Packers
             public Rectangle GetFrameArea(IFrame frame)
             {
                 // Try to find the already-computed frame area first
-                CompareFrag frag;
 
-                _fragDictionary.TryGetValue(frame.ID, out frag);
+                _fragDictionary.TryGetValue(frame.ID, out CompareFrag frag);
 
                 if (frag != null)
                     return frag.FrameRectangle;
@@ -559,8 +558,7 @@ namespace Pixelaria.Algorithms.Packers
             public void RegisterSimilarFrames(IFrame frame1, IFrame frame2)
             {
                 // Check existence of either frames in the matrix index dictionary
-                int index;
-                if (!_similarMatrixIndexDictionary.TryGetValue(frame1.ID, out index) && !_similarMatrixIndexDictionary.TryGetValue(frame2.ID, out index))
+                if (!_similarMatrixIndexDictionary.TryGetValue(frame1.ID, out int index) && !_similarMatrixIndexDictionary.TryGetValue(frame2.ID, out index))
                 {
                     _similarFramesMatrix.Add(new List<IFrame>());
                     index = _similarFramesMatrix.Count - 1;
@@ -584,8 +582,7 @@ namespace Pixelaria.Algorithms.Packers
             /// <returns>The first frame inserted that is similar to the given frame. If the given frame is the original similar frame, null is returned. If no similar frames were stored, null is returned.</returns>
             public IFrame GetOriginalSimilarFrame(IFrame frame)
             {
-                int index;
-                if (_similarMatrixIndexDictionary.TryGetValue(frame.ID, out index))
+                if (_similarMatrixIndexDictionary.TryGetValue(frame.ID, out int index))
                 {
                     return _similarFramesMatrix[index][0];
                 }

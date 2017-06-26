@@ -247,8 +247,7 @@ namespace Pixelaria.Views.MiscViews
         private void InvalidateSheetNode(AnimationSheet sheet)
         {
             // Verify progress for this sheet has changed
-            float cur;
-            if (!_progressTrack.TryGetValue(sheet.ID, out cur))
+            if (!_progressTrack.TryGetValue(sheet.ID, out float cur))
                 return;
 
             float real = _exporter.ProgressForAnimationSheet(sheet);

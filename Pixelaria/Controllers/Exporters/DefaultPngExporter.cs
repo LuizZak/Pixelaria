@@ -288,8 +288,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <returns>A value from 0-1 specifying the current export progress for the sheet. In case the sheet is not currently being exported, 0 is returned.</returns>
         public float ProgressForAnimationSheet(AnimationSheet sheet)
         {
-            float p;
-            return _sheetProgress.TryGetValue(sheet.ID, out p) ? p : 0;
+            return _sheetProgress.TryGetValue(sheet.ID, out float p) ? p : 0;
         }
 
         /// <summary>

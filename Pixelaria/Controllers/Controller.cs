@@ -852,8 +852,7 @@ namespace Pixelaria.Controllers
         /// <returns>The selected save path, or an empty string if the user has not chosen a save path</returns>
         public string ShowSaveImage(Image imageToSave = null, string fileName = "", IWin32Window owner = null)
         {
-            ImageFormat format;
-            return ShowSaveImage(out format, imageToSave, fileName, owner);
+            return ShowSaveImage(out ImageFormat _, imageToSave, fileName, owner);
         }
 
         /// <summary>
@@ -907,8 +906,7 @@ namespace Pixelaria.Controllers
         /// <returns>The selected image, or null if the user has not chosen an image</returns>
         public Image ShowLoadImage(string fileName = "", IWin32Window owner = null)
         {
-            string filePath;
-            return ShowLoadImage(out filePath, fileName, owner);
+            return ShowLoadImage(out string _, fileName, owner);
         }
 
         /// <summary>
@@ -924,7 +922,7 @@ namespace Pixelaria.Controllers
         {
             filePath = string.Empty;
 
-            OpenFileDialog ofd = new OpenFileDialog
+            var ofd = new OpenFileDialog
             {
                 Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff|All image formats (*.png, *.jpg, *.gif, *.tiff, *.bmp)|*.png;*.jpg;*.gif;*.tiff;*.bmp",
                 FileName = fileName
@@ -959,8 +957,7 @@ namespace Pixelaria.Controllers
         /// <returns>The images the user opened, or null, if no images were chosen</returns>
         public Image[] ShowLoadImages(IWin32Window owner = null)
         {
-            string[] filePaths;
-            return ShowLoadImages(out filePaths, owner);
+            return ShowLoadImages(out string[] _, owner);
         }
 
         /// <summary>

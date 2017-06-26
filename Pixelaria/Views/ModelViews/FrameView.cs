@@ -401,8 +401,7 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="paintTool">The new paint operation to replace the current one</param>
         private void ChangePaintOperation(IPaintTool paintTool)
         {
-            var basePaintTool = iepb_frame.CurrentPaintTool as BasePaintTool;
-            if (basePaintTool != null)
+            if (iepb_frame.CurrentPaintTool is BasePaintTool basePaintTool)
             {
                 basePaintTool.ColorPicked -= OnColorPicked;
             }
@@ -707,9 +706,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Copy()
         {
-            var clipboardPaintOperation = iepb_frame.CurrentPaintTool as IClipboardPaintTool;
 
-            if (clipboardPaintOperation != null)
+            if (iepb_frame.CurrentPaintTool is IClipboardPaintTool clipboardPaintOperation)
             {
                 ActiveControl = iepb_frame.PictureBox;
                 clipboardPaintOperation.Copy();
@@ -721,9 +719,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Cut()
         {
-            var clipboardPaintOperation = iepb_frame.CurrentPaintTool as IClipboardPaintTool;
 
-            if (clipboardPaintOperation != null)
+            if (iepb_frame.CurrentPaintTool is IClipboardPaintTool clipboardPaintOperation)
             {
                 ActiveControl = iepb_frame.PictureBox;
                 clipboardPaintOperation.Cut();
@@ -743,9 +740,8 @@ namespace Pixelaria.Views.ModelViews
                 rb_selection.Checked = true;
             }
 
-            var clipboardPaintOperation = iepb_frame.CurrentPaintTool as IClipboardPaintTool;
 
-            if (clipboardPaintOperation != null)
+            if (iepb_frame.CurrentPaintTool is IClipboardPaintTool clipboardPaintOperation)
             {
                 ActiveControl = iepb_frame.PictureBox;
                 clipboardPaintOperation.Paste();
@@ -1189,8 +1185,7 @@ namespace Pixelaria.Views.ModelViews
 
             BrushSize = (int)anud_brushSize.Value;
 
-            var operation = iepb_frame.CurrentPaintTool as ISizedPaintTool;
-            if (operation != null)
+            if (iepb_frame.CurrentPaintTool is ISizedPaintTool operation)
             {
                 operation.Size = BrushSize;
             }
@@ -1277,9 +1272,8 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void cb_enablePencilFlow_CheckedChanged(object sender, EventArgs e)
         {
-            var airbrushTool = iepb_frame.CurrentPaintTool as IAirbrushPaintTool;
 
-            if (airbrushTool != null)
+            if (iepb_frame.CurrentPaintTool is IAirbrushPaintTool airbrushTool)
             {
                 airbrushTool.AirbrushMode = cb_airbrushMode.Checked;
             }
@@ -2111,8 +2105,7 @@ namespace Pixelaria.Views.ModelViews
             private void OnUndoTaskPerformed(object sender, UndoEventArgs undoEventArgs)
             {
                 // Switch layers based on the bitmap that was modified
-                BasicPaintOperationUndoTask task = undoEventArgs.Task as BasicPaintOperationUndoTask;
-                if (task != null)
+                if (undoEventArgs.Task is BasicPaintOperationUndoTask task)
                 {
                     // Find the layer that the bitmap belongs to
                     foreach (var layer in _layerController.FrameLayers)

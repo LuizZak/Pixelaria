@@ -1073,8 +1073,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void SaveSelectedFrames()
         {
-            ImageFormat format;
-            string path = _controller.ShowSaveImage(out format, fileName:_viewAnimation.Name, owner: this);
+            string path = _controller.ShowSaveImage(out ImageFormat format, fileName: _viewAnimation.Name, owner: this);
 
             if (string.IsNullOrEmpty(path))
                 return;

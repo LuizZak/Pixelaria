@@ -347,8 +347,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             point.X = (int)(point.X / ((float)pb_palette.Width / pb_palette.Image.Width));
             point.Y = (int)(point.Y / ((float)pb_palette.Height / pb_palette.Image.Height));
 
-            var bitmap = pb_palette.Image as Bitmap;
-            if (bitmap != null)
+            if (pb_palette.Image is Bitmap bitmap)
             {
                 Color color = bitmap.GetPixel(point.X, point.Y);
                 SetCurrentColor(color, true);

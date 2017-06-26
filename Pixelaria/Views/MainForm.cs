@@ -204,8 +204,7 @@ namespace Pixelaria.Views
             {
                 TreeNode node = nodeQueue.Dequeue();
 
-                var animation = node.Tag as Animation;
-                if(animation != null)
+                if (node.Tag is Animation animation)
                 {
                     node.ImageKey = node.SelectedImageKey = (animation.Name + animation.ID);
                 }
@@ -329,9 +328,8 @@ namespace Pixelaria.Views
         {
             foreach (Form curView in MdiChildren)
             {
-                var view = curView as AnimationView;
 
-                if (view != null && ReferenceEquals(view.CurrentAnimation, anim))
+                if (curView is AnimationView view && ReferenceEquals(view.CurrentAnimation, anim))
                 {
                     view.Close();
                     break;
@@ -465,8 +463,7 @@ namespace Pixelaria.Views
         {
             foreach (Form curView in MdiChildren)
             {
-                var view = curView as AnimationSheetView;
-                if (view != null && ReferenceEquals(view.CurrentSheet, sheet))
+                if (curView is AnimationSheetView view && ReferenceEquals(view.CurrentSheet, sheet))
                 {
                     view.Close();
                     break;
@@ -584,8 +581,7 @@ namespace Pixelaria.Views
             }
             else
             {
-                var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
-                if (sheet != null)
+                if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
                 {
                     OpenViewForAnimationSheet(sheet);
                 }
@@ -645,8 +641,7 @@ namespace Pixelaria.Views
 
                     foreach (TreeNode node in _rootNode.Nodes)
                     {
-                        var animation = node.Tag as Animation;
-                        if (animation != null)
+                        if (node.Tag is Animation animation)
                         {
                             Animation anim = animation;
                             Controller.RearrangeAnimationsPosition(anim, index++);
@@ -858,8 +853,7 @@ namespace Pixelaria.Views
 
                 // Target is an AnimationSheet and dragged node is an Animation:
                 // Add the dragged Animation into the target AnimationSheet
-                var tag = eventArgs.TargetNode.Tag as AnimationSheet;
-                if (tag != null && eventArgs.DraggedNode.Tag is Animation)
+                if (eventArgs.TargetNode.Tag is AnimationSheet tag && eventArgs.DraggedNode.Tag is Animation)
                 {
                     AnimationSheet sheet = tag;
                     Animation anim = (Animation)eventArgs.DraggedNode.Tag;
@@ -881,8 +875,7 @@ namespace Pixelaria.Views
             if (eventArgs.EventType == TreeViewNodeDragEventType.AfterDragEnd)
             {
                 // Target and dragged node are Animation nodes, rearrange them in the model level
-                var tag = eventArgs.TargetNode.Tag as Animation;
-                if (tag != null && eventArgs.DraggedNode.Tag is Animation)
+                if (eventArgs.TargetNode.Tag is Animation tag && eventArgs.DraggedNode.Tag is Animation)
                 {
                     Animation targetAnim = tag;
                     Animation droppedAnim = (Animation)eventArgs.DraggedNode.Tag;
@@ -890,7 +883,7 @@ namespace Pixelaria.Views
                     AnimationSheet sheet = Controller.GetOwningAnimationSheet(targetAnim);
 
                     Controller.AddAnimationToAnimationSheet(droppedAnim, sheet);
-                        
+
                     // Swap the position of the animation on the container
                     TreeNode node = GetTreeNodeFor(droppedAnim);
 
@@ -1033,9 +1026,8 @@ namespace Pixelaria.Views
         // 
         private void mi_fileItem_Click(object sender, EventArgs e)
         {
-            var menuItem = sender as MenuItem;
 
-            if (menuItem != null)
+            if (sender is MenuItem menuItem)
                 Controller.LoadBundleFromRecentFileList((int)(menuItem.Tag));
         }
 
@@ -1165,9 +1157,8 @@ namespace Pixelaria.Views
         private void cmb_deleteSheet_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
 
-            if (sheet != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 ConfirmDeleteAnimationSheet(sheet);
             }
@@ -1249,9 +1240,8 @@ namespace Pixelaria.Views
         private void cmb_deleteAnim_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
 
-            if(anim != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 ConfirmDeleteAnimation(anim);
             }
@@ -1263,9 +1253,8 @@ namespace Pixelaria.Views
         private void cmb_duplicateAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
 
-            if (anim != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 Controller.ShowDuplicateAnimation(anim);
             }
@@ -1277,9 +1266,8 @@ namespace Pixelaria.Views
         private void cmb_saveAnimationStrip_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
 
-            if (anim != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 Controller.ShowSaveAnimationStrip(anim);
             }
@@ -1291,9 +1279,8 @@ namespace Pixelaria.Views
         private void cmb_editAnimProperties_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
 
-            if(anim != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 OpenViewForAnimation(anim);
             }
@@ -1330,7 +1317,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// Specifies the type of a tree view node
         /// </summary>
-        enum TreeViewNodeType
+        private enum TreeViewNodeType
         {
             /// <summary>
             /// Specifies a bundle node

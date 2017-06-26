@@ -119,6 +119,11 @@ namespace Pixelaria.Data
             ExportSettings = new AnimationExportSettings() { FavorRatioOverArea = false, ForceMinimumDimensions = true, ForcePowerOfTwoDimensions = false, ReuseIdenticalFramesArea = true, UsePaddingOnJson = true, AllowUnorderedFrames = true, XPadding = 0, YPadding = 0 };
         }
 
+        ~Animation()
+        {
+            Dispose();
+        }
+        
         /// <summary>
         /// Disposes of this Animation and all owning frames
         /// </summary>
@@ -127,7 +132,7 @@ namespace Pixelaria.Data
             if (_frames != null)
             {
                 // Frames clearing
-                foreach (IFrame frame in _frames)
+                foreach (var frame in _frames)
                 {
                     frame.Dispose();
                 }
@@ -135,6 +140,8 @@ namespace Pixelaria.Data
             }
 
             _frames = null;
+
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

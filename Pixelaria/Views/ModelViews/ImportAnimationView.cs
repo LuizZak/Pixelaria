@@ -127,8 +127,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void LoadSheet()
         {
-            string filePath;
-            Image image = _controller.ShowLoadImage(out filePath, owner: this);
+            Image image = _controller.ShowLoadImage(out string filePath, owner: this);
 
             if (image == null)
                 return;

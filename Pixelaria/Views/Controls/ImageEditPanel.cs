@@ -153,8 +153,7 @@ namespace Pixelaria.Views.Controls
                 
                 _internalPictureBox.CurrentPaintTool = value;
 
-                var operation = value as IClipboardPaintTool;
-                if (operation != null)
+                if (value is IClipboardPaintTool operation)
                 {
                     FireClipboardStateEvent(operation.CanCopy(), operation.CanCut(), operation.CanPaste());
                 }
@@ -201,8 +200,7 @@ namespace Pixelaria.Views.Controls
             {
                 _defaultCompositingMode = value;
 
-                var operation = _internalPictureBox.CurrentPaintTool as ICompositingPaintTool;
-                if (operation != null)
+                if (_internalPictureBox.CurrentPaintTool is ICompositingPaintTool operation)
                 {
                     operation.CompositingMode = value;
                 }
@@ -218,8 +216,7 @@ namespace Pixelaria.Views.Controls
             set
             {
                 _defaultFillMode = value;
-                var operation = _internalPictureBox.CurrentPaintTool as IFillModePaintTool;
-                if (operation != null)
+                if (_internalPictureBox.CurrentPaintTool is IFillModePaintTool operation)
                 {
                     operation.FillMode = value;
                 }
@@ -595,8 +592,7 @@ namespace Pixelaria.Views.Controls
                     Cursor = _currentPaintTool.ToolCursor;
                 }
 
-                var operation = _currentPaintTool as ICompositingPaintTool;
-                if (operation != null)
+                if (_currentPaintTool is ICompositingPaintTool operation)
                 {
                     operation.CompositingMode = OwningPanel._defaultCompositingMode;
                 }
@@ -678,13 +674,13 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.InterpolationMode = ImageInterpolationMode;
 
                     // Apply the decorators
-                    Bitmap copy = _underImage;
+                    var copy = _underImage;
 
                     if (_pictureBoxDecorators.Count > 0)
                     {
                         copy = _underImage.Clone(new Rectangle(0, 0, _underImage.Width, _underImage.Height), _underImage.PixelFormat);
 
-                        foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
+                        foreach (var decorator in _pictureBoxDecorators)
                         {
                             decorator.DecorateUnderBitmap(copy);
                         }
@@ -704,7 +700,7 @@ namespace Pixelaria.Views.Controls
 
                     // Clip to the image's boundaries
                     pe.Graphics.IntersectClip(new RectangleF(0, 0, Image.Width, Image.Height));
-                    Region clip = pe.Graphics.Clip;
+                    var clip = pe.Graphics.Clip;
 
                     // Render the current paint tool
                     if (EditingEnabled)
@@ -715,7 +711,7 @@ namespace Pixelaria.Views.Controls
                     // Draw the actual image
                     if (_displayImage)
                     {
-                        foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
+                        foreach (var decorator in _pictureBoxDecorators)
                         {
                             decorator.DecorateMainBitmap(Buffer);
                         }
@@ -728,13 +724,13 @@ namespace Pixelaria.Views.Controls
                     if (_overImage != null)
                     {
                         // Apply the decorators
-                        Bitmap copy = _overImage;
+                        var copy = _overImage;
 
                         if (_pictureBoxDecorators.Count > 0)
                         {
-                            copy = (_overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat));
+                            copy = _overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
 
-                            foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
+                            foreach (var decorator in _pictureBoxDecorators)
                             {
                                 decorator.DecorateOverBitmap(copy);
                             }
@@ -773,13 +769,13 @@ namespace Pixelaria.Views.Controls
                     if (_overImage == null)
                         return;
 
-                    Bitmap copy = _overImage;
+                    var copy = _overImage;
 
                     if (_pictureBoxDecorators.Count > 0)
                     {
                         copy = _overImage.Clone(new Rectangle(0, 0, _overImage.Width, _overImage.Height), _overImage.PixelFormat);
 
-                        foreach (PictureBoxDecorator decorator in _pictureBoxDecorators)
+                        foreach (var decorator in _pictureBoxDecorators)
                         {
                             decorator.DecorateUnderBitmap(copy);
                         }

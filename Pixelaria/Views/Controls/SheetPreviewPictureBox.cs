@@ -22,7 +22,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -318,7 +317,7 @@ namespace Pixelaria.Views.Controls
             {
                 // Draw the frame bounds now
                 uint color = unchecked((uint)Color.Red.ToArgb());
-                foreach (Rectangle fRect in rects)
+                foreach (var fRect in rects)
                 {
                     // Draw the rectangle using a fast bitmap for quick pixel modification
                     int l = fRect.Left, r = fRect.Right, t = fRect.Top, b = fRect.Bottom;
@@ -356,21 +355,21 @@ namespace Pixelaria.Views.Controls
                     fRect.X += 1;
                     fRect.Y += 1;
                     
+                    if (!_displayReusedCount || _sheetExport == null)
+                        continue;
+
                     // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
-                    if (_displayReusedCount && _sheetExport != null)
-                    {
-                        Point pixelPoint = fRect.Location;
+                    Point pixelPoint = fRect.Location;
 
-                        int digitsScale = 3;
-                        int frameCount = _sheetExport.Atlas.GetFrameBoundsMap().CountOfFramesAtSheetBoundsIndex(i);
+                    int digitsScale = 3;
+                    int frameCount = _sheetExport.Atlas.GetFrameBoundsMap().CountOfFramesAtSheetBoundsIndex(i);
 
-                        while ((fRect.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 ||
-                                fRect.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2)
-                               && digitsScale > 1)
-                            digitsScale--;
+                    while ((fRect.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 ||
+                            fRect.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2)
+                           && digitsScale > 1)
+                        digitsScale--;
 
-                        RenderPixelNumber(g, pixelPoint, frameCount, digitsScale);
-                    }
+                    RenderPixelNumber(g, pixelPoint, frameCount, digitsScale);
                 }
             }
         }

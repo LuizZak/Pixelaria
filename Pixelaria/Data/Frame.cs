@@ -217,7 +217,7 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            Frame ret = new Frame(null, Width, Height, false);
+            var ret = new Frame(null, Width, Height, false);
             
             ret.CopyFrom(this);
 
@@ -252,7 +252,7 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The dimensions of the frames don't match, the 'copy from' operation cannot be performed.");
             }
 
-            Frame castFrame = frame as Frame;
+            var castFrame = frame as Frame;
 
             if (castFrame == null)
                 return;
@@ -306,8 +306,7 @@ namespace Pixelaria.Data
         /// <returns>Whether this frame's contents match another frame's</returns>
         public bool Equals(IFrame frame)
         {
-            var frameCasted = frame as Frame;
-            if (frameCasted != null)
+            if (frame is Frame frameCasted)
                 return Equals(frameCasted);
 
             return false;
@@ -454,7 +453,7 @@ namespace Pixelaria.Data
         /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
         public void SwapLayers(int firstIndex, int secondIndex, bool updateHash = true)
         {
-            FrameLayer secondLayer = _layers[secondIndex];
+            var secondLayer = _layers[secondIndex];
             _layers[secondIndex] = _layers[firstIndex];
             _layers[firstIndex] = secondLayer;
 

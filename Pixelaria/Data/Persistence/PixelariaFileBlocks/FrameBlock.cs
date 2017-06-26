@@ -108,14 +108,13 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
-            var castFrame = frame as Frame;
-            if(castFrame != null)
+            if (frame is Frame castFrame)
             {
                 SaveLayersToStream(castFrame, stream);
             }
             else
             {
-                using(Bitmap bitmap = frame.GetComposedBitmap())
+                using (Bitmap bitmap = frame.GetComposedBitmap())
                 {
                     PersistenceHelper.SaveImageToStream(bitmap, stream);
                 }
