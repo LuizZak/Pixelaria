@@ -1,0 +1,4 @@
+version: 1.17.{build}
+image: Visual Studio 2017
+build:
+  verbosity: normal
