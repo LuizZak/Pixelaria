@@ -58,11 +58,6 @@ namespace Pixelaria.Views.Controls.LayerControls
         private readonly Image _layerUnlockedImage = Resources.padlock_open;
 
         /// <summary>
-        /// The layer this layer control is binded to
-        /// </summary>
-        private readonly IFrameLayer _layer;
-
-        /// <summary>
         /// Whether the user is currently dragging the layer around
         /// </summary>
         private bool _draggingLayer;
@@ -211,7 +206,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Gets the layer this layer control is binded to
         /// </summary>
-        public IFrameLayer Layer => _layer;
+        public IFrameLayer Layer { get; }
 
         /// <summary>
         /// Gets or sets a value specifying whether this layer control is currently selected
@@ -308,7 +303,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         public LayerControl(IFrameLayer layer)
         {
             InitializeComponent();
-            _layer = layer;
+            Layer = layer;
 
             // Update startup values
             _layerVisible = true;
@@ -331,15 +326,15 @@ namespace Pixelaria.Views.Controls.LayerControls
                 UpdateBitmapDisplay();
             }
 
-            if (string.IsNullOrEmpty(_layer.Name))
+            if (string.IsNullOrEmpty(Layer.Name))
             {
                 lbl_layerName.ForeColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
-                lbl_layerName.Text = @"Layer " + (_layer.Index + 1);
+                lbl_layerName.Text = @"Layer " + (Layer.Index + 1);
             }
             else
             {
                 lbl_layerName.ForeColor = Color.Black;
-                lbl_layerName.Text = _layer.Name;
+                lbl_layerName.Text = Layer.Name;
             }
 
             btn_visible.Image = _layerVisible ? _layerVisibleImage : _layerHiddenImage;
@@ -380,7 +375,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         public void UpdateBitmapDisplay()
         {
-            pb_layerImage.Image = _layer.LayerBitmap;
+            pb_layerImage.Image = Layer.LayerBitmap;
             pb_layerImage.Invalidate();
         }
 
