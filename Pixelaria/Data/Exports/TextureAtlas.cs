@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using FastBitmapLib;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Exports

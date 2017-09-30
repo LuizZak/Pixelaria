@@ -22,8 +22,8 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using FastBitmapLib;
 using Pixelaria.Data;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Controllers.Importers
 {

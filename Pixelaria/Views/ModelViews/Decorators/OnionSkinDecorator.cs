@@ -23,7 +23,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using Pixelaria.Utils;
+using FastBitmapLib;
 using Pixelaria.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews.Decorators

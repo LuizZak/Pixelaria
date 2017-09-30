@@ -24,11 +24,10 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
+using FastBitmapLib;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews
 {

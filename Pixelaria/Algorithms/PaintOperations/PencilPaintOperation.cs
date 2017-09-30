@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using FastBitmapLib;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;

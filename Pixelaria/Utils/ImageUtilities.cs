@@ -28,7 +28,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-
+using FastBitmapLib;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 
@@ -45,11 +45,8 @@ namespace Pixelaria.Utils
         private static readonly Image CheckersPattern = Resources.checkers_pattern;
 
         /// <summary>
-        /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating
+        /// Resizes an image so it matches the given dimensions, scaling with the given scaling method, and interpolating
         /// with the given interpolation mode.
-        /// Note that trying to resize a frame while it's inside an animation, and that animation's dimensions don't match
-        /// the new size, an exception is thrown.
-        /// This method disposes of the current frame texture
         /// </summary>
         /// <param name="image">The image to resize</param>
         /// <param name="newWidth">The new width of this animation</param>
@@ -149,7 +146,7 @@ namespace Pixelaria.Utils
             {
                 // Scan vertically - 1st pass
                 int x;
-                int y;
+                int y = 0;
 
                 for (x = 0; x < width; x++)
                 {
@@ -160,13 +157,14 @@ namespace Pixelaria.Utils
                             minImageX = x;
                             goto skipx;
                         }
-                        // All pixels scanned, none are opaque
-                        if (x == width - 1 && y == height - 1)
-                        {
-                            return Rectangle.Empty;
-                        }
                     }
                 } skipx:
+
+                // All pixels scanned, none are opaque
+                if (x == width && y == height)
+                {
+                    return Rectangle.Empty;
+                }
 
                 // Scan horizontally - 1st pass
                 for (y = 0; y < height; y++)
@@ -230,7 +228,7 @@ namespace Pixelaria.Utils
 
             if (!highQuality)
             {
-                using(Graphics gfx = Graphics.FromImage(target))
+                using(var gfx = Graphics.FromImage(target))
                 {
                     gfx.CompositingMode = CompositingMode.SourceOver;
                     gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -271,7 +269,7 @@ namespace Pixelaria.Utils
         /// <returns>The hash of the given bitmap</returns>
         public static byte[] GetHashForBitmap(Bitmap bitmap)
         {
-            using (MemoryStream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 bitmap.Save(stream, ImageFormat.Png);
 
@@ -346,8 +344,8 @@ namespace Pixelaria.Utils
                 var bitmap1 = image1 as Bitmap;
                 var bitmap2 = image2 as Bitmap;
 
-                bit1 = (bitmap1 ?? new Bitmap(image1));
-                bit2 = (bitmap2 ?? new Bitmap(image2));
+                bit1 = bitmap1 ?? new Bitmap(image1);
+                bit2 = bitmap2 ?? new Bitmap(image2);
 
                 return CompareMemCmp(bit1, bit2);
             }
@@ -361,17 +359,6 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Compares two memory sections and returns 0 if the memory segments are identical
-        /// </summary>
-        /// <param name="b1">The pointer to the first memory segment</param>
-        /// <param name="b2">The pointer to the second memory segment</param>
-        /// <param name="count">The number of bytes to compare</param>
-        /// <returns>0 if the memory segments are identical</returns>
-        [Pure]
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int memcmp(IntPtr b1, IntPtr b2, long count);
-
-        /// <summary>
         /// Compares the memory portions of the two Bitmaps 
         /// </summary>
         /// <param name="b1">The first bitmap to compare</param>
@@ -380,10 +367,8 @@ namespace Pixelaria.Utils
         [Pure]
         private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
         {
-            if (b1 == null || b2 == null) return false;
-
-            var bd1 = b1.LockBits(new Rectangle(new Point(0, 0), b1.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            var bd2 = b2.LockBits(new Rectangle(new Point(0, 0), b2.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bd1 = b1.LockBits(new Rectangle(Point.Empty, b1.Size), ImageLockMode.ReadOnly, b1.PixelFormat);
+            var bd2 = b2.LockBits(new Rectangle(Point.Empty, b2.Size), ImageLockMode.ReadOnly, b2.PixelFormat);
 
             int len = bd1.Stride * b1.Height;
 
@@ -397,5 +382,16 @@ namespace Pixelaria.Utils
                 b2.UnlockBits(bd2);
             }
         }
+
+        /// <summary>
+        /// Compares two memory sections and returns 0 if the memory segments are identical
+        /// </summary>
+        /// <param name="b1">The pointer to the first memory segment</param>
+        /// <param name="b2">The pointer to the second memory segment</param>
+        /// <param name="count">The number of bytes to compare</param>
+        /// <returns>0 if the memory segments are identical</returns>
+        [Pure]
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int memcmp(IntPtr b1, IntPtr b2, long count);
     }
 }

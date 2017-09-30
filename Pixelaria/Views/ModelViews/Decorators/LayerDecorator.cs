@@ -22,6 +22,7 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+using FastBitmapLib;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Filters;

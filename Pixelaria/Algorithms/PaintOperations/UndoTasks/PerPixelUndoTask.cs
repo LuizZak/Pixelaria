@@ -21,8 +21,8 @@
 */
 
 using System.Drawing;
+using FastBitmapLib;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
 {

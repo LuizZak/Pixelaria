@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-
+using FastBitmapLib;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.LayerControlling;

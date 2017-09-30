@@ -27,11 +27,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-
+using FastBitmapLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
-using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 
 using Rhino.Mocks;

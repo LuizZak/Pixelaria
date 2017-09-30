@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using FastBitmapLib;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data

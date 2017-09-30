@@ -25,10 +25,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-
+using FastBitmapLib;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data.Exports;
-using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.Controls

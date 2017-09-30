@@ -24,7 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using FastBitmapLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Newtonsoft.Json;
@@ -32,7 +32,6 @@ using Newtonsoft.Json.Linq;
 
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
-using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 
 namespace PixelariaTests.PixelariaTests.Tests.Data.Exports

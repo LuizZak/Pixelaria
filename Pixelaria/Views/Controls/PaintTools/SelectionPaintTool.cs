@@ -26,6 +26,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
+using FastBitmapLib;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;

@@ -23,8 +23,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using FastBitmapLib;
 using Pixelaria.Data;
-using Pixelaria.Utils;
 
 namespace PixelariaTests.PixelariaTests.Generators
 {
