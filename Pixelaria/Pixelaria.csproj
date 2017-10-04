@@ -199,6 +199,7 @@
     <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.Designer.cs">
       <DependentUpon>ColorPickerDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExportPipeline\PipelineStep.cs" />
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
@@ -477,6 +478,12 @@
     <Compile Include="Views\ModelViews\AnimationView.Designer.cs">
       <DependentUpon>AnimationView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\ModelViews\ExportPipelineView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ModelViews\ExportPipelineView.Designer.cs">
+      <DependentUpon>ExportPipelineView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\ModelViews\ImageFilterView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -618,6 +625,9 @@
     <EmbeddedResource Include="Views\ModelViews\AnimationView.resx">
       <DependentUpon>AnimationView.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ModelViews\ExportPipelineView.resx">
+      <DependentUpon>ExportPipelineView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\ImageFilterView.resx">
       <DependentUpon>ImageFilterView.cs</DependentUpon>

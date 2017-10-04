@@ -385,6 +385,20 @@ namespace Pixelaria.Utils
             gfxPath.CloseAllFigures();
         }
 
+        public static RectangleF Inflated(this RectangleF rectangle, Size size)
+        {
+            var rec = rectangle;
+            rec.Inflate(size);
+            return rec;
+        }
+
+        public static RectangleF Inflated(this RectangleF rectangle, float x, float y)
+        {
+            var rec = rectangle;
+            rec.Inflate(x, y);
+            return rec;
+        }
+
         /// <summary>
         /// Finds the control that is currently focused under the given control.
         /// If no other control is focused, the passed control is returned

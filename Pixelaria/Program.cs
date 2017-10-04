@@ -24,6 +24,7 @@ using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Views;
+using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria
 {
@@ -37,7 +38,9 @@ namespace Pixelaria
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm(args));
+            //Application.Run(new MainForm(args));
+
+            Application.Run(new ExportPipelineView());
         }
     }
 }
