@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls
 {
@@ -290,7 +291,7 @@ namespace Pixelaria.Views.Controls
             offsetPoint = new Point();
             scale = new PointF(1, 1);
             ZoomFactor = (float)Math.Sqrt(2);
-            ZoomFactorMode = Views.Controls.ZoomFactorMode.Multiply;
+            ZoomFactorMode = ZoomFactorMode.Multiply;
 
             MinimumZoom = new PointF(0.125f, 0.125f);
             MaximumZoom = new PointF(15, 15);
@@ -367,7 +368,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>The absolute point that represents the given control point transformed to aboslute pixel coordinates</returns>
         public Point GetAbsolutePoint(PointF controlPoint)
         {
-            Matrix m = new Matrix();
+            var m = new Matrix();
             m.Reset();
 
             m.Scale(1 / scale.X, 1 / scale.Y);
@@ -388,7 +389,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>the relative point that represents the given pixel point transformed to relative control coordinates</returns>
         public PointF GetRelativePoint(Point pixelPoint)
         {
-            Matrix m = new Matrix();
+            var m = new Matrix();
             m.Reset();
             
             m.Translate(-offsetPoint.X, -offsetPoint.Y);
@@ -505,35 +506,35 @@ namespace Pixelaria.Views.Controls
         // 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            if (Image != null)
+            if (Image == null)
+                return;
+
+            var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
+
+            if (ImageLayout == ImageLayout.Center)
             {
-                Rectangle rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
-
-                if (ImageLayout == ImageLayout.Center)
-                {
-                    rec.X = (int)((ClientRectangle.Width / 2.0f - (rec.Width * scale.X) / 2));
-                    rec.Y = (int)((ClientRectangle.Height / 2.0f - (rec.Height * scale.Y) / 2));
-                    rec.Width = (int)(rec.Width * scale.X);
-                    rec.Height = (int)(rec.Height * scale.Y);
-                }
-
-                UpdateGraphicsTransform(pe.Graphics);
-
-                if (ShowImageArea)
-                {
-                    // Draw the image bounds rectangle
-                    RectangleF imageBoundsRec = rec;
-                    imageBoundsRec.X += 0.5f;
-                    imageBoundsRec.Y += 0.5f;
-                    imageBoundsRec.Width -= 1;
-                    imageBoundsRec.Height -= 1;
-                    pe.Graphics.DrawRectangle(Pens.White, imageBoundsRec.X, imageBoundsRec.Y, imageBoundsRec.Width, imageBoundsRec.Height);
-                }
-
-                RectangleF imgArea = rec;
-
-                pe.Graphics.DrawImage(Image, imgArea);
+                rec.X = (int)((ClientRectangle.Width / 2.0f - (rec.Width * scale.X) / 2));
+                rec.Y = (int)((ClientRectangle.Height / 2.0f - (rec.Height * scale.Y) / 2));
+                rec.Width = (int)(rec.Width * scale.X);
+                rec.Height = (int)(rec.Height * scale.Y);
             }
+
+            UpdateGraphicsTransform(pe.Graphics);
+
+            if (ShowImageArea)
+            {
+                // Draw the image bounds rectangle
+                RectangleF imageBoundsRec = rec;
+                imageBoundsRec.X += 0.5f;
+                imageBoundsRec.Y += 0.5f;
+                imageBoundsRec.Width -= 1;
+                imageBoundsRec.Height -= 1;
+                pe.Graphics.DrawRectangle(Pens.White, imageBoundsRec.X, imageBoundsRec.Y, imageBoundsRec.Width, imageBoundsRec.Height);
+            }
+
+            RectangleF imgArea = rec;
+
+            pe.Graphics.DrawImage(Image, imgArea);
         }
         
         // 
@@ -548,7 +549,7 @@ namespace Pixelaria.Views.Controls
                 
                 pevent.Graphics.Clear(BackColor);
 
-                Rectangle rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
+                var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
 
                 // Transform the rectangle by the transform matrix
                 var transform = pevent.Graphics.Transform;
@@ -556,8 +557,8 @@ namespace Pixelaria.Views.Controls
 
                 if (ImageLayout == ImageLayout.Center)
                 {
-                    rec.X = (int)((ClientRectangle.Width / 2.0f - (rec.Width * scale.X) / 2));
-                    rec.Y = (int)((ClientRectangle.Height / 2.0f - (rec.Height * scale.Y) / 2));
+                    rec.X = (int)(ClientRectangle.Width / 2.0f - rec.Width * scale.X / 2);
+                    rec.Y = (int)(ClientRectangle.Height / 2.0f - rec.Height * scale.Y / 2);
                     rec.Width = (int)(rec.Width * scale.X);
                     rec.Height = (int)(rec.Height * scale.Y);
                 }
@@ -573,12 +574,24 @@ namespace Pixelaria.Views.Controls
 
                 if (BackgroundImageLayout == ImageLayout.Tile)
                 {
-                    TextureBrush tex = new TextureBrush(BackgroundImage) { WrapMode = WrapMode.Tile };
-                    tex.TranslateTransform(points[0].X, points[0].Y);
+                    using (var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile})
+                    {
+                        var state = pevent.Graphics.Save();
 
-                    pevent.Graphics.FillPolygon(tex, points);
+                        tex.TranslateTransform(points[0].X, points[0].Y);
+                        
+                        var rect = Utilities.GetRectangleArea(points);
 
-                    tex.Dispose();
+                        pevent.Graphics.CompositingMode = CompositingMode.SourceCopy;
+                        pevent.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                        pevent.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                        pevent.Graphics.SmoothingMode = SmoothingMode.None;
+                        pevent.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+                        pevent.Graphics.FillRectangle(tex, rect);
+
+                        pevent.Graphics.Restore(state);
+                    }
                 }
                 else
                 {

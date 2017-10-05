@@ -176,10 +176,10 @@ namespace Pixelaria.Utils
         {
             float from = 1 - factor;
 
-            int a = (int)(blendAlpha ? (color.A * from + fadeColor.A * factor) : color.A);
-            int r = (int)(color.R * from + fadeColor.R * factor);
-            int g = (int)(color.G * from + fadeColor.G * factor);
-            int b = (int)(color.B * from + fadeColor.B * factor);
+            int a = (int)(blendAlpha ? (color.A * @from + fadeColor.A * factor) : color.A);
+            int r = (int)(color.R * @from + fadeColor.R * factor);
+            int g = (int)(color.G * @from + fadeColor.G * factor);
+            int b = (int)(color.B * @from + fadeColor.B * factor);
 	        
 	        return Color.FromArgb(Math.Abs(a), Math.Abs(r), Math.Abs(g), Math.Abs(b));
         }
@@ -395,6 +395,56 @@ namespace Pixelaria.Utils
                 container = control as IContainerControl;
             }
             return control;
+        }
+
+        /// <summary>
+        /// Returns the smallest Rectangle object that encloses all points provided
+        /// </summary>
+        /// <param name="pointList">An array of points to convert</param>
+        /// <returns>The smallest Rectangle object that encloses all points provided</returns>
+        public static Rectangle GetRectangleArea(Point[] pointList)
+        {
+            int minX = pointList[0].X;
+            int minY = pointList[0].Y;
+
+            int maxX = pointList[0].X;
+            int maxY = pointList[0].Y;
+
+            foreach (var p in pointList)
+            {
+                minX = Math.Min(p.X, minX);
+                minY = Math.Min(p.Y, minY);
+
+                maxX = Math.Max(p.X, maxX);
+                maxY = Math.Max(p.Y, maxY);
+            }
+
+            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        }
+
+        /// <summary>
+        /// Returns the smallest Rectangle object that encloses all points provided
+        /// </summary>
+        /// <param name="pointList">An array of points to convert</param>
+        /// <returns>The smallest Rectangle object that encloses all points provided</returns>
+        public static RectangleF GetRectangleArea(IReadOnlyList<PointF> pointList)
+        {
+            var minX = pointList[0].X;
+            var minY = pointList[0].Y;
+
+            var maxX = pointList[0].X;
+            var maxY = pointList[0].Y;
+
+            foreach (var p in pointList)
+            {
+                minX = Math.Min(p.X, minX);
+                minY = Math.Min(p.Y, minY);
+
+                maxX = Math.Max(p.X, maxX);
+                maxY = Math.Max(p.Y, maxY);
+            }
+
+            return new RectangleF(minX, minY, maxX - minX, maxY - minY);
         }
     }
 }

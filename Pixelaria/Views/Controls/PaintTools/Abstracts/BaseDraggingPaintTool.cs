@@ -243,32 +243,5 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             return new Rectangle(minX, minY, maxX - minX, maxY - minY);
         }
-
-        /// <summary>
-        /// Returns the smallest Rectangle object that encloses all points provided
-        /// </summary>
-        /// <param name="pointList">An array of points to convert</param>
-        /// <returns>The smallest Rectangle object that encloses all points provided</returns>
-        public static Rectangle GetRectangleAreaAbsolute(Point[] pointList)
-        {
-            int minX = pointList[0].X;
-            int minY = pointList[0].Y;
-
-            int maxX = pointList[0].X;
-            int maxY = pointList[0].Y;
-
-            foreach (Point p in pointList)
-            {
-                Point p1 = p;
-
-                minX = Math.Min(p1.X, minX);
-                minY = Math.Min(p1.Y, minY);
-
-                maxX = Math.Max(p1.X, maxX);
-                maxY = Math.Max(p1.Y, maxY);
-            }
-
-            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-        }
     }
 }
