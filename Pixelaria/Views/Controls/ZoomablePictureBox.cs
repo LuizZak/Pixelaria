@@ -357,7 +357,7 @@ namespace Pixelaria.Views.Controls
         public void HookToControl(Control owningControl, Control wheelClipBoundsControl = null)
         {
             owningControl.MouseWheel += ZoomablePictureBox_MouseWheel;
-            boundsControl = (wheelClipBoundsControl ?? this);
+            boundsControl = wheelClipBoundsControl ?? this;
         }
 
         /// <summary>

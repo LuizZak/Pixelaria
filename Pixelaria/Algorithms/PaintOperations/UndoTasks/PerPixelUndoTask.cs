@@ -89,7 +89,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         public override void Undo()
         {
-            using (FastBitmap bitmap = targetBitmap.FastLock())
+            using (var bitmap = targetBitmap.FastLock())
             {
                 foreach (var pixelUndo in _pixelHistoryTracker.StoredPixelsEnumerable)
                 {
@@ -103,7 +103,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         public override void Redo()
         {
-            using (FastBitmap bitmap = targetBitmap.FastLock())
+            using (var bitmap = targetBitmap.FastLock())
             {
                 foreach (var pixelUndo in _pixelHistoryTracker.StoredPixelsEnumerable)
                 {

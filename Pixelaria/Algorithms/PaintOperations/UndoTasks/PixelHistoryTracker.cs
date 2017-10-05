@@ -157,7 +157,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 if (!replaceExisting)
                     return;
 
-                PixelUndo item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
+                var item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
 
                 if (_keepOriginalUndos)
                 {
@@ -168,7 +168,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             }
             else
             {
-                PixelUndo item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
+                var item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
 
                 _pixelDictionary[pixelIndex] = item;
             }

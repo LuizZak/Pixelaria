@@ -62,7 +62,7 @@ namespace Pixelaria.Algorithms.Packers
             }
 
             // Cache some fields as locals
-            List<IFrame> frameList = atlas.FrameList;
+            var frameList = atlas.FrameList;
 
             _progressHandler = handler;
             _frameComparision = new FrameComparision(atlas.ExportSettings.ForceMinimumDimensions);
@@ -89,7 +89,7 @@ namespace Pixelaria.Algorithms.Packers
             uint atlasHeight;
 
             var frameBoundsMap = PrepareAtlas(atlas, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
-            Rectangle[] frameBounds = frameBoundsMap.SheetBounds;
+            var frameBounds = frameBoundsMap.SheetBounds;
 
             var minAreaTask = new Task<int>(() => IterateAtlasSize(atlas, frameBounds, _maxWidthCapped, out atlasWidth, out atlasHeight, cancellationToken), cancellationToken);
             minAreaTask.Start();
@@ -100,7 +100,7 @@ namespace Pixelaria.Algorithms.Packers
             atlasHeight = 0;
 
             // 5. Pack the texture atlas
-            Rectangle[] finalFrameRegions = InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, minAreaWidth);
+            var finalFrameRegions = InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, minAreaWidth);
 
             // Replace bounds now
             frameBoundsMap.ReplaceSheetBounds(finalFrameRegions);
@@ -212,8 +212,8 @@ namespace Pixelaria.Algorithms.Packers
                 int area = (int)(atlasWidth * atlasHeight);
 
                 // Decide whether to swap the best sheet target width with the current one
-                if ((atlas.ExportSettings.FavorRatioOverArea && (Math.Abs(ratio - 1) < Math.Abs(minRatio - 1))) ||
-                    (!atlas.ExportSettings.FavorRatioOverArea && area < minArea))
+                if (atlas.ExportSettings.FavorRatioOverArea && Math.Abs(ratio - 1) < Math.Abs(minRatio - 1) ||
+                    !atlas.ExportSettings.FavorRatioOverArea && area < minArea)
                 {
                     minArea = area;
                     minRatio = ratio;
