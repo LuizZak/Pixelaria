@@ -42,6 +42,7 @@ Caption:
   * Fixed cases of activating disabled keyboard shortcuts changing the paint tools (i.e. pressing Ctrl+Q/Ctrl+E with no previous/next frames available).
   * Fixed timeline and zoom UI elements spilling out of the visible bounds of the view.
   * Fixed color picker not picking the color sometimes.
+  * Improved rendering efficiency when moving the canvas around while zoomed in.
   * Now picking colors with the Color Picker tool with the right mouse button sets the second color.
   * Removed 'ding' sound when hitting Enter while editing a layer's name.
   . Now the top-most layer is selected when a frame is opened to be edited.
