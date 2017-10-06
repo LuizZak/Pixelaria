@@ -36,7 +36,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
     /// Test suite for the Animation and Frame classes and related components
     /// </summary>
     [TestClass]
-    public class AnimationTests
+    public class AnimationControllerTests
     {
         [TestMethod]
         public void TestFrameEquals()
@@ -427,11 +427,14 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestMemoryUsage()
         {
-            Animation anim1 = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
-            Animation anim2 = AnimationGenerator.GenerateAnimation("TestAnim1", 32, 32, 16);
+            var anim1 = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+            var anim2 = AnimationGenerator.GenerateAnimation("TestAnim1", 32, 32, 16);
 
-            Assert.AreEqual(16 * 16 * 10 * 4, anim1.CalculateMemoryUsageInBytes(true), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 10.240 bytes");
-            Assert.AreEqual(32 * 32 * 16 * 4, anim2.CalculateMemoryUsageInBytes(true), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 65.536 bytes");
+            var controller1 = new AnimationController(null, anim1);
+            var controller2 = new AnimationController(null, anim2);
+
+            Assert.AreEqual(16 * 16 * 10 * 4, controller1.CalculateMemoryUsageInBytes(true), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 10.240 bytes");
+            Assert.AreEqual(32 * 32 * 16 * 4, controller2.CalculateMemoryUsageInBytes(true), "The memory usage returned for a 16 x 16 animation that is 10 frames long should be 65.536 bytes");
         }
 
         [TestMethod]
