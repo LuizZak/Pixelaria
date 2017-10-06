@@ -22,13 +22,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Data;
 
 namespace Pixelaria.Utils
@@ -44,8 +44,8 @@ namespace Pixelaria.Utils
         /// <param name="filespec">The file path</param>
         /// <param name="folder">The base folder to create the relative path</param>
         /// <returns>A relative path between folder and filespec</returns>
-        [Pure]
-        public static string GetRelativePath(string filespec, string folder)
+        [System.Diagnostics.Contracts.Pure]
+        public static string GetRelativePath([NotNull] string filespec, string folder)
         {
             Uri pathUri = new Uri(filespec);
             
@@ -63,7 +63,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="value">The value to snap to the closest power of two value</param>
         /// <returns>The given uint value snapped to the next highest power of two value</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static uint SnapToNextPowerOfTwo(uint value)
         {
             value--;
@@ -83,7 +83,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="bytes">The number of bytes</param>
         /// <returns>A formated string with the byte count converted to the most significant magnitude</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static string FormatByteSize(long bytes)
         {
             int magnitude = 0;
@@ -110,7 +110,7 @@ namespace Pixelaria.Utils
         /// <param name="b2">The second array of bytes</param>
         /// <param name="count">The number of bytes to compare</param>
         /// <returns>0 if the byte arrays are identical</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int memcmp(byte[] b1, byte[] b2, long count);
 
@@ -120,8 +120,8 @@ namespace Pixelaria.Utils
         /// <param name="b1">The first array of bytes</param>
         /// <param name="b2">The second array of bytes</param>
         /// <returns>True if the byte arrays are identical</returns>
-        [Pure]
-        public static bool ByteArrayCompare(byte[] b1, byte[] b2)
+        [System.Diagnostics.Contracts.Pure]
+        public static bool ByteArrayCompare([NotNull] byte[] b1, [NotNull] byte[] b2)
         {
             // Validate buffers are the same length.
             // This also ensures that the count does not exceed the length of either buffer.  
@@ -133,7 +133,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="color">The Color to convert to AHSL</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static AhslColor ToAhsl(this Color color)
         {
             return AhslColor.ToAhsl(color.ToArgb());
@@ -144,7 +144,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="color">The Color to convert to get the lightness component from</param>
         /// <returns>The lightness of this System.Drawing.Color. The lightness ranges from 0.0 through 1.0, where 0.0 is black and 1.0 is white.</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static float GetLightness(this Color color)
         {
             return color.ToAhsl().L / 100.0f;
@@ -155,7 +155,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="color">The color to invert</param>
         /// <returns>An inverted version of this Color object</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static Color Invert(this Color color)
         {
             const int rgbmax = 255;
@@ -171,15 +171,15 @@ namespace Pixelaria.Utils
         /// <param name="factor">A number from [0 - 1] that decides how much the first color will fade into the second</param>
         /// <param name="blendAlpha">Whether to fade the alpha channel as well. If left false, the first color's alpha channel will be used</param>
         /// <returns>The faded color</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static Color Fade(this Color color, Color fadeColor, float factor = 0.5f, bool blendAlpha = false)
         {
             float from = 1 - factor;
 
-            int a = (int)(blendAlpha ? (color.A * @from + fadeColor.A * factor) : color.A);
-            int r = (int)(color.R * @from + fadeColor.R * factor);
-            int g = (int)(color.G * @from + fadeColor.G * factor);
-            int b = (int)(color.B * @from + fadeColor.B * factor);
+            int a = (int)(blendAlpha ? color.A * from + fadeColor.A * factor : color.A);
+            int r = (int)(color.R * from + fadeColor.R * factor);
+            int g = (int)(color.G * from + fadeColor.G * factor);
+            int b = (int)(color.B * from + fadeColor.B * factor);
 	        
 	        return Color.FromArgb(Math.Abs(a), Math.Abs(r), Math.Abs(g), Math.Abs(b));
         }
@@ -191,7 +191,7 @@ namespace Pixelaria.Utils
         /// <param name="backColor">Color to blend the other color onto.</param>
         /// <param name="factor">The factor to blend the two colors on. 0.0 will return the first color, 1.0 will return the back color, any values in between will blend the two colors accordingly</param>
         /// <returns>The blended color</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static Color Blend(this Color color, Color backColor, float factor = 0.5f)
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -244,7 +244,7 @@ namespace Pixelaria.Utils
         /// <param name="backColor">The back color to blend</param>
         /// <param name="foreColor">The fore color to blend</param>
         /// <returns>The two colors, blended with a GDI+ like color bleding mode</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static Color FlattenColor(Color backColor, Color foreColor)
         {
             // Based off an answer by an anonymous user on StackOverlow http://stackoverflow.com/questions/1718825/blend-formula-for-gdi/2223241#2223241
@@ -272,7 +272,7 @@ namespace Pixelaria.Utils
         /// <param name="backColor">The back color to blend</param>
         /// <param name="foreColor">The fore color to blend</param>
         /// <returns>The two colors, blended with a GDI+ like color bleding mode</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static uint FlattenColor(uint backColor, uint foreColor)
         {
             // Based off an answer by an anonymous user on StackOverlow http://stackoverflow.com/questions/1718825/blend-formula-for-gdi/2223241#2223241
@@ -315,7 +315,7 @@ namespace Pixelaria.Utils
         /// <param name="point">The first point</param>
         /// <param name="point2">The second point</param>
         /// <returns>The distance between the two points</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static float Distance(this PointF point, PointF point2)
         {
             float dx = point.X - point2.X;
@@ -330,7 +330,7 @@ namespace Pixelaria.Utils
         /// <param name="point">The first point</param>
         /// <param name="point2">The second point</param>
         /// <returns>The distance between the two points</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static float Distance(this Point point, Point point2)
         {
             float dx = point.X - point2.X;
@@ -372,7 +372,7 @@ namespace Pixelaria.Utils
         /// <param name="gfxPath">The GraphicsPath to add the rounded rectangle to</param>
         /// <param name="bounds">The bounds of the rounded rectangle</param>
         /// <param name="cornerRadius">The radius of the corners</param>
-        public static void AddRoundedRectangle(this GraphicsPath gfxPath, Rectangle bounds, int cornerRadius)
+        public static void AddRoundedRectangle([NotNull] this GraphicsPath gfxPath, Rectangle bounds, int cornerRadius)
         {
             gfxPath.AddArc(bounds.X, bounds.Y, cornerRadius, cornerRadius, 180, 90);
             gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y, cornerRadius, cornerRadius, 270, 90);
@@ -403,7 +403,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="pointList">An array of points to convert</param>
         /// <returns>The smallest Rectangle object that encloses all points provided</returns>
-        public static Rectangle GetRectangleArea(Point[] pointList)
+        public static Rectangle GetRectangleArea([NotNull] Point[] pointList)
         {
             int minX = pointList[0].X;
             int minY = pointList[0].Y;
@@ -428,7 +428,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="pointList">An array of points to convert</param>
         /// <returns>The smallest Rectangle object that encloses all points provided</returns>
-        public static RectangleF GetRectangleArea(IReadOnlyList<PointF> pointList)
+        public static RectangleF GetRectangleArea([NotNull] IReadOnlyList<PointF> pointList)
         {
             var minX = pointList[0].X;
             var minY = pointList[0].Y;

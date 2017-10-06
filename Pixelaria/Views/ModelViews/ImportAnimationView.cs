@@ -68,7 +68,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="controller">The controller owning this form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
-        public ImportAnimationView(Controller controller, [CanBeNull] AnimationSheet parentSheet = null)
+        public ImportAnimationView([NotNull] Controller controller, [CanBeNull] AnimationSheet parentSheet = null)
         {
             _controller = controller;
             _parentSheet = parentSheet;
@@ -522,7 +522,7 @@ namespace Pixelaria.Views.ModelViews
 
             public AnimationPlaybackSettings PlaybackSettings { get; set; }
 
-            public AnimationExportSettings ExportSettings { get; set; }
+            public AnimationExportSettings ExportSettings { get; }
 
             public Bitmap GetComposedBitmapForFrame(int frameIndex)
             {

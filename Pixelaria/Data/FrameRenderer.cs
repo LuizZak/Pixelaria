@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.LayerControls;
@@ -18,7 +19,7 @@ namespace Pixelaria.Data
         /// <param name="statuses">The layer status information to use when composing the frame</param>
         /// <param name="ignoreStatusTransparency">Whether to ignore the Transparency of a layer when composing</param>
         /// <returns>A new Bitmap object that represents the composed frame</returns>
-        public static Bitmap ComposeFrame(FrameController frame, LayerStatus[] statuses, bool ignoreStatusTransparency = false)
+        public static Bitmap ComposeFrame([NotNull] FrameController frame, LayerStatus[] statuses, bool ignoreStatusTransparency = false)
         {
             var bitmap = new Bitmap(frame.Width, frame.Height, PixelFormat.Format32bppArgb);
 

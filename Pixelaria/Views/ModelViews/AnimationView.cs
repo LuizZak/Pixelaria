@@ -311,7 +311,7 @@ namespace Pixelaria.Views.ModelViews
             tsm_undo.Enabled = tsb_undo.Enabled = _undoSystem.CanUndo;
             tsm_redo.Enabled = tsb_redo.Enabled = _undoSystem.CanRedo;
 
-            if (tsb_undo.Enabled)
+            if (tsb_undo.Enabled && _undoSystem.NextUndo != null)
             {
                 tsm_undo.Text = tsb_undo.ToolTipText = @"Undo " + _undoSystem.NextUndo.GetDescription();
 
@@ -322,7 +322,7 @@ namespace Pixelaria.Views.ModelViews
                 tsm_undo.Text = @"Undo";
             }
 
-            if (tsb_redo.Enabled)
+            if (tsb_redo.Enabled && _undoSystem.NextRedo != null)
             {
                 tsm_redo.Text = tsb_redo.ToolTipText = @"Redo " + _undoSystem.NextRedo.GetDescription();
             }
@@ -536,7 +536,7 @@ namespace Pixelaria.Views.ModelViews
         /// Displays a BaseFilterView with the given FilterPreset loaded
         /// </summary>
         /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
-        private void DisplayFilterPreset(FilterPreset filterPreset)
+        private void DisplayFilterPreset([NotNull] FilterPreset filterPreset)
         {
             var afv = new AnimationFilterView(filterPreset, _viewAnimation);
 
@@ -1185,7 +1185,12 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_presetItem_Click(object sender, EventArgs e)
         {
-            DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName(((ToolStripMenuItem)sender).Tag as string));
+            var presetName = (string)((ToolStripMenuItem) sender).Tag;
+
+            var preset = FilterStore.Instance.GetFilterPresetByName(presetName);
+
+            if (preset != null)
+                DisplayFilterPreset(preset);
         }
 
         #endregion
@@ -1224,7 +1229,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Form Key Down event handler
         // 
-        private void AnimationView_KeyDown(object sender, KeyEventArgs e)
+        private void AnimationView_KeyDown(object sender, [NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
             {
@@ -1235,7 +1240,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // List View Drag Operation event handler
         // 
-        private void lv_frames_DragOperation(ListViewItemDragEventArgs eventArgs)
+        private void lv_frames_DragOperation([NotNull] ListViewItemDragEventArgs eventArgs)
         {
             if (eventArgs.EventType == ListViewItemDragEventType.DragEnd)
             {
@@ -1657,7 +1662,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Frames List View key down event handler
         // 
-        private void lv_frames_KeyDown(object sender, KeyEventArgs e)
+        private void lv_frames_KeyDown(object sender, [NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
             {
@@ -1668,7 +1673,7 @@ namespace Pixelaria.Views.ModelViews
         //
         // Frames List View mouse click
         // 
-        private void lv_frames_MouseUp(object sender, MouseEventArgs e)
+        private void lv_frames_MouseUp(object sender, [NotNull] MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {

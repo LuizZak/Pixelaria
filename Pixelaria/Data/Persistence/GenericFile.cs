@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence
 {
@@ -190,7 +191,7 @@ namespace Pixelaria.Data.Persistence
         protected virtual void SaveBlocks()
         {
             // Save the blocks
-            foreach (T block in blockList)
+            foreach (var block in blockList)
             {
                 SaveBlock(block, stream);
             }
@@ -265,9 +266,9 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="block">The block to save</param>
         /// <param name="targetStream">The stream to save the block to</param>
-        protected virtual void SaveBlock(T block, Stream targetStream)
+        protected virtual void SaveBlock([NotNull] T block, [NotNull] Stream targetStream)
         {
-            block.SaveToStream(stream);
+            block.SaveToStream(targetStream);
         }
 
         /// <summary>
@@ -353,10 +354,10 @@ namespace Pixelaria.Data.Persistence
             /// Saves this file header information to a given stream
             /// </summary>
             /// <param name="stream">The stream to save the file header to</param>
-            public virtual void SaveToSteam(Stream stream)
+            public virtual void SaveToSteam([NotNull] Stream stream)
             {
                 // Save the header
-                BinaryWriter writer = new BinaryWriter(stream);
+                var writer = new BinaryWriter(stream);
 
                 // Signature Block
                 Array.ForEach(MagicNumberBytes, writer.Write);
@@ -368,9 +369,9 @@ namespace Pixelaria.Data.Persistence
             /// Loads the file header information from a given stream
             /// </summary>
             /// <param name="stream">The stream to load the header from</param>
-            public virtual void LoadFromSteam(Stream stream)
+            public virtual void LoadFromSteam([NotNull] Stream stream)
             {
-                BinaryReader reader = new BinaryReader(stream);
+                var reader = new BinaryReader(stream);
 
                 stream.Read(magicNumberBytes, 0, MagicNumbersLength);
                 Version = reader.ReadInt32();

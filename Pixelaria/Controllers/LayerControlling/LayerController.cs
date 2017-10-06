@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Utils;
@@ -259,7 +260,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            IFrameLayer layer = _frame.CreateLayer(layerIndex);
+            var layer = _frame.CreateLayer(layerIndex);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
 
@@ -272,11 +273,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="bitmap">The bitmap to use as a layer</param>
         /// <param name="index">The index to add the layer at</param>
         /// <returns>The layer that was created</returns>
-        public IFrameLayer AddLayer(Bitmap bitmap, int index = -1)
+        public IFrameLayer AddLayer([NotNull] Bitmap bitmap, int index = -1)
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            IFrameLayer layer = _frame.AddLayer(bitmap, index);
+            var layer = _frame.AddLayer(bitmap, index);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
 
@@ -288,7 +289,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// </summary>
         /// <param name="layer">The layer to add</param>
         /// <param name="index">The index to add the layer at</param>
-        public void AddLayer(IFrameLayer layer, int index = -1)
+        public void AddLayer([NotNull] IFrameLayer layer, int index = -1)
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
@@ -350,7 +351,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="dispose">Whether to dispose of the layer that was removed</param>
         public void RemoveLayer(int layerIndex, bool dispose = true)
         {
-            IFrameLayer layer = _frame.GetLayerAt(layerIndex);
+            var layer = _frame.GetLayerAt(layerIndex);
 
             BeforeLayerRemoved?.Invoke(this, new LayerControllerLayerRemovedEventArgs(layer));
 
@@ -367,7 +368,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// </summary>
         /// <param name="layerIndex">The index of the layer to update the bitmap of</param>
         /// <param name="bitmap">The new bitmap for the layer</param>
-        public void UpdateLayerBitmap(int layerIndex, Bitmap bitmap)
+        public void UpdateLayerBitmap(int layerIndex, [NotNull] Bitmap bitmap)
         {
             Bitmap oldBitmap = null;
 
@@ -409,7 +410,7 @@ namespace Pixelaria.Controllers.LayerControlling
             BeforeLayerDuplicated?.Invoke(this, new LayerControllerLayerDuplicatedEventArgs(layerIndex));
 
             // Duplicate the layer up
-            IFrameLayer layer = _frame.GetLayerAt(layerIndex).Clone();
+            var layer = _frame.GetLayerAt(layerIndex).Clone();
 
             // Use the class' AddLayer method to take advantage of the event firing
             if (layerIndex == _frame.LayerCount - 1)
@@ -427,12 +428,12 @@ namespace Pixelaria.Controllers.LayerControlling
         /// the image of the combined layers will be set
         /// </summary>
         /// <param name="layers">The layers to combine</param>
-        public void CombineLayers(IFrameLayer[] layers)
+        public void CombineLayers([NotNull] IFrameLayer[] layers)
         {
             BeforeLayersCombined?.Invoke(this, new LayerControllerLayersCombinedEventArgs(layers));
 
             // Combine the layers by first removing all the layers but the bottom-most one
-            Bitmap combinedBitmap = new Bitmap(_frame.Width, _frame.Height);
+            var combinedBitmap = new Bitmap(_frame.Width, _frame.Height);
 
             for (int i = 0; i < layers.Length; i++)
             {

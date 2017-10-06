@@ -21,6 +21,7 @@
 */
 
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -65,7 +66,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream(Stream stream)
+        protected override void SaveContentToStream([NotNull] Stream stream)
         {
             SaveAnimationToStream(Animation, stream);
         }
@@ -91,7 +92,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="stream">The stream to load the animation from</param>
         /// <returns>The Animation object loaded</returns>
-        protected Animation LoadAnimationFromStream(Stream stream)
+        protected Animation LoadAnimationFromStream([NotNull] Stream stream)
         {
             var reader = new BinaryReader(stream);
 
@@ -120,7 +121,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="animation">The animation to save</param>
         /// <param name="stream">The stream to save the animation to</param>
-        protected void SaveAnimationToStream(Animation animation, Stream stream)
+        protected void SaveAnimationToStream([NotNull] Animation animation, [NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 

@@ -21,6 +21,7 @@
 */
 
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -73,7 +74,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to read the block from</param>
         /// <param name="file">The PixelariaFile to use when loading the block</param>
         /// <returns>A block read from the given stream</returns>
-        public static FileBlock FromStream(Stream stream, PixelariaFile file)
+        public static FileBlock FromStream([NotNull] Stream stream, PixelariaFile file)
         {
             // Save the current stream position
             long offset = stream.Position;

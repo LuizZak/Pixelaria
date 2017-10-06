@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
@@ -141,7 +142,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="targetBitmap">The bitmap to perform the operation on</param>
         /// <param name="useFastBitmap">Whether to use a FastBitmap that locks and unlocks during StartOperation() and FinishOperation() calls</param>
         /// <param name="pencilTipPoint">The tip of the pencil </param>
-        public PencilPaintOperation(Bitmap targetBitmap, bool useFastBitmap = false, Point pencilTipPoint = new Point()) : base(targetBitmap)
+        public PencilPaintOperation([NotNull] Bitmap targetBitmap, bool useFastBitmap = false, Point pencilTipPoint = new Point()) : base(targetBitmap)
         {
             bitmapWidth = targetBitmap.Width;
             bitmapHeight = targetBitmap.Height;
@@ -179,7 +180,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 throw new InvalidOperationException("The StartOperation() method must be caled prior to this method");
             }
 
-            Point newPencilTip = new Point(x, y);
+            var newPencilTip = new Point(x, y);
 
             // Temporarely switch to the fast bitmap for faster plotting
             bool oldUseFastBitmap = useFastBitmap;
@@ -384,7 +385,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="endPoint">The end point of the line</param>
         /// <param name="size">The size of the line to plot</param>
         /// <param name="ignoreFirstPlot">Whether to ignore the first plot of the sequence and not call the plot function on it</param>
-        protected void InvokePlotsOnLine(PlotFunction plotFunction, Point startPoint, Point endPoint, int size, bool ignoreFirstPlot = false)
+        protected void InvokePlotsOnLine([NotNull] PlotFunction plotFunction, Point startPoint, Point endPoint, int size, bool ignoreFirstPlot = false)
         {
             int x0 = startPoint.X;
             int y0 = startPoint.Y;
@@ -517,7 +518,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         ///     Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
         /// </param>
         /// <param name="ignoreDuplicatedPlots">Whether to ignore duplicated pixels during calls to PlottedPixel</param>
-        public PlottingPaintUndoGenerator(Bitmap bitmap, string description, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = false)
+        public PlottingPaintUndoGenerator([NotNull] Bitmap bitmap, string description, bool keepReplacedUndos = true, bool ignoreDuplicatedPlots = false)
             : this(new PerPixelUndoTask(bitmap, description, keepReplacedUndos), ignoreDuplicatedPlots)
         {
             _bitmap = bitmap;
@@ -529,7 +530,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// </summary>
         /// <param name="undoTask">The undo task to associate to this undo generator</param>
         /// <param name="ignoreDuplicatedPlots">Whether to ignore duplicated pixels during calls to PlottedPixel</param>
-        public PlottingPaintUndoGenerator(PerPixelUndoTask undoTask, bool ignoreDuplicatedPlots = true)
+        public PlottingPaintUndoGenerator([NotNull] PerPixelUndoTask undoTask, bool ignoreDuplicatedPlots = true)
         {
             IgnoreDuplicatedPlots = ignoreDuplicatedPlots;
             UndoTask = undoTask;

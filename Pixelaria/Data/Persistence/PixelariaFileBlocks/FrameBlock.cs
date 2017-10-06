@@ -234,7 +234,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="frame">The frame to load the layer into</param>
         /// <param name="stream">The stream to load the layer from</param>
-        private void LoadLayerFromStream(Frame frame, Stream stream)
+        private void LoadLayerFromStream(Frame frame, [NotNull] Stream stream)
         {
             var controller = new FrameController(frame);
 

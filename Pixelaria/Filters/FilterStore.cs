@@ -22,11 +22,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Views.Controls.Filters;
 
 namespace Pixelaria.Filters
@@ -125,6 +126,7 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="filterName">The name of the filter to create</param>
         /// <returns>The filter instance</returns>
+        [CanBeNull]
         public IFilter CreateFilter(string filterName)
         {
             IFilter filter = null;
@@ -150,11 +152,12 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="filterName">The name of the filter to create the FilterControl out of</param>
         /// <returns>The created FilterControl, or null if the filter does not exists</returns>
+        [CanBeNull]
         public FilterControl CreateFilterControl(string filterName)
         {
             FilterControl filterControl = null;
 
-            foreach (FilterItem item in _filterItems)
+            foreach (var item in _filterItems)
             {
                 if (item.FilterName == filterName)
                 {
@@ -219,6 +222,7 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="name">The name of the filter preset to match</param>
         /// <returns>A FilterPreset stored on this FilterStore that matches the given name. If no FilterPreset object is found, null is returned instead</returns>
+        [CanBeNull]
         public FilterPreset GetFilterPresetByName(string name)
         {
             return _filterPresets.FirstOrDefault(preset => preset.Name == name);
@@ -393,12 +397,15 @@ namespace Pixelaria.Filters
         /// <returns>An array of filter controls based on the data stored on this FilterPreset</returns>
         public FilterControl[] MakeFilterControls()
         {
-            FilterControl[] filterControls = new FilterControl[_filters.Length];
+            var filterControls = new FilterControl[_filters.Length];
 
             for(int i = 0; i < _filters.Length; i++)
             {
-                filterControls[i] = FilterStore.Instance.CreateFilterControl(_filters[i].Name);
-                filterControls[i].SetFilter(_filters[i]);
+                var control = FilterStore.Instance.CreateFilterControl(_filters[i].Name);
+                Debug.Assert(control != null, "control != null");
+                control.SetFilter(_filters[i]);
+
+                filterControls[i] = control;
             }
 
             return filterControls;
@@ -410,7 +417,7 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="other">Anoher filter preset to compare</param>
         /// <returns>true if all filters match the filters on the given preset; false otherwise</returns>
-        public bool Equals(FilterPreset other)
+        public bool Equals([NotNull] FilterPreset other)
         {
             if (_filters.Length != other._filters.Length)
                 return false;
@@ -422,15 +429,15 @@ namespace Pixelaria.Filters
         /// Saves this FilterPreset to a stream
         /// </summary>
         /// <param name="stream">A stream to save this filter preset to</param>
-        public void SaveToStream(Stream stream)
+        public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(Name);
 
             writer.Write(_filters.Length);
 
-            foreach (IFilter filter in _filters)
+            foreach (var filter in _filters)
             {
                 writer.Write(filter.Name);
                 filter.SaveToStream(stream);
@@ -441,9 +448,9 @@ namespace Pixelaria.Filters
         /// Loads this FilterPreset from a stream
         /// </summary>
         /// <param name="stream">A stream to load this filter preset from</param>
-        public void LoadFromStream(Stream stream)
+        public void LoadFromStream([NotNull] Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             Name = reader.ReadString();
 
@@ -453,8 +460,11 @@ namespace Pixelaria.Filters
 
             for (int i = 0; i < count; i++)
             {
-                _filters[i] = FilterStore.Instance.CreateFilter(reader.ReadString());
-                _filters[i].LoadFromStream(stream, 1);
+                var filter = FilterStore.Instance.CreateFilter(reader.ReadString());
+                Debug.Assert(filter != null, "filter != null");
+                filter.LoadFromStream(stream, 1);
+
+                _filters[i] = filter;
             }
         }
 
@@ -463,9 +473,9 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="stream">The stream to load the filter preset from</param>
         /// <returns>A FilterPreset that was read from the stream</returns>
-        public static FilterPreset FromStream(Stream stream)
+        public static FilterPreset FromStream([NotNull] Stream stream)
         {
-            FilterPreset preset = new FilterPreset();
+            var preset = new FilterPreset();
 
             preset.LoadFromStream(stream);
 

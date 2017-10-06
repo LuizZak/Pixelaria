@@ -22,6 +22,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Pixelaria.Data.Exports;
 
 namespace Pixelaria.Algorithms
@@ -36,7 +37,7 @@ namespace Pixelaria.Algorithms
         /// </summary>
         /// <param name="atlas">The texture atlas to pack</param>
         /// <param name="handler">The event handler for the packing process</param>
-        void Pack(TextureAtlas atlas, BundleExportProgressEventHandler handler = null);
+        void Pack([NotNull] TextureAtlas atlas, BundleExportProgressEventHandler handler = null);
 
         /// <summary>
         /// Packs a given atlas with a specified progress event handler
@@ -44,6 +45,6 @@ namespace Pixelaria.Algorithms
         /// <param name="atlas">The texture atlas to pack</param>
         /// <param name="cancellationToken">A token that can be used to cancel the export process</param>
         /// <param name="handler">The event handler for the packing process</param>
-        Task Pack(TextureAtlas atlas, CancellationToken cancellationToken, BundleExportProgressEventHandler handler = null);
+        Task Pack([NotNull] TextureAtlas atlas, CancellationToken cancellationToken, BundleExportProgressEventHandler handler = null);
     }
 }

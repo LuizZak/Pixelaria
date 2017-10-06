@@ -51,7 +51,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="controller">The controller that owns this view</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created Animation</param>
-        public NewAnimationView(Controller controller, [CanBeNull] AnimationSheet parentSheet = null)
+        public NewAnimationView([NotNull] Controller controller, [CanBeNull] AnimationSheet parentSheet = null)
         {
             _controller = controller;
             _parentSheet = parentSheet;

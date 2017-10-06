@@ -21,6 +21,7 @@
 */
 
 using System;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Factories
 {
@@ -65,7 +66,7 @@ namespace Pixelaria.Data.Factories
         /// Returns a clone copy of the given frame
         /// </summary>
         /// <returns>A clone copy of the given frame</returns>
-        public Frame CloneFrame(IFrame frame)
+        public Frame CloneFrame([NotNull] IFrame frame)
         {
             var newFrame = frame.Clone();
 

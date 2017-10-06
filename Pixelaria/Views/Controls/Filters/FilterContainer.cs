@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
 
@@ -141,7 +141,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         /// <param name="owningSelector">The view that will own this FilterContainer</param>
         /// <param name="filter">The filter to hold on this FilterContainer</param>
-        public FilterContainer(FilterSelector owningSelector, FilterControl filter)
+        public FilterContainer(FilterSelector owningSelector, [NotNull] FilterControl filter)
         {
             InitializeComponent();
 
@@ -157,7 +157,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// Loads the given FilterControl on this FilterContainer
         /// </summary>
         /// <param name="filter">The FilterControl to hold on this FilterContainer</param>
-        public void LoadFilter(FilterControl filter)
+        public void LoadFilter([NotNull] FilterControl filter)
         {
             FilterControl = filter;
 

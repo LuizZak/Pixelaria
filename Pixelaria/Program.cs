@@ -22,7 +22,7 @@
 
 using System;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Views;
 
 namespace Pixelaria
@@ -33,7 +33,7 @@ namespace Pixelaria
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        static void Main([NotNull] string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

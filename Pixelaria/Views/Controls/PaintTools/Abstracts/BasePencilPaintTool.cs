@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 
@@ -216,7 +216,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint tool on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize([NotNull] ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 
@@ -299,7 +299,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown(MouseEventArgs e)
+        public override void MouseDown([NotNull] MouseEventArgs e)
         {
             PencilPoint = e.Location;
 
@@ -335,7 +335,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseMove(MouseEventArgs e)
+        public override void MouseMove([NotNull] MouseEventArgs e)
         {
             PencilPoint = e.Location;
 
@@ -364,7 +364,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseUp(MouseEventArgs e)
+        public override void MouseUp([NotNull] MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Middle)
             {

@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Data.Undo;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
@@ -192,7 +193,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseUp(MouseEventArgs e)
+        public override void MouseUp([NotNull] MouseEventArgs e)
         {
             Rectangle oldArea = GetCurrentRectangle(true);
 

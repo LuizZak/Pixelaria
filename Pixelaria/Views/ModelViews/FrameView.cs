@@ -411,7 +411,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="frame">The frame to edit on this form</param>
         /// <exception cref="ArgumentException">The provided frame object is not derived from the Frame class</exception>
-        public void LoadFrame(FrameController frame)
+        public void LoadFrame([NotNull] FrameController frame)
         {
             // Dispose of the current view frame
             _viewFrameController?.Dispose();
@@ -487,7 +487,7 @@ namespace Pixelaria.Views.ModelViews
             tsm_undo.Enabled = tsb_undo.Enabled = iepb_frame.UndoSystem.CanUndo;
             tsm_redo.Enabled = tsb_redo.Enabled = iepb_frame.UndoSystem.CanRedo;
 
-            if (tsb_undo.Enabled)
+            if (tsb_undo.Enabled && iepb_frame.UndoSystem.NextUndo != null)
             {
                 tsm_undo.Text = tsb_undo.ToolTipText = @"Undo " + iepb_frame.UndoSystem.NextUndo.GetDescription();
             }
@@ -497,7 +497,7 @@ namespace Pixelaria.Views.ModelViews
                 tsm_undo.Text = @"Undo";
             }
 
-            if (tsb_redo.Enabled)
+            if (tsb_redo.Enabled && iepb_frame.UndoSystem.NextRedo != null)
             {
                 tsm_redo.Text = tsb_redo.ToolTipText = @"Redo " + iepb_frame.UndoSystem.NextRedo.GetDescription();
             }
@@ -739,6 +739,8 @@ namespace Pixelaria.Views.ModelViews
         private void ClearFrame(bool registerUndo = true)
         {
             BitmapUndoTask bud = null;
+            if (iepb_frame.PictureBox.Bitmap == null)
+                return;
 
             if (registerUndo)
             {
@@ -901,7 +903,7 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="presets">The list of filter presets to populate with</param>
         /// <param name="handler">The event handler to call on click</param>
         /// <param name="tagMethod">A delegte for generating the ToolStripMenu tags</param>
-        private void PopulateMenuItem(ToolStripMenuItem menuItem, FilterPreset[] presets, EventHandler handler, Func<FilterPreset, int, object> tagMethod)
+        private void PopulateMenuItem([NotNull] ToolStripMenuItem menuItem, [NotNull] FilterPreset[] presets, EventHandler handler, Func<FilterPreset, int, object> tagMethod)
         {
             // Remove old filter items
             menuItem.DropDownItems.Clear();
@@ -933,11 +935,11 @@ namespace Pixelaria.Views.ModelViews
         /// Displays a BaseFilterView with the given FilterPreset loaded
         /// </summary>
         /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
-        private void DisplayFilterPreset(FilterPreset filterPreset)
+        private void DisplayFilterPreset([NotNull] FilterPreset filterPreset)
         {
             Bitmap filterTarget;
 
-            BitmapUndoTask but = null;
+            BitmapUndoTask undoTask = null;
 
             var undoTarget = filterTarget = _viewFrameBitmap;
 
@@ -945,51 +947,51 @@ namespace Pixelaria.Views.ModelViews
             var operation = iepb_frame.CurrentPaintTool as SelectionPaintTool;
             if (operation?.SelectionBitmap != null)
             {
-                SelectionPaintTool op = operation;
+                var op = operation;
 
                 if (op.OperationType == SelectionPaintTool.SelectionOperationType.Moved)
                 {
-                    Rectangle area = op.SelectionArea;
-                    Rectangle startArea = op.SelectionStartArea;
+                    var area = op.SelectionArea;
+                    var startArea = op.SelectionStartArea;
                     
                     op.CancelOperation(true, false);
 
-                    but = new BitmapUndoTask(undoTarget, "Filter");
+                    undoTask = new BitmapUndoTask(undoTarget, "Filter");
 
                     op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
                     op.SelectionArea = area;
                 }
                 else if (op.OperationType == SelectionPaintTool.SelectionOperationType.Paste)
                 {
-                    but = new BitmapUndoTask(undoTarget, "Filter");
+                    undoTask = new BitmapUndoTask(undoTarget, "Filter");
                 }
 
                 filterTarget = op.SelectionBitmap;
             }
             else
             {
-                but = new BitmapUndoTask(undoTarget, "Filter");
+                undoTask = new BitmapUndoTask(undoTarget, "Filter");
             }
 
             // Apply the filter
-            ImageFilterView bfv = new ImageFilterView(filterPreset, filterTarget);
+            var bfv = new ImageFilterView(filterPreset, filterTarget);
             if (bfv.ShowDialog(this) == DialogResult.OK && bfv.ChangesDetected())
             {
                 bool registerUndo = true;
 
                 if (operation?.SelectionBitmap != null)
                 {
-                    SelectionPaintTool op = operation;
+                    var op = operation;
 
                     switch (op.OperationType)
                     {
                         case SelectionPaintTool.SelectionOperationType.Moved:
-                            Rectangle area = op.SelectionArea;
-                            Rectangle startArea = op.SelectionStartArea;
+                            var area = op.SelectionArea;
+                            var startArea = op.SelectionStartArea;
 
                             op.CancelOperation(true, false);
 
-                            but?.SetNewBitmap(undoTarget);
+                            undoTask?.SetNewBitmap(undoTarget);
 
                             op.StartOperation(startArea, SelectionPaintTool.SelectionOperationType.Moved);
                             op.SelectionArea = area;
@@ -1003,7 +1005,7 @@ namespace Pixelaria.Views.ModelViews
                 }
                 else
                 {
-                    but?.SetNewBitmap(undoTarget);
+                    undoTask?.SetNewBitmap(undoTarget);
                 }
 
                 // Update the display
@@ -1011,12 +1013,12 @@ namespace Pixelaria.Views.ModelViews
                 lcp_layers.UpdateLayersDisplay();
                 MarkModified();
 
-                if (registerUndo)
-                    iepb_frame.UndoSystem.RegisterUndo(but);
+                if (registerUndo && undoTask != null)
+                    iepb_frame.UndoSystem.RegisterUndo(undoTask);
             }
             else
             {
-                but?.Clear();
+                undoTask?.Clear();
             }
 
             UpdateFilterPresetList();
@@ -1529,7 +1531,11 @@ namespace Pixelaria.Views.ModelViews
         {
             var item = sender as ToolStripMenuItem;
             if (item?.Tag is string)
-                DisplayFilterPreset(FilterStore.Instance.GetFilterPresetByName((string)item.Tag));
+            {
+                var preset = FilterStore.Instance.GetFilterPresetByName((string)item.Tag);
+                if (preset != null)
+                    DisplayFilterPreset(preset);
+            }
         }
 
         // 
@@ -1894,7 +1900,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Color Swatch color select event handler
         // 
-        private void cs_colorSwatch_ColorSelect(object sender, ColorSelectEventArgs eventArgs)
+        private void cs_colorSwatch_ColorSelect(object sender, [NotNull] ColorSelectEventArgs eventArgs)
         {
             cp_mainColorPicker.SetCurrentColor(eventArgs.Color);
         }
@@ -1904,7 +1910,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel color select event handler
         // 
-        private void iepb_frame_ColorSelect(object sender, ColorPickEventArgs eventArgs)
+        private void iepb_frame_ColorSelect(object sender, [NotNull] ColorPickEventArgs eventArgs)
         {
             if (eventArgs.TargetColor == ColorPickerColor.CurrentColor)
             {
@@ -1933,7 +1939,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel clipboard state event handler
         // 
-        private void iepb_frame_ClipboardStateChanged(object sender, ClipboardStateEventArgs eventArgs)
+        private void iepb_frame_ClipboardStateChanged(object sender, [NotNull] ClipboardStateEventArgs eventArgs)
         {
             tsm_copy.Enabled = tsb_copy.Enabled = eventArgs.CanCopy;
             tsm_cut.Enabled = tsb_cut.Enabled = eventArgs.CanCut;
@@ -1948,7 +1954,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel status changed event handler
         // 
-        private void iepb_frame_OperationStatusChanged(object sender, OperationStatusEventArgs eventArgs)
+        private void iepb_frame_OperationStatusChanged(object sender, [NotNull] OperationStatusEventArgs eventArgs)
         {
             tsl_operationLabel.Text = eventArgs.Status;
         }
@@ -1956,7 +1962,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel interceptable mouse down
         // 
-        private void iepb_frame_interceptableMouseDown(object sender, InternalPictureBoxMouseEventArgs eventArgs)
+        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] InternalPictureBoxMouseEventArgs eventArgs)
         {
             // Select first visible layer under mouse point, if the user is hitting Left Click + Alt
             if (eventArgs.Button != MouseButtons.Left || ModifierKeys != Keys.Alt)
@@ -1996,7 +2002,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Paint Tool Color Picked event handler
         // 
-        private void OnColorPicked(object sender, PaintToolColorPickedEventArgs args)
+        private void OnColorPicked(object sender, [NotNull] PaintToolColorPickedEventArgs args)
         {
             // Pick the color from the composed bitmap
             using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
@@ -2025,7 +2031,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Current Frame timeline control frame changed event handler
         // 
-        private void tc_currentFrame_FrameChanged(object sender, FrameChangedEventArgs eventArgs)
+        private void tc_currentFrame_FrameChanged(object sender, [NotNull] FrameChangedEventArgs eventArgs)
         {
             SetFrameIndex(eventArgs.NewFrame - 1);
 
@@ -2035,7 +2041,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Panel zoom change event
         // 
-        private void PictureBox_ZoomChanged(object sender, ZoomChangedEventArgs e)
+        private void PictureBox_ZoomChanged(object sender, [NotNull] ZoomChangedEventArgs e)
         {
             anud_zoom.Value = (decimal)e.NewZoom;
         }
@@ -2185,7 +2191,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // Undo/Redo Performed event handler
             // 
-            private void OnUndoTaskPerformed(object sender, UndoEventArgs undoEventArgs)
+            private void OnUndoTaskPerformed(object sender, [NotNull] UndoEventArgs undoEventArgs)
             {
                 // Switch layers based on the bitmap that was modified
                 if (undoEventArgs.Task is BasicPaintOperationUndoTask task)
@@ -2268,7 +2274,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // Layer Removed event handler
             // 
-            private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
+            private void OnLayerRemoved(object sender, [NotNull] LayerControllerLayerRemovedEventArgs args)
             {
                 // Deal with operations going on on the current frame
                 var operation = _frameView.iepb_frame.CurrentPaintTool as IAreaOperation;
@@ -2305,7 +2311,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // Layer Image Updated event handler
             // 
-            private void OnLayerImageUpdated(object sender, LayerControllerLayerImageUpdatedEventArgs args)
+            private void OnLayerImageUpdated(object sender, [NotNull] LayerControllerLayerImageUpdatedEventArgs args)
             {
                 // Update the layer image
                 _decorator.LayerStatuses = _frameView.lcp_layers.LayerStatuses;
@@ -2338,7 +2344,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // Before Layer Duplicated event handler
             // 
-            private void OnBeforeLayerDuplicated(object sender, LayerControllerLayerDuplicatedEventArgs eventArgs)
+            private void OnBeforeLayerDuplicated(object sender, [NotNull] LayerControllerLayerDuplicatedEventArgs eventArgs)
             {
                 // If the duplicated layer is the one currently active, finish any pending operations
                 if(_layerController.ActiveLayerIndex == eventArgs.LayerIndex)

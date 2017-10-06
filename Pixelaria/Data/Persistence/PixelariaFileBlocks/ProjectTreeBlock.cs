@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using JetBrains.Annotations;
+
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
     // TODO: Fill in this class once the project tree feature is done
@@ -46,7 +48,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Prepares the contents of this block to be saved based on the contents of the given Bundle
         /// </summary>
         /// <param name="bundle">The bundle to prepare this block from</param>
-        public override void PrepareFromBundle(Bundle bundle)
+        public override void PrepareFromBundle([NotNull] Bundle bundle)
         {
             base.PrepareFromBundle(bundle);
 

@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -29,6 +28,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 
@@ -53,7 +53,7 @@ namespace Pixelaria.Utils
         /// <param name="newHeight">The new height of this animation</param>
         /// <param name="scalingMethod">The scaling method to use to match this frame to the new size</param>
         /// <param name="interpolationMode">The interpolation mode to use when drawing the new frame</param>
-        public static Image Resize(Image image, int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
+        public static Image Resize([NotNull] Image image, int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
         {
             if (image.Width == newWidth && image.Height == newHeight)
                 return image;
@@ -131,7 +131,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="image">The image to find the mimimum image area</param>
         /// <returns>A Rectangle that specifies the minimum image area, clipping out all the alpha pixels</returns>
-        public static Rectangle FindMinimumImageArea(Bitmap image)
+        public static Rectangle FindMinimumImageArea([NotNull] Bitmap image)
         {
             int minImageX = 0;
             int minImageY = 0;
@@ -219,7 +219,7 @@ namespace Pixelaria.Utils
         /// <param name="foreBitmap">The foreground bitmap to draw onto the target bitmap</param>
         /// <param name="highQuality">Whether to use high quality image composition. This composition mode is considerably slower than low quality</param>
         /// <exception cref="Exception">The size of the bitmaps must be equal and both bitmaps must have a 32bpp ARGB pixel format</exception>
-        public static void FlattenBitmaps(Bitmap target, Bitmap foreBitmap, bool highQuality)
+        public static void FlattenBitmaps([NotNull] Bitmap target, [NotNull] Bitmap foreBitmap, bool highQuality)
         {
             if (target.Size != foreBitmap.Size || target.PixelFormat != PixelFormat.Format32bppArgb || foreBitmap.PixelFormat != PixelFormat.Format32bppArgb)
             {
@@ -267,7 +267,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="bitmap">The bitmap to get the hash of</param>
         /// <returns>The hash of the given bitmap</returns>
-        public static byte[] GetHashForBitmap(Bitmap bitmap)
+        public static byte[] GetHashForBitmap([NotNull] Bitmap bitmap)
         {
             using (var stream = new MemoryStream())
             {
@@ -287,7 +287,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="stream">The stream to get the hash of</param>
         /// <returns>The hash of the given stream</returns>
-        public static byte[] GetHashForStream(Stream stream)
+        public static byte[] GetHashForStream([NotNull] Stream stream)
         {
             // Compute a hash for the image
             return ShaM.ComputeHash(stream);
@@ -297,8 +297,8 @@ namespace Pixelaria.Utils
         /// Returns the memory usage of the given image, in bytes
         /// </summary>
         /// <returns>Total memory usage, in bytes</returns>
-        [Pure]
-        public static long MemoryUsageOfImage(Image image)
+        [System.Diagnostics.Contracts.Pure]
+        public static long MemoryUsageOfImage([NotNull] Image image)
         {
             return image.Width * image.Height * BitsPerPixelForFormat(image.PixelFormat) / 8;
         }
@@ -308,7 +308,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="pixelFormat">The PixelFormat to get the pixel usage from</param>
         /// <returns>The total bits per pixel used by the given PixelFormat type</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static int BitsPerPixelForFormat(PixelFormat pixelFormat)
         {
             return Image.GetPixelFormatSize(pixelFormat);
@@ -321,7 +321,7 @@ namespace Pixelaria.Utils
         /// <param name="image1">The first image to compare</param>
         /// <param name="image2">The second image to compare</param>
         /// <returns>True whether the two images are identical, false otherwise</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         public static bool ImagesAreIdentical(Image image1, Image image2)
         {
             if (image1 == null || image2 == null)
@@ -364,7 +364,7 @@ namespace Pixelaria.Utils
         /// <param name="b1">The first bitmap to compare</param>
         /// <param name="b2">The second bitmap to compare</param>
         /// <returns>Whether the two bitmaps are identical</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
         {
             var bd1 = b1.LockBits(new Rectangle(Point.Empty, b1.Size), ImageLockMode.ReadOnly, b1.PixelFormat);
@@ -390,7 +390,7 @@ namespace Pixelaria.Utils
         /// <param name="b2">The pointer to the second memory segment</param>
         /// <param name="count">The number of bytes to compare</param>
         /// <returns>0 if the memory segments are identical</returns>
-        [Pure]
+        [System.Diagnostics.Contracts.Pure]
         [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int memcmp(IntPtr b1, IntPtr b2, long count);
     }

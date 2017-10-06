@@ -24,7 +24,7 @@ using System;
 
 using System.Threading;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
@@ -139,7 +139,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         // Form Closing event handler
         // 
-        protected override void OnFormClosing(FormClosingEventArgs e)
+        protected override void OnFormClosing([NotNull] FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing && !_canClose)
             {

@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls
@@ -354,7 +355,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="owningControl">The control that owns this SheetPreviewPictureBox. Used to hook the mouse wheel listener</param>
         /// <param name="wheelClipBoundsControl">The control to use the bounds of to clip the mouse wheel event. Setting to null uses this control as bounds</param>
-        public void HookToControl(Control owningControl, Control wheelClipBoundsControl = null)
+        public void HookToControl([NotNull] Control owningControl, Control wheelClipBoundsControl = null)
         {
             owningControl.MouseWheel += ZoomablePictureBox_MouseWheel;
             boundsControl = wheelClipBoundsControl ?? this;
@@ -431,7 +432,7 @@ namespace Pixelaria.Views.Controls
         /// ZoomablePictureBox instance
         /// </summary>
         /// <param name="graphics">The Graphics object to update</param>
-        protected virtual void UpdateGraphicsTransform(Graphics graphics)
+        protected virtual void UpdateGraphicsTransform([NotNull] Graphics graphics)
         {
             graphics.PixelOffsetMode = PixelOffsetMode.Half;
             graphics.InterpolationMode = ImageInterpolationMode;
@@ -482,7 +483,7 @@ namespace Pixelaria.Views.Controls
         // 
         // Horizontal Scrollbar scroll event
         // 
-        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
+        private void hScrollBar_Scroll(object sender, [NotNull] ScrollEventArgs e)
         {
             offsetPoint.X = e.NewValue;
             Invalidate();
@@ -493,7 +494,7 @@ namespace Pixelaria.Views.Controls
         // 
         // Vertical Scrollbar scroll event
         // 
-        private void vScrollBar_Scroll(object sender, ScrollEventArgs e)
+        private void vScrollBar_Scroll(object sender, [NotNull] ScrollEventArgs e)
         {
             offsetPoint.Y = e.NewValue;
             Invalidate();

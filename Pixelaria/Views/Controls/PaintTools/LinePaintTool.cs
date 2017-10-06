@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 
@@ -98,7 +99,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize([NotNull] ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 
@@ -145,7 +146,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown(MouseEventArgs e)
+        public override void MouseDown([NotNull] MouseEventArgs e)
         {
             base.MouseDown(e);
 
@@ -229,7 +230,9 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="size">The size of the line to draw</param>
         /// <param name="recordUndo">Whether to generate an undo operation for this line operation</param>
         /// <returns>An undo task for the line operation, or null, if recordUndo is false</returns>
-        public static PerPixelUndoTask PerformLineOperation(Color color, Point firstPoint, Point secondPoint, Bitmap bitmap, CompositingMode compositingMode, int size, bool recordUndo)
+        [CanBeNull]
+        public static PerPixelUndoTask PerformLineOperation(Color color, Point firstPoint, Point secondPoint,
+            [NotNull] Bitmap bitmap, CompositingMode compositingMode, int size, bool recordUndo)
         {
             PlottingPaintUndoGenerator generator = null;
 

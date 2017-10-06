@@ -27,6 +27,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -296,7 +297,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="frame">The second frame to test</param>
         /// <returns>Whether this frame's contents match another frame's</returns>
-        public bool Equals(Frame frame)
+        public bool Equals([NotNull] Frame frame)
         {
             if (Width != frame.Width || Height != frame.Height)
                 return false;
@@ -558,7 +559,7 @@ namespace Pixelaria.Data
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Frame other = (Frame) obj;
+            var other = (Frame) obj;
 
             if (Layers.Count != other.Layers.Count || Hash == null || other.Hash == null || !Utilities.ByteArrayCompare(Hash, other.Hash) ||
                 Width != other.Width || Height != other.Height)
@@ -723,7 +724,7 @@ namespace Pixelaria.Data
             /// </summary>
             /// <param name="bitmap">The bitmap to copy to this layer</param>
             /// <exception cref="ArgumentException">The bitmap's dimensions don't match this layer's dimensions</exception>
-            public void CopyFromBitmap(Bitmap bitmap)
+            public void CopyFromBitmap([NotNull] Bitmap bitmap)
             {
                 if (bitmap.Width != LayerBitmap.Width || bitmap.Height != LayerBitmap.Height)
                 {

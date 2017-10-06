@@ -28,6 +28,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Data.Undo;
 using Pixelaria.Views.Controls.ColorControls;
@@ -268,7 +269,9 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public void Init()
         {
-            _internalPictureBox.HookToControl(FindForm());
+            var form = FindForm();
+            if (form != null)
+                _internalPictureBox.HookToControl(form);
         }
 
         /// <summary>
@@ -286,7 +289,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="bitmap">The Bitmap to edit</param>
         /// <param name="clearUndoSystem">Whether to clear the undo system when changing images</param>
-        public void LoadBitmap(Bitmap bitmap, bool clearUndoSystem = true)
+        public void LoadBitmap([NotNull] Bitmap bitmap, bool clearUndoSystem = true)
         {
             if(clearUndoSystem)
             {
@@ -425,6 +428,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets the Bitmap associated with this InternalPictureBox
             /// </summary>
+            [CanBeNull]
             public Bitmap Bitmap => Image as Bitmap;
 
             /// <summary>
@@ -536,7 +540,7 @@ namespace Pixelaria.Views.Controls
             /// Sets the bitmap being edited
             /// </summary>
             /// <param name="bitmap">The bitmap to edit</param>
-            public void SetBitmap(Bitmap bitmap)
+            public void SetBitmap([NotNull] Bitmap bitmap)
             {
                 Image = bitmap;
 
@@ -624,7 +628,7 @@ namespace Pixelaria.Views.Controls
             /// Paints the background of this PictureBox using the given PaintEventArgs
             /// </summary>
             /// <param name="pe">The PaintEventArgs to use on the paint background event</param>
-            public void PaintBackground(PaintEventArgs pe)
+            public void PaintBackground([NotNull] PaintEventArgs pe)
             {
                 OnPaintBackground(pe);
             }
@@ -633,7 +637,7 @@ namespace Pixelaria.Views.Controls
             /// Adds a decorator to this picture box
             /// </summary>
             /// <param name="decorator">The decorator to add to this picture box</param>
-            public void AddDecorator(PictureBoxDecorator decorator)
+            public void AddDecorator([NotNull] PictureBoxDecorator decorator)
             {
                 _pictureBoxDecorators.Add(decorator);
                 decorator.AddedToPictureBox(this);
@@ -1039,7 +1043,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="targetBitmap">The target bitmap for this BitmapUndoTask</param>
         /// <param name="description">A short description for this BitmapUndoTask</param>
         /// <param name="drawPoint">The point at which to draw the bitmaps when undoing/redoing</param>
-        public BitmapUndoTask(Bitmap targetBitmap, string description, Point drawPoint = new Point())
+        public BitmapUndoTask([NotNull] Bitmap targetBitmap, string description, Point drawPoint = new Point())
             : base(targetBitmap)
         {
             _targetBitmap = targetBitmap;

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Exports
@@ -85,7 +86,7 @@ namespace Pixelaria.Data.Exports
         /// Inserts the frames of a given animation into this texture atlas
         /// </summary>
         /// <param name="animation">The animatio to insert the frames to</param>
-        public void InsertFramesFromAnimation(Animation animation)
+        public void InsertFramesFromAnimation([NotNull] Animation animation)
         {
             foreach (var frame in animation.Frames)
             {
@@ -222,7 +223,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Returns the reuse count for a given frame on this texture atlas
         /// </summary>
-        public int ReuseCountForFrame(IFrame frame)
+        public int ReuseCountForFrame([NotNull] IFrame frame)
         {
             var index = _boundsMap.SheetIndexForFrame(frame);
             return _boundsMap.CountOfFramesAtSheetBoundsIndex(index);

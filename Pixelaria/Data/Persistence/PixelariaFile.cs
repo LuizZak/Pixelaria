@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 using Pixelaria.Data.Persistence.PixelariaFileBlocks;
 
 namespace Pixelaria.Data.Persistence
@@ -124,7 +125,7 @@ namespace Pixelaria.Data.Persistence
         // 
         // AddBlock override
         // 
-        public override void AddBlock(FileBlock block)
+        public override void AddBlock([NotNull] FileBlock block)
         {
             base.AddBlock(block);
 

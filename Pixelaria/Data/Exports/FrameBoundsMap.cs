@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Exports
 {
@@ -60,7 +61,8 @@ namespace Pixelaria.Data.Exports
             
         }
 
-        private FrameBoundsMap(IDictionary<int, int> frameSheetBoundsMap, IDictionary<int, Rectangle> frameLocalBoundsMap, IEnumerable<Rectangle> sheetBounds)
+        private FrameBoundsMap([NotNull] IDictionary<int, int> frameSheetBoundsMap, [NotNull] IDictionary<int, Rectangle> frameLocalBoundsMap,
+            [NotNull] IEnumerable<Rectangle> sheetBounds)
         {
             _frameSheetBoundsMap = new Dictionary<int, int>(frameSheetBoundsMap);
             _frameLocalBoundsMap = new Dictionary<int, Rectangle>(frameLocalBoundsMap);
@@ -82,7 +84,7 @@ namespace Pixelaria.Data.Exports
         /// <param name="frames">Shared frames with the same bounds</param>
         /// <param name="localBounds">Local bounds for the frames</param>
         /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-        public void RegisterFrames(IEnumerable<IFrame> frames, Rectangle localBounds)
+        public void RegisterFrames([NotNull] IEnumerable<IFrame> frames, Rectangle localBounds)
         {
             int sheetIndex = _sheetBounds.Count;
 
@@ -112,7 +114,7 @@ namespace Pixelaria.Data.Exports
         /// An exception is thrown, if the count of new bounds do not match the current count of sheets
         /// </summary>
         /// <exception cref="ArgumentException">The newBounds enumerable has a count different than SheetBounds.Count</exception>
-        public void ReplaceSheetBounds(IEnumerable<Rectangle> newBounds)
+        public void ReplaceSheetBounds([NotNull] IEnumerable<Rectangle> newBounds)
         {
             var newList = new List<Rectangle>(newBounds);
             if (newList.Count != _sheetBounds.Count)
@@ -127,7 +129,7 @@ namespace Pixelaria.Data.Exports
         /// Gets the rectangle for a given frame.
         /// Returns null, if no rectangle was found
         /// </summary>
-        public Rectangle? GetSheetBoundsForFrame(IFrame frame)
+        public Rectangle? GetSheetBoundsForFrame([NotNull] IFrame frame)
         {
             if (_frameSheetBoundsMap.TryGetValue(frame.ID, out int index))
             {
@@ -140,7 +142,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets the local image bounds for a given frame
         /// </summary>
-        public Rectangle? GetLocalBoundsForFrame(IFrame frame)
+        public Rectangle? GetLocalBoundsForFrame([NotNull] IFrame frame)
         {
             if (_frameLocalBoundsMap.TryGetValue(frame.ID, out Rectangle bounds))
             {
@@ -156,7 +158,7 @@ namespace Pixelaria.Data.Exports
         /// This method throws an exception if the frame passed in does not have an id set (-1).
         /// </summary>
         /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-        public void SetSheetBoundsForFrame(IFrame frame, Rectangle sheetBounds)
+        public void SetSheetBoundsForFrame([NotNull] IFrame frame, Rectangle sheetBounds)
         {
             int index = SheetIndexForFrame(frame);
             _sheetBounds[index] = sheetBounds;
@@ -168,7 +170,7 @@ namespace Pixelaria.Data.Exports
         /// This method throws an exception if the frame passed in does not have an id set (-1).
         /// </summary>
         /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-        public void SetLocalBoundsForFrame(IFrame frame, Rectangle localBounds)
+        public void SetLocalBoundsForFrame([NotNull] IFrame frame, Rectangle localBounds)
         {
             // Check invalid id
             if (frame.ID == -1)
@@ -192,7 +194,7 @@ namespace Pixelaria.Data.Exports
         /// This method throws an exception if the frame passed in does not have an id set (-1).
         /// </summary>
         /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-        public bool ShareSheetBoundsForFrames(IFrame frame1, IFrame frame2)
+        public bool ShareSheetBoundsForFrames([NotNull] IFrame frame1, [NotNull] IFrame frame2)
         {
             // Find current indexes on map dictionary
             int frame1Index = SheetIndexForFrame(frame1);
@@ -218,7 +220,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <returns>Whether the operation succeeded, that is, the frame had a shared bounds and it was split to be unique to this frame. Returns false, if frame was already unique.</returns>
         /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-        public bool SplitSharedSheetBoundsForFrame(IFrame frame)
+        public bool SplitSharedSheetBoundsForFrame([NotNull] IFrame frame)
         {
             // Checks uniqueness of frame
             var index = SheetIndexForFrame(frame);
@@ -240,7 +242,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Returns whether this frame bounds map contains information pertaininig to a given frame
         /// </summary>
-        public bool ContainsFrame(IFrame frame)
+        public bool ContainsFrame([NotNull] IFrame frame)
         {
             return _frameSheetBoundsMap.ContainsKey(frame.ID) && _frameLocalBoundsMap.ContainsKey(frame.ID);
         }
@@ -267,7 +269,7 @@ namespace Pixelaria.Data.Exports
         /// This method throws an exception if the frame passed in does not have an id set (-1).
         /// </summary>
         /// <exception cref="ArgumentException">The IFrame instance passed in has an id of -1, or is not initialized</exception>
-        public int SheetIndexForFrame(IFrame frame)
+        public int SheetIndexForFrame([NotNull] IFrame frame)
         {
             // Check invalid id
             if (frame.ID == -1)

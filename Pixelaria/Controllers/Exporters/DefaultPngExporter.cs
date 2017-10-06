@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -144,8 +145,9 @@ namespace Pixelaria.Controllers.Exporters
                     var sheet = new Dictionary<string, object>();
 
                     // Path of final JSON file
-                    var filePath = Utilities.GetRelativePath(Path.ChangeExtension(export.ExportPath, "json"),
-                        bundle.ExportPath);
+                    var jsonName = Path.ChangeExtension(export.ExportPath, "json");
+                    Debug.Assert(jsonName != null, "jsonName != null");
+                    var filePath = Utilities.GetRelativePath(jsonName, bundle.ExportPath);
 
                     sheet["name"] = export.SheetName;
                     sheet["sprite_file"] = filePath;

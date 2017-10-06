@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
@@ -113,7 +113,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
+        [CanBeNull]
+        public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, [NotNull] Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
             ShapeUndoTask returnTask = null;
 
@@ -152,7 +153,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="bitmap">The Bitmap to draw the rectangle on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the rectangle</param>
         /// <param name="fillMode">The fill mode for this rectangle operation</param>
-        public static void PerformRectangleOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static void PerformRectangleOperation(Color firstColor, Color secondColor, Rectangle area,
+            [NotNull] Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             Graphics graphics = Graphics.FromImage(bitmap);
 

@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
@@ -125,7 +126,7 @@ namespace Pixelaria.Algorithms.Packers
             atlas.Information.ReusedFrameOriginsCount = atlas.FrameCount - frameBoundsMap.SheetBounds.Length;
         }
         
-        private FrameBoundsMap PrepareAtlas(TextureAtlas atlas, int frameWidth = -1, int frameHeight = -1)
+        private FrameBoundsMap PrepareAtlas([NotNull] TextureAtlas atlas, int frameWidth = -1, int frameHeight = -1)
         {
             var boundsMap = new FrameBoundsMap();
 
@@ -176,7 +177,7 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="atlasHeight">The out atlas height</param>
         /// <param name="cancellationToken">A cancellation token that can be used to abort the export process</param>
         /// <returns>The minimum area width that was calculated</returns>
-        private int IterateAtlasSize(TextureAtlas atlas, Rectangle[] frameBounds, int minAreaWidth, out uint atlasWidth, out uint atlasHeight, CancellationToken cancellationToken)
+        private int IterateAtlasSize([NotNull] TextureAtlas atlas, Rectangle[] frameBounds, int minAreaWidth, out uint atlasWidth, out uint atlasHeight, CancellationToken cancellationToken)
         {
             float minRatio = 0;
             int minArea = int.MaxValue;
@@ -259,7 +260,7 @@ namespace Pixelaria.Algorithms.Packers
         /// Calculates the information of the maximum sheet and frame size from a set of frames
         /// </summary>
         /// <param name="frameList">The list of frames to iterate over to calculate the maximum sheet and frame size</param>
-        private void CalculateMaximumSizes(List<IFrame> frameList)
+        private void CalculateMaximumSizes([NotNull] List<IFrame> frameList)
         {
             _maxWidthReal = 0;
 
@@ -302,7 +303,7 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="atlasHeight">At output atlas height uint</param>
         /// <param name="maxWidth">The maximum width the generated sheet can have</param>
         /// <returns>An array of rectangles, where each index matches the original passed Rectangle array, and marks the final computed bounds of the rectangle frames calculated</returns>
-        private Rectangle[] InternalPack(AnimationExportSettings exportSettings, Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth)
+        private Rectangle[] InternalPack(AnimationExportSettings exportSettings, [NotNull] Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth)
         {
             // Cache some fields as locals
             int x = exportSettings.XPadding;
@@ -365,7 +366,7 @@ namespace Pixelaria.Algorithms.Packers
         /// From a list of frames, marks all the identical frames on the instance frame comparision object
         /// </summary>
         /// <param name="frameList">The list of frames to identify the identical copies</param>
-        private void MarkIdenticalFramesFromList(List<IFrame> frameList)
+        private void MarkIdenticalFramesFromList([NotNull] List<IFrame> frameList)
         {
             // Pre-update the frame hashes
             foreach (var frame in frameList)
@@ -511,9 +512,14 @@ namespace Pixelaria.Algorithms.Packers
             //     Greater than zero    x is greater than y.
             public int Compare(IFrame x, IFrame y)
             {
+                if (y == null)
+                    return -1;
+                if (x == null)
+                    return 1;
+
                 // Get the frame areas
-                Rectangle minFrameX = GetFrameArea(x);
-                Rectangle minFrameY = GetFrameArea(y);
+                var minFrameX = GetFrameArea(x);
+                var minFrameY = GetFrameArea(y);
 
                 int xArea = minFrameX.Width * minFrameX.Height;
                 int yArea = minFrameY.Width * minFrameY.Height;
@@ -526,7 +532,7 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             /// <param name="frame">The Frame object to get the area of</param>
             /// <returns>A Rectangle representing the Frame's area</returns>
-            public Rectangle GetFrameArea(IFrame frame)
+            public Rectangle GetFrameArea([NotNull] IFrame frame)
             {
                 // Try to find the already-computed frame area first
 
@@ -555,7 +561,7 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             /// <param name="frame1">The first frame to register</param>
             /// <param name="frame2">The second frame to register</param>
-            public void RegisterSimilarFrames(IFrame frame1, IFrame frame2)
+            public void RegisterSimilarFrames([NotNull] IFrame frame1, [NotNull] IFrame frame2)
             {
                 // Check existence of either frames in the matrix index dictionary
                 if (!_similarMatrixIndexDictionary.TryGetValue(frame1.ID, out int index) && !_similarMatrixIndexDictionary.TryGetValue(frame2.ID, out index))
@@ -580,7 +586,7 @@ namespace Pixelaria.Algorithms.Packers
             /// </summary>
             /// <param name="frame">The frame to seek the original similar frame from</param>
             /// <returns>The first frame inserted that is similar to the given frame. If the given frame is the original similar frame, null is returned. If no similar frames were stored, null is returned.</returns>
-            public IFrame GetOriginalSimilarFrame(IFrame frame)
+            public IFrame GetOriginalSimilarFrame([NotNull] IFrame frame)
             {
                 if (_similarMatrixIndexDictionary.TryGetValue(frame.ID, out int index))
                 {

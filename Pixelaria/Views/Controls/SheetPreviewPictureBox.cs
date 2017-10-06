@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data.Exports;
 using Pixelaria.Views.Controls.PaintTools;
@@ -258,7 +259,7 @@ namespace Pixelaria.Views.Controls
         /// Loads a bundle sheet export preview
         /// </summary>
         /// <param name="bundleSheetExport">The bundle sheet export containing data about the exported image</param>
-        public void LoadExportSheet(BundleSheetExport bundleSheetExport)
+        public void LoadExportSheet([NotNull] BundleSheetExport bundleSheetExport)
         {
             UnloadExportSheet();
 

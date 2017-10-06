@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Clipboard
@@ -183,7 +184,7 @@ namespace Pixelaria.Data.Clipboard
         /// Initializes a new FrameListClipboardObject with a list of frames to 
         /// </summary>
         /// <param name="frameList">A list of frames to initialize the internal frame list with</param>
-        public FrameListClipboardObject(IEnumerable<FrameController> frameList)
+        public FrameListClipboardObject([NotNull] IEnumerable<FrameController> frameList)
         {
             _frameList = new List<FrameController>(frameList);
         }
@@ -192,7 +193,7 @@ namespace Pixelaria.Data.Clipboard
         /// Adds the given Frame to this FrameListClipboardObject instance
         /// </summary>
         /// <param name="frame">The frame to add</param>
-        public void AddFrame(FrameController frame)
+        public void AddFrame([NotNull] FrameController frame)
         {
             _frameList.Add(frame);
         }
@@ -253,7 +254,7 @@ namespace Pixelaria.Data.Clipboard
         /// Initializes a new AnimationListClipboardObject with a list of frames to 
         /// </summary>
         /// <param name="animList">A list of animations to initialize the internal animation list with</param>
-        public AnimationListClipboardObject(List<Animation> animList)
+        public AnimationListClipboardObject([NotNull] List<Animation> animList)
         {
             _animList = new List<Animation>(animList);
         }
@@ -262,7 +263,7 @@ namespace Pixelaria.Data.Clipboard
         /// Adds the given Animation to this AnimationListClipboardObject instance
         /// </summary>
         /// <param name="anim">The frame to add</param>
-        public void AddAnimation(Animation anim)
+        public void AddAnimation([NotNull] Animation anim)
         {
             _animList.Add(anim);
         }
@@ -302,14 +303,9 @@ namespace Pixelaria.Data.Clipboard
         public static readonly string DataType = "ImageStream";
 
         /// <summary>
-        /// The stream that contains the image data
-        /// </summary>
-        private readonly Stream _imageStream;
-
-        /// <summary>
         /// Gets the stream that contains the image data
         /// </summary>
-        public Stream ImageStream => _imageStream;
+        public Stream ImageStream { get; }
 
         /// <summary>
         /// Initializes a new instance of the ImageStreamClipboardObject class with a stream to initialzie the stream with
@@ -317,7 +313,7 @@ namespace Pixelaria.Data.Clipboard
         /// <param name="stream">The stream containing the image data</param>
         public ImageStreamClipboardObject(Stream stream)
         {
-            _imageStream = stream;
+            ImageStream = stream;
         }
 
         /// <summary>
@@ -325,7 +321,7 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            _imageStream.Dispose();
+            ImageStream.Dispose();
         }
 
         /// <summary>

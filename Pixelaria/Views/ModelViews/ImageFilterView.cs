@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
 using Pixelaria.Filters;
 
@@ -39,7 +40,7 @@ namespace Pixelaria.Views.ModelViews
         /// Initializes a new instance of the BaseFilterView class
         /// </summary>
         /// <param name="bitmap">A bitmap to apply the filter to</param>
-        private ImageFilterView(Bitmap bitmap)
+        private ImageFilterView([NotNull] Bitmap bitmap)
         {
             InitializeComponent();
 
@@ -55,7 +56,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
         /// <param name="bitmap">A bitmap to apply the filter to</param>
-        public ImageFilterView(FilterControl[] filters, Bitmap bitmap)
+        public ImageFilterView([NotNull] FilterControl[] filters, [NotNull] Bitmap bitmap)
             : this(bitmap)
         {
             fs_filters.LoadFilters(filters);
@@ -66,7 +67,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="preset">A FilterPreset that contains data about filters to load on this BaseFilterView</param>
         /// <param name="bitmap">A bitmap to apply the filter to</param>
-        public ImageFilterView(FilterPreset preset, Bitmap bitmap)
+        public ImageFilterView([NotNull] FilterPreset preset, [NotNull] Bitmap bitmap)
             : this(bitmap)
         {
             fs_filters.LoadFilterPreset(preset);

@@ -26,7 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using FastBitmapLib;
-
+using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Utils;
 
@@ -150,7 +150,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
         /// <returns>The layer that was just created</returns>
         /// <exception cref="ArgumentException">The provided bitmap's dimensions does not match the Frame's dimensions, or its pixel format isn't 32bpp</exception>
-        public IFrameLayer AddLayer(Bitmap bitmap, int layerIndex = -1)
+        public IFrameLayer AddLayer([NotNull] Bitmap bitmap, int layerIndex = -1)
         {
             if (!_frame.Initialized)
             {
@@ -180,7 +180,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// The provided layers's dimensions does not match this Frame's dimensions, or the provided layers's type
         /// is not compatible with the Frame object, or the provided layer is already stored in a Frame object
         /// </exception>
-        public void AddLayer(IFrameLayer layer, int layerIndex = -1)
+        public void AddLayer([NotNull] IFrameLayer layer, int layerIndex = -1)
         {
             if (!_frame.Initialized)
             {
@@ -292,7 +292,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// <param name="layerBitmap">The new layer bitmap</param>
         /// <param name="updateHash">Whether to update the frame's hash after the operation</param>
         /// <exception cref="ArgumentException">The dimensions of the bitmap don't match this frame's size, or its pixel format isn't 32bpp</exception>
-        public void SetLayerBitmap(int layerIndex, Bitmap layerBitmap, bool updateHash = true)
+        public void SetLayerBitmap(int layerIndex, [NotNull] Bitmap layerBitmap, bool updateHash = true)
         {
             if (!_frame.Initialized)
             {
@@ -320,7 +320,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// </summary>
         /// <param name="bitmap">The new frame bitmap</param>
         /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
-        public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
+        public void SetFrameBitmap([NotNull] Bitmap bitmap, bool updateHash = true)
         {
             if (!_frame.Initialized)
             {

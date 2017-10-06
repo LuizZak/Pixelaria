@@ -27,7 +27,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.ColorControls
@@ -276,7 +276,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// position of the mouse during the event, and assign a value based on this position relative to the slider
         /// </summary>
         /// <param name="e">The mouse event args to use to manipulate the mouse</param>
-        private void UpdateValueForMouseEvent(MouseEventArgs e)
+        private void UpdateValueForMouseEvent([NotNull] MouseEventArgs e)
         {
             float value = GetValueForXOffset(e.X - knobDraggingOffset);
 
@@ -323,7 +323,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         //
         // Value rich text box key down
         //
-        private void rtb_value_KeyDown(object sender, KeyEventArgs e)
+        private void rtb_value_KeyDown(object sender, [NotNull] KeyEventArgs e)
         {
                 // Numeric keys above letters
             if (!((e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9) ||
@@ -635,7 +635,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Draws the slider's label on a given Graphics object
         /// </summary>
         /// <param name="g">A valid Graphics object to draw the label to</param>
-        private void DrawLabel(Graphics g)
+        private void DrawLabel([NotNull] Graphics g)
         {
             // Draw the string
             g.DrawString(GetNameForSliderComponent(ColorComponent) + ":", Font, Brushes.Black, new PointF(6, 1.5f));
@@ -645,7 +645,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Draw the slider's contents on a given Graphics object
         /// </summary>
         /// <param name="g">A valid Graphics object to draw the slider to</param>
-        private void DrawSlider(Graphics g)
+        private void DrawSlider([NotNull] Graphics g)
         {
             GraphicsPath path = GenerateSliderGraphicsPath();
 
@@ -691,7 +691,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Draw the slider's knob on a given Graphics object
         /// </summary>
         /// <param name="g">A valid Graphics object to draw the knob to</param>
-        private void DrawKnob(Graphics g)
+        private void DrawKnob([NotNull] Graphics g)
         {
             Pen basePen = (Pen)Pens.DarkGray.Clone();
             basePen.Width = 4;

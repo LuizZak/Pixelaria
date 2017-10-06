@@ -22,6 +22,7 @@
 
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using Pixelaria.Data;
 
 namespace Pixelaria.Controllers.Validators
@@ -52,7 +53,7 @@ namespace Pixelaria.Controllers.Validators
         /// <param name="name">The Animation name to validate</param>
         /// <param name="anim">The Animation that the field is comming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid.</returns>
-        public string ValidateAnimationName(string name, Animation anim = null)
+        public string ValidateAnimationName([NotNull] string name, Animation anim = null)
         {
             if (name.Trim() == "")
                 return "The name of the animation cannot be empty";
@@ -121,7 +122,7 @@ namespace Pixelaria.Controllers.Validators
         /// <param name="name">The AnimationSheet name to validate</param>
         /// <param name="sheet">The AnimationSheet the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid.</returns>
-        public string ValidateAnimationSheetName(string name, AnimationSheet sheet = null)
+        public string ValidateAnimationSheetName([NotNull] string name, AnimationSheet sheet = null)
         {
             if (name.Trim() == "")
                 return "The name of the animation sheet cannot be empty";
@@ -149,7 +150,7 @@ namespace Pixelaria.Controllers.Validators
         /// </summary>
         /// <param name="text">The string to validate</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid.</returns>
-        private string IsStringValidFileName(string text)
+        private static string IsStringValidFileName([NotNull] string text)
         {
             if (text.Trim() == "")
                 return "The file name cannot be empty.";

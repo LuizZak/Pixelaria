@@ -22,12 +22,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 using Pixelaria.Utils;
@@ -108,7 +109,7 @@ namespace Pixelaria.Data.Exports
         /// as a base path, and savind the .png and .json as that base path
         /// </summary>
         /// <param name="basePath">The base path to export the animations as</param>
-        public void SaveToDisk(string basePath)
+        public void SaveToDisk([NotNull] string basePath)
         {
             SaveToDisk(Path.GetFullPath(basePath) + ".png", Path.GetFullPath(basePath) + ".json");
         }
@@ -118,7 +119,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="sheetPath">The path to the sprite sheet to save</param>
         /// <param name="jsonPath">The path to the JSON file containing the data for the animations</param>
-        public void SaveToDisk(string sheetPath, string jsonPath)
+        public void SaveToDisk([NotNull] string sheetPath, [NotNull] string jsonPath)
         {
             // Save the sprite sheet first
             Sheet.Save(sheetPath, ImageFormat.Png);
@@ -136,7 +137,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="sheetPath">The path of the animation sheet image to reference in the descriptor file</param>
         /// <param name="descriptorPath">The path of the descriptor file</param>
-        public void SaveDescriptorToDisk(string sheetPath, string descriptorPath)
+        public void SaveDescriptorToDisk([NotNull] string sheetPath, [NotNull] string descriptorPath)
         {
             var animations = new List<Dictionary<string, object>>();
 
@@ -162,6 +163,7 @@ namespace Pixelaria.Data.Exports
                         continue;
 
                     var rect = GetFrameRectForFrame(frame);
+                    Debug.Assert(rect != null, "rect != null");
 
                     var bounds = new Dictionary<string, object>
                     {
@@ -217,6 +219,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="frame">The Frame to get the corresponding FrameRect</param>
         /// <returns>The FrameRect object that represents the given Frame. If no FrameRect represents the given frame, null is returned.</returns>
+        [CanBeNull]
         public FrameRect GetFrameRectForFrame(IFrame frame)
         {
             return FrameRects.FirstOrDefault(frameRect => ReferenceEquals(frameRect.Frame, frame));
@@ -227,7 +230,7 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="atlas">The TextureAtlas to import</param>
         /// <returns>A new BundleSheetExport created from the given TextureAtlas</returns>
-        public static BundleSheetExport FromAtlas(TextureAtlas atlas)
+        public static BundleSheetExport FromAtlas([NotNull] TextureAtlas atlas)
         {
             //
             // 1. Generate final export image

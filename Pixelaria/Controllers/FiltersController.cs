@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Controllers
@@ -51,7 +52,7 @@ namespace Pixelaria.Controllers
         /// Adds a set of filters to this filters controller
         /// </summary>
         /// <param name="filters">The filters to save</param>
-        public void AddFilters(IFilter[] filters)
+        public void AddFilters([NotNull] IFilter[] filters)
         {
             if (filters.Length == 0)
                 return;
@@ -66,7 +67,7 @@ namespace Pixelaria.Controllers
         /// Adds a new filter preset to this filters controller
         /// </summary>
         /// <param name="preset">The filter preset to save</param>
-        public void AddFilterPreset(FilterPreset preset)
+        public void AddFilterPreset([NotNull] FilterPreset preset)
         {
             var matching = MatchingPreset(preset);
 
@@ -96,7 +97,8 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="preset">The filter preset to search using the .Equals(FilterPreset) method</param>
         /// <returns>A FilterPreset matching the given preset by using the .Equals(FilterPreset) method, or null, if none are found</returns>
-        public FilterPreset MatchingPreset(FilterPreset preset)
+        [CanBeNull]
+        public FilterPreset MatchingPreset([NotNull] FilterPreset preset)
         {
             return _presets.FirstOrDefault(preset.Equals);
         }

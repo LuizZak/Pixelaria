@@ -23,9 +23,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
@@ -52,7 +53,7 @@ namespace Pixelaria.Views.ModelViews
         /// Initializes a new instance of the AnimationFilterView class
         /// </summary>
         /// <param name="animation">The animation to show the filter to</param>
-        public AnimationFilterView(AnimationController animation)
+        public AnimationFilterView([NotNull] AnimationController animation)
         {
             InitializeComponent();
 
@@ -75,7 +76,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
         /// <param name="animation">The animation to apply the filter to</param>
-        public AnimationFilterView(FilterControl[] filters, AnimationController animation)
+        public AnimationFilterView([NotNull] FilterControl[] filters, [NotNull] AnimationController animation)
             : this(animation)
         {
             fs_filters.LoadFilters(filters);
@@ -86,7 +87,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="preset">A FilterPreset that contains data about filters to load on this BaseFilterView</param>
         /// <param name="animation">The animation to apply the filter to</param>
-        public AnimationFilterView(FilterPreset preset, AnimationController animation)
+        public AnimationFilterView([NotNull] FilterPreset preset, [NotNull] AnimationController animation)
             : this(animation)
         {
             fs_filters.LoadFilterPreset(preset);
@@ -157,7 +158,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Timeline frame changed
         // 
-        private void tc_timeline_FrameChanged(object sender, FrameChangedEventArgs eventArgs)
+        private void tc_timeline_FrameChanged(object sender, [NotNull] FrameChangedEventArgs eventArgs)
         {
             SetDisplayFrame(_animation.GetFrameController(_animation.GetFrameAtIndex(eventArgs.NewFrame - 1)).GetComposedBitmap());
         }

@@ -67,19 +67,10 @@ namespace Pixelaria.Controllers
         /// </summary>
         readonly MainForm _mainForm;
 
-        private Bundle _currentBundle;
-
         /// <summary>
         /// Gets the current bundle opened on the application
         /// </summary>
-        public Bundle CurrentBundle
-        {
-            get => _currentBundle;
-            private set
-            {
-                _currentBundle = value;
-            }
-        }
+        public Bundle CurrentBundle { get; private set; }
 
         /// <summary>
         /// Gets an array of the current files opened in the program
@@ -204,7 +195,7 @@ namespace Pixelaria.Controllers
         /// Saves the currently loaded bundle to the given path on disk
         /// </summary>
         /// <param name="savePath">The path to save the currently bundle to</param>
-        public void SaveBundle(string savePath)
+        public void SaveBundle([NotNull] string savePath)
         {
             CurrentBundle.SaveFile = savePath;
             PixelariaSaverLoader.SaveBundleToDisk(CurrentBundle, savePath);
@@ -216,7 +207,7 @@ namespace Pixelaria.Controllers
         /// Opens a loaded bundle from the given path on disk
         /// </summary>
         /// <param name="savePath">The path to load the bundle from</param>
-        public void LoadBundleFromFile(string savePath)
+        public void LoadBundleFromFile([NotNull] string savePath)
         {
             var file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
 
@@ -248,7 +239,7 @@ namespace Pixelaria.Controllers
         /// This method disposes of the current bundle
         /// </summary>
         /// <param name="newBundle">The new bundle to load</param>
-        public void LoadBundle(Bundle newBundle)
+        public void LoadBundle([NotNull] Bundle newBundle)
         {
             CurrentBundle = newBundle;
 
@@ -333,7 +324,7 @@ namespace Pixelaria.Controllers
             };
 
             // Create a dummy frame
-            new AnimationController(_currentBundle, anim).CreateFrame();
+            new AnimationController(CurrentBundle, anim).CreateFrame();
 
             AddAnimation(anim, openOnForm, parentSheet);
 
@@ -346,7 +337,7 @@ namespace Pixelaria.Controllers
         /// <param name="anim">The animation to add to the bundle</param>
         /// <param name="openOnForm">Whether to open the newly added animation on the main form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
-        public void AddAnimation(Animation anim, bool openOnForm, [CanBeNull] AnimationSheet parentSheet = null)
+        public void AddAnimation([NotNull] Animation anim, bool openOnForm, [CanBeNull] AnimationSheet parentSheet = null)
         {
             CurrentBundle.AddAnimation(anim, parentSheet);
 
@@ -387,7 +378,7 @@ namespace Pixelaria.Controllers
         /// Method to be called whenever changes have been made to the fields of an Animation
         /// </summary>
         /// <param name="anim">The Animation that was modified</param>
-        public void UpdatedAnimation(Animation anim)
+        public void UpdatedAnimation([NotNull] Animation anim)
         {
             _mainForm.UpdateAnimation(anim);
 
@@ -435,7 +426,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The sheet to load into the current bundle</param>
         /// <param name="openOnForm">Whether to open the newly added animation sheet on the main form</param>
-        public void AddAnimationSheet(AnimationSheet sheet, bool openOnForm)
+        public void AddAnimationSheet([NotNull] AnimationSheet sheet, bool openOnForm)
         {
             CurrentBundle.AddAnimationSheet(sheet);
 
@@ -459,7 +450,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The sheet to remove from the bundle</param>
         /// <param name="deleteAnimations">Whether to delete the nested animations as well. If set to false, the animations will be moved to the bundle's root</param>
-        public void RemoveAnimationSheet(AnimationSheet sheet, bool deleteAnimations)
+        public void RemoveAnimationSheet([NotNull] AnimationSheet sheet, bool deleteAnimations)
         {
             // Remove/relocate animations
             if (deleteAnimations)
@@ -484,7 +475,7 @@ namespace Pixelaria.Controllers
         /// Method to be called whenever changes have been made to the fields of an AnimationSheet
         /// </summary>
         /// <param name="sheet">The AnimationSheet that was modified</param>
-        public void UpdatedAnimationSheet(AnimationSheet sheet)
+        public void UpdatedAnimationSheet([NotNull] AnimationSheet sheet)
         {
             _mainForm.UpdateAnimationSheet(sheet);
 
@@ -532,6 +523,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="anim">The animation object to get the animation sheet of</param>
         /// <returns>The AnimationSheet that currently owns the given Animation object. If the Animation is not inside any AnimationSheet, null is returned</returns>
+        [CanBeNull]
         public AnimationSheet GetOwningAnimationSheet(Animation anim)
         {
             return CurrentBundle.GetOwningAnimationSheet(anim);
@@ -766,7 +758,7 @@ namespace Pixelaria.Controllers
         /// Shows an interface to duplicate the given animation
         /// </summary>
         /// <param name="animation">The animation to duplicate</param>
-        public void ShowDuplicateAnimation(Animation animation)
+        public void ShowDuplicateAnimation([NotNull] Animation animation)
         {
             var dup = CurrentBundle.DuplicateAnimation(animation, null);
 
@@ -804,7 +796,7 @@ namespace Pixelaria.Controllers
         /// Shows an interface to duplicate the given AnimationSheet object
         /// </summary>
         /// <param name="sheet">The animation sheet to duplicate</param>
-        public void ShowDuplicateAnimationSheet(AnimationSheet sheet)
+        public void ShowDuplicateAnimationSheet([NotNull] AnimationSheet sheet)
         {
             var dup = CurrentBundle.DuplicateAnimationSheet(sheet);
 

@@ -21,6 +21,7 @@
 */
 
 using System.Drawing;
+using JetBrains.Annotations;
 using Pixelaria.Data;
 
 namespace Pixelaria.Controllers.Importers
@@ -37,7 +38,7 @@ namespace Pixelaria.Controllers.Importers
         /// <param name="sheetPath">The path to the sheet file</param>
         /// <param name="settings">The sheet import settings</param>
         /// <returns>The final imported animation</returns>
-        Animation ImportAnimationFromPath(string animationName, string sheetPath, SheetSettings settings);
+        Animation ImportAnimationFromPath([NotNull] string animationName, [NotNull] string sheetPath, SheetSettings settings);
 
         /// <summary>
         /// Imports an animation from an animation sheet image
@@ -46,7 +47,7 @@ namespace Pixelaria.Controllers.Importers
         /// <param name="sheet">The sheet image</param>
         /// <param name="settings">The sheet import settings</param>
         /// <returns>The final imported animation</returns>
-        Animation ImportAnimationFromImage(string animationName, Image sheet, SheetSettings settings);
+        Animation ImportAnimationFromImage([NotNull] string animationName, [NotNull] Image sheet, SheetSettings settings);
 
         /// <summary>
         /// Generates and returns an array of rectangles that represents the frames of the animation described by the given sheet settings.
@@ -55,7 +56,7 @@ namespace Pixelaria.Controllers.Importers
         /// <param name="sheet">The image to use as sheet</param>
         /// <param name="settings">The sheet settings to use to calculate the rectangle frames</param>
         /// <returns>An array of rectangles that represents the frames of the animation described by the given sheet settings</returns>
-        Rectangle[] GenerateFrameBounds(Image sheet, SheetSettings settings);
+        Rectangle[] GenerateFrameBounds([NotNull] Image sheet, SheetSettings settings);
     }
 
     /// <summary>

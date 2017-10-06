@@ -26,7 +26,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
@@ -79,7 +79,7 @@ namespace Pixelaria.Views.MiscViews
         /// </summary>
         /// <param name="bundle">The bundle to export</param>
         /// <param name="exporter">The exporter to use when exporting the bundle</param>
-        public BundleExportProgressView(Bundle bundle, IBundleExporter exporter)
+        public BundleExportProgressView([NotNull] Bundle bundle, IBundleExporter exporter)
         {
             InitializeComponent();
 
@@ -206,7 +206,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         // Form Closing event handler
         // 
-        protected override void OnFormClosing(FormClosingEventArgs e)
+        protected override void OnFormClosing([NotNull] FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing && !_canClose)
             {
@@ -244,7 +244,7 @@ namespace Pixelaria.Views.MiscViews
             }
         }
 
-        private void InvalidateSheetNode(AnimationSheet sheet)
+        private void InvalidateSheetNode([NotNull] AnimationSheet sheet)
         {
             // Verify progress for this sheet has changed
             if (!_progressTrack.TryGetValue(sheet.ID, out float cur))
@@ -270,7 +270,7 @@ namespace Pixelaria.Views.MiscViews
             tv_sheets.Invalidate(bounds);
         }
 
-        private void CreateTreeView(Bundle bundle)
+        private void CreateTreeView([NotNull] Bundle bundle)
         {
             foreach (var sheet in bundle.AnimationSheets)
             {
@@ -284,7 +284,8 @@ namespace Pixelaria.Views.MiscViews
             }
         }
 
-        private AnimationSheet SheetForNode(TreeNode node)
+        [CanBeNull]
+        private AnimationSheet SheetForNode([NotNull] TreeNode node)
         {
             return node.Tag as AnimationSheet;
         }
@@ -308,7 +309,7 @@ namespace Pixelaria.Views.MiscViews
 
         #region Rendering
 
-        private void tv_sheets_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        private void tv_sheets_DrawNode(object sender, [NotNull] DrawTreeNodeEventArgs e)
         {
             e.DrawDefault = true;
 

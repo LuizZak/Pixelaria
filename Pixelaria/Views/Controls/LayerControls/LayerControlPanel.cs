@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 
@@ -157,7 +158,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Moved event handler
         // 
-        private void OnLayerMoved(object sender, LayerControllerLayerMovedEventArgs args)
+        private void OnLayerMoved(object sender, [NotNull] LayerControllerLayerMovedEventArgs args)
         {
             SwapLayerControls(args.NewIndex, args.LayerIndex);
             ClearSelection();
@@ -166,7 +167,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Removed event handler
         // 
-        private void OnLayerRemoved(object sender, LayerControllerLayerRemovedEventArgs args)
+        private void OnLayerRemoved(object sender, [NotNull] LayerControllerLayerRemovedEventArgs args)
         {
             RemoveLayerControl(GetLayerControlForLayer(args.FrameLayer));
 
@@ -177,7 +178,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Created event handler
         // 
-        private void OnLayerCreated(object sender, LayerControllerLayerCreatedEventArgs args)
+        private void OnLayerCreated(object sender, [NotNull] LayerControllerLayerCreatedEventArgs args)
         {
             AddLayerControl(args.FrameLayer);
 
@@ -188,7 +189,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Name Updated event handler
         // 
-        private void OnLayerNameUpdated(object sender, LayerControllerLayerNameUpdatedEventArgs args)
+        private void OnLayerNameUpdated(object sender, [NotNull] LayerControllerLayerNameUpdatedEventArgs args)
         {
             // Update the display of the layer control associated with the layer
             GetLayerControlForLayer(args.FrameLayer).UpdateDisplay();
@@ -331,7 +332,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         /// <param name="layer">The layer to create the layer control out of</param>
         /// <param name="arrangeAfter">Whether to call the ArrangeControls method after adding the control</param>
-        private void AddLayerControl(IFrameLayer layer, bool arrangeAfter = true)
+        private void AddLayerControl([NotNull] IFrameLayer layer, bool arrangeAfter = true)
         {
             var control = new LayerControl(layer);
 
@@ -363,7 +364,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         /// <param name="control">The layer control to remove</param>
         /// <param name="arrangeAfter">Whether to call the ArrangeControls method after removing the control</param>
-        private void RemoveLayerControl(LayerControl control, bool arrangeAfter = true)
+        private void RemoveLayerControl([NotNull] LayerControl control, bool arrangeAfter = true)
         {
             control.Dispose();
 
@@ -444,6 +445,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         /// <param name="layer">A valid IFrameLayer that is currently registered on this layer control panel</param>
         /// <returns>The layer control for the specified layer, or null, if none was found</returns>
+        [CanBeNull]
         private LayerControl GetLayerControlForLayer(IFrameLayer layer)
         {
             return _layerControls.FirstOrDefault(control => ReferenceEquals(control.Layer, layer));

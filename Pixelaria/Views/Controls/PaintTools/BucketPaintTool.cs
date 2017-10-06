@@ -26,6 +26,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
@@ -126,7 +127,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown(MouseEventArgs e)
+        public override void MouseDown([NotNull] MouseEventArgs e)
         {
             Point point = GetAbsolutePoint(e.Location);
 
@@ -149,7 +150,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseMove(MouseEventArgs e)
+        public override void MouseMove([NotNull] MouseEventArgs e)
         {
             base.MouseMove(e);
 
@@ -197,7 +198,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode of the bucket fill operation</param>
         /// <param name="createUndo">Whether to create and return an undo task</param>
         /// <returns>The undo task associated with this operation, or null, if createUndo is false or if the operation failed</returns>
-        public static unsafe IUndoTask PerformBucketOperaiton(Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
+        [CanBeNull]
+        public static unsafe IUndoTask PerformBucketOperaiton([NotNull] Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
         {
             // Start the fill operation by getting the color under the user's mouse
             var pColor = targetBitmap.GetPixel(point.X, point.Y);

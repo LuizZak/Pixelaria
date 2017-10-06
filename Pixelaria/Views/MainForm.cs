@@ -22,12 +22,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
@@ -62,7 +63,7 @@ namespace Pixelaria.Views
         /// Creates a new instance of the MainForm class
         /// </summary>
         /// <param name="args">Command line arguments</param>
-        public MainForm(string[] args)
+        public MainForm([NotNull] string[] args)
         {
             InitializeComponent();
 
@@ -99,7 +100,7 @@ namespace Pixelaria.Views
         /// Loads the given bundle into this interface
         /// </summary>
         /// <param name="bundle">The bundle to load</param>
-        public void LoadBundle(Bundle bundle)
+        public void LoadBundle([NotNull] Bundle bundle)
         {
             CloseAllWindows();
             UpdateTitleBar(bundle);
@@ -125,7 +126,7 @@ namespace Pixelaria.Views
         /// Updates the title bar with the information of the given bundle
         /// </summary>
         /// <param name="bundle">The bundle to fill the title bar with information of</param>
-        public void UpdateTitleBar(Bundle bundle)
+        public void UpdateTitleBar([NotNull] Bundle bundle)
         {
             const string version = "Pixelaria v1.17.7b";
             if (bundle.SaveFile != "")
@@ -142,7 +143,7 @@ namespace Pixelaria.Views
         /// Fills in the animations tree view with the animation information of the given bundle
         /// </summary>
         /// <param name="bundle">The bundle to load the animations from</param>
-        public void UpdateAnimationsTreeView(Bundle bundle)
+        public void UpdateAnimationsTreeView([NotNull] Bundle bundle)
         {
             // Clear the nodes
             tv_bundleAnimations.Nodes.Clear();
@@ -180,11 +181,12 @@ namespace Pixelaria.Views
                 foreach (var anim in sheet.Animations)
                 {
                     // Get the animation node
-                    TreeNode animNode = GetTreeNodeFor(anim);
+                    var animNode = GetTreeNodeFor(anim);
+
+                    if (animNode == null) continue;
 
                     animNode.Remove();
-
-                    sheetNode.Nodes.Add(animNode);
+                    sheetNode?.Nodes.Add(animNode);
                 }
             }
 
@@ -273,16 +275,18 @@ namespace Pixelaria.Views
         /// </summary>
         /// <param name="animation">The animation to add</param>
         /// <param name="selectOnAdd">Whether to select the sheet's node after it's added to the interface</param>
-        public void AddAnimation(Animation animation, bool selectOnAdd = false)
+        public void AddAnimation([NotNull] Animation animation, bool selectOnAdd = false)
         {
-            TreeNode parentNode = _rootNode;
+            var parentNode = _rootNode;
 
             // If the animation is owned by a sheet, set the sheet's tree node as the parent for the animation node
-            AnimationSheet sheet = Controller.GetOwningAnimationSheet(animation);
+            var sheet = Controller.GetOwningAnimationSheet(animation);
             if (sheet != null)
             {
                 parentNode = GetTreeNodeFor(sheet);
             }
+
+            Debug.Assert(parentNode != null, "parentNode != null");
 
             // Create the tree node now
             if(animation.FrameCount > 0)
@@ -306,7 +310,7 @@ namespace Pixelaria.Views
                 }
             }
 
-            TreeNode animNode = parentNode.Nodes.Insert(addIndex, animation.Name);
+            var animNode = parentNode.Nodes.Insert(addIndex, animation.Name);
 
             animNode.Tag = animation;
 
@@ -326,9 +330,8 @@ namespace Pixelaria.Views
         /// <param name="anim">The animation to remove</param>
         public void RemoveAnimation(Animation anim)
         {
-            foreach (Form curView in MdiChildren)
+            foreach (var curView in MdiChildren)
             {
-
                 if (curView is AnimationView view && ReferenceEquals(view.CurrentAnimation, anim))
                 {
                     view.Close();
@@ -337,7 +340,10 @@ namespace Pixelaria.Views
             }
 
             // Remove the animation's treenode
-            TreeNode animNode = GetTreeNodeFor(anim);
+            var animNode = GetTreeNodeFor(anim);
+
+            if (animNode == null)
+                return;
 
             il_treeView.Images.RemoveByKey(animNode.ImageKey);
 
@@ -350,10 +356,12 @@ namespace Pixelaria.Views
         /// Updates this form's reprensentation of the given Animation
         /// </summary>
         /// <param name="animation">The Animation to update the representation of</param>
-        public void UpdateAnimation(Animation animation)
+        public void UpdateAnimation([NotNull] Animation animation)
         {
             // Seek the TreeView and update the treenode
-            TreeNode animNode = GetTreeNodeFor(animation);
+            var animNode = GetTreeNodeFor(animation);
+            
+            Debug.Assert(animNode != null, "animNode != null");
 
             animNode.Text = animation.Name;
 
@@ -425,7 +433,7 @@ namespace Pixelaria.Views
         /// </summary>
         /// <param name="sheet">The animation to add</param>
         /// <param name="selectOnAdd">Whether to select the sheet's node after it's added to the interface</param>
-        public void AddAnimationSheet(AnimationSheet sheet, bool selectOnAdd = false)
+        public void AddAnimationSheet([NotNull] AnimationSheet sheet, bool selectOnAdd = false)
         {
             var bundleNode = _rootNode;
 
@@ -461,7 +469,7 @@ namespace Pixelaria.Views
         /// <param name="sheet">The sheet to remove</param>
         public void RemoveAnimationSheet(AnimationSheet sheet)
         {
-            foreach (Form curView in MdiChildren)
+            foreach (var curView in MdiChildren)
             {
                 if (curView is AnimationSheetView view && ReferenceEquals(view.CurrentSheet, sheet))
                 {
@@ -471,21 +479,21 @@ namespace Pixelaria.Views
             }
 
             // Remove the sheet's treenode
-            TreeNode sheetNode = GetTreeNodeFor(sheet);
+            var sheetNode = GetTreeNodeFor(sheet);
 
-            sheetNode.Remove();
+            sheetNode?.Remove();
         }
 
         /// <summary>
         /// Updates this form's reprensentation of the given AnimationSheet
         /// </summary>
         /// <param name="sheet">The AnimationSheet to update the representation of</param>
-        public void UpdateAnimationSheet(AnimationSheet sheet)
+        public void UpdateAnimationSheet([NotNull] AnimationSheet sheet)
         {
             // Seek the TreeView and update the treenode
-            TreeNode node = GetTreeNodeFor(sheet);
-
-            node.Text = sheet.Name;
+            var node = GetTreeNodeFor(sheet);
+            if (node != null)
+                node.Text = sheet.Name;
         }
 
         /// <summary>
@@ -516,7 +524,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// Opens the bundle settings dialog for the given bundle
         /// </summary>
-        public void OpenBundleSettings(Bundle bundle)
+        public void OpenBundleSettings([NotNull] Bundle bundle)
         {
             var bsv = new BundleSettingsView(Controller, bundle);
 
@@ -621,9 +629,10 @@ namespace Pixelaria.Views
                     if (!removeAnims)
                     {
                         // Move animations tree nodes to the bundle root
-                        foreach (Animation anim in sheet.Animations)
+                        foreach (var anim in sheet.Animations)
                         {
-                            TreeNode node = GetTreeNodeFor(anim);
+                            var node = GetTreeNodeFor(anim);
+                            if (node == null) continue;
 
                             node.Remove();
 
@@ -643,7 +652,7 @@ namespace Pixelaria.Views
                     {
                         if (node.Tag is Animation animation)
                         {
-                            Animation anim = animation;
+                            var anim = animation;
                             Controller.RearrangeAnimationsPosition(anim, index++);
                         }
                     }
@@ -660,13 +669,14 @@ namespace Pixelaria.Views
         /// </summary>
         /// <param name="tag">The object to get the tree node representation of</param>
         /// <returns>The TreeNode that represents the given object</returns>
+        [CanBeNull]
         public TreeNode GetTreeNodeFor(object tag)
         {
             // Do a breadth-first search on the tree-view
-            TreeNode currentNode = _rootNode;
+            var currentNode = _rootNode;
             int i = 0;
 
-            List<TreeNode> traversalList = currentNode.Nodes.Cast<TreeNode>().ToList();
+            var traversalList = currentNode.Nodes.Cast<TreeNode>().ToList();
 
             while (true)
             {
@@ -703,7 +713,7 @@ namespace Pixelaria.Views
         /// </summary>
         /// <param name="node">The node to get the type of</param>
         /// <returns>The type for the given node</returns>
-        private TreeViewNodeType GetTypeForNode(TreeNode node)
+        private TreeViewNodeType GetTypeForNode([NotNull] TreeNode node)
         {
             if (node.Tag is Bundle)
             {
@@ -746,7 +756,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Key Down event handler
         // 
-        private void tv_bundleAnimations_KeyDown(object sender, KeyEventArgs e)
+        private void tv_bundleAnimations_KeyDown(object sender, [NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -792,7 +802,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Node Click ecent handler
         // 
-        private void TreeViewNodeClickHandler(object sender, TreeNodeMouseClickEventArgs e)
+        private void TreeViewNodeClickHandler(object sender, [NotNull] TreeNodeMouseClickEventArgs e)
         {
             tv_bundleAnimations.SelectedNode = e.Node;
 
@@ -816,7 +826,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Drag Operation event handler
         // 
-        private void TreeViewDragOperationHandler(TreeViewNodeDragEventArgs eventArgs)
+        private void TreeViewDragOperationHandler([NotNull] TreeViewNodeDragEventArgs eventArgs)
         {
             // Handle drag start events
             if (eventArgs.EventType == TreeViewNodeDragEventType.DragStart)
@@ -855,8 +865,8 @@ namespace Pixelaria.Views
                 // Add the dragged Animation into the target AnimationSheet
                 if (eventArgs.TargetNode.Tag is AnimationSheet tag && eventArgs.DraggedNode.Tag is Animation)
                 {
-                    AnimationSheet sheet = tag;
-                    Animation anim = (Animation)eventArgs.DraggedNode.Tag;
+                    var sheet = tag;
+                    var anim = (Animation)eventArgs.DraggedNode.Tag;
 
                     Controller.AddAnimationToAnimationSheet(anim, sheet);
                 }
@@ -865,7 +875,7 @@ namespace Pixelaria.Views
                 // Remove the animation from the current bundle, if it's in one
                 if (eventArgs.TargetNode.Tag is Bundle && eventArgs.DraggedNode.Tag is Animation)
                 {
-                    Animation anim = (Animation)eventArgs.DraggedNode.Tag;
+                    var anim = (Animation)eventArgs.DraggedNode.Tag;
 
                     Controller.AddAnimationToAnimationSheet(anim, null);
                 }
@@ -877,15 +887,16 @@ namespace Pixelaria.Views
                 // Target and dragged node are Animation nodes, rearrange them in the model level
                 if (eventArgs.TargetNode.Tag is Animation tag && eventArgs.DraggedNode.Tag is Animation)
                 {
-                    Animation targetAnim = tag;
-                    Animation droppedAnim = (Animation)eventArgs.DraggedNode.Tag;
+                    var targetAnim = tag;
+                    var droppedAnim = (Animation)eventArgs.DraggedNode.Tag;
 
-                    AnimationSheet sheet = Controller.GetOwningAnimationSheet(targetAnim);
+                    var sheet = Controller.GetOwningAnimationSheet(targetAnim);
 
                     Controller.AddAnimationToAnimationSheet(droppedAnim, sheet);
 
                     // Swap the position of the animation on the container
-                    TreeNode node = GetTreeNodeFor(droppedAnim);
+                    var node = GetTreeNodeFor(droppedAnim);
+                    Debug.Assert(node != null, "node != null");
 
                     // Count the nodes up to the animation node, ignoring all the animation sheets on the way
                     int actualIndex = 0;
@@ -903,11 +914,12 @@ namespace Pixelaria.Views
                 // Target and dragged node are AnimationSheet nodes, rearrange them in the model level
                 if (eventArgs.TargetNode.Tag is AnimationSheet && eventArgs.DraggedNode.Tag is AnimationSheet)
                 {
-                    AnimationSheet droppedSheet = (AnimationSheet)eventArgs.DraggedNode.Tag;
+                    var droppedSheet = (AnimationSheet)eventArgs.DraggedNode.Tag;
 
                     // Swap the position of the animation on the container
-                    TreeNode node = GetTreeNodeFor(droppedSheet);
+                    var node = GetTreeNodeFor(droppedSheet);
 
+                    Debug.Assert(node != null, "node != null");
                     Controller.RearrangeAnimationSheetsPosition(droppedSheet, node.Index);
                 }
             }
@@ -922,7 +934,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Mouse Down event handler
         // 
-        private void TreeViewMouseDown(object sender, MouseEventArgs e)
+        private void TreeViewMouseDown(object sender, [NotNull] MouseEventArgs e)
         {
             //throw new NotImplementedException();
             if (e.Clicks == 2 && tv_bundleAnimations.SelectedNode?.Tag is AnimationSheet && tv_bundleAnimations.Bounds.Contains(e.Location) && Math.Sqrt((_lastMousePoint.X - e.Location.X) * (_lastMousePoint.X - e.Location.X) + (_lastMousePoint.Y - e.Location.Y) * (_lastMousePoint.Y - e.Location.Y)) < 5)
@@ -937,7 +949,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Before Node Collapse event handler
         // 
-        private void tv_bundleAnimations_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        private void tv_bundleAnimations_BeforeCollapse(object sender, [NotNull] TreeViewCancelEventArgs e)
         {
             if (e.Node == _cancelExpandCollapseForNode)
             {
@@ -948,7 +960,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Before Node Expand event handler
         // 
-        private void tv_bundleAnimations_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private void tv_bundleAnimations_BeforeExpand(object sender, [NotNull] TreeViewCancelEventArgs e)
         {
             if (e.Node == _cancelExpandCollapseForNode)
             {
@@ -1299,7 +1311,7 @@ namespace Pixelaria.Views
         //
         private void mi_fileBug_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("https://sourceforge.net/p/pixelaria/tickets/?source=navbar");
+            Process.Start("https://sourceforge.net/p/pixelaria/tickets/?source=navbar");
         }
 
         // 

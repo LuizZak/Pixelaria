@@ -24,6 +24,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.ColorControls
@@ -301,7 +302,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         // 
         // Palette Bitmap mouse down
         // 
-        private void pb_palette_MouseDown(object sender, MouseEventArgs e)
+        private void pb_palette_MouseDown(object sender, [NotNull] MouseEventArgs e)
         {
             _mouseDown = true;
 
@@ -330,7 +331,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         //
         // Color Sliders component changed event handler
         //
-        private void cs_colorChanged(object sender, ColorChangedEventArgs eventArgs)
+        private void cs_colorChanged(object sender, [NotNull] ColorChangedEventArgs eventArgs)
         {
             SetCurrentColor(eventArgs.NewColor);
         }

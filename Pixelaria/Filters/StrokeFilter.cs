@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using FastBitmapLib;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Filters
 {
@@ -196,7 +197,7 @@ namespace Pixelaria.Filters
         /// Saves the properties of this filter to the given stream
         /// </summary>
         /// <param name="stream">A Stream to save the data to</param>
-        public void SaveToStream(Stream stream)
+        public void SaveToStream([NotNull] Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
@@ -211,7 +212,7 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="stream">A Stream to load the data from</param>
         /// <param name="version">The version of the filter data that is stored on the stream</param>
-        public void LoadFromStream(Stream stream, int version)
+        public void LoadFromStream([NotNull] Stream stream, int version)
         {
             BinaryReader reader = new BinaryReader(stream);
 

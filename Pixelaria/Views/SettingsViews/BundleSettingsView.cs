@@ -24,7 +24,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
 
 using Pixelaria.Data;
@@ -51,7 +51,7 @@ namespace Pixelaria.Views.SettingsViews
         /// </summary>
         /// <param name="controller">The controller that owns this form</param>
         /// <param name="bundle">The bundle to edit</param>
-        public BundleSettingsView(Controller controller, Bundle bundle)
+        public BundleSettingsView(Controller controller, [NotNull] Bundle bundle)
         {
             InitializeComponent();
 

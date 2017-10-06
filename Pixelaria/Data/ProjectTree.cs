@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data
 {
@@ -53,7 +54,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="bundle">The bundle to create the project tree from</param>
         /// <returns>A project tree that was created from the given bundle</returns>
-        public static ProjectTree ProjectTreeFromBundle(Bundle bundle)
+        public static ProjectTree ProjectTreeFromBundle([NotNull] Bundle bundle)
         {
             ProjectTree generatedTree = new ProjectTree();
 
@@ -111,7 +112,7 @@ namespace Pixelaria.Data
         /// <param name="node">The project node to add as a child of another node</param>
         /// <param name="parent">The parent node to child the first node</param>
         /// <param name="operation">The operation to perform</param>
-        protected void InternalSetParent(ProjectTreeNode node, NestedProjectTreeNode parent, SetParentOperation operation)
+        protected void InternalSetParent([NotNull] ProjectTreeNode node, NestedProjectTreeNode parent, SetParentOperation operation)
         {
             if (operation == SetParentOperation.Add)
             {
@@ -174,7 +175,7 @@ namespace Pixelaria.Data
         /// Adds a project tree node as a child of this project tree node
         /// </summary>
         /// <param name="node">The project node to add as a child of this node</param>
-        public void AddChild(ProjectTreeNode node)
+        public void AddChild([NotNull] ProjectTreeNode node)
         {
             InternalSetParent(node, this, SetParentOperation.Add);
 
@@ -185,7 +186,7 @@ namespace Pixelaria.Data
         /// Removes a project tree node as a child of this project tree node
         /// </summary>
         /// <param name="node">The project node to remove as a child of this node</param>
-        public void RemoveChild(ProjectTreeNode node)
+        public void RemoveChild([NotNull] ProjectTreeNode node)
         {
             InternalSetParent(node, this, SetParentOperation.Remove);
 

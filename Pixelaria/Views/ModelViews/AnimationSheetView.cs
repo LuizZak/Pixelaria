@@ -27,7 +27,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
@@ -413,7 +413,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Displays frame context menu for the given sheet preview click action
         /// </summary>
-        public void DisplayFrameContextMenu(Controls.SheetPreviewFrameBoundsClickEventArgs e)
+        public void DisplayFrameContextMenu([NotNull] Controls.SheetPreviewFrameBoundsClickEventArgs e)
         {
             var index = e.SheetBoundsIndex;
             var frameBoundsMap = _bundleSheetExport.Atlas.GetFrameBoundsMap();
@@ -615,7 +615,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Sheet Preview ZPB zoom changed
         // 
-        private void zpb_sheetPreview_ZoomChanged(object sender, Controls.ZoomChangedEventArgs e)
+        private void zpb_sheetPreview_ZoomChanged(object sender, [NotNull] Controls.ZoomChangedEventArgs e)
         {
             anud_zoom.Value = (decimal)e.NewZoom;
         }
@@ -623,7 +623,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Sheet Preview right clicked frame rectangle event
         // 
-        private void sppb_clickedFrameRect(object sender, Controls.SheetPreviewFrameBoundsClickEventArgs e)
+        private void sppb_clickedFrameRect(object sender, [NotNull] Controls.SheetPreviewFrameBoundsClickEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {

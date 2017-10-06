@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Views.Controls
 {
@@ -1522,7 +1523,7 @@ namespace Pixelaria.Views.Controls
         /// Draws this knob into a graphics object
         /// </summary>
         /// <param name="e">The graphics to draw this knob on</param>
-        public void Draw(Graphics e)
+        public void Draw([NotNull] Graphics e)
         {
             PointF realDrawOffset = new PointF(drawOffset.X + (float)ScaledX,drawOffset.Y + parent.TimelineHeight);
 
@@ -1574,7 +1575,7 @@ namespace Pixelaria.Views.Controls
         /// Draws this knob's indicator
         /// </summary>
         /// <param name="e">The graphics to draw the indicator on</param>
-        public void DrawIndicator(Graphics e)
+        public void DrawIndicator([NotNull] Graphics e)
         {
             PointF realDrawOffset = new PointF(drawOffset.X + (float)ScaledX, drawOffset.Y + parent.TimelineHeight);
 

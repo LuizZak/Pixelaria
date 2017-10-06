@@ -21,6 +21,7 @@
 */
 
 using System.Linq;
+using JetBrains.Annotations;
 using Pixelaria.Data;
 
 namespace Pixelaria.Controllers.DataControllers
@@ -49,7 +50,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// Gets the metadata information for a given animation ID.
         /// If no animation with a given ID was found, null is returned
         /// </summary>
-        public AnimationMetadata? GetAnimationMetadata(IAnimationId animationId)
+        public AnimationMetadata? GetAnimationMetadata([NotNull] IAnimationId animationId)
         {
             var anim = _source.Animations.FirstOrDefault(a => a.ID == animationId.Id);
             if (anim == null)
@@ -63,7 +64,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// Returns null, if no animation was found with that 
         /// </summary>
         /// <param name="animation">The ID of the animation to get the frame controller of</param>
-        public AnimationController GetAnimationController(IAnimationId animation)
+        public AnimationController GetAnimationController([NotNull] IAnimationId animation)
         {
             var animId = (AnimId)animation;
             var anim = _source.GetAnimationByID(animId.Id);
@@ -75,12 +76,13 @@ namespace Pixelaria.Controllers.DataControllers
         /// Gets an animation ID by display name
         /// </summary>
         /// <returns>The animation ID for a given animation name - or null, if none was found</returns>
+        [CanBeNull]
         public IAnimationId GetAnimationByName(string name)
         {
             return _source.Animations.Where(a => a.Name == name).Select(AnimationIdFor).FirstOrDefault();
         }
 
-        private static IAnimationId AnimationIdFor(Animation animation)
+        private static IAnimationId AnimationIdFor([NotNull] Animation animation)
         {
             return new AnimId(animation.ID);
         }

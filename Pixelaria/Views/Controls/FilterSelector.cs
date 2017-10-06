@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Filters;
 using Pixelaria.Views.Controls.Filters;
 
@@ -144,7 +145,7 @@ namespace Pixelaria.Views.Controls
         /// Sets the image to apply the filters to
         /// </summary>
         /// <param name="bitmap">The new bitmap to apply the filters to</param>
-        public void SetImage(Bitmap bitmap)
+        public void SetImage([NotNull] Bitmap bitmap)
         {
             _bitmapPreview?.Dispose();
 
@@ -222,7 +223,7 @@ namespace Pixelaria.Views.Controls
         /// Loads the given FilterControl array on this BaseFilterView
         /// </summary>
         /// <param name="filters">The array of filter controls to load into this BaseFilterView</param>
-        public void LoadFilters(FilterControl[] filters)
+        public void LoadFilters([NotNull] FilterControl[] filters)
         {
             foreach (FilterControl filter in filters)
             {
@@ -236,7 +237,7 @@ namespace Pixelaria.Views.Controls
         /// Loads the given FilterPreset on this BaseFilterView
         /// </summary>
         /// <param name="preset">A filter preset that contains data about filters to load on this BaseFilterView</param>
-        public void LoadFilterPreset(FilterPreset preset)
+        public void LoadFilterPreset([NotNull] FilterPreset preset)
         {
             RemoveAllFilterControls(false);
 
@@ -250,7 +251,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="filterControl">The filter control to load on this BaseFilterView</param>
         /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
-        public void AddFilterControl(FilterControl filterControl, bool updateVisualization = true)
+        public void AddFilterControl([NotNull] FilterControl filterControl, bool updateVisualization = true)
         {
             filterControl.Initialize(_bitmapOriginal);
 
@@ -278,7 +279,7 @@ namespace Pixelaria.Views.Controls
         /// Removes the given FilterContainer from this BaseFilterView
         /// </summary>
         /// <param name="filterContainer">The FilterContainer to remove from this BaseFilterView</param>
-        public void RemoveFilterControl(FilterContainer filterContainer)
+        public void RemoveFilterControl([NotNull] FilterContainer filterContainer)
         {
             RemoveFilterControl(filterContainer, true);
         }
@@ -288,7 +289,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="filterContainer">The FilterContainer to remove from this BaseFilterView</param>
         /// <param name="updateAfterRemoval">Whether to update the layout after this method call</param>
-        private void RemoveFilterControl(FilterContainer filterContainer, bool updateAfterRemoval)
+        private void RemoveFilterControl([NotNull] FilterContainer filterContainer, bool updateAfterRemoval)
         {
             filterContainer.ContainerDragStart -= _containerDraggedHandler;
             filterContainer.ContainerDragEnd -= _containerDroppedHandler;
@@ -611,7 +612,11 @@ namespace Pixelaria.Views.Controls
         private void tsm_filterItem_Click(object sender, EventArgs e)
         {
             // Creates the filter and adds it to the list of filters
-            AddFilterControl(FilterStore.Instance.CreateFilterControl(((ToolStripMenuItem)sender).Tag as string));
+            var filterName = (string)((ToolStripMenuItem)sender).Tag;
+            var filterControl = FilterStore.Instance.CreateFilterControl(filterName);
+
+            if (filterControl != null)
+                AddFilterControl(filterControl);
         }
 
         // 

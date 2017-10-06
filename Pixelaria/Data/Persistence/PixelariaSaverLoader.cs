@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using JetBrains.Annotations;
@@ -66,7 +67,9 @@ namespace Pixelaria.Data.Persistence
             {
                 stream.Close();
 
-                return LoadFileFromDisk(path).LoadedBundle;
+                var file = LoadFileFromDisk(path);
+                Debug.Assert(file != null, "file != null");
+                return file.LoadedBundle;
             }
 
             ////////

@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence
 {
@@ -37,7 +38,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="bitmap">The bitmap to save</param>
         /// <param name="stream">The stream to save the bitmap to</param>
-        public static void SaveImageToStream(Bitmap bitmap, Stream stream)
+        public static void SaveImageToStream([NotNull] Bitmap bitmap, [NotNull] Stream stream)
         {
             // Save the image to a temporary memory stream so the write doesn't mess the original stream
             using(MemoryStream memStream = new MemoryStream())
@@ -55,7 +56,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="stream">The stream to load the image from</param>
         /// <returns>A bitmap generated from the stream</returns>
-        public static Bitmap LoadImageFromStream(Stream stream)
+        public static Bitmap LoadImageFromStream([NotNull] Stream stream)
         {
             BinaryReader reader = new BinaryReader(stream);
             // Read the size of the frame texture

@@ -21,6 +21,7 @@
 */
 
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Utils
 {
@@ -71,7 +72,7 @@ namespace Pixelaria.Utils
         /// saves the list down to the settings file
         /// </summary>
         /// <param name="file">The file to store on this list</param>
-        public void StoreFile(string file)
+        public void StoreFile([NotNull] string file)
         {
             Settings settings = Settings.GetSettings();
 

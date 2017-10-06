@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
@@ -86,7 +87,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintOperation that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown(MouseEventArgs e)
+        public override void MouseDown([NotNull] MouseEventArgs e)
         {
             Point imagePoint = GetAbsolutePoint(e.Location);
 
@@ -158,7 +159,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintOperation that a keyboard key was pressed down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void KeyDown(KeyEventArgs e)
+        public override void KeyDown([NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ShiftKey)
             {
@@ -174,7 +175,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintOperation that a keyboard key was released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void KeyUp(KeyEventArgs e)
+        public override void KeyUp([NotNull] KeyEventArgs e)
         {
             if(e.KeyCode == Keys.ShiftKey)
             {
@@ -210,7 +211,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="pointList">An array of points that describe the corners of the rectangle</param>
         /// <param name="relative">Whether to return a rectangle in relative coordinates</param>
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
-        protected virtual Rectangle GetRectangleArea(Point[] pointList, bool relative)
+        protected virtual Rectangle GetRectangleArea([NotNull] Point[] pointList, bool relative)
         {
             Point p1 = pointList[0];
 

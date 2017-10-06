@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -59,7 +60,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream(Stream stream)
+        protected override void SaveContentToStream([NotNull] Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
@@ -79,7 +80,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="stream">The stream to load the animation sheet from</param>
         /// <returns>The Animation object loaded</returns>
-        protected AnimationSheet LoadAnimationSheetFromStream(Stream stream)
+        protected AnimationSheet LoadAnimationSheetFromStream([NotNull] Stream stream)
         {
             BinaryReader reader = new BinaryReader(stream);
 
@@ -117,7 +118,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="stream">The stream to load the export settings from</param>
         /// <returns>The AnimationExportSettings object loaded</returns>
-        protected AnimationExportSettings LoadExportSettingsFromStream(Stream stream)
+        protected AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream)
         {
             BinaryReader reader = new BinaryReader(stream);
 
@@ -144,7 +145,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="sheet">The animation sheet to write to the stream</param>
         /// <param name="stream">The stream to write the animation sheet to</param>
-        protected void SaveAnimationSheetToStream(AnimationSheet sheet, Stream stream)
+        protected void SaveAnimationSheetToStream([NotNull] AnimationSheet sheet, [NotNull] Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
 
@@ -168,7 +169,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="settings">The export settings to write to the stream</param>
         /// <param name="stream">The stream to write the animation sheet to</param>
-        protected void SaveExportSettingsToStream(AnimationExportSettings settings, Stream stream)
+        protected void SaveExportSettingsToStream(AnimationExportSettings settings, [NotNull] Stream stream)
         {
             BinaryWriter writer = new BinaryWriter(stream);
 

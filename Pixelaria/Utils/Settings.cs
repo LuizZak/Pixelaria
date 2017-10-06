@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Utils
 {
@@ -54,7 +55,7 @@ namespace Pixelaria.Utils
         /// <param name="type">The type the value must have in order to be valid</param>
         /// <param name="defaultValue">The default value to be set if the value does not exists or does not matches the provided type</param>
         /// <returns>True when the value was asserted, false if it was not present or not valid</returns>
-        public bool EnsureValue(string value, EnsureValueType type, string defaultValue)
+        public bool EnsureValue([NotNull] string value, EnsureValueType type, string defaultValue)
         {
             if (GetValue(value) == null)
             {
@@ -96,7 +97,7 @@ namespace Pixelaria.Utils
         /// Gets the given value from the values list
         /// </summary>
         /// <param name="valueName">A string representing the value saved. Returns null if the value is not currently present</param>
-        public string GetValue(string valueName)
+        public string GetValue([NotNull] string valueName)
         {
             return _iniFile.GetValue(valueName);
         }
@@ -106,7 +107,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="valueName">Thev value name to sabe</param>
         /// <param name="value">The value to save</param>
-        public void SetValue(string valueName, string value)
+        public void SetValue([NotNull] string valueName, string value)
         {
             _iniFile.SetValue(valueName, value);
             _iniFile.SaveSettings();
@@ -337,7 +338,7 @@ namespace Pixelaria.Utils
         /// Gets the given value from the values list
         /// </summary>
         /// <param name="valueName">A string representing the value saved. Returns null if the value is not currently present</param>
-        public string GetValue(string valueName)
+        public string GetValue([NotNull] string valueName)
         {
             if (_values.ContainsKey(valueName))
             {
@@ -352,7 +353,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="valueName">Thev value name to sabe</param>
         /// <param name="value">The value to save</param>
-        public void SetValue(string valueName, string value)
+        public void SetValue([NotNull] string valueName, string value)
         {
             _values[valueName] = value;
         }
@@ -408,7 +409,7 @@ namespace Pixelaria.Utils
             /// </summary>
             /// <param name="path">The path to the node, separated by '\'</param>
             /// <returns>The topmost node of the node list</returns>
-            public SettingsNode CreateNode(string path)
+            public SettingsNode CreateNode([NotNull] string path)
             {
                 if (path == "")
                     return this;
@@ -574,6 +575,7 @@ namespace Pixelaria.Utils
             /// </summary>
             /// <param name="failSilently">Whether to not raise exceptions on fails, but instead return a null string</param>
             /// <returns>An identifier from the buffer</returns>
+            [CanBeNull]
             public string ReadIdent(bool failSilently)
             {
                 if (failSilently && EOF())

@@ -22,7 +22,7 @@
 
 using System;
 using System.Drawing;
-
+using JetBrains.Annotations;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
@@ -44,7 +44,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// Initializes this OffsetControl
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
-        public override void Initialize(Bitmap bitmap)
+        public override void Initialize([NotNull] Bitmap bitmap)
         {
             base.Initialize(bitmap);
 

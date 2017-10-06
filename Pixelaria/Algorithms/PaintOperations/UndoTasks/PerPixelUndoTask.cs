@@ -22,6 +22,7 @@
 
 using System.Drawing;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 
 namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
@@ -37,14 +38,9 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         private readonly string _description;
 
         /// <summary>
-        /// The pixel history tracker containing the information for the undo/redo
-        /// </summary>
-        private readonly PixelHistoryTracker _pixelHistoryTracker;
-
-        /// <summary>
         /// Gets the pixel history tracker for this PerPixelUndoTask class
         /// </summary>
-        public PixelHistoryTracker PixelHistoryTracker => _pixelHistoryTracker;
+        public PixelHistoryTracker PixelHistoryTracker { get; }
 
         /// <summary>
         /// Initializes a new instance of the PixelUndoTask
@@ -54,12 +50,12 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="keepReplacedUndos">
         /// Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified.
         /// </param>
-        public PerPixelUndoTask(Bitmap bitmap, string description, bool keepReplacedUndos = false)
+        public PerPixelUndoTask([NotNull] Bitmap bitmap, string description, bool keepReplacedUndos = false)
             : base(bitmap)
         {
             _description = description;
 
-            _pixelHistoryTracker = new PixelHistoryTracker(keepReplacedUndos, bitmap.Width);
+            PixelHistoryTracker = new PixelHistoryTracker(keepReplacedUndos, bitmap.Width);
         }
 
         /// <summary>
@@ -73,7 +69,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             _description = description;
 
-            _pixelHistoryTracker = tracker;
+            PixelHistoryTracker = tracker;
         }
 
         /// <summary>
@@ -81,7 +77,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         public override void Clear()
         {
-            _pixelHistoryTracker.Clear();
+            PixelHistoryTracker.Clear();
         }
 
         /// <summary>
@@ -91,7 +87,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             using (var bitmap = targetBitmap.FastLock())
             {
-                foreach (var pixelUndo in _pixelHistoryTracker.StoredPixelsEnumerable)
+                foreach (var pixelUndo in PixelHistoryTracker.StoredPixelsEnumerable)
                 {
                     bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.OldColor);
                 }
@@ -105,7 +101,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         {
             using (var bitmap = targetBitmap.FastLock())
             {
-                foreach (var pixelUndo in _pixelHistoryTracker.StoredPixelsEnumerable)
+                foreach (var pixelUndo in PixelHistoryTracker.StoredPixelsEnumerable)
                 {
                     bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.NewColor);
                 }

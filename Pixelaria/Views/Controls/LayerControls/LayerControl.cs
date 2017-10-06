@@ -25,7 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
@@ -490,7 +490,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Image picture box mouse down
         // 
-        private void pb_layerImage_MouseDown(object sender, MouseEventArgs e)
+        private void pb_layerImage_MouseDown(object sender, [NotNull] MouseEventArgs e)
         {
             _layerPressPoint = e.Location;
             _pressingLayer = true;
@@ -604,7 +604,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Tiny Color Slider color changed event
         // 
-        private void tcs_transparency_ColorChanged(object sender, ColorChangedEventArgs eventArgs)
+        private void tcs_transparency_ColorChanged(object sender, [NotNull] ColorChangedEventArgs eventArgs)
         {
             _ignoreTransparencySliderUpdates = true;
 
@@ -624,7 +624,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Name text box key down
         // 
-        private void txt_layerNameEditBox_KeyDown(object sender, KeyEventArgs e)
+        private void txt_layerNameEditBox_KeyDown(object sender, [NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {

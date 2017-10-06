@@ -27,6 +27,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
@@ -164,7 +165,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize([NotNull] ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             // Initialize the operation cursor
             MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.sel_cursor);
@@ -440,7 +441,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintOperation that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown(MouseEventArgs e)
+        public override void MouseDown([NotNull] MouseEventArgs e)
         {
             base.MouseDown(e);
             
@@ -477,7 +478,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintOperation that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseMove(MouseEventArgs e)
+        public override void MouseMove([NotNull] MouseEventArgs e)
         {
             base.MouseMove(e);
 
@@ -564,7 +565,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintOperation that a keyboard key was pressed down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void KeyDown(KeyEventArgs e)
+        public override void KeyDown([NotNull] KeyEventArgs e)
         {
             base.KeyDown(e);
 
@@ -997,7 +998,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <param name="area">The area of the affected SelectionUndoTask</param>
             /// <param name="operationType">The operation type of this SelectionUndoTask</param>
             /// <param name="compositingMode">The compositing mode for the operation</param>
-            public SelectionUndoTask(Bitmap targetBitmap, Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
+            public SelectionUndoTask(Bitmap targetBitmap, [NotNull] Bitmap selectionBitmap, Bitmap originalSlice, Rectangle selectionStartArea, Rectangle area, SelectionOperationType operationType, CompositingMode compositingMode)
             {
                 _targetbitmap = targetBitmap;
                 _selectionBitmap = (Bitmap)selectionBitmap.Clone();
@@ -1132,7 +1133,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// Draws a selection region on a given graphics, with a given dash offset.
             /// The dash offset can be alternated to produce an animation
             /// </summary>
-            public static void PaintSelectionRectangle(Graphics graphics, Rectangle region, float dashOffset)
+            public static void PaintSelectionRectangle([NotNull] Graphics graphics, Rectangle region, float dashOffset)
             {
                 PaintSelectionRectangle(graphics, (RectangleF) region, dashOffset);
             }
@@ -1141,7 +1142,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// Draws a selection region on a given graphics, with a given dash offset.
             /// The dash offset can be alternated to produce an animation
             /// </summary>
-            public static void PaintSelectionRectangle(Graphics graphics, RectangleF region, float dashOffset)
+            public static void PaintSelectionRectangle([NotNull] Graphics graphics, RectangleF region, float dashOffset)
             {
                 graphics.PixelOffsetMode = PixelOffsetMode.Default;
 

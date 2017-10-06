@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
@@ -101,7 +102,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
+        [CanBeNull]
+        public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, [NotNull] Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
             ShapeUndoTask returnTask = null;
 
@@ -126,7 +128,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="compMode">The CompositingMode to use when drawing the shape</param>
         /// <param name="opFillMode">The fill mode for this shape operation</param>
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
-        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
+        public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, [NotNull] Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
             PerformElipseOperation(color1, color2, area, gph, compMode, opFillMode);
         }
@@ -140,7 +142,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="bitmap">The Bitmap to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static void PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area, Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static void PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area, [NotNull] Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             //FastBitmap fb = new FastBitmap(bitmap);
             //fb.Lock();
@@ -205,7 +207,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="graphics">The Graphics to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static void PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area, Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
+        public static void PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area,
+            [NotNull] Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             Brush brush = new SolidBrush((fillMode == OperationFillMode.SolidFillFirstColor ? firstColor : secondColor));
 

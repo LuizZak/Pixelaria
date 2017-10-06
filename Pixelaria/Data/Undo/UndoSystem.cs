@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Undo
 {
@@ -114,11 +115,13 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// Returns the next undo operation on the undo stack. If there's no undo operation available, null is returned
         /// </summary>
+        [CanBeNull]
         public IUndoTask NextUndo => CanUndo ? _undoTasks[_currentTask - 1] : null;
 
         /// <summary>
         /// Returns the next redo operation on the undo stack. If there's no redo operation available, null is returned
         /// </summary>
+        [CanBeNull]
         public IUndoTask NextRedo => CanRedo ? _undoTasks[_currentTask] : null;
 
         /// <summary>
@@ -136,7 +139,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         /// <param name="task">The task to undo</param>
         /// <exception cref="ArgumentNullException">The undo task provided is null</exception>
-        public void RegisterUndo(IUndoTask task)
+        public void RegisterUndo([NotNull] IUndoTask task)
         {
             if (task == null)
             {
@@ -269,6 +272,7 @@ namespace Pixelaria.Data.Undo
         /// If no undo task is available, null is returned
         /// </summary>
         /// <returns>The next available undo operation if available, null otherwise</returns>
+        [CanBeNull]
         public IUndoTask PopUndo()
         {
             if (!CanUndo)
@@ -288,6 +292,7 @@ namespace Pixelaria.Data.Undo
         /// If no redo task is available, null is returned
         /// </summary>
         /// <returns>The next available redo operation if available, null otherwise</returns>
+        [CanBeNull]
         public IUndoTask PopRedo()
         {
             if (!CanRedo)
@@ -432,7 +437,7 @@ namespace Pixelaria.Data.Undo
         /// Adds a list of tasks on this GroupUndoTask
         /// </summary>
         /// <param name="tasks">The tasks to add to this GroupUndoTask</param>
-        public void AddTasks(IEnumerable<IUndoTask> tasks)
+        public void AddTasks([NotNull] IEnumerable<IUndoTask> tasks)
         {
             foreach (var task in tasks)
             {
