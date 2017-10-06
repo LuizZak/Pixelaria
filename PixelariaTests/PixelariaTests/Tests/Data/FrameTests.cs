@@ -29,9 +29,8 @@ using System.Linq;
 using System.Security.Cryptography;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
-using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 
 namespace PixelariaTests.PixelariaTests.Tests.Data
@@ -45,8 +44,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameClone()
         {
-            Frame frame1 = FrameGenerator.GenerateRandomFrame(64, 63, 2);
-            Frame frame2 = frame1.Clone();
+            var frame1 = FrameGenerator.GenerateRandomFrame(64, 63, 2);
+            var frame2 = frame1.Clone();
 
             Assert.AreEqual(frame1, frame2, "Frames cloned using .Clone() should be exactly equivalent");
         }
@@ -54,9 +53,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameMemoryUsage()
         {
-            Frame frame = new Frame(null, 64, 64, false);
+            var frame = new Frame(null, 64, 64, false);
 
-            long memory = frame.CalculateMemoryUsageInBytes(true);
+            var memory = frame.CalculateMemoryUsageInBytes(true);
 
             Assert.AreEqual(64 * 64 * 32 / 8, memory, "The memory usage for a 64 x 64 frame with 32bpp should be equal to 16.384 bytes");
 
@@ -71,8 +70,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameResizing()
         {
-            Frame frame1 = new Frame(null, 64, 64);
-            Frame frame2 = new Frame(null, 12, 16);
+            var frame1 = new Frame(null, 64, 64);
+            var frame2 = new Frame(null, 12, 16);
 
             frame1.Resize(12, 16, PerFrameScalingMethod.PlaceAtTopLeft, InterpolationMode.NearestNeighbor);
 
@@ -82,10 +81,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameCopyFrom()
         {
-            Animation anim = new Animation("TestAnimation", 16, 16);
-
-            Frame frame1 = anim.CreateFrame();
-            Frame frame2 = FrameGenerator.GenerateRandomFrame(16, 16);
+            var frame1 = FrameGenerator.GenerateRandomFrame(16, 16);
+            var frame2 = FrameGenerator.GenerateRandomFrame(16, 16);
             
             frame1.CopyFrom(frame2);
 
@@ -95,13 +92,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestCanCopyFrom()
         {
-            Frame frame = new Frame(null, 64, 64);
+            var frame = new Frame(null, 64, 64);
 
             Assert.IsTrue(frame.CanCopyFromType<Frame>(), "A call to CanCopyFromType with the same type as the frame object should return true");
             Assert.IsFalse(frame.CanCopyFromType<DifferentFrame>(), "A call to CanCopyFromType with a type that is not assignable to the frame's type should return false");
             Assert.IsFalse(frame.CanCopyFromType<DerivedFrame>(), "A call to CanCopyFromType with a type that is derived from the frame's type should return false");
 
-            DerivedFrame derivedFrame = new DerivedFrame(null, 64, 64);
+            var derivedFrame = new DerivedFrame(null, 64, 64);
 
             Assert.IsTrue(derivedFrame.CanCopyFromType<Frame>(), "A call to CanCopyFromType with a type that is a super type of the DerivedFrame's type should return true");
             Assert.IsTrue(derivedFrame.CanCopyFromType<DerivedFrame>(), "A call to CanCopyFromType with a type of DerivedFrame should return true");
@@ -111,10 +108,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [ExpectedException(typeof(InvalidOperationException), "Trying to copy a frame with different dimensions while inside an animation should raise an exception")]
         public void TestFrameInvalidCopyFrom()
         {
-            Animation anim = new Animation("TestAnimation", 16, 16);
+            var anim = new Animation("TestAnimation1", 21, 21);
+            var animController = new AnimationController(null, anim);
+            animController.CreateFrame();
 
-            Frame frame1 = anim.CreateFrame();
-            Frame frame2 = new Frame(null, 20, 20);
+            var frame1 = anim[0];
+            var frame2 = new Frame(null, 20, 20);
 
             frame1.CopyFrom(frame2);
         }
@@ -126,34 +125,37 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         public void TestGetFrameIndex()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
-            Frame frame2 = new Frame(null, 64, 64);
-            Frame frame3 = new Frame(null, 64, 64);
+            var anim = new Animation("TestAnimation1", 64, 64);
 
-            anim1.AddFrame(frame1);
-            anim1.AddFrame(frame2);
-            anim1.AddFrame(frame3);
+            var controller = new AnimationController(null, anim);
+
+            var frame1 = new Frame(null, 64, 64);
+            var frame2 = new Frame(null, 64, 64);
+            var frame3 = new Frame(null, 64, 64);
+
+            controller.AddFrame(frame1);
+            controller.AddFrame(frame2);
+            controller.AddFrame(frame3);
 
             Assert.AreEqual(0, frame1.Index, "The Inedx property of a frame must reflect the frame's own position in the Animation it is on");
             Assert.AreEqual(1, frame2.Index, "The Inedx property of a frame must reflect the frame's own position in the Animation it is on");
 
-            Assert.AreEqual(frame1.Index, anim1.GetFrameIndex(frame1), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
-            Assert.AreEqual(frame2.Index, anim1.GetFrameIndex(frame2), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
+            Assert.AreEqual(frame1.Index, anim.GetFrameIndex(frame1), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
+            Assert.AreEqual(frame2.Index, anim.GetFrameIndex(frame2), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException), "Tring to perform any action on an uninitialized frame other than a call to Initialize should raise an InvalidOperationException")]
         public void TestFrameUninitializedException()
         {
-            Frame frame = new Frame();
+            var frame = new Frame();
             frame.GetComposedBitmap();
         }
 
         [TestMethod]
         public void TestFrameInitialize()
         {
-            Frame frame = new Frame();
+            var frame = new Frame();
             frame.Initialize(null, 64, 64);
             frame.GetComposedBitmap();
         }
@@ -164,13 +166,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameCompositing()
         {
-            Frame frame = FrameGenerator.GenerateRandomFrame(64, 64, 5, 1);
-            Bitmap target = frame.GetComposedBitmap();
+            var frame = FrameGenerator.GenerateRandomFrame(64, 64, 5, 1);
+            var target = frame.GetComposedBitmap();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
             byte[] goodHash = { 0xB2, 0x91, 0xF2, 0xB1, 0x17, 0xF7, 0x17, 0x46, 0xA0, 0x1C, 0xA4, 0xCB, 0x45, 0x82, 0x17, 0xA4, 0x42, 0x60, 0x2F, 0xEE, 0x7E, 0x1A, 0xDC, 0xE3, 0x2F, 0xB, 0x89, 0xEC, 0x76, 0x6, 0x2C, 0xA1 };
 
-            byte[] currentHash = GetHashForBitmap(target);
+            var currentHash = GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "FrameCompositing");
 
@@ -185,9 +187,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         /// <param name="name">The file name to use on the bitmap</param>
         public void RegisterResultBitmap(Bitmap bitmap, string name)
         {
-            string folder = "TestsResults" + Path.DirectorySeparatorChar + "FrameTests";
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
-            string file = path + Path.DirectorySeparatorChar + name;
+            var folder = "TestsResults" + Path.DirectorySeparatorChar + "FrameTests";
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
+            var file = path + Path.DirectorySeparatorChar + name;
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -195,8 +197,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             bitmap.Save(file + ".png", ImageFormat.Png);
 
             // Also save a .txt file containing the hash
-            byte[] hashBytes = GetHashForBitmap(bitmap);
-            string hashString = "";
+            var hashBytes = GetHashForBitmap(bitmap);
+            var hashString = "";
             hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") + "0x" + b.ToString("X"));
             File.WriteAllText(file + ".txt", hashString);
         }
@@ -213,14 +215,14 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         /// <returns>The hash of the given bitmap</returns>
         public static byte[] GetHashForBitmap(Bitmap bitmap)
         {
-            using (MemoryStream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 bitmap.Save(stream, ImageFormat.Png);
 
                 stream.Position = 0;
 
                 // Compute a hash for the image
-                byte[] hash = GetHashForStream(stream);
+                var hash = GetHashForStream(stream);
 
                 return hash;
             }

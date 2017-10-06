@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
@@ -60,58 +61,66 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestAnimationFrameCreation()
         {
-            Animation anim = new Animation("TestAnimation", 64, 64);
-            Frame frame = anim.CreateFrame();
+            var anim = new Animation("TestAnimation", 64, 64);
+            var controller = new AnimationController(null, anim);
+            var frame = controller.CreateFrame();
+
+            var frameController = controller.GetFrameController(frame);
 
             Assert.AreEqual(anim.FrameCount, 1, "Frame count must be 1 after call to CreateFrame()");
-            Assert.AreEqual(anim.Size, frame.Size, "Frame's dimensions must be similar to the parent animation");
+            Assert.AreEqual(anim.Size, frameController.Size, "Frame's dimensions must be similar to the parent animation");
         }
 
         [TestMethod]
         public void TestAnimationDuplicate()
         {
-            Animation anim1 = AnimationGenerator.GenerateAnimation("TestAnimation1", 64, 64, 10);
+            var anim1 = AnimationGenerator.GenerateAnimation("TestAnimation1", 64, 64, 10);
+            var controller1 = new AnimationController(null, anim1);
+
             // Create an empty frame to test frame duplication
-            anim1.CreateFrame();
+            controller1.CreateFrame();
+            var clone = controller1.CloneAnimation();
 
-            Animation anim2 = anim1.Clone();
+            Assert.AreEqual(anim1, clone, "The animations after a CloneAnimation() operation must be equal");
+            Assert.AreNotSame(anim1, clone);
 
-            Assert.AreEqual(anim1, anim2,  "The animations after a Clone() operation must be equal");
-            Assert.AreNotSame(anim1, anim2);
+            var controller2 = controller1.MakeCopyForEditing();
 
             // Change the animations by adding frames
-            anim2.CreateFrame();
+            controller2.CreateFrame();
 
-            Assert.AreNotEqual(anim1, anim2, "Animations with different frame counts cannot be equal");
+            Assert.AreNotEqual(anim1, controller2.CloneAnimation(), "Animations with different frame counts cannot be equal");
 
             // Remove the newly created frame from the second animation
-            anim2.RemoveFrameIndex(anim2.FrameCount - 1);
+            controller2.RemoveFrameIndex(controller2.FrameCount - 1);
 
-            Assert.AreEqual(anim1, anim2, "After a RemoveFrameIndex() call, the frame must be removed from the animation");
+            Assert.AreEqual(anim1, controller2.CloneAnimation(), "After a RemoveFrameIndex() call, the frame must be removed from the animation");
 
             // Test different values for the struct properties
-            anim2.ExportSettings = new AnimationExportSettings { AllowUnorderedFrames = true, UseUniformGrid = true };
+            controller2.ExportSettings = new AnimationExportSettings { AllowUnorderedFrames = true, UseUniformGrid = true };
 
-            Assert.AreNotEqual(anim1, anim2, "Animations with different values for the ExportSettings must not be equal");
+            Assert.AreNotEqual(anim1, controller2.CloneAnimation(), "Animations with different values for the ExportSettings must not be equal");
 
-            anim2.ExportSettings = anim1.ExportSettings;
+            controller2.ExportSettings = anim1.ExportSettings;
 
-            var playbackSettings = anim2.PlaybackSettings;
+            var playbackSettings = controller2.PlaybackSettings;
             playbackSettings.FPS = 0;
-            anim2.PlaybackSettings = playbackSettings;
+            controller2.PlaybackSettings = playbackSettings;
 
-            Assert.AreNotEqual(anim1, anim2, "Animations with different values for the ExportSettings must not be equal");
+            Assert.AreNotEqual(anim1, controller2.CloneAnimation(), "Animations with different values for the ExportSettings must not be equal");
         }
 
         [TestMethod]
         public void TestAnimationCopying()
         {
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
+            var anim1 = new Animation("TestAnimation1", 64, 64);
+            var controller1 = new AnimationController(null, anim1);
             // Create an empty frame to test frame duplication
-            anim1.CreateFrame();
+            controller1.CreateFrame();
 
-            Animation anim2 = new Animation("TestAnimation1", 64, 64);
-            anim2.CopyFrom(anim1, false);
+            var anim2 = new Animation("TestAnimation1", 64, 64);
+            var controller2 = new AnimationController(null, anim2);
+            controller2.CopyFrom(controller1, false);
 
             Assert.AreEqual(anim1, anim2, "An animation with all parameters except frames similar after a .CopyFrom() operation must be equal to the original animation");
         }
@@ -123,22 +132,23 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         public void TestDuplicatedFrameInserting()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
+            var anim = new Animation("TestAnimation1", 64, 64);
+            var controller = new AnimationController(null, anim);
+            var frame1 = new Frame(null, 64, 64);
 
-            anim1.AddFrame(frame1);
+            controller.AddFrame(frame1);
 
-            Assert.AreEqual(1, anim1.FrameCount, "After adding a unique frame to an animation, it frame count should be bumped up");
+            Assert.AreEqual(1, anim.FrameCount, "After adding a unique frame to an animation, it frame count should be bumped up");
 
             // Add the same frame
-            anim1.AddFrame(frame1);
+            controller.AddFrame(frame1);
 
-            Assert.AreEqual(1, anim1.FrameCount, "An animation should not allow adding the same frame object reference twice");
+            Assert.AreEqual(1, anim.FrameCount, "An animation should not allow adding the same frame object reference twice");
 
             // Add a clone of the frame
-            anim1.AddFrame(frame1.Clone());
+            controller.AddFrame(frame1.Clone());
 
-            Assert.AreEqual(2, anim1.FrameCount, "Animations should allow inserting equal frames as long as they are not the same object reference");
+            Assert.AreEqual(2, anim.FrameCount, "Animations should allow inserting equal frames as long as they are not the same object reference");
         }
 
         /// <summary>
@@ -148,19 +158,21 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         public void TestFrameRemoval()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
-            Frame frame2 = new Frame(null, 64, 64);
-            Frame frame3 = new Frame(null, 64, 64);
+            var anim = new Animation("TestAnimation1", 64, 64);
+            var controller = new AnimationController(null, anim);
 
-            anim1.AddFrame(frame1);
-            anim1.AddFrame(frame2);
-            anim1.AddFrame(frame3);
+            var frame1 = new Frame(null, 64, 64);
+            var frame2 = new Frame(null, 64, 64);
+            var frame3 = new Frame(null, 64, 64);
 
-            anim1.RemoveFrame(frame3);
+            controller.AddFrame(frame1);
+            controller.AddFrame(frame2);
+            var frameId3 = controller.AddFrame(frame3);
 
-            Assert.IsTrue(!anim1.Frames.ToList().ContainsReference(frame3), "Removing a frame from an animation should have removed its reference");
-            Assert.IsTrue(anim1.Frames.ToList().ContainsReference(frame1), "Removing a frame from an animation should not remove any other frame by value");
+            controller.RemoveFrame(frameId3);
+
+            Assert.IsTrue(!anim.Frames.ToList().ContainsReference(frame3), "Removing a frame from an animation should have removed its reference");
+            Assert.IsTrue(anim.Frames.ToList().ContainsReference(frame1), "Removing a frame from an animation should not remove any other frame by value");
         }
 
         /// <summary>
@@ -171,10 +183,14 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         public void TestFrameRemovalException()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
+            var anim1 = new Animation("TestAnimation1", 64, 64);
+            var anim2 = new Animation("TestAnimation2", 64, 64);
+            var controller1 = new AnimationController(null, anim1);
+            var controller2 = new AnimationController(null, anim2);
 
-            anim1.RemoveFrame(frame1);
+            var frame = controller1.CreateFrame();
+
+            controller2.RemoveFrame(frame);
         }
 
         /// <summary>
@@ -184,32 +200,47 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         public void TestFrameGetIndex()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
-            Frame frame2 = new Frame(null, 64, 64);
-            Frame frame3 = new Frame(null, 64, 64);
-            Frame frame4 = new Frame(null, 64, 64);
+            var anim = new Animation("TestAnimation1", 64, 64);
+            var controller = new AnimationController(null, anim);
 
-            anim1.AddFrame(frame1);
-            anim1.AddFrame(frame2);
-            anim1.AddFrame(frame3);
+            var frame1 = new Frame(null, 64, 64);
+            var frame2 = new Frame(null, 64, 64);
+            var frame3 = new Frame(null, 64, 64);
 
-            Assert.AreEqual(2, anim1.GetFrameIndex(frame3), "Fetching a frame index should return the index of the frame by reference, not by value");
-            Assert.AreEqual(-1, anim1.GetFrameIndex(frame4), "Fetching a frame index for a frame that does not belongs to an animation should return -1");
+            controller.AddFrame(frame1);
+            controller.AddFrame(frame2);
+            var id3 = controller.AddFrame(frame3);
+
+            Assert.AreEqual(2, controller.GetFrameIndex(id3), "Fetching a frame index should return the index of the frame by reference, not by value");
+
+            var anim2 = new Animation("TestAnimation2", 64, 64);
+            var controller2 = new AnimationController(null, anim2);
+
+            Assert.AreEqual(-1, controller2.GetFrameIndex(id3), "Fetching a frame index for a frame that does not belongs to an animation should return -1");
         }
 
         [TestMethod]
         public void TestContainsFrame()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
-            Frame frame4 = new Frame(null, 64, 64);
+            var anim1 = new Animation("TestAnimation1", 64, 64);
+            var controller1 = new AnimationController(null, anim1);
 
-            anim1.AddFrame(frame1);
+            var frame1 = new Frame(null, 64, 64);
+            var frame4 = new Frame(null, 64, 64);
+
+            controller1.AddFrame(frame1);
 
             Assert.IsTrue(anim1.ContainsFrame(frame1), "Calling ContainsFrame() with a frame in the animation must return true");
             Assert.IsFalse(anim1.ContainsFrame(frame4), "Calling ContainsFrame() with a frame that is not in the animation must return false");
+
+            // Test controller
+            Assert.IsTrue(controller1.ContainsFrame(controller1.GetFrameAtIndex(0)), "Calling ContainsFrame() with a frame in the animation must return true");
+
+            var anim2 = new Animation("TestAnimation2", 64, 64);
+            var controller2 = new AnimationController(null, anim2);
+
+            Assert.IsFalse(controller2.ContainsFrame(controller1.GetFrameAtIndex(0)), "Calling ContainsFrame() with a frame that is not in the animation must return false");
         }
 
         /// <summary>
@@ -219,21 +250,24 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         public void TestGetFrameAtIndex()
         {
             // Create an animation and an empty dummy frame
-            Animation anim1 = new Animation("TestAnimation1", 64, 64);
-            Frame frame1 = new Frame(null, 64, 64);
-            Frame frame2 = new Frame(null, 64, 64);
-            Frame frame3 = new Frame(null, 64, 64);
+            var anim = new Animation("TestAnimation1", 64, 64);
 
-            anim1.AddFrame(frame1);
-            anim1.AddFrame(frame2);
-            anim1.AddFrame(frame3);
+            var controller = new AnimationController(null, anim);
 
-            Assert.AreEqual(frame3, anim1.GetFrameAtIndex(2), "Fetching a frame at an index should return the proper frame in the order it is listed inside the Animation object");
+            var frame1 = new Frame(null, 64, 64);
+            var frame2 = new Frame(null, 64, 64);
+            var frame3 = new Frame(null, 64, 64);
+
+            controller.AddFrame(frame1);
+            var f2Id = controller.AddFrame(frame2);
+            controller.AddFrame(frame3);
+
+            Assert.AreEqual(frame3, anim.GetFrameAtIndex(2), "Fetching a frame at an index should return the proper frame in the order it is listed inside the Animation object");
 
             // Removing the second frame should lower the third frame's index by 1
-            anim1.RemoveFrame(frame2);
+            controller.RemoveFrame(f2Id);
 
-            Assert.AreEqual(frame3, anim1.GetFrameAtIndex(1), "After removing a frame, all frames after it must have their indexes lowered by 1");
+            Assert.AreEqual(frame3, anim.GetFrameAtIndex(1), "After removing a frame, all frames after it must have their indexes lowered by 1");
         }
 
         /// <summary>
@@ -243,15 +277,17 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [ExpectedException(typeof(ArgumentException), "When trying to add a series of frames through 'AddFrames' with different dimensions, an ArgumentException needs to be thrown")]
         public void TestMultiSizedFrameInsertingException()
         {
-            Animation anim = new Animation("TestAnim", 16, 16);
+            var anim = new Animation("TestAnim", 16, 16);
 
-            Frame firstFrame = new Frame(null, 16, 16);
-            Frame secondFrame = new Frame(null, 20, 16);
-            Frame thirdFrame = new Frame(null, 27, 21);
+            var controller = new AnimationController(null, anim);
 
-            List<Frame> frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+            var firstFrame = new Frame(null, 16, 16);
+            var secondFrame = new Frame(null, 20, 16);
+            var thirdFrame = new Frame(null, 27, 21);
 
-            anim.AddFrames(frames);
+            var frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+
+            controller.AddFrames(frames);
         }
 
         /// <summary>
@@ -260,14 +296,16 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestMultiSizedFrameInsertingLargestSize()
         {
-            Animation anim = new Animation("TestAnim", 16, 16);
+            var anim = new Animation("TestAnim", 16, 16);
 
-            Frame firstFrame = new Frame(null, 16, 16);
+            var controller = new AnimationController(null, anim);
 
-            List<Frame> frames = new List<Frame> {firstFrame, new Frame(null, 20, 16)};
+            var firstFrame = new Frame(null, 16, 16);
 
-            anim.AddFrames(frames,
-                new FrameSizeMatchingSettings()
+            var frames = new List<Frame> {firstFrame, new Frame(null, 20, 16)};
+
+            controller.AddFrames(frames,
+                new FrameSizeMatchingSettings
                 {
                     AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseLargestSize
                 });
@@ -282,15 +320,17 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestMultiSizedFrameInsertingKeepOriginal()
         {
-            Animation anim = new Animation("TestAnim", 16, 16);
+            var anim = new Animation("TestAnim", 16, 16);
 
-            Frame firstFrame = new Frame(null, 16, 16);
-            Frame secondFrame = new Frame(null, 20, 16);
+            var controller = new AnimationController(null, anim);
 
-            List<Frame> frames = new List<Frame> { firstFrame, secondFrame };
+            var firstFrame = new Frame(null, 16, 16);
+            var secondFrame = new Frame(null, 20, 16);
 
-            anim.AddFrames(frames,
-                new FrameSizeMatchingSettings()
+            var frames = new List<Frame> { firstFrame, secondFrame };
+
+            controller.AddFrames(frames,
+                new FrameSizeMatchingSettings
                 {
                     AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.KeepOriginal
                 });
@@ -307,16 +347,18 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestMultiSizedFrameInsertingUseNewSize()
         {
-            Animation anim = new Animation("TestAnim", 16, 16);
+            var anim = new Animation("TestAnim", 16, 16);
 
-            Frame firstFrame = new Frame(null, 16, 16);
-            Frame secondFrame = new Frame(null, 20, 16);
-            Frame thirdFrame = new Frame(null, 27, 21);
+            var controller = new AnimationController(null, anim);
 
-            List<Frame> frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+            var firstFrame = new Frame(null, 16, 16);
+            var secondFrame = new Frame(null, 20, 16);
+            var thirdFrame = new Frame(null, 27, 21);
 
-            anim.AddFrames(frames,
-                new FrameSizeMatchingSettings()
+            var frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
+
+            controller.AddFrames(frames,
+                new FrameSizeMatchingSettings
                 {
                     AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize
                 });
@@ -326,6 +368,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             // Test now with a set of frames that are smaller than the animation's original size
             anim = new Animation("TestAnim", 32, 32);
+            controller = new AnimationController(null, anim);
 
             firstFrame = new Frame(null, 16, 16);
             secondFrame = new Frame(null, 20, 16);
@@ -333,8 +376,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             frames = new List<Frame> { firstFrame, secondFrame, thirdFrame };
 
-            anim.AddFrames(frames,
-                new FrameSizeMatchingSettings()
+            controller.AddFrames(frames,
+                new FrameSizeMatchingSettings
                 {
                     AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize
                 });
@@ -349,28 +392,33 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestFrameSwapping()
         {
-            Animation anim = new Animation("TestAnim", 16, 16);
+            var anim = new Animation("TestAnim", 16, 16);
+            var controller = new AnimationController(null, anim);
 
-            Frame frame1 = anim.CreateFrame();
-            Frame frame2 = anim.CreateFrame();
+            var frame1 = controller.CreateFrame();
+            var frame2 = controller.CreateFrame();
 
-            anim.SwapFrameIndices(0, 1);
+            controller.SwapFrameIndices(0, 1);
 
-            Assert.AreEqual(1, anim.GetFrameIndex(frame1), "Swapping frame indices must be reflected in GetframeIndex()");
-            Assert.AreEqual(0, anim.GetFrameIndex(frame2), "Swapping frame indices must be reflected in GetframeIndex()");
+            Assert.AreEqual(1, controller.GetFrameIndex(frame1), "Swapping frame indices must be reflected in GetframeIndex()");
+            Assert.AreEqual(0, controller.GetFrameIndex(frame2), "Swapping frame indices must be reflected in GetframeIndex()");
         }
 
         [TestMethod]
         public void TestAnimationClearing()
         {
-            Animation anim = new Animation("TestAnim", 16, 16);
+            var anim = new Animation("TestAnim", 16, 16);
 
-            Frame frame1 = anim.CreateFrame();
+            var controller = new AnimationController(null, anim);
+
+            var f1Id = controller.CreateFrame();
+            var frame1 = anim.Frames[0];
 
             anim.Clear();
 
             Assert.AreEqual(0, anim.FrameCount, "After a call to Clear(), the animation's frame count should be 0");
-            Assert.IsFalse(anim.ContainsFrame(frame1), "Immediately after a call to Clear(), no frame passed to ContainsFrame() should return true");
+            Assert.IsFalse(anim.Frames.ContainsReference(frame1), "Immediately after a call to Clear(), no frame passed to ContainsFrame() should return true");
+            Assert.IsFalse(controller.ContainsFrame(f1Id), "Immediately after a call to Clear(), no frame passed to ContainsFrame() should return true");
         }
 
         /// <summary>
@@ -390,10 +438,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [ExpectedException(typeof(ArgumentException), "Tring to add an unitialized frame to an animation should raise an exception")]
         public void TestAddFrameUninitializedException()
         {
-            Animation anim = new Animation("TestAnim", 64, 64);
-            Frame frame = new Frame();
-            
-            anim.AddFrame(frame);
+            var anim = new Animation("TestAnim", 64, 64);
+
+            var controller = new AnimationController(null, anim);
+
+            var frame = new Frame();
+
+            controller.AddFrame(frame);
         }
     }
 }

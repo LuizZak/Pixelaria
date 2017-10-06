@@ -30,8 +30,6 @@ using System.Security.Cryptography;
 using FastBitmapLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using FastBitmapLib;
-
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using PixelariaTests.PixelariaTests.Generators;

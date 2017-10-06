@@ -21,6 +21,7 @@
 */
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Utils
 {
@@ -36,7 +37,7 @@ namespace Pixelaria.Utils
         /// <param name="list">The list of items to search in</param>
         /// <param name="obj">The object to find in the list</param>
         /// <returns>True if the item is in the list, false otherwise</returns>
-        public static bool ContainsReference<T>(this List<T> list, T obj)
+        public static bool ContainsReference<T>([NotNull] this List<T> list, T obj)
         {
             return list.IndexOfReference(obj) != -1;
         }
@@ -48,7 +49,7 @@ namespace Pixelaria.Utils
         /// <param name="list">The list of items to operate on</param>
         /// <param name="obj">The object to remove from the list</param>
         /// <returns>True if the item was in the list and was removed, false otherwise</returns>
-        public static bool RemoveReference<T>(this List<T> list, T obj)
+        public static bool RemoveReference<T>([NotNull] this List<T> list, T obj)
         {
             int index = list.IndexOfReference(obj);
 
@@ -67,7 +68,7 @@ namespace Pixelaria.Utils
         /// <param name="list">The list of items to search in</param>
         /// <param name="obj">The object to find in the list</param>
         /// <returns>Returns a zero-based index of the first item that matches the reference of another object, or -1, if none is found</returns>
-        public static int IndexOfReference<T>(this List<T> list, T obj)
+        public static int IndexOfReference<T>([NotNull] this List<T> list, T obj)
         {
             return list.FindIndex(item => ReferenceEquals(item, obj));
         }

@@ -29,7 +29,7 @@ using System.Reflection;
 using System.Windows.Forms;
 
 using Pixelaria.Controllers;
-
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 using Pixelaria.Views.ModelViews;
@@ -1269,7 +1269,7 @@ namespace Pixelaria.Views
 
             if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
-                Controller.ShowSaveAnimationStrip(anim);
+                Controller.ShowSaveAnimationStrip(new AnimationController(Controller.CurrentBundle, anim));
             }
         }
 

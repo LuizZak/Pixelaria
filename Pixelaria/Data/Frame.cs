@@ -61,6 +61,8 @@ namespace Pixelaria.Data
         /// </summary>
         public int LayerCount => Layers.Count;
 
+        // TODO: Find a way to fetch this Index from somewhere else other than
+        // the base animation object directly.
         /// <summary>
         /// Gets the index of this frame on the parent animation
         /// </summary>
@@ -382,11 +384,11 @@ namespace Pixelaria.Data
             {
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
+            
+            var output = new Bitmap(width, height);
+            var composed = GetComposedBitmap();
 
-            Image output = new Bitmap(width, height);
-            Bitmap composed = GetComposedBitmap();
-
-            Graphics graphics = Graphics.FromImage(output);
+            var graphics = Graphics.FromImage(output);
 
 			float tx = 0, ty = 0;
             float scaleX = 1, scaleY = 1;
@@ -694,11 +696,25 @@ namespace Pixelaria.Data
                 if (Width == newWidth && Height == newHeight)
                     return;
 
-                Bitmap newTexture = (Bitmap)ImageUtilities.Resize(LayerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
+                var newTexture = (Bitmap)ImageUtilities.Resize(LayerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
 
                 // Texture replacement
                 LayerBitmap.Dispose();
                 LayerBitmap = newTexture;
+            }
+
+            /// <summary>
+            /// Resizes a copy of this Layer that matches the given dimensions, scaling with the given scaling method, and interpolating with the given interpolation mode.
+            /// </summary>
+            /// <param name="newWidth">The new width for the copy layer</param>
+            /// <param name="newHeight">The new height for the copy layer</param>
+            /// <param name="scalingMethod">The scaling method to use to match the copy layer's size to the new size</param>
+            /// <param name="interpolationMode">The interpolation mode to use when drawing the new layer</param>
+            public IFrameLayer Resized(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
+            {
+                var layerCopy = (FrameLayer)Clone();
+                layerCopy.Resize(newWidth, newHeight, scalingMethod, interpolationMode);
+                return layerCopy;
             }
 
             /// <summary>

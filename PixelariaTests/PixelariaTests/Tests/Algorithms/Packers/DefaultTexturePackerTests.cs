@@ -25,6 +25,7 @@ using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Pixelaria.Algorithms.Packers;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using PixelariaTests.PixelariaTests.Generators;
@@ -40,9 +41,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestPackEmptyAtlas()
         {
-            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings());
+            var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings());
 
-            DefaultTexturePacker packer = new DefaultTexturePacker();
+            var packer = new DefaultTexturePacker();
 
             packer.Pack(atlas);
 
@@ -52,17 +53,19 @@ namespace PixelariaTests.PixelariaTests.Tests.Algorithms.Packers
         [TestMethod]
         public void TestPackEmptyFrames()
         {
-            Animation anim = new Animation("TestAnim", 64, 64);
+            var anim = new Animation("TestAnim", 64, 64);
+
+            var controller = new AnimationController(null, anim) {FrameIdGenerator = new FrameIdGenerator()};
 
             // Fill the animation with a few empty frames
-            anim.CreateFrame().ID = 1;
-            anim.CreateFrame().ID = 2;
+            controller.CreateFrame();
+            controller.CreateFrame();
 
-            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings());
+            var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings());
 
             atlas.InsertFramesFromAnimation(anim);
 
-            DefaultTexturePacker packer = new DefaultTexturePacker();
+            var packer = new DefaultTexturePacker();
 
             packer.Pack(atlas);
 

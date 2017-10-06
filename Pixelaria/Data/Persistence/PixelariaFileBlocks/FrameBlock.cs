@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
@@ -41,12 +42,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// The frame bieng manipulated by this FrameBlock
         /// </summary>
-        private IFrame _frame;
-
-        /// <summary>
-        /// The frame bieng manipulated by this FrameBlock
-        /// </summary>
-        public IFrame Frame => _frame;
+        public IFrame Frame { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the FrameBlock class
@@ -63,7 +59,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public FrameBlock(IFrame frame)
             : this()
         {
-            _frame = frame;
+            Frame = frame;
             blockVersion = CurrentVersion;
         }
 
@@ -73,31 +69,31 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to load the content portion from</param>
         protected override void LoadContentFromStream(Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             int animationId = reader.ReadInt32();
 
-            Animation animation = owningFile.LoadedBundle.GetAnimationByID(animationId);
+            var animation = owningFile.LoadedBundle.GetAnimationByID(animationId);
 
             if (animation == null)
             {
                 throw new Exception(@"The frame's animation ID target is invalid");
             }
             
-            _frame = LoadFrameFromStream(stream, animation);
+            Frame = LoadFrameFromStream(stream, animation);
         }
 
         /// <summary>
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream(Stream stream)
+        protected override void SaveContentToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
-            writer.Write(_frame.Animation.ID);
+            writer.Write(Frame.Animation.ID);
 
-            SaveFrameToStream(_frame, stream);
+            SaveFrameToStream(Frame, stream);
         }
 
         /// <summary>
@@ -105,9 +101,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="frame">The frame to write to the stream</param>
         /// <param name="stream">The stream to write the frame to</param>
-        protected void SaveFrameToStream(IFrame frame, Stream stream)
+        protected void SaveFrameToStream([NotNull] IFrame frame, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             if (frame is Frame castFrame)
             {
@@ -134,7 +130,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="frame">The frame to save the layers to the strean</param>
         /// <param name="stream">The stream to save the layers to</param>
-        protected void SaveLayersToStream(Frame frame, Stream stream)
+        protected void SaveLayersToStream([NotNull] Frame frame, [NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 
@@ -152,7 +148,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="layer">The layer to save</param>
         /// <param name="stream">The stream to save the layer to</param>
-        private void SaveLayerToStream(IFrameLayer layer, Stream stream)
+        private static void SaveLayerToStream([NotNull] IFrameLayer layer, [NotNull] Stream stream)
         {
             // Save the layer's name
             BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8);
@@ -160,7 +156,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             PersistenceHelper.SaveImageToStream(layer.LayerBitmap, stream);
         }
-
+        
         /// <summary>
         /// Loads a Frame from the given stream, using the specified version
         /// number when reading properties
@@ -168,11 +164,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to load the frame from</param>
         /// <param name="owningAnimation">The Animation object that will be used to create the Frame with</param>
         /// <returns>The Frame object loaded</returns>
-        protected Frame LoadFrameFromStream(Stream stream, Animation owningAnimation)
+        protected Frame LoadFrameFromStream([NotNull] Stream stream, [NotNull] Animation owningAnimation)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
-            Frame frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
+            var frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
 
             if(blockVersion == 0)
             {
@@ -202,8 +198,13 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             {
                 frame.UpdateHash();
             }
+            
+            // TODO: Don't add frames to animations directly on this block- let an external object handle piecing
+            // frames to animations externally.
 
-            owningAnimation.AddFrame(frame);
+            var controller = new AnimationController(owningFile.LoadedBundle, owningAnimation);
+
+            controller.AddFrame(frame);
 
             return frame;
         }
@@ -213,7 +214,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="stream">The stream to load the layers from</param>
         /// <param name="frame">The frame to load the layers into</param>
-        protected void LoadLayersFromStream(Stream stream, Frame frame)
+        protected void LoadLayersFromStream([NotNull] Stream stream, [NotNull] Frame frame)
         {
             // Remove the first default layer of the frame
             frame.Layers.RemoveAt(0);

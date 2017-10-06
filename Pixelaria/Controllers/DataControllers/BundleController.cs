@@ -68,7 +68,7 @@ namespace Pixelaria.Controllers.DataControllers
             var animId = (AnimId)animation;
             var anim = _source.GetAnimationByID(animId.Id);
 
-            return new AnimationController(anim);
+            return new AnimationController(_source, anim);
         }
 
         /// <summary>

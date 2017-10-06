@@ -115,6 +115,9 @@
     <Reference Include="FastBitmapLib, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastBitmapLib.1.1.0\lib\net452\FastBitmapLib.dll</HintPath>
     </Reference>
+    <Reference Include="JetBrains.Annotations, Version=10.2.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.10.2.1\lib\net\JetBrains.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -134,9 +137,12 @@
     <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
     <Compile Include="Controllers\DataControllers\AnimationController.cs" />
     <Compile Include="Controllers\DataControllers\AnimationMetadata.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationSheetController.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationSheetMetadata.cs" />
     <Compile Include="Controllers\DataControllers\BundleController.cs" />
     <Compile Include="Controllers\DataControllers\FrameController.cs" />
     <Compile Include="Controllers\DataControllers\IAnimationId.cs" />
+    <Compile Include="Controllers\DataControllers\IAnimationSheetId.cs" />
     <Compile Include="Controllers\DataControllers\IFrameId.cs" />
     <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />

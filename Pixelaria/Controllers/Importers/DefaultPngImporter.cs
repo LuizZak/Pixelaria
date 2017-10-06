@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using FastBitmapLib;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 
 namespace Pixelaria.Controllers.Importers
@@ -53,19 +54,21 @@ namespace Pixelaria.Controllers.Importers
         /// <returns>The final imported animation</returns>
         public Animation ImportAnimationFromImage(string animationName, Image sheet, SheetSettings settings)
         {
-            Rectangle[] frameBounds = GenerateFrameBounds(sheet, settings);
+            var frameBounds = GenerateFrameBounds(sheet, settings);
 
-            int frameWidth = (settings.FrameWidth > sheet.Width ? sheet.Width : settings.FrameWidth);
-            int frameHeight = (settings.FrameHeight > sheet.Height ? sheet.Height : settings.FrameHeight);
-            Animation animation = new Animation(animationName, frameWidth, frameHeight);
+            int frameWidth = settings.FrameWidth > sheet.Width ? sheet.Width : settings.FrameWidth;
+            int frameHeight = settings.FrameHeight > sheet.Height ? sheet.Height : settings.FrameHeight;
+            var animation = new Animation(animationName, frameWidth, frameHeight);
 
-            foreach (Rectangle rect in frameBounds)
+            var controller = new AnimationController(null, animation);
+
+            foreach (var rect in frameBounds)
             {
                 // Create the frame
-                Frame frame = animation.CreateFrame(settings.FlipFrames ? 0 : -1);
-
+                var frameId = controller.CreateFrame(settings.FlipFrames ? 0 : -1);
+                var frame = controller.GetFrameController(frameId);
+                
                 frame.SetFrameBitmap(FastBitmap.SliceBitmap((Bitmap)sheet, rect));
-                frame.UpdateHash();
             }
 
             return animation;

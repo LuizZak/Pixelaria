@@ -30,12 +30,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
-
-using FastBitmapLib;
 
 using Pixelaria.Algorithms;
 using Pixelaria.Algorithms.Packers;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
@@ -59,7 +59,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A task representing the concurrent export progress</returns>
-        public async Task ExportBundleConcurrent(Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task ExportBundleConcurrent([NotNull] Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             // Start with initial values for the progress export of every sheet
             float[] stageProgresses = new float[bundle.AnimationSheets.Count];
@@ -179,7 +179,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animation sheet passed ready to be saved to disk</returns>
-        public async Task<BundleSheetExport> ExportBundleSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet([NotNull] AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             //
             // 1. Generate texture atlas
@@ -200,7 +200,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        public async Task<BundleSheetExport> ExportBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             return BundleSheetExport.FromAtlas(await GenerateAtlasFromAnimations(provider, "", cancellationToken, progressHandler));
         }
@@ -212,7 +212,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
-        public async Task<TextureAtlas> GenerateAtlasFromAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<TextureAtlas> GenerateAtlasFromAnimationSheet([NotNull] AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             return await GenerateAtlasFromAnimations(sheet, sheet.Name, cancellationToken, args =>
             {
@@ -230,7 +230,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancelation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>An image sheet representing the animations passed</returns>
-        public async Task<TextureAtlas> GenerateAtlasFromAnimations(IAnimationProvider provider, string name = "", CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<TextureAtlas> GenerateAtlasFromAnimations([NotNull] IAnimationProvider provider, string name = "", CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             var atlas = new TextureAtlas(provider.ExportSettings, name);
 
@@ -260,7 +260,7 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         /// <param name="animation">The animation to generate the sprite strip image from</param>
         /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
-        public Image GenerateSpriteStrip(Animation animation)
+        public Image GenerateSpriteStrip([NotNull] AnimationController animation)
         {
             // If the frame count is 0, return an empty 1x1 image
             if (animation.FrameCount == 0)
@@ -272,8 +272,11 @@ namespace Pixelaria.Controllers.Exporters
             var stripBitmap = new Bitmap(animation.Width * animation.FrameCount, animation.Height);
 
             // Copy the frames into the strip bitmap now
-            foreach (var frame in animation.Frames)
+            //foreach (var frame in animation.Frames)
+            for(int i = 0; i < animation.FrameCount; i++)
             {
+                var frame = animation.GetFrameController(animation.GetFrameAtIndex(i));
+
                 using (var composed = frame.GetComposedBitmap())
                 {
                     FastBitmap.CopyRegion(composed, stripBitmap, new Rectangle(Point.Empty, frame.Size), new Rectangle(new Point(frame.Index * frame.Width, 0), frame.Size));
@@ -288,7 +291,7 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         /// <param name="sheet">The sheet to get the current export progress of</param>
         /// <returns>A value from 0-1 specifying the current export progress for the sheet. In case the sheet is not currently being exported, 0 is returned.</returns>
-        public float ProgressForAnimationSheet(AnimationSheet sheet)
+        public float ProgressForAnimationSheet([NotNull] AnimationSheet sheet)
         {
             return _sheetProgress.TryGetValue(sheet.ID, out float p) ? p : 0;
         }
@@ -300,7 +303,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="tasksToRun">The tasks to run.</param>
         /// <param name="maxTasksToRunInParallel">The maximum number of tasks to run in parallel.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public static void StartAndWaitAllThrottled(IEnumerable<Task> tasksToRun, int maxTasksToRunInParallel, CancellationToken cancellationToken = new CancellationToken())
+        public static void StartAndWaitAllThrottled([NotNull] IEnumerable<Task> tasksToRun, int maxTasksToRunInParallel, CancellationToken cancellationToken = new CancellationToken())
         {
             StartAndWaitAllThrottled(tasksToRun, maxTasksToRunInParallel, -1, cancellationToken);
         }
@@ -313,7 +316,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="maxTasksToRunInParallel">The maximum number of tasks to run in parallel.</param>
         /// <param name="timeoutInMilliseconds">The maximum milliseconds we should allow the max tasks to run in parallel before allowing another task to start. Specify -1 to wait indefinitely.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public static void StartAndWaitAllThrottled(IEnumerable<Task> tasksToRun, int maxTasksToRunInParallel, int timeoutInMilliseconds, CancellationToken cancellationToken = new CancellationToken())
+        public static void StartAndWaitAllThrottled([NotNull] IEnumerable<Task> tasksToRun, int maxTasksToRunInParallel, int timeoutInMilliseconds, CancellationToken cancellationToken = new CancellationToken())
         {
             // Convert to a list of tasks so that we don&#39;t enumerate over it multiple times needlessly.
             var tasks = tasksToRun.ToList();

@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,13 +20,25 @@
     base directory of this project.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Pixelaria.Data;
+
 namespace Pixelaria.Controllers.DataControllers
 {
-    /// <summary>
-    /// Represents the public interface for an object that uniquely identifies a frame within a frame controller
-    /// </summary>
-    public interface IFrameId
+    public class AnimationSheetController
     {
-        int Id { get; }
+        private readonly Bundle _bundle;
+
+        private readonly AnimationSheet _animationSheet;
+
+        public AnimationSheetController(Bundle bundle, AnimationSheet animationSheet)
+        {
+            _bundle = bundle;
+            _animationSheet = animationSheet;
+        }
     }
 }

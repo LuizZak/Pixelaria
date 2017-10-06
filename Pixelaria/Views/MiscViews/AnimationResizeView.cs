@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 
 namespace Pixelaria.Views.MiscViews
@@ -66,12 +66,12 @@ namespace Pixelaria.Views.MiscViews
         /// <summary>
         /// The animation to be used as preview for the resize operation
         /// </summary>
-        private readonly Animation _animation;
+        private readonly AnimationController _animation;
 
         /// <summary>
         /// The frame used to preview the changes
         /// </summary>
-        private Frame _viewFrame;
+        private FrameController _viewFrame;
 
         /// <summary>
         /// The current bitmap being rendered as a preview of the frame resize
@@ -89,7 +89,7 @@ namespace Pixelaria.Views.MiscViews
         /// <param name="animation">The animation</param>
         /// <param name="startWidth">The starting width of the animation</param>
         /// <param name="startHeight">The starting height of the animation</param>
-        public AnimationResizeView(Animation animation, int startWidth, int startHeight)
+        public AnimationResizeView(AnimationController animation, int startWidth, int startHeight)
         {
             InitializeComponent();
 
@@ -143,7 +143,7 @@ namespace Pixelaria.Views.MiscViews
 
             _viewFrame?.Dispose();
 
-            _viewFrame = _animation[0].Clone();
+            _viewFrame = _animation.GetFrameController(_animation.GetFrameAtIndex(0)).MakeCopyForEditing();
 
             _viewFrame.Resize(GeneratedSettings.NewWidth, GeneratedSettings.NewHeight, GeneratedSettings.PerFrameScalingMethod, GeneratedSettings.InterpolationMode);
 
@@ -200,11 +200,7 @@ namespace Pixelaria.Views.MiscViews
         {
             zpb_preview.Image?.Dispose();
 
-            if (_viewFrame != null)
-            {
-                _viewFrame.Dispose();
-                _viewFrame = null;
-            }
+            _viewFrame?.Dispose();
         }
 
         // 

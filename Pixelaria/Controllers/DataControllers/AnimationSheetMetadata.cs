@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,13 +20,33 @@
     base directory of this project.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace Pixelaria.Controllers.DataControllers
 {
     /// <summary>
-    /// Represents the public interface for an object that uniquely identifies a frame within a frame controller
+    /// Basic metadata for an animation sheet
     /// </summary>
-    public interface IFrameId
+    public struct AnimationSheetMetadata
     {
-        int Id { get; }
+        /// <summary>
+        /// Gets the display name for the animation sheet
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// Gets the count of animations associated with the animation sheet
+        /// </summary>
+        public int AnimationCount { get; }
+
+        public AnimationSheetMetadata(string name, int animationCount)
+        {
+            Name = name;
+            AnimationCount = animationCount;
+        }
     }
 }

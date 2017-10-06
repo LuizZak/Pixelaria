@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
 
 using Pixelaria.Data;
@@ -43,6 +43,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
         /// </summary>
+        [CanBeNull]
         readonly AnimationSheet _parentSheet;
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="controller">The controller that owns this view</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created Animation</param>
-        public NewAnimationView(Controller controller, AnimationSheet parentSheet = null)
+        public NewAnimationView(Controller controller, [CanBeNull] AnimationSheet parentSheet = null)
         {
             _controller = controller;
             _parentSheet = parentSheet;

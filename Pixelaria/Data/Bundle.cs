@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data.Factories;
 
 namespace Pixelaria.Data
@@ -130,15 +132,19 @@ namespace Pixelaria.Data
         /// </summary>
         public Bundle Clone()
         {
-            Bundle newBundle = new Bundle(Name) { ExportPath = ExportPath, SaveFile = SaveFile };
+            // TODO: Maybe create a BundleController and lift this Clone() code there?
+
+            var newBundle = new Bundle(Name) { ExportPath = ExportPath, SaveFile = SaveFile };
 
             // Copy animations over
             foreach (var animation in _animations)
             {
-                Animation anim = animation.Clone();
+                var controller = new AnimationController(this, animation);
+
+                var anim = controller.CloneAnimation();
                 anim.ID = animation.ID;
 
-                newBundle.AddAnimation(animation.Clone());
+                newBundle.AddAnimation(anim);
 
                 // Maintain frame IDs
                 for (int i = 0; i < anim.FrameCount; i++)
@@ -150,10 +156,10 @@ namespace Pixelaria.Data
             // Copy Animation Sheets over
             foreach (var animationSheet in _animationSheets)
             {
-                AnimationSheet newSheet = new AnimationSheet(animationSheet.Name);
+                var newSheet = new AnimationSheet(animationSheet.Name);
                 newBundle.AddAnimationSheet(newSheet);
 
-                foreach (Animation anim in animationSheet.Animations)
+                foreach (var anim in animationSheet.Animations)
                 {
                     newBundle.AddAnimationToAnimationSheet(newBundle.GetAnimationByID(anim.ID), newSheet);
                 }
@@ -172,7 +178,7 @@ namespace Pixelaria.Data
         /// <param name="width">The width of the new animation</param>
         /// <param name="height">The height of the new animation</param>
         /// <returns>The animation created</returns>
-        public Animation CreateNewAnimation(string name, int width, int height)
+        public Animation CreateNewAnimation([NotNull] string name, int width, int height)
         {
             var anim = new Animation(name, width, height);
 
@@ -185,7 +191,7 @@ namespace Pixelaria.Data
         /// Adds an existing animation into this bundle
         /// </summary>
         /// <param name="anim">The animation to add to this bundle</param>
-        public void AddAnimation(Animation anim)
+        public void AddAnimation([NotNull] Animation anim)
         {
             // Seek a new ID for this animation if one is not set yet
             if (anim.ID == -1)
@@ -200,7 +206,7 @@ namespace Pixelaria.Data
             anim.FrameIdGenerator = this;
 
             // Iterate through the frames and check their ids
-            foreach (IFrame frame in anim.Frames)
+            foreach (var frame in anim.Frames)
             {
                 if (frame.ID == -1)
                     frame.ID = GetNextUniqueFrameId();
@@ -218,7 +224,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="anim">The animation to add to this bundle</param>
         /// <param name="parentAnimationSheet">The animation sheet to add the animation to</param>
-        public void AddAnimation(Animation anim, AnimationSheet parentAnimationSheet)
+        public void AddAnimation([NotNull] Animation anim, AnimationSheet parentAnimationSheet)
         {
             AddAnimation(anim);
 
@@ -232,10 +238,10 @@ namespace Pixelaria.Data
         /// Removes the given animation from this bundle
         /// </summary>
         /// <param name="anim">The animation to remove from this bundle</param>
-        public void RemoveAnimation(Animation anim)
+        public void RemoveAnimation([NotNull] Animation anim)
         {
             // Remove 
-            foreach (AnimationSheet bundleSheet in _animationSheets)
+            foreach (var bundleSheet in _animationSheets)
             {
                 if (bundleSheet.RemoveAnimation(anim))
                 {
@@ -256,13 +262,15 @@ namespace Pixelaria.Data
         /// <param name="sheet">The AnimationSheet to add the duplicated animation to</param>
         /// <param name="rearrange">Whether to re-arrange the index of the animation on the container</param>
         /// <returns>The new animation that was duplicated</returns>
-        public Animation DuplicateAnimation(Animation anim, AnimationSheet sheet, bool rearrange = true)
+        public Animation DuplicateAnimation([NotNull] Animation anim, AnimationSheet sheet, bool rearrange = true)
         {
-            var dup = anim.Clone();
+            var controller = new AnimationController(this, anim);
+
+            var dup = controller.CloneAnimation();
 
             dup.ID = GetNextValidAnimationID();
 
-            sheet = (sheet ?? GetOwningAnimationSheet(anim));
+            sheet = sheet ?? GetOwningAnimationSheet(anim);
 
             AddAnimation(dup, sheet);
 
@@ -298,16 +306,9 @@ namespace Pixelaria.Data
         /// <returns>The index of the animation in its current parent container</returns>
         public int GetAnimationIndex(Animation anim)
         {
-            AnimationSheet sheet = GetOwningAnimationSheet(anim);
+            var sheet = GetOwningAnimationSheet(anim);
 
-            if (sheet == null)
-            {
-                return _animations.IndexOf(anim);
-            }
-            else
-            {
-                return sheet.IndexOfAnimation(anim);
-            }
+            return sheet?.IndexOfAnimation(anim) ?? _animations.IndexOf(anim);
         }
 
         /// <summary>
@@ -317,7 +318,7 @@ namespace Pixelaria.Data
         /// <param name="newIndex">The new index to place the animation at</param>
         public void RearrangeAnimationsPosition(Animation anim, int newIndex)
         {
-            AnimationSheet sheet = GetOwningAnimationSheet(anim);
+            var sheet = GetOwningAnimationSheet(anim);
 
             if (sheet == null)
             {
@@ -337,6 +338,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="id">The ID of the animation to get</param>
         /// <returns>An animation object inside this that matches the given ID. If no animation matches the passed ID, null is returned</returns>
+        [CanBeNull]
         // ReSharper disable once InconsistentNaming
         public Animation GetAnimationByID(int id)
         {
@@ -349,6 +351,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="name">The name of the animation to get</param>
         /// <returns>An animation object inside this that matches the given name. If no animation matches the passed name, null is returned</returns>
+        [CanBeNull]
         public Animation GetAnimationByName(string name)
         {
             return _animations.FirstOrDefault(anim => anim.Name == name);
@@ -358,7 +361,7 @@ namespace Pixelaria.Data
         /// Adds the given animation sheet to this bundle
         /// </summary>
         /// <param name="sheet">The animation sheet to add to this bundle</param>
-        public void AddAnimationSheet(AnimationSheet sheet)
+        public void AddAnimationSheet([NotNull] AnimationSheet sheet)
         {
             if(sheet.ID == -1)
                 sheet.ID = GetNextValidAnimationSheetID();
@@ -391,10 +394,10 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="sheet">The animation sheet to remove</param>
         /// <param name="deleteAnimations">Whether to delete the nested animations as well. If set to false, the animations will be moved to the bundle's root</param>
-        public void RemoveAnimationSheet(AnimationSheet sheet, bool deleteAnimations)
+        public void RemoveAnimationSheet([NotNull] AnimationSheet sheet, bool deleteAnimations)
         {
             // Remove/relocate the animations
-            foreach (Animation anim in sheet.Animations)
+            foreach (var anim in sheet.Animations)
             {
                 sheet.RemoveAnimation(anim);
 
@@ -416,7 +419,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="sheet">The animation sheet to duplicate</param>
         /// <returns>The new animation sheet that was duplicated</returns>
-        public AnimationSheet DuplicateAnimationSheet(AnimationSheet sheet)
+        public AnimationSheet DuplicateAnimationSheet([NotNull] AnimationSheet sheet)
         {
             // Find a new name for the animation
             int n = 2;
@@ -478,6 +481,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="anim">The animation object to get the animation sheet of</param>
         /// <returns>The AnimationSheet that currently owns the given Animation object. If the Animation is not inside any AnimationSheet, null is returned</returns>
+        [CanBeNull]
         public AnimationSheet GetOwningAnimationSheet(Animation anim)
         {
             return _animationSheets.FirstOrDefault(sheet => sheet.ContainsAnimation(anim));
@@ -492,7 +496,7 @@ namespace Pixelaria.Data
         public void AddAnimationToAnimationSheet(Animation anim, AnimationSheet sheet)
         {
             // Get the current AnimationSheet owning the given anim
-            AnimationSheet curSheet = GetOwningAnimationSheet(anim);
+            var curSheet = GetOwningAnimationSheet(anim);
 
             if (curSheet != null)
             {
@@ -507,7 +511,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="anim">The animation to remove from the animation sheet</param>
         /// <param name="sheet">The AnimationSheet to remove the animation from</param>
-        public void RemoveAnimationFromAnimationSheet(Animation anim, AnimationSheet sheet)
+        public void RemoveAnimationFromAnimationSheet(Animation anim, [NotNull] AnimationSheet sheet)
         {
             sheet.RemoveAnimation(anim);
         }
@@ -518,6 +522,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="id">The ID of the animation sheet to get</param>
         /// <returns>An animation sheet object inside this that matches the given ID. If no animation sheet matches the passed ID, null is returned</returns>
+        [CanBeNull]
         // ReSharper disable once InconsistentNaming
         public AnimationSheet GetAnimationSheetByID(int id)
         {
@@ -530,6 +535,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="name">The name of the animation sheet to get</param>
         /// <returns>An animation sheet object inside this that matches the given name. If no animation sheet matches the passed name, null is returned</returns>
+        [CanBeNull]
         public AnimationSheet GetAnimationSheetByName(string name)
         {
             return _animationSheets.FirstOrDefault(sheet => sheet.Name == name);

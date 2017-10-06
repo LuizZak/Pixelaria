@@ -86,20 +86,20 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The dialog result of the message box that was shown</returns>
         public virtual DialogResult ConfirmChanges()
         {
-            DialogResult diag = DialogResult.Yes;
+            var diag = DialogResult.Yes;
 
-            if (modified)
+            if (!modified)
+                return diag;
+
+            diag = MessageBox.Show(this, @"There are unsaved changes. Do you wish to save before closing?", @"Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+            if (diag == DialogResult.Yes)
             {
-                diag = MessageBox.Show(this, @"There are unsaved changes. Do you wish to save before closing?", @"Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-
-                if (diag == DialogResult.Yes)
-                {
-                    ApplyChanges();
-                }
-                else if(diag == DialogResult.No)
-                {
-                    modified = false;
-                }
+                ApplyChanges();
+            }
+            else if(diag == DialogResult.No)
+            {
+                modified = false;
             }
 
             return diag;
@@ -112,15 +112,15 @@ namespace Pixelaria.Views.ModelViews
         {
             base.OnFormClosing(e);
 
-            if (modified)
-            {
-                BringToFront();
-                DialogResult diag = ConfirmChanges();
+            if (!modified)
+                return;
 
-                if (diag == DialogResult.Cancel)
-                {
-                    e.Cancel = true;
-                }
+            BringToFront();
+            var diag = ConfirmChanges();
+
+            if (diag == DialogResult.Cancel)
+            {
+                e.Cancel = true;
             }
         }
     }

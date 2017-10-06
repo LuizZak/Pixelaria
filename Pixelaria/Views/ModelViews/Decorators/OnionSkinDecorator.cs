@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews.Decorators
@@ -42,6 +43,14 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// The onion skin bitmap
         /// </summary>
         protected Bitmap onionSkin;
+
+        /// <summary>
+        /// For providing frame images of previous/next frames during onion skin generation.
+        /// 
+        /// Note that onion skin rendering doesn't work until a frame image provider is set.
+        /// </summary>
+        [CanBeNull]
+        public IOnionSkinFrameProvider FrameImageProvider { get; set; }
 
         /// <summary>
         /// The settings to utilize when rendering this onion skin
@@ -103,10 +112,12 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// </summary>
         public void ShowOnionSkin()
         {
-            Settings.OnionSkinEnabled = true;
-
             if (frameView.FrameLoaded == null)
                 return;
+            if (FrameImageProvider == null)
+                return;
+
+            Settings.OnionSkinEnabled = true;
 
             if (onionSkin != null && (onionSkin.Width != frameView.FrameLoaded.Width || onionSkin.Height != frameView.FrameLoaded.Height))
             {
@@ -124,17 +135,17 @@ namespace Pixelaria.Views.ModelViews.Decorators
                 onionSkin = new Bitmap(frameView.FrameLoaded.Width, frameView.FrameLoaded.Height, PixelFormat.Format32bppArgb);
             }
 
-            Graphics og = Graphics.FromImage(onionSkin);
+            var og = Graphics.FromImage(onionSkin);
 
             og.CompositingMode = CompositingMode.SourceOver;
 
-            Rectangle bounds = new Rectangle(0, 0, frameView.FrameLoaded.Width, frameView.FrameLoaded.Height);
+            var bounds = new Rectangle(0, 0, frameView.FrameLoaded.Width, frameView.FrameLoaded.Height);
 
             // Create image attributes
-            ImageAttributes attributes = new ImageAttributes();
+            var attributes = new ImageAttributes();
 
             // Create a color matrix object
-            ColorMatrix matrix = new ColorMatrix();
+            var matrix = new ColorMatrix();
 
             //float multDecay = 0.3f + (0.7f / OnionSkinDepth);
             float multDecay = 0.5f + (Settings.OnionSkinDepth / 50.0f);
@@ -150,7 +161,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
                     mult *= multDecay;
                     attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                    using (var bitmap = frameView.FrameLoaded.Animation[i].GetComposedBitmap())
+                    using (var bitmap = FrameImageProvider.GetComposedBitmapForFrame(i))
                     {
                         og.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
                     }
@@ -161,13 +172,13 @@ namespace Pixelaria.Views.ModelViews.Decorators
             {
                 int fi = frameView.FrameLoaded.Index;
                 float mult = 1;
-                for (int i = fi + 1; i < fi + Settings.OnionSkinDepth + 1 && i < frameView.FrameLoaded.Animation.FrameCount; i++)
+                for (int i = fi + 1; i < fi + Settings.OnionSkinDepth + 1 && i < FrameImageProvider.FrameCount; i++)
                 {
                     matrix.Matrix33 = Settings.OnionSkinTransparency * mult;
                     mult *= multDecay;
                     attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                    using (var bitmap = frameView.FrameLoaded.Animation[i].GetComposedBitmap())
+                    using (var bitmap = FrameImageProvider.GetComposedBitmapForFrame(i))
                     {
                         og.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
                     }
@@ -216,7 +227,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
             if (onionSkin != null && !Settings.DisplayOnFront)
             {
-                Graphics g = Graphics.FromImage(bitmap);
+                var g = Graphics.FromImage(bitmap);
 
                 g.DrawImage(onionSkin, 0, 0);
             }
@@ -232,11 +243,30 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
             if (onionSkin != null && Settings.DisplayOnFront)
             {
-                Graphics g = Graphics.FromImage(bitmap);
+                var g = Graphics.FromImage(bitmap);
 
                 g.DrawImage(onionSkin, 0, 0);
             }
         }
+    }
+
+    /// <summary>
+    /// For abstracting away task of getting frame bitmaps of next and previous frames during onion
+    /// skin rendering.
+    /// 
+    /// Used to help invert dependency between the FrameView/OnionSkinDecorator and the animation controllers.
+    /// </summary>
+    public interface IOnionSkinFrameProvider
+    {
+        /// <summary>
+        /// Gets maximum available number of frames that an onion skin can request to renders
+        /// </summary>
+        int FrameCount { get; }
+
+        /// <summary>
+        /// Gets the composed frame bitmap for a frame at a given index.
+        /// </summary>
+        Bitmap GetComposedBitmapForFrame(int index);
     }
 
     /// <summary>

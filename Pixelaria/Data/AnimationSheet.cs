@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -78,11 +79,14 @@ namespace Pixelaria.Data
         /// </summary>
         public AnimationSheet Clone()
         {
-            AnimationSheet sheetClone = new AnimationSheet(Name) { ExportSettings = ExportSettings };
+            // TODO: Maybe create an AnimationSheetController and lift this Clone() code there?
+
+            var sheetClone = new AnimationSheet(Name) { ExportSettings = ExportSettings };
 
             foreach (var animation in _animations)
             {
-                sheetClone.AddAnimation(animation.Clone());
+                var controller = new AnimationController(null, animation);
+                sheetClone.AddAnimation(controller.CloneAnimation());
             }
 
             return sheetClone;
@@ -122,7 +126,7 @@ namespace Pixelaria.Data
         /// </summary>
         public void ClearAnimationList()
         {
-            foreach (Animation anim in Animations)
+            foreach (var anim in Animations)
             {
                 RemoveAnimation(anim);
             }

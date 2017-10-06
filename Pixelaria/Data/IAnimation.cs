@@ -58,12 +58,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// The playbar settings for this Animation
         /// </summary>
-        AnimationPlaybackSettings PlaybackSettings { get; set; }
+        AnimationPlaybackSettings PlaybackSettings { get; }
 
         /// <summary>
         /// The export settings of this animation
         /// </summary>
-        AnimationExportSettings ExportSettings { get; set; }
+        AnimationExportSettings ExportSettings { get; }
 
         /// <summary>
         /// Gets the composed bitmap for a specified frame index

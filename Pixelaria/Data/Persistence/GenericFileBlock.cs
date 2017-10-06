@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence
 {
@@ -66,9 +67,9 @@ namespace Pixelaria.Data.Persistence
         /// Saves this block to the given Stream
         /// </summary>
         /// <param name="stream">The stream to save this block to</param>
-        public virtual void SaveToStream(Stream stream)
+        public virtual void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             blockOffset = stream.Position;
 
@@ -109,9 +110,9 @@ namespace Pixelaria.Data.Persistence
         /// Loads this block from the given Stream
         /// </summary>
         /// <param name="stream">The stream to load this block from</param>
-        public virtual void LoadFromStream(Stream stream)
+        public virtual void LoadFromStream([NotNull] Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             // Save the stream offset
             blockOffset = stream.Position;
@@ -130,9 +131,9 @@ namespace Pixelaria.Data.Persistence
         /// Loads the content portion of the block from the given stream
         /// </summary>
         /// <param name="stream">The stream to load the content from</param>
-        protected virtual void LoadContentFromStream(Stream stream)
+        protected virtual void LoadContentFromStream([NotNull] Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             if (stream.Length - stream.Position < blockLength)
             {

@@ -41,7 +41,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The animation to modify
         /// </summary>
-        private readonly Animation _animation;
+        private readonly AnimationController _animation;
 
         /// <summary>
         /// The current frame bitmap being displayed
@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ModelViews
         /// Initializes a new instance of the AnimationFilterView class
         /// </summary>
         /// <param name="animation">The animation to show the filter to</param>
-        public AnimationFilterView(Animation animation)
+        public AnimationFilterView(AnimationController animation)
         {
             InitializeComponent();
 
@@ -63,7 +63,7 @@ namespace Pixelaria.Views.ModelViews
 
             tc_timeline.Range = new Point(0, animation.FrameCount);
 
-            SetDisplayFrame(animation.GetFrameAtIndex(0));
+            SetDisplayFrame(_animation.GetFrameController(_animation.GetFrameAtIndex(0)).GetComposedBitmap());
 
             pnl_errorPanel.Visible = false;
 
@@ -75,7 +75,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
         /// <param name="animation">The animation to apply the filter to</param>
-        public AnimationFilterView(FilterControl[] filters, Animation animation)
+        public AnimationFilterView(FilterControl[] filters, AnimationController animation)
             : this(animation)
         {
             fs_filters.LoadFilters(filters);
@@ -86,7 +86,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="preset">A FilterPreset that contains data about filters to load on this BaseFilterView</param>
         /// <param name="animation">The animation to apply the filter to</param>
-        public AnimationFilterView(FilterPreset preset, Animation animation)
+        public AnimationFilterView(FilterPreset preset, AnimationController animation)
             : this(animation)
         {
             fs_filters.LoadFilterPreset(preset);
@@ -96,11 +96,11 @@ namespace Pixelaria.Views.ModelViews
         /// Sets the current frame  being displayed on the filter view
         /// </summary>
         /// <param name="frame">The </param>
-        private void SetDisplayFrame(IFrame frame)
+        private void SetDisplayFrame(Bitmap frame)
         {
             _currentFrameBitmap?.Dispose();
 
-            _currentFrameBitmap = frame.GetComposedBitmap();
+            _currentFrameBitmap = frame;
 
             fs_filters.SetImage(_currentFrameBitmap);
         }
@@ -132,25 +132,21 @@ namespace Pixelaria.Views.ModelViews
 
             for (int i = range.X - 1; i < range.X + range.Y; i++)
             {
-                var frame = _animation[i] as Frame;
-                
-                if (frame == null)
-                    continue;
-
-                var controller = new FrameController(frame);
+                var frame = _animation.GetFrameAtIndex(i);
+                var controller = _animation.GetFrameController(frame);
 
                 foreach (var container in fs_filters.FilterContainers)
                 {
-                    var bitmap = frame.GetComposedBitmap();
+                    var bitmap = controller.GetComposedBitmap();
                     container.ApplyFilter(bitmap);
 
                     // Remove all the layers from the frame
-                    while (frame.LayerCount > 1)
+                    while (controller.LayerCount > 1)
                     {
-                        controller.RemoveLayerAt(frame.LayerCount - 1);
+                        controller.RemoveLayerAt(controller.LayerCount - 1);
                     }
 
-                    frame.SetFrameBitmap(bitmap);
+                    controller.SetFrameBitmap(bitmap);
                 }
             }
 
@@ -163,7 +159,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tc_timeline_FrameChanged(object sender, FrameChangedEventArgs eventArgs)
         {
-            SetDisplayFrame(_animation.GetFrameAtIndex(eventArgs.NewFrame - 1));
+            SetDisplayFrame(_animation.GetFrameController(_animation.GetFrameAtIndex(eventArgs.NewFrame - 1)).GetComposedBitmap());
         }
 
         // 

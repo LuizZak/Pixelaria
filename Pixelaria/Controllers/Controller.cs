@@ -29,7 +29,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Controllers.Validators;
@@ -66,10 +67,19 @@ namespace Pixelaria.Controllers
         /// </summary>
         readonly MainForm _mainForm;
 
+        private Bundle _currentBundle;
+
         /// <summary>
         /// Gets the current bundle opened on the application
         /// </summary>
-        public Bundle CurrentBundle { get; private set; }
+        public Bundle CurrentBundle
+        {
+            get => _currentBundle;
+            private set
+            {
+                _currentBundle = value;
+            }
+        }
 
         /// <summary>
         /// Gets an array of the current files opened in the program
@@ -94,7 +104,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the current IFrameFactory of the program
         /// </summary>
-        public IFrameFactory FrameFactory { get; }
+        public FrameFactory FrameFactory { get; }
 
         /// <summary>
         /// Gets whether the current bundle has unsaved changes
@@ -153,10 +163,10 @@ namespace Pixelaria.Controllers
             _files = new List<PixelariaFile>();
 
             // Initialize the factories
-            FrameFactory = new DefaultFrameFactory(this);
+            FrameFactory = new FrameFactory(null);
 
             // Initialize the validators and exporters
-            DefaultValidator defValidator = new DefaultValidator(this);
+            var defValidator = new DefaultValidator(this);
 
             AnimationValidator = defValidator;
             AnimationSheetValidator = defValidator;
@@ -208,7 +218,7 @@ namespace Pixelaria.Controllers
         /// <param name="savePath">The path to load the bundle from</param>
         public void LoadBundleFromFile(string savePath)
         {
-            PixelariaFile file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
+            var file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
 
             if (file == null)
             {
@@ -222,7 +232,7 @@ namespace Pixelaria.Controllers
                 CloseBundle(CurrentBundle);
             }
 
-            Bundle newBundle = file.LoadedBundle;
+            var newBundle = file.LoadedBundle;
 
             newBundle.SaveFile = savePath;
 
@@ -276,9 +286,9 @@ namespace Pixelaria.Controllers
         /// Closes the given bundle from the controller
         /// </summary>
         /// <param name="bundle">The bundle to close</param>
-        public void CloseBundle(Bundle bundle)
+        public void CloseBundle([NotNull] Bundle bundle)
         {
-            PixelariaFile file = GetPixelariaFileByBundle(bundle);
+            var file = GetPixelariaFileByBundle(bundle);
 
             file?.Dispose();
 
@@ -314,15 +324,16 @@ namespace Pixelaria.Controllers
         /// <param name="openOnForm">Whether to open the newly added animation on the main form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
         /// <returns>The newly created animation</returns>
-        public Animation CreateAnimation(string name, int width, int height, int fps, bool frameskip, bool openOnForm, AnimationSheet parentSheet = null)
+        public Animation CreateAnimation(string name, int width, int height, int fps, bool frameskip, bool openOnForm,
+            [CanBeNull] AnimationSheet parentSheet = null)
         {
-            Animation anim = new Animation(name, width, height)
+            var anim = new Animation(name, width, height)
             {
                 PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameskip }
             };
 
             // Create a dummy frame
-            anim.CreateFrame();
+            new AnimationController(_currentBundle, anim).CreateFrame();
 
             AddAnimation(anim, openOnForm, parentSheet);
 
@@ -335,7 +346,7 @@ namespace Pixelaria.Controllers
         /// <param name="anim">The animation to add to the bundle</param>
         /// <param name="openOnForm">Whether to open the newly added animation on the main form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
-        public void AddAnimation(Animation anim, bool openOnForm, AnimationSheet parentSheet = null)
+        public void AddAnimation(Animation anim, bool openOnForm, [CanBeNull] AnimationSheet parentSheet = null)
         {
             CurrentBundle.AddAnimation(anim, parentSheet);
 
@@ -358,7 +369,7 @@ namespace Pixelaria.Controllers
         /// Removes the given Animation from the current bundle
         /// </summary>
         /// <param name="anim">The Animation to remove from the bundle</param>
-        public void RemoveAnimation(Animation anim)
+        public void RemoveAnimation([NotNull] Animation anim)
         {
             CurrentBundle.RemoveAnimation(anim);
 
@@ -412,7 +423,7 @@ namespace Pixelaria.Controllers
         /// <param name="openOnForm">Whether to open the newly added animation sheet on the main form</param>
         public AnimationSheet CreateAnimationSheet(string name, bool openOnForm)
         {
-            AnimationSheet sheet = new AnimationSheet(name);
+            var sheet = new AnimationSheet(name);
 
             AddAnimationSheet(sheet, openOnForm);
 
@@ -453,7 +464,7 @@ namespace Pixelaria.Controllers
             // Remove/relocate animations
             if (deleteAnimations)
             {
-                foreach (Animation anim in sheet.Animations)
+                foreach (var anim in sheet.Animations)
                 {
                     RemoveAnimation(anim);
                 }
@@ -577,6 +588,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="bundle">The bundle to get the pixelaria file from</param>
         /// <returns>A PixelariaFile that has the given bundle loaded into it</returns>
+        [CanBeNull]
         public PixelariaFile GetPixelariaFileByBundle(Bundle bundle)
         {
             return _files.FirstOrDefault(file => ReferenceEquals(file.LoadedBundle, bundle));
@@ -617,7 +629,7 @@ namespace Pixelaria.Controllers
             if (ShowConfirmSaveChanges() == DialogResult.Cancel)
                 return;
 
-            OpenFileDialog ofd = new OpenFileDialog { Filter = @"Pixelaria Bundle (*.pxl)|*.pxl" };
+            var ofd = new OpenFileDialog { Filter = @"Pixelaria Bundle (*.pxl)|*.pxl" };
 
             if (ofd.ShowDialog(_mainForm) == DialogResult.OK)
             {
@@ -743,9 +755,9 @@ namespace Pixelaria.Controllers
         /// Shows the interface for new Animation creation
         /// </summary>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created Animation</param>
-        public void ShowCreateAnimation(AnimationSheet parentSheet = null)
+        public void ShowCreateAnimation([CanBeNull] AnimationSheet parentSheet = null)
         {
-            NewAnimationView nav = new NewAnimationView(this, parentSheet);
+            var nav = new NewAnimationView(this, parentSheet);
 
             nav.ShowDialog(_mainForm);
         }
@@ -756,7 +768,7 @@ namespace Pixelaria.Controllers
         /// <param name="animation">The animation to duplicate</param>
         public void ShowDuplicateAnimation(Animation animation)
         {
-            Animation dup = CurrentBundle.DuplicateAnimation(animation, null);
+            var dup = CurrentBundle.DuplicateAnimation(animation, null);
 
             _mainForm.AddAnimation(dup, true);
             _mainForm.OpenViewForAnimation(dup);
@@ -768,9 +780,9 @@ namespace Pixelaria.Controllers
         /// Shows the interface for Animation import
         /// </summary>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly imported Animation</param>
-        public void ShowImportAnimation(AnimationSheet parentSheet = null)
+        public void ShowImportAnimation([CanBeNull] AnimationSheet parentSheet = null)
         {
-            ImportAnimationView imp = new ImportAnimationView(this, parentSheet);
+            var imp = new ImportAnimationView(this, parentSheet);
 
             imp.ShowDialog(_mainForm);
         }
@@ -794,13 +806,13 @@ namespace Pixelaria.Controllers
         /// <param name="sheet">The animation sheet to duplicate</param>
         public void ShowDuplicateAnimationSheet(AnimationSheet sheet)
         {
-            AnimationSheet dup = CurrentBundle.DuplicateAnimationSheet(sheet);
+            var dup = CurrentBundle.DuplicateAnimationSheet(sheet);
 
             _mainForm.AddAnimationSheet(dup, true);
             _mainForm.OpenViewForAnimationSheet(dup);
 
             // Add the cloned animations as well
-            foreach (Animation anim in dup.Animations)
+            foreach (var anim in dup.Animations)
             {
                 _mainForm.AddAnimation(anim);
             }
@@ -812,7 +824,7 @@ namespace Pixelaria.Controllers
         /// Shows an interface to save an animation sheet's generated texture to disk
         /// </summary>
         /// <param name="sheet">The animation sheet to save to disk</param>
-        public void ShowExportAnimationSheetImage(AnimationSheet sheet)
+        public void ShowExportAnimationSheetImage([NotNull] AnimationSheet sheet)
         {
             if (sheet.AnimationCount == 0)
             {
@@ -843,7 +855,7 @@ namespace Pixelaria.Controllers
         {
             imageFormat = ImageFormat.Png;
 
-            SaveFileDialog sfd = new SaveFileDialog
+            var sfd = new SaveFileDialog
             {
                 Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff",
                 FileName = fileName
@@ -974,7 +986,8 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="owner">An optional owner for the file dialog</param>
         /// <returns>The images the user opened, or null, if no images were chosen</returns>
-        public Image[] ShowLoadImages(IWin32Window owner = null)
+        [CanBeNull]
+        public Image[] ShowLoadImages([CanBeNull] IWin32Window owner = null)
         {
             return ShowLoadImages(out string[] _, owner);
         }
@@ -987,35 +1000,36 @@ namespace Pixelaria.Controllers
         /// <param name="filePaths">The file paths that were chosen for the files. Returned as an empty array when no files were chosen</param>
         /// <param name="owner">An optional owner for the file dialog</param>
         /// <returns>The images the user opened, or null, if no images were chosen</returns>
-        public Image[] ShowLoadImages(out string[] filePaths, IWin32Window owner = null)
+        [CanBeNull]
+        public Image[] ShowLoadImages([NotNull] out string[] filePaths, [CanBeNull] IWin32Window owner = null)
         {
             filePaths = new string[0];
 
-            OpenFileDialog ofd = new OpenFileDialog
+            var ofd = new OpenFileDialog
             {
                 Filter = @"PNG Image (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|GIF Image (*.gif)|*.gif|JPEG Image (*.jpg)|*.jpg|TIFF Image (*.tiff)|*.tiff|All image formats (*.png, *.jpg, *.gif, *.tiff, *.bmp)|*.png;*.jpg;*.gif;*.tiff;*.bmp",
                 Multiselect = true
             };
 
-            if (ofd.ShowDialog(owner) == DialogResult.OK)
+            if (ofd.ShowDialog(owner) != DialogResult.OK)
+                return null;
+            
+            filePaths = ofd.FileNames;
+
+            try
             {
-                filePaths = ofd.FileNames;
-
-                try
-                {
-                    var sources = filePaths.Select(Image.FromFile).ToArray();
-                    var baked = sources.Select(PreparedImage).ToArray();
+                var sources = filePaths.Select(Image.FromFile).ToArray();
+                var baked = sources.Select(PreparedImage).ToArray();
                     
-                    // Dispose of the images
-                    Array.ForEach(sources.ToArray(), image => image.Dispose());
+                // Dispose of the images
+                Array.ForEach(sources.ToArray(), image => image.Dispose());
 
-                    return baked;
-                }
-                catch (Exception)
-                {
-                    filePaths = new string[0];
-                    MessageBox.Show(@"Error loading selected images. They may not all be valid image file formats.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return baked;
+            }
+            catch (Exception)
+            {
+                filePaths = new string[0];
+                MessageBox.Show(@"Error loading selected images. They may not all be valid image file formats.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return null;
@@ -1026,7 +1040,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="image">The image to prepare</param>
         /// <returns>The image that was prepared from the given image</returns>
-        private Image PreparedImage(Image image)
+        private static Image PreparedImage([NotNull] Image image)
         {
             var bitmap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
             using (var g = Graphics.FromImage(bitmap))
@@ -1094,11 +1108,11 @@ namespace Pixelaria.Controllers
         /// Shows an interface for saving a sprite strip version of the specified animation
         /// </summary>
         /// <param name="animation">The animation to save a sprite strip out of</param>
-        public void ShowSaveAnimationStrip(Animation animation)
+        public void ShowSaveAnimationStrip([NotNull] AnimationController animation)
         {
             using (var stripImage = GetExporter().GenerateSpriteStrip(animation))
             {
-                ShowSaveImage(stripImage, animation.Name);
+                ShowSaveImage(stripImage, animation.GetAnimationView().Name);
             }
         }
     }
@@ -1116,21 +1130,7 @@ namespace Pixelaria.Controllers
             return _mainForm.OpenViewForAnimation(animation, selectedFrameIndex);
         }
     }
-
-    /// <summary>
-    /// IFrameIdGenerator implementation
-    /// </summary>
-    public partial class Controller : IFrameIdGenerator
-    {
-        public int GetNextUniqueFrameId()
-        {
-            if(CurrentBundle == null)
-                throw new InvalidOperationException(@"No bundle setup - cannot generate unique IDs");
-
-            return CurrentBundle.GetNextUniqueFrameId();
-        }
-    }
-
+    
     /// <summary>
     /// Event arguments for an animation-related event
     /// </summary>

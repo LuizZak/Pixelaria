@@ -23,6 +23,7 @@
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
@@ -74,7 +75,7 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         /// <param name="animation">The animation to generate the sprite strip image from</param>
         /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
-        Image GenerateSpriteStrip(Animation animation);
+        Image GenerateSpriteStrip(AnimationController animation);
 
         /// <summary>
         /// Returns a number from 0-1 describing the export progress for a given animation sheet.

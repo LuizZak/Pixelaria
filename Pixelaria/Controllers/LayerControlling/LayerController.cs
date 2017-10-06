@@ -34,14 +34,9 @@ namespace Pixelaria.Controllers.LayerControlling
     public class LayerController
     {
         /// <summary>
-        /// The frame from which the layers this layer controller is manipulating come from
-        /// </summary>
-        private Frame _frame;
-
-        /// <summary>
         /// Gets the frame controller for this layer controller
         /// </summary>
-        private FrameController _frameController;
+        private FrameController _frame;
 
         /// <summary>
         /// The currently active layer index
@@ -179,7 +174,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets or sets the current frame being controlled
         /// </summary>
-        public Frame Frame
+        public FrameController Frame
         {
             get => _frame;
             set
@@ -188,7 +183,6 @@ namespace Pixelaria.Controllers.LayerControlling
                     return;
 
                 _frame = value;
-                _frameController = new FrameController(_frame);
 
                 FrameChanged?.Invoke(this, new LayerControllerFrameChangedEventArgs(value));
             }
@@ -220,7 +214,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the currently active layer
         /// </summary>
-        public IFrameLayer ActiveLayer => _frameController.GetLayerAt(ActiveLayerIndex);
+        public IFrameLayer ActiveLayer => _frame.GetLayerAt(ActiveLayerIndex);
 
         /// <summary>
         /// Gets an array of all layers for the frame being controller
@@ -233,7 +227,7 @@ namespace Pixelaria.Controllers.LayerControlling
 
                 for (int i = 0; i < _frame.LayerCount; i++)
                 {
-                    layers[i] = _frameController.GetLayerAt(i);
+                    layers[i] = _frame.GetLayerAt(i);
                 }
 
                 return layers;
@@ -249,12 +243,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Initializes a new instance of the LayerController class with a specified frame to control
         /// </summary>
         /// <param name="frame">The frame to control on this Layer Controller</param>
-        public LayerController(Frame frame)
+        public LayerController(FrameController frame)
         {
-            _frame = frame;
             if (frame != null)
             {
-                _frameController = new FrameController(frame);
+                _frame = frame;
             }
         }
 
@@ -266,7 +259,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            IFrameLayer layer = _frameController.CreateLayer(layerIndex);
+            IFrameLayer layer = _frame.CreateLayer(layerIndex);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
 
@@ -283,7 +276,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            IFrameLayer layer = _frameController.AddLayer(bitmap, index);
+            IFrameLayer layer = _frame.AddLayer(bitmap, index);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
 
@@ -299,7 +292,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            _frameController.AddLayer(layer, index);
+            _frame.AddLayer(layer, index);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
         }
@@ -324,7 +317,7 @@ namespace Pixelaria.Controllers.LayerControlling
                 // Move layer by swapping it until it is in the new desired place
                 for (int i = layerIndex; i < newIndex; i++)
                 {
-                    _frameController.SwapLayers(i, i + 1);
+                    _frame.SwapLayers(i, i + 1);
                 }
             }
             else if (layerIndex > newIndex)
@@ -332,7 +325,7 @@ namespace Pixelaria.Controllers.LayerControlling
                 // Move layer by swapping it until it is in the new desired place
                 for (int i = layerIndex; i > newIndex; i--)
                 {
-                    _frameController.SwapLayers(i, i - 1);
+                    _frame.SwapLayers(i, i - 1);
                 }
             }
 
@@ -357,11 +350,11 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="dispose">Whether to dispose of the layer that was removed</param>
         public void RemoveLayer(int layerIndex, bool dispose = true)
         {
-            IFrameLayer layer = _frameController.GetLayerAt(layerIndex);
+            IFrameLayer layer = _frame.GetLayerAt(layerIndex);
 
             BeforeLayerRemoved?.Invoke(this, new LayerControllerLayerRemovedEventArgs(layer));
 
-            _frameController.RemoveLayerAt(layerIndex, dispose);
+            _frame.RemoveLayerAt(layerIndex, dispose);
 
             // Normalize active layer
             _activeLayerIndex = ActiveLayerIndex;
@@ -379,14 +372,14 @@ namespace Pixelaria.Controllers.LayerControlling
             Bitmap oldBitmap = null;
 
             // Make a copy of the bitmap before modifying it for the event
-            var frameLayer = _frameController.GetLayerAt(layerIndex);
+            var frameLayer = _frame.GetLayerAt(layerIndex);
 
             if (LayerImageUpdated != null)
             {
                 oldBitmap = frameLayer.LayerBitmap.Clone(new Rectangle(Point.Empty, frameLayer.Size), frameLayer.LayerBitmap.PixelFormat);
             }
 
-            _frameController.SetLayerBitmap(layerIndex, bitmap);
+            _frame.SetLayerBitmap(layerIndex, bitmap);
 
             LayerImageUpdated?.Invoke(this, new LayerControllerLayerImageUpdatedEventArgs(frameLayer, oldBitmap));
         }
@@ -398,7 +391,7 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <param name="newName">The new name for the layer</param>
         public void SetLayerName(int layerIndex, string newName)
         {
-            var layer = _frameController.GetLayerAt(layerIndex);
+            var layer = _frame.GetLayerAt(layerIndex);
             string oldName = layer.Name;
 
             layer.Name = newName;
@@ -416,7 +409,7 @@ namespace Pixelaria.Controllers.LayerControlling
             BeforeLayerDuplicated?.Invoke(this, new LayerControllerLayerDuplicatedEventArgs(layerIndex));
 
             // Duplicate the layer up
-            IFrameLayer layer = _frameController.GetLayerAt(layerIndex).Clone();
+            IFrameLayer layer = _frame.GetLayerAt(layerIndex).Clone();
 
             // Use the class' AddLayer method to take advantage of the event firing
             if (layerIndex == _frame.LayerCount - 1)
@@ -630,13 +623,13 @@ namespace Pixelaria.Controllers.LayerControlling
         /// <summary>
         /// Gets the frame that was changed to
         /// </summary>
-        public Frame NewFrame { get; }
+        public FrameController NewFrame { get; }
 
         /// <summary>
         /// Initializes a new instance of the FrameChangedEventArgs
         /// </summary>
         /// <param name="newFrame">The new frame that was changed to</param>
-        public LayerControllerFrameChangedEventArgs(Frame newFrame)
+        public LayerControllerFrameChangedEventArgs(FrameController newFrame)
         {
             NewFrame = newFrame;
         }

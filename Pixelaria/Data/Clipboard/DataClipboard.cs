@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Clipboard
 {
@@ -163,35 +164,35 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// List of frames to store into this ClipboardObject
         /// </summary>
-        List<IFrame> _frameList;
+        List<FrameController> _frameList;
 
         /// <summary>
         /// Gets the frames currently added to this FrameListClipboardObject instance
         /// </summary>
-        public IFrame[] Frames => _frameList.ToArray();
+        public FrameController[] Frames => _frameList.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
         /// </summary>
         public FrameListClipboardObject()
         {
-            _frameList = new List<IFrame>();
+            _frameList = new List<FrameController>();
         }
 
         /// <summary>
         /// Initializes a new FrameListClipboardObject with a list of frames to 
         /// </summary>
         /// <param name="frameList">A list of frames to initialize the internal frame list with</param>
-        public FrameListClipboardObject(List<IFrame> frameList)
+        public FrameListClipboardObject(IEnumerable<FrameController> frameList)
         {
-            _frameList = new List<IFrame>(frameList);
+            _frameList = new List<FrameController>(frameList);
         }
 
         /// <summary>
         /// Adds the given Frame to this FrameListClipboardObject instance
         /// </summary>
         /// <param name="frame">The frame to add</param>
-        public void AddFrame(IFrame frame)
+        public void AddFrame(FrameController frame)
         {
             _frameList.Add(frame);
         }

@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 
 namespace PixelariaTests.PixelariaTests.Generators
@@ -41,12 +42,13 @@ namespace PixelariaTests.PixelariaTests.Generators
         public static Animation GenerateAnimation(string name, int width, int height, int frameCount, int seed = -1)
         {
             var anim = new Animation(name, width, height);
+            var controller = new AnimationController(null, anim);
 
             for (int i = 0; i < frameCount; i++)
             {
                 var frame = FrameGenerator.GenerateRandomFrame(width, height, seed == -1 ? seed : seed + i, 1);
-
-                anim.AddFrame(frame);
+                
+                controller.AddFrame(frame);
             }
 
             return anim;

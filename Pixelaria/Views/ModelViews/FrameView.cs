@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.DataControllers;
@@ -57,6 +58,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private readonly Controller _controller;
 
+        [CanBeNull] private readonly IAnimation _animation;
+
         /// <summary>
         /// The controller for the layers of the currently active frame
         /// </summary>
@@ -71,12 +74,7 @@ namespace Pixelaria.Views.ModelViews
         /// The object that binds this frame view with the layer controller
         /// </summary>
         private readonly FrameViewLayerControllerBinder _binder;
-
-        /// <summary>
-        /// The copy of the frame that is actually edited by this form
-        /// </summary>
-        private Frame _viewFrame;
-
+        
         /// <summary>
         /// The controller for the frame being edited
         /// </summary>
@@ -150,19 +148,15 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets whether this FrameView has modified any frames while open
         /// </summary>
-        public bool ModifiedFrames { get; private set; }
+        public bool ModifiedFrames { get; set; }
 
         /// <summary>
         /// Gets the frame currently loaded on this form
         /// </summary>
-        public Frame FrameLoaded { get; private set; }
-
-        /// <summary>
-        /// Delegate for the EdirFrameChanged event
-        /// </summary>
-        /// <param name="sender">The object that fired the event</param>
-        /// <param name="args">The arguments for the event</param>
+        public FrameController FrameLoaded { get; private set; }
+        
         public delegate void EditFrameChangedEventHandler(object sender, EditFrameChangedEventArgs args);
+        public delegate void RequestedNavigateToFrameEventHandler(object sender, FrameIndexEventArgs args);
 
         /// <summary>
         /// Occurs whenever the current edit frame has changed
@@ -171,6 +165,74 @@ namespace Pixelaria.Views.ModelViews
         [Category("Action")]
         [Description("Occurs whenever the current edit frame has changed")]
         public event EditFrameChangedEventHandler EditFrameChanged;
+
+        #region UI Events to Raise to Animation View/Animation Controller
+
+        private event EventHandler InternalRequestedAddFrame;
+        /// <summary>
+        /// Fired when user selects the 'Add Frame' option
+        /// </summary>
+        public event EventHandler RequestedAddFrame
+        {
+            add
+            {
+                InternalRequestedAddFrame += value;
+                tsb_addFrameAtEnd.Enabled = InternalRequestedAddFrame != null;
+            }
+            remove
+            {
+                InternalRequestedAddFrame -= value;
+                tsb_addFrameAtEnd.Enabled = InternalRequestedAddFrame != null;
+            }
+        }
+
+        private event EventHandler InternalRequestedInsertFrame;
+        /// <summary>
+        /// Fired when user selects the 'Insert Frame' option
+        /// </summary>
+        public event EventHandler RequestedInsertFrame
+        {
+            add
+            {
+                InternalRequestedInsertFrame += value;
+                tsb_insertNewframe.Enabled = InternalRequestedInsertFrame != null;
+            }
+            remove
+            {
+                InternalRequestedInsertFrame -= value;
+                tsb_insertNewframe.Enabled = InternalRequestedInsertFrame != null;
+            }
+        }
+
+        private event RequestedNavigateToFrameEventHandler InternalRequestedNavigateToFrame;
+        /// <summary>
+        /// Fired when user selects the 'Navigate to Previous Frame' option
+        /// </summary>
+        public event RequestedNavigateToFrameEventHandler RequestedNavigateToFrame
+        {
+            add
+            {
+                InternalRequestedNavigateToFrame += value;
+
+                tsm_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
+                tsb_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
+
+                tsm_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
+                tsb_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
+            }
+            remove
+            {
+                InternalRequestedNavigateToFrame -= value;
+
+                tsm_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
+                tsb_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
+
+                tsm_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
+                tsb_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
+            }
+        }
+        
+        #endregion
 
         /// <summary>
         /// Static initializer for the FrameView class
@@ -198,7 +260,11 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="controller">The controller owning this form</param>
         /// <param name="frameToEdit">The frame to edit on this form</param>
-        public FrameView(Controller controller, Frame frameToEdit)
+        /// <param name="animation">
+        /// If non-null, this is the reference to the animation the frame comes from. Used to control animation traversal
+        /// in the UI.
+        /// </param>
+        public FrameView([NotNull] Controller controller, [NotNull] FrameController frameToEdit, [CanBeNull] IAnimation animation)
         {
             InitializeComponent();
 
@@ -207,6 +273,7 @@ namespace Pixelaria.Views.ModelViews
             _oldFrameIndex = frameToEdit.Index;
 
             _controller = controller;
+            _animation = animation;
 
             _filterClickEventHandler = tsm_filterItem_Click;
             _presetClickEventHandler = tsm_presetItem_Click;
@@ -330,7 +397,7 @@ namespace Pixelaria.Views.ModelViews
                 ModifiedFrames = true;
 
                 // Apply changes made to the frame
-                FrameLoaded.CopyFrom(_viewFrame);
+                _viewFrameController.ApplyChanges();
 
                 base.ApplyChanges();
 
@@ -339,18 +406,74 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Loads the given frame to be edited on this FrameView form.
+        /// The provided frame must be derived from the Frame class, otherwise an exception is thrown
+        /// </summary>
+        /// <param name="frame">The frame to edit on this form</param>
+        /// <exception cref="ArgumentException">The provided frame object is not derived from the Frame class</exception>
+        public void LoadFrame(FrameController frame)
+        {
+            // Dispose of the current view frame
+            _viewFrameController?.Dispose();
+
+            _onionSkin?.Dispose();
+
+            FrameLoaded = frame;
+
+            _viewFrameController = FrameLoaded.MakeCopyForEditing();
+            _layerController.Frame = _viewFrameController;
+            
+            RefreshTitleBar();
+
+            _viewFrameBitmap?.Dispose();
+
+            _viewFrameBitmap = _viewFrameController.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
+            iepb_frame.LoadBitmap(_viewFrameBitmap);
+
+            RefreshView();
+
+            // Update the preview box if enabled
+            if (_framePreviewEnabled)
+            {
+                RefreshFramePreview();
+            }
+
+            EditFrameChanged?.Invoke(this, new EditFrameChangedEventArgs(_oldFrameIndex, frame.Index));
+
+            _oldFrameIndex = frame.Index;
+
+            // Focus on the canvas
+            ActiveControl = iepb_frame.PictureBox;
+            iepb_frame.PictureBox.Focus();
+        }
+
+        /// <summary>
         /// Refreshes the content of this form
         /// </summary>
         private void RefreshView()
         {
             // Update the enabled state of the Previous Frame and Next Frame buttons
-            tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = FrameLoaded.Index > 0;
-            tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = FrameLoaded.Index < FrameLoaded.Animation.FrameCount - 1;
+            if (_animation != null)
+            {
+                tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = FrameLoaded.Index > 0;
+                tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = FrameLoaded.Index < _animation.FrameCount - 1;
 
-            // Update the frame display
-            tc_currentFrame.Minimum = 1;
-            tc_currentFrame.Maximum = FrameLoaded.Animation.FrameCount;
-            tc_currentFrame.CurrentFrame = (FrameLoaded.Index + 1);
+                // Update the frame display
+                tc_currentFrame.Minimum = 1;
+                tc_currentFrame.Maximum = _animation.FrameCount;
+                tc_currentFrame.CurrentFrame = FrameLoaded.Index + 1;
+                tc_currentFrame.Enabled = true;
+            }
+            else
+            {
+                tsm_prevFrame.Enabled = false;
+                tsm_nextFrame.Enabled = false;
+
+                tc_currentFrame.Minimum = 0;
+                tc_currentFrame.Maximum = 0;
+                tc_currentFrame.CurrentFrame = 0;
+                tc_currentFrame.Enabled = false;
+            }
 
             // Refresh the undo and redo buttons
             RefreshUndoRedo();
@@ -390,7 +513,16 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshTitleBar()
         {
-            Text = @"Frame Editor [" + (FrameLoaded.Index + 1) + @"/" + FrameLoaded.Animation.FrameCount + @"] - [" + FrameLoaded.Animation.Name + @"]" + (modified ? "*" : "");
+            var asterisk = modified ? "*" : "";
+            if (_animation != null)
+            {
+                Text =
+                    $@"Frame Editor [{FrameLoaded.Index + 1}/{_animation.FrameCount}] - [{_animation.Name}]{asterisk}";
+            }
+            else
+            {
+                Text = $@"Frame Editor {asterisk}";
+            }
         }
 
         /// <summary>
@@ -433,59 +565,27 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Loads the given frame to be edited on this FrameView form.
-        /// The provided frame must be derived from the Frame class, otherwise an exception is thrown
-        /// </summary>
-        /// <param name="frame">The frame to edit on this form</param>
-        /// <exception cref="ArgumentException">The provided frame object is not derived from the Frame class</exception>
-        private void LoadFrame(IFrame frame)
-        {
-            // Dispose of the current view frame
-            _viewFrame?.Dispose();
-
-            _onionSkin?.Dispose();
-
-            FrameLoaded = frame as Frame ?? throw new ArgumentException(@"The provided frame object must be derived from the Frame class", nameof(frame));
-
-            _viewFrame = FrameLoaded.Clone();
-            _layerController.Frame = _viewFrame;
-
-            _viewFrameController = new FrameController(_viewFrame);
-
-            RefreshTitleBar();
-
-            _viewFrameBitmap?.Dispose();
-
-            _viewFrameBitmap = _viewFrameController.GetLayerAt(_layerController.ActiveLayerIndex).LayerBitmap;
-            iepb_frame.LoadBitmap(_viewFrameBitmap);
-
-            RefreshView();
-
-            // Update the preview box if enabled
-            if (_framePreviewEnabled)
-            {
-                RefreshFramePreview();
-            }
-
-            EditFrameChanged?.Invoke(this, new EditFrameChangedEventArgs(_oldFrameIndex, frame.Index));
-
-            _oldFrameIndex = frame.Index;
-
-            // Focus on the canvas
-            ActiveControl = iepb_frame.PictureBox;
-            iepb_frame.PictureBox.Focus();
-        }
-
-        /// <summary>
         /// Opens an interface where the user can export the current frame to an image
         /// </summary>
         private void ExportFrame()
         {
-            string fileName = FrameLoaded.Animation.Name;
+            string fileName;
 
-            if (FrameLoaded.Animation.FrameCount > 1)
+            if (_animation != null)
             {
-                fileName += "_" + FrameLoaded.Index;
+                fileName = _animation.Name;
+
+                if (_animation.FrameCount > 1)
+                {
+                    fileName += "_" + FrameLoaded.Index;
+                }
+            }
+            else
+            {
+                // TODO: Provide a way to name this guy when not coming from an animation.
+                // Probably an OriginalName property that can be fed and used when editing a
+                // standalone animation.
+                fileName = "image";
             }
 
             _controller.ShowSaveImage(_viewFrameController.GetComposedBitmap(), fileName, this);
@@ -496,14 +596,16 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void ImportFrame()
         {
-            Image img = _controller.ShowLoadImage("", this);
+            var img = _controller.ShowLoadImage("", this);
 
             if (img == null)
                 return;
 
             if (img.Width > _viewFrameController.Width || img.Height > _viewFrameController.Height)
             {
-                FramesRescaleSettingsView frs = new FramesRescaleSettingsView("The selected image is larger than the current image. Please select the scaling mode to apply to the new image:", FramesRescalingOptions.ShowFrameScale | FramesRescalingOptions.ShowDrawingMode);
+                var frs = new FramesRescaleSettingsView(
+                    "The selected image is larger than the current image. Please select the scaling mode to apply to the new image:",
+                    FramesRescalingOptions.ShowFrameScale | FramesRescalingOptions.ShowDrawingMode);
 
                 if (frs.ShowDialog(this) == DialogResult.OK)
                 {
@@ -527,10 +629,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void PrevFrame()
         {
-            if (ConfirmChanges() != DialogResult.Cancel)
-            {
-                LoadFrame(FrameLoaded.Animation.Frames[FrameLoaded.Index - 1]);
-            }
+            InternalRequestedNavigateToFrame?.Invoke(this, new FrameIndexEventArgs(FrameLoaded.Index - 1));
         }
 
         /// <summary>
@@ -538,10 +637,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void NextFrame()
         {
-            if (ConfirmChanges() != DialogResult.Cancel)
-            {
-                LoadFrame(FrameLoaded.Animation.Frames[FrameLoaded.Index + 1]);
-            }
+            InternalRequestedNavigateToFrame?.Invoke(this, new FrameIndexEventArgs(FrameLoaded.Index + 1));
         }
 
         /// <summary>
@@ -551,10 +647,7 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>Whether the frame view sucessfully selected the provided frame</returns>
         private void SetFrameIndex(int index)
         {
-            if (ConfirmChanges() != DialogResult.Cancel)
-            {
-                LoadFrame(FrameLoaded.Animation.Frames[index]);
-            }
+            InternalRequestedNavigateToFrame?.Invoke(this, new FrameIndexEventArgs(index));
         }
 
         /// <summary>
@@ -562,16 +655,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void InsertNewFrame()
         {
-            if (ConfirmChanges() != DialogResult.Cancel)
-            {
-                Frame frame = _controller.FrameFactory.CloneFrame(FrameLoaded);
-
-                FrameLoaded.Animation.AddFrame(frame, FrameLoaded.Index + 1);
-
-                LoadFrame(FrameLoaded.Animation[FrameLoaded.Index + 1]);
-
-                ModifiedFrames = true;
-            }
+            InternalRequestedInsertFrame?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -579,16 +663,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddFrameAtEnd()
         {
-            if (ConfirmChanges() != DialogResult.Cancel)
-            {
-                Frame frame = _controller.FrameFactory.CloneFrame(FrameLoaded);
-
-                FrameLoaded.Animation.AddFrame(frame);
-
-                LoadFrame(FrameLoaded.Animation[FrameLoaded.Animation.FrameCount - 1]);
-
-                ModifiedFrames = true;
-            }
+            InternalRequestedAddFrame?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -1721,7 +1796,7 @@ namespace Pixelaria.Views.ModelViews
             _undoSystem.Clear();
 
             // Dispose of the view frame
-            _viewFrame.Dispose();
+            _viewFrameController.Dispose();
 
             // Dispose of the onion skin
             if (_onionSkin != null)
@@ -2653,6 +2728,19 @@ namespace Pixelaria.Views.ModelViews
         {
             OldFrameIndex = oldIndex;
             NewFrameIndex = newIndex;
+        }
+    }
+
+    /// <summary>
+    /// Arguments for events that reference specific frame indexes
+    /// </summary>
+    public class FrameIndexEventArgs : EventArgs
+    {
+        public int FrameIndex { get; }
+        
+        public FrameIndexEventArgs(int index)
+        {
+            FrameIndex = index;
         }
     }
 }

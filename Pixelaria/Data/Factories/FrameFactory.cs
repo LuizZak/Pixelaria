@@ -27,7 +27,7 @@ namespace Pixelaria.Data.Factories
     /// <summary>
     /// Represents a factory that is able to correctly manipulate the creation and manipulation of frames
     /// </summary>
-    public class DefaultFrameFactory : IFrameFactory
+    public class FrameFactory
     {
         /// <summary>
         /// A frame ID generator for generating unique frame IDs with
@@ -37,10 +37,10 @@ namespace Pixelaria.Data.Factories
         /// <summary>
         /// Initializes a new instance of the DefaultFrameFactory class
         /// </summary>
-        /// <param name="bundle">The bundle to attach this factory to</param>
-        public DefaultFrameFactory(IFrameIdGenerator bundle)
+        /// <param name="frameIdGenerator">A source for unique frame IDs</param>
+        public FrameFactory(IFrameIdGenerator frameIdGenerator)
         {
-            FrameIdGenerator = bundle;
+            FrameIdGenerator = frameIdGenerator;
         }
 
         /// <summary>
@@ -89,28 +89,6 @@ namespace Pixelaria.Data.Factories
 
             return generator.GetNextUniqueFrameId();
         }
-    }
-
-    /// <summary>
-    /// Interface for FrameFactory objects
-    /// </summary>
-    public interface IFrameFactory
-    {
-        /// <summary>
-        /// Creates a new frame with the given resolution and an optional starting animation and hash
-        /// </summary>
-        /// <param name="width">The width of the frame</param>
-        /// <param name="height">The height of the frame</param>
-        /// <param name="anim">An animation to parent the frame</param>
-        /// <param name="initHash">Whether to init the frame hash now</param>
-        /// <returns>The newly created frame</returns>
-        Frame CreateFrame(int width, int height, Animation anim = null, bool initHash = true);
-
-        /// <summary>
-        /// Returns a clone copy of the given frame
-        /// </summary>
-        /// <returns>A clone copy of the given frame</returns>
-        Frame CloneFrame(IFrame frame);
     }
 
     /// <summary>

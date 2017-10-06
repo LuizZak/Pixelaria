@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data;
@@ -59,6 +60,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
         /// </summary>
+        [CanBeNull]
         readonly AnimationSheet _parentSheet;
 
         /// <summary>
@@ -66,7 +68,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="controller">The controller owning this form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
-        public ImportAnimationView(Controller controller, AnimationSheet parentSheet = null)
+        public ImportAnimationView(Controller controller, [CanBeNull] AnimationSheet parentSheet = null)
         {
             _controller = controller;
             _parentSheet = parentSheet;
@@ -126,7 +128,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void LoadSheet()
         {
-            Image image = _controller.ShowLoadImage(out string filePath, owner: this);
+            var image = _controller.ShowLoadImage(out string filePath, owner: this);
 
             if (image == null)
                 return;

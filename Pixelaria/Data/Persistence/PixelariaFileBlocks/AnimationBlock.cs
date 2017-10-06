@@ -23,6 +23,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using JetBrains.Annotations;
+using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -60,7 +62,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream(Stream stream)
+        protected override void SaveContentToStream([NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 
@@ -81,7 +83,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Prepares the contents of this animation to be saved based on the contents of the given Bundle
         /// </summary>
         /// <param name="bundle">The bundle to prepare this block from</param>
-        public override void PrepareFromBundle(Bundle bundle)
+        public override void PrepareFromBundle([NotNull] Bundle bundle)
         {
             base.PrepareFromBundle(bundle);
 
@@ -101,7 +103,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="stream">The stream to load the animation from</param>
         /// <returns>The Animation object loaded</returns>
-        protected Animation LoadAnimationFromStream(Stream stream)
+        protected Animation LoadAnimationFromStream([NotNull] Stream stream)
         {
             var reader = new BinaryReader(stream);
 
@@ -122,7 +124,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             for (int i = 0; i < frameCount; i++)
             {
-                anim.AddFrame(LoadFrameFromStream(stream, anim));
+                // TODO: Don't add animation frames right away- store them and let another external object
+                // process the file blocks and piece the animation and frames them together.
+                var controller = new AnimationController(null, anim);
+
+                controller.AddFrame(LoadFrameFromStream(stream, anim));
             }
 
             return anim;
@@ -135,7 +141,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to load the frame from</param>
         /// <param name="owningAnimation">The Animation object that will be used to create the Frame with</param>
         /// <returns>The Frame object loaded</returns>
-        protected Frame LoadFrameFromStream(Stream stream, Animation owningAnimation)
+        protected Frame LoadFrameFromStream([NotNull] Stream stream, [NotNull] Animation owningAnimation)
         {
             var reader = new BinaryReader(stream);
 
@@ -181,7 +187,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="animation">The animation to save</param>
         /// <param name="stream">The stream to save the animation to</param>
-        protected void SaveAnimationToStream(Animation animation, Stream stream)
+        protected void SaveAnimationToStream([NotNull] Animation animation, [NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 
@@ -205,7 +211,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="frame">The frame to write to the stream</param>
         /// <param name="stream">The stream to write the frame to</param>
-        protected void SaveFrameToStream(IFrame frame, Stream stream)
+        protected void SaveFrameToStream([NotNull] IFrame frame, [NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 

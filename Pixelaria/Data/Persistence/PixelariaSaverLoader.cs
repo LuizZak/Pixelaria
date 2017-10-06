@@ -22,7 +22,8 @@
 
 using System.Drawing;
 using System.IO;
-
+using JetBrains.Annotations;
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence
@@ -44,7 +45,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="path">The path to load the bundle from</param>
         /// <returns>The bundle that was loaded from the given path</returns>
-        public static Bundle LoadBundleFromDisk(string path)
+        public static Bundle LoadBundleFromDisk([NotNull] string path)
         {
             FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             BinaryReader reader = new BinaryReader(stream);
@@ -109,7 +110,8 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="path">The path of the file to load</param>
         /// <returns>A new Pixelaria file</returns>
-        public static PixelariaFile LoadFileFromDisk(string path)
+        [CanBeNull]
+        public static PixelariaFile LoadFileFromDisk([NotNull] string path)
         {
             FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             BinaryReader reader = new BinaryReader(stream);
@@ -182,9 +184,9 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to load the animation from</param>
         /// <param name="version">The version that the stream was written on</param>
         /// <returns>The Animation object loaded</returns>
-        public static Animation LoadAnimationFromStream(Stream stream, int version)
+        public static Animation LoadAnimationFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             int id = -1;
             if (version >= 2)
@@ -197,7 +199,7 @@ namespace Pixelaria.Data.Persistence
             int fps = reader.ReadInt32();
             bool frameskip = reader.ReadBoolean();
 
-            Animation anim = new Animation(name, width, height)
+            var anim = new Animation(name, width, height)
             {
                 ID = id,
                 PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameskip }
@@ -207,7 +209,11 @@ namespace Pixelaria.Data.Persistence
 
             for (int i = 0; i < frameCount; i++)
             {
-                anim.AddFrame(LoadFrameFromStream(stream, anim, version));
+                // TODO: Don't add frames to animations directly on this block- let an external object handle piecing
+                // frames to animations externally.
+                var controller = new AnimationController(null, anim);
+
+                controller.AddFrame(LoadFrameFromStream(stream, anim, version));
             }
 
             return anim;
@@ -221,29 +227,29 @@ namespace Pixelaria.Data.Persistence
         /// <param name="owningAnimation">The Animation object that will be used to create the Frame with</param>
         /// <param name="version">The version that the stream was written on</param>
         /// <returns>The Frame object loaded</returns>
-        public static Frame LoadFrameFromStream(Stream stream, Animation owningAnimation, int version)
+        public static Frame LoadFrameFromStream([NotNull] Stream stream, [NotNull] Animation owningAnimation, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             // Read the size of the frame texture
             long textSize = reader.ReadInt64();
 
-            Frame frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
+            var frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
 
-            MemoryStream memStream = new MemoryStream();
+            var memStream = new MemoryStream();
 
             long pos = stream.Position;
 
-            byte[] buff = new byte[textSize];
+            var buff = new byte[textSize];
             stream.Read(buff, 0, buff.Length);
             stream.Position = pos + textSize;
 
             memStream.Write(buff, 0, buff.Length);
 
-            Image img = Image.FromStream(memStream);
+            var img = Image.FromStream(memStream);
 
             // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
-            Bitmap bitmap = new Bitmap(img);
+            var bitmap = new Bitmap(img);
 
             img.Dispose();
 
@@ -283,24 +289,24 @@ namespace Pixelaria.Data.Persistence
         /// <param name="parentBundle">The bundle that will contain this AnimationSheet</param>
         /// <param name="version">The version that the stream was written on</param>
         /// <returns>The Animation object loaded</returns>
-        public static AnimationSheet LoadAnimationSheetFromStream(Stream stream, Bundle parentBundle, int version)
+        public static AnimationSheet LoadAnimationSheetFromStream([NotNull] Stream stream, Bundle parentBundle, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             // Load the animation sheet data
             int id = reader.ReadInt32();
             string name = reader.ReadString();
-            AnimationExportSettings settings = LoadExportSettingsFromStream(stream, version);
+            var settings = LoadExportSettingsFromStream(stream, version);
 
             // Create the animation sheet
-            AnimationSheet sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
+            var sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
 
             // Load the animation indices
             int animCount = reader.ReadInt32();
 
             for (int i = 0; i < animCount; i++)
             {
-                Animation anim = parentBundle.GetAnimationByID(reader.ReadInt32());
+                var anim = parentBundle.GetAnimationByID(reader.ReadInt32());
 
                 if (anim != null)
                 {
@@ -318,11 +324,11 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to load the export settings from</param>
         /// <param name="version">The version that the stream was writter on</param>
         /// <returns>The AnimationExportSettings object loaded</returns>
-        public static AnimationExportSettings LoadExportSettingsFromStream(Stream stream, int version)
+        public static AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
-            AnimationExportSettings settings = new AnimationExportSettings
+            var settings = new AnimationExportSettings
             {
                 FavorRatioOverArea = reader.ReadBoolean(),
                 ForcePowerOfTwoDimensions = reader.ReadBoolean(),
@@ -389,7 +395,7 @@ namespace Pixelaria.Data.Persistence
         public static void Load(PixelariaFile file, bool resetBundle = true)
         {
             // TODO: Verify correctess of clearing the pixelaria file's internal blocks list before loading the file from the stream again
-            PixelariaFileLoader loader = new PixelariaFileLoader(file, resetBundle);
+            var loader = new PixelariaFileLoader(file, resetBundle);
             loader.Load();
         }
     }
@@ -427,7 +433,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="file">A valid PixelariaFile with a stream of valid file path set</param>
         public static void Save(PixelariaFile file)
         {
-            PixelariaFileSaver saver = new PixelariaFileSaver(file);
+            var saver = new PixelariaFileSaver(file);
             saver.Save();
         }
     }

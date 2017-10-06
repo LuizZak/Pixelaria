@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -23,9 +23,9 @@
 namespace Pixelaria.Controllers.DataControllers
 {
     /// <summary>
-    /// Represents the public interface for an object that uniquely identifies a frame within a frame controller
+    /// Represents the public interface for an object that uniquely identifies an animation sheet within a frame controller
     /// </summary>
-    public interface IFrameId
+    public interface IAnimationSheetId
     {
         int Id { get; }
     }

@@ -28,9 +28,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers;
-
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
 using Pixelaria.Data.Undo;
@@ -41,6 +41,7 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
+using Pixelaria.Views.ModelViews.Decorators;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -57,7 +58,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The Animation object that is currently used
         /// </summary>
-        private readonly Animation _viewAnimation;
+        private readonly AnimationController _viewAnimation;
 
         /// <summary>
         /// The Controller object that owns this AnimationView
@@ -93,7 +94,7 @@ namespace Pixelaria.Views.ModelViews
         /// Gets the current animation being displayed on this AnimationView
         /// </summary>
         public Animation CurrentAnimation { get; }
-
+        
         /// <summary>
         /// Static constructor for the AnimationView class
         /// </summary>
@@ -107,7 +108,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="controller">The controller that owns this AnimationView</param>
         /// <param name="animation">The animation to show on this AnimationView</param>
-        public AnimationView(Controller controller, Animation animation)
+        public AnimationView([NotNull] Controller controller, [NotNull] Animation animation)
         {
             InitializeComponent();
 
@@ -119,13 +120,9 @@ namespace Pixelaria.Views.ModelViews
 
             _controller = controller;
             _undoSystem = new UndoSystem();
+            
             CurrentAnimation = animation;
-            _viewAnimation = CurrentAnimation.Clone();
-
-            for (int i = 0; i < _viewAnimation.FrameCount; i++)
-            {
-                _viewAnimation[i].ID = animation[i].ID;
-            }
+            _viewAnimation = new AnimationController(controller.CurrentBundle, animation).MakeCopyForEditing();
 
             _clipboardHandler = clipboard_ClipboardChanged;
             Clipboard.ClipboardChanged += _clipboardHandler;
@@ -179,7 +176,7 @@ namespace Pixelaria.Views.ModelViews
             RefreshAnimationInfo();
             RefreshClipboardControls();
             RefreshUndoControls();
-            animationPreviewPanel.LoadAnimation(_viewAnimation, false);
+            animationPreviewPanel.LoadAnimation(_viewAnimation.GetAnimationView(), false);
         }
 
         /// <summary>
@@ -226,7 +223,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshAnimationInfo()
         {
-            txt_animName.Text = _viewAnimation.Name;
+            txt_animName.Text = _viewAnimation.GetAnimationView().Name;
 
             tssl_dimensions.Text = _viewAnimation.Width + @" x " + _viewAnimation.Height;
             tssl_frameCount.Text = _viewAnimation.FrameCount + "";
@@ -270,11 +267,13 @@ namespace Pixelaria.Views.ModelViews
             il_framesThumbs.ImageSize = new Size(Math.Min((int)(_viewAnimation.Width * scaleX), width), Math.Min((int)(_viewAnimation.Height * scaleY), height));
             for (int i = 0; i < _viewAnimation.FrameCount; i++)
             {
-                IFrame frame = _viewAnimation.GetFrameAtIndex(i);
+                var frame = _viewAnimation.GetFrameAtIndex(i);
 
-                il_framesThumbs.Images.Add(frame.GenerateThumbnail(frame.Width, frame.Height, false, false, Color.White));
+                var controller = _viewAnimation.GetFrameController(frame);
 
-                ListViewItem frameItem = new ListViewItem
+                il_framesThumbs.Images.Add(controller.GenerateThumbnail(controller.Width, controller.Height, false, false, Color.White));
+
+                var frameItem = new ListViewItem
                 {
                     Text = @"Frame " + (i + 1),
                     ImageIndex = i,
@@ -366,19 +365,11 @@ namespace Pixelaria.Views.ModelViews
 
             if (modified)
             {
-                _viewAnimation.Name = txt_animName.Text;
+                _viewAnimation.SetName(txt_animName.Text);
 
                 // APPLY CHANGES
-                CurrentAnimation.CopyFrom(_viewAnimation, false);
-
-                for (int i = 0; i < CurrentAnimation.FrameCount; i++)
-                {
-                    CurrentAnimation[i].ID = _viewAnimation[i].ID;
-                    // Update invalid (negative) frame IDs
-                    if (CurrentAnimation[i].ID == -1)
-                        CurrentAnimation[i].ID = CurrentAnimation.FrameIdGenerator.GetNextUniqueFrameId();
-                }
-
+                _viewAnimation.ApplyChanges();
+                
                 _controller.UpdatedAnimation(CurrentAnimation);
                 _controller.MarkUnsavedChanges(true);
             }
@@ -435,7 +426,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="frame">The frame object to get the respective list view item representation</param>
         /// <returns>A ListViewItem object that is currently representing the given Frame object</returns>
-        private ListViewItem GetListViewItemForFrame(IFrame frame)
+        [CanBeNull]
+        private ListViewItem GetListViewItemForFrame([NotNull] IFrameId frame)
         {
             return lv_frames.Items.Cast<ListViewItem>().FirstOrDefault(item => ReferenceEquals(item.Tag, frame));
         }
@@ -444,9 +436,9 @@ namespace Pixelaria.Views.ModelViews
         /// Returns a list of all currently selected frames on this AnimationView
         /// </summary>
         /// <returns>The list of selected frames</returns>
-        private List<IFrame> GetSelectedFrames()
+        private List<IFrameId> GetSelectedFrames()
         {
-            return (from ListViewItem selected in lv_frames.SelectedItems select selected.Tag).OfType<IFrame>().ToList();
+            return (from ListViewItem selected in lv_frames.SelectedItems select selected.Tag).OfType<IFrameId>().ToList();
         }
 
         /// <summary>
@@ -497,7 +489,7 @@ namespace Pixelaria.Views.ModelViews
             // Create and add all the new filter items
             for (int i = 0; i < iconList.Length; i++)
             {
-                ToolStripMenuItem tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
+                var tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
                 {
                     Tag = filterNames[i]
                 };
@@ -517,19 +509,19 @@ namespace Pixelaria.Views.ModelViews
             tsm_filterPresets.DropDownItems.Clear();
 
             // Fetch the list of filters
-            FilterPreset[] presets = FilterStore.Instance.FilterPrests;
+            var presets = FilterStore.Instance.FilterPrests;
 
             if (presets.Length == 0)
             {
-                ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
+                var tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
 
                 tsm_filterPresets.DropDownItems.Add(tsmEmptyItem);
             }
 
             // Create and add all the new filter items
-            foreach (FilterPreset preset in presets)
+            foreach (var preset in presets)
             {
-                ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
+                var tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
                 {
                     Tag = preset.Name
                 };
@@ -546,9 +538,9 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="filterPreset">The filter preset to load on the BaseFilterView</param>
         private void DisplayFilterPreset(FilterPreset filterPreset)
         {
-            AnimationFilterView afv = new AnimationFilterView(filterPreset, _viewAnimation);
+            var afv = new AnimationFilterView(filterPreset, _viewAnimation);
 
-            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+            var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
             if (afv.ShowDialog(this) == DialogResult.OK && afv.ChangesDetected())
             {
@@ -592,13 +584,13 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void ResizeAnimation()
         {
-            AnimationResizeView arv = new AnimationResizeView(_viewAnimation, _viewAnimation.Width, _viewAnimation.Height);
+            var arv = new AnimationResizeView(_viewAnimation, _viewAnimation.Width, _viewAnimation.Height);
 
             if (arv.ShowDialog(this) == DialogResult.OK)
             {
-                AnimationResizeSettings settings = arv.GeneratedSettings;
+                var settings = arv.GeneratedSettings;
 
-                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+                var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 _viewAnimation.Resize(settings);
 
@@ -620,7 +612,7 @@ namespace Pixelaria.Views.ModelViews
                 return;
 
             ///// Get the frames to reverse
-            List<int> frameIndicesToReverse = new List<int>();
+            var frameIndicesToReverse = new List<int>();
 
             // If no frames are selected, reverse all the frames
             if (lv_frames.SelectedIndices.Count == 0)
@@ -639,7 +631,7 @@ namespace Pixelaria.Views.ModelViews
             ///// Reverse the frames
 
             // Create an undo task
-            AnimationModifyUndoTask amu = new AnimationModifyUndoTask(_viewAnimation);
+            var amu = new AnimationModifyUndoTask(_viewAnimation);
 
             for (int i = 0; i < frameIndicesToReverse.Count / 2; i++)
             {
@@ -665,7 +657,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (_nameValid)
             {
-                _viewAnimation.Name = txt_animName.Text;
+                _viewAnimation.SetName(txt_animName.Text);
                 RefreshAnimationInfo();
                 RefreshTitle();
             }
@@ -726,8 +718,8 @@ namespace Pixelaria.Views.ModelViews
 
             for (int i = 0; i < selected.Count; i++)
             {
-                IFrame frame = selected[i];
-                IFrame clonedFrame = frame.Clone();
+                var frame = selected[i];
+                var clonedFrame = _viewAnimation.GetFrameController(frame);
 
                 // Copy first frame into clipboard
                 if (i == 0)
@@ -762,7 +754,7 @@ namespace Pixelaria.Views.ModelViews
 
             foreach (var frame in selected)
             {
-                frameListClip.AddFrame(frame.Clone());
+                frameListClip.AddFrame(_viewAnimation.GetFrameController(frame));
             }
 
             Clipboard.SetObject(frameListClip);
@@ -795,7 +787,7 @@ namespace Pixelaria.Views.ModelViews
                 // Frame clipboard data fetching
                 var frameListClip = (FrameListClipboardObject)Clipboard.GetObject();
 
-                var sizeMatching = new FrameSizeMatchingSettings()
+                var sizeMatching = new FrameSizeMatchingSettings
                 {
                     AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.UseNewSize,
                     InterpolationMode = InterpolationMode.NearestNeighbor,
@@ -807,7 +799,7 @@ namespace Pixelaria.Views.ModelViews
                     // Check if there are any frames with different dimensions than the current animation
                     if (frameListClip.Frames.Any(frame => frame.Width != _viewAnimation.Width || frame.Height != _viewAnimation.Height))
                     {
-                        FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView();
+                        var sizeMatchingForm = new FramesRescaleSettingsView();
 
                         if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
                         {
@@ -834,12 +826,9 @@ namespace Pixelaria.Views.ModelViews
                 var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
                 // Maintain a copy of the list of added frames so the control can select them after
-                var copiedFrames =
-                    frameListClip.Frames.Select(frame => _controller.FrameFactory.CloneFrame(frame))
-                        .Cast<IFrame>()
-                        .ToList();
+                var copiedFrames = frameListClip.Frames.Select(frame => frame.GetStandaloneCopy()).ToList();
 
-                _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
+                var newIds = _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
                 undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
@@ -848,9 +837,11 @@ namespace Pixelaria.Views.ModelViews
                 RefreshView();
 
                 // Select the newly added frames
-                foreach (var frame in copiedFrames)
+                foreach (var frame in newIds)
                 {
-                    GetListViewItemForFrame(frame).Selected = true;
+                    var item = GetListViewItemForFrame(frame);
+                    if (item != null)
+                        item.Selected = true;
                 }
             }
             // Image pasting
@@ -903,7 +894,7 @@ namespace Pixelaria.Views.ModelViews
                 if (index == -1)
                     index = lv_frames.Items.Count;
 
-                _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
+                var newIds = _viewAnimation.AddFrames(copiedFrames, sizeMatching, index);
 
                 undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
@@ -912,9 +903,11 @@ namespace Pixelaria.Views.ModelViews
                 RefreshView();
 
                 // Select the newly added frames
-                foreach (var f in copiedFrames)
+                foreach (var f in newIds)
                 {
-                    GetListViewItemForFrame(f).Selected = true;
+                    var forFrame = GetListViewItemForFrame(f);
+                    if (forFrame != null)
+                        forFrame.Selected = true;
                 }
             }
         }
@@ -955,7 +948,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void AddNewFrame()
         {
-            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+            var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
             _viewAnimation.CreateFrame();
             undoTask.RecordChanges();
@@ -976,15 +969,23 @@ namespace Pixelaria.Views.ModelViews
             if (lv_frames.SelectedItems.Count == 0)
                 return;
 
-            AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+            var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
             // Temporarely disable the panel while showing the form so we don't waste CPU
             animationPreviewPanel.Disable();
 
             // Get the currently selected frame
-            Frame frame = lv_frames.SelectedItems[0].Tag as Frame;
+            var frame = (IFrameId)lv_frames.SelectedItems[0].Tag;
 
-            FrameView frameView = new FrameView(_controller, frame);
+            var frameView = new FrameView(_controller, _viewAnimation.GetFrameController(frame), _viewAnimation.GetAnimationView());
+
+            frameView.RequestedAddFrame += frameView_onRequestAddFrame;
+            frameView.RequestedInsertFrame += frameView_onRequestInsertFrame;
+            frameView.RequestedNavigateToFrame += frameView_onRequestNavigateToFrame;
+
+            // To allow onion skin display
+            frameView.OnionSkinDecorator.FrameImageProvider = this;
+
             frameView.ShowDialog(this);
 
             // Mark animation as modified if the frame view has modified any frames
@@ -1081,7 +1082,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void SaveSelectedFrames()
         {
-            string path = _controller.ShowSaveImage(out ImageFormat format, fileName: _viewAnimation.Name, owner: this);
+            string path = _controller.ShowSaveImage(out ImageFormat format, fileName: _viewAnimation.GetAnimationView().Name, owner: this);
 
             if (string.IsNullOrEmpty(path))
                 return;
@@ -1095,12 +1096,15 @@ namespace Pixelaria.Views.ModelViews
             {
                 string fileName = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(path);
 
+                var frameController = _viewAnimation.GetFrameController(frame);
+                var index = _viewAnimation.GetFrameIndex(frame);
+
                 if (selectedFrames.Count > 1)
                 {
-                    fileName += "_" + frame.Index.ToString("D" + padCount);
+                    fileName += "_" + index.ToString("D" + padCount);
                 }
 
-                frame.GetComposedBitmap().Save(fileName + extension, format);
+                frameController.GetComposedBitmap().Save(fileName + extension, format);
             }
         }
 
@@ -1114,31 +1118,26 @@ namespace Pixelaria.Views.ModelViews
             if (lv_frames.SelectedItems.Count != 1)
                 return;
 
-            IFrame selectedFrame = GetSelectedFrames()[0];
+            var selectedFrame = GetSelectedFrames()[0];
 
-            Image image = _controller.ShowLoadImage(owner: this);
+            var image = _controller.ShowLoadImage(owner: this);
 
             try
             {
-                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(_viewAnimation);
+                var undoTask = new AnimationModifyUndoTask(_viewAnimation);
 
-                Bitmap tempBit = (Bitmap)image;
+                var tempBit = (Bitmap)image;
                 var bit = new Bitmap(tempBit);
                 tempBit.Dispose();
-
-                Frame newFrame = new Frame(null, bit.Width, bit.Height);
-                newFrame.SetFrameBitmap(bit);
-                newFrame.ID = selectedFrame.ID;
-
+                
                 if (bit.Size != _viewAnimation.Size)
                 {
-                    FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
+                    var sizeMatchingForm = new FramesRescaleSettingsView("The frame being loaded has a different resolution than the target animation. Please select the scaling options for the frame:");
 
                     if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
                     {
                         var sizeMatching = sizeMatchingForm.GeneratedSettings;
-                        _viewAnimation.AddFrames(new[] { newFrame }, sizeMatching, selectedFrame.Index);
-                        _viewAnimation.RemoveFrame(selectedFrame);
+                        _viewAnimation.ReplaceFrameImage(selectedFrame, bit, sizeMatching);
                     }
                     else
                     {
@@ -1246,9 +1245,10 @@ namespace Pixelaria.Views.ModelViews
                 // Move the frames now
                 int newIndex = eventArgs.TargetItem.Index;
 
-                List<IFrame> frames = eventArgs.DraggedItems.Select(item => _viewAnimation[item.Index]).ToList();
-                
-                foreach (IFrame frame in frames)
+                var frameIds = eventArgs.DraggedItems.Select(item => _viewAnimation.GetFrameAtIndex(item.Index)).ToList();
+                var frames = frameIds.Select(fid => _viewAnimation.GetFrameController(fid).GetStandaloneCopy());
+
+                foreach (var frame in frameIds)
                 {
                     _viewAnimation.RemoveFrame(frame);
                 }
@@ -1263,7 +1263,7 @@ namespace Pixelaria.Views.ModelViews
                 _undoSystem.RegisterUndo(undoTask);
 
                 RefreshFramesView();
-                animationPreviewPanel.LoadAnimation(_viewAnimation, false);
+                animationPreviewPanel.LoadAnimation(_viewAnimation.GetAnimationView(), false);
 
                 MarkModified();
 
@@ -1685,6 +1685,50 @@ namespace Pixelaria.Views.ModelViews
         }
 
         #endregion
+        
+        #region Frame View Event Handlers
+
+        private void frameView_onRequestInsertFrame(object sender, EventArgs args)
+        {
+            var frameView = (FrameView) sender;
+
+            if (frameView.ConfirmChanges() == DialogResult.Cancel) return;
+            
+            var newFrameId = _viewAnimation.DuplicateFrame(frameView.FrameLoaded.Index);
+
+            frameView.LoadFrame(_viewAnimation.GetFrameController(newFrameId));
+
+            // TODO: Refactor how we track frame insert/add changes to avoid breaking encapsulation here
+            frameView.ModifiedFrames = true;
+        }
+
+        private void frameView_onRequestAddFrame(object sender, EventArgs args)
+        {
+            var frameView = (FrameView)sender;
+
+            if (frameView.ConfirmChanges() == DialogResult.Cancel) return;
+
+            var newIndex = _viewAnimation.FrameCount;
+
+            var newFrameId = _viewAnimation.DuplicateFrame(frameView.FrameLoaded.Index, newIndex);
+
+            frameView.LoadFrame(_viewAnimation.GetFrameController(newFrameId));
+
+            // TODO: Refactor how we track frame insert/add changes to avoid breaking encapsulation here
+            frameView.ModifiedFrames = true;
+        }
+
+        private void frameView_onRequestNavigateToFrame(object sender, FrameIndexEventArgs args)
+        {
+            var frameView = (FrameView)sender;
+
+            if (frameView.ConfirmChanges() == DialogResult.Cancel) return;
+
+            var index = args.FrameIndex;
+            frameView.LoadFrame(_viewAnimation.GetFrameController(_viewAnimation.GetFrameAtIndex(index)));
+        }
+
+        #endregion
 
         /// <summary>
         /// Implements an animation modify undo task that undoes/redoes changes in the animation properties, including frame bitmap modifications.
@@ -1695,12 +1739,12 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// The animation to affect with this AnimationModifyUndoTask instance
             /// </summary>
-            private readonly Animation _animation;
+            private readonly AnimationController _animation;
 
             /// <summary>
             /// A clone of the animation that was made before changes were made
             /// </summary>
-            private readonly Animation _oldAnimation;
+            private readonly AnimationController _oldAnimation;
 
             /// <summary>
             /// The derivated compound task
@@ -1711,10 +1755,10 @@ namespace Pixelaria.Views.ModelViews
             /// Initializes a new instance of the FramesModifyUndoTask class
             /// </summary>
             /// <param name="animation">The animation to affect with this FramesModifyUndoTask instance</param>
-            public AnimationModifyUndoTask(Animation animation)
+            public AnimationModifyUndoTask(AnimationController animation)
             {
                 _animation = animation;
-                _oldAnimation = DeepCloneAnimation(_animation);
+                _oldAnimation = _animation.MakeCopyForEditing();
 
                 //_compoundTask = new GroupUndoTask(GetDescription());
             }
@@ -1724,7 +1768,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void RecordChanges()
             {
-                LazyAnimationModifyUndoTask lazyUndoTask = new LazyAnimationModifyUndoTask(_animation, _oldAnimation, DeepCloneAnimation(_animation));
+                var lazyUndoTask = new LazyAnimationModifyUndoTask(_oldAnimation, _animation.MakeCopyForEditing());
 
                 _compoundTask = lazyUndoTask;
             }
@@ -1765,53 +1809,27 @@ namespace Pixelaria.Views.ModelViews
             }
 
             /// <summary>
-            /// Performs a deep clone of an animation, by copying all the data from the animation and IDs over
-            /// </summary>
-            /// <param name="animation">The animation to deep clone</param>
-            /// <returns>A deep clone of the provided animation</returns>
-            private Animation DeepCloneAnimation(Animation animation)
-            {
-                Animation anim = animation.Clone();
-                
-                for (int i = 0; i < anim.FrameCount; i++)
-                {
-                    anim[i].ID = animation[i].ID;
-                }
-
-                anim.ID = animation.ID;
-
-                return anim;
-            }
-
-            /// <summary>
             /// Represents an undo task that undoes and redoes modifications to an animation through a simple copy operation
             /// </summary>
             private class LazyAnimationModifyUndoTask : IUndoTask
             {
                 /// <summary>
-                /// The animation to modify
-                /// </summary>
-                private readonly Animation _animation;
-
-                /// <summary>
                 /// A copy of the old animation to copy to when undoing
                 /// </summary>
-                private readonly Animation _oldAnimation;
+                private readonly AnimationController _oldAnimation;
 
                 /// <summary>
                 /// A copy of the new animation to copy to when redoing
                 /// </summary>
-                private readonly Animation _newAnimation;
+                private readonly AnimationController _newAnimation;
 
                 /// <summary>
                 /// Initializes a new class of the LazyAnimationModifyUndoTask
                 /// </summary>
-                /// <param name="animation">The animation to modify</param>
                 /// <param name="oldAnimation">A copy of the old animation to copy to when undoing</param>
                 /// <param name="newAnimation">A copy of the new animation to copy to when redoing</param>
-                public LazyAnimationModifyUndoTask(Animation animation, Animation oldAnimation, Animation newAnimation)
+                public LazyAnimationModifyUndoTask(AnimationController oldAnimation, AnimationController newAnimation)
                 {
-                    _animation = animation;
                     _oldAnimation = oldAnimation;
                     _newAnimation = newAnimation;
                 }
@@ -1830,12 +1848,7 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Undo()
                 {
-                    _animation.CopyFrom(_oldAnimation, false);
-
-                    for (int i = 0; i < _animation.FrameCount; i++)
-                    {
-                        _animation[i].ID = _oldAnimation[i].ID;
-                    }
+                    _oldAnimation.ApplyChanges();
                 }
 
                 /// <summary>
@@ -1843,12 +1856,7 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Redo()
                 {
-                    _animation.CopyFrom(_newAnimation, false);
-
-                    for (int i = 0; i < _animation.FrameCount; i++)
-                    {
-                        _animation[i].ID = _newAnimation[i].ID;
-                    }
+                    _newAnimation.ApplyChanges();
                 }
 
                 /// <summary>
@@ -1869,7 +1877,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <summary>
                 /// The animation that will be modified by this FramesDeleteUndoTask
                 /// </summary>
-                private readonly Animation _animation;
+                private readonly AnimationController _animation;
 
                 /// <summary>
                 /// The description for this FramesAddDeleteUndoTask
@@ -1902,7 +1910,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <param name="animation">The animation that will be modified by this FramesDeleteUndoTask</param>
                 /// <param name="operationType">The type of operation to perform on this FramesAddDeleteUndoTask</param>
                 /// <param name="description">The description for this FramesAddDeleteUndoTask</param>
-                public FramesAddDeleteUndoTask(Animation animation, FrameAddDeleteOperationType operationType, string description)
+                public FramesAddDeleteUndoTask([NotNull] AnimationController animation, FrameAddDeleteOperationType operationType, [NotNull] string description)
                 {
                     _animation = animation;
                     _description = description;
@@ -1916,12 +1924,12 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 /// <param name="frame">The frame being deleted</param>
                 /// <param name="index">The index to register. In case this is a delete undo operation, this value is not used</param>
-                public void RegisterFrame(IFrame frame, int index = 0)
+                public void RegisterFrame([NotNull] IFrame frame, int index = 0)
                 {
                     if (frame.Animation == null)
                         _frameIndices.Add(index);
                     else
-                        _frameIndices.Add((_operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index));
+                        _frameIndices.Add(_operationType == FrameAddDeleteOperationType.Delete ? frame.Index : index);
 
                     _frames.Add(frame);
                 }
@@ -2032,7 +2040,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <param name="animation">The animation that holds the frame</param>
                 /// <param name="frame">The frame to record the changes made to</param>
                 /// <param name="oldFrame">An (optional) starting value for the old frame</param>
-                public FrameEditUndoTask(Animation animation, IFrame frame, IFrame oldFrame = null)
+                public FrameEditUndoTask(Animation animation, [NotNull] IFrame frame, IFrame oldFrame = null)
                 {
                     _animation = animation;
                     _frame = frame;
@@ -2064,8 +2072,7 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Undo()
                 {
-                    //_frame.CopyFrom(_oldFrame);
-                    _animation.GetFrameByID(_frame.ID).CopyFrom(_oldFrame);
+                    _animation.GetFrameByID(_frame.ID)?.CopyFrom(_oldFrame);
                 }
 
                 /// <summary>
@@ -2073,8 +2080,7 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Redo()
                 {
-                    //_frame.CopyFrom(_newFrame);
-                    _animation.GetFrameByID(_frame.ID).CopyFrom(_newFrame);
+                    _animation.GetFrameByID(_frame.ID)?.CopyFrom(_newFrame);
                 }
 
                 /// <summary>
@@ -2095,7 +2101,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <summary>
                 /// The animation to affect
                 /// </summary>
-                private readonly Animation _animation;
+                private readonly AnimationController _animation;
 
                 /// <summary>
                 /// The old (undo) index
@@ -2113,7 +2119,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <param name="anim">The animation to affect</param>
                 /// <param name="oldIndex">The old (undo) index</param>
                 /// <param name="newIndex">The new (redo) index</param>
-                public FrameReoderUndoTask(Animation anim, int oldIndex, int newIndex)
+                public FrameReoderUndoTask([NotNull] AnimationController anim, int oldIndex, int newIndex)
                 {
                     _animation = anim;
                     _oldIndex = oldIndex;
@@ -2213,7 +2219,7 @@ namespace Pixelaria.Views.ModelViews
                     // Apply the frame contents now
                     for (int i = 0; i < _animation.FrameCount; i++)
                     {
-                        IFrame frame = _animation[i];
+                        var frame = _animation[i];
                         frame.CopyFrom(frame);
                     }
                 }
@@ -2242,6 +2248,19 @@ namespace Pixelaria.Views.ModelViews
             /// Specifies an Add Frames operaiton
             /// </summary>
             Add
+        }
+    }
+
+    public partial class AnimationView : IOnionSkinFrameProvider
+    {
+        int IOnionSkinFrameProvider.FrameCount => _viewAnimation.FrameCount;
+
+        Bitmap IOnionSkinFrameProvider.GetComposedBitmapForFrame(int index)
+        {
+            var id = _viewAnimation.GetFrameAtIndex(index);
+            var frame = _viewAnimation.GetFrameController(id);
+
+            return frame.GetComposedBitmap();
         }
     }
 }

@@ -21,9 +21,10 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
 using FastBitmapLib;
 
 using Pixelaria.Data;
@@ -31,13 +32,22 @@ using Pixelaria.Utils;
 
 namespace Pixelaria.Controllers.DataControllers
 {
-    public class FrameController
+    public class FrameController: IDisposable
     {
+        private bool _disposed;
         private readonly Frame _frame;
+        private FrameController _original;
 
         public int Height => _frame.Height;
 
         public int Width => _frame.Width;
+
+        public Size Size => _frame.Size;
+
+        /// <summary>
+        /// Index on the current animation associated with this frame
+        /// </summary>
+        public int Index => _frame.Index;
 
         /// <summary>
         /// Gets the number of layers on this frame controller
@@ -47,6 +57,60 @@ namespace Pixelaria.Controllers.DataControllers
         public FrameController(Frame frame)
         {
             _frame = frame;
+        }
+
+        /// <summary>
+        /// Disposes the underlying frame from memory.
+        /// 
+        /// Warning: Do not use on frames that are referenced by an animation or anything else!
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            Debug.Assert(_original != null, "_original != null", "Trying to discard original frame controller that points to on-disk/storage frame.");
+            _frame.Dispose();
+            _disposed = true;
+        }
+
+        /// <summary>
+        /// Returns a frame controller that is a surrogate for this frame controller, which can later
+        /// either discard changes or pass them back to this controller to persist on the original bundle.
+        /// </summary>
+        public FrameController MakeCopyForEditing()
+        {
+            var newFrame = _frame.Clone();
+
+            return new FrameController(newFrame) {_original = _original ?? this};
+        }
+
+        /// <summary>
+        /// Pushes changes to original animation controller, and consequently to the base bundle.
+        /// </summary>
+        public void ApplyChanges()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(AnimationController));
+
+            _original?.InternalApplyChanges(_frame);
+        }
+
+        private void InternalApplyChanges(Frame frame)
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(AnimationController));
+
+            _frame.CopyFrom(frame);
+        }
+
+        /// <summary>
+        /// Returns an independent copy of the frame managed by this frame controller.
+        /// 
+        /// TODO: This is hackish to overcome encapsulation of AnimationController/FrameControllers. Find a better way to do this later.
+        /// </summary>
+        public IFrame GetStandaloneCopy()
+        {
+            return _frame.Clone();
         }
 
         /// <summary>
@@ -250,6 +314,29 @@ namespace Pixelaria.Controllers.DataControllers
         }
 
         /// <summary>
+        /// Swaps the current frame bitmap with the given one. If the new bitmap's dimensions
+        /// don't match the Frame's dimensions, an ArgumentException is thrown.
+        /// If there's already a Bitmap loaded, the current Bitmap is disposed to save memory.
+        /// </summary>
+        /// <param name="bitmap">The new frame bitmap</param>
+        /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
+        public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
+        {
+            if (!_frame.Initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
+            // Copy to the first layer
+            //_layers[0].CopyFromBitmap(bitmap);
+            _frame.Layers[0].LayerBitmap.Dispose();
+            _frame.Layers[0].LayerBitmap = bitmap;
+
+            if (updateHash)
+                _frame.UpdateHash();
+        }
+
+        /// <summary>
         /// Returns the composed Bitmap for this frame
         /// </summary>
         /// <returns>The composed bitmap for this frame</returns>
@@ -260,7 +347,7 @@ namespace Pixelaria.Controllers.DataControllers
                 throw new InvalidOperationException(@"The frame was not initialized prior to this action");
             }
 
-            Bitmap composedBitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            var composedBitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
             FastBitmap.CopyPixels(GetLayerBitmap(0), composedBitmap);
 
             // Compose the layers by blending all the pixels from each layer into the final image
@@ -270,6 +357,92 @@ namespace Pixelaria.Controllers.DataControllers
             }
 
             return composedBitmap;
+        }
+
+        /// <summary>
+        /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating with the given interpolation mode.
+        /// Note that trying to resize a frame while it's inside an animation, and that animation's dimensions don't match the new size, an exception is thrown.
+        /// This method disposes of the current frame texture
+        /// </summary>
+        /// <param name="newWidth">The new width for this frame</param>
+        /// <param name="newHeight">The new height for this frame </param>
+        /// <param name="scalingMethod">The scaling method to use to match this frame to the new size</param>
+        /// <param name="interpolationMode">The interpolation mode to use when drawing the new frame</param>
+        public void Resize(int newWidth, int newHeight, PerFrameScalingMethod scalingMethod, InterpolationMode interpolationMode)
+        {
+            _frame.Resize(newWidth, newHeight, scalingMethod, interpolationMode);
+        }
+
+        /// <summary>
+        /// Generates a Image that represents the thumbnail for this frame using the given size
+        /// </summary>
+        /// <param name="width">The width of the thumbnail</param>
+        /// <param name="height">The height of the thumbnail</param>
+        /// <param name="resizeOnSmaller">Whether to resize the thumbnail up if it it's smaller than the thumbnail size</param>
+        /// <param name="centered">Whether to center the image on the center of the thumbnail</param>
+        /// <param name="backColor">The color to use as a background color</param>
+        /// <returns>The thumbnail image</returns>
+        public Image GenerateThumbnail(int width, int height, bool resizeOnSmaller, bool centered, Color backColor)
+        {
+            if (!_frame.Initialized)
+            {
+                throw new InvalidOperationException("The frame was not initialized prior to this action");
+            }
+
+            var output = new Bitmap(width, height);
+            var composed = GetComposedBitmap();
+
+            var graphics = Graphics.FromImage(output);
+
+            float tx = 0, ty = 0;
+            float scaleX = 1, scaleY = 1;
+
+            if (composed.Width >= composed.Height)
+            {
+                if (width < composed.Width || resizeOnSmaller)
+                {
+                    scaleX = (float)width / composed.Width;
+                    scaleY = scaleX;
+                }
+                else
+                {
+                    tx = (float)height / 2 - (composed.Width * scaleX / 2);
+                }
+
+                ty = (float)width / 2 - (composed.Height * scaleY / 2);
+            }
+            else
+            {
+                if (height < composed.Height || resizeOnSmaller)
+                {
+                    scaleY = (float)height / composed.Height;
+                    scaleX = scaleY;
+                }
+                else
+                {
+                    ty = (float)width / 2 - (composed.Height * scaleY / 2);
+                }
+
+                tx = (float)height / 2 - (composed.Width * scaleX / 2);
+            }
+
+            if (!centered)
+            {
+                tx = ty = 0;
+            }
+
+            var area = new RectangleF((float)Math.Round(tx), (float)Math.Round(ty), (float)Math.Round(composed.Width * scaleX), (float)Math.Round(composed.Height * scaleY));
+
+            graphics.Clear(backColor);
+
+            graphics.DrawImage(composed, area);
+
+            graphics.Flush();
+            graphics.Dispose();
+
+            composed.Dispose();
+
+            return output;
         }
 
         /// <summary>

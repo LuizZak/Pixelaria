@@ -23,7 +23,7 @@
 namespace Pixelaria.Controllers.DataControllers
 {
     /// <summary>
-    /// Returns metadata for an animation
+    /// Basic metadata for an animation
     /// </summary>
     public struct AnimationMetadata
     {

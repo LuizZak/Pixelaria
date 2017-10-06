@@ -29,9 +29,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using FastBitmapLib;
-
+using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using PixelariaTests.PixelariaTests.Generators;
@@ -64,7 +62,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         [TestMethod]
         public void TestSheetExportConsistency()
         {
-            AnimationExportSettings[] permSettings = AnimationSheetGenerator.GetExportSettingsPermutations();
+            var permSettings = AnimationSheetGenerator.GetExportSettingsPermutations();
 
             foreach (var settings in permSettings)
             {
@@ -96,14 +94,15 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             }
 
             // Generate export path
-            _tempExportPath = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetRandomFileName();
+            _tempExportPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(_tempExportPath);
 
             string exportPath = _tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name;
             string jsonPath = exportPath + ".json";
 
             // Export and save to disk
-            IBundleExporter exporter = new DefaultPngExporter();
+            var exporter = new DefaultPngExporter();
+
             exporter.ExportBundleSheet(OriginalSheet).Result
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
@@ -111,7 +110,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             for (int i = 0; i < OriginalSheet.Animations.Length; i++)
             {
                 var animation = OriginalSheet.Animations[i];
-                var image = exporter.GenerateSpriteStrip(animation);
+                var image = exporter.GenerateSpriteStrip(new AnimationController(null, animation));
 
                 var path = _tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name + "_" + i + ".png";
 
@@ -158,7 +157,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             Bitmap texture;
             using (var stream = new MemoryStream(bytes))
             {
-                Image original = Image.FromStream(stream);
+                var original = Image.FromStream(stream);
 
                 texture = (Bitmap)original.Clone();
 
@@ -207,7 +206,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             }
             */
 
-            AnimationSheet sheet = new AnimationSheet(Path.GetFileNameWithoutExtension((string)json.SelectToken("sprite_image")));
+            var sheet = new AnimationSheet(Path.GetFileNameWithoutExtension((string)json.SelectToken("sprite_image")));
 
             foreach (var child in json.SelectToken("animations").Children())
             {
@@ -218,7 +217,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                 int fps = (int)child.SelectToken("fps");
                 bool frameskip = (bool)child.SelectToken("frameskip");
 
-                Animation anim = new Animation(animName, animWidth, animHeight);
+                var anim = new Animation(animName, animWidth, animHeight);
+                
+                var controller = new AnimationController(null, anim);
 
                 var playbackSettings = anim.PlaybackSettings;
                 playbackSettings.FPS = fps;
@@ -239,12 +240,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
                     int frameW = (int)frameLocal.SelectToken("width");
                     int frameH = (int)frameLocal.SelectToken("height");
 
-                    Rectangle bounds = new Rectangle(sheetX, sheetY, sheetW, sheetH);
-                    Rectangle origins = new Rectangle(frameX, frameY, frameW, frameH);
+                    var bounds = new Rectangle(sheetX, sheetY, sheetW, sheetH);
+                    var origins = new Rectangle(frameX, frameY, frameW, frameH);
 
-                    Bitmap frame = SliceImage(texture, new Size(animWidth, animHeight), bounds, origins);
+                    var frame = SliceImage(texture, new Size(animWidth, animHeight), bounds, origins);
 
-                    anim.CreateFrame().SetFrameBitmap(frame);
+                    var frameId = controller.CreateFrame();
+                    controller.GetFrameController(frameId).SetFrameBitmap(frame);
                 }
 
                 sheet.AddAnimation(anim);
@@ -263,7 +265,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <returns>A slice of the original image that fits within the specified bounds</returns>
         public static Bitmap SliceImage(Bitmap original, Size sliceSize, Rectangle bounds, Rectangle origin = new Rectangle())
         {
-            Bitmap ret = new Bitmap(sliceSize.Width, sliceSize.Height, original.PixelFormat);
+            var ret = new Bitmap(sliceSize.Width, sliceSize.Height, original.PixelFormat);
 
             FastBitmap.CopyRegion(original, ret, bounds, origin);
 

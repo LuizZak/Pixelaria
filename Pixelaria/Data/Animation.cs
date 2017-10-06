@@ -25,8 +25,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using JetBrains.Annotations;
 using Pixelaria.Data.Factories;
-using Pixelaria.Localization;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -44,12 +44,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the width of this animation's frames
         /// </summary>
-        public int Width { get; private set; }
+        public int Width { get; set; }
 
         /// <summary>
         /// Gets the height of this animation's frames
         /// </summary>
-        public int Height { get; private set; }
+        public int Height { get; set; }
 
         /// <summary>
         /// Gets the size of this animation's frames
@@ -60,6 +60,13 @@ namespace Pixelaria.Data
         /// Gets or sets the ID for this Animation
         /// </summary>
         public int ID { get; set; }
+
+        /// <summary>
+        /// Id of animation sheet this animation is associated with.
+        /// 
+        /// Is null, if not associated with any animation sheet currently.
+        /// </summary>
+        public int? AnimationSheetId { get; set; }
 
         /// <summary>
         /// Gets the number of frames of this Animaion
@@ -86,6 +93,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="index">The index of a frame to get. It must be between [0 - FrameCount[</param>
         /// <returns>The frame at the given index in this animation</returns>
+        [NotNull]
         public IFrame this[int index] => GetFrameAtIndex(index);
         
         /// <summary>
@@ -140,27 +148,12 @@ namespace Pixelaria.Data
         }
 
         /// <summary>
-        /// Returns an Animation object that is the exact copy of this Animation.
-        /// The method copies also the underlying frames, allocating more memory to store the copied frames.
-        /// The ID of the animation is not copied for consistency and identity purposes
-        /// </summary>
-        /// <returns>an Animation object that is the exact copy of this Animation</returns>
-        public Animation Clone()
-        {
-            var anim = new Animation(Name, Width, Height);
-
-            anim.CopyFrom(this, false);
-
-            return anim;
-        }
-
-        /// <summary>
         /// Clears the frames of this Animation.
         /// The method disposes of the cleared frames
         /// </summary>
         public void Clear()
         {
-            foreach (IFrame frame in Frames)
+            foreach (var frame in Frames)
             {
                 frame.Removed();
                 frame.Dispose();
@@ -168,45 +161,7 @@ namespace Pixelaria.Data
 
             Frames.Clear();
         }
-
-        /// <summary>
-        /// Copies the data from the given Animation object into this animation.
-        /// This method copies the width, height, name, and frames to this Animation.
-        /// Enabling deep copies allow the cloning of frames as well instead of only
-        /// references
-        /// </summary>
-        /// <param name="anim">The Animation object to copy the properties from</param>
-        /// <param name="moveFrames">Whether to remove the frames form the given animation and add them to this Animation. When set to false, instead of moving the frames, the methods clones the frames</param>
-        public void CopyFrom(Animation anim, bool moveFrames)
-        {
-            Name = anim.Name;
-            Width = anim.Width;
-            Height = anim.Height;
-            PlaybackSettings = anim.PlaybackSettings;
-            ExportSettings = anim.ExportSettings;
-
-            Clear();
-
-            // Copy frames now
-            foreach (IFrame frame in anim.Frames)
-            {
-                if (moveFrames)
-                {
-                    anim.RemoveFrame(frame);
-                    AddFrame(frame);
-                }
-                else
-                {
-                    IFrame cloneFrame = frame.Clone();
-
-                    if (FrameIdGenerator != null)
-                        cloneFrame.ID = FrameIdGenerator.GetNextUniqueFrameId();
-
-                    AddFrame(cloneFrame);
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Returns the memory usage of this animation, in bytes
         /// </summary>
@@ -227,24 +182,22 @@ namespace Pixelaria.Data
             Height = sizeMatchingSettings.NewHeight;
 
             // Resize the frames now
-            foreach (IFrame frame in Frames)
+            foreach (var frame in Frames)
             {
                 frame.Resize(sizeMatchingSettings.NewWidth, sizeMatchingSettings.NewHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
         }
 
+        /*
         /// <summary>
         /// Adds the given array of frames to this Animation.
         /// If one of the frames' dimensions don't match with this animation's, an ArgumentException is thrown
         /// </summary>
         /// <param name="frames">The list of frames to add to this animation</param>
         /// <param name="index">The index to add the frames at</param>
-        public void AddFrames(IEnumerable<IFrame> frames, int index = -1)
+        public int[] AddFrames(IEnumerable<IFrame> frames, int index = -1)
         {
-            foreach (IFrame frame in frames)
-            {
-                AddFrame(frame, (index == -1 ? index : index++));
-            }
+            return frames.Select(frame => AddFrame(frame, index == -1 ? index : index++)).ToArray();
         }
 
         /// <summary>
@@ -254,7 +207,7 @@ namespace Pixelaria.Data
         /// <param name="frames">The list of frames to add to this animation</param>
         /// <param name="sizeMatchingSettings">The settings to apply to the frames when resizing</param>
         /// <param name="index">The index to add the frames at</param>
-        public void AddFrames(IEnumerable<IFrame> frames, FrameSizeMatchingSettings sizeMatchingSettings, int index = -1)
+        public int[] AddFrames(IEnumerable<IFrame> frames, FrameSizeMatchingSettings sizeMatchingSettings, int index = -1)
         {
             // Fetch the largest size for the animation now
             int newAnimWidth = Width;
@@ -271,7 +224,7 @@ namespace Pixelaria.Data
                     newAnimHeight = 1;
                 }
 
-                foreach (IFrame frame in framesCasted)
+                foreach (var frame in framesCasted)
                 {
                     newAnimWidth = Math.Max(newAnimWidth, frame.Width);
                     newAnimHeight = Math.Max(newAnimHeight, frame.Height);
@@ -281,17 +234,22 @@ namespace Pixelaria.Data
             Width = newAnimWidth;
             Height = newAnimHeight;
 
+            var frameIndexes = new int[framesCasted.Length];
+
             // Redimension each frame now
-            foreach (IFrame frame in framesCasted)
+            for (var i = 0; i < framesCasted.Length; i++)
             {
-                InternalAddFrame(frame, (index == -1 ? index : index++), true);
+                var frame = framesCasted[i];
+                frameIndexes[i] = InternalAddFrame(frame, index == -1 ? index : index++, true);
             }
 
             // Resize the frames now
-            foreach (IFrame frame in Frames)
+            foreach (var frame in Frames)
             {
                 frame.Resize(newAnimWidth, newAnimHeight, sizeMatchingSettings.PerFrameScalingMethod, sizeMatchingSettings.InterpolationMode);
             }
+
+            return frameIndexes;
         }
 
         /// <summary>
@@ -301,9 +259,9 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="frame">The frame to add to this animation</param>
         /// <param name="index">The index to add the frame at. -1 adds the frame to the end of the frame list</param>
-        public void AddFrame(IFrame frame, int index = -1)
+        public int AddFrame(IFrame frame, int index = -1)
         {
-            InternalAddFrame(frame, index);
+            return InternalAddFrame(frame, index);
         }
 
         /// <summary>
@@ -316,7 +274,7 @@ namespace Pixelaria.Data
         /// <param name="index">The index to add the frame at. -1 adds the frame to the end of the frame list</param>
         /// <param name="ignoreSize">Whether to ignore the size of the frame and add it even if it is in different dimensions than the rest of the animation</param>
         // ReSharper disable once UnusedParameter.Local
-        private void InternalAddFrame(IFrame frame, int index, bool ignoreSize = false)
+        private int InternalAddFrame(IFrame frame, int index, bool ignoreSize = false)
         {
             if (!frame.Initialized)
             {
@@ -325,7 +283,7 @@ namespace Pixelaria.Data
 
             if (Frames.ContainsReference(frame))
             {
-                return;
+                return Frames.IndexOf(frame);
             }
 
             if (!ignoreSize && (frame.Width != Width || frame.Height != Height))
@@ -341,10 +299,12 @@ namespace Pixelaria.Data
             if (index == -1)
             {
                 Frames.Add(frame);
+                return FrameCount - 1;
             }
             else
             {
                 Frames.Insert(index, frame);
+                return index;
             }
         }
         
@@ -389,7 +349,7 @@ namespace Pixelaria.Data
         /// <param name="index2">The second index to swap</param>
         public void SwapFrameIndices(int index1, int index2)
         {
-            IFrame temp = Frames[index1];
+            var temp = Frames[index1];
             Frames[index1] = Frames[index2];
             Frames[index2] = temp;
         }
@@ -400,9 +360,11 @@ namespace Pixelaria.Data
         /// <param name="frameIndex">The index of the frame to duplicate</param>
         /// <param name="newIndex">The index to put the frame on. Leave -1 to put it at the front of the duplicated frame</param>
         /// <returns>The newly duplicated frame</returns>
+        [NotNull]
         public IFrame DuplicateFrame(int frameIndex, int newIndex = -1)
         {
             IFrame dup = Frames[frameIndex].Clone();
+            dup.Animation = this;
 
             if (newIndex == -1)
             {
@@ -431,9 +393,10 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="position">The position to add the frame. Leave -1 to add to the end of the frames interval</param>
         /// <returns>The newly created frame</returns>
+        [NotNull]
         public T CreateFrame<T>(int position = -1) where T : IFrame, new()
         {
-            T frame = new T();
+            var frame = new T();
 
             frame.Initialize(this, Width, Height);
 
@@ -458,7 +421,7 @@ namespace Pixelaria.Data
         /// Removes the given Frame from this Animation object
         /// </summary>
         /// <param name="frame">The frame to remove</param>
-        public void RemoveFrame(IFrame frame)
+        public void RemoveFrame([NotNull] IFrame frame)
         {
             if (!ReferenceEquals(frame.Animation, this))
             {
@@ -478,12 +441,14 @@ namespace Pixelaria.Data
             RemoveFrame(GetFrameAtIndex(frameIndex));
         }
 
+        */
+
         /// <summary>
         /// Returns whether this Animation object contains a given Frame
         /// </summary>
         /// <param name="frame">A Frame object</param>
         /// <returns>Whether the provided frame is listed in this animation</returns>
-        public bool ContainsFrame(IFrame frame)
+        public bool ContainsFrame([NotNull] IFrame frame)
         {
             return GetFrameIndex(frame) > -1;
         }
@@ -493,7 +458,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="frame">The frame on this animation to get the index of</param>
         /// <returns>An integer representing the index at which the frame resides, or -1 if the frame is not located inside this animation</returns>
-        public int GetFrameIndex(IFrame frame)
+        public int GetFrameIndex([NotNull] IFrame frame)
         {
             return Frames.IndexOfReference(frame);
         }
@@ -503,6 +468,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="index">The index of the frame to get. It must be between [0 - FrameCount[</param>
         /// <returns>The Frame at the given index</returns>
+        [NotNull]
         public IFrame GetFrameAtIndex(int index)
         {
             return Frames[index];
@@ -513,6 +479,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="id">The ID to search for</param>
         /// <returns>A frame with the given ID, or null if none was found</returns>
+        [CanBeNull]
         // ReSharper disable once InconsistentNaming
         public IFrame GetFrameByID(int id)
         {
@@ -547,7 +514,7 @@ namespace Pixelaria.Data
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Animation other = (Animation) obj;
+            var other = (Animation) obj;
 
             if (Name != other.Name || Frames == null || other.Frames == null || Frames.Count != other.Frames.Count || Width != other.Width || Height != other.Height ||
                 !ExportSettings.Equals(other.ExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings) || ID != other.ID)
