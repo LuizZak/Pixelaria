@@ -30,7 +30,9 @@ using Pixelaria.Data.Factories;
 namespace Pixelaria.Data
 {
     /// <summary>
-    /// A bundle is an object that holds animations
+    /// A bundle is an object that holds animations and animation sheets.
+    /// 
+    /// Represents a complete, basic project structure that the user manipulates.
     /// </summary>
     public class Bundle : IDisposable, IFrameIdGenerator
     {

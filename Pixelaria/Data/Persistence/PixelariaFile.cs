@@ -21,10 +21,13 @@
 */
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Pixelaria.Data.Persistence.PixelariaFileBlocks;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence
 {
@@ -39,8 +42,19 @@ namespace Pixelaria.Data.Persistence
         protected int version = 9;
 
         /// <summary>
-        /// The Bundle binded to this PixelariaFile
+        /// After discarding temporary blocks, file contents must be re-loaded from the stream
+        /// after a Save() call to properly pick the pieces back again.
+        /// 
+        /// Also required when the file is first created, since no loading has taken place yet.
         /// </summary>
+        private bool _requiresReload = true;
+
+        /// <summary>
+        /// The Bundle binded to this PixelariaFile.
+        /// 
+        /// Null, if file is being loaded, not saved to.
+        /// </summary>
+        [CanBeNull]
         protected Bundle bundle;
 
         /// <summary>
@@ -52,18 +66,17 @@ namespace Pixelaria.Data.Persistence
         /// Gets or sets a value specifying whether to reset the bundle when loading from disk
         /// </summary>
         public bool ResetBundleOnLoad { get; set; }
-
-        /// <summary>
-        /// Gets the Bundle binded to this PixelariaFile
-        /// </summary>
-        public Bundle LoadedBundle => bundle;
-
+        
         /// <summary>
         /// Initializes a new instance of the PixelariaFile class
         /// </summary>
         public PixelariaFile()
         {
             fileHeader = new PixelariaFileHeader();
+            blockList = new List<FileBlock>();
+
+            if (bundle != null)
+                AddDefaultBlocks();
         }
 
         /// <summary>
@@ -71,14 +84,12 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
         /// <param name="filePath">The path to the .plx file to manipulate</param>
-        public PixelariaFile(Bundle bundle, string filePath)
+        public PixelariaFile([CanBeNull] Bundle bundle, string filePath)
             : this()
         {
             this.filePath = filePath;
             this.bundle = bundle;
-            blockList = new List<FileBlock>();
-
-            AddDefaultBlocks();
+            
         }
 
         /// <summary>
@@ -86,15 +97,122 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="bundle">The bundle to bind to this PixelariaFile</param>
         /// <param name="stream">The stream used to load/save the PixelariaFile</param>
-        public PixelariaFile(Bundle bundle, Stream stream)
+        public PixelariaFile([CanBeNull] Bundle bundle, Stream stream)
             : this()
         {
             filePath = "";
             this.bundle = bundle;
             this.stream = stream;
-            blockList = new List<FileBlock>();
+        }
 
-            AddDefaultBlocks();
+        /// <summary>
+        /// From the underlying stream, constructs and returns a Bundle object.
+        /// </summary>
+        public Bundle ConstructBundle()
+        {
+            if (_requiresReload)
+            {
+                stream.Position = 0;
+                Load();
+            }
+
+            // Piece stuff together
+            var headerBlock = (PixelariaFileHeader)fileHeader;
+
+            var locBundle = new Bundle(headerBlock.BundleName) {ExportPath = headerBlock.BundleExportPath};
+            
+            var legacyAnimBlocks = Blocks.OfType<AnimationBlock>().ToArray();
+            var animBlocks = Blocks.OfType<AnimationHeaderBlock>().ToArray();
+            var sheetBlocks = Blocks.OfType<AnimationSheetBlock>().ToArray();
+
+            // For frames, we group them by animation ID to make things easier when adding them to the respective animations
+            var frameBlocks =
+                Blocks
+                    .OfType<FrameBlock>()
+                    .GroupBy(block => block.ReadAnimationId())
+                    .ToDictionary(blocks => blocks.Key, blocks => blocks.ToArray());
+
+            // Start by creating animations
+            foreach (var block in legacyAnimBlocks)
+            {
+                if (block.StreamAnimation != null)
+                    locBundle.AddAnimation(block.StreamAnimation);
+            }
+
+            foreach (var animBlock in animBlocks)
+            {
+                var anim = animBlock.Animation;
+
+                // Get frames matching the animation's ID
+                if (frameBlocks.TryGetValue(anim.ID, out FrameBlock[] frames))
+                {
+                    foreach (var block in frames)
+                    {
+                        var frameInfo = block.LoadFrameFromBuffer(anim.Width, anim.Height);
+                        var frame = frameInfo.Frame;
+
+                        frame.Animation = anim;
+                        anim.Frames.Add(frame);
+
+                        // Add layers now
+                        Debug.Assert(frameInfo.Layers != null, "frameInfo.Layers != null");
+
+                        foreach (var frameLayer in frameInfo.Layers)
+                        {
+                            // Create bitmap from byte[]
+                            var bitmap = PersistenceHelper.LoadImageFromBytes(frameLayer.ImageData);
+
+                            var layer = new Frame.FrameLayer(bitmap, frameLayer.Name);
+                            frame.Layers.Add(layer);
+                            layer.Frame = frame;
+                            layer.Index = frame.LayerCount - 1;
+                        }
+
+                        // If the block version is prior to 2, update the frame's hash value due to the new way the hash is calculated
+                        if (block.BlockVersion < 2)
+                            frameInfo.Frame.UpdateHash();
+                        else
+                        {
+                            frameInfo.Frame.SetHash(frameInfo.HashBytes);
+                        }
+                    }
+                }
+
+                locBundle.AddAnimation(anim);
+            }
+
+            // Tie in animation sheets now
+            foreach (var sheetBlock in sheetBlocks)
+            {
+                var sheetEntries = sheetBlock.LoadAnimationSheetsFromBuffer();
+                foreach (var sheetEntry in sheetEntries)
+                {
+                    var sheet = sheetEntry.Sheet;
+                    var animIds = sheetEntry.AnimationIds;
+
+                    // Try to verify and correct clashing animation sheet IDs
+                    if (locBundle.GetAnimationSheetByID(sheet.ID) != null)
+                    {
+                        Logging.Warning(
+                            $"Animation sheet had invalid duplicated ID {sheet.ID}. Attempting to recover by re-setting to -1...",
+                            "PixelariaFile");
+                        
+                        sheet.ID = -1; // Let bundle figure out a new proper unique ID
+                    }
+
+                    foreach (var animId in animIds)
+                    {
+                        var anim = locBundle.GetAnimationByID(animId);
+
+                        Debug.Assert(anim != null, "anim != null");
+                        sheet.AddAnimation(anim);
+                    }
+
+                    locBundle.AddAnimationSheet(sheet);
+                }
+            }
+
+            return locBundle;
         }
 
         /// <summary>
@@ -108,10 +226,13 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
+            Debug.Assert(bundle != null, "bundle != null");
+
             foreach (var animation in bundle.Animations)
             {
                 AddBlock(new AnimationHeaderBlock(animation));
             }
+
             if (GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
             {
                 AddBlock(new AnimationSheetBlock());
@@ -138,6 +259,8 @@ namespace Pixelaria.Data.Persistence
         public void PrepareBlocksWithBundle()
         {
             // Prepare header
+            Debug.Assert(bundle != null, "bundle != null");
+
             ((PixelariaFileHeader)fileHeader).BundleName = bundle.Name;
             ((PixelariaFileHeader)fileHeader).BundleExportPath = bundle.ExportPath;
 
@@ -150,6 +273,9 @@ namespace Pixelaria.Data.Persistence
                     i--;
                 }
             }
+
+            // Re-load default blocks
+            AddDefaultBlocks();
 
             // No for-loop because the block list may be modified during preparation
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -166,8 +292,11 @@ namespace Pixelaria.Data.Persistence
         {
             // Prepare header
             fileHeader.Version = version;
-            ((PixelariaFileHeader)fileHeader).BundleName = bundle.Name;
-            ((PixelariaFileHeader)fileHeader).BundleExportPath = bundle.ExportPath;
+
+            Debug.Assert(bundle != null, "bundle != null");
+
+            ((PixelariaFileHeader) fileHeader).BundleName = bundle.Name;
+            ((PixelariaFileHeader) fileHeader).BundleExportPath = bundle.ExportPath;
 
             base.SaveHeader();
         }
@@ -180,6 +309,8 @@ namespace Pixelaria.Data.Persistence
             // Prepare the blocks prior to saving them
             PrepareBlocksWithBundle();
             base.SaveBlocks();
+
+            _requiresReload = true;
         }
 
         // 
@@ -187,17 +318,15 @@ namespace Pixelaria.Data.Persistence
         // 
         protected override void LoadBlocksFromStream()
         {
-            if (ResetBundleOnLoad)
-            {
-                // Reset the bundle beforehands
-                bundle.Clear();
-            }
-
             // Setup the bundle information from the file header
-            bundle.Name = ((PixelariaFileHeader)fileHeader).BundleName;
-            bundle.ExportPath = ((PixelariaFileHeader)fileHeader).BundleExportPath;
-
+            bundle = new Bundle(((PixelariaFileHeader) fileHeader).BundleName)
+            {
+                ExportPath = ((PixelariaFileHeader) fileHeader).BundleExportPath
+            };
+            
             base.LoadBlocksFromStream();
+
+            _requiresReload = false;
         }
 
         // 
@@ -239,7 +368,7 @@ namespace Pixelaria.Data.Persistence
             {
                 base.SaveToSteam(stream);
 
-                BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8);
+                var writer = new BinaryWriter(stream, Encoding.UTF8);
 
                 writer.Write(BundleName);
                 writer.Write(BundleExportPath);
@@ -252,7 +381,7 @@ namespace Pixelaria.Data.Persistence
             {
                 base.LoadFromSteam(stream);
 
-                BinaryReader reader = new BinaryReader(stream, Encoding.UTF8);
+                var reader = new BinaryReader(stream, Encoding.UTF8);
 
                 BundleName = reader.ReadString();
                 BundleExportPath = reader.ReadString();

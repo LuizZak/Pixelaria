@@ -42,7 +42,7 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <returns>An animation sheet with the passed parameters</returns>
         public static AnimationSheet GenerateAnimationSheet(string name, int animationCount, int animationWidth, int animationHeight, int frameCount, int seed = -1)
         {
-            AnimationSheet sheet = new AnimationSheet(name);
+            var sheet = new AnimationSheet(name);
 
             for (int i = 0; i < animationCount; i++)
             {

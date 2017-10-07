@@ -228,9 +228,9 @@ namespace Pixelaria.Views.ModelViews
             tssl_dimensions.Text = _viewAnimation.Width + @" x " + _viewAnimation.Height;
             tssl_frameCount.Text = _viewAnimation.FrameCount + "";
 
-            tssl_memory.Text = string.Format("Current: {0} Composed: {1}",
-                Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes(false)),
-                Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes(true)));
+            var actualSize = Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes(false));
+            var composedSize = Utilities.FormatByteSize(_viewAnimation.CalculateMemoryUsageInBytes(true));
+            tssl_memory.Text = $@"Current: {actualSize} Composed: {composedSize}";
         }
 
         /// <summary>

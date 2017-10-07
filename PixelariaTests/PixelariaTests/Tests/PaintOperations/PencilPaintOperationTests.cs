@@ -26,14 +26,14 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Pixelaria.Algorithms.PaintOperations;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using PixelariaTests.PixelariaTests.Generators;
-
+using PixelariaTests.PixelariaTests.Tests.Utils;
 using Rhino.Mocks;
 
 namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
@@ -47,7 +47,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         /// <summary>
         /// Specifies the name of the operation currently being tested
         /// </summary>
-        public const string OPERATION_NAME = "Pencil";
+        public const string OperationName = "Pencil";
 
         /// <summary>
         /// Tests the property return behavior for the PencilPaintOperation
@@ -55,11 +55,11 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestPaintOperationProperties()
         {
-            Bitmap target = new Bitmap(64, 64);
-            Bitmap target2 = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
+            var target2 = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
+            var operation = new PencilPaintOperation(target) { Color = Color.Black };
 
             // Check TargetBitmap property
             Assert.AreEqual(operation.TargetBitmap, target, "The TargetBitmap property for the paint operation must point to the bitmap that was passed on its constructor");
@@ -81,10 +81,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestBasicPaintOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
+            var operation = new PencilPaintOperation(target) { Color = Color.Black };
 
             operation.StartOpertaion();
 
@@ -97,8 +97,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0xC5, 0x6B, 0x5C, 0x6B, 0xB0, 0x12, 0xBD, 0x28, 0xC4, 0x13, 0x8D, 0xAA, 0x5, 0xA1, 0x71, 0x5D, 0x1B, 0xAF, 0x9B, 0x4, 0xE7, 0x85, 0x98, 0x1E, 0xFD, 0xD4, 0x14, 0xC0, 0xB6, 0x36, 0x32, 0xA1 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x83, 0xF6, 0x30, 0x43, 0x15, 0xE0, 0x5C, 0x92, 0xDE, 0x39, 0x7E, 0x5D, 0x36, 0x5D, 0x4, 0xCB, 0xE9,
+                0xBA, 0xDC, 0xE0, 0xFC, 0xF4, 0x25, 0x1C, 0x69, 0xE, 0x88, 0xE5, 0x30, 0xC7, 0x26, 0xE4
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_BasicPaint");
 
@@ -111,10 +115,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestBasicSizedPaintOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Size = 5 };
+            var operation = new PencilPaintOperation(target) { Color = Color.Black, Size = 5 };
 
             operation.StartOpertaion();
 
@@ -131,8 +135,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             Assert.IsFalse(operation.OperationStarted, "After a call to FinishOperation(), an operation's OperationStarted property should return false");
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x1B, 0xB1, 0x7D, 0x42, 0x41, 0x93, 0xE5, 0x88, 0xCD, 0xF5, 0xE4, 0x4C, 0x9D, 0xE7, 0x33, 0x15, 0x2C, 0x9C, 0xFD, 0x3B, 0x9D, 0x33, 0x16, 0x25, 0xB0, 0x1A, 0x1B, 0xAF, 0xB1, 0xE3, 0xEA, 0x35 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x58, 0x68, 0x8, 0x95, 0xAB, 0x56, 0xA5, 0x94, 0x9B, 0xBA, 0xF5, 0xBE, 0xD, 0xE6, 0xCF, 0x39, 0x8B,
+                0x22, 0xDB, 0x2F, 0x96, 0x66, 0x17, 0x31, 0x9C, 0x6, 0xA3, 0xFC, 0x42, 0x3C, 0xF8, 0x68
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_BasicSizedPaintBrush");
 
@@ -145,10 +153,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestOutOfBoundsPaintOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black };
+            var operation = new PencilPaintOperation(target) { Color = Color.Black };
 
             operation.StartOpertaion();
 
@@ -158,8 +166,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x35, 0xC8, 0x80, 0x21, 0xE7, 0xC1, 0x48, 0x28, 0xA5, 0xA9, 0xDC, 0xF5, 0x2D, 0x1F, 0xBB, 0x8B, 0xE3, 0xBC, 0x3C, 0x80, 0x2B, 0xCC, 0x95, 0x2C, 0xD3, 0xC8, 0xD, 0x52, 0xC2, 0xE5, 0xC2, 0x62 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x54, 0x86, 0x93, 0xA8, 0x8C, 0xC4, 0xDD, 0xCC, 0xC9, 0xEB, 0x0, 0x65, 0x30, 0xD, 0x4D, 0x9C, 0x86,
+                0xC8, 0x30, 0x1B, 0x9F, 0xE9, 0x1D, 0x9D, 0x9B, 0x94, 0xD0, 0x8, 0xBA, 0xDF, 0x6F, 0xE9
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_OutOfBoundsPaint");
 
@@ -172,10 +184,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestPlotPixelOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
-
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver
@@ -188,8 +200,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x9, 0xD8, 0xAD, 0x5, 0x84, 0x5E, 0x98, 0x81, 0x5D, 0x6B, 0xCD, 0x63, 0x74, 0x3A, 0xF8, 0x2A, 0x32, 0x48, 0x90, 0x35, 0x90, 0x21, 0xC7, 0xBA, 0xBF, 0x63, 0xC, 0xD5, 0x1, 0x1F, 0x90, 0x62 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x16, 0x49, 0x46, 0x19, 0x5D, 0xA4, 0xE7, 0x28, 0x41, 0x6, 0xC5, 0xB2, 0x3, 0x59, 0x45, 0x28, 0x65,
+                0x34, 0xE0, 0xD, 0x74, 0x19, 0x5D, 0xD8, 0xDE, 0x3A, 0x3D, 0x18, 0x3C, 0xC6, 0xDB, 0xD8
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_PlotPixel");
 
@@ -202,10 +218,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSinglePixelPaintOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target, true)
+            var operation = new PencilPaintOperation(target, true)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver
@@ -219,8 +235,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x9, 0xD8, 0xAD, 0x5, 0x84, 0x5E, 0x98, 0x81, 0x5D, 0x6B, 0xCD, 0x63, 0x74, 0x3A, 0xF8, 0x2A, 0x32, 0x48, 0x90, 0x35, 0x90, 0x21, 0xC7, 0xBA, 0xBF, 0x63, 0xC, 0xD5, 0x1, 0x1F, 0x90, 0x62 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x16, 0x49, 0x46, 0x19, 0x5D, 0xA4, 0xE7, 0x28, 0x41, 0x06, 0xC5, 0xB2, 0x03, 0x59, 0x45, 0x28, 0x65,
+                0x34, 0xE0, 0x0D, 0x74, 0x19, 0x5D, 0xD8, 0xDE, 0x3A, 0x3D, 0x18, 0x3C, 0xC6, 0xDB, 0xD8
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SinglePlotPaint");
 
@@ -233,9 +253,9 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceCopyTransparentOperation()
         {
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target, true)
+            var operation = new PencilPaintOperation(target, true)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceCopy
@@ -252,8 +272,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x7C, 0xB0, 0xE9, 0x83, 0x12, 0xC3, 0x13, 0x74, 0x20, 0xCA, 0x40, 0x8E, 0x27, 0x11, 0x8B, 0xF5, 0xE9, 0x5F, 0x33, 0x41, 0xCE, 0x7D, 0x8D, 0x74, 0x76, 0x5C, 0xA6, 0xD1, 0xAB, 0x90, 0x1C, 0x34 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x32, 0xC8, 0x4C, 0x43, 0x0D, 0x90, 0x1B, 0x12, 0xC7, 0xB1, 0xB6, 0x30, 0x08, 0x86, 0xCF, 0xB6, 0x49,
+                0xDD, 0x09, 0x5D, 0xAA, 0x6D, 0x41, 0x0D, 0x27, 0xE1, 0x2D, 0x70, 0x68, 0xED, 0xA4, 0x66
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SourceCopyTransparentPaint");
 
@@ -266,9 +290,9 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceOverTransparentOperation()
         {
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver
@@ -286,8 +310,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x7D, 0xBB, 0x8A, 0xAE, 0x0, 0x75, 0x55, 0x54, 0x67, 0xE1, 0x35, 0x90, 0xE2, 0x77, 0xD3, 0xF1, 0xE4, 0xAD, 0xE2, 0xD6, 0xB, 0xDA, 0xCA, 0xB9, 0xDD, 0x64, 0x99, 0x70, 0xFF, 0x69, 0x6D, 0x52 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x57, 0x9F, 0xBD, 0x24, 0xEE, 0x05, 0x6E, 0xB8, 0xAA, 0xB4, 0xB6, 0x45, 0x50, 0x7A, 0x4A, 0xC1, 0xD5,
+                0x90, 0xB1, 0x4F, 0xF6, 0xD5, 0x97, 0xFB, 0xD2, 0xD3, 0x7E, 0xF0, 0x7B, 0x09, 0x92, 0x06
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SourceOverTransparentPaint");
 
@@ -300,9 +328,9 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceOverAlphaAccumulationOffTransparentOperation()
         {
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver
@@ -320,8 +348,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             operation.FinishOperation();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x7E, 0xCD, 0xAB, 0x2D, 0xB, 0x48, 0x83, 0x2B, 0x1E, 0xCA, 0xA, 0x98, 0x68, 0x58, 0x86, 0x66, 0x67, 0x15, 0x62, 0xDA, 0xC4, 0xB5, 0xE2, 0x8, 0x12, 0xBD, 0x3C, 0x7A, 0xF2, 0x92, 0x80, 0x9 };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0x7E, 0x3C, 0xA4, 0xBC, 0x24, 0xC2, 0x50, 0x1B, 0x82, 0xE7, 0xFD, 0xCD, 0x37, 0x85, 0x79, 0x40, 0xD2,
+                0x7F, 0x04, 0xD8, 0xCE, 0xEB, 0x80, 0x9D, 0x4F, 0x58, 0xBC, 0x21, 0xF4, 0x49, 0x59, 0xAB
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SourceOverTransparentPaint_AccumulateAlphaOff");
 
@@ -334,10 +366,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceOverSizedPaintOperation()
         {
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.FromArgb(127, 0, 0, 0), Size = 5, CompositingMode = CompositingMode.SourceOver };
+            var operation = new PencilPaintOperation(target) { Color = Color.FromArgb(127, 0, 0, 0), Size = 5, CompositingMode = CompositingMode.SourceOver };
 
             operation.StartOpertaion();
 
@@ -354,8 +386,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             Assert.IsFalse(operation.OperationStarted, "After a call to FinishOperation(), an operation's OperationStarted property should return false");
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0x95, 0x68, 0xB9, 0xC4, 0x9, 0xB6, 0xC, 0x3C, 0xC5, 0xDE, 0xFB, 0xEB, 0x97, 0x39, 0x21, 0x1F, 0x98, 0x16, 0x24, 0x9B, 0xD4, 0xDB, 0xB, 0xC5, 0xCD, 0x4B, 0xD0, 0xFE, 0xF2, 0xE0, 0x98, 0x7C };
-            byte[] currentHash = GetHashForBitmap(target);
+            byte[] goodHash =
+            {
+                0xD1, 0xDF, 0x77, 0x3B, 0x39, 0x61, 0x9B, 0x3D, 0xB5, 0x0D, 0x25, 0x63, 0x98, 0x91, 0xD8, 0x28, 0x38,
+                0x86, 0x55, 0xD6, 0xD1, 0x54, 0xBF, 0x3D, 0x80, 0x16, 0x4E, 0x84, 0xC8, 0x5D, 0x2F, 0x6E
+            };
+            byte[] currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_SourceOverSizedPaintBrush");
 
@@ -369,14 +405,14 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestOperationNotification()
         {
             // Setup the test by performing a few pencil strokes
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
             // Stub a notifier
-            IPlottingOperationNotifier stubNotifier = MockRepository.GenerateStub<IPlottingOperationNotifier>(null);
+            var stubNotifier = MockRepository.GenerateStub<IPlottingOperationNotifier>(null);
 
             // Create the operation and perform it
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.Black,
                 Notifier = stubNotifier
@@ -415,13 +451,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation()
         {
             // Create the objects
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
 
             operation.StartOpertaion();
 
@@ -440,7 +476,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndo");
 
@@ -454,13 +490,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperationSized()
         {
             // Create the objects
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator, Size = 5 };
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator, Size = 5 };
 
             operation.StartOpertaion();
 
@@ -476,7 +512,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndoSized");
 
@@ -490,12 +526,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceOverAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
-            byte[] originalHash = GetHashForBitmap(target);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -516,7 +552,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceOverAlpha");
 
@@ -530,12 +566,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceCopyAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
-            byte[] originalHash = GetHashForBitmap(target);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceCopy,
@@ -556,7 +592,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceCopyAlpha");
 
@@ -570,12 +606,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceOverAlpha_NoAccumulateAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
-            byte[] originalHash = GetHashForBitmap(target);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -596,7 +632,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceCopyAlpha_NoAccumulateAlpha");
 
@@ -610,12 +646,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SizedSourceOverAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
-            byte[] originalHash = GetHashForBitmap(target);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -637,7 +673,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndo_SizedSourceOverAlpha");
 
@@ -655,12 +691,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation()
         {
             // Create the objects
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
 
             operation.StartOpertaion();
 
@@ -673,13 +709,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Undo and redo the task back
             generator.UndoTask.Undo();
             generator.UndoTask.Redo();
 
-            byte[] afterRedoHash = GetHashForBitmap(target);
+            byte[] afterRedoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterRedo");
 
@@ -693,12 +729,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestRedoOperationSized()
         {
             // Create the objects
-            Bitmap target = new Bitmap(64, 64);
+            var target = new Bitmap(64, 64);
             FastBitmap.ClearBitmap(target, Color.Transparent);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator, Size = 5 };
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator, Size = 5 };
 
             operation.StartOpertaion();
 
@@ -711,13 +747,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Undo and redo the task back
             generator.UndoTask.Undo();
             generator.UndoTask.Redo();
 
-            byte[] afterRedoHash = GetHashForBitmap(target);
+            byte[] afterRedoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterRedoSized");
 
@@ -731,11 +767,11 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SourceOverAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -753,13 +789,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Undo and redo the task back
             generator.UndoTask.Undo();
             generator.UndoTask.Redo();
 
-            byte[] afterRedoHash = GetHashForBitmap(target);
+            byte[] afterRedoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterRedo_SourceOverAlpha");
 
@@ -773,11 +809,11 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SourceCopyAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceCopy,
@@ -795,13 +831,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Undo and redo the task back
             generator.UndoTask.Undo();
             generator.UndoTask.Redo();
 
-            byte[] afterRedoHash = GetHashForBitmap(target);
+            byte[] afterRedoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterRedo_SourceCopyAlpha");
 
@@ -815,11 +851,11 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SourceOverAlpha_NoAccumulateAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -837,13 +873,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Undo and redo the task back
             generator.UndoTask.Undo();
             generator.UndoTask.Redo();
 
-            byte[] afterRedoHash = GetHashForBitmap(target);
+            byte[] afterRedoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterRedo_SourceCopyAlpha_NoAccumulateAlpha");
 
@@ -857,11 +893,11 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SizedSourceOverAlpha()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil");
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil");
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -880,13 +916,13 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
 
             operation.FinishOperation();
 
-            byte[] originalHash = GetHashForBitmap(target);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Undo and redo the task back
             generator.UndoTask.Undo();
             generator.UndoTask.Redo();
 
-            byte[] afterRedoHash = GetHashForBitmap(target);
+            byte[] afterRedoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterRedo_SizedSourceOverAlpha");
 
@@ -904,12 +940,12 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceOverAlphaFailing()
         {
             // Create the objects
-            Bitmap target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
-            byte[] originalHash = GetHashForBitmap(target);
+            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
-            PlottingPaintUndoGenerator generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false);
-            PencilPaintOperation operation = new PencilPaintOperation(target)
+            var generator = new PlottingPaintUndoGenerator(target, "Pencil", keepReplacedUndos: false);
+            var operation = new PencilPaintOperation(target)
             {
                 Color = Color.FromArgb(127, 0, 0, 0),
                 CompositingMode = CompositingMode.SourceOver,
@@ -930,7 +966,7 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             // Undo the task
             generator.UndoTask.Undo();
 
-            byte[] afterUndoHash = GetHashForBitmap(target);
+            byte[] afterUndoHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "PencilOperation_AfterUndo_SourceOverAlpha_Failed");
 
@@ -944,8 +980,8 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [ExpectedException(typeof(InvalidOperationException), "Trying to call DrawTo() with an unstarted pencil paint operation should result in an InvalidOperationException")]
         public void TestUnstartedOperationException()
         {
-            Bitmap bitmap = new Bitmap(64, 64);
-            PencilPaintOperation paintOperation = new PencilPaintOperation(bitmap);
+            var bitmap = new Bitmap(64, 64);
+            var paintOperation = new PencilPaintOperation(bitmap);
 
             paintOperation.DrawTo(5, 5);
         }
@@ -954,8 +990,8 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         [ExpectedException(typeof(InvalidOperationException), "Trying to modify the target bitmap while under operation should result in an InvalidOperationException")]
         public void TestChangeBitmapUnderOperationException()
         {
-            Bitmap bitmap = new Bitmap(64, 64);
-            PencilPaintOperation paintOperation = new PencilPaintOperation(bitmap);
+            var bitmap = new Bitmap(64, 64);
+            var paintOperation = new PencilPaintOperation(bitmap);
 
             paintOperation.StartOpertaion();
 
@@ -970,9 +1006,9 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
         /// </summary>
         /// <param name="bitmap">The bitmap to save</param>
         /// <param name="name">The file name to use on the bitmap</param>
-        public void RegisterResultBitmap(Bitmap bitmap, string name)
+        public void RegisterResultBitmap([NotNull] Bitmap bitmap, string name)
         {
-            string folder = "PaintToolResults" + Path.DirectorySeparatorChar + OPERATION_NAME;
+            string folder = "PaintToolResults" + Path.DirectorySeparatorChar + OperationName;
             string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
             string file = path + Path.DirectorySeparatorChar + name;
 
@@ -982,46 +1018,10 @@ namespace PixelariaTests.PixelariaTests.Tests.PaintOperations
             bitmap.Save(file + ".png", ImageFormat.Png);
 
             // Also save a .txt file containing the hash
-            byte[] hashBytes = GetHashForBitmap(bitmap);
+            byte[] hashBytes = UtilsTests.GetHashForBitmap(bitmap);
             string hashString = "";
-            hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") +"0x" + b.ToString("X"));
+            hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") +"0x" + b.ToString("X2"));
             File.WriteAllText(file + ".txt", hashString);
-        }
-
-        /// <summary>
-        /// The hashing algorithm used for hashing the bitmaps
-        /// </summary>
-        private static readonly HashAlgorithm ShaM = new SHA256Managed();
-
-        /// <summary>
-        /// Returns a hash for the given Bitmap object
-        /// </summary>
-        /// <param name="bitmap">The bitmap to get the hash of</param>
-        /// <returns>The hash of the given bitmap</returns>
-        public static byte[] GetHashForBitmap(Bitmap bitmap)
-        {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                bitmap.Save(stream, ImageFormat.Png);
-
-                stream.Position = 0;
-
-                // Compute a hash for the image
-                byte[] hash = GetHashForStream(stream);
-
-                return hash;
-            }
-        }
-
-        /// <summary>
-        /// Returns a hash for the given Stream object
-        /// </summary>
-        /// <param name="stream">The stream to get the hash of</param>
-        /// <returns>The hash of the given stream</returns>
-        public static byte[] GetHashForStream(Stream stream)
-        {
-            // Compute a hash for the image
-            return ShaM.ComputeHash(stream);
         }
     }
 }

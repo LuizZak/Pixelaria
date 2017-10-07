@@ -22,6 +22,7 @@
 
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
@@ -46,10 +47,24 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="path">The path to load the bundle from</param>
         /// <returns>The bundle that was loaded from the given path</returns>
+        [CanBeNull]
         public static Bundle LoadBundleFromDisk([NotNull] string path)
         {
-            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            BinaryReader reader = new BinaryReader(stream);
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                return LoadBundleFromStream(stream);
+            }
+        }
+
+        /// <summary>
+        /// Loads a bundle from a given stream
+        /// </summary>
+        /// <param name="stream">The stream to load the bundle from</param>
+        /// <returns>The bundle that was loaded from the given stream</returns>
+        [CanBeNull]
+        public static Bundle LoadBundleFromStream([NotNull] Stream stream)
+        {
+            var reader = new BinaryReader(stream);
 
             // Signature Block
             if (reader.ReadByte() != 'P' || reader.ReadByte() != 'X' || reader.ReadByte() != 'L')
@@ -65,11 +80,10 @@ namespace Pixelaria.Data.Persistence
             // New pixelaria file format
             if (bundleVersion >= 9)
             {
-                stream.Close();
+                var loader = new PixelariaFile(null, stream);
+                loader.Load();
 
-                var file = LoadFileFromDisk(path);
-                Debug.Assert(file != null, "file != null");
-                return file.LoadedBundle;
+                return loader.ConstructBundle();
             }
 
             ////////
@@ -81,7 +95,7 @@ namespace Pixelaria.Data.Persistence
                 bundlePath = reader.ReadString();
             }
 
-            Bundle bundle = new Bundle(bundleName) { ExportPath = bundlePath };
+            var bundle = new Bundle(bundleName) { ExportPath = bundlePath };
 
             // Animation block
             int animCount = reader.ReadInt32();
@@ -103,52 +117,7 @@ namespace Pixelaria.Data.Persistence
                 bundle.AddAnimationSheet(LoadAnimationSheetFromStream(stream, bundle, bundleVersion));
             }
 
-            stream.Close();
-
             return bundle;
-        }
-
-        /// <summary>
-        /// Loads a Pixelaria (.plx) file from disk
-        /// </summary>
-        /// <param name="path">The path of the file to load</param>
-        /// <returns>A new Pixelaria file</returns>
-        [CanBeNull]
-        public static PixelariaFile LoadFileFromDisk([NotNull] string path)
-        {
-            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            BinaryReader reader = new BinaryReader(stream);
-
-            // Signature Block
-            if (reader.ReadByte() != 'P' || reader.ReadByte() != 'X' || reader.ReadByte() != 'L')
-            {
-                return null;
-            }
-
-            // Bundle Header block
-            int bundleVersion = reader.ReadInt32();
-            stream.Close();
-
-            PixelariaFile file;
-
-            ////////
-            //// Version 9 and later
-            ////////
-            if (bundleVersion >= 9)
-            {
-                file = new PixelariaFile(new Bundle("Name"), path);
-
-                PixelariaFileLoader.Load(file);
-
-                return file;
-            }
-
-            Bundle bundle = LoadBundleFromDisk(path);
-
-            file = new PixelariaFile(bundle, path);
-            file.PrepareBlocksWithBundle();
-
-            return file;
         }
 
         #endregion
@@ -160,20 +129,21 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         /// <param name="bundle">The bundle to save</param>
         /// <param name="path">The path to save the bundle to</param>
-        public static void SaveBundleToDisk(Bundle bundle, string path)
+        public static void SaveBundleToDisk(Bundle bundle, [NotNull] string path)
         {
-            PixelariaFile file = new PixelariaFile(bundle, path);
-
-            SaveFileToDisk(file);
+            var file = new PixelariaFile(bundle, path);
+            file.Save();
         }
 
         /// <summary>
-        /// Saves the given PixelariaFile object to disk
+        /// Saves the given bundle to a stream
         /// </summary>
-        /// <param name="file">The file to save to disk</param>
-        public static void SaveFileToDisk(PixelariaFile file)
+        /// <param name="bundle">The bundle to save</param>
+        /// <param name="stream">Stream to save bundle to</param>
+        public static void SaveBundleToStream(Bundle bundle, [NotNull] Stream stream)
         {
-            PixelariaFileSaver.Save(file);
+            var file = new PixelariaFile(bundle, stream);
+            file.Save();
         }
 
         #endregion
@@ -187,7 +157,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to load the animation from</param>
         /// <param name="version">The version that the stream was written on</param>
         /// <returns>The Animation object loaded</returns>
-        public static Animation LoadAnimationFromStream([NotNull] Stream stream, int version)
+        private static Animation LoadAnimationFromStream([NotNull] Stream stream, int version)
         {
             var reader = new BinaryReader(stream);
 
@@ -230,57 +200,29 @@ namespace Pixelaria.Data.Persistence
         /// <param name="owningAnimation">The Animation object that will be used to create the Frame with</param>
         /// <param name="version">The version that the stream was written on</param>
         /// <returns>The Frame object loaded</returns>
-        public static Frame LoadFrameFromStream([NotNull] Stream stream, [NotNull] Animation owningAnimation, int version)
+        private static Frame LoadFrameFromStream([NotNull] Stream stream, [NotNull] Animation owningAnimation, int version)
         {
             var reader = new BinaryReader(stream);
 
-            // Read the size of the frame texture
-            long textSize = reader.ReadInt64();
+            // Read frame texture
+            var bitmap = PersistenceHelper.LoadImageFromStream(stream);
 
             var frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
-
-            var memStream = new MemoryStream();
-
-            long pos = stream.Position;
-
-            var buff = new byte[textSize];
-            stream.Read(buff, 0, buff.Length);
-            stream.Position = pos + textSize;
-
-            memStream.Write(buff, 0, buff.Length);
-
-            var img = Image.FromStream(memStream);
-
-            // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
-            var bitmap = new Bitmap(img);
-
-            img.Dispose();
-
+            
             if (version >= 8)
             {
                 frame.ID = reader.ReadInt32();
             }
 
-            // Get the hash now
-            byte[] hash;
-
+            // Skip the hash now (newer versions from >8 have new unstable hashing algorithms)
             if (version >= 6)
             {
                 int length = reader.ReadInt32();
-                hash = new byte[length];
-                stream.Read(hash, 0, length);
+                reader.ReadBytes(length);
             }
-            else
-            {
-                memStream.Position = 0;
-                hash = ImageUtilities.GetHashForStream(memStream);
-            }
-
-            memStream.Dispose();
-
-            frame.SetFrameBitmap(bitmap, false);
-            frame.SetHash(hash);
-
+            
+            frame.SetFrameBitmap(bitmap);
+            
             return frame;
         }
 
@@ -292,7 +234,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="parentBundle">The bundle that will contain this AnimationSheet</param>
         /// <param name="version">The version that the stream was written on</param>
         /// <returns>The Animation object loaded</returns>
-        public static AnimationSheet LoadAnimationSheetFromStream([NotNull] Stream stream, Bundle parentBundle, int version)
+        private static AnimationSheet LoadAnimationSheetFromStream([NotNull] Stream stream, Bundle parentBundle, int version)
         {
             var reader = new BinaryReader(stream);
 
@@ -327,7 +269,7 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to load the export settings from</param>
         /// <param name="version">The version that the stream was writter on</param>
         /// <returns>The AnimationExportSettings object loaded</returns>
-        public static AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream, int version)
+        private static AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream, int version)
         {
             var reader = new BinaryReader(stream);
 
@@ -353,91 +295,5 @@ namespace Pixelaria.Data.Persistence
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Encapsulates a Version 9 and later block-composed file loader
-    /// </summary>
-    public class PixelariaFileLoader
-    {
-        /// <summary>
-        /// The file to load
-        /// </summary>
-        private readonly PixelariaFile _file;
-
-        /// <summary>
-        /// Whether to reset the bundle before loading contents from the stream
-        /// </summary>
-        private readonly bool _resetBundle;
-
-        /// <summary>
-        /// Initializes a new instance of the PixelariaFileLoader class
-        /// </summary>
-        /// <param name="file">The file to load from the stream</param>
-        /// <param name="resetBundle">Whether to reset the bundle to a clear state before loading the new file</param>
-        public PixelariaFileLoader(PixelariaFile file, bool resetBundle)
-        {
-            _file = file;
-            _resetBundle = resetBundle;
-        }
-
-        /// <summary>
-        /// Loads the contents of a PixelariaFile
-        /// </summary>
-        public void Load()
-        {
-            _file.ResetBundleOnLoad = _resetBundle;
-            _file.Load();
-        }
-
-        /// <summary>
-        /// Loads a pixelaria file's contents from its stream or file path
-        /// </summary>
-        /// <param name="file">A valid PixelariaFile with a stream of valid file path set</param>
-        /// <param name="resetBundle">Whether to reset the bundle to a clear state before loading the new file</param>
-        public static void Load(PixelariaFile file, bool resetBundle = true)
-        {
-            // TODO: Verify correctess of clearing the pixelaria file's internal blocks list before loading the file from the stream again
-            var loader = new PixelariaFileLoader(file, resetBundle);
-            loader.Load();
-        }
-    }
-
-    /// <summary>
-    /// Encapsulates a Version 9 and later block-composed file saver
-    /// </summary>
-    public class PixelariaFileSaver
-    {
-        /// <summary>
-        /// The file to save
-        /// </summary>
-        private readonly PixelariaFile _file;
-
-        /// <summary>
-        /// Initializes a new instance of the PixelariaFileLoader class
-        /// </summary>
-        /// <param name="file">The file to save to the stream</param>
-        public PixelariaFileSaver(PixelariaFile file)
-        {
-            _file = file;
-        }
-
-        /// <summary>
-        /// Saves the contents of a PixelariaFile
-        /// </summary>
-        public void Save()
-        {
-            _file.Save();
-        }
-
-        /// <summary>
-        /// Saves a pixelaria file's contents to its stream or file path
-        /// </summary>
-        /// <param name="file">A valid PixelariaFile with a stream of valid file path set</param>
-        public static void Save(PixelariaFile file)
-        {
-            var saver = new PixelariaFileSaver(file);
-            saver.Save();
-        }
     }
 }

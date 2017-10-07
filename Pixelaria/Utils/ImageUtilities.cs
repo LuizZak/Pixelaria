@@ -267,18 +267,22 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="bitmap">The bitmap to get the hash of</param>
         /// <returns>The hash of the given bitmap</returns>
-        public static byte[] GetHashForBitmap([NotNull] Bitmap bitmap)
+        public static unsafe byte[] GetHashForBitmap([NotNull] Bitmap bitmap)
         {
-            using (var stream = new MemoryStream())
+            using (var fastBitmap = bitmap.FastLock())
             {
-                bitmap.Save(stream, ImageFormat.Png);
+                var bytes = new byte[fastBitmap.Height * fastBitmap.Width * (Image.GetPixelFormatSize(bitmap.PixelFormat) / 8)];
+                var scByte = (byte*)fastBitmap.Scan0;
+                fixed (byte* pByte = bytes)
+                {
+                    FastBitmap.memcpy(pByte, scByte, (ulong)bytes.Length);
+                }
 
-                stream.Position = 0;
-
-                // Compute a hash for the image
-                byte[] hash = GetHashForStream(stream);
-
-                return hash;
+                using (var stream = new MemoryStream(bytes, false))
+                {
+                    var hash = GetHashForStream(stream);
+                    return hash;
+                }
             }
         }
 

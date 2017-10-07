@@ -165,7 +165,7 @@ namespace Pixelaria.Views.Controls
                 return;
 
             // Get actual drop item
-            Point controlP = PointToClient(new Point(drgevent.X, drgevent.Y));
+            var controlP = PointToClient(new Point(drgevent.X, drgevent.Y));
             int index = InsertionMark.NearestIndex(controlP);
 
             if (index == -1)
@@ -173,11 +173,11 @@ namespace Pixelaria.Views.Controls
 
             InsertionMark.Index = index;
 
-            ListViewItem dropItem = Items[index];//GetItemAt(controlP.X, controlP.Y);
+            var dropItem = Items[index];
 
             if (dropItem != _tempDropItem)
             {
-                ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragOver, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, dropItem);
+                var evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragOver, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, dropItem);
 
                 if (DragOperation != null)
                 {
@@ -346,7 +346,7 @@ namespace Pixelaria.Views.Controls
             EventType = eventType;
             EventBehavior = eventBehavior;
             DraggedItems = draggedItems;
-            TargetItem = (eventType == ListViewItemDragEventType.DragStart ? null : targetItem);
+            TargetItem = eventType == ListViewItemDragEventType.DragStart ? null : targetItem;
         }
 
         /// <summary>

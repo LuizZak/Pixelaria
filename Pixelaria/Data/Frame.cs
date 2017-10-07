@@ -331,7 +331,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="bitmap">The new frame bitmap</param>
         /// <param name="updateHash">Whether to update the hash after settings the bitmap</param>
-        public void SetFrameBitmap(Bitmap bitmap, bool updateHash = true)
+        public void SetFrameBitmap([NotNull] Bitmap bitmap, bool updateHash = true)
         {
             if (!Initialized)
             {
@@ -339,9 +339,7 @@ namespace Pixelaria.Data
             }
 
             // Copy to the first layer
-            //_layers[0].CopyFromBitmap(bitmap);
-            Layers[0].LayerBitmap.Dispose();
-            Layers[0].LayerBitmap = bitmap;
+            Layers[0].CopyFromBitmap(bitmap);
 
             if (updateHash)
                 UpdateHash();
@@ -358,7 +356,7 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException(@"The frame was not initialized prior to this action");
             }
 
-            Bitmap composedBitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            var composedBitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
             FastBitmap.CopyPixels(Layers[0].LayerBitmap, composedBitmap);
 
             // Compose the layers by blending all the pixels from each layer into the final image
@@ -369,79 +367,7 @@ namespace Pixelaria.Data
             
             return composedBitmap;
         }
-
-        /// <summary>
-        /// Generates a Image that represents the thumbnail for this frame using the given size
-        /// </summary>
-        /// <param name="width">The width of the thumbnail</param>
-        /// <param name="height">The height of the thumbnail</param>
-        /// <param name="resizeOnSmaller">Whether to resize the thumbnail up if it it's smaller than the thumbnail size</param>
-        /// <param name="centered">Whether to center the image on the center of the thumbnail</param>
-        /// <param name="backColor">The color to use as a background color</param>
-        /// <returns>The thumbnail image</returns>
-        public Image GenerateThumbnail(int width, int height, bool resizeOnSmaller, bool centered, Color backColor)
-        {
-            if (!Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-            
-            var output = new Bitmap(width, height);
-            var composed = GetComposedBitmap();
-
-            var graphics = Graphics.FromImage(output);
-
-			float tx = 0, ty = 0;
-            float scaleX = 1, scaleY = 1;
-
-            if (composed.Width >= composed.Height)
-            {
-                if (width < composed.Width || resizeOnSmaller)
-                {
-                    scaleX = (float)width / composed.Width;
-                    scaleY = scaleX;
-                }
-                else
-                {
-                    tx = (float)height / 2 - (composed.Width * scaleX / 2);
-                }
-
-                ty = (float)width / 2 - (composed.Height * scaleY / 2);
-            }
-            else
-            {
-                if (height < composed.Height || resizeOnSmaller)
-                {
-                    scaleY = (float)height / composed.Height;
-                    scaleX = scaleY;
-                }
-                else
-                {
-                    ty = (float)width / 2 - (composed.Height * scaleY / 2);
-                }
-
-                tx = (float)height / 2 - (composed.Width * scaleX / 2);
-            }
-
-            if (!centered)
-            {
-                tx = ty = 0;
-            }
-
-            RectangleF area = new RectangleF((float)Math.Round(tx), (float)Math.Round(ty), (float)Math.Round(composed.Width * scaleX), (float)Math.Round(composed.Height * scaleY));
-
-            graphics.Clear(backColor);
-
-            graphics.DrawImage(composed, area);
-
-            graphics.Flush();
-            graphics.Dispose();
-
-            composed.Dispose();
-
-            return output;
-        }
-
+        
         /// <summary>
         /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating with the given interpolation mode.
         /// Note that trying to resize a frame while it's inside an animation, and that animation's dimensions don't match the new size, an exception is thrown.
@@ -629,9 +555,10 @@ namespace Pixelaria.Data
             /// Initializes a new instance of the FrameLayer class, with a bitmap to bind to this layer
             /// </summary>
             /// <param name="layerBitmap">The bitmap to bind to this layer</param>
-            public FrameLayer(Bitmap layerBitmap)
+            /// <param name="name">A display name for the layer</param>
+            public FrameLayer(Bitmap layerBitmap, string name = "")
             {
-                Name = string.Empty;
+                Name = name;
                 LayerBitmap = layerBitmap;
             }
 
@@ -641,7 +568,7 @@ namespace Pixelaria.Data
             /// <returns>A clone of this frame layer's object</returns>
             public IFrameLayer Clone()
             {
-                FrameLayer layer = new FrameLayer(new Bitmap(Width, Height, LayerBitmap.PixelFormat)) { Name = Name };
+                var layer = new FrameLayer(new Bitmap(Width, Height, LayerBitmap.PixelFormat)) { Name = Name };
 
                 layer.CopyFromBitmap(LayerBitmap);
 
@@ -726,11 +653,6 @@ namespace Pixelaria.Data
             /// <exception cref="ArgumentException">The bitmap's dimensions don't match this layer's dimensions</exception>
             public void CopyFromBitmap([NotNull] Bitmap bitmap)
             {
-                if (bitmap.Width != LayerBitmap.Width || bitmap.Height != LayerBitmap.Height)
-                {
-                    throw new ArgumentException(@"The provided bitmap's dimensions don't match this bitmap's dimensions", nameof(bitmap));
-                }
-
                 // Copy the pixels
                 FastBitmap.CopyPixels(bitmap, LayerBitmap);
             }

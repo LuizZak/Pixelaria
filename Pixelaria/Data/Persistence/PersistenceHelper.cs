@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using FastBitmapLib;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Data.Persistence
@@ -41,7 +42,7 @@ namespace Pixelaria.Data.Persistence
         public static void SaveImageToStream([NotNull] Bitmap bitmap, [NotNull] Stream stream)
         {
             // Save the image to a temporary memory stream so the write doesn't mess the original stream
-            using(MemoryStream memStream = new MemoryStream())
+            using(var memStream = new MemoryStream())
             {
                 bitmap.Save(memStream, ImageFormat.Png);
 
@@ -58,26 +59,31 @@ namespace Pixelaria.Data.Persistence
         /// <returns>A bitmap generated from the stream</returns>
         public static Bitmap LoadImageFromStream([NotNull] Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
+            
             // Read the size of the frame texture
             long textSize = reader.ReadInt64();
+            
+            return LoadImageFromBytes(reader.ReadBytes((int)textSize));
+        }
 
+        /// <summary>
+        /// Loads a bitmap image from the given bytes source. Bytes array must be as big as needed to load the underlying image from it.
+        /// </summary>
+        /// <param name="bytes">The bytes to load the image from</param>
+        /// <returns>A bitmap generated from the passed bytes</returns>
+        public static Bitmap LoadImageFromBytes([NotNull] byte[] bytes)
+        {
             Bitmap bitmap;
 
-            using (MemoryStream memStream = new MemoryStream())
+            using (var memStream = new MemoryStream(bytes))
             {
-                long pos = stream.Position;
+                var img = (Bitmap)Image.FromStream(memStream);
 
-                byte[] buff = new byte[textSize];
-                stream.Read(buff, 0, buff.Length);
-                stream.Position = pos + textSize;
-
-                memStream.Write(buff, 0, buff.Length);
-
-                Bitmap img = (Bitmap)Image.FromStream(memStream);
-
-                // The Bitmap constructor is used here because images loaded from streams are read-only and cannot be directly edited
-                bitmap = img.Clone(new Rectangle(Point.Empty, img.Size), img.PixelFormat);
+                // Bitmap's copy-constructor is used here because images loaded from
+                // streams are read-only and cannot be directly edited
+                bitmap = new Bitmap(img.Width, img.Height, img.PixelFormat);
+                FastBitmap.CopyPixels(img, bitmap);
 
                 img.Dispose();
             }

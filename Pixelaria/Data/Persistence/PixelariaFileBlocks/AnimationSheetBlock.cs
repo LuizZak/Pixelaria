@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.IO;
 using JetBrains.Annotations;
 
@@ -38,31 +37,14 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             blockID = BLOCKID_ANIMATIONSHEET;
         }
-
-        /// <summary>
-        /// Loads the content portion of this block from the given stream
-        /// </summary>
-        /// <param name="stream">The stream to load the content portion from</param>
-        protected override void LoadContentFromStream(Stream stream)
-        {
-            BinaryReader reader = new BinaryReader(stream);
-
-            int animationSheetCount = reader.ReadInt32();
-
-            // Load the animations now
-            for (int i = 0; i < animationSheetCount; i++)
-            {
-                owningFile.LoadedBundle.AddAnimationSheet(LoadAnimationSheetFromStream(stream));
-            }
-        }
-
+        
         /// <summary>
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
         protected override void SaveContentToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             var animationSheets = readyBundle.AnimationSheets;
 
@@ -75,41 +57,43 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
-        /// Loads an AnimationSheet from the given stream, using the specified version
-        /// number when reading properties
+        /// Loads an AnimationSheet from the current bytes buffer.
         /// </summary>
-        /// <param name="stream">The stream to load the animation sheet from</param>
-        /// <returns>The Animation object loaded</returns>
-        protected AnimationSheet LoadAnimationSheetFromStream([NotNull] Stream stream)
+        /// <returns>The Animation sheet entries loaded</returns>
+        public AnimationSheetEntry[] LoadAnimationSheetsFromBuffer()
         {
-            BinaryReader reader = new BinaryReader(stream);
-
-            // Load the animation sheet data
-            int id = reader.ReadInt32();
-            string name = reader.ReadString();
-            AnimationExportSettings settings = LoadExportSettingsFromStream(stream);
-
-            // Create the animation sheet
-            AnimationSheet sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
-
-            // Load the animation indices
-            int animCount = reader.ReadInt32();
-
-            for (int i = 0; i < animCount; i++)
+            using(var stream = new MemoryStream(GetBlockBuffer(), false))
             {
-                Animation anim = owningFile.LoadedBundle.GetAnimationByID(reader.ReadInt32());
+                var reader = new BinaryReader(stream);
 
-                if (anim != null)
+                var sheetCount = reader.ReadInt32();
+                var sheets = new AnimationSheetEntry[sheetCount];
+
+                for (int i = 0; i < sheetCount; i++)
                 {
-                    sheet.AddAnimation(anim);
+                    // Load the animation sheet data
+                    int id = reader.ReadInt32();
+                    string name = reader.ReadString();
+                    var settings = LoadExportSettingsFromStream(stream);
+
+                    // Create the animation sheet
+                    var sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
+
+                    // Load the animation indices
+                    int animCount = reader.ReadInt32();
+
+                    int[] animationIds = new int[animCount];
+
+                    for (int j = 0; j < animCount; j++)
+                    {
+                        animationIds[j] = reader.ReadInt32();
+                    }
+
+                    sheets[i] = new AnimationSheetEntry(sheet, animationIds);
                 }
-                else
-                {
-                    throw new Exception(@"The animation referenced by an animation sheet stored is invalid. This may be due to a corrupted file.");
-                }
+
+                return sheets;
             }
-
-            return sheet;
         }
 
         /// <summary>
@@ -120,9 +104,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <returns>The AnimationExportSettings object loaded</returns>
         protected AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
-            AnimationExportSettings settings = new AnimationExportSettings
+            var settings = new AnimationExportSettings
             {
                 FavorRatioOverArea = reader.ReadBoolean(),
                 ForcePowerOfTwoDimensions = reader.ReadBoolean(),
@@ -147,18 +131,18 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to write the animation sheet to</param>
         protected void SaveAnimationSheetToStream([NotNull] AnimationSheet sheet, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(sheet.ID);
             writer.Write(sheet.Name);
             SaveExportSettingsToStream(sheet.ExportSettings, stream);
 
             // Write the id of the animations of the sheet to the stream
-            Animation[] anims = sheet.Animations;
+            var anims = sheet.Animations;
 
             writer.Write(anims.Length);
 
-            foreach (Animation anim in anims)
+            foreach (var anim in anims)
             {
                 writer.Write(anim.ID);
             }
@@ -171,7 +155,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <param name="stream">The stream to write the animation sheet to</param>
         protected void SaveExportSettingsToStream(AnimationExportSettings settings, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(settings.FavorRatioOverArea);
             writer.Write(settings.ForcePowerOfTwoDimensions);
@@ -184,6 +168,21 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             writer.Write(settings.ExportJson);
             writer.Write(settings.XPadding);
             writer.Write(settings.YPadding);
+        }
+
+        /// <summary>
+        /// Encapsulates an animation sheet and associated animation IDs
+        /// </summary>
+        public struct AnimationSheetEntry
+        {
+            public AnimationSheet Sheet { get; }
+            public int[] AnimationIds { get; }
+
+            public AnimationSheetEntry(AnimationSheet sheet, int[] animationIds) : this()
+            {
+                Sheet = sheet;
+                AnimationIds = animationIds;
+            }
         }
     }
 }

@@ -21,11 +21,9 @@
 */
 
 using System;
-using System.Drawing;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
@@ -34,15 +32,12 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
     /// </summary>
     public class FrameBlock : FileBlock
     {
+        private readonly IFrame _frame;
+
         /// <summary>
         /// The current block version for this frame block
         /// </summary>
-        private const int CurrentVersion = 2;
-
-        /// <summary>
-        /// The frame bieng manipulated by this FrameBlock
-        /// </summary>
-        public IFrame Frame { get; private set; }
+        private const int CurrentVersion = 3;
 
         /// <summary>
         /// Initializes a new instance of the FrameBlock class
@@ -59,28 +54,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public FrameBlock(IFrame frame)
             : this()
         {
-            Frame = frame;
+            _frame = frame;
             blockVersion = CurrentVersion;
-        }
-
-        /// <summary>
-        /// Loads the content portion of this block from the given stream
-        /// </summary>
-        /// <param name="stream">The stream to load the content portion from</param>
-        protected override void LoadContentFromStream(Stream stream)
-        {
-            var reader = new BinaryReader(stream);
-
-            int animationId = reader.ReadInt32();
-
-            var animation = owningFile.LoadedBundle.GetAnimationByID(animationId);
-
-            if (animation == null)
-            {
-                throw new Exception(@"The frame's animation ID target is invalid");
-            }
-            
-            Frame = LoadFrameFromStream(stream, animation);
         }
 
         /// <summary>
@@ -91,9 +66,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             var writer = new BinaryWriter(stream);
 
-            writer.Write(Frame.Animation.ID);
+            writer.Write(_frame.Animation.ID);
 
-            SaveFrameToStream(Frame, stream);
+            SaveFrameToStream(_frame, stream);
         }
 
         /// <summary>
@@ -111,7 +86,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             }
             else
             {
-                using (Bitmap bitmap = frame.GetComposedBitmap())
+                using (var bitmap = frame.GetComposedBitmap())
                 {
                     PersistenceHelper.SaveImageToStream(bitmap, stream);
                 }
@@ -151,109 +126,158 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         private static void SaveLayerToStream([NotNull] IFrameLayer layer, [NotNull] Stream stream)
         {
             // Save the layer's name
-            BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8);
+            var writer = new BinaryWriter(stream, Encoding.UTF8);
             writer.Write(layer.Name);
 
             PersistenceHelper.SaveImageToStream(layer.LayerBitmap, stream);
         }
         
         /// <summary>
-        /// Loads a Frame from the given stream, using the specified version
-        /// number when reading properties
+        /// Loads a Frame from the current bytes buffer.
         /// </summary>
-        /// <param name="stream">The stream to load the frame from</param>
-        /// <param name="owningAnimation">The Animation object that will be used to create the Frame with</param>
         /// <returns>The Frame object loaded</returns>
-        protected Frame LoadFrameFromStream([NotNull] Stream stream, [NotNull] Animation owningAnimation)
+        public FrameInfo LoadFrameFromBuffer(int width, int height)
         {
+            using (var stream = new MemoryStream(GetBlockBuffer(), false))
+            {
+                var reader = new BinaryReader(stream);
+                
+                var animationId = reader.ReadInt32();
+
+                var frame = new Frame(null, width, height, false);
+                frame.Layers.Clear();
+
+                FrameLayer[] layers;
+
+                if (blockVersion == 0)
+                {
+                    var bitmap = PersistenceHelper.LoadImageFromStream(stream);
+                    frame.SetFrameBitmap(bitmap, false);
+
+                    layers = new FrameLayer[0];
+                }
+                else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
+                {
+                    layers = LoadLayersFromStream(stream);
+                }
+                else
+                {
+                    throw new Exception("Unknown frame block version " + blockVersion);
+                }
+
+                frame.ID = reader.ReadInt32();
+
+                // Get the hash now
+                int length = reader.ReadInt32();
+                var hash = reader.ReadBytes(length);
+                
+                return new FrameInfo(animationId, hash, layers, frame);
+            }
+        }
+
+        /// <summary>
+        /// Reads the animation ID from the underyling bytes buffer
+        /// </summary>
+        public int ReadAnimationId()
+        {
+            var stream = new MemoryStream(GetBlockBuffer(), false);
             var reader = new BinaryReader(stream);
 
-            var frame = new Frame(owningAnimation, owningAnimation.Width, owningAnimation.Height, false);
-
-            if(blockVersion == 0)
-            {
-                var bitmap = PersistenceHelper.LoadImageFromStream(stream);
-                frame.SetFrameBitmap(bitmap, false);
-            }
-            else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
-            {
-                LoadLayersFromStream(stream, frame);
-            }
-            else
-            {
-                throw new Exception("Unknown frame block version " + blockVersion);
-            }
-
-            frame.ID = reader.ReadInt32();
-
-            // Get the hash now
-            int length = reader.ReadInt32();
-            var hash = new byte[length];
-            stream.Read(hash, 0, length);
-
-            frame.SetHash(hash);
-
-            // If the block version is prior to 1, update the frame's hash value due to the new way the hash is calculated
-            if (blockVersion < 1)
-            {
-                frame.UpdateHash();
-            }
-            
-            // TODO: Don't add frames to animations directly on this block- let an external object handle piecing
-            // frames to animations externally.
-
-            var controller = new AnimationController(owningFile.LoadedBundle, owningAnimation);
-
-            controller.AddFrame(frame);
-
-            return frame;
+            return reader.ReadInt32();
         }
 
         /// <summary>
         /// Loads layers stored on the given stream on the given frame
         /// </summary>
         /// <param name="stream">The stream to load the layers from</param>
-        /// <param name="frame">The frame to load the layers into</param>
-        protected void LoadLayersFromStream([NotNull] Stream stream, [NotNull] Frame frame)
+        protected FrameLayer[] LoadLayersFromStream([NotNull] Stream stream)
         {
-            // Remove the first default layer of the frame
-            frame.Layers.RemoveAt(0);
-
             var reader = new BinaryReader(stream);
 
             int layerCount = reader.ReadInt32();
+            var layers = new FrameLayer[layerCount];
 
             for (int i = 0; i < layerCount; i++)
             {
-                LoadLayerFromStream(frame, stream);
+                layers[i] = LoadLayerFromStream(stream);
             }
+            
+            return layers;
         }
 
         /// <summary>
         /// Loads a single layer from a specified stream
         /// </summary>
-        /// <param name="frame">The frame to load the layer into</param>
         /// <param name="stream">The stream to load the layer from</param>
-        private void LoadLayerFromStream(Frame frame, [NotNull] Stream stream)
+        private FrameLayer LoadLayerFromStream([NotNull] Stream stream)
         {
-            var controller = new FrameController(frame);
-
             // Load the layer's name
-            string name = null;
+            string name = "";
 
-            if(blockVersion >= 2)
+            var reader = new BinaryReader(stream, Encoding.UTF8);
+
+            if (blockVersion >= 2)
             {
-                var reader = new BinaryReader(stream, Encoding.UTF8);
                 name = reader.ReadString();
             }
 
-            var layerBitmap = PersistenceHelper.LoadImageFromStream(stream);
-            var layer = controller.AddLayer(layerBitmap);
+            var length = reader.ReadInt64();
+            var bytes = reader.ReadBytes((int)length);
 
-            // Add the attributes that were loaded earlier
-            if (name != null)
+            return new FrameLayer(name, bytes);
+        }
+
+        /// <summary>
+        /// Metadata for a loaded frame, including the frame itself and other relevant information
+        /// </summary>
+        public struct FrameInfo
+        {
+            /// <summary>
+            /// When read from a stream, contains the ID of the animation the frame from
+            /// this block belongs to
+            /// </summary>
+            public int AnimationId { get; }
+
+            /// <summary>
+            /// The frame bieng manipulated by this FrameBlock
+            /// </summary>
+            public Frame Frame { get; }
+
+            /// <summary>
+            /// The frame's hash as bytes
+            /// </summary>
+            public byte[] HashBytes { get; }
+
+            /// <summary>
+            /// When read from a stream, contains all the layers for the associated frame, in order
+            /// that they where read from the stream.
+            /// 
+            /// This value may be null, if data was not read from a stream containing a frame layer yet.
+            /// </summary>
+            [CanBeNull]
+            public FrameLayer[] Layers { get; }
+
+            public FrameInfo(int animationId, byte[] hashBytes, [CanBeNull] FrameLayer[] layers, Frame frame)
             {
-                controller.SetLayerName(layer.Index, name);
+                AnimationId = animationId;
+                Layers = layers;
+                Frame = frame;
+                HashBytes = hashBytes;
+            }
+        }
+
+        /// <summary>
+        /// Basic read-time structure that encapsulates layers for a frame read from stream
+        /// </summary>
+        public struct FrameLayer
+        {
+            public string Name { get; }
+            public byte[] ImageData { get; }
+
+            public FrameLayer(string name, byte[] imageData)
+            {
+                Name = name;
+                ImageData = imageData;
             }
         }
     }

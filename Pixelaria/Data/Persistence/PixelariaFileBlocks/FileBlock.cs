@@ -40,7 +40,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
-        /// Gets whether this file block should be removed when the pixelaria file is being prepared to be saved/loaded
+        /// Gets whether this file block should be removed when the pixelaria file is being prepared to be saved.
         /// </summary>
         public bool RemoveOnPrepare => removeOnPrepare;
 

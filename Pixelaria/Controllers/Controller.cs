@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -58,11 +57,6 @@ namespace Pixelaria.Controllers
     public partial class Controller
     {
         /// <summary>
-        /// The list of currently opened files
-        /// </summary>
-        readonly List<PixelariaFile> _files;
-
-        /// <summary>
         /// The main application form
         /// </summary>
         readonly MainForm _mainForm;
@@ -71,12 +65,7 @@ namespace Pixelaria.Controllers
         /// Gets the current bundle opened on the application
         /// </summary>
         public Bundle CurrentBundle { get; private set; }
-
-        /// <summary>
-        /// Gets an array of the current files opened in the program
-        /// </summary>
-        public PixelariaFile[] Files => _files.ToArray();
-
+        
         /// <summary>
         /// Gets the current IDefaultImporter of the program
         /// </summary>
@@ -151,8 +140,6 @@ namespace Pixelaria.Controllers
         /// <param name="mainForm">The form to use as the main form of the application</param>
         public Controller(MainForm mainForm)
         {
-            _files = new List<PixelariaFile>();
-
             // Initialize the factories
             FrameFactory = new FrameFactory(null);
 
@@ -209,9 +196,9 @@ namespace Pixelaria.Controllers
         /// <param name="savePath">The path to load the bundle from</param>
         public void LoadBundleFromFile([NotNull] string savePath)
         {
-            var file = PixelariaSaverLoader.LoadFileFromDisk(savePath);
+            var bundle = PixelariaSaverLoader.LoadBundleFromDisk(savePath);
 
-            if (file == null)
+            if (bundle == null)
             {
                 MessageBox.Show(Resources.ErrorLoadingFile, Resources.Error_AlertTile, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -222,12 +209,10 @@ namespace Pixelaria.Controllers
             {
                 CloseBundle(CurrentBundle);
             }
+            
+            bundle.SaveFile = savePath;
 
-            var newBundle = file.LoadedBundle;
-
-            newBundle.SaveFile = savePath;
-
-            LoadBundle(newBundle);
+            LoadBundle(bundle);
 
             // Store the file now
             CurrentRecentFileList.StoreFile(savePath);
@@ -279,10 +264,6 @@ namespace Pixelaria.Controllers
         /// <param name="bundle">The bundle to close</param>
         public void CloseBundle([NotNull] Bundle bundle)
         {
-            var file = GetPixelariaFileByBundle(bundle);
-
-            file?.Dispose();
-
             bundle.Dispose();
         }
 
@@ -574,6 +555,7 @@ namespace Pixelaria.Controllers
         /////
         ////////////////////////////////////////////////////////////////////////////////
 
+        /*
         /// <summary>
         /// Gets a PixelariaFile object which matches the given Bundle object.
         /// If none of the files currently opened match the bundle, null is returned.
@@ -583,8 +565,9 @@ namespace Pixelaria.Controllers
         [CanBeNull]
         public PixelariaFile GetPixelariaFileByBundle(Bundle bundle)
         {
-            return _files.FirstOrDefault(file => ReferenceEquals(file.LoadedBundle, bundle));
+            return _files.FirstOrDefault(file => ReferenceEquals(file.ConstructBundle(), bundle));
         }
+        */
 
         ////////////////////////////////////////////////////////////////////////////////
         //////////

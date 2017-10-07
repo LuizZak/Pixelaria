@@ -20,14 +20,18 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
 
-using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Tests.Utils;
 
 // TODO: Derive unit tests for invalid files
 
@@ -45,39 +49,49 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         private string _testFilePath;
 
         /// <summary>
-        /// Tests the PixelariaFile, PixelariaFilesaver and PixelariaFileLoader basic functionality and stability
+        /// Tests the PixelariaSaverLoader file saving stability
         /// </summary>
         [TestMethod]
         public void TestFileLoaderSaver()
         {
-            Bundle bundle = BundleGenerator.GenerateTestBundle(0);
-            Stream stream = new MemoryStream();
-
-            PixelariaFile originalFile = new PixelariaFile(bundle, stream);
-
-            PixelariaFileSaver.Save(originalFile);
+            var bundle = BundleGenerator.GenerateTestBundle(0);
+            var stream = new MemoryStream();
+            
+            PixelariaSaverLoader.SaveBundleToStream(bundle, stream);
 
             // Test if the memory stream is now filled
-            Assert.IsTrue(stream.Length > 0, "After a call to PixelariaFileSaver.Save(), the pixelaria file's stream should not be empty");
+            Assert.IsTrue(stream.Length > 0,
+                "After a call to PixelariaFileSaver.Save(), the pixelaria file's stream should not be empty");
 
             // Bring the bundle back with a PixelariaFileLoader
-            PixelariaFile newFile = new PixelariaFile(new Bundle(""), stream);
             stream.Position = 0;
-            PixelariaFileLoader.Load(newFile);
+            var loadedBundle = PixelariaSaverLoader.LoadBundleFromStream(stream);
 
-            Assert.AreEqual(originalFile.LoadedBundle, newFile.LoadedBundle, "After persisting a file to a stream and loading it back up again, the bundles must be equal");
+            UtilsTests.AssertBundlesEqual(bundle, loadedBundle,
+                "After persisting a file to a stream and loading it back up again, the bundles must be equal");
+
+            var preCopy = stream.GetBuffer().ToArray(); // Copy buffer for later comparing
 
             // Save the bundle a few more times to test resilience of the save/load process
-            newFile.CurrentStream.Position = 0;
-            PixelariaFileLoader.Load(newFile);
-            newFile.CurrentStream.Position = 0;
-            PixelariaFileSaver.Save(newFile);
+            stream.Position = 0;
+            loadedBundle = PixelariaSaverLoader.LoadBundleFromStream(stream);
+            stream.Position = 0;
+            PixelariaSaverLoader.SaveBundleToStream(loadedBundle, stream);
+            
+            UtilsTests.AssertBundlesEqual(bundle, loadedBundle,
+                "After persisting a file to a stream and loading it back up again, the bundles must be equal");
 
+            // Verify all frame images are not ReadOnly
+            foreach (var frameLayer in bundle.Animations.SelectMany(anim => anim.Frames).Cast<Frame>().SelectMany(f => f.Layers))
+            {
+                Assert.IsTrue((frameLayer.LayerBitmap.Flags & (int)ImageFlags.ReadOnly) == 0, "Frame layer image incorrectly loaded as ReadOnly");
+            }
+            
+            /*
             Assert.IsTrue(
-                Utilities.ByteArrayCompare(((MemoryStream) newFile.CurrentStream).GetBuffer(),
-                    ((MemoryStream) originalFile.CurrentStream).GetBuffer()), "Two streams that represent the same Pixelaria File should be bitwise equal");
-
-            Assert.AreEqual(originalFile.LoadedBundle, newFile.LoadedBundle, "After persisting a file to a stream and loading it back up again, the bundles must be equal");
+                Utilities.ByteArrayCompare(preCopy, stream.GetBuffer()),
+                "Two streams that represent the same Pixelaria File should be bytewise equal");
+            */
         }
 
         /// <summary>
@@ -89,23 +103,43 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             // Generate a dummy file name
             _testFilePath = Path.GetTempFileName();
 
-            Bundle originalBundle = BundleGenerator.GenerateTestBundle(0);
+            var originalBundle = BundleGenerator.GenerateTestBundle(0);
+            var v8Bundle = originalBundle.Clone();
+
+            // Flatten all layers from v8 bundle (v8 and prior do not feature frame layers)
+            foreach (var frame in v8Bundle.Animations.SelectMany(anim => anim.Frames).Cast<Frame>())
+            {
+                var bitmap = frame.GetComposedBitmap();
+                frame.Layers.RemoveAll(l => l.Index > 0); // All but first layer
+
+                frame.SetFrameBitmap(bitmap);
+            }
 
             // Test new file format saving and loading
             PixelariaSaverLoader.SaveBundleToDisk(originalBundle, _testFilePath);
-            Bundle newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
+            var newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
 
-            Assert.AreEqual(originalBundle, newBundle, "After persisting a new (>= v8) file to disk and loading it back up again, the bundles must be equal");
+            UtilsTests.AssertBundlesEqual(originalBundle, newBundle,
+                "After persisting a new (>= v8) file to disk and loading it back up again, the bundles must be equal");
 
             // Test old file format loading
             SaveBundle(originalBundle, _testFilePath);
             newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
 
-            Assert.AreEqual(originalBundle, newBundle, "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
+            UtilsTests.AssertBundlesEqual(v8Bundle, newBundle,
+                "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
 
             // Now load the bundle using the LoadFileFromDisk
-            newBundle = PixelariaSaverLoader.LoadFileFromDisk(_testFilePath).LoadedBundle;
-            Assert.AreEqual(originalBundle, newBundle, "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
+            newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
+            UtilsTests.AssertBundlesEqual(v8Bundle, newBundle,
+                "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
+
+            // Verify all frame images are not ReadOnly
+            Assert.IsNotNull(newBundle);
+            foreach (var frameLayer in newBundle.Animations.SelectMany(anim => anim.Frames).Cast<Frame>().SelectMany(f => f.Layers))
+            {
+                Assert.IsTrue((frameLayer.LayerBitmap.Flags & (int)ImageFlags.ReadOnly) == 0, "Frame layer image incorrectly loaded as ReadOnly");
+            }
         }
 
         /// <summary>
@@ -127,12 +161,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="bundle">The bundle to save</param>
         /// <param name="path">The path to save the bundle to</param>
-        public static void SaveBundle(Bundle bundle, string path)
+        public static void SaveBundle([NotNull] Bundle bundle, [NotNull] string path)
         {
             // Start writing to the file
-            Stream stream = new FileStream(path, FileMode.Create);
+            var stream = new FileStream(path, FileMode.Create);
 
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             // Signature block
             writer.Write((byte)'P');
@@ -147,7 +181,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             // Animation Block
             writer.Write(bundle.Animations.Count);
 
-            foreach (Animation anim in bundle.Animations)
+            foreach (var anim in bundle.Animations)
             {
                 WriteAnimationToStream(anim, stream);
             }
@@ -155,7 +189,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             // Sheet block
             writer.Write(bundle.AnimationSheets.Count);
 
-            foreach (AnimationSheet sheet in bundle.AnimationSheets)
+            foreach (var sheet in bundle.AnimationSheets)
             {
                 WriteAnimationSheetToStream(sheet, stream);
             }
@@ -168,9 +202,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="animation">The animation to write to the stream</param>
         /// <param name="stream">The stream to write the animation to</param>
-        public static void WriteAnimationToStream(Animation animation, Stream stream)
+        public static void WriteAnimationToStream([NotNull] Animation animation, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(animation.ID);
             writer.Write(animation.Name);
@@ -192,24 +226,14 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="frame">The frame to write to the stream</param>
         /// <param name="stream">The stream to write the frame to</param>
-        public static void WriteFrameToStream(IFrame frame, Stream stream)
+        public static void WriteFrameToStream([NotNull] IFrame frame, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
+            
+            PersistenceHelper.SaveImageToStream(frame.GetComposedBitmap(), stream);
 
-            long sizeOffset = stream.Position;
-
-            writer.Write((long)0);
-
-            frame.GetComposedBitmap().Save(stream, ImageFormat.Png);
-
-            // Skip back to the offset and draw the size
-            stream.Position = sizeOffset;
-
-            // Write the size now
-            writer.Write(stream.Length - sizeOffset - 8);
-
-            // Skip to the end and keep saving
-            stream.Position = stream.Length;
+            // Re-calculate frame hash using legacy hashing mode
+            frame.SetHash(LegacyGetHashForBitmap(frame.GetComposedBitmap()));
 
             // Write the frame ID
             writer.Write(frame.ID);
@@ -224,20 +248,20 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="sheet">The animation sheet to write to the stream</param>
         /// <param name="stream">The stream to write the animation sheet to</param>
-        public static void WriteAnimationSheetToStream(AnimationSheet sheet, Stream stream)
+        public static void WriteAnimationSheetToStream([NotNull] AnimationSheet sheet, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(sheet.ID);
             writer.Write(sheet.Name);
             WriteExportSettingsToStream(sheet.ExportSettings, stream);
 
             // Write the id of the animations of the sheet to the stream
-            Animation[] anims = sheet.Animations;
+            var anims = sheet.Animations;
 
             writer.Write(anims.Length);
 
-            foreach (Animation anim in anims)
+            foreach (var anim in anims)
             {
                 writer.Write(anim.ID);
             }
@@ -248,9 +272,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="settings">The export settings to write to the stream</param>
         /// <param name="stream">The stream to write the animation sheet to</param>
-        public static void WriteExportSettingsToStream(AnimationExportSettings settings, Stream stream)
+        public static void WriteExportSettingsToStream(AnimationExportSettings settings, [NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(settings.FavorRatioOverArea);
             writer.Write(settings.ForcePowerOfTwoDimensions);
@@ -263,6 +287,42 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             writer.Write(settings.ExportJson);
             writer.Write(settings.XPadding);
             writer.Write(settings.YPadding);
+        }
+
+        /// <summary>
+        /// The hashing algorithm used for hashing the bitmaps
+        /// </summary>
+        private static readonly HashAlgorithm ShaM = new SHA256Managed();
+
+        /// <summary>
+        /// Returns a hash for the given Bitmap object
+        /// </summary>
+        /// <param name="bitmap">The bitmap to get the hash of</param>
+        /// <returns>The hash of the given bitmap</returns>
+        private static byte[] LegacyGetHashForBitmap([NotNull] Bitmap bitmap)
+        {
+            using (var stream = new MemoryStream())
+            {
+                bitmap.Save(stream, ImageFormat.Png);
+
+                stream.Position = 0;
+
+                // Compute a hash for the image
+                byte[] hash = GetHashForStream(stream);
+
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Returns a hash for the given Stream object
+        /// </summary>
+        /// <param name="stream">The stream to get the hash of</param>
+        /// <returns>The hash of the given stream</returns>
+        private static byte[] GetHashForStream([NotNull] Stream stream)
+        {
+            // Compute a hash for the image
+            return ShaM.ComputeHash(stream);
         }
 
         #endregion

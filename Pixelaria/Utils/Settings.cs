@@ -283,7 +283,7 @@ namespace Pixelaria.Utils
         public void SaveSettings()
         {
             // Start by organizing the values into a tree
-            SettingsNode baseNode = new SettingsNode();
+            var baseNode = new SettingsNode();
 
             foreach (string value in _values.Keys)
             {
@@ -316,16 +316,16 @@ namespace Pixelaria.Utils
             baseNode.Sort();
 
             // Mount the settings string
-            StringBuilder output = new StringBuilder();
+            var output = new StringBuilder();
 
             baseNode.SaveToString(output);
 
-            using (FileStream stream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write))
+            using (var stream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 stream.SetLength(0);
 
                 // Save the settings to the settings file now
-                StreamWriter writer = new StreamWriter(stream, Encoding.UTF8);
+                var writer = new StreamWriter(stream, Encoding.UTF8);
                 writer.Write(output.ToString().Trim());
                 writer.Close();
                 writer.Dispose();
@@ -361,12 +361,12 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The values stored in the .ini file
         /// </summary>
-        readonly Dictionary<string, string> _values;
+        private readonly Dictionary<string, string> _values;
 
         /// <summary>
         /// The filepath to the .ini file
         /// </summary>
-        readonly string _filePath;
+        private readonly string _filePath;
 
         /// <summary>
         /// Specifies a node that contains settings and subnodes
@@ -376,22 +376,22 @@ namespace Pixelaria.Utils
             /// <summary>
             /// The name of this SettingsNode
             /// </summary>
-            string _name = "";
+            private string _name = "";
 
             /// <summary>
             /// List of subnodes
             /// </summary>
-            readonly List<SettingsNode> _subNodes = new List<SettingsNode>();
+            private readonly List<SettingsNode> _subNodes = new List<SettingsNode>();
 
             /// <summary>
             /// The parent node that owns this node
             /// </summary>
-            SettingsNode _parentNode;
+            private SettingsNode _parentNode;
 
             /// <summary>
             /// Dictionary of settings and their respective values
             /// </summary>
-            readonly Dictionary<string, string> _values = new Dictionary<string, string>();
+            private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
 
             /// <summary>
             /// Gets or sets a value from this SettingsNode
@@ -422,7 +422,7 @@ namespace Pixelaria.Utils
                 else
                     nodes[0] = path;
 
-                foreach (SettingsNode node in _subNodes)
+                foreach (var node in _subNodes)
                 {
                     if (node._name == nodes[0])
                     {
@@ -459,7 +459,7 @@ namespace Pixelaria.Utils
                             nextPath += "\\" + nodes[i];
                     }
 
-                    SettingsNode newNode = new SettingsNode { _parentNode = this, _name = nodes[0] };
+                    var newNode = new SettingsNode { _parentNode = this, _name = nodes[0] };
 
                     _subNodes.Add(newNode);
 
@@ -476,7 +476,7 @@ namespace Pixelaria.Utils
             public void SaveToString(StringBuilder builder)
             {
                 string path = _name;
-                SettingsNode curNode = _parentNode;
+                var curNode = _parentNode;
                 while (curNode != null)
                 {
                     if (curNode._name != "")
@@ -499,7 +499,7 @@ namespace Pixelaria.Utils
                 if (_values.Count > 0)
                     builder.AppendLine();
 
-                foreach (SettingsNode childNode in _subNodes)
+                foreach (var childNode in _subNodes)
                 {
                     childNode.SaveToString(builder);
                 }
@@ -530,21 +530,10 @@ namespace Pixelaria.Utils
             public void Sort()
             {
                 // Sort the subnodes
-                for (int i = 0; i < _subNodes.Count; i++)
-                {
-                    for (int j = 0; j < _subNodes.Count - i - 1; j++)
-                    {
-                        if (String.Compare(_subNodes[j]._name.ToLower(), _subNodes[j + 1]._name, StringComparison.Ordinal) > 0)
-                        {
-                            SettingsNode aux = _subNodes[j];
-                            _subNodes[j] = _subNodes[j + 1];
-                            _subNodes[j + 1] = aux;
-                        }
-                    }
-                }
-
+                _subNodes.Sort((lhs, rhs) => string.Compare(lhs._name.ToLower(), rhs._name, StringComparison.Ordinal));
+                
                 // Sort children nodes now
-                foreach (SettingsNode node in _subNodes)
+                foreach (var node in _subNodes)
                 {
                     node.Sort();
                 }
@@ -583,7 +572,7 @@ namespace Pixelaria.Utils
 
                 char peek = Next();
 
-                StringBuilder ident = new StringBuilder();
+                var ident = new StringBuilder();
 
                 if (!((peek >= 65 && peek <= 90) || (peek >= 97 && peek <= 122)) && peek != '_')
                 {
@@ -631,7 +620,7 @@ namespace Pixelaria.Utils
             // ReSharper disable once InconsistentNaming
             public bool EOF()
             {
-                return (_curChar >= _length);
+                return _curChar >= _length;
             }
 
             /// <summary>
@@ -667,7 +656,7 @@ namespace Pixelaria.Utils
             /// <summary>
             /// The input string's length
             /// </summary>
-            readonly int _length;
+            private readonly int _length;
 
             /// <summary>
             /// The current character being processed
@@ -677,7 +666,7 @@ namespace Pixelaria.Utils
             /// <summary>
             /// The scene script
             /// </summary>
-            readonly string _buffer;
+            private readonly string _buffer;
         }
     }
 

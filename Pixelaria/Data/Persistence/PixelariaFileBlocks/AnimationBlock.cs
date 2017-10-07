@@ -34,6 +34,14 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
     public class AnimationBlock : FileBlock
     {
         /// <summary>
+        /// The animation loaded from stream after a call to <see cref="LoadContentFromStream"/>.
+        /// 
+        /// Null, until first Stream read attempt is made.
+        /// </summary>
+        [CanBeNull]
+        public Animation StreamAnimation { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the AnimationBlock class
         /// </summary>
         public AnimationBlock()
@@ -54,7 +62,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             // Load the animations now
             for (int i = 0; i < animationCount; i++)
             {
-                owningFile.LoadedBundle.AddAnimation(LoadAnimationFromStream(stream));
+                StreamAnimation = LoadAnimationFromStream(stream);
             }
         }
 

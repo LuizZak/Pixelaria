@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using PixelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Tests.Utils;
 
 namespace PixelariaTests.PixelariaTests.Tests.Data
 {
@@ -37,15 +38,17 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         [TestMethod]
         public void TestBundleEquality()
         {
-            Bundle bundle1 = BundleGenerator.GenerateTestBundle(0);
-            Bundle bundle2 = bundle1.Clone();
+            var bundle1 = BundleGenerator.GenerateTestBundle(0);
+            var bundle2 = bundle1.Clone();
 
             Assert.AreEqual(bundle1, bundle2, "After a Clone() operation, both Bundles must be equal");
+            UtilsTests.AssertBundlesEqual(bundle1, bundle2, "Bundle equality failed to detect similar bundles");
 
             // Modify the new bundle
             bundle2.RemoveAnimationFromAnimationSheet(bundle2.Animations[0], bundle2.AnimationSheets[0]);
 
             Assert.AreNotEqual(bundle1, bundle2, "Equal bundles after a Clone() operation must not be equal after a successful call to RemoveAnimationFromAnimationSheet()");
+            UtilsTests.AssertBundlesAreNotEqual(bundle1, bundle2, "Bundle equality failed to detect bundles that are different");
         }
 
         [TestMethod]

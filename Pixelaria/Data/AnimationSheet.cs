@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Utils;
 
@@ -96,7 +97,7 @@ namespace Pixelaria.Data
         /// Adds the given animation to this animation sheet
         /// </summary>
         /// <param name="animation">The animation to add to this animation sheet</param>
-        public void AddAnimation(Animation animation)
+        public void AddAnimation([NotNull] Animation animation)
         {
             _animations.Add(animation);
         }
@@ -106,7 +107,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="animation">The animation to add to this AnimationSheet</param>
         /// <param name="index">The index at which to place the animation</param>
-        public void InsertAnimation(Animation animation, int index)
+        public void InsertAnimation([NotNull]Animation animation, int index)
         {
             _animations.Insert(index, animation);
         }
@@ -204,5 +205,110 @@ namespace Pixelaria.Data
         {
             return Name.GetHashCode() ^ AnimationCount ^ ID;
         }
+    }
+
+    /// <summary>
+    /// Encapsulates export settings of an animation
+    /// </summary>
+    public struct AnimationExportSettings
+    {
+        /// <summary>
+        /// Whether to favor image ratio over image area when composing the final exported atlas.
+        /// Favoring ratio will output more square-ish images that may not be optimally spaced, while
+        /// favoring area will result in the smallest possible images the algorithm can output, but
+        /// may result in alongated images along one of the axis.
+        /// </summary>
+        public bool FavorRatioOverArea;
+
+        /// <summary>
+        /// Whether to force the final dimensions of the exported sheet
+        /// to be a power of 2. If the final image is not a power of 2
+        /// in either dimension, it is filled to be so.
+        /// </summary>
+        public bool ForcePowerOfTwoDimensions;
+
+        /// <summary>
+        /// Force the frames to be fit in the minimum possible area.
+        /// Doing so will fit frames in a possibly smaller rectangle than they were
+        /// originally fit on, but minimizes the final sheet size
+        /// </summary>
+        public bool ForceMinimumDimensions;
+
+        /// <summary>
+        /// Whether to reuse identical frame images in the sheet.
+        /// Setting to true will pack pixel-level identical frames to use
+        /// the same position in the sprite sheet.
+        /// </summary>
+        public bool ReuseIdenticalFramesArea;
+
+        /// <summary>
+        /// Whether to use high precision when calculating the minimum possible area
+        /// of the exported sheet. Using high precision may yield slow results, specially
+        /// with favor ratio over area disabled
+        /// </summary>
+        public bool HighPrecisionAreaMatching;
+
+        /// <summary>
+        /// Whether to allow unordering of frames in the sheet in exchange of a better
+        /// bin-packing algorithm output
+        /// </summary>
+        public bool AllowUnorderedFrames;
+
+        /// <summary>
+        /// Whether to place the frames in a uniform grid that is sized according to the smallest
+        /// dimensions capable of fitting all the frames. Setting this option overrides the ForceMinimumDimensions flag
+        /// </summary>
+        public bool UseUniformGrid;
+
+        /// <summary>
+        /// Whether to pad the frame's sheet coordinates using the X and Y padding of this sprite.
+        /// Use this to pad the frame's sheet coordinates and size and avoid the clamped edges effect
+        /// when rendering frames using non-point clamp sampler modes
+        /// </summary>
+        public bool UsePaddingOnJson;
+
+        /// <summary>
+        /// Whether to generate accompaning .json files for the animations on the sheet
+        /// </summary>
+        public bool ExportJson;
+
+        /// <summary>
+        /// Ammount of empty pixels to pad horizontally between frames
+        /// </summary>
+        public int XPadding;
+
+        /// <summary>
+        /// Ammount of empty pixels to pad vertically between frames
+        /// </summary>
+        public int YPadding;
+
+        private sealed class AnimationExportSettingsEqualityComparer : IEqualityComparer<AnimationExportSettings>
+        {
+            public bool Equals(AnimationExportSettings x, AnimationExportSettings y)
+            {
+                return x.FavorRatioOverArea == y.FavorRatioOverArea && x.ForcePowerOfTwoDimensions == y.ForcePowerOfTwoDimensions && x.ForceMinimumDimensions == y.ForceMinimumDimensions && x.ReuseIdenticalFramesArea == y.ReuseIdenticalFramesArea && x.HighPrecisionAreaMatching == y.HighPrecisionAreaMatching && x.AllowUnorderedFrames == y.AllowUnorderedFrames && x.UseUniformGrid == y.UseUniformGrid && x.UsePaddingOnJson == y.UsePaddingOnJson && x.ExportJson == y.ExportJson && x.XPadding == y.XPadding && x.YPadding == y.YPadding;
+            }
+
+            public int GetHashCode(AnimationExportSettings obj)
+            {
+                unchecked
+                {
+                    var hashCode = obj.FavorRatioOverArea.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.ForcePowerOfTwoDimensions.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.ForceMinimumDimensions.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.ReuseIdenticalFramesArea.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.HighPrecisionAreaMatching.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.AllowUnorderedFrames.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.UseUniformGrid.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.UsePaddingOnJson.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.ExportJson.GetHashCode();
+                    hashCode = (hashCode * 397) ^ obj.XPadding;
+                    hashCode = (hashCode * 397) ^ obj.YPadding;
+                    return hashCode;
+                }
+            }
+        }
+
+        public static IEqualityComparer<AnimationExportSettings> AnimationExportSettingsComparer { get; } = new AnimationExportSettingsEqualityComparer();
     }
 }

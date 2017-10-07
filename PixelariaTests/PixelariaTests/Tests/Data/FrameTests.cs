@@ -26,12 +26,12 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using PixelariaTests.PixelariaTests.Generators;
+using PixelariaTests.PixelariaTests.Tests.Utils;
 
 namespace PixelariaTests.PixelariaTests.Tests.Data
 {
@@ -57,14 +57,14 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
 
             var memory = frame.CalculateMemoryUsageInBytes(true);
 
-            Assert.AreEqual(64 * 64 * 32 / 8, memory, "The memory usage for a 64 x 64 frame with 32bpp should be equal to 16.384 bytes");
+            Assert.AreEqual(64 * 64 * (32 / 8), memory, "The memory usage for a 64 x 64 frame with 32bpp should be equal to 16.384 bytes");
 
             // Test with a different resolution + bit depth
             frame.SetFrameBitmap(new Bitmap(128, 32, PixelFormat.Format24bppRgb));
 
             memory = frame.CalculateMemoryUsageInBytes(true);
 
-            Assert.AreEqual(128 * 32 * 24 / 8, memory, "The memory usage for a 128 x 32 frame with 32bpp should be equal to 12.288 bytes");
+            Assert.AreEqual(128 * 32 * (32 / 8), memory, "When setting the bitmap for a format different than 24bpp, the Frame should automatically switch to 32bppArgb");
         }
 
         [TestMethod]
@@ -170,9 +170,13 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             var target = frame.GetComposedBitmap();
 
             // Hash of the .png image that represents the target result of the paint operation. Generated through the 'RegisterResultBitmap' method
-            byte[] goodHash = { 0xB2, 0x91, 0xF2, 0xB1, 0x17, 0xF7, 0x17, 0x46, 0xA0, 0x1C, 0xA4, 0xCB, 0x45, 0x82, 0x17, 0xA4, 0x42, 0x60, 0x2F, 0xEE, 0x7E, 0x1A, 0xDC, 0xE3, 0x2F, 0xB, 0x89, 0xEC, 0x76, 0x6, 0x2C, 0xA1 };
+            byte[] goodHash =
+            {
+                0x89, 0x72, 0x4A, 0x8A, 0x77, 0xD1, 0x8C, 0xBC, 0x9B, 0x67, 0x94, 0x76, 0x75, 0x4D, 0x81, 0x88, 0x1B,
+                0x54, 0xBB, 0x1B, 0xFF, 0x74, 0x84, 0xDB, 0x3E, 0x23, 0x56, 0x8A, 0xB2, 0xB3, 0x8D, 0x18
+            };
 
-            var currentHash = GetHashForBitmap(target);
+            var currentHash = UtilsTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "FrameCompositing");
 
@@ -185,7 +189,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
         /// </summary>
         /// <param name="bitmap">The bitmap to save</param>
         /// <param name="name">The file name to use on the bitmap</param>
-        public void RegisterResultBitmap(Bitmap bitmap, string name)
+        public void RegisterResultBitmap([NotNull] Bitmap bitmap, string name)
         {
             var folder = "TestsResults" + Path.DirectorySeparatorChar + "FrameTests";
             var path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
@@ -197,46 +201,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             bitmap.Save(file + ".png", ImageFormat.Png);
 
             // Also save a .txt file containing the hash
-            var hashBytes = GetHashForBitmap(bitmap);
+            var hashBytes = UtilsTests.GetHashForBitmap(bitmap);
             var hashString = "";
-            hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") + "0x" + b.ToString("X"));
+            hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") + "0x" + b.ToString("X2"));
             File.WriteAllText(file + ".txt", hashString);
-        }
-
-        /// <summary>
-        /// The hashing algorithm used for hashing the bitmaps
-        /// </summary>
-        private static readonly HashAlgorithm ShaM = new SHA256Managed();
-
-        /// <summary>
-        /// Returns a hash for the given Bitmap object
-        /// </summary>
-        /// <param name="bitmap">The bitmap to get the hash of</param>
-        /// <returns>The hash of the given bitmap</returns>
-        public static byte[] GetHashForBitmap(Bitmap bitmap)
-        {
-            using (var stream = new MemoryStream())
-            {
-                bitmap.Save(stream, ImageFormat.Png);
-
-                stream.Position = 0;
-
-                // Compute a hash for the image
-                var hash = GetHashForStream(stream);
-
-                return hash;
-            }
-        }
-
-        /// <summary>
-        /// Returns a hash for the given Stream object
-        /// </summary>
-        /// <param name="stream">The stream to get the hash of</param>
-        /// <returns>The hash of the given stream</returns>
-        public static byte[] GetHashForStream(Stream stream)
-        {
-            // Compute a hash for the image
-            return ShaM.ComputeHash(stream);
         }
     }
 

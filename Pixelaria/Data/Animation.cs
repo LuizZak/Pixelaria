@@ -290,82 +290,24 @@ namespace Pixelaria.Data
         /// Whether to allow frame skip
         /// </summary>
         public bool FrameSkip;
-    }
 
-    /// <summary>
-    /// Encapsulates export settings of an animation
-    /// </summary>
-    public struct AnimationExportSettings
-    {
-        /// <summary>
-        /// Whether to favor image ratio over image area when composing the final exported atlas.
-        /// Favoring ratio will output more square-ish images that may not be optimally spaced, while
-        /// favoring area will result in the smallest possible images the algorithm can output, but
-        /// may result in alongated images along one of the axis.
-        /// </summary>
-        public bool FavorRatioOverArea;
+        private sealed class AnimationPlaybackSettingsEqualityComparer : IEqualityComparer<AnimationPlaybackSettings>
+        {
+            public bool Equals(AnimationPlaybackSettings x, AnimationPlaybackSettings y)
+            {
+                return x.FPS == y.FPS && x.FrameSkip == y.FrameSkip;
+            }
 
-        /// <summary>
-        /// Whether to force the final dimensions of the exported sheet
-        /// to be a power of 2. If the final image is not a power of 2
-        /// in either dimension, it is filled to be so.
-        /// </summary>
-        public bool ForcePowerOfTwoDimensions;
+            public int GetHashCode(AnimationPlaybackSettings obj)
+            {
+                unchecked
+                {
+                    return (obj.FPS * 397) ^ obj.FrameSkip.GetHashCode();
+                }
+            }
+        }
 
-        /// <summary>
-        /// Force the frames to be fit in the minimum possible area.
-        /// Doing so will fit frames in a possibly smaller rectangle than they were
-        /// originally fit on, but minimizes the final sheet size
-        /// </summary>
-        public bool ForceMinimumDimensions;
-
-        /// <summary>
-        /// Whether to reuse identical frame images in the sheet.
-        /// Setting to true will pack pixel-level identical frames to use
-        /// the same position in the sprite sheet.
-        /// </summary>
-        public bool ReuseIdenticalFramesArea;
-
-        /// <summary>
-        /// Whether to use high precision when calculating the minimum possible area
-        /// of the exported sheet. Using high precision may yield slow results, specially
-        /// with favor ratio over area disabled
-        /// </summary>
-        public bool HighPrecisionAreaMatching;
-
-        /// <summary>
-        /// Whether to allow unordering of frames in the sheet in exchange of a better
-        /// bin-packing algorithm output
-        /// </summary>
-        public bool AllowUnorderedFrames;
-
-        /// <summary>
-        /// Whether to place the frames in a uniform grid that is sized according to the smallest
-        /// dimensions capable of fitting all the frames. Setting this option overrides the ForceMinimumDimensions flag
-        /// </summary>
-        public bool UseUniformGrid;
-
-        /// <summary>
-        /// Whether to pad the frame's sheet coordinates using the X and Y padding of this sprite.
-        /// Use this to pad the frame's sheet coordinates and size and avoid the clamped edges effect
-        /// when rendering frames using non-point clamp sampler modes
-        /// </summary>
-        public bool UsePaddingOnJson;
-
-        /// <summary>
-        /// Whether to generate accompaning .json files for the animations on the sheet
-        /// </summary>
-        public bool ExportJson;
-
-        /// <summary>
-        /// Ammount of empty pixels to pad horizontally between frames
-        /// </summary>
-        public int XPadding;
-
-        /// <summary>
-        /// Ammount of empty pixels to pad vertically between frames
-        /// </summary>
-        public int YPadding;
+        public static IEqualityComparer<AnimationPlaybackSettings> AnimationPlaybackSettingsComparer { get; } = new AnimationPlaybackSettingsEqualityComparer();
     }
 
     /// <summary>

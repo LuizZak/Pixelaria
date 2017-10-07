@@ -132,18 +132,7 @@ namespace Pixelaria.Data
         /// </summary>
         /// <returns>The composed bitmap for this frame</returns>
         Bitmap GetComposedBitmap();
-
-        /// <summary>
-        /// Generates a Image that represents the thumbnail for this frame using the given size
-        /// </summary>
-        /// <param name="width">The width of the thumbnail</param>
-        /// <param name="height">The height of the thumbnail</param>
-        /// <param name="resizeOnSmaller">Whether to resize the thumbnail up if it it's smaller than the thumbnail size</param>
-        /// <param name="centered">Whether to center the image on the center of the thumbnail</param>
-        /// <param name="backColor">The color to use as a background color</param>
-        /// <returns>The thumbnail image</returns>
-        Image GenerateThumbnail(int width, int height, bool resizeOnSmaller, bool centered, Color backColor);
-
+        
         /// <summary>
         /// Resizes this Frame so it matches the given dimensions, scaling with the given scaling method, and interpolating
         /// with the given interpolation mode.

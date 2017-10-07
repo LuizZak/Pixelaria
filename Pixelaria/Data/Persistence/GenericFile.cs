@@ -215,14 +215,17 @@ namespace Pixelaria.Data.Persistence
             // If the file header is not valid, return
             if (!fileHeader.IsValid)
             {
+                if (closeStream)
+                {
+                    stream.Close();
+                    stream = null;
+                }
+
                 return;
             }
 
             LoadBlocksFromStream();
             
-            // Truncate the stream so any unwanted extra data is not left pending, that can lead to potential crashes when reading the file back again
-            stream.SetLength(stream.Position);
-
             if (closeStream)
             {
                 stream.Close();
@@ -258,7 +261,9 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         protected virtual void AddBlockFromStream()
         {
-            AddBlock(new T());
+            var block = new T();
+            block.LoadFromStream(stream);
+            AddBlock(block);
         }
 
         /// <summary>

@@ -120,52 +120,40 @@ namespace Pixelaria.Controllers.DataControllers
         {
             return GetLayerAt(0).LayerBitmap;
         }
-
+        
         /// <summary>
-        /// Creates a new empty layer on this Frame
+        /// Adds a layer on this Frame object. Optionally allow specifying a bitmap as an initial image.
+        /// If the bitmap does not match the frame's dimensions or its pixel format is not 32bpp, an exception is raised.
+        /// 
+        /// If no bitmap is provided, an empty transparent bitmap is used instead.
         /// </summary>
-        /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
-        public IFrameLayer CreateLayer(int layerIndex = -1)
-        {
-            if (!_frame.Initialized)
-            {
-                throw new InvalidOperationException("The frame was not initialized prior to this action");
-            }
-
-            var layer = new Frame.FrameLayer(new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
-            {
-                Index = layerIndex == -1 ? LayerCount : layerIndex
-            };
-
-            AddLayer(layer, layerIndex);
-
-            return layer;
-        }
-
-        /// <summary>
-        /// Adds a layer on this Frame object based on the specified bitmap.
-        /// If the bitmap does not match the frame's dimensions or its pixel format is not 32bpp, an exception is raised
-        /// </summary>
+        /// <param name="name">A display name for the layer. Defaults to an empty string.</param>
         /// <param name="bitmap">The bitmap to use as a layer image</param>
         /// <param name="layerIndex">The index to add the layer at. Leave -1 to add to the end of the layer list</param>
         /// <returns>The layer that was just created</returns>
         /// <exception cref="ArgumentException">The provided bitmap's dimensions does not match the Frame's dimensions, or its pixel format isn't 32bpp</exception>
-        public IFrameLayer AddLayer([NotNull] Bitmap bitmap, int layerIndex = -1)
+        public IFrameLayer CreateLayer(Bitmap bitmap = null, [NotNull] string name = "", int layerIndex = -1)
         {
             if (!_frame.Initialized)
             {
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
-
-            if (bitmap.Width != Width || bitmap.Height != Height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
+            if (bitmap != null)
             {
-                throw new ArgumentException(@"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant", nameof(bitmap));
+                if (bitmap.Width != Width || bitmap.Height != Height || Image.GetPixelFormatSize(bitmap.PixelFormat) != 32)
+                    throw new ArgumentException(
+                        @"The provided bitmap's dimensions must match the size of this frame and its pixel format must be a 32bpp variant",
+                        nameof(bitmap));
             }
 
-            var layer = (Frame.FrameLayer)CreateLayer(layerIndex);
+            var layer = new Frame.FrameLayer(bitmap?.DeepClone() ?? new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
+            {
+                Index = layerIndex == -1 ? LayerCount : layerIndex,
+                Name = name
+            };
 
-            layer.CopyFromBitmap(bitmap);
-
+            AddLayer(layer, layerIndex);
+            
             return layer;
         }
 
@@ -328,9 +316,8 @@ namespace Pixelaria.Controllers.DataControllers
             }
 
             // Copy to the first layer
-            //_layers[0].CopyFromBitmap(bitmap);
             _frame.Layers[0].LayerBitmap.Dispose();
-            _frame.Layers[0].LayerBitmap = bitmap;
+            _frame.Layers[0].LayerBitmap = bitmap.DeepClone();
 
             if (updateHash)
                 _frame.UpdateHash();
@@ -390,57 +377,56 @@ namespace Pixelaria.Controllers.DataControllers
             }
 
             var output = new Bitmap(width, height);
-            var composed = GetComposedBitmap();
 
-            var graphics = Graphics.FromImage(output);
-
-            float tx = 0, ty = 0;
-            float scaleX = 1, scaleY = 1;
-
-            if (composed.Width >= composed.Height)
+            using (var composed = GetComposedBitmap())
+            using (var graphics = Graphics.FromImage(output))
             {
-                if (width < composed.Width || resizeOnSmaller)
+                float tx = 0, ty = 0;
+                float scaleX = 1, scaleY = 1;
+
+                if (composed.Width >= composed.Height)
                 {
-                    scaleX = (float)width / composed.Width;
-                    scaleY = scaleX;
+                    if (width < composed.Width || resizeOnSmaller)
+                    {
+                        scaleX = (float) width / composed.Width;
+                        scaleY = scaleX;
+                    }
+                    else
+                    {
+                        tx = (float) height / 2 - (composed.Width * scaleX / 2);
+                    }
+
+                    ty = (float) width / 2 - (composed.Height * scaleY / 2);
                 }
                 else
                 {
-                    tx = (float)height / 2 - (composed.Width * scaleX / 2);
+                    if (height < composed.Height || resizeOnSmaller)
+                    {
+                        scaleY = (float) height / composed.Height;
+                        scaleX = scaleY;
+                    }
+                    else
+                    {
+                        ty = (float) width / 2 - (composed.Height * scaleY / 2);
+                    }
+
+                    tx = (float) height / 2 - (composed.Width * scaleX / 2);
                 }
 
-                ty = (float)width / 2 - (composed.Height * scaleY / 2);
-            }
-            else
-            {
-                if (height < composed.Height || resizeOnSmaller)
+                if (!centered)
                 {
-                    scaleY = (float)height / composed.Height;
-                    scaleX = scaleY;
-                }
-                else
-                {
-                    ty = (float)width / 2 - (composed.Height * scaleY / 2);
+                    tx = ty = 0;
                 }
 
-                tx = (float)height / 2 - (composed.Width * scaleX / 2);
+                var area = new RectangleF((float) Math.Round(tx), (float) Math.Round(ty),
+                    (float) Math.Round(composed.Width * scaleX), (float) Math.Round(composed.Height * scaleY));
+
+                graphics.Clear(backColor);
+                
+                graphics.DrawImage(composed, area);
+
+                graphics.Flush();
             }
-
-            if (!centered)
-            {
-                tx = ty = 0;
-            }
-
-            var area = new RectangleF((float)Math.Round(tx), (float)Math.Round(ty), (float)Math.Round(composed.Width * scaleX), (float)Math.Round(composed.Height * scaleY));
-
-            graphics.Clear(backColor);
-
-            graphics.DrawImage(composed, area);
-
-            graphics.Flush();
-            graphics.Dispose();
-
-            composed.Dispose();
 
             return output;
         }

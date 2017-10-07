@@ -41,6 +41,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public AnimationHeaderBlock()
         {
             blockID = BLOCKID_ANIMATION_HEADER;
+            removeOnPrepare = true;
         }
 
         /// <summary>
@@ -59,7 +60,6 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         protected override void LoadContentFromStream(Stream stream)
         {
             Animation = LoadAnimationFromStream(stream);
-            owningFile.LoadedBundle.AddAnimation(Animation);
         }
 
         /// <summary>

@@ -43,6 +43,8 @@ namespace PixelariaTests.PixelariaTests.Generators
 
             var bundle = new Bundle("Bundle" + r.Next());
 
+            var layersCount = 0;
+
             for (int i = 0; i < 5; i++)
             {
                 bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("Sheet" + i, 5, r.Next(10, 128), r.Next(10, 128), r.Next(2, 5), r.Next()));
@@ -52,14 +54,13 @@ namespace PixelariaTests.PixelariaTests.Generators
                 {
                     foreach (var frame in animation.Frames)
                     {
-                        var fr = frame as Frame;
-                        if (fr == null) continue;
+                        var fr = (Frame)frame;
 
                         var controller = new FrameController(fr);
 
                         for (int j = 0; j < r.Next(1, 2); j++)
                         {
-                            controller.AddLayer(FrameGenerator.GenerateRandomBitmap(fr.Width, fr.Height, seed + j));
+                            controller.CreateLayer(FrameGenerator.GenerateRandomBitmap(fr.Width, fr.Height, seed + j)).Name = $"Layer {++layersCount}";
                         }
                     }
                 }

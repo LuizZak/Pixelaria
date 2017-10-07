@@ -289,8 +289,13 @@ namespace Pixelaria.Views
             Debug.Assert(parentNode != null, "parentNode != null");
 
             // Create the tree node now
-            if(animation.FrameCount > 0)
-                il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White));
+            if (animation.FrameCount > 0)
+            {
+                var animController = new AnimationController(Controller.CurrentBundle, animation);
+                var frameController = animController.GetFrameController(animController.GetFrameAtIndex(0));
+
+                il_treeView.Images.Add(animation.Name + animation.ID, frameController.GenerateThumbnail(16, 16, true, true, Color.White));                
+            }
 
             int addIndex = Controller.GetAnimationIndex(animation);
 
@@ -375,12 +380,18 @@ namespace Pixelaria.Views
             {
                 if (!il_treeView.Images.ContainsKey(animation.Name + animation.ID))
                 {
-                    il_treeView.Images.Add(animation.Name + animation.ID, animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White));
+                    var animController = new AnimationController(Controller.CurrentBundle, animation);
+                    var frameController = animController.GetFrameController(animController.GetFrameAtIndex(0));
+
+                    il_treeView.Images.Add(animation.Name + animation.ID, frameController.GenerateThumbnail(16, 16, true, true, Color.White));
                     animNode.ImageKey = animNode.SelectedImageKey = animation.Name + animation.ID;
                 }
                 else
                 {
-                    il_treeView.Images[(animNode.ImageIndex == -1 ? il_treeView.Images.IndexOfKey(animNode.ImageKey) : animNode.ImageIndex)] = animation.GetFrameAtIndex(0).GenerateThumbnail(16, 16, true, true, Color.White);
+                    var animController = new AnimationController(Controller.CurrentBundle, animation);
+                    var frameController = animController.GetFrameController(animController.GetFrameAtIndex(0));
+
+                    il_treeView.Images[animNode.ImageIndex == -1 ? il_treeView.Images.IndexOfKey(animNode.ImageKey) : animNode.ImageIndex] = frameController.GenerateThumbnail(16, 16, true, true, Color.White);
                 }
             }
             else

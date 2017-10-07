@@ -56,7 +56,7 @@ namespace Pixelaria.Utils
             _fileList = new string[fileCount];
 
             // Load the values from the settings file
-            Settings settings = Settings.GetSettings();
+            var settings = Settings.GetSettings();
 
             for (int i = 0; i < fileCount; i++)
             {
@@ -74,7 +74,7 @@ namespace Pixelaria.Utils
         /// <param name="file">The file to store on this list</param>
         public void StoreFile([NotNull] string file)
         {
-            Settings settings = Settings.GetSettings();
+            var settings = Settings.GetSettings();
 
             string fullPath = Path.GetFullPath(file);
 
@@ -116,7 +116,7 @@ namespace Pixelaria.Utils
         /// <param name="index">The index of the item to remove</param>
         public void RemoveFromList(int index)
         {
-            Settings settings = Settings.GetSettings();
+            var settings = Settings.GetSettings();
 
             if (index == _fileList.Length - 1)
             {

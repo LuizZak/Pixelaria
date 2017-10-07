@@ -7,7 +7,7 @@
                   v1.17.7b
 
 Pixel Art Animation Creation and Exporting Tool
-     Copyright © 2013 Luiz Fernando Silva
+     Copyright © 2017 Luiz Fernando Silva
 
 
 - Changelog
@@ -19,6 +19,8 @@ Caption:
 . Note
 
 -- Current Release
+
+* Fixed crash when opening some ill-formatted .pxl files.
 
 * Now file format for descriptors of exported animations is .json instead of .xml.
   . The animation sheet json contains the same data as the previous .xml format, but formatted more nicely.

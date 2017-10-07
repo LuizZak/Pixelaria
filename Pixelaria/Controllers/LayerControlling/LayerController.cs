@@ -260,7 +260,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            var layer = _frame.CreateLayer(layerIndex);
+            var layer = _frame.CreateLayer(layerIndex: layerIndex);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
 
@@ -277,7 +277,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             BeforeLayerCreated?.Invoke(this, new EventArgs());
 
-            var layer = _frame.AddLayer(bitmap, index);
+            var layer = _frame.CreateLayer(bitmap, layerIndex: index);
 
             LayerCreated?.Invoke(this, new LayerControllerLayerCreatedEventArgs(layer));
 

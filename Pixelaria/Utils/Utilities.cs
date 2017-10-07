@@ -124,8 +124,16 @@ namespace Pixelaria.Utils
         public static bool ByteArrayCompare([NotNull] byte[] b1, [NotNull] byte[] b2)
         {
             // Validate buffers are the same length.
-            // This also ensures that the count does not exceed the length of either buffer.  
-            return b1.Length == b2.Length && memcmp(b1, b2, b1.Length) == 0;
+            if (b1.Length != b2.Length)
+                return false;
+
+            for (int i = 0; i < b1.Length; i++)
+            {
+                if (b1[i] != b2[i])
+                    return false;
+            }
+            
+            return true;
         }
 
         /// <summary>
@@ -286,12 +294,12 @@ namespace Pixelaria.Utils
 
             byte foreR = (byte)((foreColor >> 16) & 0xFF);
             byte foreG = (byte)((foreColor >> 8) & 0xFF);
-            byte foreB = (byte)((foreColor) & 0xFF);
+            byte foreB = (byte)(foreColor & 0xFF);
 
             byte backA = (byte)((backColor >> 24) & 0xFF);
             byte backR = (byte)((backColor >> 16) & 0xFF);
             byte backG = (byte)((backColor >> 8) & 0xFF);
-            byte backB = (byte)((backColor) & 0xFF);
+            byte backB = (byte)(backColor & 0xFF);
 
             float backAlphaFloat = backA;
             float foreAlphaFloat = foreA;
@@ -302,9 +310,9 @@ namespace Pixelaria.Utils
             float alpha = backAlphaFloat + foreAlphaFloat - backAlphaFloat * foreAlphaNormalized;
 
             uint finalA = (uint)Math.Min(255, alpha);
-            uint finalR = (uint)(Math.Min(255, (foreR * foreAlphaFloat + backR * backColorMultiplier) / alpha));
-            uint finalG = (uint)(Math.Min(255, (foreG * foreAlphaFloat + backG * backColorMultiplier) / alpha));
-            uint finalB = (uint)(Math.Min(255, (foreB * foreAlphaFloat + backB * backColorMultiplier) / alpha));
+            uint finalR = (uint)Math.Min(255, (foreR * foreAlphaFloat + backR * backColorMultiplier) / alpha);
+            uint finalG = (uint)Math.Min(255, (foreG * foreAlphaFloat + backG * backColorMultiplier) / alpha);
+            uint finalB = (uint)Math.Min(255, (foreB * foreAlphaFloat + backB * backColorMultiplier) / alpha);
 
             return finalA << 24 | finalR << 16 | finalG << 8 | finalB;
         }

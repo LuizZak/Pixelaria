@@ -69,7 +69,7 @@ namespace PixelariaTests.PixelariaTests.Generators
 
             for (int i = 1; i < layerCount; i++)
             {
-                controller.AddLayer(GenerateRandomBitmap(width, height, seed + 1));
+                controller.CreateLayer(GenerateRandomBitmap(width, height, seed + 1));
             }
 
             return frame;
@@ -90,13 +90,13 @@ namespace PixelariaTests.PixelariaTests.Generators
                 seed = _seedRandom.Next();
             }
 
-            Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
-            FastBitmap fastBitmap = new FastBitmap(bitmap);
+            var fastBitmap = new FastBitmap(bitmap);
             fastBitmap.Lock();
 
             // Plot the image with random pixels now
-            Random r = new Random(seed);
+            var r = new Random(seed);
 
             for (int y = 0; y < height; y++)
             {
@@ -120,8 +120,8 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <returns>A new Bitmap, that is considered to be different from the provided bitmap</returns>
         public static Bitmap GenerateDifferentFrom(Bitmap bitmap)
         {
-            Bitmap bit = new Bitmap(bitmap);
-            Color c = Color.FromArgb((bitmap.GetPixel(0, 0).ToArgb() + 1) % 0xFFFFFFF);
+            var bit = new Bitmap(bitmap);
+            var c = Color.FromArgb((bitmap.GetPixel(0, 0).ToArgb() + 1) % 0xFFFFFFF);
 
             bit.SetPixel(0, 0, c);
 

@@ -56,6 +56,12 @@ namespace Pixelaria.Data.Persistence
         public long BlockOffset => blockOffset;
 
         /// <summary>
+        /// Returns the offset at which the block's contents are placed (skipping the block header's
+        /// ID, length and version)
+        /// </summary>
+        public long BlockContentsOffset => blockOffset + sizeof(short) + sizeof(long) + sizeof(short);
+
+        /// <summary>
         /// Disposes of this BaseBlock and all related resources
         /// </summary>
         public virtual void Dispose()
@@ -107,10 +113,17 @@ namespace Pixelaria.Data.Persistence
         }
 
         /// <summary>
-        /// Loads this block from the given Stream
+        /// Loads the block offset, id, length and version from the stream.
+        /// 
+        /// The actual block content is skipt and not processed through
+        /// <see cref="LoadContentFromStream"/>.
+        /// 
+        /// This method can be used to pre-load all block structures from a
+        /// file and allow a pre-process step that doesn't require reading the
+        /// actual block contents.
         /// </summary>
         /// <param name="stream">The stream to load this block from</param>
-        public virtual void LoadFromStream([NotNull] Stream stream)
+        public virtual void LoadBlockMetadataFromStream([NotNull] Stream stream)
         {
             var reader = new BinaryReader(stream);
 
@@ -123,23 +136,32 @@ namespace Pixelaria.Data.Persistence
             blockLength = reader.ReadInt64();
             // Read the block version
             blockVersion = reader.ReadInt16();
+        }
+
+        /// <summary>
+        /// Loads this block from the given Stream
+        /// </summary>
+        /// <param name="stream">The stream to load this block from</param>
+        public virtual void LoadFromStream([NotNull] Stream stream)
+        {
+            LoadBlockMetadataFromStream(stream);
+
             // Read the content now
             LoadContentFromStream(stream);
         }
-
+        
         /// <summary>
         /// Loads the content portion of the block from the given stream
         /// </summary>
         /// <param name="stream">The stream to load the content from</param>
         protected virtual void LoadContentFromStream([NotNull] Stream stream)
         {
-            var reader = new BinaryReader(stream);
-
             if (stream.Length - stream.Position < blockLength)
             {
                 throw new ArgumentException(@"The stream provided does not have the required " + blockLength + @" bytes needed to load this file block.", nameof(stream));
             }
 
+            var reader = new BinaryReader(stream);
             _blockContent = reader.ReadBytes((int)blockLength);
         }
 
