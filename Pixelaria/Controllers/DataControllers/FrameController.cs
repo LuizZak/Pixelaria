@@ -118,7 +118,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// </summary>
         public Bitmap GetLayerBitmap(int index)
         {
-            return GetLayerAt(0).LayerBitmap;
+            return GetLayerAt(index).LayerBitmap;
         }
         
         /// <summary>
