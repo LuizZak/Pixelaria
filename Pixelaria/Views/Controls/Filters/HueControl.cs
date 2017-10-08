@@ -64,16 +64,16 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is HueFilter))
                 return;
 
-            anud_hue.Value = (decimal)((HueFilter)referenceFilter).Hue * 100;
-            cb_relative.Checked = ((HueFilter)referenceFilter).Relative;
+            cs_hue.CurrentValue = ((HueFilter) referenceFilter).Hue / 360.0f;
+            cb_relative.Checked = ((HueFilter) referenceFilter).Relative;
         }
 
         // 
-        // Hue nud value changed
+        // Hue slider color changed
         // 
-        private void anud_hue_ValueChanged(object sender, EventArgs e)
+        private void cs_hue_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
         {
-            ((HueFilter)filter).Hue = (int)anud_hue.Value;
+            ((HueFilter)filter).Hue = (int)(cs_hue.CurrentValue * 360);
 
             FireFilterUpdated();
         }

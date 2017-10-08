@@ -90,6 +90,7 @@
             this.Controls.Add(this.btnOk);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "ColorPickerDialog";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Color Picker";
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);

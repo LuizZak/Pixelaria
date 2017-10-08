@@ -118,8 +118,10 @@ namespace Pixelaria.Views.Controls.ColorControls
             {
                 float newValue = Math.Max(0, Math.Min(1, value));
 
-                if(Math.Abs(newValue - currentValue) > float.Epsilon)
+                if (Math.Abs(newValue - currentValue) > float.Epsilon)
                     SetColorComponentValue(value);
+                
+                RecalculateValue();
             }
         }
 
@@ -144,6 +146,10 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// If the current color mode is Custom, the setter is ignored and the Active color value
         /// is never changed.
         /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Current active color set")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public AhslColor ActiveColor
         {
             get => activeColor;
@@ -163,6 +169,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         [Browsable(true)]
         [Category("Behavior")]
         [Description("When ColorComponent is set to Custom, sets the leftmost starting color of the gradient drawn onto the control")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public AhslColor CustomStartColor
         {
             get => customStartColor;
@@ -176,6 +183,7 @@ namespace Pixelaria.Views.Controls.ColorControls
                 var color = AhslColor.LinearInterpolate(customStartColor, customEndColor, currentValue);
                 SetActiveColor(color);
                 RecalculateValue();
+                Invalidate(); // Force-invalidate here
             }
         }
 
@@ -185,6 +193,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         [Browsable(true)]
         [Category("Behavior")]
         [Description("When ColorComponent is set to Custom, sets the rightmost ending color of the gradient drawn onto the control")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public AhslColor CustomEndColor
         {
             get => customEndColor;
@@ -198,6 +207,7 @@ namespace Pixelaria.Views.Controls.ColorControls
                 var color = AhslColor.LinearInterpolate(customStartColor, customEndColor, currentValue);
                 SetActiveColor(color);
                 RecalculateValue();
+                Invalidate(); // Force-invalidate here
             }
         }
 
@@ -351,6 +361,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             float value = GetValueForXOffset(e.X - knobDraggingOffset);
 
             SetColorComponentValue(value);
+            RecalculateValue();
         }
 
         #endregion
@@ -736,20 +747,21 @@ namespace Pixelaria.Views.Controls.ColorControls
                 if (fillBrush.InterpolationColors.Colors.Any(color => color.A != 255))
                 {
                     var defaultTile = ImageUtilities.GetDefaultTile();
-                    var backBrush = new TextureBrush(defaultTile);
 
-                    var compositingQuality = g.CompositingQuality;
-                    var interpolationMode = g.InterpolationMode;
+                    using (var backBrush = new TextureBrush(defaultTile))
+                    {
+                        var state = g.Save();
 
-                    g.CompositingQuality = CompositingQuality.HighSpeed;
-                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                        g.CompositingMode = CompositingMode.SourceCopy;
+                        g.CompositingQuality = CompositingQuality.HighSpeed;
+                        g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                        g.SmoothingMode = SmoothingMode.None;
+                        g.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                    g.FillPath(backBrush, path);
+                        g.FillPath(backBrush, path);
 
-                    g.CompositingQuality = compositingQuality;
-                    g.InterpolationMode = interpolationMode;
-
-                    backBrush.Dispose();
+                        g.Restore(state);
+                    }
                 }
             }
 
@@ -990,10 +1002,17 @@ namespace Pixelaria.Views.Controls.ColorControls
 
         /// <summary>
         /// Returns whether this color slider should ignore updates to the alpha transparency of the active color and always render it as 1.0
+        /// 
+        /// This is used during rendering of the backdrop and to detect updates in color component during selection.
         /// </summary>
         /// <returns>Whether this color slider should ignore updates to the alpha transparency of the active color and always render it as 1.0</returns>
         protected bool IgnoreActiveColorAlpha()
         {
+            if (colorComponent == ColorSliderComponent.Custom)
+            {
+                return customStartColor.FloatAlpha.Equals(1.0f) && customEndColor.FloatAlpha.Equals(1.0f);
+            }
+
             return colorComponent != ColorSliderComponent.Alpha;
         }
 

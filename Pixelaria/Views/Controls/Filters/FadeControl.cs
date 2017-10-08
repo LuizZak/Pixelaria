@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using Pixelaria.Filters;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -52,6 +53,8 @@ namespace Pixelaria.Views.Controls.Filters
             if (filter == null)
             {
                 filter = new FadeFilter {FadeAlpha = false, FadeColor = Color.White, FadeFactor = 0.5f};
+
+                cs_factor.CurrentValue = 0.5f;
             }
         }
 
@@ -66,7 +69,10 @@ namespace Pixelaria.Views.Controls.Filters
                 return;
 
             cp_color.BackColor = ((FadeFilter)referenceFilter).FadeColor;
-            anud_factor.Value = (decimal)((FadeFilter)referenceFilter).FadeFactor * 100;
+            cs_factor.CustomStartColor = cp_color.BackColor.ToAhsl().WithTransparency(0);
+            cs_factor.CustomEndColor = cp_color.BackColor.ToAhsl().WithTransparency(1);
+
+            cs_factor.CurrentValue = ((FadeFilter)referenceFilter).FadeFactor;
         }
 
         // 
@@ -74,7 +80,10 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cp_color_Click(object sender, EventArgs e)
         {
-            var cd = new ColorDialog {AllowFullOpen = true};
+            var cd = new ColorDialog
+            {
+                AllowFullOpen = true
+            };
 
             if (cd.ShowDialog(FindForm()) == DialogResult.OK)
             {
@@ -82,16 +91,19 @@ namespace Pixelaria.Views.Controls.Filters
 
                 ((FadeFilter)filter).FadeColor = cd.Color;
 
+                cs_factor.CustomStartColor = cd.Color.ToAhsl().WithTransparency(0);
+                cs_factor.CustomEndColor = cd.Color.ToAhsl().WithTransparency(1);
+
                 FireFilterUpdated();
             }
         }
 
         // 
-        // Factor ANUD changed
+        // Factor slider changed
         // 
-        private void anud_factor_ValueChanged(object sender, EventArgs e)
+        private void cs_factor_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
         {
-            ((FadeFilter)filter).FadeFactor = (float)(anud_factor.Value / 100);
+            ((FadeFilter)filter).FadeFactor = cs_factor.CurrentValue;
 
             FireFilterUpdated();
         }

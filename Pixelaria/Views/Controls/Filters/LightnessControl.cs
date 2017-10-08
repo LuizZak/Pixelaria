@@ -66,17 +66,17 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is LightnessFilter))
                 return;
 
-            anud_lightness.Value = (decimal)((LightnessFilter)referenceFilter).Lightness * 100;
+            cs_lightness.CurrentValue = ((LightnessFilter)referenceFilter).Lightness / 100.0f;
             cb_relative.Checked = ((LightnessFilter)referenceFilter).Relative;
             cb_multiply.Checked = ((LightnessFilter)referenceFilter).Multiply;
         }
 
         // 
-        // Lightness nud value changed
+        // Lightness slider value changed
         // 
-        private void anud_lightness_ValueChanged(object sender, EventArgs e)
+        private void cs_lightness_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
         {
-            ((LightnessFilter)filter).Lightness = (int)anud_lightness.Value;
+            ((LightnessFilter)filter).Lightness = (int)(cs_lightness.CurrentValue * 100);
 
             FireFilterUpdated();
         }

@@ -22,9 +22,11 @@
 
 using System;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Drawing.Design;
+using System.Globalization;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Pixelaria.Views.Controls.ColorControls;
@@ -35,6 +37,7 @@ namespace Pixelaria.Utils
     /// Represents an HSL color with an alpha channel
     /// </summary>
     [Editor(typeof(AhslColorEditor), typeof(UITypeEditor))]
+    [TypeConverter(typeof(AhslColorTypeConverter))]
     public struct AhslColor : IEquatable<AhslColor>
     {
         /// <summary>
@@ -75,17 +78,17 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float FloatRed => ColorSwatch.FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[1];
+        public float FloatRed => FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[1];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float FloatGreen => ColorSwatch.FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[2];
+        public float FloatGreen => FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[2];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float FloatBlue => ColorSwatch.FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[3];
+        public float FloatBlue => FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[3];
 
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 1
@@ -168,10 +171,10 @@ namespace Pixelaria.Utils
         /// <returns>Whether two AHSL color structures are the same</returns>
         public static bool operator==(AhslColor color1, AhslColor color2)
         {
-            return (Math.Abs(color1._floatAlpha - color2._floatAlpha) < float.Epsilon &&
-                    Math.Abs(color1._floatHue - color2._floatHue) < float.Epsilon &&
-                    Math.Abs(color1._floatSaturation - color2._floatSaturation) < float.Epsilon &&
-                    Math.Abs(color1._floatLightness - color2._floatLightness) < float.Epsilon);
+            return (Math.Abs(color1._floatAlpha - color2._floatAlpha) < Single.Epsilon &&
+                    Math.Abs(color1._floatHue - color2._floatHue) < Single.Epsilon &&
+                    Math.Abs(color1._floatSaturation - color2._floatSaturation) < Single.Epsilon &&
+                    Math.Abs(color1._floatLightness - color2._floatLightness) < Single.Epsilon);
         }
 
         public static explicit operator AhslColor(Color source)
@@ -201,7 +204,21 @@ namespace Pixelaria.Utils
         [Pure]
         public int ToArgb(bool revertByteOrder = false)
         {
-            return ColorSwatch.ArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha, revertByteOrder);
+            return ArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha, revertByteOrder);
+        }
+
+        /// <summary>
+        /// Returns a copy of this Ahsl color with the Alpha transparency set to a given value
+        /// </summary>
+        [Pure]
+        public AhslColor WithTransparency(float alpha)
+        {
+            return new AhslColor(alpha, _floatHue, _floatSaturation, _floatLightness);
+        }
+
+        public override string ToString()
+        {
+            return $"A: {Alpha}, H: {Hue}, S: {Saturation}, L: {Lightness}";
         }
 
         /// <summary>
@@ -211,14 +228,16 @@ namespace Pixelaria.Utils
         /// <returns>Whether this AHSL color object equals another AHSL color</returns>
         public bool Equals(AhslColor other)
         {
-            return _floatAlpha.Equals(other._floatAlpha) && _floatHue.Equals(other._floatHue) && _floatSaturation.Equals(other._floatSaturation) && _floatLightness.Equals(other._floatLightness);
+            return _floatAlpha.Equals(other._floatAlpha) && _floatHue.Equals(other._floatHue) &&
+                   _floatSaturation.Equals(other._floatSaturation) && _floatLightness.Equals(other._floatLightness);
         }
 
         // Override Equals
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is AhslColor && Equals((AhslColor)obj);
+            if (obj == null) return false;
+
+            return obj is AhslColor color && Equals(color);
         }
 
         // Overrided GetHashCode
@@ -313,15 +332,15 @@ namespace Pixelaria.Utils
             float h;
             float s;
             
-            if (Math.Abs(d) < float.Epsilon)
+            if (Math.Abs(d) < Single.Epsilon)
             {
                 h = 0;
             }
-            else if (Math.Abs(M - r) < float.Epsilon)
+            else if (Math.Abs(M - r) < Single.Epsilon)
             {
                 h = (((g - b) / d) % 6) * 60;
             }
-            else if (Math.Abs(M - g) < float.Epsilon)
+            else if (Math.Abs(M - g) < Single.Epsilon)
             {
                 h = ((b - r) / d + 2) * 60;
             }
@@ -337,7 +356,7 @@ namespace Pixelaria.Utils
 
             var l = (M + m) / 2;
 
-            if (Math.Abs(d) < float.Epsilon)
+            if (Math.Abs(d) < Single.Epsilon)
             {
                 s = 0;
             }
@@ -351,6 +370,9 @@ namespace Pixelaria.Utils
 
         /// <summary>
         /// Linearly interpolates between two colors with a given factor.
+        /// 
+        /// Interpolation happens across ARGB space (which is more precise and doesn't interpolate colors between greenish
+        /// shared in between).
         /// </summary>
         /// <param name="start">Starting color to interpolate from</param>
         /// <param name="end">End color to interpolate to</param>
@@ -368,16 +390,155 @@ namespace Pixelaria.Utils
 
             float Lerp(float min, float max, float v)
             {
-                return min * (1 - v) + max * v;
+                return (1 - v) * min + v * max;
             }
             
             var a = Lerp(start.FloatAlpha, end.FloatAlpha, factor);
-            var h = Lerp(start.FloatHue, end.FloatHue, factor);
-            var s = Lerp(start.FloatSaturation, end.FloatSaturation, factor);
-            var l = Lerp(start.FloatLightness, end.FloatLightness, factor);
+            var r = Lerp(start.FloatRed, end.FloatRed, factor);
+            var g = Lerp(start.FloatGreen, end.FloatGreen, factor);
+            var b = Lerp(start.FloatBlue, end.FloatBlue, factor);
 
-            return new AhslColor(a, h, s, l);
+            return FromArgb(a, r, g, b);
         }
+        
+        #region Helper Methods
+
+        /// <summary>
+        /// Creates an ARGB color form the given HSL color components
+        /// </summary>
+        /// <param name="h">The hue</param>
+        /// <param name="s">The saturation</param>
+        /// <param name="l">The lightness</param>
+        /// <param name="alpha">An optional alpha component</param>
+        /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
+        /// <returns>An ARGB color from the given HSL color components</returns>
+        [Pure]
+        public static int ArgbFromAhsl(int h, int s, int l, int alpha = 255, bool revertByteOrder = false)
+        {
+            float af = alpha / 255.0f;
+            float hf = h / 360.0f;
+            float sf = s / 100.0f;
+            float lf = l / 100.0f;
+
+            return ArgbFromAhsl(hf, sf, lf, af, revertByteOrder);
+        }
+
+        /// <summary>
+        /// Creates an ARGB color form the given HSL color components
+        /// </summary>
+        /// <param name="h">The hue</param>
+        /// <param name="s">The saturation</param>
+        /// <param name="l">The lightness</param>
+        /// <param name="alpha">An optional alpha component</param>
+        /// <param name="revertByteOrder">Whether to revert the byte order so the alpha component is the most significant and the blue component the least</param>
+        /// <returns>An ARGB color from the given HSL color components</returns>
+        [Pure]
+        public static int ArgbFromAhsl(float h, float s, float l, float alpha = 1, bool revertByteOrder = false)
+        {
+            float[] components = FloatArgbFromAhsl(h, s, l, alpha, revertByteOrder);
+
+            return ((int)(components[0] * 255) << 24) | ((int)(components[1] * 255) << 16) | ((int)(components[2] * 255) << 8) | (int)(components[3] * 255);
+        }
+
+        /// <summary>
+        /// Creates an ARGB color form the given HSL color components
+        /// </summary>
+        /// <param name="h">The hue, ranging from 0-1</param>
+        /// <param name="s">The saturation, ranging from 0-1</param>
+        /// <param name="l">The lightness, ranging from 0-1</param>
+        /// <param name="alpha">An optional alpha component, ranging from 0-1</param>
+        /// <param name="reverseColorOrder">Whether to revert the color order so the alpha component appearns last and the blue appears first</param>
+        /// <returns>An ARGB color from the given HSL color components</returns>
+        [Pure]
+        public static float[] FloatArgbFromAhsl(float h, float s, float l, float alpha = 1, bool reverseColorOrder = false)
+        {
+            if (h < 0) h = 0;
+            if (s < 0) s = 0;
+            if (l < 0) l = 0;
+            if (h >= 1) h = 0.99999999f;
+            if (s > 1) s = 1;
+            if (l > 1) l = 1;
+
+            // ReSharper disable once InconsistentNaming
+            float C = (1 - Math.Abs(2 * l - 1)) * s;
+            float hh = h / (60 / 360.0f);
+            // ReSharper disable once InconsistentNaming
+            float X = C * (1 - Math.Abs(hh % 2 - 1));
+
+            float r = 0, g = 0, b = 0;
+
+            if (hh >= 0 && hh < 1)
+            {
+                r = C;
+                g = X;
+            }
+            else if (hh >= 1 && hh < 2)
+            {
+                r = X;
+                g = C;
+            }
+            else if (hh >= 2 && hh < 3)
+            {
+                g = C;
+                b = X;
+            }
+            else if (hh >= 3 && hh < 4)
+            {
+                g = X;
+                b = C;
+            }
+            else if (hh >= 4 && hh < 5)
+            {
+                r = X;
+                b = C;
+            }
+            else
+            {
+                r = C;
+                b = X;
+            }
+
+            float m = l - C / 2;
+
+            r = r + m;
+            g = g + m;
+            b = b + m;
+
+            float[] colors = { 0, 0, 0, 0 };
+
+            if (reverseColorOrder)
+            {
+                colors[0] = b;
+                colors[1] = g;
+                colors[2] = r;
+                colors[3] = alpha;
+            }
+            else
+            {
+                colors[0] = alpha;
+                colors[1] = r;
+                colors[2] = g;
+                colors[3] = b;
+            }
+
+            return colors;
+        }
+
+        /// <summary>
+        /// Creates an ARGB color form the given HSL color components
+        /// </summary>
+        /// <param name="h">The hue</param>
+        /// <param name="s">The saturation</param>
+        /// <param name="l">The lightness</param>
+        /// <param name="alpha">An optional alpha component</param>
+        /// <returns>An ARGB color from the given HSL color components</returns>
+        [Pure]
+        public static Color ColorFromAhsl(float h, float s, float l, float alpha = 1)
+        {
+            return Color.FromArgb(ArgbFromAhsl(h, s, l, alpha));
+        }
+
+        #endregion
     }
 
     #region Default Color Definitions
@@ -449,15 +610,15 @@ namespace Pixelaria.Utils
             // This service is in charge of popping our ListBox.
             _service = provider.GetService(typeof(IWindowsFormsEditorService)) as IWindowsFormsEditorService;
 
+            if (value == null)
+                value = AhslColors.White;
+
             if (_service == null || !(value is AhslColor color))
                 return value;
-
+            
             using (var colorPicker = new ColorPickerDialog {SelectedColor = color})
             {
-                if (_service.ShowDialog(colorPicker) != DialogResult.OK)
-                    return value;
-
-                if (colorPicker.SelectedColor != color)
+                if (_service.ShowDialog(colorPicker) == DialogResult.OK)
                     value = colorPicker.SelectedColor;
             }
 
@@ -484,5 +645,31 @@ namespace Pixelaria.Utils
         }
     }
 
+    public class AhslColorTypeConverter : TypeConverter
+    {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(InstanceDescriptor))
+                return true;
+
+            return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(InstanceDescriptor) && value is AhslColor color)
+            {
+                // This assumes you have a public default constructor on your type.
+                var args = new object[] {color.FloatAlpha, color.FloatHue, color.FloatSaturation, color.FloatLightness};
+
+                var ctor = typeof(AhslColor).GetConstructor(Type.GetTypeArray(args));
+                if (ctor != null)
+                    return new InstanceDescriptor(ctor, args, true);
+            }
+
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+    }
+    
     #endregion
 }

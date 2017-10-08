@@ -23,7 +23,6 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
 
 using Pixelaria.Filters;
 
@@ -67,25 +66,24 @@ namespace Pixelaria.Views.Controls.Filters
             if (!(referenceFilter is TransparencyFilter))
                 return;
 
-            anud_transparency.Value = (decimal)((TransparencyFilter)referenceFilter).Transparency * 255;
+            cs_transparency.CurrentValue = ((TransparencyFilter)referenceFilter).Transparency;
         }
 
         // 
-        // Transparency nud value changed
-        // 
-        private void anud_transparency_ValueChanged(object sender, EventArgs e)
+        // Transparency slider value changed
+        //
+        private void cs_transparency_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
         {
-            ((TransparencyFilter)filter).Transparency = (float)anud_transparency.Value / 255;
+            ((TransparencyFilter)filter).Transparency = cs_transparency.CurrentValue;
 
             FireFilterUpdated();
         }
 
+        private ColorControls.ColorSlider cs_transparency;
+
         #region Designer Required Code
 
         #region Component Designer generated code
-
-        private Label label1;
-        private AssistedNumericUpDown anud_transparency;
 
         /// <summary> 
         /// Required designer variable.
@@ -117,60 +115,30 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         protected void InitializeComponent()
         {
-            this.anud_transparency = new Pixelaria.Views.Controls.AssistedNumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
+            this.cs_transparency = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
-            // anud_transparency
+            // cs_transparency
             // 
-            this.anud_transparency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cs_transparency.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_transparency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.anud_transparency.AssistBarColor = System.Drawing.Color.CornflowerBlue;
-            this.anud_transparency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_transparency.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_transparency.Location = new System.Drawing.Point(78, 3);
-            this.anud_transparency.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_transparency.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_transparency.Name = "anud_transparency";
-            this.anud_transparency.Size = new System.Drawing.Size(400, 32);
-            this.anud_transparency.TabIndex = 1;
-            this.anud_transparency.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.anud_transparency.ValueChanged += new System.EventHandler(this.anud_transparency_ValueChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(-3, 3);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(75, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Transparency:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            this.cs_transparency.CurrentValue = 1F;
+            this.cs_transparency.CustomColorTitle = "Custom";
+            this.cs_transparency.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_transparency.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_transparency.Location = new System.Drawing.Point(1, 0);
+            this.cs_transparency.Name = "cs_transparency";
+            this.cs_transparency.Size = new System.Drawing.Size(479, 38);
+            this.cs_transparency.TabIndex = 0;
+            this.cs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_transparency_ColorChanged);
             // 
             // TransparencyControl
             // 
-            this.Controls.Add(this.anud_transparency);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cs_transparency);
             this.Name = "TransparencyControl";
             this.Size = new System.Drawing.Size(481, 40);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

@@ -22,6 +22,8 @@ namespace Pixelaria.Views.Controls.ColorControls
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.OK;
+
             SelectedColor = colorPicker1.FirstAhslColor;
 
             Close();
@@ -29,6 +31,8 @@ namespace Pixelaria.Views.Controls.ColorControls
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.Cancel;
+
             Close();
         }
     }

@@ -54,8 +54,8 @@ namespace Pixelaria.Views.Controls.Filters
         {
             this.label1 = new System.Windows.Forms.Label();
             this.cp_color = new Pixelaria.Views.Controls.ColorControls.ColorPanel();
-            this.anud_factor = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
+            this.cs_factor = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // label1
@@ -78,38 +78,6 @@ namespace Pixelaria.Views.Controls.Filters
             this.cp_color.TabIndex = 1;
             this.cp_color.Click += new System.EventHandler(this.cp_color_Click);
             // 
-            // anud_factor
-            // 
-            this.anud_factor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.anud_factor.AssistBarColor = System.Drawing.Color.CornflowerBlue;
-            this.anud_factor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_factor.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_factor.Location = new System.Drawing.Point(49, 38);
-            this.anud_factor.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.anud_factor.Minimum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.anud_factor.Name = "anud_factor";
-            this.anud_factor.Size = new System.Drawing.Size(388, 32);
-            this.anud_factor.TabIndex = 2;
-            this.anud_factor.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.anud_factor.ValueChanged += new System.EventHandler(this.anud_factor_ValueChanged);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -118,12 +86,28 @@ namespace Pixelaria.Views.Controls.Filters
             this.label2.Size = new System.Drawing.Size(0, 13);
             this.label2.TabIndex = 3;
             // 
+            // cs_factor
+            // 
+            this.cs_factor.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_factor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_factor.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Custom;
+            this.cs_factor.CurrentValue = 1F;
+            this.cs_factor.CustomColorTitle = "Factor";
+            this.cs_factor.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_factor.CustomStartColor = new Pixelaria.Utils.AhslColor(0F, 0F, 0F, 1F);
+            this.cs_factor.Location = new System.Drawing.Point(49, 33);
+            this.cs_factor.Name = "cs_factor";
+            this.cs_factor.Size = new System.Drawing.Size(388, 38);
+            this.cs_factor.TabIndex = 4;
+            this.cs_factor.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_factor_ColorChanged);
+            // 
             // FadeControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cs_factor);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.anud_factor);
             this.Controls.Add(this.cp_color);
             this.Controls.Add(this.label1);
             this.Name = "FadeControl";
@@ -137,7 +121,7 @@ namespace Pixelaria.Views.Controls.Filters
 
         private System.Windows.Forms.Label label1;
         private ColorPanel cp_color;
-        private AssistedNumericUpDown anud_factor;
         private System.Windows.Forms.Label label2;
+        private ColorSlider cs_factor;
     }
 }

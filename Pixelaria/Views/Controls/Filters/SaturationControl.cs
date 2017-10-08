@@ -66,18 +66,18 @@ namespace Pixelaria.Views.Controls.Filters
 
             var saturationFilter = (SaturationFilter)referenceFilter;
 
-            anud_saturation.Value = (decimal)saturationFilter.Saturation * 100;
+            cs_saturation.CurrentValue = saturationFilter.Saturation / 100.0f;
             cb_relative.Checked = saturationFilter.Relative;
             cb_keepGrays.Checked = saturationFilter.KeepGrays;
             cb_multiply.Checked = saturationFilter.Multiply;
         }
 
         // 
-        // Saturation nud value changed
+        // Saturation slider value changed
         // 
-        private void anud_saturation_ValueChanged(object sender, EventArgs e)
+        private void cs_saturation_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
         {
-            ((SaturationFilter)filter).Saturation = (int)anud_saturation.Value;
+            ((SaturationFilter)filter).Saturation = (int)(cs_saturation.CurrentValue * 100);
 
             FireFilterUpdated();
         }

@@ -29,16 +29,15 @@
         private void InitializeComponent()
         {
             this.cb_relative = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.anud_saturation = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.cb_keepGrays = new System.Windows.Forms.CheckBox();
             this.cb_multiply = new System.Windows.Forms.CheckBox();
+            this.cs_saturation = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // cb_relative
             // 
             this.cb_relative.AutoSize = true;
-            this.cb_relative.Location = new System.Drawing.Point(61, 41);
+            this.cb_relative.Location = new System.Drawing.Point(5, 39);
             this.cb_relative.Name = "cb_relative";
             this.cb_relative.Size = new System.Drawing.Size(65, 17);
             this.cb_relative.TabIndex = 5;
@@ -46,53 +45,12 @@
             this.cb_relative.UseVisualStyleBackColor = true;
             this.cb_relative.CheckedChanged += new System.EventHandler(this.cb_relative_CheckedChanged);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(-3, 3);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(58, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Saturation:";
-            // 
-            // anud_saturation
-            // 
-            this.anud_saturation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.anud_saturation.AssistBarColor = System.Drawing.Color.CornflowerBlue;
-            this.anud_saturation.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.anud_saturation.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.anud_saturation.Location = new System.Drawing.Point(61, 3);
-            this.anud_saturation.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.anud_saturation.Minimum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            -2147483648});
-            this.anud_saturation.Name = "anud_saturation";
-            this.anud_saturation.Size = new System.Drawing.Size(472, 32);
-            this.anud_saturation.TabIndex = 3;
-            this.anud_saturation.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.anud_saturation.ValueChanged += new System.EventHandler(this.anud_saturation_ValueChanged);
-            // 
             // cb_keepGrays
             // 
             this.cb_keepGrays.AutoSize = true;
             this.cb_keepGrays.Checked = true;
             this.cb_keepGrays.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_keepGrays.Location = new System.Drawing.Point(132, 41);
+            this.cb_keepGrays.Location = new System.Drawing.Point(76, 39);
             this.cb_keepGrays.Name = "cb_keepGrays";
             this.cb_keepGrays.Size = new System.Drawing.Size(81, 17);
             this.cb_keepGrays.TabIndex = 6;
@@ -103,7 +61,7 @@
             // cb_multiply
             // 
             this.cb_multiply.AutoSize = true;
-            this.cb_multiply.Location = new System.Drawing.Point(219, 41);
+            this.cb_multiply.Location = new System.Drawing.Point(163, 39);
             this.cb_multiply.Name = "cb_multiply";
             this.cb_multiply.Size = new System.Drawing.Size(61, 17);
             this.cb_multiply.TabIndex = 7;
@@ -111,15 +69,30 @@
             this.cb_multiply.UseVisualStyleBackColor = true;
             this.cb_multiply.CheckedChanged += new System.EventHandler(this.cb_multiply_CheckedChanged);
             // 
+            // cs_saturation
+            // 
+            this.cs_saturation.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 1F, 0.5F);
+            this.cs_saturation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cs_saturation.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Saturation;
+            this.cs_saturation.CurrentValue = 1F;
+            this.cs_saturation.CustomColorTitle = "Custom";
+            this.cs_saturation.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_saturation.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_saturation.Location = new System.Drawing.Point(1, 1);
+            this.cs_saturation.Name = "cs_saturation";
+            this.cs_saturation.Size = new System.Drawing.Size(532, 38);
+            this.cs_saturation.TabIndex = 8;
+            this.cs_saturation.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_saturation_ColorChanged);
+            // 
             // SaturationControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cs_saturation);
             this.Controls.Add(this.cb_multiply);
             this.Controls.Add(this.cb_keepGrays);
             this.Controls.Add(this.cb_relative);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.anud_saturation);
             this.Name = "SaturationControl";
             this.Size = new System.Drawing.Size(536, 58);
             this.ResumeLayout(false);
@@ -130,9 +103,8 @@
         #endregion
 
         private System.Windows.Forms.CheckBox cb_relative;
-        private System.Windows.Forms.Label label1;
-        private AssistedNumericUpDown anud_saturation;
         private System.Windows.Forms.CheckBox cb_keepGrays;
         private System.Windows.Forms.CheckBox cb_multiply;
+        private ColorControls.ColorSlider cs_saturation;
     }
 }
