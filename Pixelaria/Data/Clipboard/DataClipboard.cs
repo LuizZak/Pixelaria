@@ -47,8 +47,8 @@ namespace Pixelaria.Data.Clipboard
         /// The delegate for the clipboard events
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The arguments for the event</param>
-        public delegate void ClipboardEventHandler(object sender, ClipboardEventArgs eventArgs);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ClipboardEventHandler(object sender, ClipboardEventArgs e);
 
         /// <summary>
         /// Occurs whenever the contents of the clipboard change

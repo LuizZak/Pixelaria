@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Base class for pencil-like paint tools
     /// </summary>
-    public abstract class BasePencilPaintTool : BasePaintTool
+    public abstract class BasePencilPaintTool : BasePaintTool, IDisposable
     {
         /// <summary>
         /// Whether the pencil is visible
@@ -210,6 +210,30 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         protected BasePencilPaintTool()
         {
             size = 1;
+        }
+
+        ~BasePencilPaintTool()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            // ReSharper disable once UseNullPropagation
+            if (pencilOperation != null)
+                pencilOperation.Dispose();
+            // ReSharper disable once UseNullPropagation
+            if (currentTraceBitmap != null)
+                currentTraceBitmap.Dispose();
         }
 
         /// <summary>

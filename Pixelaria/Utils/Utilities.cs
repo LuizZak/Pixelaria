@@ -104,17 +104,6 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Compares two arrays of bytes and returns 0 if they are memory identical
-        /// </summary>
-        /// <param name="b1">The first array of bytes</param>
-        /// <param name="b2">The second array of bytes</param>
-        /// <param name="count">The number of bytes to compare</param>
-        /// <returns>0 if the byte arrays are identical</returns>
-        [System.Diagnostics.Contracts.Pure]
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int memcmp(byte[] b1, byte[] b2, long count);
-
-        /// <summary>
         /// Compares two arrays of bytes and returns true if they are identical
         /// </summary>
         /// <param name="b1">The first array of bytes</param>
@@ -144,7 +133,7 @@ namespace Pixelaria.Utils
         [System.Diagnostics.Contracts.Pure]
         public static AhslColor ToAhsl(this Color color)
         {
-            return AhslColor.ToAhsl(color.ToArgb());
+            return AhslColor.FromArgb(color.ToArgb());
         }
 
         /// <summary>
@@ -155,7 +144,7 @@ namespace Pixelaria.Utils
         [System.Diagnostics.Contracts.Pure]
         public static float GetLightness(this Color color)
         {
-            return color.ToAhsl().L / 100.0f;
+            return color.ToAhsl().Lightness / 100.0f;
         }
 
         /// <summary>

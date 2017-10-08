@@ -504,13 +504,13 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Selected event handler
         // 
-        private void OnLayerControlClicked(object sender, LayerControl control)
+        private void OnLayerControlClicked(object sender, EventArgs e)
         {
             if (!ModifierKeys.HasFlag(Keys.Shift) && !ModifierKeys.HasFlag(Keys.Control))
             {
                 ClearSelection();
 
-                _controller.ActiveLayerIndex = control.Layer.Index;
+                _controller.ActiveLayerIndex = ((LayerControl)sender).Layer.Index;
             }
         }
         // 
@@ -597,13 +597,13 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Name Edited event handler
         // 
-        private void OnLayerNameEdited(object sender, string newName)
+        private void OnLayerNameEdited(object sender, LayerRenameEventargs e)
         {
             var control = sender as LayerControl;
             if (control == null)
                 return;
 
-            _controller.SetLayerName(control.Layer.Index, newName);
+            _controller.SetLayerName(control.Layer.Index, e.NewName);
         }
 
         // 

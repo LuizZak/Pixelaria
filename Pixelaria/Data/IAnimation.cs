@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 
 namespace Pixelaria.Data
@@ -28,7 +27,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Common interface for animation objects
     /// </summary>
-    public interface IAnimation : IDisposable
+    public interface IAnimation
     {
         /// <summary>
         /// Gets or sets the name of this animation

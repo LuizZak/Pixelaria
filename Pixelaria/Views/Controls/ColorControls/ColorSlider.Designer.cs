@@ -57,8 +57,10 @@ namespace Pixelaria.Views.Controls.ColorControls
             // 
             // txt_value
             // 
+            this.txt_value.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_value.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txt_value.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txt_value.Location = new System.Drawing.Point(0, 0);
             this.txt_value.MaxLength = 4;
             this.txt_value.Name = "txt_value";

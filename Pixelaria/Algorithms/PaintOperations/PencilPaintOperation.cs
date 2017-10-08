@@ -35,7 +35,7 @@ namespace Pixelaria.Algorithms.PaintOperations
     /// <summary>
     /// Defines the behavior for a pencil type paint operation that works by calling 'MoveTo's and 'DrawTo's
     /// </summary>
-    public class PencilPaintOperation : BasicContinuousPaintOperation, IPencilOperation, IColoredPaintOperation, ICompositingPaintOperation, ISizedPaintOperation
+    public class PencilPaintOperation : BasicContinuousPaintOperation, IDisposable, IPencilOperation, IColoredPaintOperation, ICompositingPaintOperation, ISizedPaintOperation
     {
         /// <summary>
         /// Gets or sets the paint color attributed to this pencil operation
@@ -151,6 +151,26 @@ namespace Pixelaria.Algorithms.PaintOperations
             ColorBlender = new DefaultColorBlender();
             Size = 1;
             this.useFastBitmap = useFastBitmap;
+        }
+
+        ~PencilPaintOperation()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing || fastBitmap == null)
+                return;
+
+            fastBitmap.Dispose();
         }
 
         /// <summary>

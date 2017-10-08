@@ -213,57 +213,35 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
     /// </summary>
     public class DifferentFrame : IFrame
     {
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
         public int ID
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get => 0;
+            set { }
         }
 
         public bool Equals(IFrame other)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
-        public int Width
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public int Width => 0;
 
-        public int Height
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public int Height => 0;
 
-        public Size Size
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public Size Size => Size.Empty;
 
-        public int Index
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public int Index => 0;
 
+        [CanBeNull]
         public Animation Animation
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get => null;
+            set { }
         }
 
-        public byte[] Hash
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public byte[] Hash => new byte[0];
 
-        public bool Initialized
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public bool Initialized => false;
 
         public void Initialize(Animation animation, int width, int height, bool initHash = true)
         {

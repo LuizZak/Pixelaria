@@ -26,7 +26,7 @@ using Pixelaria.Views.Controls.ColorControls;
 namespace Pixelaria.Views.Controls
 {
     /// <summary>
-    /// Specifies a color slider that has a very small vertical size and can be used in places where a minimal slider is needed
+    /// Specifies a color slider that has a very small vertical footprint and can be used in places where a minimal slider is needed
     /// </summary>
     public class TinyColorSlider : ColorSlider
     {

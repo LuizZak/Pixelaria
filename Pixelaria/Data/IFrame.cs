@@ -29,7 +29,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Interface to be implemented by any object that can be used as an animation frame
     /// </summary>
-    public interface IFrame : IDisposable, IDObject, IEquatable<IFrame>
+    public interface IFrame : IDObject, IEquatable<IFrame>
     {
         /// <summary>
         /// Gets the width of this frame

@@ -221,12 +221,17 @@ namespace Pixelaria.Views.Controls
             _animTimer.Start();
         }
         
-        /// <summary>
-        /// Descrutor for the SheetPreviewPictureBox class
-        /// </summary>
-        ~SheetPreviewPictureBox()
+        protected override void Dispose(bool disposing)
         {
-            _frameRectSheet?.Dispose();
+            base.Dispose(disposing);
+
+            if (!disposing)
+                return;
+
+            // ReSharper disable once UseNullPropagation
+            if (_frameRectSheet != null)
+                _frameRectSheet.Dispose();
+
             _animTimer.Stop();
             _animTimer.Dispose();
         }

@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -32,7 +33,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
     /// <summary>
     /// Decorates the picture box with an onion skin display
     /// </summary>
-    public class OnionSkinDecorator : PictureBoxDecorator
+    public class OnionSkinDecorator : PictureBoxDecorator, IDisposable
     {
         /// <summary>
         /// The frame view binded to this OnionSkinDecorator
@@ -75,6 +76,25 @@ namespace Pixelaria.Views.ModelViews.Decorators
             _frameChangedEventHandler = frameView_EditFrameChanged;
 
             this.frameView.EditFrameChanged += _frameChangedEventHandler;
+        }
+
+        ~OnionSkinDecorator()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            onionSkin.Dispose();
         }
 
         // 

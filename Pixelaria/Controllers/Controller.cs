@@ -102,15 +102,15 @@ namespace Pixelaria.Controllers
         /// Delegate for animation-related events
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void AnimationEventHandler(object sender, AnimationEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void AnimationEventHandler(object sender, AnimationEventArgs e);
 
         /// <summary>
         /// Delegate for animation sheet-related events
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void AnimationSheetEventHandler(object sender, AnimationSheetEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void AnimationSheetEventHandler(object sender, AnimationSheetEventArgs e);
 
         /// <summary>
         /// Event fired whenever an animation has been added to a bundle
@@ -255,7 +255,9 @@ namespace Pixelaria.Controllers
             if (ShowConfirmSaveChanges() == DialogResult.Cancel)
                 return;
 
-            LoadBundleFromFile(CurrentRecentFileList[index]);
+            var file = CurrentRecentFileList[index];
+            if (file != null)
+                LoadBundleFromFile(file);
         }
 
         /// <summary>

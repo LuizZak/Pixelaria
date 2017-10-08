@@ -59,6 +59,11 @@ namespace Pixelaria.Controllers.DataControllers
             _frame = frame;
         }
 
+        ~FrameController()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Disposes the underlying frame from memory.
         /// 
@@ -66,6 +71,13 @@ namespace Pixelaria.Controllers.DataControllers
         /// </summary>
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
             if (_disposed) return;
 
             Debug.Assert(_original != null, "_original != null", "Trying to discard original frame controller that points to on-disk/storage frame.");
@@ -414,9 +426,7 @@ namespace Pixelaria.Controllers.DataControllers
                 }
 
                 if (!centered)
-                {
                     tx = ty = 0;
-                }
 
                 var area = new RectangleF((float) Math.Round(tx), (float) Math.Round(ty),
                     (float) Math.Round(composed.Width * scaleX), (float) Math.Round(composed.Height * scaleY));

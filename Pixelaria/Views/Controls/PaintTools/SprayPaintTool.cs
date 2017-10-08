@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Spray paint operation
     /// </summary>
-    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
+    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool, IDisposable
     {
         /// <summary>
         /// Instance of a Random class used to randomize the spray of this SprayPaintTool
@@ -76,7 +76,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             _sprayTimer = new Timer { Interval = 10 };
             _sprayTimer.Tick += sprayTimer_Tick;
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the SprayPaintTool class, initializing the object with the two spray colors to use
         /// </summary>
@@ -89,6 +89,23 @@ namespace Pixelaria.Views.Controls.PaintTools
             this.firstColor = firstColor;
             this.secondColor = secondColor;
             size = pencilSize;
+        }
+        
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (!disposing)
+                return;
+
+            _sprayTimer.Stop();
+            _sprayTimer.Dispose();
+
+            if (firstPenBitmap != null && secondPenBitmap != null)
+            {
+                firstPenBitmap.Dispose();
+                secondPenBitmap.Dispose();
+            }
         }
 
         /// <summary>

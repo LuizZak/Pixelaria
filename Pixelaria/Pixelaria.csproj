@@ -170,6 +170,13 @@
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
     <Compile Include="Utils\Logging.cs" />
+    <Compile Include="Utils\UnsafeNativeMethods.cs" />
+    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.Designer.cs">
+      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
@@ -480,6 +487,12 @@
     <Compile Include="Views\SettingsViews\BundleSettingsView.Designer.cs">
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\SettingsViews\FrameViewSettingsView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\SettingsViews\FrameViewSettingsView.Designer.cs">
+      <DependentUpon>FrameViewSettingsView.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Localization\AnimationMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AnimationMessages.Designer.cs</LastGenOutput>
@@ -489,6 +502,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\ColorControls\ColorPicker.resx">
       <DependentUpon>ColorPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPickerDialog.resx">
+      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\ColorControls\ColorSlider.resx">
       <DependentUpon>ColorSlider.cs</DependentUpon>
@@ -593,6 +609,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\SettingsViews\BundleSettingsView.resx">
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SettingsViews\FrameViewSettingsView.resx">
+      <DependentUpon>FrameViewSettingsView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />

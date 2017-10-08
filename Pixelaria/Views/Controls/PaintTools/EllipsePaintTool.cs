@@ -234,38 +234,38 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// An ellipse undo task
         /// </summary>
-        public class EllipseUndoTask : ShapeUndoTask
+        public class EllipseUndoTask : ShapeUndoTask, IDisposable
         {
             /// <summary>
             /// The area of the the image that was affected by the ellipse operation
             /// </summary>
-            Rectangle _area;
+            private Rectangle _area;
 
             /// <summary>
             /// The first color used to draw the ellipse
             /// </summary>
-            readonly Color _firstColor;
+            private readonly Color _firstColor;
 
             /// <summary>
             /// The second color used to draw the ellipse
             /// </summary>
-            readonly Color _secondColor;
+            private readonly Color _secondColor;
 
             /// <summary>
             /// The original slice of bitmap that represents the image region before the ellipse
             /// was drawn
             /// </summary>
-            readonly Bitmap _originalSlice;
+            private readonly Bitmap _originalSlice;
 
             /// <summary>
             /// The bitmap where the ellipse was drawn on
             /// </summary>
-            readonly Bitmap _bitmap;
+            private readonly Bitmap _bitmap;
 
             /// <summary>
             /// The compositing mode of the paint operation
             /// </summary>
-            readonly CompositingMode _compositingMode;
+            private readonly CompositingMode _compositingMode;
 
             /// <summary>
             /// The fill mode for the paint operation
@@ -297,6 +297,25 @@ namespace Pixelaria.Views.Controls.PaintTools
                 g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
                 g.Flush();
                 g.Dispose();
+            }
+
+            ~EllipseUndoTask()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposing)
+                    return;
+
+                _originalSlice.Dispose();
             }
 
             /// <summary>

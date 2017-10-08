@@ -88,8 +88,8 @@ namespace Pixelaria.Views.Controls
         /// Delegate for a ColorSelect event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The arguments for the event</param>
-        public delegate void ColorPickEventHandler(object sender, ColorPickEventArgs eventArgs);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ColorPickEventHandler(object sender, ColorPickEventArgs e);
 
         /// <summary>
         /// Occurs whenever the current paint operation selects a color
@@ -103,8 +103,8 @@ namespace Pixelaria.Views.Controls
         /// Delegate for a ClipboardStateChanged event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The arguments for the event</param>
-        public delegate void ClipboardStateEventHandler(object sender, ClipboardStateEventArgs eventArgs);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ClipboardStateEventHandler(object sender, ClipboardStateEventArgs e);
 
         /// <summary>
         /// Occurs whenever the state of the clipboard capabilities of this object changes
@@ -118,8 +118,8 @@ namespace Pixelaria.Views.Controls
         /// Delegate for a OperationStatusChanged event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The arguments for the event</param>
-        public delegate void OperationStatusEventHandler(object sender, OperationStatusEventArgs eventArgs);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void OperationStatusEventHandler(object sender, OperationStatusEventArgs e);
 
         /// <summary>
         /// Occurs whenever the current operation notified a status change
@@ -273,15 +273,18 @@ namespace Pixelaria.Views.Controls
             if (form != null)
                 _internalPictureBox.HookToControl(form);
         }
-
+        
         /// <summary>
         /// Disposes of this ImageEditPanel and all resources used by it
         /// </summary>
-        public new void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            _internalPictureBox.Dispose();
+            base.Dispose(disposing);
 
-            base.Dispose();
+            if (!disposing)
+                return;
+
+            _internalPictureBox.Dispose();
         }
 
         /// <summary>
@@ -368,7 +371,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Internal picture box that actually displays the bitmap to edit
         /// </summary>
-        public class InternalPictureBox : ZoomablePictureBox, IDisposable
+        public class InternalPictureBox : ZoomablePictureBox
         {
             /// <summary>
             /// The current paint operation
@@ -479,7 +482,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Specifies the delegate signature for custom interceptable mouse events of this panel
             /// </summary>
-            public delegate void InternalPictureBoxMouseEvent(object sender, InternalPictureBoxMouseEventArgs eventArgs);
+            public delegate void InternalPictureBoxMouseEvent(object sender, InternalPictureBoxMouseEventArgs e);
 
             /// <summary>
             /// An event for mouse down that may be interceptable by a listener
@@ -504,15 +507,17 @@ namespace Pixelaria.Views.Controls
 
                 SetPaintOperation(new PencilPaintTool());
             }
-
-            /// <summary>
-            /// Disposes of this InternalPictureBox and all used resources
-            /// </summary>
-            public new void Dispose()
+            
+            protected override void Dispose(bool disposing)
             {
+                base.Dispose(disposing);
+
+                if (!disposing)
+                    return;
+
                 _currentPaintTool?.Destroy();
 
-                foreach(PictureBoxDecorator decorator in _pictureBoxDecorators)
+                foreach (var decorator in _pictureBoxDecorators)
                 {
                     decorator.Destroy();
                 }
@@ -532,8 +537,6 @@ namespace Pixelaria.Views.Controls
                 _pictureBoxDecorators.Clear();
 
                 Buffer.Dispose();
-
-                base.Dispose();
             }
 
             /// <summary>
@@ -1001,41 +1004,32 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Describes an undo task capable of undoing changes made to a bitmap
     /// </summary>
-    public class BitmapUndoTask : BasicPaintOperationUndoTask
+    public class BitmapUndoTask : BasicPaintOperationUndoTask, IDisposable
     {
         /// <summary>
         /// The bitmap that will be the target for the changes
         /// </summary>
-        readonly Bitmap _targetBitmap;
+        private readonly Bitmap _targetBitmap;
 
         /// <summary>
         /// The bitmap that contains the pixels for the undoing of the task
         /// </summary>
-        Bitmap _oldBitmap;
+        private Bitmap _oldBitmap;
 
         /// <summary>
         /// The bitmap that contains the pixels for the redoing of the task
         /// </summary>
-        Bitmap _newBitmap;
-
-        /// <summary>
-        /// The point at which to draw the bitmaps when undoing/redoing the operation
-        /// </summary>
-        Point _drawPoint;
+        private Bitmap _newBitmap;
 
         /// <summary>
         /// The string description for this BitmapUndoTask
         /// </summary>
-        readonly string _description;
+        private readonly string _description;
 
         /// <summary>
         /// Gets or sets the point at which to draw the bitmaps when undoing/redoing the operation
         /// </summary>
-        public Point DrawPoint
-        {
-            get => _drawPoint;
-            set => _drawPoint = value;
-        }
+        public Point DrawPoint { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the BitmapUndoTask, with a target picture box and bitmap
@@ -1048,8 +1042,35 @@ namespace Pixelaria.Views.Controls
         {
             _targetBitmap = targetBitmap;
             _description = description;
-            _drawPoint = drawPoint;
+            DrawPoint = drawPoint;
             _oldBitmap = targetBitmap.Clone() as Bitmap;
+        }
+
+        ~BitmapUndoTask()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            // ReSharper disable once UseNullPropagation
+            if (_newBitmap != null)
+                _newBitmap.Dispose();
+            // ReSharper disable once UseNullPropagation
+            if (_oldBitmap != null)
+                _oldBitmap.Dispose();
+
+            _newBitmap = null;
+            _oldBitmap = null;
         }
 
         /// <summary>
@@ -1111,7 +1132,7 @@ namespace Pixelaria.Views.Controls
         {
             FastBitmap.CopyRegion(_oldBitmap, _targetBitmap,
                 new Rectangle(0, 0, _oldBitmap.Width, _oldBitmap.Height),
-                new Rectangle(_drawPoint, new Size(_oldBitmap.Width, _oldBitmap.Height)));
+                new Rectangle(DrawPoint, new Size(_oldBitmap.Width, _oldBitmap.Height)));
         }
 
         /// <summary>
@@ -1121,7 +1142,7 @@ namespace Pixelaria.Views.Controls
         {
             FastBitmap.CopyRegion(_newBitmap, _targetBitmap,
                 new Rectangle(0, 0, _newBitmap.Width, _newBitmap.Height),
-                new Rectangle(_drawPoint, new Size(_targetBitmap.Width, _targetBitmap.Height)));
+                new Rectangle(DrawPoint, new Size(_targetBitmap.Width, _targetBitmap.Height)));
         }
 
         /// <summary>

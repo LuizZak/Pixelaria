@@ -46,7 +46,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             base.OnPaintBackground(e);
 
             // Draw the background color on top of the current color
-            SolidBrush brush = new SolidBrush(BackColor);
+            var brush = new SolidBrush(BackColor);
 
             e.Graphics.FillRectangle(brush, e.ClipRectangle);
 

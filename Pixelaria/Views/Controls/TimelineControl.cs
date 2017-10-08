@@ -368,8 +368,8 @@ namespace Pixelaria.Views.Controls
         /// Event handler for the RangeChangedEvent
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The event arguments for the event</param>
-        public delegate void RangeChangedEventHandler(object sender, RangeChangedEventArgs eventArgs);
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void RangeChangedEventHandler(object sender, RangeChangedEventArgs e);
         /// <summary>
         /// Event fired every time the frame range has changed
         /// </summary>
@@ -382,8 +382,8 @@ namespace Pixelaria.Views.Controls
         /// Event handler for the FrameChanged
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The event arguments for the event</param>
-        public delegate void FrameChangedEventHandler(object sender, FrameChangedEventArgs eventArgs);
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void FrameChangedEventHandler(object sender, FrameChangedEventArgs e);
         /// <summary>
         /// Event fired every time the frame range has changed
         /// </summary>
@@ -1414,7 +1414,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Represents a TimelineControl knob
     /// </summary>
-    public class Knob
+    public class Knob: IDisposable
     {
         /// <summary>
         /// This knob's tick offset
@@ -1517,6 +1517,26 @@ namespace Pixelaria.Views.Controls
             value = 0;
 
             drawOffset = new PointF(0, 4);
+        }
+
+        ~Knob()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            _b.Dispose();
+            _path.Dispose();
         }
 
         /// <summary>

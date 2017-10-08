@@ -61,11 +61,22 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public long BlockContentsOffset => blockOffset + sizeof(short) + sizeof(long) + sizeof(short);
 
-        /// <summary>
-        /// Disposes of this BaseBlock and all related resources
-        /// </summary>
-        public virtual void Dispose()
+        ~GenericFileBlock()
         {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             _blockContent = null;
         }
 

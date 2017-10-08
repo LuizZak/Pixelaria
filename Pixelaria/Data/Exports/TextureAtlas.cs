@@ -50,12 +50,26 @@ namespace Pixelaria.Data.Exports
 
             Name = name;
         }
+        
+        ~TextureAtlas()
+        {
+            Dispose(false);
+        }
 
         /// <summary>
         /// Disposes of the data stored by this TextureAtlas
         /// </summary>
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             // Clear the lists
             _boundsMap = new FrameBoundsMap();
             FrameList.Clear();

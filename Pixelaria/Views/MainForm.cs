@@ -118,7 +118,6 @@ namespace Pixelaria.Views
             foreach (var form in MdiChildren)
             {
                 form.Close();
-                form.Dispose();
             }
         }
 
@@ -837,7 +836,7 @@ namespace Pixelaria.Views
         // 
         // TreeView Drag Operation event handler
         // 
-        private void TreeViewDragOperationHandler([NotNull] TreeViewNodeDragEventArgs eventArgs)
+        private void TreeViewDragOperationHandler(object sender, [NotNull] TreeViewNodeDragEventArgs eventArgs)
         {
             // Handle drag start events
             if (eventArgs.EventType == TreeViewNodeDragEventType.DragStart)

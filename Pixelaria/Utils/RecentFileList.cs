@@ -45,6 +45,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="index">The index to get the file path</param>
         /// <returns>The file path at the given index</returns>
+        [CanBeNull]
         public string this[int index] => _fileList[index];
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace Pixelaria.Utils
                 // Assert first to make sure the value exists
                 settings.EnsureValue("Recent Files\\File" + i, EnsureValueType.String, "");
 
-                _fileList[i] = settings.GetValue("Recent Files\\File" + i);
+                _fileList[i] = settings.GetValue("Recent Files", $"File{i}");
             }
         }
 

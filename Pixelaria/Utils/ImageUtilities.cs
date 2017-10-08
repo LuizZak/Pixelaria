@@ -25,7 +25,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using FastBitmapLib;
 using JetBrains.Annotations;
@@ -378,7 +377,7 @@ namespace Pixelaria.Utils
 
             try
             {
-                return memcmp(bd1.Scan0, bd2.Scan0, len) == 0;
+                return UnsafeNativeMethods.memcmp(bd1.Scan0, bd2.Scan0, len) == 0;
             }
             finally
             {
@@ -386,16 +385,5 @@ namespace Pixelaria.Utils
                 b2.UnlockBits(bd2);
             }
         }
-
-        /// <summary>
-        /// Compares two memory sections and returns 0 if the memory segments are identical
-        /// </summary>
-        /// <param name="b1">The pointer to the first memory segment</param>
-        /// <param name="b2">The pointer to the second memory segment</param>
-        /// <param name="count">The number of bytes to compare</param>
-        /// <returns>0 if the memory segments are identical</returns>
-        [System.Diagnostics.Contracts.Pure]
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int memcmp(IntPtr b1, IntPtr b2, long count);
     }
 }

@@ -84,8 +84,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Delegate for a ColorSelect event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The arguments for the event</param>
-        public delegate void ColorSelectEventHandler(object sender, ColorSelectEventArgs eventArgs);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ColorSelectEventHandler(object sender, ColorSelectEventArgs e);
 
         /// <summary>
         /// Occurs whenever the user selects a color on the swatch
@@ -276,7 +276,7 @@ namespace Pixelaria.Views.Controls.ColorControls
     /// <summary>
     /// Event arguments for a ColorSelect event
     /// </summary>
-    public class ColorSelectEventArgs
+    public class ColorSelectEventArgs: EventArgs
     {
         /// <summary>
         /// Gets the color value

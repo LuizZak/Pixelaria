@@ -48,8 +48,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayersSwapped event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayersSwappedEventHandler(object sender, LayerControllerLayerMovedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayersSwappedEventHandler(object sender, LayerControllerLayerMovedEventArgs e);
         /// <summary>
         /// Event fired before two layers are swapped  with the layer controller.
         /// This event is called before any modification is made to the underlying frame
@@ -64,8 +64,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayerCreated event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayerCreatedEventHandler(object sender, LayerControllerLayerCreatedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayerCreatedEventHandler(object sender, LayerControllerLayerCreatedEventArgs e);
         /// <summary>
         /// Event fired before a layer is created with the layer controller.
         /// This event is called before any modification is made to the underlying frame
@@ -80,8 +80,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayerDuplicated event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayerDuplicatedEventHandler(object sender, LayerControllerLayerDuplicatedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayerDuplicatedEventHandler(object sender, LayerControllerLayerDuplicatedEventArgs e);
         /// <summary>
         /// Event fired before a layer is duplicated with the layer controller.
         /// This event is called before any modification is made to the underlying frame
@@ -96,8 +96,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayerRemoved event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayerRemovedEventHandler(object sender, LayerControllerLayerRemovedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayerRemovedEventHandler(object sender, LayerControllerLayerRemovedEventArgs e);
         /// <summary>
         /// Event fired before a layer is removed with the layer controller.
         /// This event is called before any modification is made to the underlying frame
@@ -112,8 +112,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayerImageUpdated event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayerImageUpdatedEventHandler(object sender, LayerControllerLayerImageUpdatedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayerImageUpdatedEventHandler(object sender, LayerControllerLayerImageUpdatedEventArgs e);
         /// <summary>
         /// Event fired whenever a call to UpdateLayerBitmap is made
         /// </summary>
@@ -123,8 +123,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayerNameUpdated event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayerNameUpdatedEventHandler(object sender, LayerControllerLayerNameUpdatedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayerNameUpdatedEventHandler(object sender, LayerControllerLayerNameUpdatedEventArgs e);
         /// <summary>
         /// Event fired whenever a call to SetLayerName is made
         /// </summary>
@@ -134,8 +134,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the LayersCombined event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void LayersCombineEventHandler(object sender, LayerControllerLayersCombinedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void LayersCombineEventHandler(object sender, LayerControllerLayersCombinedEventArgs e);
         /// <summary>
         /// Event fired before a set of layers are combined with the layer controller.
         /// This event is called before any modification is made to the underlying frame
@@ -150,8 +150,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the FrameChanged event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void FrameChangedEventHandler(object sender, LayerControllerFrameChangedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void FrameChangedEventHandler(object sender, LayerControllerFrameChangedEventArgs e);
         /// <summary>
         /// Event fired whenever the current frame being controlled is changed
         /// </summary>
@@ -161,8 +161,8 @@ namespace Pixelaria.Controllers.LayerControlling
         /// Delegate for the ActiveLayerIndexChanged event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void ActiveLayerIndexChangedEventHandler(object sender, ActiveLayerIndexChangedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ActiveLayerIndexChangedEventHandler(object sender, ActiveLayerIndexChangedEventArgs e);
         /// <summary>
         /// Event fired before the current active layer index is changed.
         /// </summary>

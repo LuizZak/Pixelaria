@@ -1240,7 +1240,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // List View Drag Operation event handler
         // 
-        private void lv_frames_DragOperation([NotNull] ListViewItemDragEventArgs eventArgs)
+        private void lv_frames_DragOperation(object sender, [NotNull] ListViewItemDragEventArgs eventArgs)
         {
             if (eventArgs.EventType == ListViewItemDragEventType.DragEnd)
             {
@@ -1947,7 +1947,7 @@ namespace Pixelaria.Views.ModelViews
                     if (!_undone)
                     {
                         // Dispose of frames that are not in animations
-                        foreach (IFrame frame in _frames)
+                        foreach (var frame in _frames.OfType<Frame>())
                         {
                             if (frame.Animation == null)
                             {
@@ -2068,8 +2068,8 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Clear()
                 {
-                    _newFrame.Dispose();
-                    _oldFrame.Dispose();
+                    (_newFrame as Frame)?.Dispose();
+                    (_oldFrame as Frame)?.Dispose();
                 }
 
                 /// <summary>
@@ -2258,9 +2258,9 @@ namespace Pixelaria.Views.ModelViews
 
     public partial class AnimationView : IOnionSkinFrameProvider
     {
-        int IOnionSkinFrameProvider.FrameCount => _viewAnimation.FrameCount;
+        public int FrameCount => _viewAnimation.FrameCount;
 
-        Bitmap IOnionSkinFrameProvider.GetComposedBitmapForFrame(int index)
+        public Bitmap GetComposedBitmapForFrame(int index)
         {
             var id = _viewAnimation.GetFrameAtIndex(index);
             var frame = _viewAnimation.GetFrameController(id);

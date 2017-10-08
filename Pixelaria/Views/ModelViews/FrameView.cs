@@ -155,8 +155,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public FrameController FrameLoaded { get; private set; }
         
-        public delegate void EditFrameChangedEventHandler(object sender, EditFrameChangedEventArgs args);
-        public delegate void RequestedNavigateToFrameEventHandler(object sender, FrameIndexEventArgs args);
+        public delegate void EditFrameChangedEventHandler(object sender, EditFrameChangedEventArgs e);
+        public delegate void RequestedNavigateToFrameEventHandler(object sender, FrameIndexEventArgs e);
 
         /// <summary>
         /// Occurs whenever the current edit frame has changed

@@ -308,7 +308,7 @@ namespace Pixelaria.Data
             if (_shortHash != frame._shortHash) // Check short hash beforehands
                 return false;
             
-            return Utilities.memcmp(Hash, frame.Hash, Hash.Length) == 0;
+            return UnsafeNativeMethods.memcmp(Hash, frame.Hash, Hash.Length) == 0;
         }
 
         /// <summary>
@@ -580,30 +580,27 @@ namespace Pixelaria.Data
             /// </summary>
             ~FrameLayer()
             {
-                Dispose();
+                Dispose(false);
             }
 
             #region IDisposable Members
-
-            /// <summary>
-            /// Internal variable which checks if Dispose has already been called
-            /// </summary>
-            private Boolean _disposed;
             
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
             public void Dispose()
             {
-                if (_disposed)
-                {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+            
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposing)
                     return;
-                }
 
                 LayerBitmap?.Dispose();
-
-                _disposed = true;
-
+                
                 // Tell the garbage collector that the object doesn't require any
                 // cleanup when collected since Dispose was called explicitly.
                 GC.SuppressFinalize(this);

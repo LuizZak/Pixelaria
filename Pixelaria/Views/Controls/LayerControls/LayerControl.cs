@@ -228,8 +228,8 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// The delegate for the LayerStatusChanged event
         /// </summary>
         /// <param name="sender">The sender of the event</param>
-        /// <param name="args">The event args for the event</param>
-        public delegate void LayerStatusChangedEventHandler(object sender, LayerControlStatusChangedEventArgs args);
+        /// <param name="e">The event args for the event</param>
+        public delegate void LayerStatusChangedEventHandler(object sender, LayerControlStatusChangedEventArgs e);
 
         /// <summary>
         /// The event fired whenever the status of the layer currently displayed is changed by the user
@@ -251,9 +251,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Delegate for the LayerClicked event
         /// </summary>
-        /// <param name="sender">The sender of the event</param>
-        /// <param name="layer">The layer that was clicked</param>
-        public delegate void LayerClickedEventHandler(object sender, LayerControl layer);
+        public delegate void LayerClickedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// Event called whenever the user clicks the layer
         /// </summary>
@@ -263,8 +261,8 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// Delegate for the LayerControlDragged event
         /// </summary>
         /// <param name="sender">The sender of the event</param>
-        /// <param name="args">The event arguments for the event</param>
-        public delegate void LayerControlDraggedEventHandler(object sender, LayerControlDragEventArgs args);
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void LayerControlDraggedEventHandler(object sender, LayerControlDragEventArgs e);
         /// <summary>
         /// Occurs whenever the user drags the layer in order to swap it with another layer up or down
         /// </summary>
@@ -273,9 +271,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Delegate for the LayerNameEdited event
         /// </summary>
-        /// <param name="sender">The sender for the event</param>
-        /// <param name="newName">The new display name for the layer</param>
-        public delegate void LayerControlNameEditedEventHandler(object sender, string newName);
+        public delegate void LayerControlNameEditedEventHandler(object sender, LayerRenameEventargs e);
         /// <summary>
         /// Occurs whenever the user finishes editing the display name for a layer
         /// </summary>
@@ -407,7 +403,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             // Do not fire any change notification if the label has not changed
             if (commit && txt_layerNameEditBox.Text != lbl_layerName.Text)
             {
-                LayerNameEdited?.Invoke(this, txt_layerNameEditBox.Text);
+                LayerNameEdited?.Invoke(this, new LayerRenameEventargs(txt_layerNameEditBox.Text));
             }
 
             _editingName = false;
@@ -539,7 +535,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             }
 
             if (!_draggingLayer && LayerClicked != null && e.Button == MouseButtons.Left)
-                LayerClicked(this, this);
+                LayerClicked(this, EventArgs.Empty);
         }
 
         // 
@@ -598,7 +594,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             }
 
             if (!_draggingLayer && LayerClicked != null && e.Button == MouseButtons.Left)
-                LayerClicked(this, this);
+                LayerClicked(this, EventArgs.Empty);
         }
 
         // 
@@ -608,7 +604,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             _ignoreTransparencySliderUpdates = true;
 
-            Transparency = eventArgs.NewColor.Af;
+            Transparency = eventArgs.NewColor.FloatAlpha;
 
             _ignoreTransparencySliderUpdates = false;
         }
@@ -668,7 +664,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             Status = status;
         }
     }
-
+    
     /// <summary>
     /// Represents the event arguments for the LayerControlDragged event
     /// </summary>
@@ -686,6 +682,22 @@ namespace Pixelaria.Views.Controls.LayerControls
         public LayerControlDragEventArgs(LayerDragDirection dragDirection)
         {
             DragDirection = dragDirection;
+        }
+    }
+
+    /// <summary>
+    /// Represents the event arguments for the LayercontrolNameEditedEvent event
+    /// </summary>
+    public class LayerRenameEventargs : EventArgs
+    {
+        /// <summary>
+        /// Gets the new name of the layer
+        /// </summary>
+        public string NewName { get; }
+
+        public LayerRenameEventargs(string newName)
+        {
+            NewName = newName;
         }
     }
 

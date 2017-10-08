@@ -24,8 +24,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls
 {
@@ -57,8 +57,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Event handler fired when a drag operation has started or ended
         /// </summary>
-        /// <param name="eventArgs">The TreeViewNodeDragEventArgs for the drag operation</param>
-        public delegate void DragOperationHandler(TreeViewNodeDragEventArgs eventArgs);
+        public delegate void DragOperationHandler(object sender, TreeViewNodeDragEventArgs e);
         /// <summary>
         /// Event fired when a drag operation has started or ended
         /// </summary>
@@ -102,12 +101,12 @@ namespace Pixelaria.Views.Controls
                     node = node.PrevVisibleNode;
 
                     // hide drag image
-                    DragHelper.ImageList_DragShowNolock(false);
+                    UnsafeNativeMethods.ImageList_DragShowNolock(false);
                     // scroll and refresh
                     node.EnsureVisible();
                     Refresh();
                     // show drag image
-                    DragHelper.ImageList_DragShowNolock(true);
+                    UnsafeNativeMethods.ImageList_DragShowNolock(true);
                 }
             }
             // if mouse is near to the bottom, scroll down
@@ -117,10 +116,10 @@ namespace Pixelaria.Views.Controls
                 {
                     node = node.NextVisibleNode;
 
-                    DragHelper.ImageList_DragShowNolock(false);
+                    UnsafeNativeMethods.ImageList_DragShowNolock(false);
                     node.EnsureVisible();
                     Refresh();
-                    DragHelper.ImageList_DragShowNolock(true);
+                    UnsafeNativeMethods.ImageList_DragShowNolock(true);
                 }
             }
         }
@@ -138,7 +137,7 @@ namespace Pixelaria.Views.Controls
 
             if(DragOperation != null)
             {
-                DragOperation(evArgs);
+                DragOperation(this, evArgs);
 
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
@@ -197,12 +196,12 @@ namespace Pixelaria.Views.Controls
             int dy = p.Y - _draggedNode.Bounds.Top;
 
             // Begin dragging image
-            if (DragHelper.ImageList_BeginDrag(_imageListDrag.Handle, 0, dx, dy))
+            if (UnsafeNativeMethods.ImageList_BeginDrag(_imageListDrag.Handle, 0, dx, dy))
             {
                 // Begin dragging
                 DoDragDrop(bmp, DragDropEffects.Move);
                 // End dragging image
-                DragHelper.ImageList_EndDrag();
+                UnsafeNativeMethods.ImageList_EndDrag();
             }
         }
 
@@ -213,7 +212,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnDragEnter(drgevent);
 
-            DragHelper.ImageList_DragEnter(Handle, drgevent.X - Left, drgevent.Y - Top);
+            UnsafeNativeMethods.ImageList_DragEnter(Handle, drgevent.X - Left, drgevent.Y - Top);
 
             // Enable timer for scrolling dragged item
             _timer.Enabled = true;
@@ -226,7 +225,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnDragLeave(e);
 
-            DragHelper.ImageList_DragLeave(Handle);
+            UnsafeNativeMethods.ImageList_DragLeave(Handle);
 
             // Disable timer for scrolling dragged item
             _timer.Enabled = false;
@@ -248,7 +247,7 @@ namespace Pixelaria.Views.Controls
             if (findForm != null)
             {
                 Point formP = findForm.PointToClient(new Point(drgevent.X, drgevent.Y));
-                DragHelper.ImageList_DragMove(formP.X - Left, formP.Y - Top);
+                UnsafeNativeMethods.ImageList_DragMove(formP.X - Left, formP.Y - Top);
             }
 
             // Get actual drop node
@@ -263,7 +262,7 @@ namespace Pixelaria.Views.Controls
 
             if (DragOperation != null)
             {
-                DragOperation(evArgs);
+                DragOperation(this, evArgs);
 
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
@@ -289,9 +288,9 @@ namespace Pixelaria.Views.Controls
             // if mouse is on a new node select it
             if (_tempDropNode != dropNode)
             {
-                DragHelper.ImageList_DragShowNolock(false);
+                UnsafeNativeMethods.ImageList_DragShowNolock(false);
                 SelectedNode = dropNode;
-                DragHelper.ImageList_DragShowNolock(true);
+                UnsafeNativeMethods.ImageList_DragShowNolock(true);
                 _tempDropNode = dropNode;
             }
 
@@ -335,7 +334,7 @@ namespace Pixelaria.Views.Controls
                 return;
 
             // Unlock updates
-            DragHelper.ImageList_DragLeave(Handle);
+            UnsafeNativeMethods.ImageList_DragLeave(Handle);
 
             if (drgevent.Effect == DragDropEffects.None)
             {
@@ -356,7 +355,7 @@ namespace Pixelaria.Views.Controls
 
             if (DragOperation != null)
             {
-                DragOperation(evArgs);
+                DragOperation(this, evArgs);
 
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
@@ -429,7 +428,7 @@ namespace Pixelaria.Views.Controls
                 // Launch the feedback for the drag operation
                 evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.AfterDragEnd, evArgs.EventBehavior, _draggedNode, dropNode);
 
-                DragOperation?.Invoke(evArgs);
+                DragOperation?.Invoke(this, evArgs);
 
                 // Set drag node and temp drop node to null
                 _draggedNode = null;
@@ -442,50 +441,13 @@ namespace Pixelaria.Views.Controls
     }
 
     /// <summary>
-    /// Class with util methods used by Rearrangeable* cotrols
+    /// Class with util methods used by Rearrangeable* controls
     /// </summary>
-    public class DragHelper
+    internal class DragHelper
     {
-        [DllImport("comctl32.dll")]
-        public static extern bool InitCommonControls();
-
-        [DllImport("comctl32.dll", CharSet=CharSet.Auto)]
-        public static extern bool ImageList_BeginDrag(
-            IntPtr himlTrack, // Handler of the image list containing the image to drag
-            int iTrack,       // Index of the image to drag 
-            int dxHotspot,    // x-delta between mouse position and drag image
-            int dyHotspot     // y-delta between mouse position and drag image
-        );
-
-        [DllImport("comctl32.dll", CharSet=CharSet.Auto)]
-        public static extern bool ImageList_DragMove(
-            int x,            // X-coordinate (relative to the form, not the treeview) at which to display the drag image.
-            int y             // Y-coordinate (relative to the form, not the treeview) at which to display the drag image.
-        );
-
-        [DllImport("comctl32.dll", CharSet=CharSet.Auto)]
-        public static extern void ImageList_EndDrag();
-
-        [DllImport("comctl32.dll", CharSet=CharSet.Auto)]
-        public static extern bool ImageList_DragEnter(
-            IntPtr hwndLock,  // Handle to the control that owns the drag image.
-            int x,            // X-coordinate (relative to the treeview) at which to display the drag image. 
-            int y             // Y-coordinate (relative to the treeview) at which to display the drag image. 
-        );
-
-        [DllImport("comctl32.dll", CharSet=CharSet.Auto)]
-        public static extern bool ImageList_DragLeave(
-            IntPtr hwndLock  // Handle to the control that owns the drag image.
-        );
-
-        [DllImport("comctl32.dll", CharSet=CharSet.Auto)]
-        public static extern bool ImageList_DragShowNolock(
-            bool fShow       // False to hide, true to show the image
-        );
-
         static DragHelper()
         {
-            InitCommonControls();
+            UnsafeNativeMethods.InitCommonControls();
         }
     }
 

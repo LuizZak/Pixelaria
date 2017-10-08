@@ -215,43 +215,43 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// A rectangle undo task
         /// </summary>
-        public class RectangleUndoTask : ShapeUndoTask
+        public class RectangleUndoTask : ShapeUndoTask, IDisposable
         {
             /// <summary>
             /// The area of the the image that was affected by the Rectangle operation
             /// </summary>
-            readonly Rectangle _area;
+            private readonly Rectangle _area;
 
             /// <summary>
             /// The first color used to draw the Rectangle
             /// </summary>
-            readonly Color _firstColor;
+            private readonly Color _firstColor;
 
             /// <summary>
             /// The second color used to draw the Rectangle
             /// </summary>
-            readonly Color _secondColor;
+            private readonly Color _secondColor;
 
             /// <summary>
             /// The original slice of bitmap that represents the image region before the rectangle
             /// was drawn
             /// </summary>
-            readonly Bitmap _originalSlice;
+            private readonly Bitmap _originalSlice;
 
             /// <summary>
             /// The bitmap where the Rectangle was drawn on
             /// </summary>
-            readonly Bitmap _bitmap;
+            private readonly Bitmap _bitmap;
 
             /// <summary>
             /// The compositing mode of the paint operation
             /// </summary>
-            readonly CompositingMode _compositingMode;
+            private readonly CompositingMode _compositingMode;
 
             /// <summary>
             /// The fill mode for the paint operation
             /// </summary>
-            readonly OperationFillMode _fillMode;
+            private readonly OperationFillMode _fillMode;
 
             /// <summary>
             /// Initializes a new instance of the RectangleUndoTask class
@@ -273,11 +273,31 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 // Take the image slide now
                 _originalSlice = new Bitmap(area.Width, area.Height);
-                
-                Graphics g = Graphics.FromImage(_originalSlice);
-                g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
-                g.Flush();
-                g.Dispose();
+
+                using (var g = Graphics.FromImage(_originalSlice))
+                {
+                    g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
+                    g.Flush();
+                }
+            }
+
+            ~RectangleUndoTask()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposing)
+                    return;
+
+                _originalSlice.Dispose();
             }
 
             /// <summary>
@@ -294,15 +314,16 @@ namespace Pixelaria.Views.Controls.PaintTools
             public override void Undo()
             {
                 // Redraw the original slice back to the image
-                Graphics g = Graphics.FromImage(_bitmap);
-                g.SetClip(_area);
-                g.Clear(Color.Transparent);
-                g.CompositingMode = CompositingMode.SourceCopy;
+                using (var g = Graphics.FromImage(_bitmap))
+                {
+                    g.SetClip(_area);
+                    g.Clear(Color.Transparent);
+                    g.CompositingMode = CompositingMode.SourceCopy;
                 
-                g.DrawImage(_originalSlice, _area);
+                    g.DrawImage(_originalSlice, _area);
 
-                g.Flush();
-                g.Dispose();
+                    g.Flush();
+                }
             }
 
             /// <summary>

@@ -78,11 +78,25 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public int BlockCount => blockList.Count;
 
+        ~GenericFile()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Disposes of this GenericFile and all used resources
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             foreach (T block in blockList)
             {
                 block.Dispose();

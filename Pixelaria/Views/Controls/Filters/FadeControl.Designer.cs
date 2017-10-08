@@ -53,7 +53,7 @@ namespace Pixelaria.Views.Controls.Filters
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.cp_color = new ColorPanel();
+            this.cp_color = new Pixelaria.Views.Controls.ColorControls.ColorPanel();
             this.anud_factor = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -115,9 +115,8 @@ namespace Pixelaria.Views.Controls.Filters
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(3, 38);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(40, 13);
+            this.label2.Size = new System.Drawing.Size(0, 13);
             this.label2.TabIndex = 3;
-            this.label2.Text = "Factor:";
             // 
             // FadeControl
             // 

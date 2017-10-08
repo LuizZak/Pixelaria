@@ -95,8 +95,23 @@ namespace Pixelaria.Controllers.DataControllers
             _animation = animation;
         }
 
+        ~AnimationController()
+        {
+            Dispose(false);
+        }
+
         public void Dispose()
         {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             // Dispose only if we're a copy of a previously stable original version
             Debug.Assert(_original != null, "_original != null", "Trying to discard original animation controller that points to on-disk/storage animation.");
 

@@ -94,11 +94,26 @@ namespace Pixelaria.Data
             BundleProjectTree = ProjectTree.ProjectTreeFromBundle(this);
         }
 
+        ~Bundle()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Disposes of this Bundle and all animations owned by it
         /// </summary>
         public void Dispose()
         {
+            Dispose(true);
+            
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             Clear();
 
             _animations = null;

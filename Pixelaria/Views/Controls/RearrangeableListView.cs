@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls
 {
@@ -51,8 +52,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Event handler fired when a drag operation has started or ended
         /// </summary>
-        /// <param name="eventArgs">The ListViewItemDragEventArgs for the drag operation</param>
-        public delegate void DragOperationHandler(ListViewItemDragEventArgs eventArgs);
+        public delegate void DragOperationHandler(object sender, ListViewItemDragEventArgs e);
         /// <summary>
         /// Event fired when a drag operation has started or ended
         /// </summary>
@@ -109,7 +109,7 @@ namespace Pixelaria.Views.Controls
 
             if (DragOperation != null)
             {
-                DragOperation(evArgs);
+                DragOperation(this, evArgs);
 
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
@@ -130,7 +130,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnDragEnter(drgevent);
 
-            DragHelper.ImageList_DragEnter(Handle, drgevent.X - Left, drgevent.Y - Top);
+            UnsafeNativeMethods.ImageList_DragEnter(Handle, drgevent.X - Left, drgevent.Y - Top);
 
             // Enable timer for scrolling dragged item
             _timer.Enabled = true;
@@ -181,7 +181,7 @@ namespace Pixelaria.Views.Controls
 
                 if (DragOperation != null)
                 {
-                    DragOperation(evArgs);
+                    DragOperation(this, evArgs);
 
                     // Cancel the operation if the user specified so
                     if (evArgs.Cancel)
@@ -271,7 +271,7 @@ namespace Pixelaria.Views.Controls
 
             if (DragOperation != null)
             {
-                DragOperation(evArgs);
+                DragOperation(this, evArgs);
 
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
@@ -311,7 +311,7 @@ namespace Pixelaria.Views.Controls
                 // Launch the feedback for the drag operation
                 evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.AfterDragEnd, evArgs.EventBehavior, _draggedItems, dropItem);
 
-                DragOperation?.Invoke(evArgs);
+                DragOperation?.Invoke(this, evArgs);
 
                 // Set drag node and temp drop node to null
                 _draggedItems = null;

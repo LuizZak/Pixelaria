@@ -21,8 +21,12 @@
 */
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Drawing;
+using System.Drawing.Design;
+using System.Windows.Forms;
+using System.Windows.Forms.Design;
 using Pixelaria.Views.Controls.ColorControls;
 
 namespace Pixelaria.Utils
@@ -30,94 +34,95 @@ namespace Pixelaria.Utils
     /// <summary>
     /// Represents an HSL color with an alpha channel
     /// </summary>
+    [Editor(typeof(AhslColorEditor), typeof(UITypeEditor))]
     public struct AhslColor : IEquatable<AhslColor>
     {
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
         /// </summary>
-        public int A => (int) (_af * 255.0f);
+        public int Alpha => (int) (_floatAlpha * 255.0f);
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 360
         /// </summary>
-        public int H => (int) (_hf * 360.0f);
+        public int Hue => (int) (_floatHue * 360.0f);
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 100
         /// </summary>
-        public int S => (int) (_sf * 100.0f);
+        public int Saturation => (int) (_floatSaturation * 100.0f);
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 100
         /// </summary>
-        public int L => (int) (_lf * 100.0f);
+        public int Lightness => (int) (_floatLightness * 100.0f);
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public int R => ToColor().R;
+        public int Red => ToColor().R;
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public int G => ToColor().G;
+        public int Green => ToColor().G;
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public int B => ToColor().B;
+        public int Blue => ToColor().B;
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float Rf => ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[1];
+        public float FloatRed => ColorSwatch.FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[1];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float Gf => ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[2];
+        public float FloatGreen => ColorSwatch.FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[2];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float Bf => ColorSwatch.FloatArgbFromAhsl(_hf, _sf, _lf, _af)[3];
+        public float FloatBlue => ColorSwatch.FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[3];
 
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 1
         /// </summary>
-        public float Af => _af;
+        public float FloatAlpha => _floatAlpha;
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 1
         /// </summary>
-        public float Hf => _hf;
+        public float FloatHue => _floatHue;
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 1
         /// </summary>
-        public float Sf => _sf;
+        public float FloatSaturation => _floatSaturation;
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 1
         /// </summary>
-        public float Lf => _lf;
+        public float FloatLightness => _floatLightness;
 
         /// <summary>
         /// The alpha component as a value ranging from 0 - 1
         /// </summary>
-        private readonly float _af;
+        private readonly float _floatAlpha;
         /// <summary>
         /// The hue component as a value ranging from 0 - 1
         /// </summary>
-        private readonly float _hf;
+        private readonly float _floatHue;
         /// <summary>
         /// The saturation component as a value ranging from 0 - 1
         /// </summary>
-        private readonly float _sf;
+        private readonly float _floatSaturation;
         /// <summary>
         /// The lightness component as a value ranging from 0 - 1
         /// </summary>
-        private readonly float _lf;
+        private readonly float _floatLightness;
         
         /// <summary>
         /// Creates a new AHSL color
@@ -138,10 +143,10 @@ namespace Pixelaria.Utils
         /// <param name="l">The Lightness component, ranging from 0-1</param>
         public AhslColor(float a, float h, float s, float l)
         {
-            _af = Math.Max(0, Math.Min(1, a));
-            _hf = Math.Max(0, Math.Min(1, h));
-            _sf = Math.Max(0, Math.Min(1, s));
-            _lf = Math.Max(0, Math.Min(1, l));
+            _floatAlpha = Math.Max(0, Math.Min(1, a));
+            _floatHue = Math.Max(0, Math.Min(1, h));
+            _floatSaturation = Math.Max(0, Math.Min(1, s));
+            _floatLightness = Math.Max(0, Math.Min(1, l));
         }
 
         /// <summary>
@@ -163,10 +168,19 @@ namespace Pixelaria.Utils
         /// <returns>Whether two AHSL color structures are the same</returns>
         public static bool operator==(AhslColor color1, AhslColor color2)
         {
-            return (Math.Abs(color1._af - color2._af) < float.Epsilon &&
-                    Math.Abs(color1._hf - color2._hf) < float.Epsilon &&
-                    Math.Abs(color1._sf - color2._sf) < float.Epsilon &&
-                    Math.Abs(color1._lf - color2._lf) < float.Epsilon);
+            return (Math.Abs(color1._floatAlpha - color2._floatAlpha) < float.Epsilon &&
+                    Math.Abs(color1._floatHue - color2._floatHue) < float.Epsilon &&
+                    Math.Abs(color1._floatSaturation - color2._floatSaturation) < float.Epsilon &&
+                    Math.Abs(color1._floatLightness - color2._floatLightness) < float.Epsilon);
+        }
+
+        public static explicit operator AhslColor(Color source)
+        {
+            return source.ToAhsl();
+        }
+        public static explicit operator Color(AhslColor source)
+        {
+            return source.ToColor();
         }
 
         /// <summary>
@@ -187,7 +201,7 @@ namespace Pixelaria.Utils
         [Pure]
         public int ToArgb(bool revertByteOrder = false)
         {
-            return ColorSwatch.ArgbFromAhsl(_hf, _sf, _lf, _af, revertByteOrder);
+            return ColorSwatch.ArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha, revertByteOrder);
         }
 
         /// <summary>
@@ -197,7 +211,7 @@ namespace Pixelaria.Utils
         /// <returns>Whether this AHSL color object equals another AHSL color</returns>
         public bool Equals(AhslColor other)
         {
-            return _af.Equals(other._af) && _hf.Equals(other._hf) && _sf.Equals(other._sf) && _lf.Equals(other._lf);
+            return _floatAlpha.Equals(other._floatAlpha) && _floatHue.Equals(other._floatHue) && _floatSaturation.Equals(other._floatSaturation) && _floatLightness.Equals(other._floatLightness);
         }
 
         // Override Equals
@@ -212,10 +226,10 @@ namespace Pixelaria.Utils
         {
             unchecked
             {
-                var hashCode = _af.GetHashCode();
-                hashCode = (hashCode * 397) ^ _hf.GetHashCode();
-                hashCode = (hashCode * 397) ^ _sf.GetHashCode();
-                hashCode = (hashCode * 397) ^ _lf.GetHashCode();
+                var hashCode = _floatAlpha.GetHashCode();
+                hashCode = (hashCode * 397) ^ _floatHue.GetHashCode();
+                hashCode = (hashCode * 397) ^ _floatSaturation.GetHashCode();
+                hashCode = (hashCode * 397) ^ _floatLightness.GetHashCode();
                 return hashCode;
             }
         }
@@ -245,23 +259,9 @@ namespace Pixelaria.Utils
         [Pure]
         public static AhslColor FromArgb(int a, int r, int g, int b)
         {
-            return ToAhsl((a << 24) | (r << 16) | (g << 8) | b);
+            return FromArgb((a << 24) | (r << 16) | (g << 8) | b);
         }
-
-        /// <summary>
-        /// Creates an AHSL object from the given ARGB color
-        /// </summary>
-        /// <param name="a">The Alpha component, ranging from 0-1</param>
-        /// <param name="r">The Red component, ranging from 0-1</param>
-        /// <param name="g">The Green component, ranging from 0-1</param>
-        /// <param name="b">The Blue component, ranging from 0-1</param>
-        /// <returns>The AHSL color representing the given ARGB value</returns>
-        [Pure]
-        public static AhslColor FromArgb(float a, float r, float g, float b)
-        {
-            return ToAhsl(a, r, g, b);
-        }
-
+        
         /// <summary>
         /// Creates an AHSL object from the given ARGB color
         /// </summary>
@@ -269,17 +269,6 @@ namespace Pixelaria.Utils
         /// <returns>The AHSL color representing the given ARGB value</returns>
         [Pure]
         public static AhslColor FromArgb(int argb)
-        {
-            return ToAhsl(argb);
-        }
-
-        /// <summary>
-        /// Converts the given ARGB color to an AHSL color
-        /// </summary>
-        /// <param name="argb">The color to convert to AHSL</param>
-        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        [Pure]
-        public static AhslColor ToAhsl(int argb)
         {
             float a = (int)((uint)argb >> 24);
             float r = (argb >> 16) & 0xFF;
@@ -291,9 +280,9 @@ namespace Pixelaria.Utils
             g /= 255;
             b /= 255;
 
-            return ToAhsl(a, r, g, b);
+            return FromArgb(a, r, g, b);
         }
-
+        
         /// <summary>
         /// Converts the given ARGB color to an AHSL color
         /// </summary>
@@ -303,7 +292,7 @@ namespace Pixelaria.Utils
         /// <param name="b">The blue component</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
         [Pure]
-        public static AhslColor ToAhsl(float a, float r, float g, float b)
+        public static AhslColor FromArgb(float a, float r, float g, float b)
         {
             // ReSharper disable once InconsistentNaming
             float M = b;
@@ -323,18 +312,16 @@ namespace Pixelaria.Utils
 
             float h;
             float s;
-
-            // ReSharper disable CompareOfFloatsByEqualityOperator
-
-            if (d == 0)
+            
+            if (Math.Abs(d) < float.Epsilon)
             {
                 h = 0;
             }
-            else if (M == r)
+            else if (Math.Abs(M - r) < float.Epsilon)
             {
                 h = (((g - b) / d) % 6) * 60;
             }
-            else if (M == g)
+            else if (Math.Abs(M - g) < float.Epsilon)
             {
                 h = ((b - r) / d + 2) * 60;
             }
@@ -350,7 +337,7 @@ namespace Pixelaria.Utils
 
             var l = (M + m) / 2;
 
-            if (d == 0)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 s = 0;
             }
@@ -358,10 +345,144 @@ namespace Pixelaria.Utils
             {
                 s = d / (1 - Math.Abs(2 * l - 1));
             }
-
-            // ReSharper restore CompareOfFloatsByEqualityOperator
-
+            
             return new AhslColor(a, h / 360, s, l);
         }
+
+        /// <summary>
+        /// Linearly interpolates between two colors with a given factor.
+        /// </summary>
+        /// <param name="start">Starting color to interpolate from</param>
+        /// <param name="end">End color to interpolate to</param>
+        /// <param name="factor">
+        /// An interpolation ratio between 0 - 1 which indicates how much of each color should be present in the final color.
+        /// 
+        /// Values outside of range 0 - 1 (inclusive) are clamped.
+        /// </param>
+        /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
+        [Pure]
+        public static AhslColor LinearInterpolate(AhslColor start, AhslColor end, float factor)
+        {
+            // Clamp
+            factor = Math.Max(0, Math.Min(1, factor));
+
+            float Lerp(float min, float max, float v)
+            {
+                return min * (1 - v) + max * v;
+            }
+            
+            var a = Lerp(start.FloatAlpha, end.FloatAlpha, factor);
+            var h = Lerp(start.FloatHue, end.FloatHue, factor);
+            var s = Lerp(start.FloatSaturation, end.FloatSaturation, factor);
+            var l = Lerp(start.FloatLightness, end.FloatLightness, factor);
+
+            return new AhslColor(a, h, s, l);
+        }
     }
+
+    #region Default Color Definitions
+
+    /// <summary>
+    /// Specifies default color definitions
+    /// </summary>
+    public struct AhslColors
+    {
+        /// <summary>
+        /// A: 1, H: 0, S: 1, L: 1
+        /// </summary>
+        public static AhslColor White = new AhslColor(1.0f, 0, 1, 1);
+
+        /// <summary>
+        /// A: 1, H: 0, S: 0, L: 0
+        /// </summary>
+        public static AhslColor Black = new AhslColor(1.0f, 0, 0, 0);
+
+        /// <summary>
+        /// A: 1, H: 0, S: 1, L: 0.5
+        /// </summary>
+        public static AhslColor Red = new AhslColor(1.0f, 0, 1, 0.5f);
+
+        /// <summary>
+        /// A: 1, H: 0.333, S: 1, L: 0.5
+        /// </summary>
+        public static AhslColor Green = AhslColor.FromArgb(1.0f, 0, 1, 0);
+
+        /// <summary>
+        /// A: 1, H: 0.666, S: 1, L: 0.5
+        /// </summary>
+        public static AhslColor Blue = AhslColor.FromArgb(1.0f, 0, 0, 1);
+
+        /// <summary>
+        /// A: 1, H: 0.166, S: 1, L: 0.5
+        /// </summary>
+        public static AhslColor Yellow = AhslColor.FromArgb(1.0f, 1, 1, 0);
+
+        /// <summary>
+        /// A: 1, H: 0.5, S: 1, L: 0.5
+        /// </summary>
+        public static AhslColor Cyan = new AhslColor(1.0f, 0.5f, 1, 1);
+    }
+
+    #endregion
+
+    #region UITypeEditor
+    
+    /// <summary>
+    /// A type editor for AhslColor property fields in a PropertyGrid
+    /// </summary>
+    public class AhslColorEditor : UITypeEditor
+    {
+        private IWindowsFormsEditorService _service;
+        
+        /// <summary>
+        /// Displays a color picker
+        /// </summary>
+        /// <param name="context">An ITypeDescriptorContext that can be used to gain additional context information.</param>
+        /// <param name="provider">A service provider object through which editing services may be obtained.</param>
+        /// <param name="value">An instance of the value being edited.</param>
+        /// <returns>The new value of the object. If the value of the object hasn't changed, this method should return the same object it was passed.</returns>
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            if (provider == null)
+                return value;
+            
+            // This service is in charge of popping our ListBox.
+            _service = provider.GetService(typeof(IWindowsFormsEditorService)) as IWindowsFormsEditorService;
+
+            if (_service == null || !(value is AhslColor color))
+                return value;
+
+            using (var colorPicker = new ColorPickerDialog {SelectedColor = color})
+            {
+                if (_service.ShowDialog(colorPicker) != DialogResult.OK)
+                    return value;
+
+                if (colorPicker.SelectedColor != color)
+                    value = colorPicker.SelectedColor;
+            }
+
+            return value;
+        }
+        
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+        
+        public override bool GetPaintValueSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+        
+        public override void PaintValue(PaintValueEventArgs e)
+        {
+            var color = (AhslColor)e.Value;
+            using (var brush = new SolidBrush(color.ToColor()))
+            {
+                e.Graphics.FillRectangle(brush, e.Bounds);
+            }
+        }
+    }
+
+    #endregion
 }

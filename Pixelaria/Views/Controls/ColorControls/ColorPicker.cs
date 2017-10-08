@@ -46,9 +46,14 @@ namespace Pixelaria.Views.Controls.ColorControls
         private AhslColor _secondColor;
 
         /// <summary>
-        /// Gets or sets the currently selected color
+        /// The currently selected color slot (first/second color)
         /// </summary>
         private ColorPickerColor _selectedColor;
+
+        /// <summary>
+        /// The current color picking mode
+        /// </summary>
+        private ColorPickerMode _pickerMode = ColorPickerMode.DualColor;
 
         /// <summary>
         /// Whether the mouse is currently held down on the palette bitmap
@@ -59,8 +64,8 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// Delegate for a ColorPick event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
-        /// <param name="eventArgs">The arguments for the event</param>
-        public delegate void ColorPickEventHandler(object sender, ColorPickEventArgs eventArgs);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ColorPickEventHandler(object sender, ColorPickEventArgs e);
 
         /// <summary>
         /// Occurs whenever the user changes the currently selected color
@@ -73,6 +78,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the first color of the control
         /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Currently selected primary color")]
         public Color FirstColor
         {
             get => _firstColor.ToColor();
@@ -91,6 +99,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets the second color of the control
         /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Currently selected secondary color")]
         public Color SecondColor
         {
             get => _secondColor.ToColor();
@@ -145,6 +156,9 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <summary>
         /// Gets or sets which color the ColorPicker is supposed to be currently displaying
         /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Currently selected color slot")]
         public ColorPickerColor SelectedColor
         {
             get => _selectedColor;
@@ -168,6 +182,34 @@ namespace Pixelaria.Views.Controls.ColorControls
                 }
 
                 UpdateSliders();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the color picking mode
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Current picker mode. Allows toggling between single and dual colors on the top of the control.")]
+        public ColorPickerMode ColorPickerMode
+        {
+            get => _pickerMode;
+            set
+            {
+                if (_pickerMode == value)
+                    return;
+
+                _pickerMode = value;
+
+                if (_pickerMode == ColorPickerMode.SingleColor)
+                {
+                    splitContainer.Panel2Collapsed = true;
+                    SelectedColor = ColorPickerColor.FirstColor;
+                }
+                else
+                {
+                    splitContainer.Panel2Collapsed = false;
+                }
             }
         }
 
@@ -213,11 +255,11 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// <param name="keepTransparency">Whether to keep the current alpha channel unmodified</param>
         public void SetCurrentColor(AhslColor color, bool keepTransparency = false)
         {
-            AhslColor oldColor = Color.White.ToAhsl();
+            var oldColor = Color.White.ToAhsl();
 
             if (keepTransparency)
             {
-                color = new AhslColor(GetCurrentColor().A, color.Hf, color.Sf, color.Lf);
+                color = new AhslColor(GetCurrentColor().A, color.FloatHue, color.FloatSaturation, color.FloatLightness);
             }
 
             switch (_selectedColor)
@@ -242,7 +284,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         public void UpdateSliders()
         {
-            AhslColor color = Color.White.ToAhsl();
+            var color = Color.White.ToAhsl();
 
             switch (_selectedColor)
             {
@@ -278,9 +320,11 @@ namespace Pixelaria.Views.Controls.ColorControls
                     return FirstColor;
                 case ColorPickerColor.SecondColor:
                     return SecondColor;
+                case ColorPickerColor.CurrentColor:
+                    return Color.White;
+                default:
+                    return Color.White;
             }
-
-            return Color.White;
         }
 
         // 
@@ -350,7 +394,7 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             if (pb_palette.Image is Bitmap bitmap)
             {
-                Color color = bitmap.GetPixel(point.X, point.Y);
+                var color = bitmap.GetPixel(point.X, point.Y);
                 SetCurrentColor(color, true);
             }
         }
@@ -407,5 +451,22 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// The currently selected color of a ColorPicker
         /// </summary>
         CurrentColor
+    }
+
+    /// <summary>
+    /// Specifies the color picker mode of a color picker, allowing
+    /// to choose between Single and Dual color picking mode.
+    /// </summary>
+    public enum ColorPickerMode
+    {
+        /// <summary>
+        /// Allows picking one primary color
+        /// </summary>
+        SingleColor,
+
+        /// <summary>
+        /// Allows picking a primary and a secondary color
+        /// </summary>
+        DualColor
     }
 }

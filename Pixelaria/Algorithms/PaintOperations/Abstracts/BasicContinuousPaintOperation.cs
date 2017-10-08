@@ -44,7 +44,7 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         /// Gets or sets the target bitmap for this operation.
         /// If the operation is currently being performed, a call to the setter will trigger an InvalidOperationException
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">The target bitmap is modified while the operation is already started</exception>
+        /// <exception cref="InvalidOperationException">The target bitmap is modified while the operation is already started</exception>
         public virtual Bitmap TargetBitmap
         {
             get => targetBitmap;

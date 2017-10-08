@@ -95,15 +95,29 @@ namespace Pixelaria.Data.Exports
 
         }
 
+        ~BundleSheetExport()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Disposes of this bundle sheet and all resources allocated by it
         /// </summary>
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             Atlas.Dispose();
             Sheet.Dispose();
         }
-
+        
         /// <summary>
         /// Saves the contents of this BundleSheetExport to disk, using the given path
         /// as a base path, and savind the .png and .json as that base path

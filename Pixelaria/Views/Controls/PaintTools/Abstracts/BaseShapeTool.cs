@@ -33,7 +33,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Base class for shape dragging paint operations
     /// </summary>
-    public abstract class BaseShapeTool : BaseDraggingPaintTool
+    public abstract class BaseShapeTool : BaseDraggingPaintTool, IDisposable
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -106,6 +106,39 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;
+        }
+
+        ~BaseShapeTool()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+            
+            pictureBox = null;
+
+            if (graphics != null)
+            {
+                graphics.Flush();
+                graphics.Dispose();
+            }
+
+            if (buffer != null)
+            {
+                buffer.Dispose();
+                buffer = null;
+            }
+
+            ToolCursor.Dispose();
         }
 
         /// <summary>

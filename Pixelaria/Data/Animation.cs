@@ -34,7 +34,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Describes an Animation in the program
     /// </summary>
-    public class Animation : IDObject, IAnimation
+    public class Animation : IDisposable, IDObject, IAnimation
     {
         /// <summary>
         /// Gets or sets the name of this animation
@@ -124,7 +124,7 @@ namespace Pixelaria.Data
 
         ~Animation()
         {
-            Dispose();
+            Dispose(false);
         }
         
         /// <summary>
@@ -132,10 +132,19 @@ namespace Pixelaria.Data
         /// </summary>
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
             if (Frames != null)
             {
                 // Frames clearing
-                foreach (var frame in Frames)
+                foreach (var frame in Frames.OfType<IDisposable>())
                 {
                     frame.Dispose();
                 }
@@ -143,8 +152,6 @@ namespace Pixelaria.Data
             }
 
             Frames = null;
-
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -153,7 +160,7 @@ namespace Pixelaria.Data
         /// </summary>
         public void Clear()
         {
-            foreach (var frame in Frames)
+            foreach (var frame in Frames.OfType<Frame>())
             {
                 frame.Removed();
                 frame.Dispose();

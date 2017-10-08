@@ -61,8 +61,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Delegate for the ColorPicked event
         /// </summary>
         /// <param name="sender">The sender for the event</param>
-        /// <param name="args">The arguments for the event</param>
-        public delegate void ColorPickedEventHandler(object sender, PaintToolColorPickedEventArgs args);
+        /// <param name="e">The arguments for the event</param>
+        public delegate void ColorPickedEventHandler(object sender, PaintToolColorPickedEventArgs e);
 
         /// <summary>
         /// Occurs whenever the user picks a color with this BasePaintTool
