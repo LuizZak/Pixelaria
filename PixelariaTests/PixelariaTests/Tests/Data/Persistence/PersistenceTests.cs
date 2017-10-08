@@ -29,7 +29,7 @@ using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
-
+using Pixelaria.Utils;
 using PixelariaTests.PixelariaTests.Generators;
 using PixelariaTests.PixelariaTests.Tests.Utils;
 
@@ -67,6 +67,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             stream.Position = 0;
             var loadedBundle = PixelariaSaverLoader.LoadBundleFromStream(stream);
 
+            Assert.IsNotNull(loadedBundle);
+
             UtilsTests.AssertBundlesEqual(bundle, loadedBundle,
                 "After persisting a file to a stream and loading it back up again, the bundles must be equal");
 
@@ -78,6 +80,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             stream.Position = 0;
             PixelariaSaverLoader.SaveBundleToStream(loadedBundle, stream);
             
+            Assert.IsNotNull(loadedBundle);
+
             UtilsTests.AssertBundlesEqual(bundle, loadedBundle,
                 "After persisting a file to a stream and loading it back up again, the bundles must be equal");
 
@@ -87,11 +91,9 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
                 Assert.IsTrue((frameLayer.LayerBitmap.Flags & (int)ImageFlags.ReadOnly) == 0, "Frame layer image incorrectly loaded as ReadOnly");
             }
             
-            /*
             Assert.IsTrue(
                 Utilities.ByteArrayCompare(preCopy, stream.GetBuffer()),
                 "Two streams that represent the same Pixelaria File should be bytewise equal");
-            */
         }
 
         /// <summary>
@@ -119,6 +121,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             PixelariaSaverLoader.SaveBundleToDisk(originalBundle, _testFilePath);
             var newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
 
+            Assert.IsNotNull(newBundle);
+
             UtilsTests.AssertBundlesEqual(originalBundle, newBundle,
                 "After persisting a new (>= v8) file to disk and loading it back up again, the bundles must be equal");
 
@@ -126,11 +130,16 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
             SaveBundle(originalBundle, _testFilePath);
             newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
 
+            Assert.IsNotNull(newBundle);
+
             UtilsTests.AssertBundlesEqual(v8Bundle, newBundle,
                 "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
 
             // Now load the bundle using the LoadFileFromDisk
             newBundle = PixelariaSaverLoader.LoadBundleFromDisk(_testFilePath);
+
+            Assert.IsNotNull(newBundle);
+
             UtilsTests.AssertBundlesEqual(v8Bundle, newBundle,
                 "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
 

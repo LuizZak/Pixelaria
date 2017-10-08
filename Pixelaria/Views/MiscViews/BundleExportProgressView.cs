@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
@@ -93,6 +92,22 @@ namespace Pixelaria.Views.MiscViews
 
             _timer = new System.Windows.Forms.Timer { Interval = 50 };
             _timer.Tick += TimerOnTick;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // ReSharper disable once UseNullPropagation
+                if (components != null)
+                    components.Dispose();
+
+                // ReSharper disable once UseNullPropagation
+                if (_cancellationToken != null)
+                    _cancellationToken.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

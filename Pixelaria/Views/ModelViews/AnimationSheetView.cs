@@ -90,6 +90,26 @@ namespace Pixelaria.Views.ModelViews
         }
         
         /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // ReSharper disable once UseNullPropagation
+                if (components != null)
+                    components.Dispose();
+
+                // ReSharper disable once UseNullPropagation
+                if (_sheetCancellation != null)
+                    _sheetCancellation.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+        
+        /// <summary>
         /// Initializes the fields of this form
         /// </summary>
         public void InitializeFiends()

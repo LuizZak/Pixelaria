@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
 
@@ -219,7 +220,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
         /// <param name="bitmap">The bitmap to operate on</param>
         /// <param name="region">The region to fill on the bitmap</param>
         /// <param name="color">The color to fill the bitmap with</param>
-        public static void FillBitmapRegion(Bitmap bitmap, Rectangle region, Color color)
+        public static void FillBitmapRegion([NotNull] Bitmap bitmap, Rectangle region, Color color)
         {
             for (int y = Math.Max(0, region.Top); y < Math.Min(bitmap.Height, region.Bottom); y++)
             {

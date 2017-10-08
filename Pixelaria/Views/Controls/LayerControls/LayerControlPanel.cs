@@ -169,7 +169,9 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerRemoved(object sender, [NotNull] LayerControllerLayerRemovedEventArgs args)
         {
-            RemoveLayerControl(GetLayerControlForLayer(args.FrameLayer));
+            var layerControl = GetLayerControlForLayer(args.FrameLayer);
+            if (layerControl != null)
+                RemoveLayerControl(layerControl);
 
             // Update selected layer
             UpdateActiveLayerDisplay();
@@ -192,7 +194,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerNameUpdated(object sender, [NotNull] LayerControllerLayerNameUpdatedEventArgs args)
         {
             // Update the display of the layer control associated with the layer
-            GetLayerControlForLayer(args.FrameLayer).UpdateDisplay();
+            GetLayerControlForLayer(args.FrameLayer)?.UpdateDisplay();
         }
 
         // 

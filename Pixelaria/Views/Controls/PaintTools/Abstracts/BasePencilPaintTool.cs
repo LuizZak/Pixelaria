@@ -22,6 +22,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -246,7 +247,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             pictureBox = targetPictureBox;
             lastMousePosition = new Point();
-
+            
+            Debug.Assert(targetPictureBox.Bitmap != null, "targetPictureBox.Bitmap != null");
             pencilOperation = new PencilPaintOperation(targetPictureBox.Bitmap);
 
             UpdatePen();
@@ -427,10 +429,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             lastMousePosition = point;
 
-            Color penColor = (penId == 0 ? firstColor : secondColor);
+            var penColor = penId == 0 ? firstColor : secondColor;
             pencilOperation.Color = penColor;
             pencilOperation.CompositingMode = CompositingMode;
 
+            Debug.Assert(pictureBox.Bitmap != null, "pictureBox != null");
             undoGenerator = new PlottingPaintUndoGenerator(pictureBox.Bitmap, undoDecription);
             pencilOperation.Notifier = undoGenerator;
 

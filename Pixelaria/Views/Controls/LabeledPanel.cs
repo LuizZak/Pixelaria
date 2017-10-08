@@ -57,7 +57,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets a rectangle that represents the title area for this labeled panel control
         /// </summary>
-        protected Rectangle TitleRectangle => new Rectangle(Point.Empty, new Size(Width, 17));
+        protected Rectangle titleRectangle => new Rectangle(Point.Empty, new Size(Width, 17));
 
         // 
         // OnPaintBackground event handler
@@ -67,7 +67,6 @@ namespace Pixelaria.Views.Controls
             base.OnPaintBackground(e);
 
             // Paint the title bar
-            Rectangle titleRectangle = TitleRectangle;
             LinearGradientBrush brush = new LinearGradientBrush(Point.Empty, new Point(0, titleRectangle.Height), Color.White, Color.FromArgb(255, 236, 236, 236));
 
             e.Graphics.FillRectangle(brush, titleRectangle);
@@ -85,7 +84,7 @@ namespace Pixelaria.Views.Controls
         {
             base.OnResize(eventargs);
 
-            Invalidate(TitleRectangle);
+            Invalidate(titleRectangle);
         }
     }
 }

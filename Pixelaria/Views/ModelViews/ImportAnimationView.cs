@@ -522,7 +522,7 @@ namespace Pixelaria.Views.ModelViews
 
             public AnimationPlaybackSettings PlaybackSettings { get; set; }
 
-            public AnimationExportSettings ExportSettings { get; }
+            public AnimationExportSettings ExportSettings => new AnimationExportSettings();
 
             public Bitmap GetComposedBitmapForFrame(int frameIndex)
             {

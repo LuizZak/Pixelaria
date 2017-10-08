@@ -87,7 +87,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown([NotNull] MouseEventArgs e)
+        public override void MouseDown(MouseEventArgs e)
         {
             base.MouseDown(e);
 

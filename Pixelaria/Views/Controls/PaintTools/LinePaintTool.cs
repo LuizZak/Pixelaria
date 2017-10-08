@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -138,7 +139,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             if (mouseDown && (mouseButton == MouseButtons.Left || mouseButton == MouseButtons.Right))
             {
-                PerformLineOperation((mouseButton == MouseButtons.Left ? _firstColor : _secondColor), mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, CompositingMode, Size, false);
+                PerformLineOperation(mouseButton == MouseButtons.Left ? _firstColor : _secondColor, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, CompositingMode, Size, false);
             }
         }
 
@@ -146,13 +147,14 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown([NotNull] MouseEventArgs e)
+        public override void MouseDown(MouseEventArgs e)
         {
             base.MouseDown(e);
 
             if (e.Button == MouseButtons.Middle)
             {
-                _firstColor = pictureBox.Bitmap.GetPixel(mouseDownAbsolutePoint.X, mouseDownAbsolutePoint.Y);
+                if (pictureBox.Bitmap != null)
+                    _firstColor = pictureBox.Bitmap.GetPixel(mouseDownAbsolutePoint.X, mouseDownAbsolutePoint.Y);
 
                 pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
 
@@ -182,20 +184,21 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             if (mouseDown)
             {
-                Rectangle newArea = GetCurrentRectangle(true);
+                var newArea = GetCurrentRectangle(true);
 
                 pictureBox.Invalidate(newArea);
 
                 // Draw the rectangle on the image now
-                Rectangle rectArea = GetCurrentRectangle(false);
+                var rectArea = GetCurrentRectangle(false);
 
                 if (rectArea.Width > 0 && rectArea.Height > 0)
                 {
-                    Color color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
+                    var color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
 
-                    PerPixelUndoTask task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, CompositingMode, Size, true);
+                    Debug.Assert(pictureBox.Bitmap != null, "pictureBox.Bitmap != null");
+                    var task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, CompositingMode, Size, true);
 
-                    if(task.PixelHistoryTracker.PixelCount > 0)
+                    if(task != null && task.PixelHistoryTracker.PixelCount > 0)
                     {
                         pictureBox.OwningPanel.UndoSystem.RegisterUndo(task);
                         pictureBox.MarkModified();
@@ -213,8 +216,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec1 = GetRelativeCircleBounds(mouseDownAbsolutePoint, Size + 1);
-            Rectangle rec2 = GetRelativeCircleBounds(mouseAbsolutePoint, Size + 1);
+            var rec1 = GetRelativeCircleBounds(mouseDownAbsolutePoint, Size + 1);
+            var rec2 = GetRelativeCircleBounds(mouseAbsolutePoint, Size + 1);
 
             return Rectangle.Union(rec1, rec2);
         }
@@ -241,7 +244,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 generator = new PlottingPaintUndoGenerator(bitmap, "Line");
             }
 
-            PencilPaintOperation operation = new PencilPaintOperation(bitmap, true, firstPoint)
+            var operation = new PencilPaintOperation(bitmap, true, firstPoint)
             {
                 Color = color,
                 CompositingMode = compositingMode,

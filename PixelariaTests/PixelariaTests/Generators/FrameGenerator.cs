@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using FastBitmapLib;
-
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Factories;
@@ -40,7 +40,7 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// <summary>
         /// Random number generator used to randomize seeds for image generation when none are provided
         /// </summary>
-        private static readonly Random _seedRandom = new Random();
+        private static readonly Random SeedRandom = new Random();
 
         /// <summary>
         /// Next available unique ID to use in methods generating frames in this static class
@@ -87,7 +87,7 @@ namespace PixelariaTests.PixelariaTests.Generators
         {
             if (seed == -1)
             {
-                seed = _seedRandom.Next();
+                seed = SeedRandom.Next();
             }
 
             var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
@@ -118,7 +118,7 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// </summary>
         /// <param name="bitmap">A valid Bitmap</param>
         /// <returns>A new Bitmap, that is considered to be different from the provided bitmap</returns>
-        public static Bitmap GenerateDifferentFrom(Bitmap bitmap)
+        public static Bitmap GenerateDifferentFrom([NotNull] Bitmap bitmap)
         {
             var bit = new Bitmap(bitmap);
             var c = Color.FromArgb((bitmap.GetPixel(0, 0).ToArgb() + 1) % 0xFFFFFFF);
@@ -133,7 +133,7 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// </summary>
         /// <param name="frame">The frame to randomize</param>
         /// <param name="seed">The seed to use when randomizing this frame. Leave -1 to use a random seed</param>
-        public static void RandomizeBitmap(this FrameController frame, int seed = -1)
+        public static void RandomizeBitmap([NotNull] this FrameController frame, int seed = -1)
         {
             frame.SetFrameBitmap(GenerateRandomBitmap(frame.Width, frame.Height, seed));
         }

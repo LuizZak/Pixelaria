@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Spray paint operation
     /// </summary>
-    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool, IDisposable
+    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
     {
         /// <summary>
         /// Instance of a Random class used to randomize the spray of this SprayPaintTool
@@ -131,7 +131,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.spray_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.spray_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 

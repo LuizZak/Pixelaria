@@ -177,7 +177,10 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="point">The point to start the fill operation at</param>
         public void PerformBucketOperaiton(Color color, Point point)
         {
-            IUndoTask undoTask = PerformBucketOperaiton(pictureBox.Bitmap, color, point, compositingMode, true);
+            if (pictureBox.Bitmap == null)
+                return;
+
+            var undoTask = PerformBucketOperaiton(pictureBox.Bitmap, color, point, compositingMode, true);
 
             if (undoTask != null)
             {

@@ -21,10 +21,12 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using FastBitmapLib;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Newtonsoft.Json;
@@ -143,7 +145,10 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <param name="sheetPath">The common path name of the .png and .json bundle, with a .json extension</param>
         public static object ImportSheetFile(string sheetPath)
         {
-            string json = File.ReadAllText(Path.ChangeExtension(sheetPath, "json"));
+            var jsonPath = Path.ChangeExtension(sheetPath, "json");
+
+            Debug.Assert(jsonPath != null, "jsonPath != null");
+            string json = File.ReadAllText(jsonPath);
 
             var sheet = (JObject)JsonConvert.DeserializeObject(json);
             
@@ -172,7 +177,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// </summary>
         /// <param name="texture">The Texture2D sheet</param>
         /// <param name="json">The .json sheet description</param>
-        public static AnimationSheet ImportAnimationSheet(Bitmap texture, JObject json)
+        public static AnimationSheet ImportAnimationSheet(Bitmap texture, [NotNull] JObject json)
         {
             // Impors a JSON formatted as follows:
             /*
@@ -263,7 +268,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <param name="bounds">The bounds of the original image to slice</param>
         /// <param name="origin">A rectangle that represents the rectangle the image will take in the sliced image</param>
         /// <returns>A slice of the original image that fits within the specified bounds</returns>
-        public static Bitmap SliceImage(Bitmap original, Size sliceSize, Rectangle bounds, Rectangle origin = new Rectangle())
+        public static Bitmap SliceImage([NotNull] Bitmap original, Size sliceSize, Rectangle bounds, Rectangle origin = new Rectangle())
         {
             var ret = new Bitmap(sliceSize.Width, sliceSize.Height, original.PixelFormat);
 
