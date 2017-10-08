@@ -82,7 +82,10 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
             if (disposing)
             {
-                onionSkin?.Dispose();
+                // ReSharper disable once UseNullPropagation
+                if (onionSkin != null)
+                    onionSkin.Dispose();
+
                 frameView.EditFrameChanged -= _frameChangedEventHandler;
             }
 
