@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Picker paint operation
     /// </summary>
-    public class PickerPaintTool : BasePaintTool
+    internal class PickerPaintTool : BasePaintTool
     {
         /// <summary>
         /// The last absolute position of the mouse
@@ -60,19 +60,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             Loaded = true;
         }
-
-        /// <summary>
-        /// Finalizes this Paint Tool
-        /// </summary>
-        public override void Destroy()
-        {
-            pictureBox = null;
-
-            ToolCursor.Dispose();
-
-            Loaded = false;
-        }
-
+        
         /// <summary>
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
@@ -96,7 +84,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
-                Point absolute = GetAbsolutePoint(e.Location);
+                var absolute = GetAbsolutePoint(e.Location);
 
                 if (absolute != lastMousePointAbsolute)
                 {

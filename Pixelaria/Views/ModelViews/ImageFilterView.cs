@@ -34,7 +34,7 @@ namespace Pixelaria.Views.ModelViews
     /// <summary>
     /// Implements an interface that the user can use to tweak settings of and apply a filter to an image
     /// </summary>
-    public partial class ImageFilterView : Form
+    internal partial class ImageFilterView : Form
     {
         /// <summary>
         /// Initializes a new instance of the BaseFilterView class

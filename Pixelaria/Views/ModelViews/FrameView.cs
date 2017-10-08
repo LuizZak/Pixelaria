@@ -365,6 +365,24 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // ReSharper disable once UseNullPropagation
+                if (components != null)
+                    components.Dispose();
+
+                _binder.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Marks this FrameView form as modified
         /// </summary>
         public override void MarkModified()
@@ -2064,7 +2082,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Class that binds the frame view and layer controller, handling control of the process of undo/redo and display updating between the two controls
         /// </summary>
-        private class FrameViewLayerControllerBinder
+        private class FrameViewLayerControllerBinder: IDisposable
         {
             /// <summary>
             /// The frame view being binded
@@ -2102,6 +2120,27 @@ namespace Pixelaria.Views.ModelViews
                 _frameView.iepb_frame.PictureBox.AddDecorator(_decorator);
 
                 HookEvents();
+            }
+
+            ~FrameViewLayerControllerBinder()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool disposing)
+            {
+                if (!disposing)
+                    return;
+
+                // ReSharper disable once UseNullPropagation
+                if (_decorator != null)
+                    _decorator.Dispose();
             }
 
             /// <summary>

@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a FadeFilter
     /// </summary>
-    public partial class FadeControl : FilterControl
+    internal partial class FadeControl : FilterControl
     {
         /// <summary>
         /// Initializes a new instance of the FadeControl class
@@ -74,7 +74,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cp_color_Click(object sender, EventArgs e)
         {
-            ColorDialog cd = new ColorDialog {AllowFullOpen = true};
+            var cd = new ColorDialog {AllowFullOpen = true};
 
             if (cd.ShowDialog(FindForm()) == DialogResult.OK)
             {

@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
@@ -31,11 +31,12 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Implements basic functionality to paint operations
     /// </summary>
-    public abstract class BasePaintTool : IPaintTool
+    internal abstract class BasePaintTool : IPaintTool
     {
         /// <summary>
         /// The PictureBox owning this PaintOperation
         /// </summary>
+        [CanBeNull]
         protected ImageEditPanel.InternalPictureBox pictureBox;
 
         /// <summary>
@@ -76,6 +77,28 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         public virtual void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
         {
             pictureBox = targetPictureBox;
+        }
+
+        ~BasePaintTool()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            pictureBox = null;
+
+            if(toolCursor != null)
+                toolCursor.Dispose();
         }
 
         /// <summary>
@@ -151,6 +174,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>Whether the given point is within the image bounds</returns>
         protected virtual bool WithinBounds(Point point)
         {
+            if (pictureBox == null)
+                return false;
+
             return point.X >= 0 && point.Y >= 0 && point.X < pictureBox.Image.Width && point.Y < pictureBox.Image.Height;
         }
 
@@ -178,14 +204,19 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>The rectangle that was invalidated</returns>
         protected virtual Rectangle InvalidateRect(PointF point, float width, float height)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Rectangle.Empty;
+
             point = GetRelativePoint(GetAbsolutePoint(point));
 
             point.X -= 1;
             point.Y -= 1;
 
-            Rectangle rec = new Rectangle((int)point.X, (int)point.Y, (int)(width * pictureBox.Zoom.Y), (int)(height * pictureBox.Zoom.Y));
 
-            pictureBox.Invalidate(rec);
+            var rec = new Rectangle((int)point.X, (int)point.Y, (int)(width * internalPictureBox.Zoom.Y), (int)(height * internalPictureBox.Zoom.Y));
+
+            internalPictureBox.Invalidate(rec);
 
             return rec;
         }
@@ -198,18 +229,22 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>The rectangle region of the control that was invalidated</returns>
         protected virtual Rectangle InvalidateRect(Rectangle rectangle)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Rectangle.Empty;
+
             // Get the top-left and bottom-right spots of the rectangle, in screen coordinates
-            PointF topPoint = GetRelativePoint(rectangle.Location);
-            PointF bottomPoint = GetRelativePoint(new Point(rectangle.Right, rectangle.Bottom));
+            var topPoint = GetRelativePoint(rectangle.Location);
+            var bottomPoint = GetRelativePoint(new Point(rectangle.Right, rectangle.Bottom));
 
             // Transform the points into rectangles, and create a rectangle that encloses them
             // This effectively transforms the rectangle area from image to control space
-            RectangleF topRect = new RectangleF(topPoint, new SizeF(1, 1));
-            RectangleF bottomRect = new RectangleF(bottomPoint, new SizeF(1, 1));
+            var topRect = new RectangleF(topPoint, new SizeF(1, 1));
+            var bottomRect = new RectangleF(bottomPoint, new SizeF(1, 1));
             
-            RectangleF controlRect = RectangleF.Union(topRect, bottomRect);
+            var controlRect = RectangleF.Union(topRect, bottomRect);
 
-            pictureBox.Invalidate(Rectangle.Truncate(controlRect));
+            internalPictureBox.Invalidate(Rectangle.Truncate(controlRect));
 
             return Rectangle.Truncate(controlRect);
         }
@@ -220,7 +255,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>The absolute position of the given control point on the canvas image</returns>
         protected virtual Point GetAbsolutePoint(PointF point)
         {
-            return Point.Truncate(pictureBox.GetAbsolutePoint(point));
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Point.Empty;
+
+            return Point.Truncate(internalPictureBox.GetAbsolutePoint(point));
         }
 
         /// <summary>
@@ -229,7 +268,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>The relative position of the given canvas point on the control bounds</returns>
         protected virtual PointF GetRelativePoint(Point point)
         {
-            return pictureBox.GetRelativePoint(point);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return PointF.Empty;
+
+            return internalPictureBox.GetRelativePoint(point);
         }
 
         /// <summary>
@@ -241,10 +284,10 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         protected Rectangle GetRelativeCircleBounds(Point point, int radius)
         {
             // Get a rectangle composed of two points that are offset by the size
-            Point topLeft = Point.Truncate(GetRelativePoint(Point.Subtract(point, new Size(radius, radius))));
-            Point botRight = Point.Truncate(GetRelativePoint(Point.Add(point, new Size(radius, radius))));
+            var topLeft = Point.Truncate(GetRelativePoint(Point.Subtract(point, new Size(radius, radius))));
+            var botRight = Point.Truncate(GetRelativePoint(Point.Add(point, new Size(radius, radius))));
 
-            Rectangle rec = new Rectangle(topLeft, (Size)Point.Subtract(botRight, (Size)topLeft));
+            var rec = new Rectangle(topLeft, (Size)Point.Subtract(botRight, (Size)topLeft));
             return rec;
         }
     }

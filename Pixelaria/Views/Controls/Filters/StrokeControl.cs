@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles an OffsetFilter
     /// </summary>
-    public partial class StrokeControl : FilterControl
+    internal partial class StrokeControl : FilterControl
     {
         /// <summary>
         /// Initializes a new instance of the StrokeControl class

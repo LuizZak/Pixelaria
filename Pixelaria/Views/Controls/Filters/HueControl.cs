@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a HueFilter
     /// </summary>
-    public partial class HueControl : FilterControl
+    internal partial class HueControl : FilterControl
     {
         /// <summary>
         /// Initializes a new instance of the HueControl

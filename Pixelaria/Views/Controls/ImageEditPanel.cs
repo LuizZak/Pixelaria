@@ -44,19 +44,9 @@ namespace Pixelaria.Views.Controls
     public class ImageEditPanel : Control, IModifiable
     {
         /// <summary>
-        /// The PictureBox that displays the bitmap being edited
-        /// </summary>
-        private readonly InternalPictureBox _internalPictureBox;
-
-        /// <summary>
         /// The Panel that will own the InternalPictureBox
         /// </summary>
         private readonly Panel _owningPanel;
-
-        /// <summary>
-        /// The undo system that handles undoing/redoing of tasks
-        /// </summary>
-        private UndoSystem _undoSystem;
 
         /// <summary>
         /// The default compositing mode to use on paint operations that have a compositing operation
@@ -80,8 +70,8 @@ namespace Pixelaria.Views.Controls
         [Category("Appearance")]
         public Image PictureBoxBackgroundImage
         {
-            get => _internalPictureBox.BackgroundImage;
-            set => _internalPictureBox.BackgroundImage = value;
+            get => PictureBox.BackgroundImage;
+            set => PictureBox.BackgroundImage = value;
         }
 
         /// <summary>
@@ -119,7 +109,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
         /// <param name="e">The arguments for the event</param>
-        public delegate void OperationStatusEventHandler(object sender, OperationStatusEventArgs e);
+        internal delegate void OperationStatusEventHandler(object sender, OperationStatusEventArgs e);
 
         /// <summary>
         /// Occurs whenever the current operation notified a status change
@@ -127,12 +117,12 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Action")]
         [Description("Occurs whenever the current operation notified a status change.")]
-        public event OperationStatusEventHandler OperationStatusChanged;
+        internal event OperationStatusEventHandler OperationStatusChanged;
 
         /// <summary>
         /// Gets the internal picture box currently loaded into this ImageEditPanel
         /// </summary>
-        public InternalPictureBox PictureBox => _internalPictureBox;
+        public InternalPictureBox PictureBox { get; }
 
         /// <summary>
         /// Gets or sets the modifiable to notify when changes are made to the bitmap
@@ -144,15 +134,15 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         [Browsable(false)]
         [DefaultValue(null)]
-        public IPaintTool CurrentPaintTool
+        internal IPaintTool CurrentPaintTool
         {
-            get => _internalPictureBox.CurrentPaintTool;
+            get => PictureBox.CurrentPaintTool;
             set
             {
                 if (IsDisposed) 
                     return;
                 
-                _internalPictureBox.CurrentPaintTool = value;
+                PictureBox.CurrentPaintTool = value;
 
                 if (value is IClipboardPaintTool operation)
                 {
@@ -168,11 +158,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the undo system that handles the undo/redo tasks of this ImageEditPanel
         /// </summary>
-        public UndoSystem UndoSystem
-        {
-            get => _undoSystem;
-            set => _undoSystem = value;
-        }
+        public UndoSystem UndoSystem { get; set; }
 
         /// <summary>
         /// Gets or sets a value specifying whether editing the image is currently enabled on this image edit panel
@@ -201,7 +187,7 @@ namespace Pixelaria.Views.Controls
             {
                 _defaultCompositingMode = value;
 
-                if (_internalPictureBox.CurrentPaintTool is ICompositingPaintTool operation)
+                if (PictureBox.CurrentPaintTool is ICompositingPaintTool operation)
                 {
                     operation.CompositingMode = value;
                 }
@@ -217,7 +203,7 @@ namespace Pixelaria.Views.Controls
             set
             {
                 _defaultFillMode = value;
-                if (_internalPictureBox.CurrentPaintTool is IFillModePaintTool operation)
+                if (PictureBox.CurrentPaintTool is IFillModePaintTool operation)
                 {
                     operation.FillMode = value;
                 }
@@ -234,7 +220,7 @@ namespace Pixelaria.Views.Controls
             // Create the controls
             SuspendLayout();
 
-            _internalPictureBox = new InternalPictureBox(this)
+            PictureBox = new InternalPictureBox(this)
             {
                 MinimumZoom = new PointF(0.25f, 0.25f),
                 MaximumZoom = new PointF(160, 160),
@@ -253,12 +239,12 @@ namespace Pixelaria.Views.Controls
             };
 
             // Add controls
-            _owningPanel.Controls.Add(_internalPictureBox);
+            _owningPanel.Controls.Add(PictureBox);
             Controls.Add(_owningPanel);
 
             ResumeLayout(true);
 
-            _undoSystem = new UndoSystem();
+            UndoSystem = new UndoSystem();
 
             _defaultCompositingMode = CompositingMode.SourceOver;
             _defaultFillMode = OperationFillMode.SolidFillFirstColor;
@@ -271,7 +257,7 @@ namespace Pixelaria.Views.Controls
         {
             var form = FindForm();
             if (form != null)
-                _internalPictureBox.HookToControl(form);
+                PictureBox.HookToControl(form);
         }
         
         /// <summary>
@@ -284,7 +270,7 @@ namespace Pixelaria.Views.Controls
             if (!disposing)
                 return;
 
-            _internalPictureBox.Dispose();
+            PictureBox.Dispose();
         }
 
         /// <summary>
@@ -297,12 +283,12 @@ namespace Pixelaria.Views.Controls
             if(clearUndoSystem)
             {
                 // Clear the undo system
-                _undoSystem.Clear();
+                UndoSystem.Clear();
             }
 
-            _internalPictureBox.SetBitmap(bitmap);
-            _internalPictureBox.Width = _owningPanel.Width;
-            _internalPictureBox.Height = _owningPanel.Height;
+            PictureBox.SetBitmap(bitmap);
+            PictureBox.Width = _owningPanel.Width;
+            PictureBox.Height = _owningPanel.Height;
         }
 
         /// <summary>
@@ -339,7 +325,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="tool">The operation that fired the event</param>
         /// <param name="status">The status for the event</param>
-        public void FireOperationStatusEvent(IPaintTool tool, string status)
+        internal void FireOperationStatusEvent(IPaintTool tool, string status)
         {
             OperationStatusChanged?.Invoke(this, new OperationStatusEventArgs(tool, status));
         }
@@ -421,7 +407,7 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Gets or sets the current paint operation for this InternalPictureBox
             /// </summary>
-            public IPaintTool CurrentPaintTool { get => _currentPaintTool; set { if (IsDisposed) return; SetPaintOperation(value); } }
+            internal IPaintTool CurrentPaintTool { get => _currentPaintTool; set { if (IsDisposed) return; SetPaintOperation(value); } }
 
             /// <summary>
             /// Gets the ImageEditPanel that owns this InternalPictureBox
@@ -515,12 +501,13 @@ namespace Pixelaria.Views.Controls
                 if (!disposing)
                     return;
 
-                _currentPaintTool?.Destroy();
+                _currentPaintTool?.Dispose();
 
                 foreach (var decorator in _pictureBoxDecorators)
                 {
-                    decorator.Destroy();
+                    decorator.Dispose();
                 }
+                _pictureBoxDecorators.Clear();
 
                 // Create the under and over images
                 if (_overImage != null)
@@ -575,14 +562,13 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// Sets the current paint operation of this InternalPictureBox to be of the given type
             /// </summary>
-            /// <param name="newPaintTool"></param>
-            public void SetPaintOperation(IPaintTool newPaintTool)
+            internal void SetPaintOperation(IPaintTool newPaintTool)
             {
                 if (_currentPaintTool != null)
                 {
                     OwningPanel.FireOperationStatusEvent(_currentPaintTool, "");
 
-                    _currentPaintTool.Destroy();
+                    _currentPaintTool.Dispose();
                 }
 
                 _currentPaintTool = newPaintTool;
@@ -977,7 +963,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Arguments for a OperationStatusChange event
     /// </summary>
-    public class OperationStatusEventArgs : EventArgs
+    internal class OperationStatusEventArgs : EventArgs
     {
         /// <summary>
         /// Gets the operation status
@@ -1181,7 +1167,7 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Abstract class to be inherited by objects that decorate the picture box's visual display
     /// </summary>
-    public abstract class PictureBoxDecorator
+    public abstract class PictureBoxDecorator: IDisposable
     {
         /// <summary>
         /// The reference to the picture box to decorate
@@ -1202,6 +1188,25 @@ namespace Pixelaria.Views.Controls
             this.pictureBox = pictureBox;
         }
 
+        ~PictureBoxDecorator()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+
+            pictureBox = null;
+        }
+
         /// <summary>
         /// Initializes this PictureBoxDecorator's instance
         /// </summary>
@@ -1215,15 +1220,7 @@ namespace Pixelaria.Views.Controls
         {
             Initialize();
         }
-
-        /// <summary>
-        /// Destroys this PictureBoxDecorator's instance
-        /// </summary>
-        public virtual void Destroy()
-        {
-            pictureBox = null;
-        }
-
+        
         /// <summary>
         /// Decorates the under image, using the given event arguments
         /// </summary>

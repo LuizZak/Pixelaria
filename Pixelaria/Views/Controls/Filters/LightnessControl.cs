@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a LightnessFilter
     /// </summary>
-    public partial class LightnessControl : FilterControl
+    internal partial class LightnessControl : FilterControl
     {
         /// <summary>
         /// Initializes a new instance of the LightnessControl class

@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -33,7 +32,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a stroke filter
     /// </summary>
-    public class StrokeFilter : IFilter
+    internal class StrokeFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -96,101 +95,96 @@ namespace Pixelaria.Filters
             if(!Modifying)
                 return;
 
-            Bitmap bmo = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
-
-            FastBitmap fbi = new FastBitmap(bitmap);
-            FastBitmap fbo = new FastBitmap(bmo);
-
-            fbi.Lock();
-            fbo.Lock();
-
-            int w = bitmap.Width;
-            int h = bitmap.Height;
-
-            int strokeColorInt = StrokeColor.ToArgb() & 0xFFFFFF;
-
-            int strokeRadius = StrokeRadius + (Smooth ? 1 : 0);
-            int strokeRadiusSqrd = strokeRadius * strokeRadius;
-
-            int* scan0I = (int*)fbi.Scan0;
-            int* scan0O = (int*)fbo.Scan0;
-
-            int strideWidthI = fbi.Stride;
-
-            bool smooth = Smooth;
-
-            Stopwatch sw = Stopwatch.StartNew();
-
-            // Apply the stroke
-            for (int y = 0; y < h; y++)
+            using (var bmo = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat))
             {
-                for (int x = 0; x < w; x++)
+                using (var fbi = bitmap.FastLock())
+                using (var fbo = bmo.FastLock())
                 {
-                    int a = (*(scan0I + strideWidthI * y + x) >> 24) & 0xFF;
+                    int w = bitmap.Width;
+                    int h = bitmap.Height;
 
-                    // If the pixel has an alpha of 0, it can't apply any stroke
-                    if (a == 0)
-                        continue;
+                    int strokeColorInt = StrokeColor.ToArgb() & 0xFFFFFF;
 
-                    int minY = Math.Max(y - strokeRadius, 0), maxY = Math.Min(y + strokeRadius, h - 1);
-                    int minX = Math.Max(x - strokeRadius, 0), maxX = Math.Min(x + strokeRadius, w - 1);
+                    int strokeRadius = StrokeRadius + (Smooth ? 1 : 0);
+                    int strokeRadiusSqrd = strokeRadius * strokeRadius;
 
-                    for (int sy = minY; sy <= maxY; sy++)
+                    int* scan0I = (int*) fbi.Scan0;
+                    int* scan0O = (int*) fbo.Scan0;
+
+                    int strideWidthI = fbi.Stride;
+
+                    bool smooth = Smooth;
+                
+                    // Apply the stroke
+                    for (int y = 0; y < h; y++)
                     {
-                        // We cache the Y pointer offset here so we don't need to recalculate for each column of pixels over and over
-                        int yMod = strideWidthI * sy;
-
-                        for (int sx = minX; sx <= maxX; sx++)
+                        for (int x = 0; x < w; x++)
                         {
-                            // Don't apply any stroke on top of fully opaque pixels
-                            if ((*(scan0I + yMod + sx) & 0xFF000000) == 0xFF000000 || (sx == x && sy == y))
+                            int a = (*(scan0I + strideWidthI * y + x) >> 24) & 0xFF;
+
+                            // If the pixel has an alpha of 0, it can't apply any stroke
+                            if (a == 0)
                                 continue;
 
-                            int dx = sx - x;
-                            int dy = sy - y;
-                            int dis = dx * dx + dy * dy;
+                            int minY = Math.Max(y - strokeRadius, 0), maxY = Math.Min(y + strokeRadius, h - 1);
+                            int minX = Math.Max(x - strokeRadius, 0), maxX = Math.Min(x + strokeRadius, w - 1);
 
-                            if (dis > strokeRadiusSqrd)
-                                continue;
-
-                            const int outA = 255;
-                            int outC = (outA << 24) + strokeColorInt;
-
-                            if (smooth)
+                            for (int sy = minY; sy <= maxY; sy++)
                             {
-                                float oldA = ((*(scan0O + yMod + sx) >> 24) & 0xFF) / 255.0f;
+                                // We cache the Y pointer offset here so we don't need to recalculate for each column of pixels over and over
+                                int yMod = strideWidthI * sy;
 
-                                outC = (Math.Min(255, (int)((oldA + (1 - Math.Sqrt(dis) / strokeRadius)) * 0xFF)) << 24) + strokeColorInt;
-					        }
+                                for (int sx = minX; sx <= maxX; sx++)
+                                {
+                                    // Don't apply any stroke on top of fully opaque pixels
+                                    if ((*(scan0I + yMod + sx) & 0xFF000000) == 0xFF000000 || (sx == x && sy == y))
+                                        continue;
 
-                            *(scan0O + yMod + sx) = outC;
+                                    int dx = sx - x;
+                                    int dy = sy - y;
+                                    int dis = dx * dx + dy * dy;
+
+                                    if (dis > strokeRadiusSqrd)
+                                        continue;
+
+                                    const int outA = 255;
+                                    int outC = (outA << 24) + strokeColorInt;
+
+                                    if (smooth)
+                                    {
+                                        float oldA = ((*(scan0O + yMod + sx) >> 24) & 0xFF) / 255.0f;
+
+                                        outC = (Math.Min(255,
+                                                    (int) ((oldA + (1 - Math.Sqrt(dis) / strokeRadius)) * 0xFF)) << 24) +
+                                               strokeColorInt;
+                                    }
+
+                                    *(scan0O + yMod + sx) = outC;
+                                }
+                            }
                         }
                     }
                 }
+
+                // Draw the underlying image
+                if (!KnockoutImage)
+                {
+                    using (var gphTemp = Graphics.FromImage(bmo))
+                    {
+                        gphTemp.CompositingMode = CompositingMode.SourceOver;
+                        gphTemp.DrawImage(bitmap, Point.Empty);
+                        gphTemp.Flush();
+                    }
+                }
+
+                // Draw to the image now
+                using (var gphOut = Graphics.FromImage(bitmap))
+                {
+                    gphOut.CompositingMode = CompositingMode.SourceCopy;
+                    gphOut.DrawImage(bmo, Point.Empty);
+                    gphOut.Flush();
+                }
             }
-
-            fbo.Unlock();
-            fbi.Unlock();
-
-            // Draw the underlying image
-            if (!KnockoutImage)
-            {
-                Graphics gphTemp = Graphics.FromImage(bmo);
-                gphTemp.CompositingMode = CompositingMode.SourceOver;
-                gphTemp.DrawImage(bitmap, Point.Empty);
-                gphTemp.Dispose();
-            }
-
-            // Draw to the image now
-            Graphics gphOut = Graphics.FromImage(bitmap);
-            gphOut.CompositingMode = CompositingMode.SourceCopy;
-            gphOut.DrawImage(bmo, Point.Empty);
-            gphOut.Dispose();
-
-            bmo.Dispose();
-
-            sw.Stop();
-            Debug.WriteLine((sw.ElapsedTicks / (double)Stopwatch.Frequency) + "s");
         }
 
         /// <summary>
@@ -199,7 +193,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(StrokeColor.ToArgb());
             writer.Write(StrokeRadius);
@@ -214,7 +208,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             StrokeColor = Color.FromArgb(reader.ReadInt32());
             StrokeRadius = reader.ReadInt32();
@@ -226,7 +220,8 @@ namespace Pixelaria.Filters
         {
             var other = filter as StrokeFilter;
 
-            return other != null && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius && KnockoutImage == other.KnockoutImage && Smooth == other.Smooth && Version == other.Version;
+            return other != null && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius &&
+                   KnockoutImage == other.KnockoutImage && Smooth == other.Smooth && Version == other.Version;
         }
     }
 }

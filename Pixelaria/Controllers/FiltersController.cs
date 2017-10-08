@@ -9,7 +9,7 @@ namespace Pixelaria.Controllers
     /// <summary>
     /// A singleton class for controlling filters during runtime of the application
     /// </summary>
-    public class FiltersController
+    internal class FiltersController
     {
         private readonly List<FilterPreset> _presets;
 

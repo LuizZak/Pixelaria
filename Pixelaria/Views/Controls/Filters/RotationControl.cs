@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a RotationFilter
     /// </summary>
-    public partial class RotationControl : FilterControl
+    internal partial class RotationControl : FilterControl
     {
         /// <summary>
         /// Initializes a new class of the RotationControl class

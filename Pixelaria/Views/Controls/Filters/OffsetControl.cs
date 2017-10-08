@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles an OffsetFilter
     /// </summary>
-    public partial class OffsetControl : FilterControl
+    internal partial class OffsetControl : FilterControl
     {
         /// <summary>
         /// Initializes a new instance of the OffsetControl class

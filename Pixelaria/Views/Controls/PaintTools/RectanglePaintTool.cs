@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Rectangle paint operation
     /// </summary>
-    public class RectanglePaintTool : BaseShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
+    internal class RectanglePaintTool : BaseShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
     {
         /// <summary>
         /// Initialies a new instance of the RectanglePaintOperation class, setting the two drawing colors
@@ -57,7 +57,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
@@ -81,12 +81,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Rectangle.Empty;
+
+            var rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             if (relative)
             {
-                rec.Width += (int)(pictureBox.Zoom.X);
-                rec.Height += (int)(pictureBox.Zoom.Y);
+                rec.Width += (int)internalPictureBox.Zoom.X;
+                rec.Height += (int)internalPictureBox.Zoom.Y;
             }
             else
             {
@@ -116,12 +120,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         [CanBeNull]
         public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, [NotNull] Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return null;
+
             ShapeUndoTask returnTask = null;
 
             if (registerUndo)
             {
-                returnTask = new RectangleUndoTask(pictureBox.Bitmap, color1, color2, area, compMode, opFillMode);
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(returnTask);
+                returnTask = new RectangleUndoTask(internalPictureBox.Bitmap, color1, color2, area, compMode, opFillMode);
+                internalPictureBox.OwningPanel.UndoSystem.RegisterUndo(returnTask);
             }
 
             PerformRectangleOperation(color1, color2, area, bitmap, compMode, opFillMode);
@@ -156,14 +164,14 @@ namespace Pixelaria.Views.Controls.PaintTools
         public static void PerformRectangleOperation(Color firstColor, Color secondColor, Rectangle area,
             [NotNull] Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
         {
-            Graphics graphics = Graphics.FromImage(bitmap);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.CompositingMode = compositingMode;
 
-            graphics.CompositingMode = compositingMode;
+                PerformRectangleOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
 
-            PerformRectangleOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
-
-            graphics.Flush();
-            graphics.Dispose();
+                graphics.Flush();
+            }
         }
 
         /// <summary>
@@ -181,7 +189,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if (fillMode == OperationFillMode.SolidFillFirstColor || fillMode == OperationFillMode.OutlineFirstColorFillSecondColor || fillMode == OperationFillMode.SolidFillSecondColor)
             {
-                Rectangle nArea = area;
+                var nArea = area;
 
                 if (fillMode == OperationFillMode.OutlineFirstColorFillSecondColor)
                     nArea.Inflate(-1, -1);
@@ -191,7 +199,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if (fillMode == OperationFillMode.OutlineFirstColor || fillMode == OperationFillMode.OutlineFirstColorFillSecondColor)
             {
-                Pen pen = new Pen(firstColor);
+                var pen = new Pen(firstColor);
 
                 area.Inflate(-1, -1);
 

@@ -31,7 +31,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a Scaling filter
     /// </summary>
-    public class ScaleFilter : IFilter
+    internal class ScaleFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -87,29 +87,30 @@ namespace Pixelaria.Filters
             if (!Modifying)
                 return;
 
-            Bitmap bit = (Bitmap)bitmap.Clone();
-
-            Graphics g = Graphics.FromImage(bitmap);
-
-            g.Clear(Color.Transparent);
-
-            g.InterpolationMode = PixelQuality ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
-
-            RectangleF rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
-
-            rec.Width *= ScaleX;
-            rec.Height *= ScaleY;
-
-            if (Centered)
+            using (var bit = (Bitmap) bitmap.Clone())
+            using (var g = Graphics.FromImage(bitmap))
             {
-                rec.X = (float)Math.Round(bitmap.Width / 2.0f - rec.Width / 2);
-                rec.Y = (float)Math.Round(bitmap.Height / 2.0f - rec.Height / 2);
+                g.Clear(Color.Transparent);
+
+                g.InterpolationMode = PixelQuality
+                    ? InterpolationMode.NearestNeighbor
+                    : InterpolationMode.HighQualityBicubic;
+
+                var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+
+                rec.Width *= ScaleX;
+                rec.Height *= ScaleY;
+
+                if (Centered)
+                {
+                    rec.X = (float) Math.Round(bitmap.Width / 2.0f - rec.Width / 2);
+                    rec.Y = (float) Math.Round(bitmap.Height / 2.0f - rec.Height / 2);
+                }
+
+                g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+
+                g.Flush();
             }
-
-            g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-
-            g.Dispose();
-            bit.Dispose();
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(ScaleX);
             writer.Write(ScaleY);
@@ -134,7 +135,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             ScaleX = reader.ReadSingle();
             ScaleY = reader.ReadSingle();
@@ -147,7 +148,9 @@ namespace Pixelaria.Filters
         {
             var other = filter as ScaleFilter;
 
-            return other != null && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon && Math.Abs(ScaleY - other.ScaleY) < float.Epsilon && Centered == other.Centered && PixelQuality == other.PixelQuality && Version == other.Version;
+            return other != null && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon &&
+                   Math.Abs(ScaleY - other.ScaleY) < float.Epsilon && Centered == other.Centered &&
+                   PixelQuality == other.PixelQuality && Version == other.Version;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Represents an interface for paint tool that can intercept the Undo/Redo system with custom actions
     /// </summary>
-    public interface IUndoIntercepterPaintTool
+    internal interface IUndoIntercepterPaintTool
     {
         /// <summary>
         /// Forces this paint tool to intercept the undo operation, returning whether this Paint Tool has intercepted the undo operation successfully.

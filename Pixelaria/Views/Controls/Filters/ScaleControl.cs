@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a ScaleFilter
     /// </summary>
-    public partial class ScaleControl : FilterControl
+    internal partial class ScaleControl : FilterControl
     {
         /// <summary>
         /// Whether to ignore the next field updated event

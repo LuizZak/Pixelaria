@@ -32,7 +32,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a TransparencyFilter
     /// </summary>
-    public class TransparencyControl : FilterControl
+    internal class TransparencyControl : FilterControl
     {
         /// <summary>
         /// Initializes a new class of the TransparencyControl class

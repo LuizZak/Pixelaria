@@ -29,7 +29,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
     /// <summary>
     /// Specifies a Paint Tool to be used on a ImageEditPanel.InternalPictureBox
     /// </summary>
-    public interface IPaintTool
+    internal interface IPaintTool: IDisposable
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this tool is up
@@ -46,12 +46,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
         void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox);
-
-        /// <summary>
-        /// Finalizes this Paint Tool
-        /// </summary>
-        void Destroy();
-
+        
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>

@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using FastBitmapLib;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Filters
@@ -31,7 +32,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a Fade filter
     /// </summary>
-    public class FadeFilter : IFilter
+    internal class FadeFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -92,55 +93,54 @@ namespace Pixelaria.Filters
                 return;
 
             // Lock the bitmap
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            // ReSharper disable once InconsistentNaming
-            byte* scan0b = (byte*)data.Scan0;
-            int count = bitmap.Width * bitmap.Height;
-
-            // Pre-multiply the fade color
-            float factor = (FadeFactor > 1 ? 1 : FadeFactor);
-            float from = 1 - factor;
-
-            int fa = (int)(FadeColor.A * factor);
-            int fr = (int)(FadeColor.R * factor);
-            int fg = (int)(FadeColor.G * factor);
-            int fb = (int)(FadeColor.B * factor);
-            if (Math.Abs(factor - 1) < float.Epsilon)
+            using (var fastBitmap = bitmap.FastLock())
             {
-                // Apply the fade
-                while (count-- > 0)
-                {
-                    byte* b = (scan0b++);
-                    byte* g = (scan0b++);
-                    byte* r = (scan0b++);
-                    byte* a = (scan0b++);
+                // ReSharper disable once InconsistentNaming
+                byte* scan0b = (byte*) fastBitmap.Scan0;
+                int count = bitmap.Width * bitmap.Height;
 
-                    *a = (byte)(FadeAlpha ? fa : *a);
-                    *r = (byte)(fr);
-                    *g = (byte)(fg);
-                    *b = (byte)(fb);
+                // Pre-multiply the fade color
+                float factor = FadeFactor > 1 ? 1 : FadeFactor;
+                float from = 1 - factor;
+
+                int fa = (int) (FadeColor.A * factor);
+                int fr = (int) (FadeColor.R * factor);
+                int fg = (int) (FadeColor.G * factor);
+                int fb = (int) (FadeColor.B * factor);
+
+                if (Math.Abs(factor - 1) < float.Epsilon)
+                {
+                    // Apply the fade
+                    while (count-- > 0)
+                    {
+                        byte* b = scan0b++;
+                        byte* g = scan0b++;
+                        byte* r = scan0b++;
+                        byte* a = scan0b++;
+
+                        *a = (byte) (FadeAlpha ? fa : *a);
+                        *r = (byte) fr;
+                        *g = (byte) fg;
+                        *b = (byte) fb;
+                    }
+                }
+                else
+                {
+                    // Apply the fade
+                    while (count-- > 0)
+                    {
+                        byte* b = scan0b++;
+                        byte* g = scan0b++;
+                        byte* r = scan0b++;
+                        byte* a = scan0b++;
+
+                        *a = (byte) (FadeAlpha ? *a * from + fa : *a);
+                        *r = (byte) (*r * from + fr);
+                        *g = (byte) (*g * from + fg);
+                        *b = (byte) (*b * from + fb);
+                    }
                 }
             }
-            else
-            {
-                // Apply the fade
-                while (count-- > 0)
-                {
-                    byte* b = (scan0b++);
-                    byte* g = (scan0b++);
-                    byte* r = (scan0b++);
-                    byte* a = (scan0b++);
-
-                    *a = (byte)(FadeAlpha ? (*a * from + fa) : *a);
-                    *r = (byte)(*r * from + fr);
-                    *g = (byte)(*g * from + fg);
-                    *b = (byte)(*b * from + fb);
-                }
-            }
-            
-
-            bitmap.UnlockBits(data);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
             
             writer.Write(FadeColor.ToArgb());
             writer.Write(FadeFactor);
@@ -163,7 +163,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             FadeColor = Color.FromArgb(reader.ReadInt32());
             FadeFactor = reader.ReadSingle();
@@ -174,7 +174,8 @@ namespace Pixelaria.Filters
         {
             var other = filter as FadeFilter;
 
-            return other != null && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon && FadeColor == other.FadeColor && FadeAlpha == other.FadeAlpha && Version == other.Version;
+            return other != null && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon &&
+                   FadeColor == other.FadeColor && FadeAlpha == other.FadeAlpha && Version == other.Version;
         }
     }
 }

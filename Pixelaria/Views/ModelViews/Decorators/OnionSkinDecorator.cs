@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -33,7 +32,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
     /// <summary>
     /// Decorates the picture box with an onion skin display
     /// </summary>
-    public class OnionSkinDecorator : PictureBoxDecorator, IDisposable
+    public class OnionSkinDecorator : PictureBoxDecorator
     {
         /// <summary>
         /// The frame view binded to this OnionSkinDecorator
@@ -43,6 +42,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// <summary>
         /// The onion skin bitmap
         /// </summary>
+        [CanBeNull]
         protected Bitmap onionSkin;
 
         /// <summary>
@@ -77,24 +77,16 @@ namespace Pixelaria.Views.ModelViews.Decorators
 
             this.frameView.EditFrameChanged += _frameChangedEventHandler;
         }
-
-        ~OnionSkinDecorator()
+        
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
-        }
+            if (disposing)
+            {
+                onionSkin?.Dispose();
+                frameView.EditFrameChanged -= _frameChangedEventHandler;
+            }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
-
-            onionSkin.Dispose();
+            base.Dispose(disposing);
         }
 
         // 
@@ -116,17 +108,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
 
         }
-
-        /// <summary>
-        /// Destroys this PictureBoxDecorator's instance
-        /// </summary>
-        public override void Destroy()
-        {
-            onionSkin?.Dispose();
-
-            frameView.EditFrameChanged -= _frameChangedEventHandler;
-        }
-
+        
         /// <summary>
         /// Shows the onion skin
         /// </summary>

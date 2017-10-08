@@ -24,7 +24,6 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
 namespace Pixelaria.Views.Controls.PaintTools
@@ -32,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Zoom paint tool
     /// </summary>
-    public class ZoomPaintTool : BaseDraggingPaintTool
+    internal class ZoomPaintTool : BaseDraggingPaintTool
     {
         /// <summary>
         /// The relative point where the mouse was held down, in control coordinates
@@ -57,15 +56,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
         }
-
-        /// <summary>
-        /// Finalizes this Paint Tool
-        /// </summary>
-        public override void Destroy()
-        {
-            ToolCursor.Dispose();
-        }
-
+        
         /// <summary>
         /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
@@ -104,11 +95,11 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if (mouseDown)
             {
-                pictureBox.Invalidate(GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false));
+                pictureBox?.Invalidate(GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false));
 
                 _mousePointRelative = e.Location;
 
-                pictureBox.Invalidate(GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false));
+                pictureBox?.Invalidate(GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false));
             }
         }
 
@@ -131,32 +122,36 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (!mouseDown)
                 return;
 
-            Rectangle zoomArea = GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
 
-            pictureBox.Invalidate(zoomArea);
+            var zoomArea = GetRectangleArea(new [] { _mouseDownRelative, _mousePointRelative }, false);
 
-            float zoomX = pictureBox.Width / (float)zoomArea.Width;
-            float zoomY = pictureBox.Height / (float)zoomArea.Height;
+            internalPictureBox.Invalidate(zoomArea);
+
+            float zoomX = internalPictureBox.Width / (float)zoomArea.Width;
+            float zoomY = internalPictureBox.Height / (float)zoomArea.Height;
 
             if (zoomArea.Width < 2 && zoomArea.Height < 2)
             {
                 zoomX = zoomY = 2f;
 
-                zoomArea.X -= pictureBox.Width / 2;
-                zoomArea.Y -= pictureBox.Height / 2;
+                zoomArea.X -= internalPictureBox.Width / 2;
+                zoomArea.Y -= internalPictureBox.Height / 2;
             }
 
             zoomY = zoomX = Math.Min(zoomX, zoomY);
 
-            pictureBox.Zoom = new PointF(pictureBox.Zoom.X * zoomX, pictureBox.Zoom.Y * zoomY);
+            internalPictureBox.Zoom = new PointF(internalPictureBox.Zoom.X * zoomX, internalPictureBox.Zoom.Y * zoomY);
 
             // Zoom in into the located region
-            Point relative = pictureBox.Offset;
+            var relative = internalPictureBox.Offset;
 
             relative.X += (int)(zoomArea.X * zoomX);
             relative.Y += (int)(zoomArea.Y * zoomX);
 
-            pictureBox.Offset = relative;
+            internalPictureBox.Offset = relative;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Singleton class used to store the program's filters
     /// </summary>
-    public class FilterStore
+    internal class FilterStore
     {
         /// <summary>
         /// The list of filter items of the program
@@ -359,7 +359,7 @@ namespace Pixelaria.Filters
     /// Specifies a filter preset object that holds information about a set of filters
     /// and their parameters that can be serialized from and to binary streams
     /// </summary>
-    public class FilterPreset
+    internal class FilterPreset
     {
         /// <summary>
         /// The internal array of filter objects that compose this filter preset
@@ -385,7 +385,7 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="name">A name for the preset</param>
         /// <param name="filters">An array of IFilter objects to utilize as a preset</param>
-        public FilterPreset(string name, IFilter[] filters)
+        internal FilterPreset(string name, IFilter[] filters)
         {
             Name = name;
             _filters = filters;

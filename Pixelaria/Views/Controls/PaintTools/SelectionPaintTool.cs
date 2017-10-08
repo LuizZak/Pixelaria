@@ -39,7 +39,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    public class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation, IUndoIntercepterPaintTool, IDisposable
+    internal class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation, IUndoIntercepterPaintTool
     {
         /// <summary>
         /// Timer used to animate the selection area
@@ -118,8 +118,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets or sets the bitmap that represents the currently selected graphics
         /// </summary>
-        public Bitmap SelectionBitmap { get => selectionBitmap;
-            set { selectionBitmap = value; pictureBox.Invalidate(); } }
+        public Bitmap SelectionBitmap
+        {
+            get => selectionBitmap;
+            set
+            {
+                selectionBitmap = value;
+                
+                pictureBox?.Invalidate();
+            }
+        }
 
         /// <summary>
         /// Gets the area the selection is currently occupying in the canvas
@@ -130,9 +138,9 @@ namespace Pixelaria.Views.Controls.PaintTools
             set
             {
                 // Invalidate before and after the modification
-                pictureBox.Invalidate(GetSelectionArea(true));
+                pictureBox?.Invalidate(GetSelectionArea(true));
                 selectedArea = value;
-                pictureBox.Invalidate(GetSelectionArea(true));
+                pictureBox?.Invalidate(GetSelectionArea(true));
             }
         }
 
@@ -149,44 +157,49 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets or sets the compositing mode for this paint operation
         /// </summary>
-        public CompositingMode CompositingMode { get => compositingMode;
-            set { compositingMode = value; if (selected) { pictureBox.Invalidate(GetSelectionArea(true)); } } }
+        public CompositingMode CompositingMode
+        {
+            get => compositingMode;
+            set
+            {
+                compositingMode = value;
+                if (selected)
+                {
+                    pictureBox?.Invalidate(GetSelectionArea(true));
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether to force the creation of an undo task after the operation is finished even if no significant changes have been made with this paint operation
         /// </summary>
         public bool ForceApplyChanges { get; set; }
-
-        ~SelectionPaintTool()
+        
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
-
-            // Remove the event handler
-            pictureBox.OwningPanel.UndoSystem.WillPerformUndo -= _undoHandler;
-            pictureBox.OwningPanel.UndoSystem.WillPerformRedo -= _redoHandler;
-
-            pictureBox = null;
-
-            if (selectionBitmap != null)
+            if (disposing)
             {
-                selectionBitmap.Dispose();
-                selectionBitmap = null;
+                // Remove the event handler
+                var internalPictureBox = pictureBox;
+                if(internalPictureBox != null)
+                {
+                    internalPictureBox.OwningPanel.UndoSystem.WillPerformUndo -= _undoHandler;
+                    internalPictureBox.OwningPanel.UndoSystem.WillPerformRedo -= _redoHandler;
+                }
+
+                pictureBox = null;
+
+                if (selectionBitmap != null)
+                {
+                    selectionBitmap.Dispose();
+                    selectionBitmap = null;
+                }
+
+                ToolCursor.Dispose();
+                _animTimer.Dispose();
             }
 
-            ToolCursor.Dispose();
-            _animTimer.Dispose();
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -223,7 +236,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         private void animTimer_Tick(object sender, EventArgs e)
         {
             _dashOffset -= 0.5f;
-            pictureBox.Invalidate(GetSelectionArea(true));
+            pictureBox?.Invalidate(GetSelectionArea(true));
         }
 
         // 
@@ -241,34 +254,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             CancelOperation(true);
         }
-
-        /// <summary>
-        /// Finalizes this Paint Operation
-        /// </summary>
-        public override void Destroy()
-        {
-            FinishOperation(true);
-
-            // Remove the event handler
-            pictureBox.OwningPanel.UndoSystem.WillPerformUndo -= _undoHandler;
-            pictureBox.OwningPanel.UndoSystem.WillPerformRedo -= _redoHandler;
-
-            pictureBox = null;
-            
-            if (selectionBitmap != null)
-            {
-                selectionBitmap.Dispose();
-                selectionBitmap = null;
-            }
-
-            ToolCursor.Dispose();
-
-            _animTimer.Stop();
-            _animTimer.Dispose();
-
-            Loaded = false;
-        }
-
+        
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
@@ -288,14 +274,18 @@ namespace Pixelaria.Views.Controls.PaintTools
                 FinishOperation(true);
             }
 
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             // Find the minimum rectangle for the selection
-            Debug.Assert(pictureBox.Bitmap != null, "pictureBox.Bitmap != null");
-            var selectionRectangle = ImageUtilities.FindMinimumImageArea(pictureBox.Bitmap);
+            Debug.Assert(internalPictureBox.Bitmap != null, "pictureBox.Bitmap != null");
+            var selectionRectangle = ImageUtilities.FindMinimumImageArea(internalPictureBox.Bitmap);
 
             // If the whole area is empty, select the whole bitmap area
             if (selectionRectangle.Size == Size.Empty)
             {
-                selectionRectangle = new Rectangle(0, 0, pictureBox.Image.Width, pictureBox.Image.Height);
+                selectionRectangle = new Rectangle(0, 0, internalPictureBox.Image.Width, internalPictureBox.Image.Height);
             }
 
             StartOperation(selectionRectangle, null, SelectionOperationType.Moved);
@@ -306,7 +296,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public void Copy()
         {
-            using (MemoryStream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 selectionBitmap.Save(stream, ImageFormat.Png);
 
@@ -341,7 +331,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public void Paste()
         {
-            Stream str = Clipboard.GetData("PNG") as Stream;
+            var str = Clipboard.GetData("PNG") as Stream;
             Bitmap bit;
 
             if (str != null)
@@ -354,7 +344,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                     return;
                 }
 
-                Bitmap temp = new Bitmap(bit.Width, bit.Height, PixelFormat.Format32bppArgb);
+                var temp = new Bitmap(bit.Width, bit.Height, PixelFormat.Format32bppArgb);
 
                 FastBitmap.CopyPixels(bit, temp);
 
@@ -375,12 +365,12 @@ namespace Pixelaria.Views.Controls.PaintTools
                 OperationType = SelectionOperationType.Paste;
 
                 // Get the top-left pixel to place the selection at
-                Point loc = GetAbsolutePoint(new PointF(0, 0));
+                var loc = GetAbsolutePoint(new PointF(0, 0));
                 
                 StartOperation(new Rectangle(loc.X, loc.Y, bit.Width, bit.Height), bit);
             }
 
-            pictureBox.MarkModified();
+            pictureBox?.MarkModified();
         }
 
         /// <summary>
@@ -422,7 +412,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 relativeSelectedArea = GetCurrentRectangle(true);
             }
 
-            if (selected || drawingSelection)
+            if ((selected || drawingSelection) && pictureBox != null)
             {
                 using (var graphics = Graphics.FromImage(pictureBox.Buffer))
                 {
@@ -504,7 +494,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             base.MouseMove(e);
 
-            Point p = GetAbsolutePoint(e.Location);
+            var p = GetAbsolutePoint(e.Location);
 
             if (selected)
             {
@@ -512,12 +502,12 @@ namespace Pixelaria.Views.Controls.PaintTools
                 {
                     if (lastMouseAbsolutePoint != mouseAbsolutePoint)
                     {
-                        pictureBox.Invalidate(GetSelectionArea(true));
+                        pictureBox?.Invalidate(GetSelectionArea(true));
 
                         selectedArea.X = p.X - movingOffset.X;
                         selectedArea.Y = p.Y - movingOffset.Y;
 
-                        pictureBox.Invalidate(GetSelectionArea(true));
+                        pictureBox?.Invalidate(GetSelectionArea(true));
 
                         displaySelection = false;
 
@@ -525,7 +515,8 @@ namespace Pixelaria.Views.Controls.PaintTools
                     }
                 }
 
-                pictureBox.Cursor = selectedArea.Contains(p) ? Cursors.SizeAll : ToolCursor;
+                if (pictureBox != null)
+                    pictureBox.Cursor = selectedArea.Contains(p) ? Cursors.SizeAll : ToolCursor;
             }
             else if (mouseDown)
             {
@@ -550,7 +541,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                     displaySelection = true;
 
                     if(OperationType != SelectionOperationType.Paste && selectedArea != selectedStartArea)
-                        pictureBox.MarkModified();
+                        pictureBox?.MarkModified();
 
                     UpdateClipboardState();
                 }
@@ -604,7 +595,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                         else
                         {
                             FinishOperation(false);
-                            pictureBox.MarkModified();
+                            pictureBox?.MarkModified();
                         }
 
                         OperationType = SelectionOperationType.Cut;
@@ -612,27 +603,27 @@ namespace Pixelaria.Views.Controls.PaintTools
                     break;
 
                 case Keys.Left:
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     selectedArea.X--;
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     break;
 
                 case Keys.Right:
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     selectedArea.X++;
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     break;
 
                 case Keys.Up:
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     selectedArea.Y--;
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     break;
 
                 case Keys.Down:
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     selectedArea.Y++;
-                    pictureBox.Invalidate(GetSelectionArea(true));
+                    pictureBox?.Invalidate(GetSelectionArea(true));
                     break;
 
                 default:
@@ -707,10 +698,14 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             var bitmap = new Bitmap(area.Width, area.Height);
 
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return bitmap;
+
             using (var graphics = Graphics.FromImage(bitmap))
             {
-                Debug.Assert(pictureBox.Bitmap != null, "pictureBox.Bitmap != null");
-                graphics.DrawImage(pictureBox.Bitmap, new Rectangle(0, 0, area.Width, area.Height), area, GraphicsUnit.Pixel);
+                Debug.Assert(internalPictureBox.Bitmap != null, "internalPictureBox.Bitmap != null");
+                graphics.DrawImage(internalPictureBox.Bitmap, new Rectangle(0, 0, area.Width, area.Height), area, GraphicsUnit.Pixel);
                 graphics.Flush();
             }
 
@@ -754,7 +749,11 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="operation">The operation type to mark this selection as</param>
         public void StartOperation(Rectangle area, Bitmap pasteBitmap, SelectionOperationType operation)
         {
-            pictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection", true);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
+            internalPictureBox.OwningPanel.UndoSystem.StartGroupUndo("Selection", true);
 
             OperationType = operation;
 
@@ -773,7 +772,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 pasteBitmap = ExtractBitmap(area);
 
                 // Clear the bitmap behind the image
-                using (var graphics = Graphics.FromImage(pictureBox.Image))
+                using (var graphics = Graphics.FromImage(internalPictureBox.Image))
                 {
                     graphics.SetClip(selectedArea);
 
@@ -787,7 +786,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             selectionBitmap = pasteBitmap;
 
-            pictureBox.Invalidate(GetSelectionArea(true));
+            internalPictureBox.Invalidate(GetSelectionArea(true));
 
             _animTimer.Start();
         }
@@ -797,8 +796,12 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public void CancelOperation(bool drawOnCanvas, bool cancelGroup = true)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             if (cancelGroup)
-                pictureBox.OwningPanel.UndoSystem.FinishGroupUndo(true);
+                internalPictureBox.OwningPanel.UndoSystem.FinishGroupUndo(true);
 
             if (!selected)
                 return;
@@ -808,7 +811,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 if (selectionBitmap != null)
                 {
                     // Draw the original slice back
-                    using (var graphics = Graphics.FromImage(pictureBox.Image))
+                    using (var graphics = Graphics.FromImage(internalPictureBox.Image))
                     {
                         graphics.DrawImage(selectionBitmap, selectedStartArea);
 
@@ -817,13 +820,13 @@ namespace Pixelaria.Views.Controls.PaintTools
                 }
             }
 
-            pictureBox.Invalidate(GetSelectionArea(true));
+            internalPictureBox.Invalidate(GetSelectionArea(true));
 
             selectedArea = selectedStartArea;
 
-            pictureBox.Invalidate(GetSelectionArea(true));
+            internalPictureBox.Invalidate(GetSelectionArea(true));
 
-            pictureBox.Cursor = ToolCursor;
+            internalPictureBox.Cursor = ToolCursor;
 
             selectionBitmap?.Dispose();
             selectionBitmap = null;
@@ -834,7 +837,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             selected = false;
             _animTimer.Stop();
 
-            pictureBox.NotifyBitmapModified();
+            internalPictureBox.NotifyBitmapModified();
 
             UpdateClipboardState();
 
@@ -851,6 +854,10 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (selectionBitmap == null)
                 return;
 
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             Bitmap originalSlice = null;
 
             if (drawToCanvas)
@@ -859,12 +866,12 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 using (var graphics = Graphics.FromImage(originalSlice))
                 {
-                    graphics.DrawImage(pictureBox.Image, new Rectangle(0, 0, selectedArea.Width, selectedArea.Height), selectedArea, GraphicsUnit.Pixel);
+                    graphics.DrawImage(internalPictureBox.Image, new Rectangle(0, 0, selectedArea.Width, selectedArea.Height), selectedArea, GraphicsUnit.Pixel);
                     graphics.Flush();
                 }
 
                 // Render the selected area
-                using (var graphics2 = Graphics.FromImage(pictureBox.Image))
+                using (var graphics2 = Graphics.FromImage(internalPictureBox.Image))
                 {
                     graphics2.CompositingMode = compositingMode;
 
@@ -877,16 +884,16 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (selectedArea != selectedStartArea || OperationType != SelectionOperationType.Moved || ForceApplyChanges)
             {
                 // Record the undo operation
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(pictureBox.Bitmap, selectionBitmap, originalSlice, selectedStartArea, selectedArea, OperationType, compositingMode));
+                internalPictureBox.OwningPanel.UndoSystem.RegisterUndo(new SelectionUndoTask(internalPictureBox.Bitmap, selectionBitmap, originalSlice, selectedStartArea, selectedArea, OperationType, compositingMode));
 
-                pictureBox.MarkModified();
+                internalPictureBox.MarkModified();
             }
 
-            Rectangle rec = GetSelectionArea(true);
+            var rec = GetSelectionArea(true);
 
-            pictureBox.Invalidate(rec);
+            internalPictureBox.Invalidate(rec);
 
-            pictureBox.Cursor = ToolCursor;
+            internalPictureBox.Cursor = ToolCursor;
 
             selectionBitmap.Dispose();
             selectionBitmap = null;
@@ -902,7 +909,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             // Default the operation mode to 'Moved'
             OperationType = SelectionOperationType.Moved;
 
-            pictureBox.OwningPanel.UndoSystem.FinishGroupUndo();
+            internalPictureBox.OwningPanel.UndoSystem.FinishGroupUndo();
         }
 
         /// <summary>
@@ -910,7 +917,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         private void UpdateClipboardState()
         {
-            pictureBox.OwningPanel.FireClipboardStateEvent(CanCopy(), CanCut(), CanPaste());
+            pictureBox?.OwningPanel.FireClipboardStateEvent(CanCopy(), CanCut(), CanPaste());
         }
 
         /// <summary>
@@ -920,22 +927,26 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Point p1 = mouseDownAbsolutePoint;
-            Point p2 = mouseAbsolutePoint;
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Rectangle.Empty;
+
+            var p1 = mouseDownAbsolutePoint;
+            var p2 = mouseAbsolutePoint;
 
             // Clip the selected area to be within the image boundaries
-            p1.X = Math.Max(0, Math.Min(pictureBox.Image.Width - 1, p1.X));
-            p1.Y = Math.Max(0, Math.Min(pictureBox.Image.Height - 1, p1.Y));
+            p1.X = Math.Max(0, Math.Min(internalPictureBox.Image.Width - 1, p1.X));
+            p1.Y = Math.Max(0, Math.Min(internalPictureBox.Image.Height - 1, p1.Y));
 
-            p2.X = Math.Max(0, Math.Min(pictureBox.Image.Width - 1, p2.X));
-            p2.Y = Math.Max(0, Math.Min(pictureBox.Image.Height - 1, p2.Y));
+            p2.X = Math.Max(0, Math.Min(internalPictureBox.Image.Width - 1, p2.X));
+            p2.Y = Math.Max(0, Math.Min(internalPictureBox.Image.Height - 1, p2.Y));
 
-            Rectangle rec = GetRectangleArea(new [] { p1, p2 }, relative);
+            var rec = GetRectangleArea(new [] { p1, p2 }, relative);
 
             if (relative)
             {
-                rec.Width += (int)(pictureBox.Zoom.X);
-                rec.Height += (int)(pictureBox.Zoom.Y);
+                rec.Width += (int)internalPictureBox.Zoom.X;
+                rec.Height += (int)internalPictureBox.Zoom.Y;
             }
             else
             {
@@ -959,12 +970,20 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>A Rectangle object that represents the currently selected area</returns>
         protected Rectangle GetSelectionArea(bool relative)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Rectangle.Empty;
+
             if (!relative)
             {
                 return selectedArea;
             }
 
-            return relativeSelectedArea = new Rectangle((int)Math.Floor(-pictureBox.Offset.X + selectedArea.X * pictureBox.Zoom.X) - 1, (int)Math.Floor(-pictureBox.Offset.Y + selectedArea.Y * pictureBox.Zoom.Y) - 1, (int)Math.Ceiling(selectedArea.Width * pictureBox.Zoom.X) + 2, (int)Math.Ceiling(selectedArea.Height * pictureBox.Zoom.Y) + 2);
+            return relativeSelectedArea =
+                new Rectangle((int) Math.Floor(-internalPictureBox.Offset.X + selectedArea.X * internalPictureBox.Zoom.X) - 1,
+                    (int) Math.Floor(-internalPictureBox.Offset.Y + selectedArea.Y * internalPictureBox.Zoom.Y) - 1,
+                    (int) Math.Ceiling(selectedArea.Width * internalPictureBox.Zoom.X) + 2,
+                    (int) Math.Ceiling(selectedArea.Height * internalPictureBox.Zoom.Y) + 2);
         }
 
         /// <summary>
@@ -1042,30 +1061,30 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Undo()
             {
-                Graphics gfx = Graphics.FromImage(_targetbitmap);
-
-                gfx.CompositingMode = CompositingMode.SourceCopy;
-
-                switch (_operationType)
+                using (var gfx = Graphics.FromImage(_targetbitmap))
                 {
-                    case SelectionOperationType.Moved:
-                        // Draw the original slice back
-                        gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
-                        // Draw the selection back
-                        gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                        break;
-                    case SelectionOperationType.Cut:
-                        // Draw the original slice back
-                        gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                        break;
-                    case SelectionOperationType.Paste:
-                        // Draw the original slice back
-                        gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
-                        break;
-                }
+                    gfx.CompositingMode = CompositingMode.SourceCopy;
 
-                gfx.Flush();
-                gfx.Dispose();
+                    switch (_operationType)
+                    {
+                        case SelectionOperationType.Moved:
+                            // Draw the original slice back
+                            gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
+                            // Draw the selection back
+                            gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                            break;
+                        case SelectionOperationType.Cut:
+                            // Draw the original slice back
+                            gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                            break;
+                        case SelectionOperationType.Paste:
+                            // Draw the original slice back
+                            gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
+                            break;
+                    }
+
+                    gfx.Flush();
+                }
             }
 
             /// <summary>
@@ -1073,35 +1092,36 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Redo()
             {
-                Graphics gfx = Graphics.FromImage(_targetbitmap);
-                Region reg;
-
-                gfx.CompositingMode = _compositingMode;
-
-                switch (_operationType)
+                using (var gfx = Graphics.FromImage(_targetbitmap))
                 {
-                    case SelectionOperationType.Moved:
-                        // Clear the image background
-                        reg = gfx.Clip;
-                        gfx.SetClip(_selectionStartArea);
-                        gfx.Clear(Color.Transparent);
-                        gfx.Clip = reg;
-                        gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                        break;
-                    case SelectionOperationType.Cut:
-                        reg = gfx.Clip;
-                        gfx.SetClip(_selectionStartArea);
-                        gfx.Clear(Color.Transparent);
-                        gfx.Clip = reg;
-                        break;
-                    case SelectionOperationType.Paste:
-                        // Draw the original slice back
-                        gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                        break;
-                }
+                    Region reg;
 
-                gfx.Flush();
-                gfx.Dispose();
+                    gfx.CompositingMode = _compositingMode;
+
+                    switch (_operationType)
+                    {
+                        case SelectionOperationType.Moved:
+                            // Clear the image background
+                            reg = gfx.Clip;
+                            gfx.SetClip(_selectionStartArea);
+                            gfx.Clear(Color.Transparent);
+                            gfx.Clip = reg;
+                            gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                            break;
+                        case SelectionOperationType.Cut:
+                            reg = gfx.Clip;
+                            gfx.SetClip(_selectionStartArea);
+                            gfx.Clear(Color.Transparent);
+                            gfx.Clip = reg;
+                            break;
+                        case SelectionOperationType.Paste:
+                            // Draw the original slice back
+                            gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                            break;
+                    }
+
+                    gfx.Flush();
+                }
             }
 
             /// <summary>

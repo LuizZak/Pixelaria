@@ -328,6 +328,7 @@ namespace Pixelaria.Controllers.Exporters
                 var postTaskTasks = new List<Task>();
 
                 // Have each task notify the throttler when it completes so that it decrements the number of tasks currently running.
+                // ReSharper disable once AccessToDisposedClosure See bellow: This is never disposed before leaving method
                 tasks.ForEach(t => postTaskTasks.Add(t.ContinueWith(tsk => throttler.Release(), cancellationToken)));
 
                 // Start running each task.
@@ -341,7 +342,9 @@ namespace Pixelaria.Controllers.Exporters
                 }
 
                 // Wait for all of the provided tasks to complete.
-                // We wait on the list of "post" tasks instead of the original tasks, otherwise there is a potential race condition where the throttler&#39;s using block is exited before some Tasks have had their "post" action completed, which references the throttler, resulting in an exception due to accessing a disposed object.
+                // We wait on the list of "post" tasks instead of the original tasks, otherwise there is a potential
+                // race condition where the throttler&#39;s using block is exited before some Tasks have had their "post"
+                // action completed, which references the throttler, resulting in an exception due to accessing a disposed object.
                 Task.WaitAll(postTaskTasks.ToArray(), cancellationToken);
             }
         }

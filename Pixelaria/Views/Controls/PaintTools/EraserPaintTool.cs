@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements an Eraser paint operation
     /// </summary>
-    public class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool, IColorBlender, ISizedPaintTool
+    internal class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool, IColorBlender, ISizedPaintTool
     {
         /// <summary>
         /// Gets or sets the compositing mode for the pen
@@ -79,7 +79,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             undoDecription = "Eraser";
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.eraser_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.eraser_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
         }
@@ -103,7 +103,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 return Color.FromArgb(0, 0, 0, 0);
             }
 
-            float newAlpha = (((float)backColor.A / 255) * (1 - (float)foreColor.A / 255));
+            float newAlpha = (float)backColor.A / 255 * (1 - (float)foreColor.A / 255);
             return Color.FromArgb((int)(newAlpha * 255), backColor);
         }
     }

@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Base class for user controls that implement a visualization for twaking of filter parameters
     /// </summary>
-    public class FilterControl : UserControl
+    internal class FilterControl : UserControl
     {
         /// <summary>
         /// The filter that applies the modifications to the bitmap

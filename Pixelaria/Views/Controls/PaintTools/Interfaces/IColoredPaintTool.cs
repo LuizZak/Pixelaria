@@ -27,7 +27,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
     /// <summary>
     /// Specifies a Paint Operation that has a color component
     /// </summary>
-    public interface IColoredPaintTool
+    internal interface IColoredPaintTool
     {
         /// <summary>
         /// Gets or sets the first color being used to paint on the InternalPictureBox

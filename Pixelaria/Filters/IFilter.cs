@@ -29,7 +29,7 @@ namespace Pixelaria.Filters
     /// Interface to be implemented by filters.
     /// Specifies a filter that applies alterations to Bitmaps
     /// </summary>
-    public interface IFilter
+    internal interface IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels

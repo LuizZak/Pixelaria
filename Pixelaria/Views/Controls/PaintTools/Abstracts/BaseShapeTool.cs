@@ -33,7 +33,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Base class for shape dragging paint operations
     /// </summary>
-    public abstract class BaseShapeTool : BaseDraggingPaintTool, IDisposable
+    internal abstract class BaseShapeTool : BaseDraggingPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -93,8 +93,18 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Gets or sets the fill mode for this paint operation
         /// </summary>
-        public OperationFillMode FillMode { get => fillMode;
-            set { fillMode = value; if (Loaded) { pictureBox.Invalidate(); } } }
+        public OperationFillMode FillMode
+        {
+            get => fillMode;
+            set
+            {
+                fillMode = value;
+                if (Loaded)
+                {
+                    pictureBox?.Invalidate();
+                }
+            }
+        }
 
         /// <summary>
         /// Initialies a new instance of the BaseShapeTool class, setting the two drawing colors
@@ -108,37 +118,26 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             this.secondColor = secondColor;
         }
 
-        ~BaseShapeTool()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
-            
-            pictureBox = null;
-
-            if (graphics != null)
+            if (disposing)
             {
-                graphics.Flush();
-                graphics.Dispose();
+                FinishOperation();
+                
+                if (graphics != null)
+                {
+                    graphics.Flush();
+                    graphics.Dispose();
+                }
+
+                if (buffer != null)
+                {
+                    buffer.Dispose();
+                    buffer = null;
+                }
             }
 
-            if (buffer != null)
-            {
-                buffer.Dispose();
-                buffer = null;
-            }
-
-            ToolCursor.Dispose();
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -150,7 +149,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.rect_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
@@ -160,43 +159,21 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         }
 
         /// <summary>
-        /// Finalizes this Paint Tool
-        /// </summary>
-        public override void Destroy()
-        {
-            Loaded = false;
-
-            FinishOperation();
-
-            pictureBox = null;
-
-            if (graphics != null)
-            {
-                graphics.Flush();
-                graphics.Dispose();
-            }
-
-            if (buffer != null)
-            {
-                buffer.Dispose();
-                buffer = null;
-            }
-
-            ToolCursor.Dispose();
-        }
-
-        /// <summary>
         /// Called to notify this PaintTool that the control is being redrawn
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void Paint(PaintEventArgs e)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             if (mouseDown)
             {
-                Rectangle rec = GetCurrentRectangle(false);
+                var rec = GetCurrentRectangle(false);
 
-                Color fc = firstColor;
-                Color sc = secondColor;
+                var fc = firstColor;
+                var sc = secondColor;
 
                 if (mouseButton == MouseButtons.Right)
                 {
@@ -206,7 +183,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
                 graphics.Clear(Color.Transparent);
 
-                PerformShapeOperation(fc, sc, rec, pictureBox.Buffer, compositingMode, fillMode, false);
+                PerformShapeOperation(fc, sc, rec, internalPictureBox.Buffer, compositingMode, fillMode, false);
             }
         }
 
@@ -218,7 +195,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             base.MouseDown(e);
 
-            buffer = new Bitmap(pictureBox.Width, pictureBox.Height);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
+            buffer = new Bitmap(internalPictureBox.Width, internalPictureBox.Height);
             graphics = Graphics.FromImage(buffer);
         }
 
@@ -228,14 +209,18 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="e">The event args for this event</param>
         public override void MouseUp([NotNull] MouseEventArgs e)
         {
-            Rectangle oldArea = GetCurrentRectangle(true);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
+            var oldArea = GetCurrentRectangle(true);
 
             mouseAbsolutePoint = GetAbsolutePoint(e.Location);
 
-            Rectangle newArea = GetCurrentRectangle(true);
+            var newArea = GetCurrentRectangle(true);
 
-            pictureBox.Invalidate(oldArea);
-            pictureBox.Invalidate(newArea);
+            internalPictureBox.Invalidate(oldArea);
+            internalPictureBox.Invalidate(newArea);
 
             FinishOperation();
 
@@ -250,13 +235,17 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             if (!mouseDown)
                 return;
 
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             // Draw the rectangle on the image now
-            Rectangle rectArea = GetCurrentRectangle(false);
+            var rectArea = GetCurrentRectangle(false);
 
             if (rectArea.Width > 0 && rectArea.Height > 0)
             {
-                Color fc = firstColor;
-                Color sc = secondColor;
+                var fc = firstColor;
+                var sc = secondColor;
 
                 if (mouseButton == MouseButtons.Right)
                 {
@@ -264,9 +253,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                     fc = secondColor;
                 }
 
-                PerformShapeOperation(fc, sc, GetCurrentRectangle(false), pictureBox.Bitmap, compositingMode, fillMode, true);
+                PerformShapeOperation(fc, sc, GetCurrentRectangle(false), internalPictureBox.Bitmap, compositingMode, fillMode, true);
 
-                pictureBox.MarkModified();
+                internalPictureBox.MarkModified();
             }
 
             buffer.Dispose();
@@ -283,11 +272,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Point point = mouseAbsolutePoint;
+            var point = mouseAbsolutePoint;
 
             point.Offset(1, 1);
 
-            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, point }, relative);
+            var rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, point }, relative);
 
             if (shiftDown)
             {

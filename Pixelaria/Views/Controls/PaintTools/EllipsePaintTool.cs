@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements an Ellipse paint tool
     /// </summary>
-    public class EllipsePaintTool : BaseShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
+    internal class EllipsePaintTool : BaseShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
     {
         /// <summary>
         /// Initialies a new instance of the EllipsePaintTool class, setting the two drawing colors
@@ -57,7 +57,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.Initialize(targetPictureBox);
 
             // Initialize the tool cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.circle_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.circle_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
@@ -81,7 +81,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected override Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            var rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             if (shiftDown)
             {
@@ -105,12 +105,16 @@ namespace Pixelaria.Views.Controls.PaintTools
         [CanBeNull]
         public override ShapeUndoTask PerformShapeOperation(Color color1, Color color2, Rectangle area, [NotNull] Bitmap bitmap, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return null;
+
             ShapeUndoTask returnTask = null;
 
             if (registerUndo)
             {
-                returnTask = new EllipseUndoTask(pictureBox.Bitmap, color1, color2, area, compMode, opFillMode);
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(returnTask);
+                returnTask = new EllipseUndoTask(internalPictureBox.Bitmap, color1, color2, area, compMode, opFillMode);
+                internalPictureBox.OwningPanel.UndoSystem.RegisterUndo(returnTask);
             }
 
             PerformEllipseOperation(color1, color2, area, bitmap, compMode, opFillMode);
@@ -188,14 +192,14 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             //fb.Unlock();
 
-            Graphics graphics = Graphics.FromImage(bitmap);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.CompositingMode = compositingMode;
 
-            graphics.CompositingMode = compositingMode;
+                PerformElipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
 
-            PerformElipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
-
-            graphics.Flush();
-            graphics.Dispose();
+                graphics.Flush();
+            }
         }
 
         /// <summary>
@@ -210,7 +214,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         public static void PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area,
             [NotNull] Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
         {
-            Brush brush = new SolidBrush((fillMode == OperationFillMode.SolidFillFirstColor ? firstColor : secondColor));
+            var brush = new SolidBrush((fillMode == OperationFillMode.SolidFillFirstColor ? firstColor : secondColor));
 
             graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
 
@@ -221,7 +225,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if (fillMode == OperationFillMode.OutlineFirstColor || fillMode == OperationFillMode.OutlineFirstColorFillSecondColor)
             {
-                Pen pen = new Pen(firstColor);
+                var pen = new Pen(firstColor);
 
                 graphics.DrawEllipse(pen, area);
 
@@ -332,15 +336,16 @@ namespace Pixelaria.Views.Controls.PaintTools
             public override void Undo()
             {
                 // Redraw the original slice back to the image
-                Graphics g = Graphics.FromImage(_bitmap);
-                g.SetClip(new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
-                g.Clear(Color.Transparent);
-                g.CompositingMode = CompositingMode.SourceCopy;
+                using (var g = Graphics.FromImage(_bitmap))
+                {
+                    g.SetClip(new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
+                    g.Clear(Color.Transparent);
+                    g.CompositingMode = CompositingMode.SourceCopy;
 
-                g.DrawImage(_originalSlice, new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
+                    g.DrawImage(_originalSlice, new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
 
-                g.Flush();
-                g.Dispose();
+                    g.Flush();
+                }
             }
 
             /// <summary>

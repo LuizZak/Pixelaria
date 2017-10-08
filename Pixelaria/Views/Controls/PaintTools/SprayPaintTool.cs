@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Spray paint operation
     /// </summary>
-    public class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
+    internal class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
     {
         /// <summary>
         /// Instance of a Random class used to randomize the spray of this SprayPaintTool
@@ -182,7 +182,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             pencilOperation.PlotPixel(p.X, p.Y);
 
-            PointF pf = GetRelativePoint(p);
+            var pf = GetRelativePoint(p);
             InvalidateRect(pf, 1.2f, 1.2f);
         }
 
@@ -197,36 +197,42 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (mouseDown)
                 return;
 
-            Graphics bitmapGraphics = Graphics.FromImage(bitmap);
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
 
-            Bitmap pen = (penId == 0 ? firstPenBitmap : secondPenBitmap);
-
-            if (size > 1)
+            Bitmap pen;
+            using (var bitmapGraphics = Graphics.FromImage(bitmap))
             {
-                point.Offset(-size / 2, -size / 2);
+                pen = penId == 0 ? firstPenBitmap : secondPenBitmap;
+
+                if (size > 1)
+                {
+                    point.Offset(-size / 2, -size / 2);
+                }
+
+                bitmapGraphics.PixelOffsetMode = PixelOffsetMode.Half;
+                bitmapGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             }
 
-            bitmapGraphics.PixelOffsetMode = PixelOffsetMode.Half;
-            bitmapGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-
             // Create a color matrix object
-            ColorMatrix matrix = new ColorMatrix
+            var matrix = new ColorMatrix
             {
-                Matrix33 = ((float)(penId == 0 ? firstColor : secondColor).A / 255)
+                Matrix33 = (float)(penId == 0 ? firstColor : secondColor).A / 255
             };
 
             // Create image attributes
-            ImageAttributes attributes = new ImageAttributes();
+            var attributes = new ImageAttributes();
                 
             // Set the color(opacity) of the image
             attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-            Graphics gfx = Graphics.FromImage(pictureBox.Buffer);
+            using (var gfx = Graphics.FromImage(internalPictureBox.Buffer))
+            {
+                gfx.DrawImage(pen, new Rectangle(point, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
 
-            gfx.DrawImage(pen, new Rectangle(point, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
-
-            gfx.Flush();
-            gfx.Dispose();
+                gfx.Flush();
+            }
         }
 
         /// <summary>
@@ -247,10 +253,13 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
             else
             {
-                Graphics g = Graphics.FromImage(firstPenBitmap);
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                Brush b = new SolidBrush(Color.FromArgb(255, firstColor.R, firstColor.G, firstColor.B));
-                g.FillEllipse(b, 0, 0, size, size);
+                using (var g = Graphics.FromImage(firstPenBitmap))
+                {
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    Brush b = new SolidBrush(Color.FromArgb(255, firstColor.R, firstColor.G, firstColor.B));
+                    g.FillEllipse(b, 0, 0, size, size);
+                    g.Flush();
+                }
             }
 
             secondPenBitmap = new Bitmap(size + 1, size + 1, PixelFormat.Format32bppArgb);
@@ -261,10 +270,13 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
             else
             {
-                Graphics g = Graphics.FromImage(secondPenBitmap);
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                Brush b = new SolidBrush(Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
-                g.FillEllipse(b, 0, 0, size, size);
+                using (var g = Graphics.FromImage(secondPenBitmap))
+                {
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    Brush b = new SolidBrush(Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+                    g.FillEllipse(b, 0, 0, size, size);
+                    g.Flush();
+                }
             }
         }
 
@@ -273,7 +285,11 @@ namespace Pixelaria.Views.Controls.PaintTools
         // 
         private void sprayTimer_Tick(object sender, EventArgs e)
         {
-            DrawPencil(GetAbsolutePoint(mouseControlPoint), (CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : pictureBox.Bitmap));
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
+            DrawPencil(GetAbsolutePoint(mouseControlPoint), CompositingMode == CompositingMode.SourceOver ? currentTraceBitmap : internalPictureBox.Bitmap);
         }
     }
 }

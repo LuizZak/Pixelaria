@@ -27,7 +27,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
     /// <summary>
     /// Specifies an operation that has start/finish/cancel and operates over an area of the target bitmap
     /// </summary>
-    public interface IAreaOperation
+    internal interface IAreaOperation
     {
         /// <summary>
         /// Starts the area operation with the given area

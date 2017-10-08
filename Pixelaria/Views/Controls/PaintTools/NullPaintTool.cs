@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Specifies an empty paint operation
     /// </summary>
-    public class NullPaintTool : IPaintTool
+    internal sealed class NullPaintTool : IPaintTool
     {
         /// <summary>
         /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -40,13 +40,18 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <summary>
         /// Gets whether this Paint Tool has resources loaded
         /// </summary>
-        public bool Loaded { get; protected set; }
+        public bool Loaded => true;
 
         /// <summary>
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
         public void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox) { }
+        
+        public void Dispose()
+        {
+
+        }
 
         /// <summary>
         /// Finalizes this Paint Tool

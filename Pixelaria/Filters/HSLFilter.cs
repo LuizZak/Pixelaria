@@ -23,6 +23,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
 
@@ -31,7 +32,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a Hue alteration filter
     /// </summary>
-    public class HueFilter : IFilter
+    internal class HueFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -74,20 +75,22 @@ namespace Pixelaria.Filters
                 return;
 
             // Lock the bitmap
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            int* scan0 = (int*)data.Scan0;
-            int count = bitmap.Width * bitmap.Height;
-
-            float hueF = Hue / 360.0f;
-
-            while (count-- > 0)
+            using (var fastBitmap = bitmap.FastLock())
             {
-                AhslColor ahsl = AhslColor.FromArgb(*scan0);
-                *(scan0++) = new AhslColor(ahsl.FloatAlpha, (Relative ? (ahsl.FloatHue + hueF) % 1.0f : hueF), ahsl.FloatSaturation, ahsl.FloatLightness).ToArgb();
-            }
+                int* scan0 = (int*) fastBitmap.Scan0;
+                int count = bitmap.Width * bitmap.Height;
 
-            bitmap.UnlockBits(data);
+                float hueF = Hue / 360.0f;
+
+                while (count-- > 0)
+                {
+                    var ahsl = AhslColor.FromArgb(*scan0);
+
+                    var newHue = Relative ? (ahsl.FloatHue + hueF) % 1.0f : hueF;
+
+                    * scan0++ = new AhslColor(ahsl.FloatAlpha, newHue, ahsl.FloatSaturation, ahsl.FloatLightness).ToArgb();
+                }
+            }
         }
 
         /// <summary>
@@ -96,7 +99,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(Hue);
             writer.Write(Relative);
@@ -109,7 +112,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             Hue = reader.ReadInt32();
             Relative = reader.ReadBoolean();
@@ -126,7 +129,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a Hue alteration filter
     /// </summary>
-    public class SaturationFilter : IFilter
+    internal class SaturationFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -188,36 +191,35 @@ namespace Pixelaria.Filters
 
             if (!Modifying || bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
-
+            
             // Lock the bitmap
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            int* scan0 = (int*)data.Scan0;
-            int count = bitmap.Width * bitmap.Height;
-
-            float satF = Saturation / 100.0f;
-
-            while (count-- > 0)
+            using (var fastBitmap = bitmap.FastLock())
             {
-                AhslColor ahsl = AhslColor.FromArgb(*scan0);
-                float s = ahsl.FloatSaturation;
+                int* scan0 = (int*) fastBitmap.Scan0;
+                int count = bitmap.Width * bitmap.Height;
 
-                if (!KeepGrays || ahsl.FloatSaturation > 0)
+                float satF = Saturation / 100.0f;
+
+                while (count-- > 0)
                 {
-                    if (Multiply)
+                    var ahsl = AhslColor.FromArgb(*scan0);
+                    float s = ahsl.FloatSaturation;
+
+                    if (!KeepGrays || ahsl.FloatSaturation > 0)
                     {
-                        s = ahsl.FloatSaturation * satF;
+                        if (Multiply)
+                        {
+                            s = ahsl.FloatSaturation * satF;
+                        }
+                        else
+                        {
+                            s = Relative ? ahsl.FloatSaturation + satF : satF;
+                        }
                     }
-                    else
-                    {
-                        s = (Relative ? ahsl.FloatSaturation + satF : satF);
-                    }
+
+                    *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, s, ahsl.FloatLightness).ToArgb();
                 }
-
-                *(scan0++) = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, s, ahsl.FloatLightness).ToArgb();
             }
-
-            bitmap.UnlockBits(data);
         }
 
         /// <summary>
@@ -226,7 +228,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(Saturation);
             writer.Write(Relative);
@@ -240,25 +242,26 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             Saturation = reader.ReadInt32();
             Relative = reader.ReadBoolean();
             Multiply = reader.ReadBoolean();
         }
-        
+
         public bool Equals(IFilter filter)
         {
             var other = filter as SaturationFilter;
 
-            return other != null && Saturation == other.Saturation && Relative == other.Relative && KeepGrays == other.KeepGrays && Multiply == other.Multiply && Version == other.Version;
+            return other != null && Saturation == other.Saturation && Relative == other.Relative &&
+                   KeepGrays == other.KeepGrays && Multiply == other.Multiply && Version == other.Version;
         }
     }
 
     /// <summary>
     /// Implements a Lightness alteration filter
     /// </summary>
-    public class LightnessFilter : IFilter
+    internal class LightnessFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -316,31 +319,30 @@ namespace Pixelaria.Filters
                 return;
 
             // Lock the bitmap
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            int* scan0 = (int*)data.Scan0;
-            int count = bitmap.Width * bitmap.Height;
-
-            float lightF = Lightness / 100.0f;
-
-            while (count-- > 0)
+            using (var fastBitmap = bitmap.FastLock())
             {
-                AhslColor ahsl = AhslColor.FromArgb(*scan0);
-                float l;
+                int* scan0 = (int*) fastBitmap.Scan0;
+                int count = bitmap.Width * bitmap.Height;
 
-                if (Multiply)
-                {
-                    l = ahsl.FloatLightness * lightF;
-                }
-                else
-                {
-                    l = (Relative ? ahsl.FloatLightness + lightF : lightF);
-                }
+                float lightF = Lightness / 100.0f;
 
-                *(scan0++) = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, ahsl.FloatSaturation, l).ToArgb();
+                while (count-- > 0)
+                {
+                    var ahsl = AhslColor.FromArgb(*scan0);
+                    float l;
+
+                    if (Multiply)
+                    {
+                        l = ahsl.FloatLightness * lightF;
+                    }
+                    else
+                    {
+                        l = Relative ? ahsl.FloatLightness + lightF : lightF;
+                    }
+
+                    *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, ahsl.FloatSaturation, l).ToArgb();
+                }
             }
-
-            bitmap.UnlockBits(data);
         }
 
         /// <summary>
@@ -349,7 +351,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(Lightness);
             writer.Write(Relative);
@@ -363,7 +365,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             Lightness = reader.ReadInt32();
             Relative = reader.ReadBoolean();
@@ -374,7 +376,8 @@ namespace Pixelaria.Filters
         {
             var other = filter as LightnessFilter;
 
-            return other != null && Lightness == other.Lightness && Relative == other.Relative && Multiply == other.Multiply && Version == other.Version;
+            return other != null && Lightness == other.Lightness && Relative == other.Relative &&
+                   Multiply == other.Multiply && Version == other.Version;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements an Offseting filter
     /// </summary>
-    public class OffsetFilter : IFilter
+    internal class OffsetFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -77,80 +77,80 @@ namespace Pixelaria.Filters
             if (!Modifying)
                 return;
 
-            Bitmap bit = (Bitmap)bitmap.Clone();
-
-            Graphics g = Graphics.FromImage(bitmap);
-
-            g.Clear(Color.Transparent);
-
-            RectangleF rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
-
-            rec.X += OffsetX;
-            rec.Y += OffsetY;
-
-            g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-
-            // Draw wrap-arounds
-            if (WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon)
+            using (var bit = (Bitmap) bitmap.Clone())
+            using (var g = Graphics.FromImage(bitmap))
             {
-                RectangleF wrapRec = rec;
+                g.Clear(Color.Transparent);
 
-                if (OffsetX > 0)
+                var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+
+                rec.X += OffsetX;
+                rec.Y += OffsetY;
+
+                g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+
+                // Draw wrap-arounds
+                if (WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon)
                 {
-                    wrapRec.X -= bitmap.Width;
-                }
-                else
-                {
-                    wrapRec.X += bitmap.Width;
+                    var wrapRec = rec;
+
+                    if (OffsetX > 0)
+                    {
+                        wrapRec.X -= bitmap.Width;
+                    }
+                    else
+                    {
+                        wrapRec.X += bitmap.Width;
+                    }
+
+                    g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
                 }
 
-                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+                if (WrapVertical && Math.Abs(OffsetY) > float.Epsilon)
+                {
+                    var wrapRec = rec;
+
+                    if (OffsetY > 0)
+                    {
+                        wrapRec.Y -= bitmap.Height;
+                    }
+                    else
+                    {
+                        wrapRec.Y += bitmap.Height;
+                    }
+
+                    g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+                }
+
+                // Diagonal wrap-arounds
+                if (WrapVertical && WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon &&
+                    Math.Abs(OffsetY) > float.Epsilon)
+                {
+                    var wrapRec = rec;
+
+                    if (OffsetX > 0)
+                    {
+                        wrapRec.X -= bitmap.Width;
+                    }
+                    else
+                    {
+                        wrapRec.X += bitmap.Width;
+                    }
+
+                    if (OffsetY > 0)
+                    {
+                        wrapRec.Y -= bitmap.Height;
+                    }
+                    else
+                    {
+                        wrapRec.Y += bitmap.Height;
+                    }
+
+                    g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+                }
+
+                g.Flush();
             }
-
-            if (WrapVertical && Math.Abs(OffsetY) > float.Epsilon)
-            {
-                RectangleF wrapRec = rec;
-
-                if (OffsetY > 0)
-                {
-                    wrapRec.Y -= bitmap.Height;
-                }
-                else
-                {
-                    wrapRec.Y += bitmap.Height;
-                }
-
-                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-            }
-
-            // Diagonal wrap-arounds
-            if (WrapVertical && WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon && Math.Abs(OffsetY) > float.Epsilon)
-            {
-                RectangleF wrapRec = rec;
-
-                if (OffsetX > 0)
-                {
-                    wrapRec.X -= bitmap.Width;
-                }
-                else
-                {
-                    wrapRec.X += bitmap.Width;
-                }
-
-                if (OffsetY > 0)
-                {
-                    wrapRec.Y -= bitmap.Height;
-                }
-                else
-                {
-                    wrapRec.Y += bitmap.Height;
-                }
-
-                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-            }
-
-            g.Dispose();
-            bit.Dispose();
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(OffsetX);
             writer.Write(OffsetY);
@@ -174,7 +174,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             OffsetX = reader.ReadSingle();
             OffsetY = reader.ReadSingle();
@@ -184,9 +184,11 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            OffsetFilter other = filter as OffsetFilter;
+            var other = filter as OffsetFilter;
 
-            return other != null && Math.Abs(OffsetX - other.OffsetX) < float.Epsilon && Math.Abs(OffsetY - other.OffsetY) < float.Epsilon && WrapHorizontal == other.WrapHorizontal && WrapVertical == other.WrapVertical && Version == other.Version;
+            return other != null && Math.Abs(OffsetX - other.OffsetX) < float.Epsilon &&
+                   Math.Abs(OffsetY - other.OffsetY) < float.Epsilon && WrapHorizontal == other.WrapHorizontal &&
+                   WrapVertical == other.WrapVertical && Version == other.Version;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Implements a basic functionality for paint operations that require 'dragging to draw' features
     /// </summary>
-    public abstract class BaseDraggingPaintTool : BasePaintTool
+    internal abstract class BaseDraggingPaintTool : BasePaintTool
     {
         /// <summary>
         /// Whether the mouse is currently being held down
@@ -89,7 +89,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="e">The event args for this event</param>
         public override void MouseDown([NotNull] MouseEventArgs e)
         {
-            Point imagePoint = GetAbsolutePoint(e.Location);
+            var imagePoint = GetAbsolutePoint(e.Location);
 
             if (WithinBounds(imagePoint))
             {
@@ -109,15 +109,19 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="e">The event args for this event</param>
         public override void MouseMove(MouseEventArgs e)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             if (mouseDown)
             {
-                Rectangle oldArea = lastRect;//GetCurrentRectangle(true);
+                var oldArea = lastRect;//GetCurrentRectangle(true);
 
                 lastMouseAbsolutePoint = mouseAbsolutePoint;
                 mouseAbsolutePoint = GetAbsolutePoint(e.Location);
 
-                Rectangle newArea = GetCurrentRectangle(true);
-                Rectangle newAreaAbs = GetCurrentRectangle(false);//GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, false);
+                var newArea = GetCurrentRectangle(true);
+                var newAreaAbs = GetCurrentRectangle(false);//GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, false);
 
                 if (shiftDown)
                 {
@@ -128,16 +132,16 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 }
 
                 newAreaAbs.Width++; newAreaAbs.Height++;
-                pictureBox.OwningPanel.FireOperationStatusEvent(this, newAreaAbs.Width + " x " + newAreaAbs.Height);
+                internalPictureBox.OwningPanel.FireOperationStatusEvent(this, newAreaAbs.Width + " x " + newAreaAbs.Height);
 
                 if (newArea != oldArea)
                 {
-                    oldArea.Inflate((int)(2 * pictureBox.Zoom.X), (int)(2 * pictureBox.Zoom.X));
+                    oldArea.Inflate((int)(2 * internalPictureBox.Zoom.X), (int)(2 * internalPictureBox.Zoom.X));
 
-                    newArea.Inflate((int)(2 * pictureBox.Zoom.X), (int)(2 * pictureBox.Zoom.X));
+                    newArea.Inflate((int)(2 * internalPictureBox.Zoom.X), (int)(2 * internalPictureBox.Zoom.X));
 
-                    pictureBox.Invalidate(oldArea);
-                    pictureBox.Invalidate(newArea);
+                    internalPictureBox.Invalidate(oldArea);
+                    internalPictureBox.Invalidate(newArea);
                 }
 
                 lastRect = newArea;
@@ -150,9 +154,13 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             mouseDown = false;
 
-            pictureBox.OwningPanel.FireOperationStatusEvent(this, "");
+            internalPictureBox.OwningPanel.FireOperationStatusEvent(this, "");
         }
 
         /// <summary>
@@ -194,7 +202,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected virtual Rectangle GetCurrentRectangle(bool relative)
         {
-            Rectangle rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
+            var rec = GetRectangleArea(new [] { mouseDownAbsolutePoint, mouseAbsolutePoint }, relative);
 
             if (shiftDown)
             {
@@ -213,7 +221,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>A Rectangle object that represents the current rectangle area being dragged by the user</returns>
         protected virtual Rectangle GetRectangleArea([NotNull] Point[] pointList, bool relative)
         {
-            Point p1 = pointList[0];
+            var p1 = pointList[0];
 
             if (relative)
             {
@@ -226,7 +234,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             int maxX = p1.X;
             int maxY = p1.Y;
 
-            foreach (Point p in pointList)
+            foreach (var p in pointList)
             {
                 p1 = p;
 

@@ -37,7 +37,7 @@ namespace Pixelaria.Views.ModelViews
     /// <summary>
     /// Implements an interface that the user can use to tweak settings of and apply a filter to an animation
     /// </summary>
-    public partial class AnimationFilterView : Form
+    internal partial class AnimationFilterView : Form
     {
         /// <summary>
         /// The animation to modify

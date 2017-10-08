@@ -32,7 +32,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// A control used to store a FilterControl inside
     /// </summary>
-    public partial class FilterContainer : UserControl
+    internal partial class FilterContainer : UserControl
     {
         /// <summary>
         /// The FilterSelector that owns this FilterContainer
@@ -73,8 +73,8 @@ namespace Pixelaria.Views.Controls.Filters
             set
             {
                 // Adjust the buttons' colors
-                AhslColor lightColor = value.ToAhsl();
-                AhslColor darkColor = value.ToAhsl();
+                var lightColor = value.ToAhsl();
+                var darkColor = value.ToAhsl();
 
                 lightColor = new AhslColor(lightColor.Alpha, lightColor.Hue, lightColor.Saturation, lightColor.Lightness + 6);
                 darkColor = new AhslColor(darkColor.Alpha, darkColor.Hue, darkColor.Saturation, darkColor.Lightness - 19);
@@ -105,7 +105,7 @@ namespace Pixelaria.Views.Controls.Filters
                 {
                     btn_enable.Image = Properties.Resources.filter_disable_icon;
 
-                    AhslColor newColor = Color.FromKnownColor(KnownColor.Control).ToAhsl();
+                    var newColor = Color.FromKnownColor(KnownColor.Control).ToAhsl();
 
                     newColor = new AhslColor(newColor.Alpha, newColor.Hue, newColor.Saturation, newColor.Lightness - 10);
 

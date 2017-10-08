@@ -10,7 +10,7 @@ namespace Pixelaria.Utils
     /// </summary>
     public static class Logging
     {
-        private static Stack<string> _moduleStack = new Stack<string>();
+        private static readonly Stack<string> ModuleStack = new Stack<string>();
 
         static Logging()
         {
@@ -54,7 +54,7 @@ namespace Pixelaria.Utils
         public static void Indenting(string moduleName, [NotNull] Action perform)
         {
             if (moduleName != null)
-                _moduleStack.Push(moduleName);
+                ModuleStack.Push(moduleName);
 
             Trace.Indent();
 
@@ -71,19 +71,19 @@ namespace Pixelaria.Utils
                 Trace.Unindent();
 
                 if (moduleName != null)
-                    _moduleStack.Pop();
+                    ModuleStack.Pop();
             }
         }
 
         private static void WriteEntry(string message, string type = null, string module = null)
         {
             var finalModule = module;
-            if (_moduleStack.Count > 0)
+            if (ModuleStack.Count > 0)
             {
                 if (finalModule == null)
                     finalModule = "";
 
-                foreach (var mod in _moduleStack)
+                foreach (var mod in ModuleStack)
                 {
                     if (finalModule.Length != 0)
                         finalModule += "/";

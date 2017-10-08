@@ -37,7 +37,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Bucket paint tool
     /// </summary>
-    public class BucketPaintTool : BasePaintTool, IColoredPaintTool, ICompositingPaintTool
+    internal class BucketPaintTool : BasePaintTool, IColoredPaintTool, ICompositingPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint Tool
@@ -106,7 +106,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.bucket_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.bucket_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
@@ -129,11 +129,11 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="e">The event args for this event</param>
         public override void MouseDown([NotNull] MouseEventArgs e)
         {
-            Point point = GetAbsolutePoint(e.Location);
+            var point = GetAbsolutePoint(e.Location);
 
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
-                Color color = e.Button == MouseButtons.Left ? _firstColor : _secondColor;
+                var color = e.Button == MouseButtons.Left ? _firstColor : _secondColor;
 
                 if (WithinBounds(point))
                 {
@@ -158,8 +158,8 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if (e.Button == MouseButtons.Middle)
             {
-                Point mouse = GetAbsolutePoint(_mousePosition);
-                Point mouseLast = GetAbsolutePoint(_lastMousePosition);
+                var mouse = GetAbsolutePoint(_mousePosition);
+                var mouseLast = GetAbsolutePoint(_lastMousePosition);
 
                 if (mouse != mouseLast && WithinBounds(mouse))
                 {
@@ -177,18 +177,20 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="point">The point to start the fill operation at</param>
         public void PerformBucketOperaiton(Color color, Point point)
         {
-            if (pictureBox.Bitmap == null)
+            var internalPictureBox = pictureBox;
+
+            if (internalPictureBox?.Bitmap == null)
                 return;
 
-            var undoTask = PerformBucketOperaiton(pictureBox.Bitmap, color, point, compositingMode, true);
+            var undoTask = PerformBucketOperaiton(internalPictureBox.Bitmap, color, point, compositingMode, true);
 
             if (undoTask != null)
             {
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
+                internalPictureBox.OwningPanel.UndoSystem.RegisterUndo(undoTask);
 
                 // Finish the operation by updating the picture box
-                pictureBox.Invalidate();
-                pictureBox.MarkModified();
+                internalPictureBox.Invalidate();
+                internalPictureBox.MarkModified();
             }
         }
 
@@ -244,7 +246,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             stack.Push(((point.X << 16) | point.Y));
 
             // Floodfill the bitmap
-            using (FastBitmap fastBitmap = targetBitmap.FastLock())
+            using (var fastBitmap = targetBitmap.FastLock())
             {
                 uint* scan0 = (uint*)fastBitmap.Scan0;
                 int strideWidth = fastBitmap.Stride;

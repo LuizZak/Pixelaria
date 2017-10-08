@@ -37,7 +37,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Line paint operation
     /// </summary>
-    public class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
+    internal class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
     {
         /// <summary>
         /// Graphics used to draw on the bitmap
@@ -105,12 +105,12 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.line_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.line_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
             
             mouseDown = false;
-
+            
             _graphics = Graphics.FromImage(targetPictureBox.Image);
 
             Loaded = true;
@@ -137,9 +137,14 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="e">The event args for this event</param>
         public override void Paint(PaintEventArgs e)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             if (mouseDown && (mouseButton == MouseButtons.Left || mouseButton == MouseButtons.Right))
             {
-                PerformLineOperation(mouseButton == MouseButtons.Left ? _firstColor : _secondColor, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Buffer, CompositingMode, Size, false);
+                PerformLineOperation(mouseButton == MouseButtons.Left ? _firstColor : _secondColor,
+                    mouseDownAbsolutePoint, mouseAbsolutePoint, internalPictureBox.Buffer, CompositingMode, Size, false);
             }
         }
 
@@ -151,28 +156,32 @@ namespace Pixelaria.Views.Controls.PaintTools
         {
             base.MouseDown(e);
 
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             if (e.Button == MouseButtons.Middle)
             {
-                if (pictureBox.Bitmap != null)
-                    _firstColor = pictureBox.Bitmap.GetPixel(mouseDownAbsolutePoint.X, mouseDownAbsolutePoint.Y);
+                if (internalPictureBox.Bitmap != null)
+                    _firstColor = internalPictureBox.Bitmap.GetPixel(mouseDownAbsolutePoint.X, mouseDownAbsolutePoint.Y);
 
-                pictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
+                internalPictureBox.OwningPanel.FireColorChangeEvent(_firstColor);
 
-                pictureBox.Invalidate();
+                internalPictureBox.Invalidate();
 
                 mouseDown = false;
             }
             else
             {
-                Rectangle rec = GetCurrentRectangle(true);
+                var rec = GetCurrentRectangle(true);
+                
+                rec.X -= (int)(Size * internalPictureBox.Zoom.X) * 2;
+                rec.Y -= (int)(Size * internalPictureBox.Zoom.Y) * 2;
 
-                rec.X -= (int)(Size * pictureBox.Zoom.X) * 2;
-                rec.Y -= (int)(Size * pictureBox.Zoom.Y) * 2;
+                rec.Width += (int)(Size * internalPictureBox.Zoom.X) * 4;
+                rec.Height += (int)(Size * internalPictureBox.Zoom.Y) * 4;
 
-                rec.Width += (int)(Size * pictureBox.Zoom.X) * 4;
-                rec.Height += (int)(Size * pictureBox.Zoom.Y) * 4;
-
-                pictureBox.Invalidate(rec);
+                internalPictureBox.Invalidate(rec);
             }
         }
 
@@ -182,11 +191,15 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="e">The event args for this event</param>
         public override void MouseUp(MouseEventArgs e)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             if (mouseDown)
             {
                 var newArea = GetCurrentRectangle(true);
 
-                pictureBox.Invalidate(newArea);
+                internalPictureBox.Invalidate(newArea);
 
                 // Draw the rectangle on the image now
                 var rectArea = GetCurrentRectangle(false);
@@ -195,13 +208,13 @@ namespace Pixelaria.Views.Controls.PaintTools
                 {
                     var color = (mouseButton == MouseButtons.Left ? _firstColor : _secondColor);
 
-                    Debug.Assert(pictureBox.Bitmap != null, "pictureBox.Bitmap != null");
-                    var task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, pictureBox.Bitmap, CompositingMode, Size, true);
+                    Debug.Assert(internalPictureBox.Bitmap != null, "pictureBox.Bitmap != null");
+                    var task = PerformLineOperation(color, mouseDownAbsolutePoint, mouseAbsolutePoint, internalPictureBox.Bitmap, CompositingMode, Size, true);
 
                     if(task != null && task.PixelHistoryTracker.PixelCount > 0)
                     {
-                        pictureBox.OwningPanel.UndoSystem.RegisterUndo(task);
-                        pictureBox.MarkModified();
+                        internalPictureBox.OwningPanel.UndoSystem.RegisterUndo(task);
+                        internalPictureBox.MarkModified();
                     }
                 }
             }

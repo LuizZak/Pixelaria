@@ -25,7 +25,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
     /// <summary>
     /// Specifies a Paint Operation that has clipboard access capabilities
     /// </summary>
-    public interface IClipboardPaintTool
+    internal interface IClipboardPaintTool
     {
         /// <summary>
         /// Performs a Copy operation

@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using FastBitmapLib;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Filters
@@ -31,7 +32,7 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a Transparency filter
     /// </summary>
-    public class TransparencyFilter : IFilter
+    internal class TransparencyFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -79,39 +80,38 @@ namespace Pixelaria.Filters
             if (Transparency <= 0)
                 Transparency = 0;
 
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            // ReSharper disable once InconsistentNaming
-            byte* scan0b = (byte*)data.Scan0;
-
-            const int loopUnroll = 8;
-            int count = bitmap.Width * bitmap.Height;
-            int rem = count % loopUnroll;
-            count /= loopUnroll;
-
-            // Pre-align to the alpha offset
-            scan0b += 3;
-
-            // Unrolled loop for faster operations
-            while (count-- > 0)
+            using (var fastBitmap = bitmap.FastLock())
             {
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                // ReSharper disable once InconsistentNaming
+                byte* scan0b = (byte*)fastBitmap.Scan0;
 
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-            }
-            while (rem-- > 0)
-            {
-                *scan0b = (byte)(*scan0b * Transparency);
-                scan0b += 4;
-            }
+                const int loopUnroll = 8;
+                int count = bitmap.Width * bitmap.Height;
+                int rem = count % loopUnroll;
+                count /= loopUnroll;
 
-            bitmap.UnlockBits(data);
+                // Pre-align to the alpha offset
+                scan0b += 3;
+
+                // Unrolled loop for faster operations
+                while (count-- > 0)
+                {
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                }
+                while (rem-- > 0)
+                {
+                    *scan0b = (byte)(*scan0b * Transparency);
+                    scan0b += 4;
+                }
+            }
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(Transparency);
         }
@@ -132,7 +132,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             Transparency = reader.ReadSingle();
         }

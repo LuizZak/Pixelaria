@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.Filters
     /// <summary>
     /// Represents a FilterControl that handles a SaturationFilter
     /// </summary>
-    public partial class SaturationControl : FilterControl
+    internal partial class SaturationControl : FilterControl
     {
         /// <summary>
         /// Initializes a new instance of the SaturationControl class

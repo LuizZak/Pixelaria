@@ -35,57 +35,57 @@ namespace Pixelaria.Views.Controls
     /// <summary>
     /// Control that presents an interface for the user to compose a filter list
     /// </summary>
-    public partial class FilterSelector : UserControl
+    internal partial class FilterSelector : UserControl
     {
         /// <summary>
         /// The Bitmap the filter will be applied on when the user clicks 'Ok'
         /// </summary>
-        Bitmap _bitmapOriginal;
+        private Bitmap _bitmapOriginal;
 
         /// <summary>
         /// The bitmap that will be used as a preview for the filters
         /// </summary>
-        Bitmap _bitmapPreview;
+        private Bitmap _bitmapPreview;
 
         /// <summary>
         /// The FilterContainer objects that are currently applying filters to the bitmap
         /// </summary>
-        List<FilterContainer> _filterContainers;
+        private List<FilterContainer> _filterContainers;
 
         /// <summary>
         /// Event handler for the FilterUpdated event
         /// </summary>
-        EventHandler _filterUpdatedHandler;
+        private EventHandler _filterUpdatedHandler;
 
         /// <summary>
         /// Event handler for a filter item click event
         /// </summary>
-        EventHandler _filterItemClick;
+        private EventHandler _filterItemClick;
 
         /// <summary>
         /// Event handler for the ContainerDragStart event
         /// </summary>
-        EventHandler _containerDraggedHandler;
+        private EventHandler _containerDraggedHandler;
 
         /// <summary>
         /// Event handler for the ContainerDragEnd event
         /// </summary>
-        EventHandler _containerDroppedHandler;
+        private EventHandler _containerDroppedHandler;
 
         /// <summary>
         /// Event handler for the ContainerDragMove event
         /// </summary>
-        EventHandler _containerDraggingHandler;
+        private EventHandler _containerDraggingHandler;
 
         /// <summary>
         /// Form used to display the current FilterContainer being dragged
         /// </summary>
-        ContainerDragForm _dragForm;
+        private ContainerDragForm _dragForm;
 
         /// <summary>
         /// Panel used to temporarely replace the current FilterContainer being dragged
         /// </summary>
-        Panel _containerReplacePanel;
+        private Panel _containerReplacePanel;
 
         /// <summary>
         /// Gets the list of FilterContainer objects that are currently applying filters to the bitmap
@@ -486,7 +486,7 @@ namespace Pixelaria.Views.Controls
         // 
         // Resize event handler
         // 
-        void FilterSelector_Resize(object sender, EventArgs e)
+        private void FilterSelector_Resize(object sender, EventArgs e)
         {
             UpdateImageLayouts();
             UpdateLayout();
@@ -701,7 +701,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Settings this flag to true ignores any zoom event fired by the zoomable picture boxes on the form
         /// </summary>
-        bool _ignoreZoomEvents;
+        private bool _ignoreZoomEvents;
 
         /// <summary>
         /// Form used to illustrate the drag operation
@@ -711,17 +711,17 @@ namespace Pixelaria.Views.Controls
             /// <summary>
             /// The FilterContainer being displayed on this ContainerDragForm instance
             /// </summary>
-            readonly FilterContainer _container;
+            private readonly FilterContainer _container;
 
             /// <summary>
             /// Timer used to drag this form
             /// </summary>
-            readonly Timer _dragTimer;
+            private readonly Timer _dragTimer;
 
             /// <summary>
             /// The size the container had when it was fed to this ContainerDragForm object
             /// </summary>
-            Size _containerStartSize;
+            private Size _containerStartSize;
 
             /// <summary>
             /// Occurs during the dragging operation whenever the container has been moved

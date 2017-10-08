@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Pencil paint tool
     /// </summary>
-    public class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool, IAirbrushPaintTool
+    internal class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool, IAirbrushPaintTool
     {
         /// <summary>
         /// Gets or sets whether this paint tool should work in Airbrush mode.
@@ -75,7 +75,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             base.Initialize(targetPictureBox);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.pencil_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.pencil_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
         }

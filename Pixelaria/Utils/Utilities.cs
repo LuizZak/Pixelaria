@@ -26,7 +26,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Data;
@@ -47,7 +46,7 @@ namespace Pixelaria.Utils
         [System.Diagnostics.Contracts.Pure]
         public static string GetRelativePath([NotNull] string filespec, string folder)
         {
-            Uri pathUri = new Uri(filespec);
+            var pathUri = new Uri(filespec);
             
             // Folders must end in a slash
             if (!folder.EndsWith(Path.DirectorySeparatorChar.ToString()))

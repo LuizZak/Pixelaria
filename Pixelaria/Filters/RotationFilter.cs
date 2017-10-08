@@ -31,13 +31,13 @@ namespace Pixelaria.Filters
     /// <summary>
     /// Implements a Rotation filter
     /// </summary>
-    public class RotationFilter : IFilter
+    internal class RotationFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying => Math.Abs((Rotation % 360)) > float.Epsilon;
+        public bool Modifying => Math.Abs(Rotation % 360) > float.Epsilon;
 
         /// <summary>
         /// Gets the unique display name of this filter
@@ -73,34 +73,32 @@ namespace Pixelaria.Filters
             if (!Modifying)
                 return;
 
-            Bitmap bit = (Bitmap)bitmap.Clone();
-
-            Point pivot = new Point();
-
-            Graphics gfx = Graphics.FromImage(bitmap);
-
-            gfx.Clear(Color.Transparent);
-
-            if (RotateAroundCenter)
+            using (var bit = (Bitmap) bitmap.Clone())
+            using (var gfx = Graphics.FromImage(bitmap))
             {
-                gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
+                gfx.Clear(Color.Transparent);
+
+                if (RotateAroundCenter)
+                {
+                    gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
+                }
+
+                gfx.InterpolationMode = (PixelQuality
+                    ? InterpolationMode.NearestNeighbor
+                    : InterpolationMode.HighQualityBicubic);
+
+                gfx.RotateTransform(Rotation);
+
+                if (RotateAroundCenter)
+                {
+                    gfx.TranslateTransform(-bitmap.Width / 2.0f, -bitmap.Height / 2.0f);
+                }
+
+                var pivot = new Point();
+                gfx.DrawImage(bit, pivot);
+
+                gfx.Flush();
             }
-
-            gfx.InterpolationMode = (PixelQuality ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic);
-
-            gfx.RotateTransform(Rotation);
-
-            if (RotateAroundCenter)
-            {
-                gfx.TranslateTransform(-bitmap.Width / 2.0f, -bitmap.Height / 2.0f);
-            }
-
-            gfx.DrawImage(bit, pivot);
-
-            gfx.Flush();
-            gfx.Dispose();
-
-            bit.Dispose();
         }
 
         /// <summary>
@@ -109,7 +107,7 @@ namespace Pixelaria.Filters
         /// <param name="stream">A Stream to save the data to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            BinaryWriter writer = new BinaryWriter(stream);
+            var writer = new BinaryWriter(stream);
 
             writer.Write(Rotation);
             writer.Write(RotateAroundCenter);
@@ -123,7 +121,7 @@ namespace Pixelaria.Filters
         /// <param name="version">The version of the filter data that is stored on the stream</param>
         public void LoadFromStream([NotNull] Stream stream, int version)
         {
-            BinaryReader reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);
 
             Rotation = reader.ReadSingle();
             RotateAroundCenter = reader.ReadBoolean();
@@ -134,7 +132,9 @@ namespace Pixelaria.Filters
         {
             var other = filter as RotationFilter;
 
-            return other != null && Math.Abs(Rotation - other.Rotation) < float.Epsilon && RotateAroundCenter == other.RotateAroundCenter && PixelQuality == other.PixelQuality && Version == other.Version;
+            return other != null && Math.Abs(Rotation - other.Rotation) < float.Epsilon &&
+                   RotateAroundCenter == other.RotateAroundCenter && PixelQuality == other.PixelQuality &&
+                   Version == other.Version;
         }
     }
 }

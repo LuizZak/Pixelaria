@@ -20,13 +20,9 @@
     base directory of this project.
 */
 
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Data.Persistence
 {

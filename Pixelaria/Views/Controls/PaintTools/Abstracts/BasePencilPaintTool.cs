@@ -28,14 +28,13 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations;
-using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {
     /// <summary>
     /// Base class for pencil-like paint tools
     /// </summary>
-    public abstract class BasePencilPaintTool : BasePaintTool, IDisposable
+    internal abstract class BasePencilPaintTool : BasePaintTool
     {
         /// <summary>
         /// Whether the pencil is visible
@@ -81,12 +80,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// The bitmap used to buffer the current pencil tool so the alpha channel is constant through the operation
         /// </summary>
         protected Bitmap currentTraceBitmap;
-
-        /// <summary>
-        /// The undo task for the current pencil operation being performed
-        /// </summary>
-        protected PerPixelUndoTask currentUndoTask;
-
+        
         /// <summary>
         /// The radius of this pencil
         /// </summary>
@@ -125,6 +119,10 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             get => mouseControlPoint;
             set
             {
+                var internalPictureBox = pictureBox;
+                if (internalPictureBox == null)
+                    return;
+
                 var start = InvalidatePen();
                 mouseControlPoint = value;
                 var end = InvalidatePen();
@@ -132,7 +130,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 // Invalidate entire region
                 var united = Rectangle.Union(start, end);
 
-                pictureBox.Invalidate(united);
+                internalPictureBox.Invalidate(united);
             }
         }
 
@@ -212,29 +210,31 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             size = 1;
         }
-
-        ~BasePencilPaintTool()
+        
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
-        }
+            if (disposing)
+            {
+                FinishOperation();
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+                InvalidatePen();
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
+                // ReSharper disable once UseNullPropagation
+                if (pencilOperation != null)
+                    pencilOperation.Dispose();
 
-            // ReSharper disable once UseNullPropagation
-            if (pencilOperation != null)
-                pencilOperation.Dispose();
-            // ReSharper disable once UseNullPropagation
-            if (currentTraceBitmap != null)
-                currentTraceBitmap.Dispose();
+                // ReSharper disable once UseNullPropagation
+                if (currentTraceBitmap != null)
+                    currentTraceBitmap.Dispose();
+                
+                // ReSharper disable once UseNullPropagation
+                if (graphics != null)
+                    graphics.Dispose();
+                
+                Loaded = false;
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -263,28 +263,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             Loaded = true;
         }
-
-        /// <summary>
-        /// Finalizes this Paint Tool
-        /// </summary>
-        public override void Destroy()
-        {
-            if (!Loaded)
-                return;
-
-            FinishOperation();
-
-            InvalidatePen();
-
-            pictureBox = null;
-
-            graphics.Dispose();
-
-            ToolCursor.Dispose();
-
-            Loaded = false;
-        }
-
+        
         /// <summary>
         /// Changes the bitmap currently being edited
         /// </summary>
@@ -310,14 +289,17 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         {
             if (!visible)
                 return;
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
 
             // Draw the pencil position
-            Point absolutePencil = GetAbsolutePoint(mouseControlPoint);
+            var absolutePencil = GetAbsolutePoint(mouseControlPoint);
 
-            if(!pictureBox.SpaceHeld)
+            if(!internalPictureBox.SpaceHeld)
             {
                 // Draw the pencil on the spot under the user's mouse using the pencil paint operation
-                DrawPencilPreview(pictureBox.Buffer, absolutePencil);
+                DrawPencilPreview(internalPictureBox.Buffer, absolutePencil);
             }
         }
 
@@ -331,7 +313,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             lastMousePosition = e.Location;
 
-            Point absolutePencil = Point.Round(GetAbsolutePoint(mouseControlPoint));
+            var absolutePencil = Point.Round(GetAbsolutePoint(mouseControlPoint));
 
             // Mouse down
             switch (e.Button)
@@ -367,8 +349,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
             if (mouseDown)
             {
-                Point pencil = GetAbsolutePoint(mouseControlPoint);
-                Point pencilLast = GetAbsolutePoint(lastMousePosition);
+                var pencil = GetAbsolutePoint(mouseControlPoint);
+                var pencilLast = GetAbsolutePoint(lastMousePosition);
 
                 if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                 {
@@ -425,6 +407,10 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <param name="point">The point to start this operation on</param>
         private void StartOperation(Point point)
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return;
+
             mouseDown = true;
 
             lastMousePosition = point;
@@ -433,8 +419,8 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pencilOperation.Color = penColor;
             pencilOperation.CompositingMode = CompositingMode;
 
-            Debug.Assert(pictureBox.Bitmap != null, "pictureBox != null");
-            undoGenerator = new PlottingPaintUndoGenerator(pictureBox.Bitmap, undoDecription);
+            Debug.Assert(internalPictureBox.Bitmap != null, "pictureBox != null");
+            undoGenerator = new PlottingPaintUndoGenerator(internalPictureBox.Bitmap, undoDecription);
             pencilOperation.Notifier = undoGenerator;
 
             pencilOperation.StartOpertaion(accumulateAlpha);
@@ -457,8 +443,12 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             // Verify that the generator has registered any modifications
             if(undoGenerator.UndoTask.PixelHistoryTracker.PixelCount > 0)
             {
-                pictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
-                pictureBox.MarkModified();
+                var internalPictureBox = pictureBox;
+                if (internalPictureBox == null)
+                    return;
+
+                internalPictureBox.OwningPanel.UndoSystem.RegisterUndo(undoGenerator.UndoTask);
+                internalPictureBox.MarkModified();
             }
         }
 
@@ -515,7 +505,11 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 
                 pencilOperation.FinishOperation();
 
-                pencilOperation.TargetBitmap = pictureBox.Bitmap;
+                var internalPictureBox = pictureBox;
+                if (internalPictureBox == null)
+                    return;
+
+                pencilOperation.TargetBitmap = internalPictureBox.Bitmap;
             }
         }
 
@@ -525,9 +519,13 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <returns>The region that was invalidated</returns>
         protected virtual Rectangle InvalidatePen()
         {
+            var internalPictureBox = pictureBox;
+            if (internalPictureBox == null)
+                return Rectangle.Empty;
+
             var rec = GetRelativeCircleBounds(GetAbsolutePoint(mouseControlPoint), size + 2);
 
-            pictureBox.Invalidate(rec);
+            internalPictureBox.Invalidate(rec);
 
             return rec;
         }

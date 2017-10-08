@@ -25,7 +25,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
     /// <summary>
     /// Specified a paint oepration that has an Airbrush mode available
     /// </summary>
-    interface IAirbrushPaintTool
+    internal interface IAirbrushPaintTool
     {
         /// <summary>
         /// Gets or sets whether this  paint tool should work in Airbrush mode.
