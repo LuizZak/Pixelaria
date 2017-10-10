@@ -191,6 +191,7 @@
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
+    <Compile Include="Utils\DrawingUtilities.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">

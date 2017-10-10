@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -368,35 +367,6 @@ namespace Pixelaria.Utils
             return (from frame in frames
                     select frame.GetComposedBitmap()
                     ).ToArray();
-        }
-
-        /// <summary>
-        /// Adds a rounded rectangle to this GraphicsPath
-        /// </summary>
-        /// <param name="gfxPath">The GraphicsPath to add the rounded rectangle to</param>
-        /// <param name="bounds">The bounds of the rounded rectangle</param>
-        /// <param name="cornerRadius">The radius of the corners</param>
-        public static void AddRoundedRectangle([NotNull] this GraphicsPath gfxPath, Rectangle bounds, int cornerRadius)
-        {
-            gfxPath.AddArc(bounds.X, bounds.Y, cornerRadius, cornerRadius, 180, 90);
-            gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y, cornerRadius, cornerRadius, 270, 90);
-            gfxPath.AddArc(bounds.X + bounds.Width - cornerRadius, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
-            gfxPath.AddArc(bounds.X, bounds.Y + bounds.Height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
-            gfxPath.CloseAllFigures();
-        }
-
-        public static RectangleF Inflated(this RectangleF rectangle, Size size)
-        {
-            var rec = rectangle;
-            rec.Inflate(size);
-            return rec;
-        }
-
-        public static RectangleF Inflated(this RectangleF rectangle, float x, float y)
-        {
-            var rec = rectangle;
-            rec.Inflate(x, y);
-            return rec;
         }
 
         /// <summary>
