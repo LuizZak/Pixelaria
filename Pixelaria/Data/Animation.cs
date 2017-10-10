@@ -60,14 +60,7 @@ namespace Pixelaria.Data
         /// Gets or sets the ID for this Animation
         /// </summary>
         public int ID { get; set; }
-
-        /// <summary>
-        /// Id of animation sheet this animation is associated with.
-        /// 
-        /// Is null, if not associated with any animation sheet currently.
-        /// </summary>
-        public int? AnimationSheetId { get; set; }
-
+        
         /// <summary>
         /// Gets the number of frames of this Animaion
         /// </summary>

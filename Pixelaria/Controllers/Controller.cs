@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -60,7 +61,17 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// The main application form
         /// </summary>
-        readonly MainForm _mainForm;
+        private readonly MainForm _mainForm;
+
+        /// <summary>
+        /// Internal reactive binder
+        /// </summary>
+        private readonly Reactive _reactive = new Reactive();
+
+        /// <summary>
+        /// Gets the reactive interface object
+        /// </summary>
+        public IReactive Rx => _reactive;
 
         /// <summary>
         /// Gets the current bundle opened on the application
@@ -102,6 +113,11 @@ namespace Pixelaria.Controllers
         /// Gets the current RecentFileList for the program
         /// </summary>
         public RecentFileList CurrentRecentFileList { get; }
+
+        /// <summary>
+        /// The main application form
+        /// </summary>
+        public MainForm MainForm => _mainForm;
 
         #region Eventing
 
@@ -367,6 +383,11 @@ namespace Pixelaria.Controllers
             AnimationAdded?.Invoke(this, new AnimationEventArgs(anim));
 
             MarkUnsavedChanges(true);
+
+            if (parentSheet != null)
+            {
+                _reactive.RxOnAnimationSheetUpdate.OnNext(parentSheet);
+            }
         }
 
         /// <summary>
@@ -375,6 +396,8 @@ namespace Pixelaria.Controllers
         /// <param name="anim">The Animation to remove from the bundle</param>
         public void RemoveAnimation([NotNull] Animation anim)
         {
+            var sheet = GetOwningAnimationSheet(anim);
+
             CurrentBundle.RemoveAnimation(anim);
 
             _mainForm.RemoveAnimation(anim);
@@ -385,6 +408,11 @@ namespace Pixelaria.Controllers
 
             // Dispose of the animation
             anim.Dispose();
+
+            if (sheet != null)
+            {
+                _reactive.RxOnAnimationSheetUpdate.OnNext(sheet);
+            }
         }
 
         /// <summary>
@@ -394,6 +422,8 @@ namespace Pixelaria.Controllers
         public void UpdatedAnimation([NotNull] Animation anim)
         {
             _mainForm.UpdateAnimation(anim);
+
+            _reactive.RxOnAnimationUpdate.OnNext(anim);
 
             MarkUnsavedChanges(true);
         }
@@ -417,6 +447,10 @@ namespace Pixelaria.Controllers
         {
             CurrentBundle.RearrangeAnimationsPosition(anim, newIndex);
 
+            var sheet = GetOwningAnimationSheet(anim);
+            if (sheet != null)
+                _reactive.RxOnAnimationSheetUpdate.OnNext(sheet);
+
             MarkUnsavedChanges(true);
         }
 
@@ -439,23 +473,24 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The sheet to load into the current bundle</param>
         /// <param name="openOnForm">Whether to open the newly added animation sheet on the main form</param>
-        public void AddAnimationSheet([NotNull] AnimationSheet sheet, bool openOnForm)
+        [CanBeNull]
+        public AnimationSheetView AddAnimationSheet([NotNull] AnimationSheet sheet, bool openOnForm)
         {
             CurrentBundle.AddAnimationSheet(sheet);
 
             if (openOnForm)
             {
                 _mainForm.AddAnimationSheet(sheet, true);
-                _mainForm.OpenViewForAnimationSheet(sheet);
+                return _mainForm.OpenViewForAnimationSheet(sheet);
             }
-            else
-            {
-                _mainForm.AddAnimationSheet(sheet);
-            }
+
+            _mainForm.AddAnimationSheet(sheet);
 
             AnimationSheetAdded?.Invoke(this, new AnimationSheetEventArgs(sheet));
 
             MarkUnsavedChanges(true);
+
+            return null;
         }
 
         /// <summary>
@@ -466,13 +501,10 @@ namespace Pixelaria.Controllers
         public void RemoveAnimationSheet([NotNull] AnimationSheet sheet, bool deleteAnimations)
         {
             // Remove/relocate animations
+            var animations = sheet.Animations;
             if (deleteAnimations)
-            {
-                foreach (var anim in sheet.Animations)
-                {
+                foreach (var anim in animations)
                     RemoveAnimation(anim);
-                }
-            }
 
             // Remove the sheet
             CurrentBundle.RemoveAnimationSheet(sheet, false);
@@ -482,6 +514,10 @@ namespace Pixelaria.Controllers
             AnimationSheetRemoved?.Invoke(this, new AnimationSheetEventArgs(sheet));
 
             MarkUnsavedChanges(true);
+
+            if (deleteAnimations)
+                foreach (var anim in animations)
+                    _reactive.RxOnAnimationUpdate.OnNext(anim);
         }
 
         /// <summary>
@@ -491,6 +527,8 @@ namespace Pixelaria.Controllers
         public void UpdatedAnimationSheet([NotNull] AnimationSheet sheet)
         {
             _mainForm.UpdateAnimationSheet(sheet);
+
+            _reactive.RxOnAnimationSheetUpdate.OnNext(sheet);
 
             MarkUnsavedChanges(true);
         }
@@ -513,7 +551,7 @@ namespace Pixelaria.Controllers
         public void RearrangeAnimationSheetsPosition(AnimationSheet sheet, int newIndex)
         {
             CurrentBundle.RearrangeAnimationSheetsPosition(sheet, newIndex);
-
+            
             MarkUnsavedChanges(true);
         }
 
@@ -526,6 +564,8 @@ namespace Pixelaria.Controllers
         public void AddAnimationToAnimationSheet(Animation anim, AnimationSheet sheet)
         {
             CurrentBundle.AddAnimationToAnimationSheet(anim, sheet);
+
+            _reactive.RxOnAnimationSheetUpdate.OnNext(sheet);
 
             MarkUnsavedChanges(true);
         }
@@ -576,18 +616,6 @@ namespace Pixelaria.Controllers
             return prefix + postfix;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////
-        //////////
-        ////////// Listener-Generating Methods
-        //////////
-        /////
-        ///// Methods that generate event-like listeners that that fire whenever specific 
-        ///// events occur.
-        /////
-        ////////////////////////////////////////////////////////////////////////////////
-        
-        
-        
         ////////////////////////////////////////////////////////////////////////////////
         //////////
         ////////// Interface Related Methods
@@ -798,12 +826,12 @@ namespace Pixelaria.Controllers
         /// Shows an interface to duplicate the given AnimationSheet object
         /// </summary>
         /// <param name="sheet">The animation sheet to duplicate</param>
-        public void ShowDuplicateAnimationSheet([NotNull] AnimationSheet sheet)
+        public AnimationSheetView ShowDuplicateAnimationSheet([NotNull] AnimationSheet sheet)
         {
             var dup = CurrentBundle.DuplicateAnimationSheet(sheet);
 
             _mainForm.AddAnimationSheet(dup, true);
-            _mainForm.OpenViewForAnimationSheet(dup);
+            var view = _mainForm.OpenViewForAnimationSheet(dup);
 
             // Add the cloned animations as well
             foreach (var anim in dup.Animations)
@@ -812,6 +840,8 @@ namespace Pixelaria.Controllers
             }
 
             MarkUnsavedChanges(true);
+
+            return view;
         }
 
         /// <summary>
@@ -1070,7 +1100,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The animation sheet to wrap on the dynamic provider</param>
         /// <param name="settings">An overrided set of export settings to use</param>
-        /// <returns>An <see cref="IAnimationProvider"/> instance that provides still unsaved changes from animation views when the property <see cref="IAnimationProvider.Animations"/> is queried.</returns>
+        /// <returns>An <see cref="IAnimationProvider"/> instance that provides still unsaved changes from animation views when the property <see cref="IAnimationProvider.GetAnimations"/> is called.</returns>
         public IAnimationProvider GetDynamicProviderForSheet(AnimationSheet sheet, AnimationExportSettings settings)
         {
             return new DynamicAnimationProvider(this, sheet, settings);
@@ -1170,6 +1200,38 @@ namespace Pixelaria.Controllers
                 _sheet = sheet;
                 ExportSettings = exportSettings;
             }
+        }
+
+        /// <summary>
+        /// Reactive binder for the controller
+        /// </summary>
+        public interface IReactive
+        {
+            /// <summary>
+            /// Updates whenever any of the public properties of an animation instance change.
+            /// 
+            /// Only changes that where persisted (i.e. they are not unsaved changes to a form) are performed.
+            /// </summary>
+            IObservable<Animation> AnimationUpdate { get; }
+
+            /// <summary>
+            /// Updates whenever any of the public properties of an animation sheet instance change
+            /// 
+            /// Only changes that where persisted (i.e. they are not unsaved changes to a form) are performed.
+            /// </summary>
+            IObservable<AnimationSheet> AnimationSheetUpdate { get; }
+        }
+
+        /// <summary>
+        /// Reactive binder for the controller
+        /// </summary>
+        private class Reactive : IReactive
+        {
+            public readonly Subject<Animation> RxOnAnimationUpdate = new Subject<Animation>();
+            public readonly Subject<AnimationSheet> RxOnAnimationSheetUpdate = new Subject<AnimationSheet>();
+
+            public IObservable<Animation> AnimationUpdate => RxOnAnimationUpdate;
+            public IObservable<AnimationSheet> AnimationSheetUpdate => RxOnAnimationSheetUpdate;
         }
     }
 

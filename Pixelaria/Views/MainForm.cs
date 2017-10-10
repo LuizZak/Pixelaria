@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
@@ -44,6 +45,13 @@ namespace Pixelaria.Views
     /// </summary>
     public partial class MainForm : Form
     {
+        private readonly Reactive _reactive = new Reactive();
+
+        /// <summary>
+        /// Gets the public-facing reactive bindings object
+        /// </summary>
+        public IReactive Rx => _reactive;
+
         /// <summary>
         /// Event handler for the recent file menu item list click
         /// </summary>
@@ -216,13 +224,13 @@ namespace Pixelaria.Views
         /// </summary>
         public void UpdateTreeViewIcons()
         {
-            Queue<TreeNode> nodeQueue = new Queue<TreeNode>();
+            var nodeQueue = new Queue<TreeNode>();
 
             nodeQueue.Enqueue(_rootNode);
 
             while(nodeQueue.Count != 0)
             {
-                TreeNode node = nodeQueue.Dequeue();
+                var node = nodeQueue.Dequeue();
 
                 if (node.Tag is Animation animation)
                 {
@@ -258,7 +266,7 @@ namespace Pixelaria.Views
                 if (path == "")
                     continue;
 
-                MenuItem item = new MenuItem((i + 1) + " - " + (path == "" ? "--" : Path.GetFileName(path)))
+                var item = new MenuItem((i + 1) + " - " + (path == "" ? "--" : Path.GetFileName(path)))
                 {
                     Tag = i
                 };
@@ -270,7 +278,7 @@ namespace Pixelaria.Views
 
             if (mi_recentFiles.MenuItems.Count == 0)
             {
-                MenuItem item = new MenuItem("No recent files")
+                var item = new MenuItem("No recent files")
                 {
                     Enabled = false
                 };
@@ -451,6 +459,8 @@ namespace Pixelaria.Views
             view.Show();
             view.BringToFront();
 
+            _reactive.OnMdiChildrenChanged.OnNext(MdiChildren);
+
             view.ModifiedChanged += (sender, args) => { ChildViewModifiedChanged?.Invoke(sender, args); };
             
             // Fire Opened event
@@ -459,7 +469,10 @@ namespace Pixelaria.Views
             view.FormClosed += (sender, args) =>
             {
                 ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Closed));
+                _reactive.OnMdiChildrenChanged.OnNext(MdiChildren);
             };
+
+            _reactive.OnOpenedAnimationView.OnNext(view);
 
             return view;
         }
@@ -470,6 +483,7 @@ namespace Pixelaria.Views
         /// </summary>
         /// <param name="animation">The animation that might be opened on this form</param>
         /// <returns>The view for the animation; or null, if none could be found</returns>
+        [CanBeNull]
         public AnimationView GetOpenedViewForAnimation(Animation animation)
         {
             return MdiChildren.OfType<AnimationView>().FirstOrDefault(view => view.CurrentAnimation.ID == animation.ID);
@@ -563,7 +577,12 @@ namespace Pixelaria.Views
             view.Show();
             view.BringToFront();
 
-            view.ModifiedChanged += (sender, args) => { ChildViewModifiedChanged?.Invoke(sender, args); };
+            _reactive.OnMdiChildrenChanged.OnNext(MdiChildren);
+
+            view.ModifiedChanged += (sender, args) =>
+            {
+                ChildViewModifiedChanged?.Invoke(sender, args);
+            };
 
             // Fire Opened event
             ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Opened));
@@ -571,17 +590,22 @@ namespace Pixelaria.Views
             view.FormClosed += (sender, args) =>
             {
                 ViewOpenedClosed?.Invoke(view, new ViewOpenCloseEventArgs(view, ViewOpenCloseEventArgs.OpenCloseEventType.Closed));
+
+                _reactive.OnMdiChildrenChanged.OnNext(MdiChildren);
             };
+
+            _reactive.OnOpenedAnimationSheetView.OnNext(view);
 
             return view;
         }
-
+        
         /// <summary>
         /// Gets the currently opened view, if any, that is associated with a given animation sheet.
         /// Returns null, if no view is currently opened for the given animation sheet in this form
         /// </summary>
         /// <param name="sheet">The animation sheet that might be opened on this form</param>
         /// <returns>The view for the animation sheet; or null, if none could be found</returns>
+        [CanBeNull]
         public AnimationSheetView GetOpenedViewForAnimationSheet(AnimationSheet sheet)
         {
             return MdiChildren.OfType<AnimationSheetView>().FirstOrDefault(view => view.CurrentSheet.ID == sheet.ID);
@@ -1248,7 +1272,7 @@ namespace Pixelaria.Views
         private void tsm_sheetCreateAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
+            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
 
             if (sheet != null)
             {
@@ -1262,7 +1286,7 @@ namespace Pixelaria.Views
         private void tsm_sheetImportAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
+            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
 
             if (sheet != null)
             {
@@ -1276,7 +1300,7 @@ namespace Pixelaria.Views
         private void tsm_duplicateSheet_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
+            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
 
             if (sheet != null)
             {
@@ -1290,7 +1314,7 @@ namespace Pixelaria.Views
         private void tsm_exportSheetImage_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
+            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
 
             if (sheet != null)
             {
@@ -1304,7 +1328,7 @@ namespace Pixelaria.Views
         private void tsm_editSheetPropertiesClick(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = (AnimationSheet)tv_bundleAnimations.SelectedNode.Tag;
+            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
 
             if (sheet != null)
             {
@@ -1413,6 +1437,44 @@ namespace Pixelaria.Views
             /// Specifies an unknown node type
             /// </summary>
             Unknown
+        }
+
+        private class Reactive : IReactive
+        {
+            public readonly Subject<AnimationSheetView> OnOpenedAnimationSheetView = new Subject<AnimationSheetView>();
+            public readonly Subject<AnimationView> OnOpenedAnimationView = new Subject<AnimationView>();
+            public readonly Subject<Form[]> OnMdiChildrenChanged = new Subject<Form[]>();
+
+            public IObservable<Form[]> MdiChildrenChanged => OnMdiChildrenChanged;
+            public IObservable<AnimationSheetView> OpenedAnimationSheetView => OnOpenedAnimationSheetView;
+            public IObservable<AnimationView> OpenedAnimationView => OnOpenedAnimationView;
+        }
+
+        /// <summary>
+        /// Public-facing Reactive bindings
+        /// </summary>
+        public interface IReactive
+        {
+            /// <summary>
+            /// Called whenever a new animation sheet view opens.
+            /// 
+            /// Not called when an already opened view is brought to the foreground by an attempt to
+            /// open it.
+            /// </summary>
+            IObservable<AnimationSheetView> OpenedAnimationSheetView { get; }
+
+            /// <summary>
+            /// Called whenever a new animation view opens
+            /// 
+            /// Not called when an already opened view is brought to the foreground by an attempt to
+            /// open it.
+            /// </summary>
+            IObservable<AnimationView> OpenedAnimationView { get; }
+
+            /// <summary>
+            /// Called whenever a new Form has been shown/removed on the main form
+            /// </summary>
+            IObservable<Form[]> MdiChildrenChanged { get; }
         }
     }
 

@@ -27,6 +27,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
@@ -50,6 +52,10 @@ namespace Pixelaria.Views.ModelViews
     /// </summary>
     public partial class AnimationView : ModifiableContentView
     {
+        private Reactive _reactive = new Reactive();
+
+        public IReactive Rx => _reactive;
+
         /// <summary>
         /// The common clipboard for all the AnimationViews
         /// </summary>
@@ -461,6 +467,8 @@ namespace Pixelaria.Views.ModelViews
                 MarkModified();
 
                 RefreshView();
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
         }
 
@@ -476,6 +484,8 @@ namespace Pixelaria.Views.ModelViews
                 MarkModified();
 
                 RefreshView();
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
         }
 
@@ -558,6 +568,8 @@ namespace Pixelaria.Views.ModelViews
 
                 MarkModified();
                 RefreshView();
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
             else
             {
@@ -607,6 +619,8 @@ namespace Pixelaria.Views.ModelViews
 
                 undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
         }
 
@@ -616,7 +630,7 @@ namespace Pixelaria.Views.ModelViews
         public void ReverseFrames()
         {
             // Reversing cannot happen when only one frame is selected
-            if (lv_frames.SelectedIndices.Count == 1)
+            if (lv_frames.SelectedIndices.Count <= 1)
                 return;
 
             ///// Get the frames to reverse
@@ -653,6 +667,8 @@ namespace Pixelaria.Views.ModelViews
             MarkModified();
 
             RefreshView();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         /// <summary>
@@ -668,6 +684,8 @@ namespace Pixelaria.Views.ModelViews
                 ViewAnimation.SetName(txt_animName.Text);
                 RefreshAnimationInfo();
                 RefreshTitle();
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
         }
 
@@ -713,6 +731,8 @@ namespace Pixelaria.Views.ModelViews
             MarkModified();
 
             RefreshView();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         /// <summary>
@@ -769,8 +789,6 @@ namespace Pixelaria.Views.ModelViews
 
             // Remove the selected frames
             DeleteSelectedFrames();
-
-            MarkModified();
         }
 
         /// <summary>
@@ -851,6 +869,8 @@ namespace Pixelaria.Views.ModelViews
                     if (item != null)
                         item.Selected = true;
                 }
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
             // Image pasting
             else if (Clipboard.CurrentDataType == ImageStreamClipboardObject.DataType)
@@ -917,6 +937,8 @@ namespace Pixelaria.Views.ModelViews
                     if (forFrame != null)
                         forFrame.Selected = true;
                 }
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
         }
 
@@ -948,7 +970,9 @@ namespace Pixelaria.Views.ModelViews
 
             RefreshView();
 
-            lv_frames.Items[(index == -1 ? lv_frames.Items.Count -1 : index)].Selected = true;
+            lv_frames.Items[index == -1 ? lv_frames.Items.Count -1 : index].Selected = true;
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         /// <summary>
@@ -967,6 +991,8 @@ namespace Pixelaria.Views.ModelViews
             RefreshView();
 
             lv_frames.Items[lv_frames.Items.Count - 1].Selected = true;
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         /// <summary>
@@ -1005,6 +1031,8 @@ namespace Pixelaria.Views.ModelViews
                 MarkModified();
 
                 RefreshView();
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
             else
             {
@@ -1028,19 +1056,19 @@ namespace Pixelaria.Views.ModelViews
 
             // If the array is null, no images were chosen
             if (images == null)
-            {
                 return;
-            }
 
             try
             {
-                FrameSizeMatchingSettings sizeMatching = new FrameSizeMatchingSettings();
+                var sizeMatching = new FrameSizeMatchingSettings();
 
                 foreach (var image in images)
                 {
                     if (image.Size != ViewAnimation.Size)
                     {
-                        FramesRescaleSettingsView sizeMatchingForm = new FramesRescaleSettingsView("The frames being loaded have a different resolution than the target animation. Please select the scaling options for the frames:");
+                        var sizeMatchingForm =
+                            new FramesRescaleSettingsView(
+                                "The frames being loaded have a different resolution than the target animation. Please select the scaling options for the frames:");
 
                         if (sizeMatchingForm.ShowDialog(this) == DialogResult.OK)
                         {
@@ -1054,13 +1082,13 @@ namespace Pixelaria.Views.ModelViews
 
                 var frames = new List<Frame>();
 
-                foreach (Image image in images)
+                foreach (var image in images)
                 {
-                    Bitmap tempBit = (Bitmap)image;
+                    var tempBit = (Bitmap)image;
                     var bit = tempBit.Clone(new Rectangle(Point.Empty, tempBit.Size), tempBit.PixelFormat);
                     tempBit.Dispose();
 
-                    Frame frame = _controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
+                    var frame = _controller.FrameFactory.CreateFrame(bit.Width, bit.Height, null, false);
                     frame.SetFrameBitmap(bit);
 
                     frames.Add(frame);
@@ -1078,6 +1106,8 @@ namespace Pixelaria.Views.ModelViews
                 RefreshView();
 
                 lv_frames.Items[lv_frames.Items.Count - 1].Selected = true;
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
             catch (Exception e)
             {
@@ -1159,6 +1189,8 @@ namespace Pixelaria.Views.ModelViews
 
                 MarkModified();
                 RefreshView();
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
             catch (Exception e)
             {
@@ -1281,6 +1313,8 @@ namespace Pixelaria.Views.ModelViews
                 MarkModified();
 
                 eventArgs.Cancel = true;
+
+                _reactive.OnChange.OnNext(Unit.Default);
             }
         }
 
@@ -1642,6 +1676,8 @@ namespace Pixelaria.Views.ModelViews
             ViewAnimation.PlaybackSettings = playback;
 
             MarkModified();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         // 
@@ -1656,6 +1692,8 @@ namespace Pixelaria.Views.ModelViews
             ViewAnimation.PlaybackSettings = playback;
 
             MarkModified();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         // 
@@ -1772,8 +1810,6 @@ namespace Pixelaria.Views.ModelViews
             {
                 _animation = animation;
                 _oldAnimation = _animation.MakeCopyForEditing();
-
-                //_compoundTask = new GroupUndoTask(GetDescription());
             }
 
             /// <summary>
@@ -2261,6 +2297,27 @@ namespace Pixelaria.Views.ModelViews
             /// Specifies an Add Frames operaiton
             /// </summary>
             Add
+        }
+
+        private class Reactive : IReactive
+        {
+            public readonly Subject<Unit> OnChange = new Subject<Unit>();
+
+            public IObservable<Unit> Change => OnChange;
+        }
+
+        /// <summary>
+        /// Public-facing Reactive bindings
+        /// </summary>
+        public interface IReactive
+        {
+            /// <summary>
+            /// Called whenever any of the fields on the animation view are changed by the user.
+            /// 
+            /// Changes only count when they would affect the AnimationView model when the
+            /// user applies/saves the changes, including undo/redo operations.
+            /// </summary>
+            IObservable<Unit> Change { get; }
         }
     }
 

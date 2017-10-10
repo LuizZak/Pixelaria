@@ -24,6 +24,10 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
@@ -42,6 +46,11 @@ namespace Pixelaria.Views.ModelViews
     /// </summary>
     public partial class AnimationSheetView : ModifiableContentView
     {
+        private CompositeDisposable _disposeBag = new CompositeDisposable();
+        private readonly Reactive _reactive = new Reactive();
+
+        public IReactive Rx => _reactive;
+
         /// <summary>
         /// The controller that owns this form
         /// </summary>
@@ -105,6 +114,8 @@ namespace Pixelaria.Views.ModelViews
                 controller.ViewModifiedChanged += OnControllerOnViewModifiedChanged;
                 controller.ViewOpenedClosed += OnControllerOnViewOpenedClosed;
             }
+
+            CreateObservers();
         }
 
         /// <summary>
@@ -125,11 +136,65 @@ namespace Pixelaria.Views.ModelViews
 
                 _controller.ViewModifiedChanged -= OnControllerOnViewModifiedChanged;
                 _controller.ViewOpenedClosed -= OnControllerOnViewOpenedClosed;
+
+                // ReSharper disable once UseNullPropagation
+                if (_disposeBag != null)
+                    _disposeBag.Dispose();
+                _disposeBag = null;
             }
 
             base.Dispose(disposing);
         }
-        
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            _disposeBag?.Dispose();
+            _disposeBag = null;
+        }
+
+        /// <summary>
+        /// Initialize the reactive components for this form
+        /// </summary>
+        public void CreateObservers()
+        {
+            // Listen to changes to animations for this sheet view
+
+            // Listen to animation add/remove from the sheet we are displaying
+            var onUpdateSheet =
+                _controller
+                    .Rx.AnimationSheetUpdate.Select(_ => Unit.Default);
+
+            // Listen to non persisted updates of children Animation views
+            // that handle animations that belong to this sheet view
+            var onUpdateAnimationViews =
+                _controller
+                    .MainForm.Rx
+                    .MdiChildrenChanged
+                    // Listen to all animation views- every time one is opened
+                    // or closed. We then select their respective OnChange listeners.
+                    .Select(children => children.OfType<AnimationView>())
+                    .SelectMany(children =>
+                    {
+                        return children.Select(
+                            view => view.Rx.Change.Select(_ => view)
+                        ).Merge();
+                    })
+                    // Select only animations that belong to the animation sheet view being edited.
+                    .Where(form => _controller.GetOwningAnimationSheet(form.CurrentAnimation)?.ID == CurrentSheet?.ID)
+                    // Don't care about animation views, only that one of them was updated.
+                    .Select(_ => Unit.Default);
+
+            Observable
+                .Merge(new []{ onUpdateSheet, onUpdateAnimationViews })
+                .Subscribe(next =>
+                {
+                    if (_autoUpdatePreview && _sheetCancellation == null)
+                        GeneratePreview();
+                }).AddToDisposable(_disposeBag);
+        }
+
         /// <summary>
         /// Initializes the fields of this form
         /// </summary>
@@ -294,9 +359,6 @@ namespace Pixelaria.Views.ModelViews
         private void OnControllerOnViewModifiedChanged(object sender, EventArgs args)
         {
             UpdateUnsavedAnimationsIconState();
-
-            if (_autoUpdatePreview)
-                GeneratePreview();
         }
 
         private void OnControllerOnViewOpenedClosed(object sender, ViewOpenCloseEventArgs args)
@@ -591,6 +653,8 @@ namespace Pixelaria.Views.ModelViews
             ValidateFields();
 
             MarkModified();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         // 
@@ -599,6 +663,8 @@ namespace Pixelaria.Views.ModelViews
         private void checkboxes_Change(object sender, EventArgs e)
         {
             MarkModified();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         // 
@@ -607,6 +673,8 @@ namespace Pixelaria.Views.ModelViews
         private void nuds_Common(object sender, EventArgs e)
         {
             MarkModified();
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         // 
@@ -723,6 +791,27 @@ namespace Pixelaria.Views.ModelViews
         private void cb_autoUpdatePreview_CheckedChanged(object sender, EventArgs e)
         {
             _autoUpdatePreview = cb_autoUpdatePreview.Checked;
+        }
+
+        private class Reactive: IReactive
+        {
+            public readonly Subject<Unit> OnChange = new Subject<Unit>();
+
+            public IObservable<Unit> Change => OnChange;
+        }
+
+        /// <summary>
+        /// Public-facing Reactive bindings
+        /// </summary>
+        public interface IReactive
+        {
+            /// <summary>
+            /// Called whenever any of the fields on the view are changed by the user.
+            /// 
+            /// Changes only count when they would affect the AnimationSheetView model when the
+            /// user applies/saves the changes.
+            /// </summary>
+            IObservable<Unit> Change { get; }
         }
     }
 }

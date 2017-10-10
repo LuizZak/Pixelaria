@@ -38,6 +38,14 @@ namespace Pixelaria.Utils
     public static class Utilities
     {
         /// <summary>
+        /// Adds a disposable object into a collection of disposable (usually a CompositeDisposable)
+        /// </summary>
+        public static void AddToDisposable<T>(this IDisposable disposable, [NotNull] T target) where T : ICollection<IDisposable>, IDisposable
+        {
+            target.Add(disposable);
+        }
+
+        /// <summary>
         /// Helper method used to create relative paths
         /// </summary>
         /// <param name="filespec">The file path</param>
