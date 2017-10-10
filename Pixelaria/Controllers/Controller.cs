@@ -146,8 +146,8 @@ namespace Pixelaria.Controllers
         /// </summary>
         public event EventHandler ViewModifiedChanged
         {
-            add { _mainForm.ChildViewModifiedChanged += value; }
-            remove { _mainForm.ChildViewModifiedChanged -= value; }
+            add => _mainForm.ChildViewModifiedChanged += value;
+            remove => _mainForm.ChildViewModifiedChanged -= value;
         }
 
         /// <summary>
@@ -157,8 +157,8 @@ namespace Pixelaria.Controllers
         /// </summary>
         public event MainForm.ViewOpenedClosedEventDelegate ViewOpenedClosed
         {
-            add { _mainForm.ViewOpenedClosed += value; }
-            remove { _mainForm.ViewOpenedClosed -= value; }
+            add => _mainForm.ViewOpenedClosed += value;
+            remove => _mainForm.ViewOpenedClosed -= value;
         }
 
         #endregion
@@ -578,29 +578,15 @@ namespace Pixelaria.Controllers
 
         ////////////////////////////////////////////////////////////////////////////////
         //////////
-        ////////// PixelariaFile Related Methods
+        ////////// Listener-Generating Methods
         //////////
         /////
-        ///// Methods that interact with PixelariaFile objects, by creating, updating
-        ///// and removing the files. May end up interacting with bundle controllers
-        ///// as well.
+        ///// Methods that generate event-like listeners that that fire whenever specific 
+        ///// events occur.
         /////
         ////////////////////////////////////////////////////////////////////////////////
-
-        /*
-        /// <summary>
-        /// Gets a PixelariaFile object which matches the given Bundle object.
-        /// If none of the files currently opened match the bundle, null is returned.
-        /// </summary>
-        /// <param name="bundle">The bundle to get the pixelaria file from</param>
-        /// <returns>A PixelariaFile that has the given bundle loaded into it</returns>
-        [CanBeNull]
-        public PixelariaFile GetPixelariaFileByBundle(Bundle bundle)
-        {
-            return _files.FirstOrDefault(file => ReferenceEquals(file.ConstructBundle(), bundle));
-        }
-        */
-
+        
+        
         ////////////////////////////////////////////////////////////////////////////////
         //////////
         ////////// Interface Related Methods
@@ -955,7 +941,7 @@ namespace Pixelaria.Controllers
         /// <param name="filePath">The file path that was chosen for the file. Returned as an empty string when no file was chosen</param>
         /// <param name="fileName">An optional file name to display as default name when the dialog shows up</param>
         /// <param name="owner">An optional owner for the file dialog</param>
-        /// <returns>>The selected image, or null if the user has not chosen an image</returns>
+        /// <returns>The selected image, or null if the user has not chosen an image</returns>
         public Image ShowLoadImage(out string filePath, string fileName = "", IWin32Window owner = null)
         {
             filePath = string.Empty;

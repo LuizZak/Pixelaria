@@ -809,7 +809,6 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Copy()
         {
-
             if (iepb_frame.CurrentPaintTool is IClipboardPaintTool clipboardPaintOperation)
             {
                 ActiveControl = iepb_frame.PictureBox;
@@ -822,7 +821,6 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void Cut()
         {
-
             if (iepb_frame.CurrentPaintTool is IClipboardPaintTool clipboardPaintOperation)
             {
                 ActiveControl = iepb_frame.PictureBox;
@@ -886,13 +884,13 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Fetch the list of filters
-            string[] filterNames = FilterStore.Instance.FiltersList;
-            Image[] iconList = FilterStore.Instance.FilterIconList;
+            var filterNames = FilterStore.Instance.FiltersList;
+            var iconList = FilterStore.Instance.FilterIconList;
 
             // Create and add all the new filter items
             for (int i = 0; i < iconList.Length; i++)
             {
-                ToolStripMenuItem tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
+                var tsmFilterItem = new ToolStripMenuItem(filterNames[i], iconList[i])
                 {
                     Tag = filterNames[i]
                 };
@@ -929,7 +927,7 @@ namespace Pixelaria.Views.ModelViews
 
             if (presets.Length == 0)
             {
-                ToolStripMenuItem tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
+                var tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
 
                 menuItem.DropDownItems.Add(tsmEmptyItem);
             }
@@ -937,8 +935,8 @@ namespace Pixelaria.Views.ModelViews
             // Create and add all the new filter items
             for (int i = 0; i < presets.Length; i++)
             {
-                FilterPreset preset = presets[i];
-                ToolStripMenuItem tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
+                var preset = presets[i];
+                var tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
                 {
                     Tag = tagMethod(preset, i)
                 };
@@ -1961,8 +1959,14 @@ namespace Pixelaria.Views.ModelViews
         {
             tsm_copy.Enabled = tsb_copy.Enabled = eventArgs.CanCopy;
             tsm_cut.Enabled = tsb_cut.Enabled = eventArgs.CanCut;
-            tsm_paste.Enabled = tsb_paste.Enabled = eventArgs.CanPaste || (Clipboard.ContainsData("PNG"));
+            tsm_paste.Enabled = tsb_paste.Enabled = eventArgs.CanPaste || Clipboard.ContainsData("PNG");
+        }
 
+        // 
+        // Image Edit Panel clipboard set contents event handler
+        // 
+        private void iepb_frame_ClipboardSetContents(object sender, EventArgs eventArgs)
+        {
             if (Clipboard.ContainsData("PNG"))
             {
                 AnimationView.Clipboard.SetObject(new ImageStreamClipboardObject(Clipboard.GetData("PNG") as System.IO.Stream));

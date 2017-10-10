@@ -310,6 +310,8 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
 
             UpdateClipboardState();
+            // TODO: Fix encapsulation here
+            pictureBox?.OwningPanel.FireClipboardSetContentsEvent();
         }
 
         /// <summary>
@@ -324,6 +326,8 @@ namespace Pixelaria.Views.Controls.PaintTools
             FinishOperation(false);
 
             UpdateClipboardState();
+            // TODO: Fix encapsulation here
+            pictureBox?.OwningPanel.FireClipboardSetContentsEvent();
         }
 
         /// <summary>
@@ -917,6 +921,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         private void UpdateClipboardState()
         {
+            // TODO: Fix encapsulation here
             pictureBox?.OwningPanel.FireClipboardStateEvent(CanCopy(), CanCut(), CanPaste());
         }
 

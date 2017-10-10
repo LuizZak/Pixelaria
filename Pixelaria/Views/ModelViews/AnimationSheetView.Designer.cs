@@ -43,6 +43,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.pb_unsavedAnimWarning = new System.Windows.Forms.PictureBox();
             this.pb_exportProgress = new System.Windows.Forms.ProgressBar();
             this.nud_yPadding = new System.Windows.Forms.NumericUpDown();
             this.nud_xPadding = new System.Windows.Forms.NumericUpDown();
@@ -59,7 +60,6 @@ namespace Pixelaria.Views.ModelViews
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btn_generatePreview = new System.Windows.Forms.Button();
-            this.pb_unsavedAnimWarning = new System.Windows.Forms.PictureBox();
             this.pnl_alertPanel = new System.Windows.Forms.Panel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.lbl_alertLabel = new System.Windows.Forms.Label();
@@ -94,11 +94,12 @@ namespace Pixelaria.Views.ModelViews
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.cb_autoUpdatePreview = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).BeginInit();
             this.pnl_alertPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnl_errorPanel.SuspendLayout();
@@ -146,6 +147,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.cb_autoUpdatePreview);
             this.groupBox2.Controls.Add(this.pb_unsavedAnimWarning);
             this.groupBox2.Controls.Add(this.pb_exportProgress);
             this.groupBox2.Controls.Add(this.nud_yPadding);
@@ -161,6 +163,22 @@ namespace Pixelaria.Views.ModelViews
             this.groupBox2.TabIndex = 27;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export Settings";
+            // 
+            // pb_unsavedAnimWarning
+            // 
+            this.pb_unsavedAnimWarning.BackColor = System.Drawing.SystemColors.Control;
+            this.pb_unsavedAnimWarning.BackgroundImage = global::Pixelaria.Properties.Resources.dialog_warning;
+            this.pb_unsavedAnimWarning.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.pb_unsavedAnimWarning.Location = new System.Drawing.Point(210, 63);
+            this.pb_unsavedAnimWarning.Name = "pb_unsavedAnimWarning";
+            this.helpProvider1.SetShowHelp(this.pb_unsavedAnimWarning, true);
+            this.pb_unsavedAnimWarning.Size = new System.Drawing.Size(79, 22);
+            this.pb_unsavedAnimWarning.TabIndex = 15;
+            this.pb_unsavedAnimWarning.TabStop = false;
+            this.tt_mainTooltip.SetToolTip(this.pb_unsavedAnimWarning, "One or more animations of this sheet currently have unsaved changes.\r\nThe generat" +
+        "ed preview account for those changes, but bundle exports\r\nwill not, until change" +
+        "s to these animations are saved.");
+            this.pb_unsavedAnimWarning.Visible = false;
             // 
             // pb_exportProgress
             // 
@@ -392,22 +410,6 @@ namespace Pixelaria.Views.ModelViews
             this.btn_generatePreview.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btn_generatePreview.UseVisualStyleBackColor = true;
             this.btn_generatePreview.Click += new System.EventHandler(this.btn_generatePreview_Click);
-            // 
-            // pb_unsavedAnimWarning
-            // 
-            this.pb_unsavedAnimWarning.BackColor = System.Drawing.SystemColors.Control;
-            this.pb_unsavedAnimWarning.BackgroundImage = global::Pixelaria.Properties.Resources.dialog_warning;
-            this.pb_unsavedAnimWarning.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.pb_unsavedAnimWarning.Location = new System.Drawing.Point(210, 63);
-            this.pb_unsavedAnimWarning.Name = "pb_unsavedAnimWarning";
-            this.helpProvider1.SetShowHelp(this.pb_unsavedAnimWarning, true);
-            this.pb_unsavedAnimWarning.Size = new System.Drawing.Size(79, 22);
-            this.pb_unsavedAnimWarning.TabIndex = 15;
-            this.pb_unsavedAnimWarning.TabStop = false;
-            this.tt_mainTooltip.SetToolTip(this.pb_unsavedAnimWarning, "One or more animations of this sheet currently have unsaved changes.\r\nThe generat" +
-        "ed preview account for those changes, but bundle exports\r\nwill not, until change" +
-        "s to these animations are saved.");
-            this.pb_unsavedAnimWarning.Visible = false;
             // 
             // pnl_alertPanel
             // 
@@ -828,6 +830,23 @@ namespace Pixelaria.Views.ModelViews
             0});
             this.anud_zoom.ValueChanged += new System.EventHandler(this.anud_zoom_ValueChanged);
             // 
+            // cb_autoUpdatePreview
+            // 
+            this.cb_autoUpdatePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cb_autoUpdatePreview.AutoSize = true;
+            this.cb_autoUpdatePreview.Checked = true;
+            this.cb_autoUpdatePreview.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_autoUpdatePreview.Location = new System.Drawing.Point(206, 155);
+            this.cb_autoUpdatePreview.Name = "cb_autoUpdatePreview";
+            this.helpProvider1.SetShowHelp(this.cb_autoUpdatePreview, true);
+            this.cb_autoUpdatePreview.Size = new System.Drawing.Size(86, 30);
+            this.cb_autoUpdatePreview.TabIndex = 36;
+            this.cb_autoUpdatePreview.Text = "Auto Update\r\nPreview\r\n";
+            this.tt_mainTooltip.SetToolTip(this.cb_autoUpdatePreview, "Auto updates the preview whenever animations are changed while this view is open." +
+        "\r\n");
+            this.cb_autoUpdatePreview.UseVisualStyleBackColor = true;
+            this.cb_autoUpdatePreview.CheckedChanged += new System.EventHandler(this.cb_autoUpdatePreview_CheckedChanged);
+            // 
             // AnimationSheetView
             // 
             this.AcceptButton = this.btn_ok;
@@ -858,11 +877,11 @@ namespace Pixelaria.Views.ModelViews
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AnimationSheetView_FormClosed);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_xPadding)).EndInit();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).EndInit();
             this.pnl_alertPanel.ResumeLayout(false);
             this.pnl_alertPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -940,5 +959,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.PictureBox pb_zoomIcon;
         private Controls.AssistedNumericUpDown anud_zoom;
         private System.Windows.Forms.PictureBox pb_unsavedAnimWarning;
+        private System.Windows.Forms.CheckBox cb_autoUpdatePreview;
     }
 }

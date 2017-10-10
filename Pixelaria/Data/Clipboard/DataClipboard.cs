@@ -23,8 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
 
 namespace Pixelaria.Data.Clipboard
 {
@@ -165,35 +165,35 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// List of frames to store into this ClipboardObject
         /// </summary>
-        List<FrameController> _frameList;
+        private List<IFrame> _frameList;
 
         /// <summary>
         /// Gets the frames currently added to this FrameListClipboardObject instance
         /// </summary>
-        public FrameController[] Frames => _frameList.ToArray();
+        public IFrame[] Frames => _frameList.ToArray();
 
         /// <summary>
         /// Initializes a new instance of the FrameListClipboardObject 
         /// </summary>
         public FrameListClipboardObject()
         {
-            _frameList = new List<FrameController>();
+            _frameList = new List<IFrame>();
         }
 
         /// <summary>
         /// Initializes a new FrameListClipboardObject with a list of frames to 
         /// </summary>
         /// <param name="frameList">A list of frames to initialize the internal frame list with</param>
-        public FrameListClipboardObject([NotNull] IEnumerable<FrameController> frameList)
+        public FrameListClipboardObject([NotNull] IEnumerable<IFrame> frameList)
         {
-            _frameList = new List<FrameController>(frameList);
+            _frameList = new List<IFrame>(frameList);
         }
 
         /// <summary>
         /// Adds the given Frame to this FrameListClipboardObject instance
         /// </summary>
         /// <param name="frame">The frame to add</param>
-        public void AddFrame([NotNull] FrameController frame)
+        public void AddFrame([NotNull] IFrame frame)
         {
             _frameList.Add(frame);
         }
@@ -206,7 +206,7 @@ namespace Pixelaria.Data.Clipboard
             if (_frameList == null)
                 return;
 
-            foreach (var frame in _frameList)
+            foreach (var frame in _frameList.OfType<IDisposable>())
             {
                 frame.Dispose();
             }
@@ -235,7 +235,7 @@ namespace Pixelaria.Data.Clipboard
         /// <summary>
         /// List of animations to store into this ClipboardObject
         /// </summary>
-        List<Animation> _animList;
+        private List<Animation> _animList;
 
         /// <summary>
         /// Gets the animations currently added to this FrameListClipboardObject instance
@@ -273,16 +273,16 @@ namespace Pixelaria.Data.Clipboard
         /// </summary>
         public void Clear()
         {
-            if (_animList != null)
-            {
-                foreach (Animation anim in _animList)
-                {
-                    anim.Dispose();
-                }
+            if (_animList == null)
+                return;
 
-                _animList.Clear();
-                _animList = null;
+            foreach (var anim in _animList)
+            {
+                anim.Dispose();
             }
+
+            _animList.Clear();
+            _animList = null;
         }
 
         /// <summary>

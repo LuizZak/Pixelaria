@@ -1330,6 +1330,7 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.UndoSystem = undoSystem1;
             this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
             this.iepb_frame.ClipboardStateChanged += new Pixelaria.Views.Controls.ImageEditPanel.ClipboardStateEventHandler(this.iepb_frame_ClipboardStateChanged);
+            this.iepb_frame.ClipboardSetContents += new System.EventHandler(this.iepb_frame_ClipboardSetContents);
             this.iepb_frame.OperationStatusChanged += new Pixelaria.Views.Controls.ImageEditPanel.OperationStatusEventHandler(this.iepb_frame_OperationStatusChanged);
             this.iepb_frame.MouseEnter += new System.EventHandler(this.iepb_frame_MouseEnter);
             this.iepb_frame.MouseLeave += new System.EventHandler(this.iepb_frame_MouseLeave);

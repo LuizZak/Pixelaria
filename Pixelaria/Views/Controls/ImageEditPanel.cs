@@ -105,6 +105,14 @@ namespace Pixelaria.Views.Controls
         public event ClipboardStateEventHandler ClipboardStateChanged;
 
         /// <summary>
+        /// Occurs whenever a tool performs a copy/cut of contents into the clipboards
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever a tool performs a copy of contents into the clipboards.")]
+        public event EventHandler ClipboardSetContents;
+
+        /// <summary>
         /// Delegate for a OperationStatusChanged event
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -323,6 +331,14 @@ namespace Pixelaria.Views.Controls
         public void FireClipboardStateEvent(bool canCopy, bool canCut, bool canPaste)
         {
             ClipboardStateChanged?.Invoke(this, new ClipboardStateEventArgs(canCopy, canCut, canPaste));
+        }
+
+        /// <summary>
+        /// Fires the ClipboardSetContents event
+        /// </summary>
+        public void FireClipboardSetContentsEvent()
+        {
+            ClipboardSetContents?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -69,6 +68,11 @@ namespace Pixelaria.Views.ModelViews
         private CancellationTokenSource _sheetCancellation;
 
         /// <summary>
+        /// Whether to automatically update the preview whenever changes to animations for a sprite sheet occur
+        /// </summary>
+        private bool _autoUpdatePreview = true;
+
+        /// <summary>
         /// Gets the current AnimationSheet being edited
         /// </summary>
         public AnimationSheet CurrentSheet { get; }
@@ -98,27 +102,11 @@ namespace Pixelaria.Views.ModelViews
                 // TODO: Better abstract and decouple these references to AnimationView, which are, as of now, a hack.
 
                 // Setup events
-                controller.ViewModifiedChanged += (sender, args) =>
-                {
-                    UpdateUnsavedAnimationsIconState();
-                };
-
-                controller.ViewOpenedClosed += (sender, args) =>
-                {
-                    // Erase current bundle sheet export, in case the animation closed was previously from this view
-                    // This is a work-around 
-                    var animView = sender as AnimationView;
-                    if (animView != null && _controller.GetOwningAnimationSheet(animView.CurrentAnimation)?.ID == CurrentSheet.ID && _generatedWhileUnsaved)
-                    {
-                        zpb_sheetPreview.SheetExport = null;
-                        _bundleSheetExport = null;
-                    }
-
-                    UpdateUnsavedAnimationsIconState();
-                };
+                controller.ViewModifiedChanged += OnControllerOnViewModifiedChanged;
+                controller.ViewOpenedClosed += OnControllerOnViewOpenedClosed;
             }
         }
-        
+
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -134,6 +122,9 @@ namespace Pixelaria.Views.ModelViews
                 // ReSharper disable once UseNullPropagation
                 if (_sheetCancellation != null)
                     _sheetCancellation.Dispose();
+
+                _controller.ViewModifiedChanged -= OnControllerOnViewModifiedChanged;
+                _controller.ViewOpenedClosed -= OnControllerOnViewOpenedClosed;
             }
 
             base.Dispose(disposing);
@@ -300,6 +291,28 @@ namespace Pixelaria.Views.ModelViews
             return _exportSettings;
         }
         
+        private void OnControllerOnViewModifiedChanged(object sender, EventArgs args)
+        {
+            UpdateUnsavedAnimationsIconState();
+
+            if (_autoUpdatePreview)
+                GeneratePreview();
+        }
+
+        private void OnControllerOnViewOpenedClosed(object sender, ViewOpenCloseEventArgs args)
+        {
+            // Erase current bundle sheet export, in case the animation closed was previously from this view
+            // This is a work-around 
+            var animView = sender as AnimationView;
+            if (animView != null && _controller.GetOwningAnimationSheet(animView.CurrentAnimation)?.ID == CurrentSheet.ID && _generatedWhileUnsaved)
+            {
+                zpb_sheetPreview.SheetExport = null;
+                _bundleSheetExport = null;
+            }
+
+            UpdateUnsavedAnimationsIconState();
+        }
+
         /// <summary>
         /// Updates state of unsaved animations icon
         /// </summary>
@@ -350,6 +363,7 @@ namespace Pixelaria.Views.ModelViews
 
             var sw = Stopwatch.StartNew();
 
+            _sheetCancellation?.Cancel();
             _sheetCancellation = new CancellationTokenSource();
 
             // Get a dynamic provider for better accuracy of animations to export
@@ -378,7 +392,7 @@ namespace Pixelaria.Views.ModelViews
 
                     _bundleSheetExport = task.Result;
 
-                    Image img = _bundleSheetExport.Sheet;
+                    var img = _bundleSheetExport.Sheet;
 
                     sw.Stop();
 
@@ -497,7 +511,7 @@ namespace Pixelaria.Views.ModelViews
                     where
                         list.Count > 0
                     select
-                        new Tuple<Animation, List<IFrame>>(animation, list)
+                        (animation, list)
                 ).ToList();
 
             // TODO: This is a work-around for removing frames from an animation without updating the preview, leading to a
@@ -701,6 +715,14 @@ namespace Pixelaria.Views.ModelViews
             {
                 DisplayFrameContextMenu(e);
             }
+        }
+
+        //
+        // Auto Update Preview checkbox check
+        //
+        private void cb_autoUpdatePreview_CheckedChanged(object sender, EventArgs e)
+        {
+            _autoUpdatePreview = cb_autoUpdatePreview.Checked;
         }
     }
 }
