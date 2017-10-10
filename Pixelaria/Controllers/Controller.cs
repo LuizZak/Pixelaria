@@ -445,7 +445,8 @@ namespace Pixelaria.Controllers
         /// <param name="newIndex">The new index to place the animation at</param>
         public void RearrangeAnimationsPosition(Animation anim, int newIndex)
         {
-            CurrentBundle.RearrangeAnimationsPosition(anim, newIndex);
+            if (!CurrentBundle.RearrangeAnimationsPosition(anim, newIndex))
+                return;
 
             var sheet = GetOwningAnimationSheet(anim);
             if (sheet != null)
@@ -563,6 +564,10 @@ namespace Pixelaria.Controllers
         /// <param name="sheet">The AnimationSheet to add the animation to</param>
         public void AddAnimationToAnimationSheet(Animation anim, AnimationSheet sheet)
         {
+            var curSheet = CurrentBundle.GetOwningAnimationSheet(anim);
+            if (ReferenceEquals(curSheet, sheet))
+                return;
+
             CurrentBundle.AddAnimationToAnimationSheet(anim, sheet);
 
             _reactive.RxOnAnimationSheetUpdate.OnNext(sheet);

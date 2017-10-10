@@ -92,16 +92,23 @@ namespace Pixelaria.Algorithms.Packers
             var frameBoundsMap = PrepareAtlas(atlas, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
             var frameBounds = frameBoundsMap.SheetBounds;
 
-            var minAreaTask = new Task<int>(() => IterateAtlasSize(atlas, frameBounds, _maxWidthCapped, out atlasWidth, out atlasHeight, cancellationToken), cancellationToken);
+            var minAreaTask = new Task<int>(() =>
+                    IterateAtlasSize(atlas, frameBounds, _maxWidthCapped, out atlasWidth, out atlasHeight,
+                        cancellationToken),
+                cancellationToken);
             minAreaTask.Start();
 
             int minAreaWidth = await minAreaTask;
+            if (cancellationToken.IsCancellationRequested)
+                return;
 
             atlasWidth = 0;
             atlasHeight = 0;
 
             // 5. Pack the texture atlas
-            var finalFrameRegions = InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, minAreaWidth);
+            var finalFrameRegions = InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, minAreaWidth, cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+                return;
 
             // Replace bounds now
             frameBoundsMap.ReplaceSheetBounds(finalFrameRegions);
@@ -193,12 +200,13 @@ namespace Pixelaria.Algorithms.Packers
 
             for (; curWidth < _maxWidthCapped;)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.IsCancellationRequested)
+                    return 0;
 
                 atlasWidth = 0;
                 atlasHeight = 0;
 
-                InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, (int)curWidth);
+                InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, (int)curWidth, cancellationToken);
 
                 float ratio = (float)atlasWidth / atlasHeight;
 
@@ -303,7 +311,7 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="atlasHeight">At output atlas height uint</param>
         /// <param name="maxWidth">The maximum width the generated sheet can have</param>
         /// <returns>An array of rectangles, where each index matches the original passed Rectangle array, and marks the final computed bounds of the rectangle frames calculated</returns>
-        private Rectangle[] InternalPack(AnimationExportSettings exportSettings, [NotNull] Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth)
+        private static Rectangle[] InternalPack(AnimationExportSettings exportSettings, [NotNull] Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, CancellationToken cancellationToken)
         {
             // Cache some fields as locals
             int x = exportSettings.XPadding;
@@ -312,6 +320,9 @@ namespace Pixelaria.Algorithms.Packers
 
             for (int i = 0; i < rectangles.Length; i++)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return new Rectangle[0];
+
                 var width = rectangles[i].Width;
                 var height = rectangles[i].Height;
 

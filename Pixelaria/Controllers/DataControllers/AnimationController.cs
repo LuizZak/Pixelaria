@@ -600,6 +600,8 @@ namespace Pixelaria.Controllers.DataControllers
                 throw new ObjectDisposedException(nameof(AnimationController));
 
             var f = GetFrameByFrameId(frame);
+            if(f == null)
+                throw new ArgumentException($@"Cannot find frame with ID {frame}", nameof(frame));
 
             return new FrameController((Frame)f);
         }

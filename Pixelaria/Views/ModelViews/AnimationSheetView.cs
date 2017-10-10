@@ -188,9 +188,13 @@ namespace Pixelaria.Views.ModelViews
 
             Observable
                 .Merge(new []{ onUpdateSheet, onUpdateAnimationViews })
+                .Throttle(TimeSpan.FromMilliseconds(16))
+                .ObserveOn(this)
                 .Subscribe(next =>
                 {
-                    if (_autoUpdatePreview && _sheetCancellation == null)
+                    _sheetCancellation?.Cancel();
+
+                    if (_autoUpdatePreview)
                         GeneratePreview();
                 }).AddToDisposable(_disposeBag);
         }
@@ -409,12 +413,23 @@ namespace Pixelaria.Views.ModelViews
                 return;
             }
 
+            _sheetCancellation?.Cancel();
+            var cancellation = new CancellationTokenSource();
+
+            _sheetCancellation = cancellation;
+
             // Time the bundle export
             pb_exportProgress.Visible = true;
 
             void Handler(BundleExportProgressEventArgs args)
             {
-                Invoke(new Action(() => { pb_exportProgress.Value = args.StageProgress; }));
+                Invoke(new Action(() =>
+                {
+                    if (cancellation.IsCancellationRequested)
+                        return;
+
+                    pb_exportProgress.Value = args.StageProgress;
+                }));
             }
 
             var form = FindForm();
@@ -425,14 +440,11 @@ namespace Pixelaria.Views.ModelViews
 
             var sw = Stopwatch.StartNew();
 
-            _sheetCancellation?.Cancel();
-            _sheetCancellation = new CancellationTokenSource();
-
             // Get a dynamic provider for better accuracy of animations to export
             var provider = _controller.GetDynamicProviderForSheet(CurrentSheet, _exportSettings);
 
             // Export the bundle
-            var t = _controller.GenerateBundleSheet(provider, _sheetCancellation.Token, Handler);
+            var t = _controller.GenerateBundleSheet(provider, cancellation.Token, Handler);
 
             t.ContinueWith(task =>
             {
@@ -443,7 +455,7 @@ namespace Pixelaria.Views.ModelViews
                     // Dispose of current preview
                     RemovePreview();
 
-                    if (_sheetCancellation.IsCancellationRequested)
+                    if (task.IsCanceled || cancellation.IsCancellationRequested)
                     {
                         _sheetCancellation = null;
                         Close();
@@ -485,7 +497,7 @@ namespace Pixelaria.Views.ModelViews
                         ShowFrameBounds();
                     }
                 }));
-            });
+            }, cancellation.Token);
         }
 
         /// <summary>

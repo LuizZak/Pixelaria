@@ -204,7 +204,11 @@ namespace Pixelaria.Controllers.Exporters
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
         public async Task<BundleSheetExport> ExportBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            return BundleSheetExport.FromAtlas(await GenerateAtlasFromAnimations(provider, "", cancellationToken, progressHandler));
+            var atlas = await GenerateAtlasFromAnimations(provider, "", cancellationToken, progressHandler);
+            if (cancellationToken.IsCancellationRequested)
+                return null;
+
+            return BundleSheetExport.FromAtlas(atlas);
         }
 
         /// <summary>

@@ -121,7 +121,6 @@ namespace Pixelaria.Data.Exports
 
             using (var fastTarget = image.FastLock())
             {
-
                 //
                 // 2. Draw the frames on the sheet image
                 //

@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ModelViews
     /// </summary>
     public partial class AnimationView : ModifiableContentView
     {
-        private Reactive _reactive = new Reactive();
+        private readonly Reactive _reactive = new Reactive();
 
         public IReactive Rx => _reactive;
 
@@ -90,13 +90,7 @@ namespace Pixelaria.Views.ModelViews
         /// Whether the animation name provided in the animation's name text box is valid
         /// </summary>
         private bool _nameValid;
-
-        /// <summary>
-        /// List of frame objects that where dynamically created during the run of this view.
-        /// Used to properly assign unique ids once saving
-        /// </summary>
-        private readonly List<IFrameId> _framesCreated = new List<IFrameId>();
-
+        
         /// <summary>
         /// Gets the current animation being displayed on this AnimationView
         /// </summary>
@@ -962,7 +956,7 @@ namespace Pixelaria.Views.ModelViews
 
             var undoTask = new AnimationModifyUndoTask(ViewAnimation);
 
-            _framesCreated.Add(ViewAnimation.CreateFrame(index));
+            ViewAnimation.CreateFrame(index);
             undoTask.RecordChanges();
             _undoSystem.RegisterUndo(undoTask);
 
@@ -982,7 +976,7 @@ namespace Pixelaria.Views.ModelViews
         {
             var undoTask = new AnimationModifyUndoTask(ViewAnimation);
 
-            _framesCreated.Add(ViewAnimation.CreateFrame());
+            ViewAnimation.CreateFrame();
             undoTask.RecordChanges();
             _undoSystem.RegisterUndo(undoTask);
 
@@ -1096,7 +1090,7 @@ namespace Pixelaria.Views.ModelViews
 
                 var undoTask = new AnimationModifyUndoTask(ViewAnimation);
                 
-                _framesCreated.AddRange(ViewAnimation.AddFrames(frames, sizeMatching));
+                ViewAnimation.AddFrames(frames, sizeMatching);
 
                 undoTask.RecordChanges();
                 _undoSystem.RegisterUndo(undoTask);
@@ -1282,40 +1276,40 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void lv_frames_DragOperation(object sender, [NotNull] ListViewItemDragEventArgs eventArgs)
         {
-            if (eventArgs.EventType == ListViewItemDragEventType.DragEnd)
+            if (eventArgs.EventType != ListViewItemDragEventType.DragEnd)
+                return;
+
+            // Create the undo task
+            var undoTask = new AnimationModifyUndoTask(ViewAnimation);
+
+            // Move the frames now
+            int newIndex = eventArgs.TargetItem.Index;
+
+            var frameIds = eventArgs.DraggedItems.Select(item => ViewAnimation.GetFrameAtIndex(item.Index)).ToArray();
+            var frames = frameIds.Select(fid => ViewAnimation.GetFrameController(fid).GetStandaloneCopy()).ToArray();
+
+            foreach (var frame in frameIds)
             {
-                // Create the undo task
-                AnimationModifyUndoTask undoTask = new AnimationModifyUndoTask(ViewAnimation);
-
-                // Move the frames now
-                int newIndex = eventArgs.TargetItem.Index;
-
-                var frameIds = eventArgs.DraggedItems.Select(item => ViewAnimation.GetFrameAtIndex(item.Index)).ToList();
-                var frames = frameIds.Select(fid => ViewAnimation.GetFrameController(fid).GetStandaloneCopy());
-
-                foreach (var frame in frameIds)
-                {
-                    ViewAnimation.RemoveFrame(frame);
-                }
-
-                foreach (var frame in frames)
-                {
-                    ViewAnimation.AddFrame(frame, Math.Min(ViewAnimation.FrameCount, newIndex++));
-                }
-
-                undoTask.RecordChanges();
-
-                _undoSystem.RegisterUndo(undoTask);
-
-                RefreshFramesView();
-                animationPreviewPanel.LoadAnimation(ViewAnimation.GetAnimationView(), false);
-
-                MarkModified();
-
-                eventArgs.Cancel = true;
-
-                _reactive.OnChange.OnNext(Unit.Default);
+                ViewAnimation.RemoveFrame(frame);
             }
+
+            foreach (var frame in frames)
+            {
+                ViewAnimation.AddFrame(frame, Math.Min(ViewAnimation.FrameCount, newIndex++));
+            }
+
+            undoTask.RecordChanges();
+
+            _undoSystem.RegisterUndo(undoTask);
+
+            RefreshFramesView();
+            animationPreviewPanel.LoadAnimation(ViewAnimation.GetAnimationView(), false);
+
+            MarkModified();
+
+            eventArgs.Cancel = true;
+
+            _reactive.OnChange.OnNext(Unit.Default);
         }
 
         // 
@@ -1806,7 +1800,7 @@ namespace Pixelaria.Views.ModelViews
             /// Initializes a new instance of the FramesModifyUndoTask class
             /// </summary>
             /// <param name="animation">The animation to affect with this FramesModifyUndoTask instance</param>
-            public AnimationModifyUndoTask(AnimationController animation)
+            public AnimationModifyUndoTask([NotNull] AnimationController animation)
             {
                 _animation = animation;
                 _oldAnimation = _animation.MakeCopyForEditing();

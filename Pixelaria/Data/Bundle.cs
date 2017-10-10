@@ -26,6 +26,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data.Factories;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Data
 {
@@ -333,20 +334,32 @@ namespace Pixelaria.Data
         /// </summary>
         /// <param name="anim">The animation to rearrange</param>
         /// <param name="newIndex">The new index to place the animation at</param>
-        public void RearrangeAnimationsPosition(Animation anim, int newIndex)
+        /// <returns>
+        /// Whether any changes where made. Changes are ignored (and method returns false) if the
+        /// new index is the actual current index of the animation.
+        /// </returns>
+        public bool RearrangeAnimationsPosition(Animation anim, int newIndex)
         {
             var sheet = GetOwningAnimationSheet(anim);
 
             if (sheet == null)
             {
+                if (_animations.IndexOfReference(anim) == newIndex)
+                    return false;
+
                 _animations.Remove(anim);
                 _animations.Insert(newIndex, anim);
             }
             else
             {
+                if (sheet.IndexOfAnimation(anim) == newIndex)
+                    return false;
+
                 sheet.RemoveAnimation(anim);
                 sheet.InsertAnimation(anim, newIndex);
             }
+
+            return true;
         }
 
         /// <summary>
@@ -514,6 +527,8 @@ namespace Pixelaria.Data
         {
             // Get the current AnimationSheet owning the given anim
             var curSheet = GetOwningAnimationSheet(anim);
+            if (ReferenceEquals(curSheet, sheet))
+                return;
 
             if (curSheet != null)
             {

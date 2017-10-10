@@ -55,6 +55,7 @@ Caption:
   . Now the top-most layer is selected when a frame is opened to be edited.
 
 . AnimationSheetView
+  + Added toggle checkbox that allows reloading the preview automatically whenever changes are made to the animation sheet or any of its internal animations' frames. Default is on.
   + Now right-clicking frames in the preview panel while 'Show individual frame bounds' option is selected displays a context menu to display frames and navigate to the corresponding animations with the frame selected on the interface when selecting.
   * Fixed changes to 'Favor ratio over area' checkbox not marking the window with changes pending state.
   * Added better zoom control interface, similar to the one on the FrameView (except limited to 100 instead of 160).
