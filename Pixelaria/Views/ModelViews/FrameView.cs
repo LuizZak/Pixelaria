@@ -24,6 +24,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
@@ -1955,7 +1956,7 @@ namespace Pixelaria.Views.ModelViews
         {
             tsm_copy.Enabled = tsb_copy.Enabled = eventArgs.CanCopy;
             tsm_cut.Enabled = tsb_cut.Enabled = eventArgs.CanCut;
-            tsm_paste.Enabled = tsb_paste.Enabled = eventArgs.CanPaste || Clipboard.ContainsData("PNG");
+            tsm_paste.Enabled = tsb_paste.Enabled = eventArgs.CanPaste || (Clipboard.ContainsData("PNG") && Clipboard.GetData("PNG") is Stream);
         }
 
         // 
@@ -1963,7 +1964,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void iepb_frame_ClipboardSetContents(object sender, EventArgs eventArgs)
         {
-            if (Clipboard.ContainsData("PNG") && Clipboard.GetData("PNG") is System.IO.Stream stream)
+            if (Clipboard.ContainsData("PNG") && Clipboard.GetData("PNG") is Stream stream)
             {
                 AnimationView.Clipboard.SetObject(new ImageStreamClipboardObject(stream));
             }
