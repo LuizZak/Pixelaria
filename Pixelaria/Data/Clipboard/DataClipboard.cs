@@ -60,7 +60,7 @@ namespace Pixelaria.Data.Clipboard
         /// Setting a new object clears any object that was already on the clipboard
         /// </summary>
         /// <param name="dataObject">The new object to set to the clipboard</param>
-        public void SetObject(IClipboardObject dataObject)
+        public void SetObject([NotNull] IClipboardObject dataObject)
         {
             if (_currentData != null && _currentData != dataObject)
             {

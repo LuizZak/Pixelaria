@@ -205,6 +205,9 @@
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />

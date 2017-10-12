@@ -624,7 +624,7 @@ namespace Pixelaria.Views.ModelViews
         public void ReverseFrames()
         {
             // Reversing cannot happen when only one frame is selected
-            if (lv_frames.SelectedIndices.Count <= 1)
+            if (lv_frames.SelectedIndices.Count == 1)
                 return;
 
             ///// Get the frames to reverse
@@ -2312,19 +2312,6 @@ namespace Pixelaria.Views.ModelViews
             /// user applies/saves the changes, including undo/redo operations.
             /// </summary>
             IObservable<Unit> Change { get; }
-        }
-    }
-
-    public partial class AnimationView : IOnionSkinFrameProvider
-    {
-        public int FrameCount => ViewAnimation.FrameCount;
-
-        public Bitmap GetComposedBitmapForFrame(int index)
-        {
-            var id = ViewAnimation.GetFrameAtIndex(index);
-            var frame = ViewAnimation.GetFrameController(id);
-
-            return frame.GetComposedBitmap();
         }
     }
 }
