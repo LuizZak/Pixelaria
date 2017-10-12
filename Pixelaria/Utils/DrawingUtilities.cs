@@ -118,5 +118,30 @@ namespace Pixelaria.Utils
             rec.Offset(point);
             return rec;
         }
+
+        public static PointF Normalized(this PointF point)
+        {
+            var dx = point.X;
+            var dy = point.Y;
+
+            var dis = (float)Math.Sqrt(dx * dx + dy * dy);
+
+            return new PointF(dx / dis, dy / dis);
+        }
+
+        public static Point Rounded(this PointF point)
+        {
+            return Point.Round(point);
+        }
+
+        public static PointF Multiplied(this PointF point, SizeF size)
+        {
+            return new PointF(point.X * size.Width, point.Y * size.Height);
+        }
+
+        public static PointF Multiplied(this PointF point, float length)
+        {
+            return new PointF(point.X * length, point.Y * length);
+        }
     }
 }

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.exportPipelineRenderer1 = new Pixelaria.Views.ModelViews.ExportPipelineRenderer();
+            this.exportPipelineRenderer1 = new Pixelaria.Views.ModelViews.ExportPipelineControl();
             this.SuspendLayout();
             // 
             // exportPipelineRenderer1
@@ -57,6 +57,6 @@
 
         #endregion
 
-        private ExportPipelineRenderer exportPipelineRenderer1;
+        private ExportPipelineControl exportPipelineRenderer1;
     }
 }

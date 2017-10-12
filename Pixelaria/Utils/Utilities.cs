@@ -318,11 +318,11 @@ namespace Pixelaria.Utils
         /// <param name="point">The first point</param>
         /// <param name="point2">The second point</param>
         /// <returns>The distance between the two points</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static float Distance(this PointF point, PointF point2)
         {
-            float dx = point.X - point2.X;
-            float dy = point.Y - point2.Y;
+            var dx = point.X - point2.X;
+            var dy = point.Y - point2.Y;
 
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
@@ -333,13 +333,22 @@ namespace Pixelaria.Utils
         /// <param name="point">The first point</param>
         /// <param name="point2">The second point</param>
         /// <returns>The distance between the two points</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static float Distance(this Point point, Point point2)
         {
-            float dx = point.X - point2.X;
-            float dy = point.Y - point2.Y;
+            var dx = point.X - point2.X;
+            var dy = point.Y - point2.Y;
 
             return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>
+        /// Returns the center-point of a rectangle
+        /// </summary>
+        [Pure]
+        public static Point Center(this Rectangle rectangle)
+        {
+            return new Point((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
         }
 
         /// <summary>
