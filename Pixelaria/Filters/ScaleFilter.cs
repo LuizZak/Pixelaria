@@ -96,6 +96,8 @@ namespace Pixelaria.Filters
                     ? InterpolationMode.NearestNeighbor
                     : InterpolationMode.HighQualityBicubic;
 
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
                 var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
 
                 rec.Width *= ScaleX;
@@ -103,8 +105,8 @@ namespace Pixelaria.Filters
 
                 if (Centered)
                 {
-                    rec.X = (float) Math.Round(bitmap.Width / 2.0f - rec.Width / 2);
-                    rec.Y = (float) Math.Round(bitmap.Height / 2.0f - rec.Height / 2);
+                    rec.X = (float) Math.Round(bitmap.Width / 2.0f - rec.Width / 2.0f);
+                    rec.Y = (float) Math.Round(bitmap.Height / 2.0f - rec.Height / 2.0f);
                 }
 
                 g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);

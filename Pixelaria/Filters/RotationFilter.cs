@@ -83,9 +83,11 @@ namespace Pixelaria.Filters
                     gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
                 }
 
-                gfx.InterpolationMode = (PixelQuality
+                gfx.InterpolationMode = PixelQuality
                     ? InterpolationMode.NearestNeighbor
-                    : InterpolationMode.HighQualityBicubic);
+                    : InterpolationMode.HighQualityBicubic;
+
+                gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
                 gfx.RotateTransform(Rotation);
 
