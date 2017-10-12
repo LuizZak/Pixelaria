@@ -311,7 +311,7 @@ namespace Pixelaria.Data.Clipboard
         /// Initializes a new instance of the ImageStreamClipboardObject class with a stream to initialzie the stream with
         /// </summary>
         /// <param name="stream">The stream containing the image data</param>
-        public ImageStreamClipboardObject(Stream stream)
+        public ImageStreamClipboardObject([NotNull] Stream stream)
         {
             ImageStream = stream;
         }

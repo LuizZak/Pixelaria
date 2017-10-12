@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.ComponentModel;
 using System.Drawing;
 
@@ -143,12 +142,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         #endregion
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        
         #endregion
     }
 }

@@ -58,7 +58,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private readonly Controller _controller;
 
-        [CanBeNull] private readonly IAnimation _animation;
+        [CanBeNull]
+        private readonly IAnimation _animation;
 
         /// <summary>
         /// The controller for the layers of the currently active frame
@@ -214,21 +215,13 @@ namespace Pixelaria.Views.ModelViews
             {
                 InternalRequestedNavigateToFrame += value;
 
-                tsm_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
-                tsb_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
-
-                tsm_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
-                tsb_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
+                RefreshView();
             }
             remove
             {
                 InternalRequestedNavigateToFrame -= value;
 
-                tsm_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
-                tsb_prevFrame.Enabled = InternalRequestedNavigateToFrame != null;
-
-                tsm_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
-                tsb_nextFrame.Enabled = InternalRequestedNavigateToFrame != null;
+                RefreshView();
             }
         }
         
@@ -473,8 +466,11 @@ namespace Pixelaria.Views.ModelViews
             // Update the enabled state of the Previous Frame and Next Frame buttons
             if (_animation != null)
             {
-                tsm_prevFrame.Enabled = tsb_prevFrame.Enabled = FrameLoaded.Index > 0;
-                tsm_nextFrame.Enabled = tsb_nextFrame.Enabled = FrameLoaded.Index < _animation.FrameCount - 1;
+                tsm_prevFrame.Enabled = tsb_prevFrame.Enabled =
+                    InternalRequestedNavigateToFrame != null && FrameLoaded.Index > 0;
+
+                tsm_nextFrame.Enabled = tsb_nextFrame.Enabled =
+                    InternalRequestedNavigateToFrame != null && FrameLoaded.Index < _animation.FrameCount - 1;
 
                 // Update the frame display
                 tc_currentFrame.Minimum = 1;
@@ -1967,9 +1963,9 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void iepb_frame_ClipboardSetContents(object sender, EventArgs eventArgs)
         {
-            if (Clipboard.ContainsData("PNG"))
+            if (Clipboard.ContainsData("PNG") && Clipboard.GetData("PNG") is System.IO.Stream stream)
             {
-                AnimationView.Clipboard.SetObject(new ImageStreamClipboardObject(Clipboard.GetData("PNG") as System.IO.Stream));
+                AnimationView.Clipboard.SetObject(new ImageStreamClipboardObject(stream));
             }
         }
 
