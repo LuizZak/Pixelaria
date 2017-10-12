@@ -27,6 +27,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using Pixelaria.Algorithms.FrameOperations;
 using Pixelaria.Data;
 using Pixelaria.Utils;
 
@@ -132,7 +133,29 @@ namespace Pixelaria.Controllers.DataControllers
         {
             return GetLayerAt(index).LayerBitmap;
         }
-        
+
+        /// <summary>
+        /// Returns the result of <see cref="IFrameOperation.CanApply"/> on this frame.
+        /// </summary>
+        internal bool CanApplyOperation([NotNull] IFrameOperation operation)
+        {
+            return operation.CanApply(_frame);
+        }
+
+        /// <summary>
+        /// Attempts to apply a given frame operation onto this frame.
+        /// 
+        /// Returns false, if <see cref="IFrameOperation.CanApply"/> returns false for this frame.
+        /// </summary>
+        internal bool ApplyOperation([NotNull] IFrameOperation operation)
+        {
+            if (!operation.CanApply(_frame))
+                return false;
+
+            operation.Apply(_frame);
+            return true;
+        }
+
         /// <summary>
         /// Adds a layer on this Frame object. Optionally allow specifying a bitmap as an initial image.
         /// If the bitmap does not match the frame's dimensions or its pixel format is not 32bpp, an exception is raised.

@@ -146,7 +146,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// This is intended to be used during editing of animations on forms to track changes
         /// locally.
         /// </summary>
-        public AnimationController MakeCopyForEditing()
+        public AnimationController MakeCopyForEditing(bool copyThis)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(AnimationController));
@@ -160,7 +160,7 @@ namespace Pixelaria.Controllers.DataControllers
 
             newAnim.ID = _animation.ID;
 
-            return new AnimationController(_bundle, newAnim) { _original = _original ?? this };
+            return new AnimationController(_bundle, newAnim) { _original = copyThis ? this : _original ?? this };
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Pixelaria.Controllers.DataControllers
                 _animation[i].ID = animation._animation[i].ID;
                 // Update invalid (negative) frame IDs
                 if (_animation[i].ID == -1)
-                    _animation[i].ID = _animation.FrameIdGenerator.GetNextUniqueFrameId();
+                    _animation[i].ID = FrameIdGenerator.GetNextUniqueFrameId();
             }
         }
 
@@ -209,6 +209,9 @@ namespace Pixelaria.Controllers.DataControllers
         /// <param name="sizeMatchingSettings">The settings to apply to the frames when resizing</param>
         public void Resize(AnimationResizeSettings sizeMatchingSettings)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(AnimationController));
+
             _animation.Resize(sizeMatchingSettings);
         }
         
@@ -220,6 +223,9 @@ namespace Pixelaria.Controllers.DataControllers
         /// <returns>an Animation object that is the exact copy of this Animation</returns>
         public Animation CloneAnimation()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(AnimationController));
+
             var copy = new AnimationController(_bundle, new Animation(_animation.Name, Width, Height));
             
             copy.CopyFrom(this, false);
@@ -337,6 +343,9 @@ namespace Pixelaria.Controllers.DataControllers
             var frame = _animation.Frames[frameIndex].Clone();
             frame.Animation = _animation;
 
+            if (FrameIdGenerator != null)
+                frame.ID = FrameIdGenerator.GetNextUniqueFrameId();
+
             if (newIndex == -1)
             {
                 _animation.Frames.Insert(frameIndex + 1, frame);
@@ -379,9 +388,7 @@ namespace Pixelaria.Controllers.DataControllers
             frame.Initialize(_animation, Width, Height);
 
             if (FrameIdGenerator != null)
-            {
                 frame.ID = FrameIdGenerator.GetNextUniqueFrameId();
-            }
 
             if (position == -1)
             {

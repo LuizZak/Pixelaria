@@ -87,6 +87,14 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
+            if (!fs_filters.ChangesDetected())
+            {
+                MessageBox.Show(
+                    @"No changes will be made with the filter presets present (i.e. all frames will look the same!)",
+                    @"Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             fs_filters.ApplyFilter();
 
             FiltersController.Instance.AddFilters(fs_filters.Filters);

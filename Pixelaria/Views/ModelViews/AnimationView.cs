@@ -31,6 +31,7 @@ using System.Reactive;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using Pixelaria.Algorithms.FrameOperations;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
@@ -43,7 +44,6 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
-using Pixelaria.Views.ModelViews.Decorators;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -130,7 +130,7 @@ namespace Pixelaria.Views.ModelViews
             _undoSystem = new UndoSystem();
             
             CurrentAnimation = animation;
-            ViewAnimation = new AnimationController(controller.CurrentBundle, animation).MakeCopyForEditing();
+            ViewAnimation = new AnimationController(controller.CurrentBundle, animation).MakeCopyForEditing(true);
 
             _clipboardHandler = clipboard_ClipboardChanged;
             Clipboard.ClipboardChanged += _clipboardHandler;
@@ -652,6 +652,102 @@ namespace Pixelaria.Views.ModelViews
             for (int i = 0; i < frameIndicesToReverse.Count / 2; i++)
             {
                 ViewAnimation.SwapFrameIndices(frameIndicesToReverse[i], frameIndicesToReverse[frameIndicesToReverse.Count - i - 1]);
+            }
+
+            // Record the undo operation
+            amu.RecordChanges();
+            _undoSystem.RegisterUndo(amu);
+
+            MarkModified();
+
+            RefreshView();
+
+            _reactive.OnChange.OnNext(Unit.Default);
+        }
+
+        /// <summary>
+        /// Flips all frames horizontally down to the layer level
+        /// </summary>
+        public void FlipHorizontal()
+        {
+            // TODO: Abstract IFrameOperation so we can use FlipHorizontalFrameOperation directly as a controller
+            // tsm_flipHorizontal item's Enabled state and selection action.
+
+            ///// Get the frames to reverse
+            var affectedFrameIndices = new List<int>();
+
+            // If no frames are selected, reverse all the frames
+            if (lv_frames.SelectedIndices.Count == 0)
+            {
+                for (int i = 0; i < lv_frames.Items.Count; i++)
+                    affectedFrameIndices.Add(i);
+            }
+            else
+            {
+                // Add all the index for the frames selected
+                affectedFrameIndices.AddRange(from ListViewItem item in lv_frames.SelectedItems select item.Index);
+            }
+
+            // Reverse selected (or all) frames using a frame operation
+
+            var operation = new FlipHorizontalFrameOperation();
+            
+            // Create an undo task
+            var amu = new AnimationModifyUndoTask(ViewAnimation);
+
+            foreach (var index in affectedFrameIndices)
+            {
+                var controller = ViewAnimation.GetFrameController(ViewAnimation.GetFrameAtIndex(index));
+
+                controller.ApplyOperation(operation);
+            }
+
+            // Record the undo operation
+            amu.RecordChanges();
+            _undoSystem.RegisterUndo(amu);
+
+            MarkModified();
+
+            RefreshView();
+
+            _reactive.OnChange.OnNext(Unit.Default);
+        }
+
+        /// <summary>
+        /// Flips all frames vertically down to the layer level
+        /// </summary>
+        public void FlipVertical()
+        {
+            // TODO: Abstract IFrameOperation so we can use FlipVerticalFrameOperation directly as a controller
+            // tsm_flipVertical item's Enabled state and selection action.
+
+            ///// Get the frames to reverse
+            var affectedFrameIndices = new List<int>();
+
+            // If no frames are selected, reverse all the frames
+            if (lv_frames.SelectedIndices.Count == 0)
+            {
+                for (int i = 0; i < lv_frames.Items.Count; i++)
+                    affectedFrameIndices.Add(i);
+            }
+            else
+            {
+                // Add all the index for the frames selected
+                affectedFrameIndices.AddRange(from ListViewItem item in lv_frames.SelectedItems select item.Index);
+            }
+
+            // Reverse selected (or all) frames using a frame operation
+
+            var operation = new FlipVerticalFrameOperation();
+
+            // Create an undo task
+            var amu = new AnimationModifyUndoTask(ViewAnimation);
+
+            foreach (var index in affectedFrameIndices)
+            {
+                var controller = ViewAnimation.GetFrameController(ViewAnimation.GetFrameAtIndex(index));
+
+                controller.ApplyOperation(operation);
             }
 
             // Record the undo operation
@@ -1456,6 +1552,22 @@ namespace Pixelaria.Views.ModelViews
             ReverseFrames();
         }
 
+        // 
+        // Flip Horizontal item click
+        // 
+        private void tsm_flipHorizontal_Click(object sender, EventArgs e)
+        {
+            FlipHorizontal();
+        }
+
+        // 
+        // Flip Vertical item click
+        // 
+        private void tsm_flipVertical_Click(object sender, EventArgs e)
+        {
+            FlipVertical();
+        }
+
         #endregion
 
         #endregion
@@ -1797,13 +1909,13 @@ namespace Pixelaria.Views.ModelViews
             private IUndoTask _compoundTask;
 
             /// <summary>
-            /// Initializes a new instance of the FramesModifyUndoTask class
+            /// Initializes a new instance of the AnimationModifyUndoTask class
             /// </summary>
             /// <param name="animation">The animation to affect with this FramesModifyUndoTask instance</param>
             public AnimationModifyUndoTask([NotNull] AnimationController animation)
             {
                 _animation = animation;
-                _oldAnimation = _animation.MakeCopyForEditing();
+                _oldAnimation = _animation.MakeCopyForEditing(true);
             }
 
             /// <summary>
@@ -1811,7 +1923,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public void RecordChanges()
             {
-                var lazyUndoTask = new LazyAnimationModifyUndoTask(_oldAnimation, _animation.MakeCopyForEditing());
+                var lazyUndoTask = new LazyAnimationModifyUndoTask(_oldAnimation, _animation.MakeCopyForEditing(true));
 
                 _compoundTask = lazyUndoTask;
             }

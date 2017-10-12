@@ -84,7 +84,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreEqual(anim1, clone, "The animations after a CloneAnimation() operation must be equal");
             Assert.AreNotSame(anim1, clone);
 
-            var controller2 = controller1.MakeCopyForEditing();
+            var controller2 = controller1.MakeCopyForEditing(true);
 
             // Change the animations by adding frames
             controller2.CreateFrame();

@@ -26,7 +26,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using JetBrains.Annotations;
-using Pixelaria.Data.Factories;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -89,12 +88,6 @@ namespace Pixelaria.Data
         [NotNull]
         public IFrame this[int index] => GetFrameAtIndex(index);
         
-        /// <summary>
-        /// Gets or sets a frame ID generator for generating unique frame IDs when needed.
-        /// In case no frame ID generator is provided, all frames created by this animation's methods will have an id of -1
-        /// </summary>
-        public IFrameIdGenerator FrameIdGenerator { get; set; }
-
         /// <summary>
         /// Creates a new Animation with 0 frames
         /// </summary>

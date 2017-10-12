@@ -156,6 +156,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\FrameOperations\FrameOperation.cs" />
+    <Compile Include="Algorithms\FrameOperations\FrameOperations.cs" />
     <Compile Include="Algorithms\ITexturePacker.cs" />
     <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
     <Compile Include="Controllers\DataControllers\AnimationController.cs" />
@@ -737,6 +739,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\frame_flip_vertical.png" />
+    <None Include="Resources\frame_flip_horizontal.png" />
     <None Include="Resources\dialog-warning.png" />
     <None Include="Resources\frame_icon.png" />
     <None Include="Resources\anim_icon.png" />

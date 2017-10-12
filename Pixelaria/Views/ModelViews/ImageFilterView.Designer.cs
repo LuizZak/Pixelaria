@@ -154,6 +154,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.btn_cancel;
             this.ClientSize = new System.Drawing.Size(647, 668);
             this.Controls.Add(this.fs_filters);
             this.Controls.Add(this.pnl_bottom);

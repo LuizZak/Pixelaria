@@ -118,19 +118,39 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Applies the filter to the animation
         /// </summary>
-        public void ApplyFilter()
+        protected void ApplyFilter()
         {
-            if (MessageBox.Show(@"Applying filters results in the flattening of the layers of all the frames. Do you wish to continue?", @"Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-            {
-                return;
-            }
-
             if (!fs_filters.ChangesDetected())
                 return;
 
-            // TODO: Replace direct _animation usage with an AnimationController instance
+            // Verify if any of the frames on the animation have > 1 layer.
+            // If so, present an alert warning changes will flatten the layers.
+            bool hasLayersToFlatten = false;
+
             var range = tc_timeline.GetRange();
 
+            for (int i = range.X - 1; i < range.X + range.Y; i++)
+            {
+                var frame = _animation.GetFrameAtIndex(i);
+                var controller = _animation.GetFrameController(frame);
+
+                if (controller.LayerCount > 1)
+                {
+                    hasLayersToFlatten = true;
+                    break;
+                }
+            }
+
+            if (hasLayersToFlatten)
+            {
+                if (MessageBox.Show(
+                        @"Applying filters to the selected frames will result in flattening of all layers to a single layer per frame. Do you wish to continue?",
+                        @"Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                {
+                    return;
+                }
+            }
+            
             for (int i = range.X - 1; i < range.X + range.Y; i++)
             {
                 var frame = _animation.GetFrameAtIndex(i);
@@ -168,6 +188,14 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
+            if (!fs_filters.ChangesDetected())
+            {
+                MessageBox.Show(
+                    @"No changes will be made with the filter presets present (i.e. all frames will look the same!)",
+                    @"Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             ApplyFilter();
 
             DialogResult = DialogResult.OK;

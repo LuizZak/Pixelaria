@@ -20,21 +20,23 @@
     base directory of this project.
 */
 
-using System.Drawing;
-using Pixelaria.Views.ModelViews.Decorators;
+using Pixelaria.Data;
 
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Algorithms.FrameOperations
 {
-    public partial class AnimationView : IOnionSkinFrameProvider
+    /// <summary>
+    /// Represents an operation that applies on top of Frame objects.
+    /// </summary>
+    internal interface IFrameOperation
     {
-        public int FrameCount => ViewAnimation.FrameCount;
+        /// <summary>
+        /// Returns whether this operation can be applied to a specific frame
+        /// </summary>
+        bool CanApply(IFrame frame);
 
-        public Bitmap GetComposedBitmapForFrame(int index)
-        {
-            var id = ViewAnimation.GetFrameAtIndex(index);
-            var frame = ViewAnimation.GetFrameController(id);
-
-            return frame.GetComposedBitmap();
-        }
+        /// <summary>
+        /// Applies this operation on a Frame object
+        /// </summary>
+        void Apply(IFrame frame);
     }
 }

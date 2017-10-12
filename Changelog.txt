@@ -55,6 +55,10 @@ Caption:
   * Removed 'ding' sound when hitting Enter while editing a layer's name.
   . Now the top-most layer is selected when a frame is opened to be edited.
 
+. AnimationView
+  + Added Flip Vertical/Horizontal option for selected frames on 'Animation' menu.
+  * Now Filters screen doesn't show an alert about flattening layers if no frames selected have more than one layer.
+
 . AnimationSheetView
   + Added toggle checkbox that allows reloading the preview automatically whenever changes are made to the animation sheet or any of its internal animations' frames. Default is on.
   + Now right-clicking frames in the preview panel while 'Show individual frame bounds' option is selected displays a context menu to display frames and navigate to the corresponding animations with the frame selected on the interface when selecting.

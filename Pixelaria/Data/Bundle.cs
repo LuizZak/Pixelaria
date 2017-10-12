@@ -221,7 +221,6 @@ namespace Pixelaria.Data
             }
 
             _animations.Add(anim);
-            anim.FrameIdGenerator = this;
 
             // Iterate through the frames and check their ids
             foreach (var frame in anim.Frames)
@@ -266,9 +265,7 @@ namespace Pixelaria.Data
                     break;
                 }
             }
-
-            anim.FrameIdGenerator = null;
-
+            
             _animations.Remove(anim);
         }
 

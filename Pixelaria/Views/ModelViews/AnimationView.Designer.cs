@@ -86,6 +86,7 @@ namespace Pixelaria.Views.ModelViews
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_addFrameFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_saveAnimationStrip = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_undo = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_redo = new System.Windows.Forms.ToolStripMenuItem();
@@ -104,6 +105,8 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_selectAll = new System.Windows.Forms.ToolStripMenuItem();
             this.animationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_reverseFrames = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_flipHorizontal = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsm_flipVertical = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filters = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_emptyFilter = new System.Windows.Forms.ToolStripMenuItem();
             this.tsm_filterPresets = new System.Windows.Forms.ToolStripMenuItem();
@@ -131,7 +134,6 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_addFrameFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.cmb_pasteFrames = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsm_saveAnimationStrip = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -508,6 +510,14 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_addFrameFromFile.Text = "&Add frame from file...";
             this.tsm_addFrameFromFile.Click += new System.EventHandler(this.tsm_addFrameFromFile_Click);
             // 
+            // tsm_saveAnimationStrip
+            // 
+            this.tsm_saveAnimationStrip.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
+            this.tsm_saveAnimationStrip.Name = "tsm_saveAnimationStrip";
+            this.tsm_saveAnimationStrip.Size = new System.Drawing.Size(190, 22);
+            this.tsm_saveAnimationStrip.Text = "Save animation strip...";
+            this.tsm_saveAnimationStrip.Click += new System.EventHandler(this.tsm_saveAnimationStrip_Click);
+            // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -647,7 +657,9 @@ namespace Pixelaria.Views.ModelViews
             // animationToolStripMenuItem
             // 
             this.animationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsm_reverseFrames});
+            this.tsm_reverseFrames,
+            this.tsm_flipHorizontal,
+            this.tsm_flipVertical});
             this.animationToolStripMenuItem.Name = "animationToolStripMenuItem";
             this.animationToolStripMenuItem.Size = new System.Drawing.Size(75, 20);
             this.animationToolStripMenuItem.Text = "&Animation";
@@ -659,6 +671,22 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_reverseFrames.Size = new System.Drawing.Size(172, 22);
             this.tsm_reverseFrames.Text = "&Reverse All Frames";
             this.tsm_reverseFrames.Click += new System.EventHandler(this.tsm_reverseFrames_Click);
+            // 
+            // tsm_flipHorizontal
+            // 
+            this.tsm_flipHorizontal.Image = global::Pixelaria.Properties.Resources.frame_flip_horizontal;
+            this.tsm_flipHorizontal.Name = "tsm_flipHorizontal";
+            this.tsm_flipHorizontal.Size = new System.Drawing.Size(172, 22);
+            this.tsm_flipHorizontal.Text = "Flip &Horizontal";
+            this.tsm_flipHorizontal.Click += new System.EventHandler(this.tsm_flipHorizontal_Click);
+            // 
+            // tsm_flipVertical
+            // 
+            this.tsm_flipVertical.Image = global::Pixelaria.Properties.Resources.frame_flip_vertical;
+            this.tsm_flipVertical.Name = "tsm_flipVertical";
+            this.tsm_flipVertical.Size = new System.Drawing.Size(172, 22);
+            this.tsm_flipVertical.Text = "Flip &Vertical";
+            this.tsm_flipVertical.Click += new System.EventHandler(this.tsm_flipVertical_Click);
             // 
             // tsm_filters
             // 
@@ -873,14 +901,6 @@ namespace Pixelaria.Views.ModelViews
             this.cmb_pasteFrames.Text = "Paste";
             this.cmb_pasteFrames.Click += new System.EventHandler(this.cmb_pasteFrames_Click);
             // 
-            // tsm_saveAnimationStrip
-            // 
-            this.tsm_saveAnimationStrip.Image = global::Pixelaria.Properties.Resources.frame_save_icon;
-            this.tsm_saveAnimationStrip.Name = "tsm_saveAnimationStrip";
-            this.tsm_saveAnimationStrip.Size = new System.Drawing.Size(190, 22);
-            this.tsm_saveAnimationStrip.Text = "Save animation strip...";
-            this.tsm_saveAnimationStrip.Click += new System.EventHandler(this.tsm_saveAnimationStrip_Click);
-            // 
             // AnimationView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1006,5 +1026,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
         private Controls.LabeledPanel labeledPanel1;
         private System.Windows.Forms.ToolStripMenuItem tsm_saveAnimationStrip;
+        private System.Windows.Forms.ToolStripMenuItem tsm_flipHorizontal;
+        private System.Windows.Forms.ToolStripMenuItem tsm_flipVertical;
     }
 }
