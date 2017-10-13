@@ -48,24 +48,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         {
             blockID = BLOCKID_ANIMATION;
         }
-
-        /// <summary>
-        /// Loads the content portion of this block from the given stream
-        /// </summary>
-        /// <param name="stream">The stream to load the content portion from</param>
-        protected override void LoadContentFromStream(Stream stream)
-        {
-            var reader = new BinaryReader(stream);
-
-            int animationCount = reader.ReadInt32();
-
-            // Load the animations now
-            for (int i = 0; i < animationCount; i++)
-            {
-                StreamAnimation = LoadAnimationFromStream(stream);
-            }
-        }
-
+        
         /// <summary>
         /// Saves the content portion of this block to the given stream
         /// </summary>
@@ -102,6 +85,29 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 {
                     owningFile.AddBlock(new FrameBlock(frame));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Loads the animations stored on the current bytes buffer
+        /// </summary>
+        public Animation[] LoadAnimationsFromStream()
+        {
+            using (var stream = new MemoryStream(GetBlockBuffer(), false))
+            {
+                var reader = new BinaryReader(stream);
+
+                int animationCount = reader.ReadInt32();
+
+                var anims = new Animation[0];
+
+                // Load the animations now
+                for (int i = 0; i < animationCount; i++)
+                {
+                    anims[i] = LoadAnimationFromStream(stream);
+                }
+
+                return anims;
             }
         }
 
