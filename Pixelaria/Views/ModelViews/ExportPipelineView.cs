@@ -23,11 +23,24 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
+
+using SharpDX;
+using SharpDX.Direct2D1;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using SharpDX.Windows;
+
+using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using Device = SharpDX.Direct3D11.Device;
+using Factory = SharpDX.DXGI.Factory;
+
 using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
@@ -36,18 +49,179 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews.PipelineView;
+using SharpDX.DirectWrite;
+using SharpDX.Mathematics.Interop;
+using InterpolationMode = System.Drawing.Drawing2D.InterpolationMode;
+using LinearGradientBrush = System.Drawing.Drawing2D.LinearGradientBrush;
+using Resource = SharpDX.Direct3D11.Resource;
+using TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode;
 
 namespace Pixelaria.Views.ModelViews
 {
-    public partial class ExportPipelineView : Form
+    public partial class ExportPipelineView : RenderForm
     {
+        private SwapChain _swapChain;
+        private Surface _dxgiSurface;
+        private RenderTarget _d2DRenderTarget;
+        private SharpDX.Direct2D1.Factory _d2DFactory;
+        private Texture2D _backBuffer;
+        private RenderTargetView _renderTargetView;
+        private Device _device;
+        private Factory _factory;
+
         public ExportPipelineView()
         {
             InitializeComponent();
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-
+            
             InitTest();
+
+            this.exportPipelineControl.Visible = false;
+
+            Direct2DAttempt();
+        }
+
+        public void Direct2DAttempt()
+        {
+            // SwapChain description
+            var desc = new SwapChainDescription
+            {
+                BufferCount = 1,
+                ModeDescription =
+                    new ModeDescription(ClientSize.Width, ClientSize.Height,
+                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                IsWindowed = true,
+                OutputHandle = Handle,
+                SampleDescription = new SampleDescription(1, 0),
+                SwapEffect = SwapEffect.Discard,
+                Usage = Usage.RenderTargetOutput
+            };
+
+            // Create Device and SwapChain
+            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, new [] { SharpDX.Direct3D.FeatureLevel.Level_10_0 }, desc, out _device, out _swapChain);
+
+            _d2DFactory = new SharpDX.Direct2D1.Factory();
+
+            int width = ClientSize.Width;
+            int height = ClientSize.Height;
+            
+            var rectangleGeometry = new RoundedRectangleGeometry(_d2DFactory, new RoundedRectangle { RadiusX = 32, RadiusY = 32, Rect = new RawRectangleF(128, 128, width - 128 * 2, height - 128 * 2) });
+
+            // Ignore all windows events
+            _factory = _swapChain.GetParent<Factory>();
+            _factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
+
+            // New RenderTargetView from the backbuffer
+            _backBuffer = Resource.FromSwapChain<Texture2D>(_swapChain, 0);
+            _renderTargetView = new RenderTargetView(_device, _backBuffer);
+
+            _dxgiSurface = _backBuffer.QueryInterface<Surface>();
+
+            _d2DRenderTarget = new RenderTarget(_d2DFactory, _dxgiSurface,
+                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
+
+            var solidColorBrush = new SolidColorBrush(_d2DRenderTarget, new RawColor4(1, 1, 1, 1));
+
+            var brushy = new SharpDX.Direct2D1.LinearGradientBrush(_d2DRenderTarget, new LinearGradientBrushProperties
+                {
+                    StartPoint = new RawVector2(128, 0),
+                    EndPoint = new RawVector2(128 * 3, 0),
+                },
+                new GradientStopCollection(_d2DRenderTarget, new[]
+                {
+                    new GradientStop
+                    {
+                        Color = new RawColor4(0, 0, 1, 1),
+                        Position = 0,
+                    },
+                    new GradientStop
+                    {
+                        Color = new RawColor4(0, 1, 0, 1),
+                        Position = 1,
+                    }
+                }));
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var factoryDWrite = new SharpDX.DirectWrite.Factory();
+            var textFormat = new TextFormat(factoryDWrite, "Microsoft Sans Serif", 15) { TextAlignment = TextAlignment.Center, ParagraphAlignment = ParagraphAlignment.Center };
+            var textLayout = new TextLayout(factoryDWrite, "SharpDX D2D1 - DWrite", textFormat, width - 128 * 2, height - 128 * 2);
+
+            _d2DRenderTarget.TextAntialiasMode = TextAntialiasMode.Cleartype;
+
+            var whiteBrush = new SolidColorBrush(_d2DRenderTarget, new RawColor4(1, 1, 1, 1));
+            var grayBrush = new SolidColorBrush(_d2DRenderTarget, new RawColor4(0.5f, 0.5f, 0.5f, 1));
+
+            RenderLoop.Run(this, () =>
+            {
+                _d2DRenderTarget.BeginDraw();
+                _d2DRenderTarget.Clear(new RawColor4(0, 0, 0, 1));
+                solidColorBrush.Color = new RawColor4(1, 1, 1, (float)Math.Abs(Math.Cos(stopwatch.ElapsedMilliseconds * .001)));
+
+                _d2DRenderTarget.FillGeometry(rectangleGeometry, brushy, null);
+                _d2DRenderTarget.DrawGeometry(rectangleGeometry, grayBrush, 3);
+                
+                _d2DRenderTarget.DrawTextLayout(new RawVector2(0, 0), textLayout, whiteBrush, DrawTextOptions.None);
+
+                _d2DRenderTarget.EndDraw();
+
+                _swapChain.Present(0, PresentFlags.None);
+            }, true);
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        [SuppressMessage("ReSharper", "UseNullPropagation")]
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Release all resources
+                _renderTargetView.Dispose();
+                _backBuffer.Dispose();
+                _device.ImmediateContext.ClearState();
+                _device.ImmediateContext.Flush();
+                _device.Dispose();
+                _swapChain.Dispose();
+                _factory.Dispose();
+
+                if (components != null)
+                    components.Dispose();
+            }
+            
+            base.Dispose(disposing);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            if (_swapChain != null)
+            {
+                _device.ImmediateContext.ClearState();
+
+                _dxgiSurface.Dispose();
+                _d2DRenderTarget.Dispose();
+                _renderTargetView.Dispose();
+                _backBuffer.Dispose();
+                
+                _swapChain.ResizeBuffers(
+                    _swapChain.Description.BufferCount,
+                    ClientSize.Width,
+                    ClientSize.Height,
+                    _swapChain.Description.ModeDescription.Format,
+                    _swapChain.Description.Flags);
+
+                _backBuffer = Resource.FromSwapChain<Texture2D>(_swapChain, 0);
+                _renderTargetView = new RenderTargetView(_device, _backBuffer);
+                _dxgiSurface = _backBuffer.QueryInterface<Surface>();
+                _d2DRenderTarget = new RenderTarget(_d2DFactory, _dxgiSurface,
+                    new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
+            }
         }
 
         public void InitTest()
@@ -246,7 +420,7 @@ namespace Pixelaria.Views.ModelViews
 
             _invalidatedRegion = new Region(new Rectangle(Point.Empty, Size));
         }
-
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing)
