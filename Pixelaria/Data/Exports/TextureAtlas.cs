@@ -40,12 +40,12 @@ namespace Pixelaria.Data.Exports
         /// </summary>
         /// <param name="settings">The export settings to use when packing the frames</param>
         /// <param name="name">An optional name for the TextureAtlas to be used on progress report</param>
-        public TextureAtlas(AnimationExportSettings settings, string name = "")
+        public TextureAtlas(AnimationSheetExportSettings settings, string name = "")
         {
             _boundsMap = new FrameBoundsMap();
             _animationList = new List<Animation>();
             FrameList = new List<IFrame>();
-            ExportSettings = settings;
+            SheetExportSettings = settings;
             Information = new TextureAtlasInformation();
 
             Name = name;
@@ -130,7 +130,7 @@ namespace Pixelaria.Data.Exports
                 {
                     var frame = GetFrame(i);
 
-                    if (ExportSettings.ReuseIdenticalFramesArea)
+                    if (SheetExportSettings.ReuseIdenticalFramesArea)
                     {
                         if (renderedFrames.Contains(frame))
                             continue;
@@ -304,6 +304,6 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets this atlas' export settings
         /// </summary>
-        public AnimationExportSettings ExportSettings { get; set; }
+        public AnimationSheetExportSettings SheetExportSettings { get; set; }
     }
 }

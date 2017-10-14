@@ -148,8 +148,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             if (lhs.Name != rhs.Name)
                 throw new AssertFailedException($"Animation sheet names do not match: {lhs.Name} != {rhs.Name}");
             
-            if (!AnimationExportSettings.AnimationExportSettingsComparer.Equals(lhs.ExportSettings, rhs.ExportSettings))
-                throw new AssertFailedException($"Animation sheet export settings do not match: {lhs.ExportSettings} != {rhs.ExportSettings}");
+            if (!AnimationSheetExportSettings.AnimationExportSettingsComparer.Equals(lhs.SheetExportSettings, rhs.SheetExportSettings))
+                throw new AssertFailedException($"Animation sheet export settings do not match: {lhs.SheetExportSettings} != {rhs.SheetExportSettings}");
 
             if (lhs.AnimationCount != rhs.AnimationCount)
                 throw new AssertFailedException($"Animation sheet animation counts do not match: {lhs.Name} != {rhs.AnimationCount}");
@@ -187,8 +187,8 @@ namespace PixelariaTests.PixelariaTests.Tests.Utils
             if (lhs.Size != rhs.Size)
                 throw new AssertFailedException($"Animation sizes do not match: {lhs.Size} != {rhs.Size}");
 
-            if (!AnimationExportSettings.AnimationExportSettingsComparer.Equals(lhs.ExportSettings, rhs.ExportSettings))
-                throw new AssertFailedException($"Animation export settings do not match: {lhs.ExportSettings} != {rhs.ExportSettings}");
+            if (!AnimationSheetExportSettings.AnimationExportSettingsComparer.Equals(lhs.SheetExportSettings, rhs.SheetExportSettings))
+                throw new AssertFailedException($"Animation export settings do not match: {lhs.SheetExportSettings} != {rhs.SheetExportSettings}");
 
             if (!AnimationPlaybackSettings.AnimationPlaybackSettingsComparer.Equals(lhs.PlaybackSettings, rhs.PlaybackSettings))
                 throw new AssertFailedException($"Animation playback settings do not match: {lhs.PlaybackSettings} != {rhs.PlaybackSettings}");

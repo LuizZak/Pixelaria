@@ -97,11 +97,11 @@ namespace PixelariaTests.PixelariaTests.Tests.Data
             Assert.AreEqual(anim1, controller2.CloneAnimation(), "After a RemoveFrameIndex() call, the frame must be removed from the animation");
 
             // Test different values for the struct properties
-            controller2.ExportSettings = new AnimationExportSettings { AllowUnorderedFrames = true, UseUniformGrid = true };
+            controller2.SheetExportSettings = new AnimationSheetExportSettings { AllowUnorderedFrames = true, UseUniformGrid = true };
 
             Assert.AreNotEqual(anim1, controller2.CloneAnimation(), "Animations with different values for the ExportSettings must not be equal");
 
-            controller2.ExportSettings = anim1.ExportSettings;
+            controller2.SheetExportSettings = anim1.SheetExportSettings;
 
             var playbackSettings = controller2.PlaybackSettings;
             playbackSettings.FPS = 0;

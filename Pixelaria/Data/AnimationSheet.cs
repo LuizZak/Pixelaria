@@ -62,7 +62,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets or sets the export settings for this animation sheet
         /// </summary>
-        public AnimationExportSettings ExportSettings { get; set; }
+        public AnimationSheetExportSettings SheetExportSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the AnimationSheet class
@@ -82,7 +82,7 @@ namespace Pixelaria.Data
         {
             // TODO: Maybe create an AnimationSheetController and lift this Clone() code there?
 
-            var sheetClone = new AnimationSheet(Name) { ExportSettings = ExportSettings };
+            var sheetClone = new AnimationSheet(Name) { SheetExportSettings = SheetExportSettings };
 
             foreach (var animation in _animations)
             {
@@ -188,7 +188,7 @@ namespace Pixelaria.Data
 
             AnimationSheet other = (AnimationSheet) obj;
 
-            if (_animations == null || other._animations == null || _animations.Count != other._animations.Count || Name != other.Name || !ExportSettings.Equals(other.ExportSettings))
+            if (_animations == null || other._animations == null || _animations.Count != other._animations.Count || Name != other.Name || !SheetExportSettings.Equals(other.SheetExportSettings))
                 return false;
             
             // Iterate through each fo the animations and check for an inequality
@@ -215,7 +215,7 @@ namespace Pixelaria.Data
     /// <summary>
     /// Encapsulates export settings of an animation
     /// </summary>
-    public struct AnimationExportSettings
+    public struct AnimationSheetExportSettings
     {
         /// <summary>
         /// Whether to favor image ratio over image area when composing the final exported atlas.
@@ -287,14 +287,14 @@ namespace Pixelaria.Data
         /// </summary>
         public int YPadding;
 
-        private sealed class AnimationExportSettingsEqualityComparer : IEqualityComparer<AnimationExportSettings>
+        private sealed class AnimationExportSettingsEqualityComparer : IEqualityComparer<AnimationSheetExportSettings>
         {
-            public bool Equals(AnimationExportSettings x, AnimationExportSettings y)
+            public bool Equals(AnimationSheetExportSettings x, AnimationSheetExportSettings y)
             {
                 return x.FavorRatioOverArea == y.FavorRatioOverArea && x.ForcePowerOfTwoDimensions == y.ForcePowerOfTwoDimensions && x.ForceMinimumDimensions == y.ForceMinimumDimensions && x.ReuseIdenticalFramesArea == y.ReuseIdenticalFramesArea && x.HighPrecisionAreaMatching == y.HighPrecisionAreaMatching && x.AllowUnorderedFrames == y.AllowUnorderedFrames && x.UseUniformGrid == y.UseUniformGrid && x.UsePaddingOnJson == y.UsePaddingOnJson && x.ExportJson == y.ExportJson && x.XPadding == y.XPadding && x.YPadding == y.YPadding;
             }
 
-            public int GetHashCode(AnimationExportSettings obj)
+            public int GetHashCode(AnimationSheetExportSettings obj)
             {
                 unchecked
                 {
@@ -314,6 +314,6 @@ namespace Pixelaria.Data
             }
         }
 
-        public static IEqualityComparer<AnimationExportSettings> AnimationExportSettingsComparer { get; } = new AnimationExportSettingsEqualityComparer();
+        public static IEqualityComparer<AnimationSheetExportSettings> AnimationExportSettingsComparer { get; } = new AnimationExportSettingsEqualityComparer();
     }
 }

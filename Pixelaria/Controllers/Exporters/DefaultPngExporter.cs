@@ -133,13 +133,13 @@ namespace Pixelaria.Controllers.Exporters
             // 3. Compose the main bundle .json
             //
 
-            if (exports.Any(export => export.BundleSheet.ExportSettings.ExportJson))
+            if (exports.Any(export => export.BundleSheet.SheetExportSettings.ExportJson))
             {
                 var jsonSheetList = new List<Dictionary<string, object>>();
                 
                 foreach (var export in exports)
                 {
-                    if (!export.BundleSheet.ExportSettings.ExportJson)
+                    if (!export.BundleSheet.SheetExportSettings.ExportJson)
                         continue;
                     
                     var sheet = new Dictionary<string, object>();
@@ -204,7 +204,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
         public async Task<BundleSheetExport> ExportBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            var atlas = await GenerateAtlasFromAnimations(provider, "", cancellationToken, progressHandler);
+            var atlas = await GenerateAtlasFromAnimations(provider, provider.Name, cancellationToken, progressHandler);
             if (cancellationToken.IsCancellationRequested)
                 return null;
 
@@ -238,7 +238,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <returns>An image sheet representing the animations passed</returns>
         public async Task<TextureAtlas> GenerateAtlasFromAnimations([NotNull] IAnimationProvider provider, string name = "", CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
-            var atlas = new TextureAtlas(provider.ExportSettings, name);
+            var atlas = new TextureAtlas(provider.SheetExportSettings, name);
 
             //
             // 1. Add the frames to the texture atlas

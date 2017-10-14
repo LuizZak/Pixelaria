@@ -82,10 +82,10 @@ namespace Pixelaria.Controllers.DataControllers
         /// <summary>
         /// Gets or sets the export settings for the animation
         /// </summary>
-        public AnimationExportSettings ExportSettings
+        public AnimationSheetExportSettings SheetExportSettings
         {
-            get => _animation.ExportSettings;
-            set => _animation.ExportSettings = value;
+            get => _animation.SheetExportSettings;
+            set => _animation.SheetExportSettings = value;
         }
 
         public AnimationController([CanBeNull] Bundle bundle, Animation animation)
@@ -247,7 +247,7 @@ namespace Pixelaria.Controllers.DataControllers
             _animation.Width = anim.Width;
             _animation.Height = anim.Height;
             PlaybackSettings = anim.PlaybackSettings;
-            ExportSettings = anim.ExportSettings;
+            SheetExportSettings = anim.SheetExportSettings;
 
             _animation.Clear();
 

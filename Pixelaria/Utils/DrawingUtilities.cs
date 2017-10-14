@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
@@ -63,6 +64,7 @@ namespace Pixelaria.Utils
             }
         }
 
+        [Pure]
         public static RectangleF Inflated(this RectangleF rectangle, SizeF size)
         {
             var rec = rectangle;
@@ -70,6 +72,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static RectangleF Inflated(this RectangleF rectangle, float x, float y)
         {
             var rec = rectangle;
@@ -77,6 +80,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static Rectangle Inflated(this Rectangle rectangle, Size size)
         {
             var rec = rectangle;
@@ -84,6 +88,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static Rectangle Inflated(this Rectangle rectangle, int x, int y)
         {
             var rec = rectangle;
@@ -91,6 +96,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static RectangleF OffsetBy(this RectangleF rectangle, float x, float y)
         {
             var rec = rectangle;
@@ -98,6 +104,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static Rectangle OffsetBy(this Rectangle rectangle, int x, int y)
         {
             var rec = rectangle;
@@ -105,6 +112,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static RectangleF OffsetBy(this RectangleF rectangle, PointF point)
         {
             var rec = rectangle;
@@ -112,6 +120,7 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        [Pure]
         public static Rectangle OffsetBy(this Rectangle rectangle, Point point)
         {
             var rec = rectangle;
@@ -119,6 +128,124 @@ namespace Pixelaria.Utils
             return rec;
         }
 
+        /// <summary>
+        /// Returns the points that form the corners of a rectangle, in clockwise
+        /// order, starting from the top-left corner.
+        /// </summary>
+        [Pure]
+        public static Point[] Points(this Rectangle rectangle)
+        {
+            var tl = new Point(rectangle.Left, rectangle.Top);
+            var tr = new Point(rectangle.Right, rectangle.Top);
+            var br = new Point(rectangle.Right, rectangle.Bottom);
+            var bl = new Point(rectangle.Left, rectangle.Bottom);
+
+            return new[] {tl, tr, br, bl};
+        }
+
+        /// <summary>
+        /// Returns the points that form the corners of a rectangle, in clockwise
+        /// order, starting from the top-left corner.
+        /// </summary>
+        [Pure]
+        public static PointF[] Points(this RectangleF rectangle)
+        {
+            var tl = new PointF(rectangle.Left, rectangle.Top);
+            var tr = new PointF(rectangle.Right, rectangle.Top);
+            var br = new PointF(rectangle.Right, rectangle.Bottom);
+            var bl = new PointF(rectangle.Left, rectangle.Bottom);
+
+            return new[] { tl, tr, br, bl };
+        }
+
+        /// <summary>
+        /// Returns the smallest rectangle able to contain all points in an enumerable of points.
+        /// 
+        /// If enumerable is empty, returns Rectangle.Empty.
+        /// </summary>
+        [Pure]
+        public static Rectangle Area([NotNull] this IEnumerable<Point> points)
+        {
+            var rect = Rectangle.Empty;
+            var hasPoints = false;
+
+            foreach (var point in points)
+            {
+                if (!hasPoints)
+                {
+                    rect = new Rectangle(point, Size.Empty);
+                    hasPoints = true;
+                }
+                else
+                {
+                    rect = Rectangle.Union(rect, new Rectangle(point, Size.Empty));
+                }
+            }
+            
+            return rect;
+        }
+
+        /// <summary>
+        /// Returns the smallest rectangle able to contain all points in an enumerable of points.
+        /// 
+        /// If enumerable is empty, returns Rectangle.Empty.
+        /// </summary>
+        [Pure]
+        public static RectangleF Area([NotNull] this IEnumerable<PointF> points)
+        {
+            var rect = RectangleF.Empty;
+            var hasPoints = false;
+
+            foreach (var point in points)
+            {
+                if (!hasPoints)
+                {
+                    rect = new RectangleF(point, SizeF.Empty);
+                    hasPoints = true;
+                }
+                else
+                {
+                    rect = RectangleF.Union(rect, new RectangleF(point, SizeF.Empty));
+                }
+            }
+
+            return rect;
+        }
+
+        /// <summary>
+        /// Transforms a single point by multiplying it by the matrix's value
+        /// </summary>
+        [Pure]
+        public static Point Transform([NotNull] this Matrix matrix, Point point)
+        {
+            var pts = new[] {point};
+            matrix.TransformPoints(pts);
+            return pts[0];
+        }
+
+        /// <summary>
+        /// Transforms a single point by multiplying it by the matrix's value
+        /// </summary>
+        [Pure]
+        public static PointF Transform([NotNull] this Matrix matrix, PointF point)
+        {
+            var pts = new[] { point };
+            matrix.TransformPoints(pts);
+            return pts[0];
+        }
+
+        /// <summary>
+        /// Returns an inverted copy of a matrix
+        /// </summary>
+        [Pure]
+        public static Matrix Inverted([NotNull] this Matrix matrix)
+        {
+            var clone = matrix.Clone();
+            clone.Invert();
+            return clone;
+        }
+
+        [Pure]
         public static PointF Normalized(this PointF point)
         {
             var dx = point.X;
@@ -129,19 +256,71 @@ namespace Pixelaria.Utils
             return new PointF(dx / dis, dy / dis);
         }
 
+        [Pure]
         public static Point Rounded(this PointF point)
         {
             return Point.Round(point);
         }
 
+        [Pure]
         public static PointF Multiplied(this PointF point, SizeF size)
         {
             return new PointF(point.X * size.Width, point.Y * size.Height);
         }
 
+        [Pure]
         public static PointF Multiplied(this PointF point, float length)
         {
             return new PointF(point.X * length, point.Y * length);
+        }
+
+
+        /// <summary>
+        /// Returns the distance between two points objects
+        /// </summary>
+        /// <param name="point">The first point</param>
+        /// <param name="point2">The second point</param>
+        /// <returns>The distance between the two points</returns>
+        [Pure]
+        public static float Distance(this PointF point, PointF point2)
+        {
+            var dx = point.X - point2.X;
+            var dy = point.Y - point2.Y;
+
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>
+        /// Returns the distance between two points objects
+        /// </summary>
+        /// <param name="point">The first point</param>
+        /// <param name="point2">The second point</param>
+        /// <returns>The distance between the two points</returns>
+        [Pure]
+        public static float Distance(this Point point, Point point2)
+        {
+            var dx = point.X - point2.X;
+            var dy = point.Y - point2.Y;
+
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>
+        /// Returns the center-point of a rectangle
+        /// </summary>
+        [Pure]
+        public static Point Center(this Rectangle rectangle)
+        {
+            return new Point((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
+        }
+
+        /// <summary>
+        /// Returns the center-point of a rectangle
+        /// </summary>
+        [Pure]
+        public static PointF Center(this RectangleF rectangle)
+        {
+            return new PointF((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
         }
     }
 }

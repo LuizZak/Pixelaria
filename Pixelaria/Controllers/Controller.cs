@@ -56,7 +56,7 @@ namespace Pixelaria.Controllers
     /// <summary>
     /// Main application controller
     /// </summary>
-    public partial class Controller
+    public sealed partial class Controller : IDisposable
     {
         /// <summary>
         /// The main application form
@@ -212,6 +212,13 @@ namespace Pixelaria.Controllers
                 // Start with a new empty bundle
                 ShowNewBundle();
             }
+        }
+        
+        public void Dispose()
+        {
+            _mainForm?.Dispose();
+            _reactive?.Dispose();
+            CurrentBundle?.Dispose();
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -1106,7 +1113,7 @@ namespace Pixelaria.Controllers
         /// <param name="sheet">The animation sheet to wrap on the dynamic provider</param>
         /// <param name="settings">An overrided set of export settings to use</param>
         /// <returns>An <see cref="IAnimationProvider"/> instance that provides still unsaved changes from animation views when the property <see cref="IAnimationProvider.GetAnimations"/> is called.</returns>
-        public IAnimationProvider GetDynamicProviderForSheet(AnimationSheet sheet, AnimationExportSettings settings)
+        public IAnimationProvider GetDynamicProviderForSheet(AnimationSheet sheet, AnimationSheetExportSettings settings)
         {
             return new DynamicAnimationProvider(this, sheet, settings);
         }
@@ -1125,14 +1132,14 @@ namespace Pixelaria.Controllers
         /// Generates a BundleSheetExport object that contains information about the export of a sheet, using a custom event handler
         /// for export progress callback
         /// </summary>
-        /// <param name="exportSettings">The export settings for the sheet</param>
+        /// <param name="sheetExportSettings">The export settings for the sheet</param>
         /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params IAnimation[] anims)
+        public Task<BundleSheetExport> GenerateBundleSheet(AnimationSheetExportSettings sheetExportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params IAnimation[] anims)
         {
-            return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""), cancellationToken, callback);
+            return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, sheetExportSettings, ""), cancellationToken, callback);
         }
 
         /// <summary>
@@ -1196,14 +1203,14 @@ namespace Pixelaria.Controllers
                 return anims.Select(cont => cont.GetAnimationView()).ToArray();
             }
 
-            public AnimationExportSettings ExportSettings { get; }
+            public AnimationSheetExportSettings SheetExportSettings { get; }
             public string Name => _sheet.Name;
 
-            public DynamicAnimationProvider(Controller controller, AnimationSheet sheet, AnimationExportSettings exportSettings)
+            public DynamicAnimationProvider(Controller controller, AnimationSheet sheet, AnimationSheetExportSettings sheetExportSettings)
             {
                 _controller = controller;
                 _sheet = sheet;
-                ExportSettings = exportSettings;
+                SheetExportSettings = sheetExportSettings;
             }
         }
 
@@ -1230,13 +1237,19 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Reactive binder for the controller
         /// </summary>
-        private class Reactive : IReactive
+        private sealed class Reactive : IReactive, IDisposable
         {
             public readonly Subject<Animation> RxOnAnimationUpdate = new Subject<Animation>();
             public readonly Subject<AnimationSheet> RxOnAnimationSheetUpdate = new Subject<AnimationSheet>();
 
             public IObservable<Animation> AnimationUpdate => RxOnAnimationUpdate;
             public IObservable<AnimationSheet> AnimationSheetUpdate => RxOnAnimationSheetUpdate;
+
+            public void Dispose()
+            {
+                RxOnAnimationUpdate?.Dispose();
+                RxOnAnimationSheetUpdate?.Dispose();
+            }
         }
     }
 

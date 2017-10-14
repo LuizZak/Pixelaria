@@ -313,45 +313,6 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Returns the distance between two points objects
-        /// </summary>
-        /// <param name="point">The first point</param>
-        /// <param name="point2">The second point</param>
-        /// <returns>The distance between the two points</returns>
-        [Pure]
-        public static float Distance(this PointF point, PointF point2)
-        {
-            var dx = point.X - point2.X;
-            var dy = point.Y - point2.Y;
-
-            return (float)Math.Sqrt(dx * dx + dy * dy);
-        }
-
-        /// <summary>
-        /// Returns the distance between two points objects
-        /// </summary>
-        /// <param name="point">The first point</param>
-        /// <param name="point2">The second point</param>
-        /// <returns>The distance between the two points</returns>
-        [Pure]
-        public static float Distance(this Point point, Point point2)
-        {
-            var dx = point.X - point2.X;
-            var dy = point.Y - point2.Y;
-
-            return (float)Math.Sqrt(dx * dx + dy * dy);
-        }
-
-        /// <summary>
-        /// Returns the center-point of a rectangle
-        /// </summary>
-        [Pure]
-        public static Point Center(this Rectangle rectangle)
-        {
-            return new Point((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
-        }
-
-        /// <summary>
         /// Transforms a given list of Frames into a list of Bitmaps.
         /// The list of bitmaps will be equivalent to taking the Frame.GetComposedBitmap() of each frame
         /// </summary>

@@ -1,0 +1,579 @@
+/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+
+using JetBrains.Annotations;
+
+using Pixelaria.Utils;
+
+namespace Pixelaria.Views.ModelViews.PipelineView
+{
+    /// <summary>
+    /// A simple base view for creating UI elements with.
+    /// 
+    /// Used to render Export Pipeline UI elements.
+    /// </summary>
+    public class BaseView : IDisposable
+    {
+        private Vector _size;
+        private Vector _location;
+        private Vector _scale = Vector.Unit;
+        private float _rotation;
+
+        /// <summary>
+        /// Event fired whenever the DirtyRegion of this base view has been updated.
+        /// 
+        /// Fired only for Root views.
+        /// </summary>
+        public event EventHandler DirtyRegionUpdated;
+
+        /// <summary>
+        /// Gets the parent view, if any, of this base view.
+        /// 
+        /// Area is relative to this base view's Location, if present.
+        /// </summary>
+        [CanBeNull]
+        public BaseView Parent { get; private set; }
+
+        /// <summary>
+        /// Gets the dirty region for this BaseView, in local coordinates.
+        /// 
+        /// Every time a child view is modified, it propagates its dirty region
+        /// up to parent views until reaching the Root entity, wherein the dirty
+        /// region will be used during screen refreshing.
+        /// </summary>
+        [NotNull]
+        public Region DirtyRegion { get; } = new Region();
+
+        /// <summary>
+        /// Transformation matrix.
+        /// 
+        /// Used to alter rendering and hit testing.
+        /// 
+        /// This value is inherited by child base views.
+        /// </summary>
+        public Matrix LocalTransform
+        {
+            get
+            {
+                var matrix = new Matrix();
+
+                matrix.Translate(Location.X, Location.Y);
+
+                matrix.RotateAt(Rotation, PointF.Empty);
+
+                matrix.Scale(Scale.X, Scale.Y);
+
+                return matrix;
+            }
+        }
+
+        /// <summary>
+        /// Children of this base view
+        /// </summary>
+        protected List<BaseView> children { get; } = new List<BaseView>();
+
+        /// <summary>
+        /// Returns the center point of this view's AABB.
+        /// </summary>
+        public Vector Center => Bounds.Center;
+
+        /// <summary>
+        /// Gets all children of this base view
+        /// </summary>
+        public BaseView[] Children => children.ToArray();
+
+        /// <summary>
+        /// Top-left location of view, in pixels
+        /// </summary>
+        public virtual Vector Location
+        {
+            get => _location;
+            set
+            {
+                PerformMarkingDirty(() =>
+                {
+                    _location = value;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Size of view, in pixels
+        /// </summary>
+        public virtual Vector Size
+        {
+            get => _size;
+            set
+            {
+                if (_size == value)
+                    return;
+
+                _size = value;
+                OnResize();
+            }
+        }
+
+        /// <summary>
+        /// Relative scale of this base view
+        /// </summary>
+        public Vector Scale
+        {
+            get => _scale;
+            set
+            {
+                PerformMarkingDirty(() =>
+                {
+                    _scale = value;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the rotation of this view.
+        /// Rotations are relative to the view's top-left corner.
+        /// </summary>
+        public float Rotation
+        {
+            get => _rotation;
+            set
+            {
+                PerformMarkingDirty(() =>
+                {
+                    _rotation = value;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Returns the local bounds of this view, with 0 x 0 mapping to its local top-left pixel
+        /// </summary>
+        public virtual AABB Bounds => new AABB(Vector.Zero, Size);
+
+        ~BaseView()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            
+        }
+
+        /// <summary>
+        /// Adds a base view as the child of this base view.
+        /// </summary>
+        public void AddChild([NotNull] BaseView child)
+        {
+            // Check recursiveness
+            var cur = child;
+            while (cur != null)
+            {
+                if(cur == this)
+                    throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
+
+                cur = child.Parent;
+            }
+
+            child.Parent?.RemoveChild(child);
+
+            child.Parent = this;
+            children.Add(child);
+
+            child.MarkDirty(child.GetFullBounds());
+        }
+
+        /// <summary>
+        /// Inserts a base view as the child of this base view at a given index.
+        /// </summary>
+        public void InsertChild(int index, [NotNull] BaseView child)
+        {
+            // Check recursiveness
+            var cur = child;
+            while (cur != null)
+            {
+                if (cur == this)
+                    throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
+
+                cur = child.Parent;
+            }
+
+            child.Parent?.RemoveChild(child);
+
+            child.Parent = this;
+            children.Insert(index, child);
+
+            child.MarkDirty(child.GetFullBounds());
+        }
+
+        /// <summary>
+        /// Removes a given child from this base view
+        /// </summary>
+        public void RemoveChild([NotNull] BaseView child)
+        {
+            if(child.Parent != this)
+                throw new ArgumentException(@"Child BaseView passed in is not a direct child of this base view", nameof(child));
+
+            child.MarkDirty(child.GetFullBounds());
+
+            child.Parent = null;
+            children.Remove(child);
+        }
+
+        /// <summary>
+        /// Performs a hit test operation on the area of this, and all child
+        /// base views, for the given absolute coordinates point.
+        /// 
+        /// Returns the base view that has its origin closest to the given point.
+        /// 
+        /// Only returns an instance if its area is contained within the given point.
+        /// 
+        /// The <see cref="inflatingArea"/> argument can be used to inflate the
+        /// area of the views to perform less precise hit tests.
+        /// </summary>
+        [CanBeNull]
+        public BaseView HitTestClosest(Vector point, Vector inflatingArea)
+        {
+            var absolutePoint = point * LocalTransform.Inverted();
+
+            BaseView closestV = null;
+            float closestD = float.PositiveInfinity;
+
+            // Search children first
+            foreach (var baseView in children.AsQueryable().Reverse())
+            {
+                var ht = baseView.HitTestClosest(absolutePoint, inflatingArea);
+                if (ht != null)
+                {
+                    var center = ht.ConvertTo(ht.Bounds.Center, this);
+
+                    var distance = center.Distance(absolutePoint);
+                    if (distance < closestD)
+                    {
+                        closestV = ht;
+                        closestD = distance;
+                    }
+                }
+            }
+            
+            // Test this instance now
+            if (Bounds.Inflated(inflatingArea).Contains(absolutePoint) &&
+                Bounds.Center.Distance(absolutePoint) < closestD)
+                closestV = this;
+
+            return closestV;
+        }
+
+        /// <summary>
+        /// Performs a hit test operation on the area of this, and all child
+        /// base views, for the given absolute coordinates point.
+        /// 
+        /// Returns the first base view that crosses the point.
+        /// 
+        /// The <see cref="inflatingArea"/> argument can be used to inflate the
+        /// area of the views to perform less precise hit tests.
+        /// </summary>
+        [CanBeNull]
+        public BaseView ViewUnder(Vector point, Vector inflatingArea)
+        {
+            var absolutePoint = point * LocalTransform.Inverted();
+            
+            // Search children first
+            foreach (var baseView in children.AsQueryable().Reverse())
+            {
+                var ht = baseView.ViewUnder(absolutePoint, inflatingArea);
+                if (ht != null)
+                {
+                    return ht;
+                }
+            }
+
+            // Test this instance now
+            if (IntersectsThis(absolutePoint, inflatingArea))
+                return this;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Performs a hit test operation on the area of this, and all child
+        /// base views, for the given absolute coordinates point.
+        /// 
+        /// Returns the first base view that crosses the point and returns true
+        /// for <see cref="predicate"/>.
+        /// 
+        /// The <see cref="inflatingArea"/> argument can be used to inflate the
+        /// area of the views to perform less precise hit tests.
+        /// </summary>
+        [CanBeNull]
+        public BaseView ViewUnder(Vector point, Vector inflatingArea, Func<BaseView, bool> predicate)
+        {
+            var absolutePoint = point * LocalTransform.Inverted();
+
+            // Search children first
+            foreach (var baseView in children.AsQueryable().Reverse())
+            {
+                var ht = baseView.ViewUnder(absolutePoint, inflatingArea);
+                if (ht != null)
+                    return ht;
+            }
+
+            // Test this instance now
+            if (IntersectsThis(absolutePoint, inflatingArea) && predicate(this))
+                return this;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns an enumerable of all views that cross the given point.
+        /// 
+        /// The <see cref="inflatingArea"/> argument can be used to inflate the
+        /// area of the views to perform less precise hit tests.
+        /// </summary>
+        /// <param name="point">Point to test</param>
+        /// <param name="inflatingArea">Used to inflate the area of the views to perform less precise hit tests.</param>
+        /// <returns>An enumerable where each view returned crosses the given point.</returns>
+        [ItemNotNull]
+        [NotNull]
+        public IEnumerable<BaseView> ViewsUnder(Vector point, Vector inflatingArea)
+        {
+            var absolutePoint = point * LocalTransform.Inverted();
+
+            // Search children first
+            foreach (var baseView in children.AsQueryable().Reverse())
+            foreach (var view in baseView.ViewsUnder(absolutePoint, inflatingArea))
+                yield return view;
+
+            // Test this instance now
+            if (IntersectsThis(absolutePoint, inflatingArea))
+                yield return this;
+        }
+
+        /// <summary>
+        /// Returns true if the given vector point intersects this view's area when
+        /// inflated by a specified ammount.
+        /// </summary>
+        /// <param name="point">Point to test</param>
+        /// <param name="inflatingArea">Used to inflate the area of the view to perform less precise hit tests.</param>
+        public virtual bool IntersectsThis(Vector point, Vector inflatingArea)
+        {
+            return Bounds.Inflated(inflatingArea).Contains(point);
+        }
+
+        /// <summary>
+        /// Converts a point from a given BaseView's local coordinates to this
+        /// base view's coordinates.
+        /// 
+        /// If <see cref="from"/> is null, converts from screen coordinates.
+        /// </summary>
+        public Vector ConvertFrom(Vector point, [CanBeNull] BaseView from)
+        {
+            // Convert point to global, if it's currently local to from
+            var global = point;
+            if (from != null)
+                global = from.GetAbsoluteTransform() * point;
+
+            var matrix = GetAbsoluteTransform().Inverted();
+            return global * matrix;
+        }
+
+        /// <summary>
+        /// Converts a point from this BaseView's local coordinates to a given
+        /// base view's coordinates.
+        /// 
+        /// If <see cref="to"/> is null, converts from this node to screen coordinates.
+        /// </summary>
+        public Vector ConvertTo(Vector point, [CanBeNull] BaseView to)
+        {
+            if (to == null)
+                return point * GetAbsoluteTransform();
+
+            return to.ConvertFrom(point, this);
+        }
+
+        /// <summary>
+        /// Converts an AABB from a given BaseView's local coordinates to this
+        /// base view's coordinates.
+        /// 
+        /// If <see cref="from"/> is null, converts from screen coordinates.
+        /// </summary>
+        public AABB ConvertFrom(AABB aabb, [CanBeNull] BaseView from)
+        {
+            // Convert point to global, if it's currently local to from
+            var global = aabb;
+            if (from != null)
+                global = aabb.TransformedBounds(from.GetAbsoluteTransform());
+
+            var matrix = GetAbsoluteTransform().Inverted();
+            return global.TransformedBounds(matrix);
+        }
+
+        /// <summary>
+        /// Converts an AABB from this BaseView's local coordinates to a given
+        /// base view's coordinates.
+        /// 
+        /// If <see cref="to"/> is null, converts from this node to screen coordinates.
+        /// </summary>
+        public AABB ConvertTo(AABB aabb, [CanBeNull] BaseView to)
+        {
+            if (to == null)
+                return aabb.TransformedBounds(GetAbsoluteTransform());
+
+            return to.ConvertFrom(aabb, this);
+        }
+        
+        /// <summary>
+        /// Gets the absolute matrix for this base view's coordinates system.
+        /// 
+        /// Multiplying a point (0, 0) by this matrix results in a point that lands on
+        /// the top-left corner of this base view's coordinate system.
+        /// </summary>
+        public Matrix GetAbsoluteTransform()
+        {
+            var parT = Parent?.GetAbsoluteTransform() ?? new Matrix();
+
+            var total = parT.Clone();
+            total.Multiply(LocalTransform);
+
+            return total;
+        }
+
+        /// <summary>
+        /// Gets the full bounds of this BaseView (in its local coordinates system),
+        /// counting the child bounds as well.
+        /// </summary>
+        public AABB GetFullBounds()
+        {
+            var bounds = Bounds;
+
+            foreach (var view in children)
+            {
+                var childBounds = view.GetFullBounds();
+
+                // Convert to local coordinates
+                childBounds = childBounds.Corners.Transform(view.LocalTransform).Area();
+
+                bounds = bounds.Union(childBounds);
+            }
+
+            return bounds;
+        }
+
+        /// <summary>
+        /// Marks a (local) rectangle area of this base view as dirty.
+        /// </summary>
+        public void MarkDirty(AABB area)
+        {
+            // Transform area to Region
+            var region = new Region((RectangleF) area);
+
+            MarkDirty(region);
+        }
+
+        /// <summary>
+        /// Marks a (local) region of this base view as dirty.
+        /// </summary>
+        public void MarkDirty([NotNull] Region region)
+        {
+            if (Parent != null)
+            {
+                region.Transform(LocalTransform.Inverted());
+
+                Parent.MarkDirty(region);
+                return;
+            }
+
+            // Expand rects to deal w/ artifacts
+            var rects = region.GetRegionScans(new Matrix()).Select(r => r.Inflated(5, 5)).ToArray();
+
+            region.MakeEmpty();
+            foreach (var rectangleF in rects)
+            {
+                region.Union(rectangleF);
+            }
+
+            DirtyRegion.Union(region);
+
+            DirtyRegionUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Clears the dirty region of this view and all parents up the hierarchy.
+        /// </summary>
+        public void ClearDirtyRegion()
+        {
+            Parent?.ClearDirtyRegion();
+            DirtyRegion.MakeEmpty();
+        }
+
+        /// <summary>
+        /// Helper for marking a region dirty after modifying the bounds of this base view
+        /// on its parent during an action.
+        /// 
+        /// After the action block is finished, marks the parent view as dirty on both the before
+        /// and after regions after transforming the view with the given action block.
+        /// </summary>
+        private void PerformMarkingDirty([NotNull] Action action)
+        {
+            // Prepare invalidation area on parent
+            var parent = Parent;
+            if (parent == null)
+            {
+                // This is the root view- apply changes directly to dirty region
+                MarkDirty(GetFullBounds().Inflated(5, 5));
+
+                action();
+                
+                MarkDirty(GetFullBounds().Inflated(5, 5));
+
+                return;
+            }
+            
+            var beforeBounds = parent.ConvertFrom(GetFullBounds(), this);
+
+            action();
+
+            var afterBounds = parent.ConvertFrom(GetFullBounds(), this);
+
+            parent.MarkDirty(beforeBounds.Inflated(15, 15));
+            parent.MarkDirty(afterBounds.Inflated(15, 15));
+        }
+
+        protected virtual void OnResize()
+        {
+            
+        }
+    }
+}

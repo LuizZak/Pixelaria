@@ -66,10 +66,10 @@ namespace Pixelaria.Algorithms.Packers
             var frameList = atlas.FrameList;
 
             _progressHandler = handler;
-            _frameComparision = new FrameComparision(atlas.ExportSettings.ForceMinimumDimensions);
+            _frameComparision = new FrameComparision(atlas.SheetExportSettings.ForceMinimumDimensions);
 
             // 1. (Optional) Sort the frames from largest to smallest before packing
-            if (atlas.ExportSettings.AllowUnorderedFrames)
+            if (atlas.SheetExportSettings.AllowUnorderedFrames)
             {
                 // Use a stable sort
                 frameList.AddRange(frameList.OrderBy(frame => frame, _frameComparision).ToList());
@@ -77,7 +77,7 @@ namespace Pixelaria.Algorithms.Packers
             }
 
             // 2. (Optional) Find identical frames and pack them to use the same sheet area
-            if (atlas.ExportSettings.ReuseIdenticalFramesArea)
+            if (atlas.SheetExportSettings.ReuseIdenticalFramesArea)
             {
                 MarkIdenticalFramesFromList(frameList);
             }
@@ -89,7 +89,7 @@ namespace Pixelaria.Algorithms.Packers
             uint atlasWidth;
             uint atlasHeight;
 
-            var frameBoundsMap = PrepareAtlas(atlas, atlas.ExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.ExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
+            var frameBoundsMap = PrepareAtlas(atlas, atlas.SheetExportSettings.UseUniformGrid ? _maxFrameWidth : -1, atlas.SheetExportSettings.UseUniformGrid ? _maxFrameHeight : -1);
             var frameBounds = frameBoundsMap.SheetBounds;
 
             var minAreaTask = new Task<int>(() =>
@@ -106,7 +106,7 @@ namespace Pixelaria.Algorithms.Packers
             atlasHeight = 0;
 
             // 5. Pack the texture atlas
-            var finalFrameRegions = InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, minAreaWidth, cancellationToken);
+            var finalFrameRegions = InternalPack(atlas.SheetExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, minAreaWidth, cancellationToken);
             if (cancellationToken.IsCancellationRequested)
                 return;
 
@@ -116,7 +116,7 @@ namespace Pixelaria.Algorithms.Packers
             atlas.SetFrameBoundsMap(frameBoundsMap);
 
             // Round up to the closest power of two
-            if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
+            if (atlas.SheetExportSettings.ForcePowerOfTwoDimensions)
             {
                 atlasWidth = Utilities.SnapToNextPowerOfTwo(atlasWidth);
                 atlasHeight = Utilities.SnapToNextPowerOfTwo(atlasHeight);
@@ -145,7 +145,7 @@ namespace Pixelaria.Algorithms.Packers
                 ////
                 var local = new Rectangle(0, 0, (frameWidth == -1 ? frame.Width : frameWidth), (frameHeight == -1 ? frame.Height : frameHeight));
 
-                if (atlas.ExportSettings.ForceMinimumDimensions && !atlas.ExportSettings.UseUniformGrid)
+                if (atlas.SheetExportSettings.ForceMinimumDimensions && !atlas.SheetExportSettings.UseUniformGrid)
                 {
                     local = _frameComparision.GetFrameArea(frame);
                 }
@@ -158,7 +158,7 @@ namespace Pixelaria.Algorithms.Packers
             ////
             //// 1. Identical frame matching
             ////
-            if (atlas.ExportSettings.ReuseIdenticalFramesArea)
+            if (atlas.SheetExportSettings.ReuseIdenticalFramesArea)
             {
                 foreach (var frame in atlas.FrameList)
                 {
@@ -190,7 +190,7 @@ namespace Pixelaria.Algorithms.Packers
             int minArea = int.MaxValue;
             uint curWidth = (uint)_maxFrameWidth;
 
-            if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
+            if (atlas.SheetExportSettings.ForcePowerOfTwoDimensions)
             {
                 curWidth = Utilities.SnapToNextPowerOfTwo(curWidth);
             }
@@ -206,12 +206,12 @@ namespace Pixelaria.Algorithms.Packers
                 atlasWidth = 0;
                 atlasHeight = 0;
 
-                InternalPack(atlas.ExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, (int)curWidth, cancellationToken);
+                InternalPack(atlas.SheetExportSettings, frameBounds, ref atlasWidth, ref atlasHeight, (int)curWidth, cancellationToken);
 
                 float ratio = (float)atlasWidth / atlasHeight;
 
                 // Round up to the closest power of two
-                if (atlas.ExportSettings.ForcePowerOfTwoDimensions)
+                if (atlas.SheetExportSettings.ForcePowerOfTwoDimensions)
                 {
                     atlasWidth = Utilities.SnapToNextPowerOfTwo(atlasWidth);
                     atlasHeight = Utilities.SnapToNextPowerOfTwo(atlasHeight);
@@ -221,8 +221,8 @@ namespace Pixelaria.Algorithms.Packers
                 int area = (int)(atlasWidth * atlasHeight);
 
                 // Decide whether to swap the best sheet target width with the current one
-                if (atlas.ExportSettings.FavorRatioOverArea && Math.Abs(ratio - 1) < Math.Abs(minRatio - 1) ||
-                    !atlas.ExportSettings.FavorRatioOverArea && area < minArea)
+                if (atlas.SheetExportSettings.FavorRatioOverArea && Math.Abs(ratio - 1) < Math.Abs(minRatio - 1) ||
+                    !atlas.SheetExportSettings.FavorRatioOverArea && area < minArea)
                 {
                     minArea = area;
                     minRatio = ratio;
@@ -230,7 +230,7 @@ namespace Pixelaria.Algorithms.Packers
                 }
 
                 // Iterate the width now
-                if (atlas.ExportSettings.HighPrecisionAreaMatching)
+                if (atlas.SheetExportSettings.HighPrecisionAreaMatching)
                 {
                     curWidth++;
                 }
@@ -244,7 +244,7 @@ namespace Pixelaria.Algorithms.Packers
                 {
                     int progress = (int)((float)curWidth / _maxWidthCapped * 100);
 
-                    if (atlas.ExportSettings.FavorRatioOverArea)
+                    if (atlas.SheetExportSettings.FavorRatioOverArea)
                     {
                         progress = (int)((float)atlasWidth / atlasHeight * 100);
                     }
@@ -255,7 +255,7 @@ namespace Pixelaria.Algorithms.Packers
                 }
 
                 // Exit the loop if favoring ratio and no better ratio can be achieved
-                if (atlas.ExportSettings.FavorRatioOverArea && atlasWidth > atlasHeight)
+                if (atlas.SheetExportSettings.FavorRatioOverArea && atlasWidth > atlasHeight)
                 {
                     break;
                 }
@@ -305,16 +305,16 @@ namespace Pixelaria.Algorithms.Packers
         /// <summary>
         /// Internal atlas packer method, tailored to work with individual rectangle frames
         /// </summary>
-        /// <param name="exportSettings">The export settings to use when packing the rectangles</param>
+        /// <param name="sheetExportSettings">The export settings to use when packing the rectangles</param>
         /// <param name="rectangles">The list of frame rectangles to try to pack</param>
         /// <param name="atlasWidth">An output atlas width uint</param>
         /// <param name="atlasHeight">At output atlas height uint</param>
         /// <param name="maxWidth">The maximum width the generated sheet can have</param>
         /// <returns>An array of rectangles, where each index matches the original passed Rectangle array, and marks the final computed bounds of the rectangle frames calculated</returns>
-        private static Rectangle[] InternalPack(AnimationExportSettings exportSettings, [NotNull] Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, CancellationToken cancellationToken)
+        private static Rectangle[] InternalPack(AnimationSheetExportSettings sheetExportSettings, [NotNull] Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, CancellationToken cancellationToken)
         {
             // Cache some fields as locals
-            int x = exportSettings.XPadding;
+            int x = sheetExportSettings.XPadding;
 
             var boundsFinal = new Rectangle[rectangles.Length];
 
@@ -329,17 +329,17 @@ namespace Pixelaria.Algorithms.Packers
                 // X coordinate wrapping
                 if (x + width > maxWidth)
                 {
-                    x = exportSettings.XPadding;
+                    x = sheetExportSettings.XPadding;
                 }
 
-                var y = exportSettings.YPadding;
+                var y = sheetExportSettings.YPadding;
 
                 // Do a little trickery to find the minimum Y for this frame
-                if (x - exportSettings.XPadding < atlasWidth)
+                if (x - sheetExportSettings.XPadding < atlasWidth)
                 {
                     // Intersect the current frame rectangle with all rectangles above it, and find the maximum bottom Y coordinate between all the intersections
-                    int contactRectX = x - exportSettings.XPadding;
-                    int contactRectWidth = width + exportSettings.XPadding * 2;
+                    int contactRectX = x - sheetExportSettings.XPadding;
+                    int contactRectWidth = width + sheetExportSettings.XPadding * 2;
 
                     for (int j = 0; j < i; j++)
                     {
@@ -347,7 +347,7 @@ namespace Pixelaria.Algorithms.Packers
 
                         if (rect.X < (contactRectX + contactRectWidth) && contactRectX < (rect.X + rect.Width))
                         {
-                            y = Math.Max(y, rect.Y + rect.Height + exportSettings.YPadding);
+                            y = Math.Max(y, rect.Y + rect.Height + sheetExportSettings.YPadding);
                         }
                     }
                 }
@@ -357,16 +357,16 @@ namespace Pixelaria.Algorithms.Packers
                 ////
                 boundsFinal[i] = new Rectangle(x, y, width, height);
 
-                atlasWidth = (uint)Math.Max(atlasWidth, boundsFinal[i].X + boundsFinal[i].Width + exportSettings.XPadding);
-                atlasHeight = (uint)Math.Max(atlasHeight, boundsFinal[i].Y + boundsFinal[i].Height + exportSettings.YPadding);
+                atlasWidth = (uint)Math.Max(atlasWidth, boundsFinal[i].X + boundsFinal[i].Width + sheetExportSettings.XPadding);
+                atlasHeight = (uint)Math.Max(atlasHeight, boundsFinal[i].Y + boundsFinal[i].Height + sheetExportSettings.YPadding);
 
 
                 // X coordinate update
-                x += boundsFinal[i].Width + exportSettings.XPadding;
+                x += boundsFinal[i].Width + sheetExportSettings.XPadding;
 
                 if (x > maxWidth) // Jump to next line, at left-most corner
                 {
-                    x = exportSettings.XPadding;
+                    x = sheetExportSettings.XPadding;
                 }
             }
 

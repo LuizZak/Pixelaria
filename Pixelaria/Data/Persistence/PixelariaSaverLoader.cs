@@ -240,7 +240,7 @@ namespace Pixelaria.Data.Persistence
             var settings = LoadExportSettingsFromStream(stream, version);
 
             // Create the animation sheet
-            var sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
+            var sheet = new AnimationSheet(name) { ID = id, SheetExportSettings = settings };
 
             // Load the animation indices
             int animCount = reader.ReadInt32();
@@ -265,11 +265,11 @@ namespace Pixelaria.Data.Persistence
         /// <param name="stream">The stream to load the export settings from</param>
         /// <param name="version">The version that the stream was writter on</param>
         /// <returns>The AnimationExportSettings object loaded</returns>
-        private static AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream, int version)
+        private static AnimationSheetExportSettings LoadExportSettingsFromStream([NotNull] Stream stream, int version)
         {
             var reader = new BinaryReader(stream);
 
-            var settings = new AnimationExportSettings
+            var settings = new AnimationSheetExportSettings
             {
                 FavorRatioOverArea = reader.ReadBoolean(),
                 ForcePowerOfTwoDimensions = reader.ReadBoolean(),

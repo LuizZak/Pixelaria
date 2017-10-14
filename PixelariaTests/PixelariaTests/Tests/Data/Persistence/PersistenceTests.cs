@@ -263,7 +263,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
 
             writer.Write(sheet.ID);
             writer.Write(sheet.Name);
-            WriteExportSettingsToStream(sheet.ExportSettings, stream);
+            WriteExportSettingsToStream(sheet.SheetExportSettings, stream);
 
             // Write the id of the animations of the sheet to the stream
             var anims = sheet.Animations;
@@ -281,7 +281,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Persistence
         /// </summary>
         /// <param name="settings">The export settings to write to the stream</param>
         /// <param name="stream">The stream to write the animation sheet to</param>
-        public static void WriteExportSettingsToStream(AnimationExportSettings settings, [NotNull] Stream stream)
+        public static void WriteExportSettingsToStream(AnimationSheetExportSettings settings, [NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 

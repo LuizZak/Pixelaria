@@ -77,7 +77,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                     var settings = LoadExportSettingsFromStream(stream);
 
                     // Create the animation sheet
-                    var sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
+                    var sheet = new AnimationSheet(name) { ID = id, SheetExportSettings = settings };
 
                     // Load the animation indices
                     int animCount = reader.ReadInt32();
@@ -102,11 +102,11 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="stream">The stream to load the export settings from</param>
         /// <returns>The AnimationExportSettings object loaded</returns>
-        protected AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream)
+        protected AnimationSheetExportSettings LoadExportSettingsFromStream([NotNull] Stream stream)
         {
             var reader = new BinaryReader(stream);
 
-            var settings = new AnimationExportSettings
+            var settings = new AnimationSheetExportSettings
             {
                 FavorRatioOverArea = reader.ReadBoolean(),
                 ForcePowerOfTwoDimensions = reader.ReadBoolean(),
@@ -135,7 +135,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
             writer.Write(sheet.ID);
             writer.Write(sheet.Name);
-            SaveExportSettingsToStream(sheet.ExportSettings, stream);
+            SaveExportSettingsToStream(sheet.SheetExportSettings, stream);
 
             // Write the id of the animations of the sheet to the stream
             var anims = sheet.Animations;
@@ -153,7 +153,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         /// <param name="settings">The export settings to write to the stream</param>
         /// <param name="stream">The stream to write the animation sheet to</param>
-        protected void SaveExportSettingsToStream(AnimationExportSettings settings, [NotNull] Stream stream)
+        protected void SaveExportSettingsToStream(AnimationSheetExportSettings settings, [NotNull] Stream stream)
         {
             var writer = new BinaryWriter(stream);
 

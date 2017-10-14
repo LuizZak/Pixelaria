@@ -22,6 +22,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Reactive;
@@ -63,7 +64,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The current export settings
         /// </summary>
-        private AnimationExportSettings _exportSettings;
+        private AnimationSheetExportSettings _sheetExportSettings;
 
         /// <summary>
         /// The current bundle sheet export
@@ -103,7 +104,7 @@ namespace Pixelaria.Views.ModelViews
             CurrentSheet = sheetToEdit;
 
             if (sheetToEdit != null)
-                _exportSettings = sheetToEdit.ExportSettings;
+                _sheetExportSettings = sheetToEdit.SheetExportSettings;
 
             InitializeFiends();
             ValidateFields();
@@ -137,22 +138,22 @@ namespace Pixelaria.Views.ModelViews
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        [SuppressMessage("ReSharper", "UseNullPropagation")]
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                // ReSharper disable once UseNullPropagation
+                _reactive.Dispose();
+
                 if (components != null)
                     components.Dispose();
-
-                // ReSharper disable once UseNullPropagation
+                
                 if (_sheetCancellation != null)
                     _sheetCancellation.Dispose();
 
                 _controller.ViewModifiedChanged -= OnControllerOnViewModifiedChanged;
                 _controller.ViewOpenedClosed -= OnControllerOnViewOpenedClosed;
-
-                // ReSharper disable once UseNullPropagation
+                
                 if (_disposeBag != null)
                     _disposeBag.Dispose();
                 _disposeBag = null;
@@ -245,17 +246,17 @@ namespace Pixelaria.Views.ModelViews
 
             txt_sheetName.Text = CurrentSheet.Name;
 
-            cb_favorRatioOverArea.Checked = CurrentSheet.ExportSettings.FavorRatioOverArea;
-            cb_forcePowerOfTwoDimensions.Checked = CurrentSheet.ExportSettings.ForcePowerOfTwoDimensions;
-            cb_forceMinimumDimensions.Checked = CurrentSheet.ExportSettings.ForceMinimumDimensions;
-            cb_reuseIdenticalFrames.Checked = CurrentSheet.ExportSettings.ReuseIdenticalFramesArea;
-            cb_highPrecision.Checked = CurrentSheet.ExportSettings.HighPrecisionAreaMatching;
-            cb_allowUordering.Checked = CurrentSheet.ExportSettings.AllowUnorderedFrames;
-            cb_useUniformGrid.Checked = CurrentSheet.ExportSettings.UseUniformGrid;
-            cb_padFramesOnJson.Checked = CurrentSheet.ExportSettings.UsePaddingOnJson;
-            cb_exportJson.Checked = CurrentSheet.ExportSettings.ExportJson;
-            nud_xPadding.Value = CurrentSheet.ExportSettings.XPadding;
-            nud_yPadding.Value = CurrentSheet.ExportSettings.YPadding;
+            cb_favorRatioOverArea.Checked = CurrentSheet.SheetExportSettings.FavorRatioOverArea;
+            cb_forcePowerOfTwoDimensions.Checked = CurrentSheet.SheetExportSettings.ForcePowerOfTwoDimensions;
+            cb_forceMinimumDimensions.Checked = CurrentSheet.SheetExportSettings.ForceMinimumDimensions;
+            cb_reuseIdenticalFrames.Checked = CurrentSheet.SheetExportSettings.ReuseIdenticalFramesArea;
+            cb_highPrecision.Checked = CurrentSheet.SheetExportSettings.HighPrecisionAreaMatching;
+            cb_allowUordering.Checked = CurrentSheet.SheetExportSettings.AllowUnorderedFrames;
+            cb_useUniformGrid.Checked = CurrentSheet.SheetExportSettings.UseUniformGrid;
+            cb_padFramesOnJson.Checked = CurrentSheet.SheetExportSettings.UsePaddingOnJson;
+            cb_exportJson.Checked = CurrentSheet.SheetExportSettings.ExportJson;
+            nud_xPadding.Value = CurrentSheet.SheetExportSettings.XPadding;
+            nud_yPadding.Value = CurrentSheet.SheetExportSettings.YPadding;
 
             zpb_sheetPreview.PictureBox.MaximumZoom = new PointF(100, 100);
 
@@ -315,7 +316,7 @@ namespace Pixelaria.Views.ModelViews
                 return;
 
             CurrentSheet.Name = txt_sheetName.Text;
-            CurrentSheet.ExportSettings = RepopulateExportSettings();
+            CurrentSheet.SheetExportSettings = RepopulateExportSettings();
 
             _controller.UpdatedAnimationSheet(CurrentSheet);
 
@@ -358,21 +359,21 @@ namespace Pixelaria.Views.ModelViews
         /// Repopulates the AnimationExportSettings field of this form with the form's fields and returns it
         /// </summary>
         /// <returns>The newly repopulated AnimationExportSettings</returns>
-        public AnimationExportSettings RepopulateExportSettings()
+        public AnimationSheetExportSettings RepopulateExportSettings()
         {
-            _exportSettings.FavorRatioOverArea = cb_favorRatioOverArea.Checked;
-            _exportSettings.ForcePowerOfTwoDimensions = cb_forcePowerOfTwoDimensions.Checked;
-            _exportSettings.ForceMinimumDimensions = cb_forceMinimumDimensions.Checked;
-            _exportSettings.ReuseIdenticalFramesArea = cb_reuseIdenticalFrames.Checked;
-            _exportSettings.HighPrecisionAreaMatching = cb_highPrecision.Checked;
-            _exportSettings.AllowUnorderedFrames = cb_allowUordering.Checked;
-            _exportSettings.UseUniformGrid = cb_useUniformGrid.Checked;
-            _exportSettings.UsePaddingOnJson = cb_padFramesOnJson.Checked;
-            _exportSettings.ExportJson = cb_exportJson.Checked;
-            _exportSettings.XPadding = (int)nud_xPadding.Value;
-            _exportSettings.YPadding = (int)nud_yPadding.Value;
+            _sheetExportSettings.FavorRatioOverArea = cb_favorRatioOverArea.Checked;
+            _sheetExportSettings.ForcePowerOfTwoDimensions = cb_forcePowerOfTwoDimensions.Checked;
+            _sheetExportSettings.ForceMinimumDimensions = cb_forceMinimumDimensions.Checked;
+            _sheetExportSettings.ReuseIdenticalFramesArea = cb_reuseIdenticalFrames.Checked;
+            _sheetExportSettings.HighPrecisionAreaMatching = cb_highPrecision.Checked;
+            _sheetExportSettings.AllowUnorderedFrames = cb_allowUordering.Checked;
+            _sheetExportSettings.UseUniformGrid = cb_useUniformGrid.Checked;
+            _sheetExportSettings.UsePaddingOnJson = cb_padFramesOnJson.Checked;
+            _sheetExportSettings.ExportJson = cb_exportJson.Checked;
+            _sheetExportSettings.XPadding = (int)nud_xPadding.Value;
+            _sheetExportSettings.YPadding = (int)nud_yPadding.Value;
 
-            return _exportSettings;
+            return _sheetExportSettings;
         }
         
         private void OnControllerOnViewModifiedChanged(object sender, EventArgs args)
@@ -456,7 +457,7 @@ namespace Pixelaria.Views.ModelViews
             var sw = Stopwatch.StartNew();
 
             // Get a dynamic provider for better accuracy of animations to export
-            var provider = _controller.GetDynamicProviderForSheet(CurrentSheet, _exportSettings);
+            var provider = _controller.GetDynamicProviderForSheet(CurrentSheet, _sheetExportSettings);
 
             // Export the bundle
             var t = _controller.GenerateBundleSheet(provider, cancellation.Token, Handler);
@@ -574,7 +575,7 @@ namespace Pixelaria.Views.ModelViews
         /// <returns>The new AnimationSheet object</returns>
         public AnimationSheet GenerateAnimationSheet()
         {
-            return new AnimationSheet(txt_sheetName.Text) { ExportSettings = RepopulateExportSettings() };
+            return new AnimationSheet(txt_sheetName.Text) { SheetExportSettings = RepopulateExportSettings() };
         }
         
         /// <summary>
@@ -817,11 +818,16 @@ namespace Pixelaria.Views.ModelViews
             _autoUpdatePreview = cb_autoUpdatePreview.Checked;
         }
 
-        private class Reactive: IReactive
+        private sealed class Reactive: IReactive, IDisposable
         {
             public readonly Subject<Unit> OnChange = new Subject<Unit>();
 
             public IObservable<Unit> Change => OnChange;
+
+            public void Dispose()
+            {
+                OnChange?.Dispose();
+            }
         }
 
         /// <summary>

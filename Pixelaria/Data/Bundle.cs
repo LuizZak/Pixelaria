@@ -467,7 +467,7 @@ namespace Pixelaria.Data
             var dup = new AnimationSheet(dupName)
             {
                 ID = GetNextValidAnimationSheetID(),
-                ExportSettings = sheet.ExportSettings
+                SheetExportSettings = sheet.SheetExportSettings
             };
 
             AddAnimationSheet(dup);

@@ -80,7 +80,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Gets or sets the export settings to be used when exporting the Bundle Sheet
         /// </summary>
-        public AnimationExportSettings ExportSettings { get; private set; }
+        public AnimationSheetExportSettings SheetExportSettings { get; private set; }
 
         /// <summary>
         /// The list of animations in this BundleSheet
@@ -139,7 +139,7 @@ namespace Pixelaria.Data.Exports
             Sheet.Save(sheetPath, ImageFormat.Png);
 
             // Early quit - The json generation is disabled
-            if (!ExportSettings.ExportJson)
+            if (!SheetExportSettings.ExportJson)
                 return;
 
             SaveDescriptorToDisk(sheetPath, jsonPath);
@@ -183,15 +183,15 @@ namespace Pixelaria.Data.Exports
                     {
                         ["sheet"] = new Dictionary<string, object>
                         {
-                            ["x"] = rect.SheetArea.X - (ExportSettings.UsePaddingOnJson ? ExportSettings.XPadding / 2 : 0),
-                            ["y"] = rect.SheetArea.Y - (ExportSettings.UsePaddingOnJson ? ExportSettings.YPadding / 2 : 0),
-                            ["width"] = rect.SheetArea.Width + (ExportSettings.UsePaddingOnJson ? ExportSettings.XPadding : 0),
-                            ["height"] = rect.SheetArea.Height + (ExportSettings.UsePaddingOnJson ? ExportSettings.YPadding : 0)
+                            ["x"] = rect.SheetArea.X - (SheetExportSettings.UsePaddingOnJson ? SheetExportSettings.XPadding / 2 : 0),
+                            ["y"] = rect.SheetArea.Y - (SheetExportSettings.UsePaddingOnJson ? SheetExportSettings.YPadding / 2 : 0),
+                            ["width"] = rect.SheetArea.Width + (SheetExportSettings.UsePaddingOnJson ? SheetExportSettings.XPadding : 0),
+                            ["height"] = rect.SheetArea.Height + (SheetExportSettings.UsePaddingOnJson ? SheetExportSettings.YPadding : 0)
                         },
                         ["frame"] = new Dictionary<string, object>
                         {
-                            ["x"] = rect.FrameArea.X - (ExportSettings.UsePaddingOnJson ? ExportSettings.XPadding / 2 : 0),
-                            ["y"] = rect.FrameArea.Y - (ExportSettings.UsePaddingOnJson ? ExportSettings.YPadding / 2 : 0),
+                            ["x"] = rect.FrameArea.X - (SheetExportSettings.UsePaddingOnJson ? SheetExportSettings.XPadding / 2 : 0),
+                            ["y"] = rect.FrameArea.Y - (SheetExportSettings.UsePaddingOnJson ? SheetExportSettings.YPadding / 2 : 0),
                             ["width"] = rect.FrameArea.Width,
                             ["height"] = rect.FrameArea.Height
                         }
@@ -264,7 +264,7 @@ namespace Pixelaria.Data.Exports
             {
                 Sheet = image,
                 Atlas = atlas,
-                ExportSettings = atlas.ExportSettings,
+                SheetExportSettings = atlas.SheetExportSettings,
                 Animations = atlas.GetAnimationsOnAtlas(),
                 ReusedFrameCount = atlas.Information.ReusedFrameOriginsCount,
                 ReuseCounts = atlas.FrameList.Select(atlas.ReuseCountForFrame).ToArray(),

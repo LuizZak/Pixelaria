@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace Pixelaria.Views
         /// <summary>
         /// Delegate for a ViewOpenedClosed event
         /// </summary>
-        public delegate void ViewOpenedClosedEventDelegate(object sender, ViewOpenCloseEventArgs eventArgs);
+        public delegate void ViewOpenedClosedEventDelegate(object sender, ViewOpenCloseEventArgs e);
 
         /// <summary>
         /// Event raised when an MDI child was opened or closed on this form
@@ -120,7 +121,24 @@ namespace Pixelaria.Views
                 Controller.LoadBundleFromFile(args[0]);
             }
         }
+        
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        [SuppressMessage("ReSharper", "UseNullPropagation")]
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _reactive.Dispose();
 
+                if (components != null)
+                    components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        
         /// <summary>
         /// Loads the given bundle into this interface
         /// </summary>
@@ -1439,15 +1457,22 @@ namespace Pixelaria.Views
             Unknown
         }
 
-        private class Reactive : IReactive
+        private sealed class Reactive : IReactive, IDisposable
         {
             public readonly Subject<AnimationSheetView> OnOpenedAnimationSheetView = new Subject<AnimationSheetView>();
             public readonly Subject<AnimationView> OnOpenedAnimationView = new Subject<AnimationView>();
             public readonly Subject<Form[]> OnMdiChildrenChanged = new Subject<Form[]>();
-
+            
             public IObservable<Form[]> MdiChildrenChanged => OnMdiChildrenChanged;
             public IObservable<AnimationSheetView> OpenedAnimationSheetView => OnOpenedAnimationSheetView;
             public IObservable<AnimationView> OpenedAnimationView => OnOpenedAnimationView;
+
+            public void Dispose()
+            {
+                OnOpenedAnimationSheetView.Dispose();
+                OnOpenedAnimationView.Dispose();
+                OnMdiChildrenChanged.Dispose();
+            }
         }
 
         /// <summary>

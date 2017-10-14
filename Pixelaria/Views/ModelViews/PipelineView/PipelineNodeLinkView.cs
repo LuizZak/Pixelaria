@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,27 +20,29 @@
     base directory of this project.
 */
 
-using System;
-using System.Windows.Forms;
-using JetBrains.Annotations;
+using Pixelaria.ExportPipeline;
 
-using Pixelaria.Views.ModelViews;
-
-namespace Pixelaria
+namespace Pixelaria.Views.ModelViews.PipelineView
 {
-    static class Program
+    /// <summary>
+    /// A view for a link of a pipeline step view
+    /// </summary>
+    public class PipelineNodeLinkView : BaseView
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// The connection this link references on its parent step view
         /// </summary>
-        [STAThread]
-        static void Main([NotNull] string[] args)
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new MainForm(args));
+        public IPipelineNodeLink NodeLink { get; }
 
-            Application.Run(new ExportPipelineView());
+        /// <summary>
+        /// Gets the parent step view for this link view
+        /// </summary>
+        // ReSharper disable once AnnotateCanBeNullTypeMember
+        public PipelineNodeView NodeView => (PipelineNodeView)Parent;
+
+        public PipelineNodeLinkView(IPipelineNodeLink nodeLink)
+        {
+            NodeLink = nodeLink;
         }
     }
 }

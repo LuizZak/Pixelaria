@@ -78,12 +78,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// </summary>
         /// <param name="settings">The export settings to use in this test</param>
         /// <param name="failMessage">The message to print if the test fails</param>
-        private void TestSheetExportWithSettings(AnimationExportSettings settings, string failMessage = "Exported animation sheets should be equivalent to their original sheets")
+        private void TestSheetExportWithSettings(AnimationSheetExportSettings settings, string failMessage = "Exported animation sheets should be equivalent to their original sheets")
         {
             // In theory, if you export a sheet and import it back just the way it was described on the generated json file, it will equal the original sheet completely
             OriginalSheet = new AnimationSheet("Sheet1")
             {
-                ExportSettings = settings
+                SheetExportSettings = settings
             };
 
             for (int i = 0; i < 10; i++)
@@ -121,7 +121,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
 
             // Import it back up
             SheetFromDisk = (AnimationSheet)ImportSheetFile(jsonPath);
-            SheetFromDisk.ExportSettings = OriginalSheet.ExportSettings;
+            SheetFromDisk.SheetExportSettings = OriginalSheet.SheetExportSettings;
 
             Assert.AreEqual(OriginalSheet, SheetFromDisk, failMessage);
         }

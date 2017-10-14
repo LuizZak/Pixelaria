@@ -56,9 +56,9 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// Generates a default AnimationExportSettings object to be used when exporting animation sheets
         /// </summary>
         /// <returns>A default AnimationExportSettings object to be used when exporting animation sheets</returns>
-        public static AnimationExportSettings GenerateDefaultAnimationExportSettings()
+        public static AnimationSheetExportSettings GenerateDefaultAnimationExportSettings()
         {
-            return new AnimationExportSettings
+            return new AnimationSheetExportSettings
             {
                 FavorRatioOverArea = false,
                 ForcePowerOfTwoDimensions = false,
@@ -78,12 +78,12 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// Returns an array of value permutations for the AnimationExportSettings struct to use in tests
         /// </summary>
         /// <returns>An array of value permutations for the AnimationExportSettings struct to use in tests</returns>
-        public static AnimationExportSettings[] GetExportSettingsPermutations()
+        public static AnimationSheetExportSettings[] GetExportSettingsPermutations()
         {
-            List<AnimationExportSettings> settingsList = new List<AnimationExportSettings>
+            List<AnimationSheetExportSettings> settingsList = new List<AnimationSheetExportSettings>
             {
                 GenerateDefaultAnimationExportSettings(),
-                new AnimationExportSettings
+                new AnimationSheetExportSettings
                 {
                     FavorRatioOverArea = true,
                     ForcePowerOfTwoDimensions = false,
@@ -97,7 +97,7 @@ namespace PixelariaTests.PixelariaTests.Generators
                     XPadding = 0,
                     YPadding = 0
                 },
-                new AnimationExportSettings
+                new AnimationSheetExportSettings
                 {
                     FavorRatioOverArea = true,
                     ForcePowerOfTwoDimensions = false,
@@ -111,7 +111,7 @@ namespace PixelariaTests.PixelariaTests.Generators
                     XPadding = 0,
                     YPadding = 0
                 },
-                new AnimationExportSettings
+                new AnimationSheetExportSettings
                 {
                     FavorRatioOverArea = false,
                     ForcePowerOfTwoDimensions = true,
@@ -125,7 +125,7 @@ namespace PixelariaTests.PixelariaTests.Generators
                     XPadding = 2,
                     YPadding = 1
                 },
-                new AnimationExportSettings
+                new AnimationSheetExportSettings
                 {
                     FavorRatioOverArea = true,
                     ForcePowerOfTwoDimensions = true,
@@ -139,7 +139,7 @@ namespace PixelariaTests.PixelariaTests.Generators
                     XPadding = 2,
                     YPadding = 1
                 },
-                new AnimationExportSettings
+                new AnimationSheetExportSettings
                 {
                     FavorRatioOverArea = true,
                     ForcePowerOfTwoDimensions = false,

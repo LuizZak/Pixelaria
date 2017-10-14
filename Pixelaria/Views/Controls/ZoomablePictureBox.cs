@@ -192,7 +192,7 @@ namespace Pixelaria.Views.Controls
 
                 scale = value;
 
-                Point currentOffset = offsetPoint;
+                var currentOffset = offsetPoint;
 
                 ClipTransform();
 
@@ -704,50 +704,50 @@ namespace Pixelaria.Views.Controls
             if (form == null)
                 return;
 
-            Point p = form.PointToScreen(e.Location);
+            var p = form.PointToScreen(e.Location);
 
             p = boundsControl.PointToClient(p);
 
             // Test if the mouse is not over another control
-            Control target = form.GetChildAtPoint(e.Location);
+            var target = form.GetChildAtPoint(e.Location);
             if (target != null && target != this && !IsControlChildOf(this, target))
             {
                 return;
             }
 
-            if (boundsControl.ClientRectangle.Contains(p))
+            if (!boundsControl.ClientRectangle.Contains(p))
+                return;
+
+            var newZoom = scale;
+
+            if (ZoomFactorMode == ZoomFactorMode.Multiply)
             {
-                PointF newZoom = scale;
-
-                if (ZoomFactorMode == ZoomFactorMode.Multiply)
+                if (e.Delta > 0)
                 {
-                    if (e.Delta > 0)
-                    {
-                        newZoom.X *= ZoomFactor;
-                        newZoom.Y *= ZoomFactor;
-                    }
-                    else if (e.Delta < 0)
-                    {
-                        newZoom.X /= ZoomFactor;
-                        newZoom.Y /= ZoomFactor;
-                    }
+                    newZoom.X *= ZoomFactor;
+                    newZoom.Y *= ZoomFactor;
                 }
-                else if (ZoomFactorMode == ZoomFactorMode.Add)
+                else if (e.Delta < 0)
                 {
-                    if (e.Delta > 0)
-                    {
-                        newZoom.X += ZoomFactor;
-                        newZoom.Y += ZoomFactor;
-                    }
-                    else if (e.Delta < 0)
-                    {
-                        newZoom.X -= ZoomFactor;
-                        newZoom.Y -= ZoomFactor;
-                    }
+                    newZoom.X /= ZoomFactor;
+                    newZoom.Y /= ZoomFactor;
                 }
-
-                Zoom = newZoom;
             }
+            else if (ZoomFactorMode == ZoomFactorMode.Add)
+            {
+                if (e.Delta > 0)
+                {
+                    newZoom.X += ZoomFactor;
+                    newZoom.Y += ZoomFactor;
+                }
+                else if (e.Delta < 0)
+                {
+                    newZoom.X -= ZoomFactor;
+                    newZoom.Y -= ZoomFactor;
+                }
+            }
+
+            Zoom = newZoom;
         }
 
         /// <summary>

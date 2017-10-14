@@ -30,7 +30,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the export settings for this animation sheet
         /// </summary>
-        AnimationExportSettings ExportSettings { get; }
+        AnimationSheetExportSettings SheetExportSettings { get; }
 
         /// <summary>
         /// Gets the name of this animation provider.
@@ -55,17 +55,17 @@ namespace Pixelaria.Data
         /// <summary>
         /// Gets the export settings associated with this basic provider
         /// </summary>
-        public AnimationExportSettings ExportSettings { get; }
+        public AnimationSheetExportSettings SheetExportSettings { get; }
 
         /// <summary>
         /// Gets the display name for this basic provider
         /// </summary>
         public string Name { get; }
 
-        public BasicAnimationProvider(IAnimation[] animations, AnimationExportSettings exportSettings, string name)
+        public BasicAnimationProvider(IAnimation[] animations, AnimationSheetExportSettings sheetExportSettings, string name)
         {
             _animations = animations;
-            ExportSettings = exportSettings;
+            SheetExportSettings = sheetExportSettings;
             Name = name;
         }
 

@@ -73,7 +73,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// The export settings of this animation
         /// </summary>
-        public AnimationExportSettings ExportSettings { get; set; }
+        public AnimationSheetExportSettings SheetExportSettings { get; set; }
 
         /// <summary>
         /// Gets the list of frames for this Animation
@@ -105,7 +105,7 @@ namespace Pixelaria.Data
             
             // Create the default settings
             PlaybackSettings = new AnimationPlaybackSettings() { FPS = 30, FrameSkip = false };
-            ExportSettings = new AnimationExportSettings() { FavorRatioOverArea = false, ForceMinimumDimensions = true, ForcePowerOfTwoDimensions = false, ReuseIdenticalFramesArea = true, UsePaddingOnJson = true, AllowUnorderedFrames = true, XPadding = 0, YPadding = 0 };
+            SheetExportSettings = new AnimationSheetExportSettings() { FavorRatioOverArea = false, ForceMinimumDimensions = true, ForcePowerOfTwoDimensions = false, ReuseIdenticalFramesArea = true, UsePaddingOnJson = true, AllowUnorderedFrames = true, XPadding = 0, YPadding = 0 };
         }
 
         ~Animation()
@@ -245,7 +245,7 @@ namespace Pixelaria.Data
             var other = (Animation) obj;
 
             if (Name != other.Name || Frames == null || other.Frames == null || Frames.Count != other.Frames.Count || Width != other.Width || Height != other.Height ||
-                !ExportSettings.Equals(other.ExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings) || ID != other.ID)
+                !SheetExportSettings.Equals(other.SheetExportSettings) || !PlaybackSettings.Equals(other.PlaybackSettings) || ID != other.ID)
                 return false;
 
             // Check frame-by-frame for an innequality
