@@ -178,7 +178,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                 MarkDirtyPath();
                 return;
             }
-
+            
             var prev = new Region(_path);
 
             execute();

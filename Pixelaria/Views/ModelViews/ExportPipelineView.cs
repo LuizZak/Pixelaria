@@ -154,8 +154,11 @@ namespace Pixelaria.Views.ModelViews
 
         private readonly InternalPipelineContainer _container;
         private readonly Renderer _renderer;
-        private readonly List<ExportPipelineFeature> _features = new List<ExportPipelineFeature>();
+        private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
         private readonly Region _invalidatedRegion;
+
+        [CanBeNull]
+        private ExportPipelineUiFeature _exclusiveControl;
 
         public Point MousePoint { get; private set; }
         
@@ -170,9 +173,9 @@ namespace Pixelaria.Views.ModelViews
 
             _container.Modified += ContainerOnModified;
             
-            _features.Add(new DragAndDropFeature(this));
-            _features.Add(new ViewPanAndZoomFeature(this));
-            _features.Add(new SelectionFeature(this));
+            _features.Add(new DragAndDropUiFeature(this));
+            _features.Add(new ViewPanAndZoomUiFeature(this));
+            _features.Add(new SelectionUiFeature(this));
 
             _invalidatedRegion = new Region(new Rectangle(Point.Empty, Size));
         }
@@ -334,6 +337,47 @@ namespace Pixelaria.Views.ModelViews
         }
         
         /// <summary>
+        /// Called to grant a UI feature exclusive access to modifying UI views.
+        /// 
+        /// This is used only as a managing effort for concurrent features, and can be
+        /// entirely bypassed by a feature.
+        /// </summary>
+        private bool FeatureRequestedExclusiveControl(ExportPipelineUiFeature feature)
+        {
+            // Check if any control has exclusive access first (and isn't the requesting one)
+            var current = CurrentExclusiveControlFeature();
+            if (current != null)
+            {
+                return current == feature;
+            }
+
+            _exclusiveControl = feature;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the current feature under exclusive access, if any.
+        /// </summary>
+        [CanBeNull]
+        private ExportPipelineUiFeature CurrentExclusiveControlFeature()
+        {
+            return _exclusiveControl;
+        }
+
+        /// <summary>
+        /// If <see cref="feature"/> is under exclusive control, removes it back so no feature
+        /// is marked as exclusive control anymore.
+        /// 
+        /// Does nothing if <see cref="feature"/> is not the current control under exclusive control.
+        /// </summary>
+        private void WaiveExclusiveControl(ExportPipelineUiFeature feature)
+        {
+            if (CurrentExclusiveControlFeature() == feature)
+                _exclusiveControl = null;
+        }
+
+        /// <summary>
         /// Exposed interface for the pipeline step container of <see cref="ExportPipelineControl"/>
         /// </summary>
         public interface IPipelineContainer
@@ -433,6 +477,23 @@ namespace Pixelaria.Views.ModelViews
                 StepViews.Add(nodeView);
 
                 Modified?.Invoke(this, EventArgs.Empty);
+            }
+
+            /// <summary>
+            /// Selects the given view (if it's a valid selectable view).
+            /// 
+            /// Method may run through hierarchy to find a fit selectable view.
+            /// </summary>
+            public void AttemptSelect(BaseView view)
+            {
+                if (view is PipelineNodeView nodeView)
+                {
+                    SelectNode(nodeView.PipelineNode);
+                }
+                else if (view is PipelineNodeLinkView linkView)
+                {
+                    SelectLink(linkView.NodeLink);
+                }
             }
 
             public void SelectNode(IPipelineNode node)
@@ -559,6 +620,13 @@ namespace Pixelaria.Views.ModelViews
                 /// Gets selected node link views
                 /// </summary>
                 PipelineNodeLinkView[] NodeLinkViews();
+
+                /// <summary>
+                /// Returns whether a given view is selected.
+                /// 
+                /// Only accepts selectable view types, other types return false.
+                /// </summary>
+                bool Contains([CanBeNull] BaseView view);
             }
 
             // ReSharper disable once InconsistentNaming
@@ -585,6 +653,16 @@ namespace Pixelaria.Views.ModelViews
                         .Selection.OfType<IPipelineNodeLink>()
                         .Select(link => _container.ViewForPipelineNodeLink(link))
                         .ToArray();
+                }
+
+                public bool Contains(BaseView view)
+                {
+                    if (view is PipelineNodeView)
+                        return NodeViews().Contains(view);
+                    if (view is PipelineNodeLinkView)
+                        return NodeLinkViews().Contains(view);
+
+                    return false;
                 }
             }
         }
@@ -616,7 +694,7 @@ namespace Pixelaria.Views.ModelViews
                 // Add some temporary decorators (for selection etc.)
                 var decorators = _decorators.ToList();
                 
-                foreach (var o in _container.Selection)
+                foreach (object o in _container.Selection)
                 {
                     if (o is IPipelineNode node)
                     {
@@ -983,7 +1061,7 @@ namespace Pixelaria.Views.ModelViews
         /// 
         /// Each state modifies the final rendering state using decorators.
         /// </summary>
-        private abstract class ExportPipelineFeature
+        private abstract class ExportPipelineUiFeature
         {
             /// <summary>
             /// Control to manage
@@ -991,10 +1069,19 @@ namespace Pixelaria.Views.ModelViews
             [NotNull]
             protected readonly ExportPipelineControl Control;
 
+            /// <summary>
+            /// States whether this pipeline feature has exclusive UI control.
+            /// 
+            /// Exclusive UI control should be requested whenever a UI feature wants to do
+            /// work that modifies the position/scaling of views on screen, which could otherwise
+            /// interfere with other exclusive feature's functionalities.
+            /// </summary>
+            public bool HasExclusiveControl => Control.CurrentExclusiveControlFeature() == this;
+
             protected InternalPipelineContainer container => Control._container;
             protected BaseView root => Control._container.Root;
 
-            protected ExportPipelineFeature([NotNull] ExportPipelineControl control)
+            protected ExportPipelineUiFeature([NotNull] ExportPipelineControl control)
             {
                 Control = control;
             }
@@ -1013,9 +1100,57 @@ namespace Pixelaria.Views.ModelViews
             public virtual void OnKeyUp([NotNull] KeyEventArgs e) { }
             public virtual void OnKeyPress([NotNull] KeyPressEventArgs e) { }
             public virtual void OnPreviewKeyDown(PreviewKeyDownEventArgs e) { }
+
+            /// <summary>
+            /// Shortcut for <see cref="FeatureRequestedExclusiveControl"/>, returning whether
+            /// exclusive control was granted.
+            /// </summary>
+            protected bool RequestExclusiveControl()
+            {
+                return Control.FeatureRequestedExclusiveControl(this);
+            }
+
+            /// <summary>
+            /// Shortcut for <see cref="WaiveExclusiveControl"/>.
+            /// 
+            /// Returns exclusive control back for new requesters to pick on.
+            /// </summary>
+            protected void ReturnExclusiveControl()
+            {
+                Control.WaiveExclusiveControl(this);
+            }
+
+            /// <summary>
+            /// Returns true if any feature other than this one currently has exclusive control set.
+            /// 
+            /// Returns false, if no control currently has exclusive control.
+            /// </summary>
+            protected bool OtherFeatureHasExclusiveControl()
+            {
+                var feature = Control.CurrentExclusiveControlFeature();
+                return feature != null && feature != this;
+            }
+
+            /// <summary>
+            /// Shortcut for <see cref="FeatureRequestedExclusiveControl"/>, with a closure that
+            /// is called if access was granted.
+            /// 
+            /// Performs temporary exclusive control, resetting it back before returning.
+            /// </summary>
+            protected bool RequestTemporaryExclusiveControl(Action ifGranted)
+            {
+                bool hasAccess = RequestExclusiveControl();
+                if (hasAccess)
+                {
+                    ifGranted();
+                    Control.WaiveExclusiveControl(this);
+                }
+
+                return hasAccess;
+            }
         }
 
-        private class SelectionFeature : ExportPipelineFeature, IRenderingDecorator
+        private class SelectionUiFeature : ExportPipelineUiFeature, IRenderingDecorator
         {
             [CanBeNull]
             private MouseHoverState? _hovering;
@@ -1030,7 +1165,7 @@ namespace Pixelaria.Views.ModelViews
                 FillColor = Color.Orange.ToAhsl().WithTransparency(0.03f).ToColor()
             };
 
-            public SelectionFeature([NotNull] ExportPipelineControl control) : base(control)
+            public SelectionUiFeature([NotNull] ExportPipelineControl control) : base(control)
             {
                 control._renderer.AddDecorator(this);
             }
@@ -1048,34 +1183,30 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseDown(e);
 
-                if (e.Button != MouseButtons.Left)
+                if (OtherFeatureHasExclusiveControl() || e.Button != MouseButtons.Left)
                     return;
-
-                if ((ModifierKeys & Keys.Shift) == 0)
-                    Control._container.ClearSelection();
 
                 var closestView = root.ViewUnder(e.Location, new Vector(5));
 
-                // Selection
-                if ((ModifierKeys & Keys.Shift) == Keys.Shift || closestView == null)
-                {
-                    _isDrawingSelection = true;
-                    _mouseDown = e.Location;
+                if (!ModifierKeys.HasFlag(Keys.Shift) && !container.SelectionModel.Contains(closestView))
+                    Control._container.ClearSelection();
 
-                    _pathView.ClearPath();
-                    root.AddChild(_pathView);
+                // Selection
+                if (ModifierKeys.HasFlag(Keys.Shift) && closestView == null)
+                {
+                    if (RequestExclusiveControl())
+                    {
+                        _isDrawingSelection = true;
+                        _mouseDown = e.Location;
+
+                        _pathView.ClearPath();
+                        root.AddChild(_pathView);
+                    }
                 }
-                else
+                else if(!OtherFeatureHasExclusiveControl())
                 {
                     // Selection
-                    if (closestView is PipelineNodeView nodeView)
-                    {
-                        Control._container.SelectNode(nodeView.PipelineNode);
-                    }
-                    else if (closestView is PipelineNodeLinkView linkView)
-                    {
-                        Control._container.SelectLink(linkView.NodeLink);
-                    }
+                    container.AttemptSelect(closestView);
                 }
             }
 
@@ -1086,9 +1217,11 @@ namespace Pixelaria.Views.ModelViews
                 if (e.Button == MouseButtons.Left && _isDrawingSelection)
                 {
                     // Draw selection square
-                    var area = new AABB();
-                    area.ExpandToInclude(root.ConvertFrom(_mouseDown, null));
-                    area.ExpandToInclude(root.ConvertFrom(e.Location, null));
+                    var area = new AABB(new[]
+                    {
+                        root.ConvertFrom(_mouseDown, null),
+                        root.ConvertFrom(e.Location, null)
+                    });
                     
                     _pathView.SetAsRectangle(area);
                 }
@@ -1117,8 +1250,27 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseUp(e);
 
-                _isDrawingSelection = false;
-                _pathView.RemoveFromParent();
+                if (HasExclusiveControl)
+                {
+                    // Handle selection of new objects if user let the mouse go over a view
+                    // without moving the mouse much (click event)
+                    if (_isDrawingSelection)
+                    {
+                        if (_mouseDown.Distance(e.Location) < 3)
+                        {
+                            var view = root.ViewUnder(e.Location, new Vector(5, 5));
+                            if (view != null)
+                            {
+                                container.AttemptSelect(view);
+                            }
+                        }
+
+                        _isDrawingSelection = false;
+                        _pathView.RemoveFromParent();
+
+                        ReturnExclusiveControl();
+                    }
+                }
             }
 
             private void SetHovering([CanBeNull] BaseView view)
@@ -1201,7 +1353,7 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
-        private class DragAndDropFeature : ExportPipelineFeature
+        private class DragAndDropUiFeature : ExportPipelineUiFeature
         {
             /// <summary>
             /// List of on-going drag operations.
@@ -1212,7 +1364,7 @@ namespace Pixelaria.Views.ModelViews
 
             private Vector _mouseDownPoint;
             
-            public DragAndDropFeature([NotNull] ExportPipelineControl control) : base(control)
+            public DragAndDropUiFeature([NotNull] ExportPipelineControl control) : base(control)
             {
 
             }
@@ -1234,18 +1386,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (e.Button == MouseButtons.Left)
                 {
-                    if (_operations.Count > 0)
-                    {
-                        foreach (var operation in _operations)
-                        {
-                            operation.Finish(e.Location);
-                            operation.Dispose();
-                        }
-
-                        _operations.Clear();
-                    }
-
-                    _isDragging = false;
+                    ConcludeDragging(e.Location);
                 }
             }
 
@@ -1258,12 +1399,12 @@ namespace Pixelaria.Views.ModelViews
                     // Dragging happens when a minimum distance has been travelled
                     if (!_isDragging && _mouseDownPoint.Distance(e.Location) > 3)
                     {
-                        StartDragging(e.Location);
-                        _isDragging = true;
+                        if (RequestExclusiveControl())
+                            StartDragging(e.Location);
                     }
 
                     // Dragging
-                    if(_isDragging)
+                    if (_isDragging)
                     {
                         foreach (var operation in _operations)
                         {
@@ -1291,6 +1432,32 @@ namespace Pixelaria.Views.ModelViews
 
                     _operations.Add(operation);
                 }
+
+                _isDragging = true;
+            }
+
+            /// <summary>
+            /// Concludes all current dragging operations
+            /// </summary>
+            private void ConcludeDragging(Vector mousePosition)
+            {
+                if (!_isDragging)
+                    return;
+
+                ReturnExclusiveControl();
+
+                if (_operations.Count > 0)
+                {
+                    foreach (var operation in _operations)
+                    {
+                        operation.Finish(mousePosition);
+                        operation.Dispose();
+                    }
+
+                    _operations.Clear();
+                }
+
+                _isDragging = false;
             }
 
             /// <summary>
@@ -1298,12 +1465,19 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             private void CancelDragging()
             {
+                if (!_isDragging)
+                    return;
+
+                ReturnExclusiveControl();
+
                 foreach (var operation in _operations)
                 {
                     operation.Cancel();
                 }
 
                 _operations.Clear();
+
+                _isDragging = false;
             }
 
             /// <summary>
@@ -1384,12 +1558,12 @@ namespace Pixelaria.Views.ModelViews
                     }
                     else if (Target is PipelineNodeView view)
                     {
-                        var absolutePoint = view.Parent?.ConvertFrom(mousePosition, null) ?? mousePosition;
+                        if (ModifierKeys.HasFlag(Keys.Control))
+                            mousePosition = Vector.Round(mousePosition / 10) * 10;
 
-                        var position = absolutePoint - Offset;
+                        var absolutePoint = view.Parent?.ConvertFrom(mousePosition, null) ?? mousePosition;
                         
-                        if ((ModifierKeys & Keys.Control) != 0)
-                            position = Vector.Round(position / 10) * 10;
+                        var position = absolutePoint - Offset;
 
                         view.Location = position;
                         
@@ -1428,13 +1602,13 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
-        private class ViewPanAndZoomFeature : ExportPipelineFeature
+        private class ViewPanAndZoomUiFeature : ExportPipelineUiFeature
         {
             private Vector _dragStart;
             private Point _mouseDownPoint;
             private bool _dragging;
 
-            public ViewPanAndZoomFeature([NotNull] ExportPipelineControl control)
+            public ViewPanAndZoomUiFeature([NotNull] ExportPipelineControl control)
                 : base(control)
             {
 
@@ -1466,7 +1640,7 @@ namespace Pixelaria.Views.ModelViews
                     if (view != null)
                     {
                         root.Location = -view.Center + (Vector)Control.Size / 2 / root.Scale;
-                        Control.Invalidate();
+                        Control.InvalidateEntireRegion();
                     }
                 }
             }
@@ -1476,9 +1650,8 @@ namespace Pixelaria.Views.ModelViews
                 base.OnMouseDown(e);
 
                 _mouseDownPoint = e.Location;
-                //var point = (Vector) e.Location;
 
-                if (e.Button == MouseButtons.Middle)
+                if (e.Button == MouseButtons.Middle && RequestExclusiveControl())
                 {
                     _dragStart = root.Location - e.Location / root.Scale;
                     _dragging = true;
@@ -1503,6 +1676,8 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseUp(e);
 
+                ReturnExclusiveControl();
+
                 _dragging = false;
             }
 
@@ -1510,14 +1685,17 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseWheel(e);
 
-                var scale = root.Scale;
-                scale *= new Vector(1.0f + Math.Sign(e.Delta) * 0.1f);
-                if (scale < new Vector(0.5f))
-                    scale = new Vector(0.5f);
-                if (scale > new Vector(25f))
-                    scale = new Vector(25f);
+                if (!OtherFeatureHasExclusiveControl())
+                {
+                    var scale = root.Scale;
+                    scale *= new Vector(1.0f + Math.Sign(e.Delta) * 0.1f);
+                    if (scale < new Vector(0.5f))
+                        scale = new Vector(0.5f);
+                    if (scale > new Vector(25f))
+                        scale = new Vector(25f);
 
-                SetZoom(scale, e.Location);
+                    SetZoom(scale, e.Location);
+                }
             }
 
             private void SetZoom(Vector newZoom, Vector focusPosition, bool repositioning = true)
