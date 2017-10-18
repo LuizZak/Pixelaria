@@ -82,11 +82,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             {
                 var matrix = new Matrix();
 
-                matrix.Translate(Location.X, Location.Y);
-
-                matrix.RotateAt(Rotation, PointF.Empty);
-
                 matrix.Scale(Scale.X, Scale.Y);
+                matrix.Translate(Location.X, Location.Y);
+                matrix.RotateAt(Rotation, PointF.Empty);
 
                 return matrix;
             }
@@ -98,9 +96,21 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         protected List<BaseView> children { get; } = new List<BaseView>();
 
         /// <summary>
-        /// Returns the center point of this view's AABB.
+        /// Returns the center point of this view's AABB when projected
+        /// on the parent view.
+        /// 
+        /// If Parent == null, returns the AABB's center property.
         /// </summary>
-        public Vector Center => Bounds.Center;
+        public Vector Center
+        {
+            get
+            {
+                if (Parent == null)
+                    return Bounds.Center;
+
+                return Parent.ConvertFrom(Bounds.Center, this);
+            }
+        }
 
         /// <summary>
         /// Gets all children of this base view
@@ -197,13 +207,13 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public void AddChild([NotNull] BaseView child)
         {
             // Check recursiveness
-            var cur = child;
+            var cur = this;
             while (cur != null)
             {
-                if(cur == this)
+                if(cur == child)
                     throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
 
-                cur = child.Parent;
+                cur = cur.Parent;
             }
 
             child.Parent?.RemoveChild(child);
@@ -245,10 +255,20 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             if(child.Parent != this)
                 throw new ArgumentException(@"Child BaseView passed in is not a direct child of this base view", nameof(child));
 
-            child.MarkDirty(child.GetFullBounds());
+            MarkDirty(child.GetFullBounds().TransformedBounds(child.LocalTransform));
 
             child.Parent = null;
             children.Remove(child);
+        }
+
+        /// <summary>
+        /// If this view has a parent, it removes itself as a child of that parent view.
+        /// 
+        /// Same as calling <code>Parent?.RemoveChild(this)</code>
+        /// </summary>
+        public void RemoveFromParent()
+        {
+            Parent?.RemoveChild(this);
         }
 
         /// <summary>
@@ -344,7 +364,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             // Search children first
             foreach (var baseView in children.AsQueryable().Reverse())
             {
-                var ht = baseView.ViewUnder(absolutePoint, inflatingArea);
+                var ht = baseView.ViewUnder(absolutePoint, inflatingArea, predicate);
                 if (ht != null)
                     return ht;
             }
@@ -514,9 +534,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                 Parent.MarkDirty(region);
                 return;
             }
-
+            
             // Expand rects to deal w/ artifacts
-            var rects = region.GetRegionScans(new Matrix()).Select(r => r.Inflated(5, 5)).ToArray();
+            var rects = region.GetRegionScans(new Matrix()).Select(r => r.Inflated(3, 3)).ToArray();
 
             region.MakeEmpty();
             foreach (var rectangleF in rects)

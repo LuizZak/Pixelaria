@@ -272,12 +272,22 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             return new PointF(vec.X, vec.Y);
         }
 
-        public static explicit operator Vector(PointF vec)
+        public static implicit operator Vector(Size size)
+        {
+            return new Vector(size.Width, size.Height);
+        }
+
+        public static implicit operator Vector(SizeF size)
+        {
+            return new Vector(size.Width, size.Height);
+        }
+
+        public static implicit operator Vector(PointF vec)
         {
             return new Vector(vec.X, vec.Y);
         }
 
-        public static explicit operator Vector(Point vec)
+        public static implicit operator Vector(Point vec)
         {
             return new Vector(vec.X, vec.Y);
         }

@@ -22,12 +22,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
-
 using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
@@ -79,10 +79,10 @@ namespace Pixelaria.Views.ModelViews
                 Icon = Resources.sheet_save_icon
             };
 
-            exportPipelineControl.PipelineContainer.AddStepView(animNodeView);
-            exportPipelineControl.PipelineContainer.AddStepView(animJoinerNodeView);
-            exportPipelineControl.PipelineContainer.AddStepView(sheetNodeView);
-            exportPipelineControl.PipelineContainer.AddStepView(fileExportView);
+            exportPipelineControl.PipelineContainer.AddNodeView(animNodeView);
+            exportPipelineControl.PipelineContainer.AddNodeView(animJoinerNodeView);
+            exportPipelineControl.PipelineContainer.AddNodeView(sheetNodeView);
+            exportPipelineControl.PipelineContainer.AddNodeView(fileExportView);
 
             exportPipelineControl.PipelineContainer.AutosizeNodes();
 
@@ -151,9 +151,11 @@ namespace Pixelaria.Views.ModelViews
     
     public class ExportPipelineControl: Control
     {
+
         private readonly InternalPipelineContainer _container;
         private readonly Renderer _renderer;
         private readonly List<ExportPipelineFeature> _features = new List<ExportPipelineFeature>();
+        private readonly Region _invalidatedRegion;
 
         public Point MousePoint { get; private set; }
         
@@ -170,6 +172,9 @@ namespace Pixelaria.Views.ModelViews
             
             _features.Add(new DragAndDropFeature(this));
             _features.Add(new ViewPanAndZoomFeature(this));
+            _features.Add(new SelectionFeature(this));
+
+            _invalidatedRegion = new Region(new Rectangle(Point.Empty, Size));
         }
 
         protected override void Dispose(bool disposing)
@@ -177,9 +182,32 @@ namespace Pixelaria.Views.ModelViews
             if (disposing)
             {
                 _container.Modified -= ContainerOnModified;
+                _invalidatedRegion.Dispose();
             }
 
             base.Dispose(disposing);
+        }
+        
+        /// <summary>
+        /// Used as a replacement to calls to Invalidate().
+        /// 
+        /// This makes sure invalidated regions for next redraw operations are properly made.
+        /// </summary>
+        private void InvalidateEntireRegion()
+        {
+            InvalidateRectangle(new Rectangle(Point.Empty, Size));
+        }
+
+        /// <summary>
+        /// Used as a replacement to calls to <see cref="Control.Invalidate(Rectangle)"/>.
+        /// 
+        /// This makes sure invalidated regions for next redraw operations are properly made.
+        /// </summary>
+        private void InvalidateRectangle(Rectangle rectangle)
+        {
+            _invalidatedRegion.Union(rectangle);
+
+            Invalidate(rectangle);
         }
 
         private void ContainerOnModified(object sender, EventArgs eventArgs)
@@ -191,11 +219,20 @@ namespace Pixelaria.Views.ModelViews
         {
             base.OnPaint(e);
             
-            _renderer.Render(e.Graphics, e.ClipRectangle);
+            _renderer.Render(e.Graphics, e.ClipRectangle, _invalidatedRegion);
             foreach (var feature in _features)
                 feature.OnPaint(e);
+
+            _invalidatedRegion.MakeEmpty();
         }
         
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            
+            _invalidatedRegion.Union(new Rectangle(Point.Empty, Size));
+        }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -212,6 +249,16 @@ namespace Pixelaria.Views.ModelViews
 
             foreach (var feature in _features)
                 feature.OnMouseClick(e);
+        }
+
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            base.OnMouseDoubleClick(e);
+
+            MousePoint = e.Location;
+
+            foreach (var feature in _features)
+                feature.OnMouseDoubleClick(e);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -291,19 +338,40 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public interface IPipelineContainer
         {
-            void AddStepView(PipelineNodeView nodeView);
+            /// <summary>
+            /// Gets an array of all currently selected objects.
+            /// </summary>
+            [NotNull, ItemNotNull]
+            object[] Selection { get; }
+
+            void AddNodeView([NotNull] PipelineNodeView nodeView);
 
             /// <summary>
-            /// Retrieves the view that represent the given pipeline step within this container
+            /// Selects a given pipeline node.
             /// </summary>
-            [CanBeNull]
-            PipelineNodeView ViewForPipelineNode([NotNull] IPipelineNode step);
+            void SelectNode([NotNull] IPipelineNode node);
 
             /// <summary>
-            /// Retrieves the view that represent the given pipeline step within this container
+            /// Selects a given pipeline link.
+            /// </summary>
+            void SelectLink([NotNull] IPipelineNodeLink link);
+
+            /// <summary>
+            /// De-selects all pipeline nodes.
+            /// </summary>
+            void ClearSelection();
+
+            /// <summary>
+            /// Retrieves the view that represent the given pipeline node within this container
             /// </summary>
             [CanBeNull]
-            PipelineNodeLinkView ViewForPipelineNodeLink([NotNull] IPipelineNodeLink link);
+            PipelineNodeView ViewForPipelineNode([NotNull] IPipelineNode node);
+
+            /// <summary>
+            /// Retrieves the view that represent the given pipeline node within this container
+            /// </summary>
+            [CanBeNull]
+            PipelineNodeLinkView ViewForPipelineNodeLink([NotNull] IPipelineNodeLink node);
 
             /// <summary>
             /// Performs automatic resizing of nodes
@@ -318,39 +386,99 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private class InternalPipelineContainer : IPipelineContainer
         {
+            private readonly List<object> _selection = new List<object>();
+
+            private readonly List<PipelineNodeConnectionLineView> _connectionViews =
+                new List<PipelineNodeConnectionLineView>();
+
+            private readonly _Selection _sel;
+
+            public ISelection SelectionModel => _sel;
+
             /// <summary>
             /// Control where this pipeline container is contained in
             /// </summary>
-            public readonly Control Control;
+            private readonly ExportPipelineControl _control;
+
+            public object[] Selection => _selection.ToArray();
 
             public BaseView Root { get; } = new BaseView();
 
             public readonly List<PipelineNodeView> StepViews = new List<PipelineNodeView>();
-            private readonly List<PipelineNodeConnectionLineView> _connectionViews = new List<PipelineNodeConnectionLineView>();
 
             public event EventHandler Modified;
-
-            public InternalPipelineContainer(Control control)
+            
+            public InternalPipelineContainer(ExportPipelineControl control)
             {
-                Control = control;
+                _sel = new _Selection(this);
+
+                _control = control;
                 Root.DirtyRegionUpdated += Root_DirtyRegionUpdated;
             }
 
             private void Root_DirtyRegionUpdated(object sender, EventArgs e)
             {
-                var reg = Root.DirtyRegion.Clone();
-                // Convert to screen space first
-                reg.Transform(Root.LocalTransform);
+                using (var reg = Root.DirtyRegion.Clone())
+                {
+                    reg.Transform(Root.LocalTransform);
 
-                Control.Invalidate(reg);
+                    _control.Invalidate(reg);
+                    _control._invalidatedRegion.Union(reg);
+                }
             }
 
-            public void AddStepView([NotNull] PipelineNodeView nodeView)
+            public void AddNodeView(PipelineNodeView nodeView)
             {
                 Root.AddChild(nodeView);
                 StepViews.Add(nodeView);
 
                 Modified?.Invoke(this, EventArgs.Empty);
+            }
+
+            public void SelectNode(IPipelineNode node)
+            {
+                _selection.Add(node);
+
+                // Invalidate view region
+                var view = ViewForPipelineNode(node);
+                if (view != null)
+                    InvalidateViewRegion(view);
+            }
+
+            public void SelectLink(IPipelineNodeLink link)
+            {
+                _selection.Add(link);
+
+                // Invalidate view region
+                var view = ViewForPipelineNodeLink(link);
+                if (view != null)
+                    InvalidateViewRegion(view);
+            }
+
+            public void ClearSelection()
+            {
+                foreach (var o in _selection)
+                {
+                    if (o is IPipelineNode node)
+                    {
+                        // Invalidate view region
+                        var view = ViewForPipelineNode(node);
+                        if (view != null)
+                            InvalidateViewRegion(view);
+                    }
+                    else if (o is IPipelineNodeLink link)
+                    {
+                        // Invalidate view region
+                        var view = ViewForPipelineNodeLink(link);
+                        if (view != null)
+                        {
+                            InvalidateViewRegion(view);
+                            InvalidateViewRegion(view.NodeView);
+                        }
+                    }
+                }
+
+                _selection.Clear();
             }
 
             public void AddConnectionView([NotNull] PipelineNodeLinkView start, [NotNull] PipelineNodeLinkView end)
@@ -366,21 +494,21 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Retrieves the view that represent the given pipeline step within this container
             /// </summary>
-            public PipelineNodeView ViewForPipelineNode(IPipelineNode step)
+            public PipelineNodeView ViewForPipelineNode(IPipelineNode node)
             {
-                return StepViews.FirstOrDefault(stepView => stepView.PipelineStep == step);
+                return StepViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
             }
 
             /// <summary>
             /// Retrieves the view that represent the given pipeline step within this container
             /// </summary>
-            public PipelineNodeLinkView ViewForPipelineNodeLink(IPipelineNodeLink link)
+            public PipelineNodeLinkView ViewForPipelineNodeLink(IPipelineNodeLink node)
             {
-                if (link.Node == null)
+                if (node.Node == null)
                     return null;
 
-                return ViewForPipelineNode(link.Node)?.GetLinkViews()
-                    .FirstOrDefault(linkView => linkView.NodeLink == link);
+                return ViewForPipelineNode(node.Node)?.GetLinkViews()
+                    .FirstOrDefault(linkView => linkView.NodeLink == node);
             }
             
             /// <summary>
@@ -403,17 +531,60 @@ namespace Pixelaria.Views.ModelViews
                 var rect = view.GetFullBounds().Inflated(5, 5);
                 var screenBounds = rect.TransformedBounds(view.GetAbsoluteTransform());
 
-                Control.Invalidate(Rectangle.Round((RectangleF)screenBounds));
+                _control.InvalidateRectangle(Rectangle.Round((RectangleF) screenBounds));
             }
 
             public void AutosizeNodes()
             {
-                using (var graphics = Control.CreateGraphics())
+                using (var graphics = _control.CreateGraphics())
                 {
                     foreach (var view in StepViews)
                     {
                         view.AutoSize(graphics);
                     }
+                }
+            }
+
+            /// <summary>
+            /// For exposing selections
+            /// </summary>
+            public interface ISelection
+            {
+                /// <summary>
+                /// Gets selected node views
+                /// </summary>
+                PipelineNodeView[] NodeViews();
+
+                /// <summary>
+                /// Gets selected node link views
+                /// </summary>
+                PipelineNodeLinkView[] NodeLinkViews();
+            }
+
+            // ReSharper disable once InconsistentNaming
+            private class _Selection : ISelection
+            {
+                private readonly InternalPipelineContainer _container;
+
+                public _Selection(InternalPipelineContainer container)
+                {
+                    _container = container;
+                }
+
+                public PipelineNodeView[] NodeViews()
+                {
+                    return _container
+                        .Selection.OfType<IPipelineNode>()
+                        .Select(node => _container.ViewForPipelineNode(node))
+                        .ToArray();
+                }
+
+                public PipelineNodeLinkView[] NodeLinkViews()
+                {
+                    return _container
+                        .Selection.OfType<IPipelineNodeLink>()
+                        .Select(link => _container.ViewForPipelineNodeLink(link))
+                        .ToArray();
                 }
             }
         }
@@ -434,23 +605,55 @@ namespace Pixelaria.Views.ModelViews
             /// Control-space clip rectangle for current draw operation.
             /// </summary>
             private Rectangle ClipRectangle { get; set; }
-
+            
             public Renderer(InternalPipelineContainer container)
             {
                 _container = container;
             }
 
-            public void Render([NotNull] Graphics g, Rectangle clipRectangle)
+            public void Render([NotNull] Graphics g, Rectangle clipRectangle, [NotNull] Region clipRegion)
             {
-                ClipRectangle = clipRectangle;
+                // Add some temporary decorators (for selection etc.)
+                var decorators = _decorators.ToList();
                 
+                foreach (var o in _container.Selection)
+                {
+                    if (o is IPipelineNode node)
+                    {
+                        var view = _container.ViewForPipelineNode(node);
+                        if (view == null)
+                            continue;
+
+                        decorators.Add(new StrokeDecorator(view, 3));
+                    }
+                    else if (o is IPipelineNodeLink link)
+                    {
+                        var view = _container.ViewForPipelineNodeLink(link);
+                        if (view == null)
+                            continue;
+
+                        decorators.Add(new StrokeDecorator(view, 3));
+                        // Add a decorator for the parent node view, as well
+                        decorators.Add(new StrokeDecorator(view.NodeView, 3));
+                    }
+                }
+
+                // Start rendering
+                ClipRectangle = clipRectangle;
+
                 g.CompositingMode = CompositingMode.SourceOver;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SmoothingMode = SmoothingMode.HighQuality;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 g.CompositingQuality = CompositingQuality.HighQuality;
                 g.TextRenderingHint = TextRenderingHint.AntiAlias;
-                
+
+                // When intersecting with the clip region white line/bands start showing up
+                // when redrawing.
+                // Setting offset mode to .None when adding the clip region ensures this doesn't happen.
+                g.PixelOffsetMode = PixelOffsetMode.None;
+                g.IntersectClip(clipRegion);
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
                 g.WithTemporaryState(() =>
                 {
                     // Transform by base view's transform
@@ -460,15 +663,22 @@ namespace Pixelaria.Views.ModelViews
                     RenderBackground(g);
                     
                     // Render bezier paths
-                    var beziers = _container.Root.Children.OfType<BezierPathView>();
-                    foreach (var bezier in beziers)
+                    var beziers = _container.Root.Children.OfType<BezierPathView>().ToArray();
+                    var beziersLow = beziers.Where(b => !b.RenderOnTop);
+                    var beziersOver = beziers.Where(b => b.RenderOnTop);
+                    foreach (var bezier in beziersLow)
                     {
-                        RenderBezierView(bezier, g);
+                        RenderBezierView(bezier, g, decorators.ToArray());
                     }
 
                     foreach (var stepView in _container.StepViews)
                     {
-                        RenderStepView(stepView, g);
+                        RenderStepView(stepView, g, decorators.ToArray());
+                    }
+
+                    foreach (var bezier in beziersOver)
+                    {
+                        RenderBezierView(bezier, g, decorators.ToArray());
                     }
                 });
 
@@ -491,7 +701,7 @@ namespace Pixelaria.Views.ModelViews
 
                 var gridSize = new Vector(100, 100);
 
-                var reg = _container.Root.ConvertFrom(_container.Control.Bounds, null);
+                var reg = _container.Root.ConvertFrom(new AABB(ClipRectangle), null);
 
                 var startX = reg.Left;
                 var endX = reg.Right;
@@ -513,7 +723,7 @@ namespace Pixelaria.Views.ModelViews
                 }
             }
 
-            private void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Graphics g)
+            private void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Graphics g, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
             {
                 g.WithTemporaryState(() =>
                 {
@@ -522,7 +732,7 @@ namespace Pixelaria.Views.ModelViews
                     using (var path = new GraphicsPath())
                     {
                         var visibleArea = nodeView.GetFullBounds().Corners.Transform(nodeView.GetAbsoluteTransform()).Area();
-
+                        
                         if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
                             return;
                         
@@ -537,7 +747,7 @@ namespace Pixelaria.Views.ModelViews
                         };
 
                         // Decorate
-                        foreach (var decorator in _decorators)
+                        foreach (var decorator in decorators)
                             decorator.DecoratePipelineStep(nodeView, g, ref state);
 
                         var bounds = nodeView.Bounds;
@@ -617,7 +827,7 @@ namespace Pixelaria.Views.ModelViews
                                 };
 
                                 // Decorate
-                                foreach (var decorator in _decorators)
+                                foreach (var decorator in decorators)
                                     decorator.DecoratePipelineStepInput(nodeView, link, g, ref linkState);
 
                                 using (var pen = new Pen(linkState.StrokeColor, linkState.StrokeWidth))
@@ -646,7 +856,7 @@ namespace Pixelaria.Views.ModelViews
                                 };
 
                                 // Decorate
-                                foreach (var decorator in _decorators)
+                                foreach (var decorator in decorators)
                                     decorator.DecoratePipelineStepOutput(nodeView, link, g, ref linkState);
 
                                 using (var pen = new Pen(linkState.StrokeColor, linkState.StrokeWidth))
@@ -661,7 +871,7 @@ namespace Pixelaria.Views.ModelViews
                 });
             }
 
-            private void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] Graphics g)
+            private void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] Graphics g, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
             {
                 g.WithTemporaryState(() =>
                 {
@@ -677,12 +887,21 @@ namespace Pixelaria.Views.ModelViews
                         var state = new BezierPathViewState
                         {
                             StrokeColor = bezierView.StrokeColor,
-                            StrokeWidth = bezierView.StrokeWidth
+                            StrokeWidth = bezierView.StrokeWidth,
+                            FillColor = bezierView.FillColor
                         };
 
                         // Decorate
-                        foreach (var decorator in _decorators)
+                        foreach (var decorator in decorators)
                             decorator.DecorateBezierPathView(bezierView, g, ref state);
+
+                        if (state.FillColor != Color.Transparent)
+                        {
+                            using (var brush = new SolidBrush(state.FillColor))
+                            {
+                                g.FillPath(brush, path);
+                            }
+                        }
 
                         using (var pen = new Pen(state.StrokeColor, state.StrokeWidth))
                         {
@@ -712,6 +931,48 @@ namespace Pixelaria.Views.ModelViews
             {
                 public int StrokeWidth { get; set; }
                 public Color StrokeColor { get; set; }
+                public Color FillColor { get; set; }
+            }
+
+            /// <summary>
+            /// A basic decorator for changing stroke of views
+            /// </summary>
+            private struct StrokeDecorator : IRenderingDecorator
+            {
+                private readonly object _target;
+                private readonly int _strokeWidth;
+
+                public StrokeDecorator(object target, int strokeWidth)
+                {
+                    _target = target;
+                    _strokeWidth = strokeWidth;
+                }
+
+                public void DecoratePipelineStep(PipelineNodeView nodeView, Graphics g, ref PipelineStepViewState state)
+                {
+                    if (nodeView == _target)
+                        state.StrokeWidth = _strokeWidth;
+                }
+
+                public void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link, Graphics g,
+                    ref PipelineStepViewLinkState state)
+                {
+                    if (link == _target)
+                        state.StrokeWidth = _strokeWidth;
+                }
+
+                public void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link, Graphics g,
+                    ref PipelineStepViewLinkState state)
+                {
+                    if (link == _target)
+                        state.StrokeWidth = _strokeWidth;
+                }
+
+                public void DecorateBezierPathView(BezierPathView pathView, Graphics g, ref BezierPathViewState state)
+                {
+                    if (pathView == _target)
+                        state.StrokeWidth = _strokeWidth;
+                }
             }
         }
 
@@ -729,7 +990,8 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             [NotNull]
             protected readonly ExportPipelineControl Control;
-            
+
+            protected InternalPipelineContainer container => Control._container;
             protected BaseView root => Control._container.Root;
 
             protected ExportPipelineFeature([NotNull] ExportPipelineControl control)
@@ -740,6 +1002,7 @@ namespace Pixelaria.Views.ModelViews
             public virtual void OnPaint([NotNull] PaintEventArgs e) { }
             public virtual void OnMouseLeave([NotNull] EventArgs e) { }
             public virtual void OnMouseClick([NotNull] MouseEventArgs e) { }
+            public virtual void OnMouseDoubleClick([NotNull] MouseEventArgs e) { }
             public virtual void OnMouseDown([NotNull] MouseEventArgs e) { }
             public virtual void OnMouseUp([NotNull] MouseEventArgs e) { }
             public virtual void OnMouseMove([NotNull] MouseEventArgs e) { }
@@ -752,33 +1015,30 @@ namespace Pixelaria.Views.ModelViews
             public virtual void OnPreviewKeyDown(PreviewKeyDownEventArgs e) { }
         }
 
-        private class DragAndDropFeature : ExportPipelineFeature, IRenderingDecorator
+        private class SelectionFeature : ExportPipelineFeature, IRenderingDecorator
         {
             [CanBeNull]
             private MouseHoverState? _hovering;
-            [CanBeNull]
-            private MouseHoverState? _dragging;
 
-            private bool _alignToGrid;
+            private bool _isDrawingSelection;
+            private Vector _mouseDown;
 
-            /// <summary>
-            /// For when drawing links
-            /// </summary>
-            private readonly BezierPathView _bezierPath = new BezierPathView();
-            
-            private Vector _dragOffset;
+            // For drawing the selection outline with
+            private readonly BezierPathView _pathView = new BezierPathView
+            {
+                RenderOnTop = true,
+                FillColor = Color.Orange.ToAhsl().WithTransparency(0.03f).ToColor()
+            };
 
-            public DragAndDropFeature([NotNull] ExportPipelineControl control) : base(control)
+            public SelectionFeature([NotNull] ExportPipelineControl control) : base(control)
             {
                 control._renderer.AddDecorator(this);
-
-                root.AddChild(_bezierPath);
             }
-            
+
             public override void OnMouseLeave(EventArgs e)
             {
                 base.OnMouseLeave(e);
-                
+
                 _hovering = null;
 
                 SetHovering(null);
@@ -787,41 +1047,35 @@ namespace Pixelaria.Views.ModelViews
             public override void OnMouseDown(MouseEventArgs e)
             {
                 base.OnMouseDown(e);
-                
-                if (e.Button == MouseButtons.Left)
+
+                if (e.Button != MouseButtons.Left)
+                    return;
+
+                if ((ModifierKeys & Keys.Shift) == 0)
+                    Control._container.ClearSelection();
+
+                var closestView = root.ViewUnder(e.Location, new Vector(5));
+
+                // Selection
+                if ((ModifierKeys & Keys.Shift) == Keys.Shift || closestView == null)
                 {
-                    var closestView = root.ViewUnder((Vector)e.Location, new Vector(5));
-                    
-                    if (closestView is PipelineNodeLinkView link)
-                    {
-                        SetDragging(link, (Vector) e.Location);
-                    }
-                    else if (closestView is PipelineNodeView step)
-                    {
-                        // Start drag operation
-                        SetDragging(step, (Vector) e.Location);
-                    }
+                    _isDrawingSelection = true;
+                    _mouseDown = e.Location;
+
+                    _pathView.ClearPath();
+                    root.AddChild(_pathView);
                 }
-            }
-
-            public override void OnMouseUp(MouseEventArgs e)
-            {
-                base.OnMouseUp(e);
-
-                if (e.Button == MouseButtons.Left && _dragging != null)
+                else
                 {
-                    _bezierPath.ClearPath();
-
-                    // Create link
-                    if (_dragging.Value.View is PipelineNodeLinkView linkView)
+                    // Selection
+                    if (closestView is PipelineNodeView nodeView)
                     {
-                        var end = root.ViewUnder((Vector) e.Location, new Vector(5, 5), view => view != linkView);
-
-                        if(end is PipelineNodeLinkView endLinkView)
-                            Control._container.AddConnectionView(linkView, endLinkView);
+                        Control._container.SelectNode(nodeView.PipelineNode);
                     }
-
-                    SetDragging(null, Vector.Zero);
+                    else if (closestView is PipelineNodeLinkView linkView)
+                    {
+                        Control._container.SelectLink(linkView.NodeLink);
+                    }
                 }
             }
 
@@ -829,55 +1083,25 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseMove(e);
 
-                if (_dragging != null)
+                if (e.Button == MouseButtons.Left && _isDrawingSelection)
                 {
-                    // Dragging
-                    if (_dragging.Value.View is PipelineNodeLinkView linkView)
-                    {
-                        _bezierPath.ClearPath();
-
-                        var invalidateRect = linkView.Bounds;
-                        invalidateRect = AABB.Union(invalidateRect,
-                            new AABB(new Vector(e.Location), new Vector(e.Location)).Inflated(2, 2));
-
-                        Control.Invalidate(Rectangle.Round((RectangleF)invalidateRect.Inflated(50, 50)));
-                        
-                        var toRight = linkView.NodeLink is IPipelineOutput;
-                        
-                        var pt1 = linkView.ConvertTo(linkView.Bounds.Center, Control._container.Root);
-                        var pt4 = new Vector(Control.MousePoint) * Control._container.Root.LocalTransform.Inverted();
-                        var pt2 = new Vector(toRight ? pt1.X + 75 : pt1.X - 75, pt1.Y);
-                        var pt3 = new Vector(pt1.X, pt4.Y);
-                        
-                        _bezierPath.AddBezierPoints(pt1, pt2, pt3, pt4);
-                    }
-                    else
-                    {
-                        var view = _dragging?.View;
-                        
-                        var absolutePoint = view.Parent?.ConvertFrom((Vector)e.Location, null) ?? (Vector)e.Location;
-
-                        var position = absolutePoint - _dragOffset;
-
-                        if (_alignToGrid)
-                            position = Vector.Round(position / 10) * 10;
-
-                        view.Location = position;
-
-                        if (view is PipelineNodeView nodeView)
-                            Control._container.InvalidateConnectionViewsFor(nodeView);
-                    }
+                    // Draw selection square
+                    var area = new AABB();
+                    area.ExpandToInclude(root.ConvertFrom(_mouseDown, null));
+                    area.ExpandToInclude(root.ConvertFrom(e.Location, null));
+                    
+                    _pathView.SetAsRectangle(area);
                 }
-                else if(e.Button == MouseButtons.None)
+                else if (e.Button == MouseButtons.None)
                 {
                     // Check hovering a link view
                     var closest = Control._container.Root.ViewUnder(new Vector(e.Location), new Vector(5));
 
                     if (closest != null)
                     {
-                        if(closest is PipelineNodeView stepView)
+                        if (closest is PipelineNodeView stepView)
                             SetHovering(stepView);
-                        else if(closest is PipelineNodeLinkView linkView)
+                        else if (closest is PipelineNodeLinkView linkView)
                             SetHovering(linkView);
                         else if (closest is BezierPathView pathView)
                             SetHovering(pathView);
@@ -889,68 +1113,61 @@ namespace Pixelaria.Views.ModelViews
                 }
             }
 
-            public override void OnKeyDown(KeyEventArgs e)
+            public override void OnMouseUp(MouseEventArgs e)
             {
-                base.OnKeyDown(e);
+                base.OnMouseUp(e);
 
-                if (e.KeyCode == Keys.ControlKey)
-                    _alignToGrid = true;
-            }
-
-            public override void OnKeyUp(KeyEventArgs e)
-            {
-                base.OnKeyUp(e);
-
-                if (e.KeyCode == Keys.ControlKey)
-                    _alignToGrid = false;
-            }
-
-            private void SetDragging([CanBeNull] BaseView view, Vector mouseLoc)
-            {
-                if (view == null)
-                {
-                    _dragging = null;
-                }
-                else
-                {
-                    var localPoint = view.ConvertFrom(mouseLoc, null);
-
-                    _dragging = new MouseHoverState {View = view };
-                    _dragOffset = localPoint;
-                }
+                _isDrawingSelection = false;
+                _pathView.RemoveFromParent();
             }
 
             private void SetHovering([CanBeNull] BaseView view)
             {
                 if (_hovering?.View == view)
                     return;
-                
+
                 // Full invalidation contexts
                 if (_hovering == null && view != null)
-                    Control._container.InvalidateViewRegion(view);
-                else if (_hovering != null && view == null)
-                    Control._container.InvalidateViewRegion(_hovering.Value.View);
-                else if(_hovering != null && view != null && _hovering.Value.View != view)
                 {
-                    Control._container.InvalidateViewRegion(_hovering.Value.View);
                     Control._container.InvalidateViewRegion(view);
+
+                    if (view is PipelineNodeLinkView linkView)
+                        Control._container.InvalidateViewRegion(linkView.NodeView);
                 }
-                else if(_hovering?.View == view && view != null) // Partial invalidation contexts: In/out links
+                else if (_hovering != null && view == null)
                 {
+                    Control._container.InvalidateViewRegion(_hovering.Value.View);
+
+                    if (_hovering.Value.View is PipelineNodeLinkView linkView)
+                        Control._container.InvalidateViewRegion(linkView.NodeView);
+                }
+                else if (_hovering != null && view != null && _hovering.Value.View != view)
+                {
+                    Control._container.InvalidateViewRegion(_hovering.Value.View);
                     Control._container.InvalidateViewRegion(view);
+
+                    if (_hovering.Value.View is PipelineNodeLinkView valueView)
+                    {
+                        Control._container.InvalidateViewRegion(valueView.NodeView);
+                    }
+
+                    if (view is PipelineNodeLinkView nodeLinkView)
+                    {
+                        Control._container.InvalidateViewRegion(nodeLinkView.NodeView);
+                    }
                 }
 
                 if (view == null)
                     _hovering = null;
                 else
-                    _hovering = new MouseHoverState {View = view};
+                    _hovering = new MouseHoverState { View = view };
             }
 
             #region IRenderingDecorator
 
             public void DecoratePipelineStep(PipelineNodeView nodeView, Graphics g, ref Renderer.PipelineStepViewState state)
             {
-                if (_hovering?.View == nodeView)
+                if (_hovering?.View == nodeView || (_hovering?.View as PipelineNodeLinkView)?.NodeView == nodeView)
                     state.StrokeWidth = 3;
             }
 
@@ -984,6 +1201,233 @@ namespace Pixelaria.Views.ModelViews
             }
         }
 
+        private class DragAndDropFeature : ExportPipelineFeature
+        {
+            /// <summary>
+            /// List of on-going drag operations.
+            /// </summary>
+            private readonly List<DragOperation> _operations = new List<DragOperation>();
+            
+            private bool _isDragging;
+
+            private Vector _mouseDownPoint;
+            
+            public DragAndDropFeature([NotNull] ExportPipelineControl control) : base(control)
+            {
+
+            }
+            
+            public override void OnMouseDown(MouseEventArgs e)
+            {
+                base.OnMouseDown(e);
+                
+                if (e.Button == MouseButtons.Left)
+                {
+                    _mouseDownPoint = e.Location;
+                    _isDragging = false;
+                }
+            }
+
+            public override void OnMouseUp(MouseEventArgs e)
+            {
+                base.OnMouseUp(e);
+
+                if (e.Button == MouseButtons.Left)
+                {
+                    if (_operations.Count > 0)
+                    {
+                        foreach (var operation in _operations)
+                        {
+                            operation.Finish(e.Location);
+                            operation.Dispose();
+                        }
+
+                        _operations.Clear();
+                    }
+
+                    _isDragging = false;
+                }
+            }
+
+            public override void OnMouseMove(MouseEventArgs e)
+            {
+                base.OnMouseMove(e);
+
+                if (e.Button == MouseButtons.Left)
+                {
+                    // Dragging happens when a minimum distance has been travelled
+                    if (!_isDragging && _mouseDownPoint.Distance(e.Location) > 3)
+                    {
+                        StartDragging(e.Location);
+                        _isDragging = true;
+                    }
+
+                    // Dragging
+                    if(_isDragging)
+                    {
+                        foreach (var operation in _operations)
+                        {
+                            operation.Update(e.Location);
+                        }
+                    }
+                }
+            }
+            
+            /// <summary>
+            /// Starts dragging operations for any object selected
+            /// </summary>
+            private void StartDragging(Vector mousePosition)
+            {
+                CancelDragging();
+
+                var nodes = container.SelectionModel.NodeViews();
+                var links = container.SelectionModel.NodeLinkViews();
+
+                foreach (var node in nodes.Cast<BaseView>().Concat(links))
+                {
+                    var localPoint = node.ConvertFrom(mousePosition, null);
+
+                    var operation = new DragOperation(container, node, localPoint);
+
+                    _operations.Add(operation);
+                }
+            }
+
+            /// <summary>
+            /// Cancels on-going drag operations
+            /// </summary>
+            private void CancelDragging()
+            {
+                foreach (var operation in _operations)
+                {
+                    operation.Cancel();
+                }
+
+                _operations.Clear();
+            }
+
+            /// <summary>
+            /// Encapsulates a drag-and-drop operation so multiple can be made at the same time.
+            /// </summary>
+            private sealed class DragOperation : IDisposable
+            {
+                /// <summary>
+                /// Container used to detect drop of link connections
+                /// </summary>
+                private readonly InternalPipelineContainer _container;
+
+                private readonly Vector _startPosition;
+
+                [CanBeNull]
+                private readonly BezierPathView _linkDrawingPath;
+                
+                /// <summary>
+                /// Target object for the drag
+                /// </summary>
+                private BaseView Target { get; }
+
+                /// <summary>
+                /// The relative mouse offset off of <see cref="Target"/> when dragging started
+                /// </summary>
+                private Vector Offset { get; }
+
+                public DragOperation(InternalPipelineContainer container, BaseView target, Vector offset)
+                {
+                    Target = target;
+                    Offset = offset;
+                    _container = container;
+
+                    _startPosition = Target.Location;
+
+                    if (target is PipelineNodeLinkView)
+                    {
+                        _linkDrawingPath = new BezierPathView();
+                        container.Root.AddChild(_linkDrawingPath);
+                    }
+                }
+                
+                [SuppressMessage("ReSharper", "UseNullPropagation")]
+                public void Dispose()
+                {
+                    if (_linkDrawingPath != null)
+                    {
+                        _linkDrawingPath.RemoveFromParent();
+                        _linkDrawingPath.Dispose();
+                    }
+                }
+
+                private void UpdateLinkPreview(Vector mousePosition, [NotNull] PipelineNodeLinkView linkView)
+                {
+                    if (_linkDrawingPath != null)
+                    {
+                        _linkDrawingPath.ClearPath();
+
+                        var toRight = linkView.NodeLink is IPipelineOutput;
+
+                        var pt1 = linkView.ConvertTo(linkView.Bounds.Center, _container.Root);
+                        var pt4 = _container.Root.ConvertFrom(mousePosition, null);
+                        var pt2 = new Vector(toRight ? pt1.X + 75 : pt1.X - 75, pt1.Y);
+                        var pt3 = new Vector(pt1.X, pt4.Y);
+
+                        _linkDrawingPath.AddBezierPoints(pt1, pt2, pt3, pt4);
+                    }
+                }
+
+                /// <summary>
+                /// Updates the on-going drag operation
+                /// </summary>
+                public void Update(Vector mousePosition)
+                {
+                    if (_linkDrawingPath != null && Target is PipelineNodeLinkView linkView)
+                    {
+                        UpdateLinkPreview(mousePosition, linkView);
+                    }
+                    else if (Target is PipelineNodeView view)
+                    {
+                        var absolutePoint = view.Parent?.ConvertFrom(mousePosition, null) ?? mousePosition;
+
+                        var position = absolutePoint - Offset;
+                        
+                        if ((ModifierKeys & Keys.Control) != 0)
+                            position = Vector.Round(position / 10) * 10;
+
+                        view.Location = position;
+                        
+                        _container.InvalidateConnectionViewsFor(view);
+                    }
+                }
+
+                /// <summary>
+                /// Notifies the mouse was released on a given position
+                /// </summary>
+                public void Finish(Vector mousePosition)
+                {
+                    // Verify if we travelled enough to consider a dragging
+                    _linkDrawingPath?.ClearPath();
+
+                    // Create link, if we're dragging one
+                    if (Target is PipelineNodeLinkView linkView)
+                    {
+                        var end = _container.Root.ViewUnder(mousePosition, new Vector(5, 5), view => view != linkView);
+
+                        if (end is PipelineNodeLinkView endLinkView)
+                            _container.AddConnectionView(linkView, endLinkView);
+                    }
+                }
+
+                /// <summary>
+                /// Cancels the operation and undoes any changes
+                /// </summary>
+                public void Cancel()
+                {
+                    if (Target is PipelineNodeView)
+                        Target.Location = _startPosition;
+
+                    _linkDrawingPath?.RemoveFromParent();
+                }
+            }
+        }
+
         private class ViewPanAndZoomFeature : ExportPipelineFeature
         {
             private Vector _dragStart;
@@ -1006,10 +1450,24 @@ namespace Pixelaria.Views.ModelViews
                     if (_dragging && e.Location.Distance(_mouseDownPoint) > 5)
                         return;
                     
-                    // Zoom out around the center of the canvas
-                    var mid = root.Location + ((AABB)Control.Bounds).Size / 2;
-                    
-                    SetZoom(Vector.Unit, mid, true);
+                    SetZoom(Vector.Unit, ((AABB)Control.Bounds).Center);
+                }
+            }
+
+            public override void OnMouseDoubleClick(MouseEventArgs e)
+            {
+                base.OnMouseDoubleClick(e);
+
+                if (e.Button == MouseButtons.Left)
+                {
+                    // Zoom into a specific view
+                    var view = root.ViewUnder(e.Location, new Vector(5, 5), v => v is PipelineNodeView);
+
+                    if (view != null)
+                    {
+                        root.Location = -view.Center + (Vector)Control.Size / 2 / root.Scale;
+                        Control.Invalidate();
+                    }
                 }
             }
 
@@ -1018,11 +1476,11 @@ namespace Pixelaria.Views.ModelViews
                 base.OnMouseDown(e);
 
                 _mouseDownPoint = e.Location;
-                var point = (Vector) e.Location;
+                //var point = (Vector) e.Location;
 
-                if (e.Button == MouseButtons.Middle || root.ViewUnder(point, new Vector(10, 10)) == null)
+                if (e.Button == MouseButtons.Middle)
                 {
-                    _dragStart = root.Location - (Vector)e.Location;
+                    _dragStart = root.Location - e.Location / root.Scale;
                     _dragging = true;
                 }
             }
@@ -1035,9 +1493,9 @@ namespace Pixelaria.Views.ModelViews
                 {
                     var point = (Vector)e.Location;
                     
-                    root.Location = point + _dragStart;
-                    
-                    Control.Invalidate();
+                    root.Location = _dragStart + point / root.Scale;
+
+                    Control.InvalidateEntireRegion();
                 }
             }
 
@@ -1053,37 +1511,29 @@ namespace Pixelaria.Views.ModelViews
                 base.OnMouseWheel(e);
 
                 var scale = root.Scale;
-                scale *= new Vector(1.0f + Math.Sign(e.Delta) * 0.05f);
+                scale *= new Vector(1.0f + Math.Sign(e.Delta) * 0.1f);
                 if (scale < new Vector(0.5f))
                     scale = new Vector(0.5f);
-                if (scale > new Vector(5f))
-                    scale = new Vector(5f);
+                if (scale > new Vector(25f))
+                    scale = new Vector(25f);
 
-                SetZoom(scale, (Vector)e.Location);
+                SetZoom(scale, e.Location);
             }
 
             private void SetZoom(Vector newZoom, Vector focusPosition, bool repositioning = true)
             {
-                // Get mouse loc in view
-                var oldScale = root.Scale;
-                
+                var priorPivot = root.ConvertFrom(focusPosition, null);
+
                 root.Scale = newZoom;
 
                 if (repositioning)
                 {
-                    var pivot = focusPosition;
+                    var afterPivot = root.ConvertFrom(focusPosition, null);
 
-                    // Correct positioning
-                    var currentOffset = root.Location;
-
-                    currentOffset -= pivot;
-                    currentOffset = currentOffset * (root.Scale / oldScale);
-                    currentOffset += pivot;
-
-                    root.Location = currentOffset;
+                    root.Location += afterPivot - priorPivot;
                 }
 
-                Control.Invalidate();
+                Control.InvalidateEntireRegion();
             }
         }
 

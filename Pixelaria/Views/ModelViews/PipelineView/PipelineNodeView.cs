@@ -38,7 +38,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         private readonly List<PipelineNodeLinkView> _outputs = new List<PipelineNodeLinkView>();
         private Image _icon;
 
-        public string Name => PipelineStep.Name;
+        public string Name => PipelineNode.Name;
 
         /// <summary>
         /// Gets or sets the display color for this step view.
@@ -67,14 +67,14 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             }
         }
 
-        public IPipelineNode PipelineStep { get; }
+        public IPipelineNode PipelineNode { get; }
 
-        public PipelineNodeView(IPipelineNode pipelineStep)
+        public PipelineNodeView(IPipelineNode pipelineNode)
         {
             Font = new Font(FontFamily.GenericSansSerif, 10);
 
-            PipelineStep = pipelineStep;
-            Color = DefaultColorForPipelineStep(pipelineStep);
+            PipelineNode = pipelineNode;
+            Color = DefaultColorForPipelineStep(pipelineNode);
             
             ReloadLinkViews();
         }
@@ -103,8 +103,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             }
 
             // Create inputs
-            var inputs = (PipelineStep as IPipelineStep)?.Input ?? (PipelineStep as IPipelineEnd)?.Input ?? new IPipelineInput[0];
-            var outputs = (PipelineStep as IPipelineStep)?.Output ?? new IPipelineOutput[0];
+            var inputs = (PipelineNode as IPipelineStep)?.Input ?? (PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
+            var outputs = (PipelineNode as IPipelineStep)?.Output ?? new IPipelineOutput[0];
 
             for (var i = 0; i < inputs.Count; i++)
             {
@@ -127,8 +127,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         private void PositionLinkViews()
         {
-            var inputs = (PipelineStep as IPipelineStep)?.Input ?? (PipelineStep as IPipelineEnd)?.Input ?? new IPipelineInput[0];
-            var outputs = (PipelineStep as IPipelineStep)?.Output ?? new IPipelineOutput[0];
+            var inputs = (PipelineNode as IPipelineStep)?.Input ?? (PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
+            var outputs = (PipelineNode as IPipelineStep)?.Output ?? new IPipelineOutput[0];
 
             const int linkSize = 10;
 
