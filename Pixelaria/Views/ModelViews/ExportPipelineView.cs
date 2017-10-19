@@ -1608,7 +1608,7 @@ namespace Pixelaria.Views.ModelViews
                     if (!_isDragging && _mouseDownPoint.Distance(e.Location) > 3)
                     {
                         if (RequestExclusiveControl())
-                            StartDragging(e.Location);
+                            StartDragging(_mouseDownPoint);
                     }
 
                     // Dragging
