@@ -48,6 +48,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public Vector Center => (Minimum + Maximum) / 2;
 
         /// <summary>
+        /// Returns the area of this AABB by multiplying its width by its height
+        /// </summary>
+        public float Area => Size.X * Size.Y;
+
+        /// <summary>
         /// Alias for Minimum.Y
         /// </summary>
         public float Top => Minimum.Y;

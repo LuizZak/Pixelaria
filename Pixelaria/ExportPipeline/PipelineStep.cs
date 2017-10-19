@@ -175,11 +175,10 @@ namespace Pixelaria.ExportPipeline
             {
                 foreach (var input in other.Input)
                 {
-                    if (input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType)))
-                    {
-                        input.Connect(output);
-                        return true;
-                    }
+                    if (!input.CanConnect(output)) continue;
+
+                    input.Connect(output);
+                    return true;
                 }
             }
 
@@ -198,15 +197,25 @@ namespace Pixelaria.ExportPipeline
             {
                 foreach (var input in other.Input)
                 {
-                    if (input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType)))
-                    {
-                        input.Connect(output);
-                        return true;
-                    }
+                    if (!input.CanConnect(output)) continue;
+
+                    input.Connect(output);
+                    return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns whether a pipeline input can be connected to an output.
+        /// 
+        /// The method looks through the proper data types accepted by the input and the data type
+        /// of the output to make the decision.
+        /// </summary>
+        public static bool CanConnect([NotNull] this IPipelineInput input, IPipelineOutput output)
+        {
+            return input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType));
         }
     }
 
@@ -460,7 +469,7 @@ namespace Pixelaria.ExportPipeline
 
         public object[] GetMetadata()
         {
-            throw new NotImplementedException();
+            return new object[0];
         }
 
         public sealed class FileExportPipelineInput : IPipelineInput

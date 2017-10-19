@@ -69,9 +69,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Whether to force rendering this bezier path view on top of all other views.
         /// 
-        /// Used at discretion of Renderer, and may be ignored.
+        /// Used at discretion of Renderer, and may be ignored by it.
         /// </summary>
         public bool RenderOnTop { get; set; } = false;
+
         /// <summary>
         /// The fill color of this bezier path.
         /// 
@@ -184,6 +185,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         private void MarkDirtyPath()
         {
+            if (Math.Abs(Bounds.Area) < float.Epsilon)
+                return;
+
             MarkDirty(Bounds);
         }
     }

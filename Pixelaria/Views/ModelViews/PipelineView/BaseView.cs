@@ -377,9 +377,13 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public IEnumerable<BaseView> ViewsUnder(Vector point, Vector inflatingArea)
         {
             // Search children first
-            foreach (var baseView in children.AsQueryable().Reverse())
-            foreach (var view in baseView.ViewsUnder(point * baseView.LocalTransform.Inverted(), inflatingArea))
-                yield return view;
+            for (var i = children.Count - 1; i >= 0; i--)
+            {
+                var baseView = children[i];
+
+                foreach (var view in baseView.ViewsUnder(point * baseView.LocalTransform.Inverted(), inflatingArea))
+                    yield return view;
+            }
 
             // Test this instance now
             if (Contains(point, inflatingArea))
