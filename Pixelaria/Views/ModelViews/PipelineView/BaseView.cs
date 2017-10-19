@@ -37,7 +37,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
-    public class BaseView : IDisposable
+    public class BaseView
     {
         private Vector _size;
         private Vector _location;
@@ -180,27 +180,20 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         }
 
         /// <summary>
+        /// The stroke color of this bezier path
+        /// </summary>
+        public virtual Color StrokeColor { get; set; } = Color.Black;
+
+        /// <summary>
+        /// The width of the line for this bezier path view
+        /// </summary>
+        public virtual int StrokeWidth { get; set; } = 1;
+
+        /// <summary>
         /// Returns the local bounds of this view, with 0 x 0 mapping to its local top-left pixel
         /// </summary>
         public virtual AABB Bounds => new AABB(Vector.Zero, Size);
-
-        ~BaseView()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            
-        }
-
+        
         /// <summary>
         /// Adds a base view as the child of this base view.
         /// </summary>
@@ -270,7 +263,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             Parent?.RemoveChild(this);
         }
-
+        
         /// <summary>
         /// Performs a hit test operation on the area of this, and all child
         /// base views, for the given absolute coordinates point.
@@ -285,20 +278,18 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [CanBeNull]
         public BaseView HitTestClosest(Vector point, Vector inflatingArea)
         {
-            var absolutePoint = point * LocalTransform.Inverted();
-
             BaseView closestV = null;
             float closestD = float.PositiveInfinity;
 
             // Search children first
             foreach (var baseView in children.AsQueryable().Reverse())
             {
-                var ht = baseView.HitTestClosest(absolutePoint, inflatingArea);
+                var ht = baseView.HitTestClosest(point * baseView.LocalTransform.Inverted(), inflatingArea);
                 if (ht != null)
                 {
                     var center = ht.ConvertTo(ht.Bounds.Center, this);
 
-                    var distance = center.Distance(absolutePoint);
+                    var distance = center.Distance(point);
                     if (distance < closestD)
                     {
                         closestV = ht;
@@ -308,8 +299,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             }
             
             // Test this instance now
-            if (Bounds.Inflated(inflatingArea).Contains(absolutePoint) &&
-                Bounds.Center.Distance(absolutePoint) < closestD)
+            if (Contains(point, inflatingArea) &&
+                Bounds.Center.Distance(point) < closestD)
                 closestV = this;
 
             return closestV;
@@ -327,12 +318,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [CanBeNull]
         public BaseView ViewUnder(Vector point, Vector inflatingArea)
         {
-            var absolutePoint = point * LocalTransform.Inverted();
-            
             // Search children first
             foreach (var baseView in children.AsQueryable().Reverse())
             {
-                var ht = baseView.ViewUnder(absolutePoint, inflatingArea);
+                var ht = baseView.ViewUnder(point * baseView.LocalTransform.Inverted(), inflatingArea);
                 if (ht != null)
                 {
                     return ht;
@@ -340,7 +329,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             }
 
             // Test this instance now
-            if (IntersectsThis(absolutePoint, inflatingArea))
+            if (Contains(point, inflatingArea))
                 return this;
 
             return null;
@@ -359,18 +348,16 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [CanBeNull]
         public BaseView ViewUnder(Vector point, Vector inflatingArea, Func<BaseView, bool> predicate)
         {
-            var absolutePoint = point * LocalTransform.Inverted();
-
             // Search children first
             foreach (var baseView in children.AsQueryable().Reverse())
             {
-                var ht = baseView.ViewUnder(absolutePoint, inflatingArea, predicate);
+                var ht = baseView.ViewUnder(point * baseView.LocalTransform.Inverted(), inflatingArea, predicate);
                 if (ht != null)
                     return ht;
             }
 
             // Test this instance now
-            if (IntersectsThis(absolutePoint, inflatingArea) && predicate(this))
+            if (Contains(point, inflatingArea) && predicate(this))
                 return this;
 
             return null;
@@ -389,27 +376,78 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [NotNull]
         public IEnumerable<BaseView> ViewsUnder(Vector point, Vector inflatingArea)
         {
-            var absolutePoint = point * LocalTransform.Inverted();
-
             // Search children first
             foreach (var baseView in children.AsQueryable().Reverse())
-            foreach (var view in baseView.ViewsUnder(absolutePoint, inflatingArea))
+            foreach (var view in baseView.ViewsUnder(point * baseView.LocalTransform.Inverted(), inflatingArea))
                 yield return view;
 
             // Test this instance now
-            if (IntersectsThis(absolutePoint, inflatingArea))
+            if (Contains(point, inflatingArea))
                 yield return this;
+        }
+
+        /// <summary>
+        /// Returns an enumerable of all views that cross the given AABB bounds.
+        /// 
+        /// The <see cref="inflatingArea"/> argument can be used to inflate the
+        /// area of the views to perform less precise hit tests.
+        /// 
+        /// The AABB is converted into local bounds for each subview, so distortion may
+        /// occur and result in inaccurate results for views that are rotated. There are 
+        /// no alternatives for this, currently.
+        /// </summary>
+        /// <param name="aabb">AABB to test</param>
+        /// <param name="inflatingArea">Used to inflate the area of the views to perform less precise hit tests.</param>
+        /// <returns>An enumerable where each view returned intersects the given AABB.</returns>
+        [ItemNotNull]
+        [NotNull]
+        public IEnumerable<BaseView> ViewsUnder(AABB aabb, Vector inflatingArea)
+        {
+            // Search children first
+            foreach (var baseView in children.AsQueryable().Reverse())
+            foreach (var view in baseView.ViewsUnder(aabb.TransformedBounds(baseView.LocalTransform.Inverted()), inflatingArea))
+                yield return view;
+
+            // Test this instance now
+            if (Intersects(aabb, inflatingArea))
+                yield return this;
+        }
+
+        /// <summary>
+        /// Returns true if the given vector point intersects this view's area.
+        /// 
+        /// Children views' bounds do not affect the hit test- it happens only on this view's AABB area.
+        /// </summary>
+        /// <param name="point">Point to test</param>
+        public virtual bool Contains(Vector point)
+        {
+            return Contains(point, Vector.Zero);
         }
 
         /// <summary>
         /// Returns true if the given vector point intersects this view's area when
         /// inflated by a specified ammount.
+        /// 
+        /// Children views' bounds do not affect the hit test- it happens only on this view's AABB area.
         /// </summary>
         /// <param name="point">Point to test</param>
         /// <param name="inflatingArea">Used to inflate the area of the view to perform less precise hit tests.</param>
-        public virtual bool IntersectsThis(Vector point, Vector inflatingArea)
+        public virtual bool Contains(Vector point, Vector inflatingArea)
         {
             return Bounds.Inflated(inflatingArea).Contains(point);
+        }
+
+        /// <summary>
+        /// Returns true if the given AABB intersects this view's area when
+        /// inflated by a specified ammount.
+        /// 
+        /// Children views' bounds do not affect the hit test- it happens only on this view's AABB area.
+        /// </summary>
+        /// <param name="aabb">AABB to test</param>
+        /// <param name="inflatingArea">Used to inflate the area of the view to perform less precise hit tests.</param>
+        public virtual bool Intersects(AABB aabb, Vector inflatingArea)
+        {
+            return Bounds.Inflated(inflatingArea).Intersects(aabb);
         }
 
         /// <summary>

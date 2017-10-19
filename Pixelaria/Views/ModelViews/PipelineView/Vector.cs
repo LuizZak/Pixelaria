@@ -33,7 +33,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// Represents a 2D vector with X and Y components.
     /// </summary>
     [DebuggerDisplay("{X}, {Y}")]
-    public struct Vector : IEquatable<Vector>
+    public struct Vector : IEquatable<Vector>, IComparable<Vector>
     {
         /// <summary>
         /// A Zero vector (0, 0)
@@ -252,6 +252,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             return new Vector(vec1.X / vec2.X, vec1.Y / vec2.Y);
         }
 
+        public static Vector operator %(Vector vec1, Vector vec2)
+        {
+            return new Vector(vec1.X % vec2.X, vec1.Y % vec2.Y);
+        }
+
         public static Vector operator -(Vector vec)
         {
             return new Vector(-vec.X, -vec.Y);
@@ -292,6 +297,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             return new Vector(vec.X, vec.Y);
         }
 
+        public int CompareTo(Vector other)
+        {
+            int xComparison = X.CompareTo(other.X);
+            return xComparison != 0 ? xComparison : Y.CompareTo(other.Y);
+        }
+
         public bool Equals(Vector other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y);
@@ -302,7 +313,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             if (ReferenceEquals(null, obj)) return false;
             return obj is Vector && Equals((Vector)obj);
         }
-
+        
         public override int GetHashCode()
         {
             unchecked

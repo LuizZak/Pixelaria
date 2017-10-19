@@ -35,11 +35,36 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     public class BezierPathView : BaseView
     {
         private readonly GraphicsPath _path = new GraphicsPath();
-        private Color _strokeColor = Color.Orange;
         private Color _fillColor = Color.Transparent;
-        private int _strokeWidth = 2;
 
         public override AABB Bounds => _path.GetBounds().Inflated(StrokeWidth, StrokeWidth);
+
+        /// <summary>
+        /// The stroke color of this bezier path
+        /// </summary>
+        public sealed override Color StrokeColor
+        {
+            set
+            {
+                base.StrokeColor = value;
+
+                MarkDirtyPath();
+            }
+        }
+
+        /// <summary>
+        /// The width of the line for this bezier path view
+        /// </summary>
+        public sealed override int StrokeWidth
+        {
+            set
+            {
+                MarkingDirtyRegion(() =>
+                {
+                    base.StrokeWidth = value;
+                });
+            }
+        }
 
         /// <summary>
         /// Whether to force rendering this bezier path view on top of all other views.
@@ -47,21 +72,6 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// Used at discretion of Renderer, and may be ignored.
         /// </summary>
         public bool RenderOnTop { get; set; } = false;
-
-        /// <summary>
-        /// The stroke color of this bezier path
-        /// </summary>
-        public Color StrokeColor
-        {
-            get => _strokeColor;
-            set
-            {
-                _strokeColor = value;
-
-                MarkDirtyPath();
-            }
-        }
-
         /// <summary>
         /// The fill color of this bezier path.
         /// 
@@ -78,29 +88,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             }
         }
 
-        /// <summary>
-        /// The width of the line for this bezier path view
-        /// </summary>
-        public int StrokeWidth
+        public BezierPathView()
         {
-            get => _strokeWidth;
-            set
-            {
-                MarkingDirtyRegion(() =>
-                {
-                    _strokeWidth = value;
-                });
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _path.Dispose();
-            }
-
-            base.Dispose(disposing);
+            StrokeColor = Color.Orange;
+            StrokeWidth = 2;
         }
 
         /// <summary>
@@ -157,7 +148,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             });
         }
 
-        public override bool IntersectsThis(Vector point, Vector inflatingArea)
+        public override bool Contains(Vector point, Vector inflatingArea)
         {
             using (var pen = new Pen(StrokeColor, StrokeWidth + inflatingArea.X))
             {
@@ -222,8 +213,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var center1 = Start.ConvertTo(Start.Bounds.Center, this);
             var center2 = End.ConvertTo(End.Bounds.Center, this);
 
-            var startToRight = Start.NodeLink is IPipelineOutput;
-            var endToRight   = End.NodeLink is IPipelineOutput;
+            bool startToRight = Start.NodeLink is IPipelineOutput;
+            bool endToRight   = End.NodeLink is IPipelineOutput;
 
             var pt1 = center1;
             var pt4 = center2;

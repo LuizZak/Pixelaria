@@ -210,23 +210,6 @@ namespace Pixelaria.ExportPipeline
         }
     }
 
-    public static class ObsExt
-    {
-        public static IObservable<T> Debug<T>(this IObservable<T> obs)
-        {
-            return obs.Do(next =>
-            {
-                System.Diagnostics.Debug.WriteLine($"OnNext: {next}");
-            }, error =>
-            {
-                System.Diagnostics.Debug.WriteLine($"OnError: {error}");
-            }, () =>
-            {
-                System.Diagnostics.Debug.WriteLine("OnCompleted");
-            });
-        }
-    }
-
     /// <summary>
     /// Base abstract pipeline step to start subclassing and specializing pipeline steps
     /// </summary>
@@ -733,6 +716,24 @@ namespace Pixelaria.ExportPipeline
         public override object[] GetMetadata()
         {
             return new object[0];
+        }
+    }
+
+    // TODO: Test stuff - remove me later
+    public static class ObsExt
+    {
+        public static IObservable<T> Debug<T>(this IObservable<T> obs)
+        {
+            return obs.Do(next =>
+            {
+                System.Diagnostics.Debug.WriteLine($"OnNext: {next}");
+            }, error =>
+            {
+                System.Diagnostics.Debug.WriteLine($"OnError: {error}");
+            }, () =>
+            {
+                System.Diagnostics.Debug.WriteLine("OnCompleted");
+            });
         }
     }
 }
