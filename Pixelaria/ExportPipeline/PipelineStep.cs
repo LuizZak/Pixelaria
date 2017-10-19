@@ -104,6 +104,12 @@ namespace Pixelaria.ExportPipeline
         IPipelineNode Node { get; }
 
         /// <summary>
+        /// An identifying name for this link on its parent pipeline step
+        /// </summary>
+        [NotNull]
+        string Name { get; }
+
+        /// <summary>
         /// Gets specific metadata for this pipeline connection
         /// </summary>
         [CanBeNull]
@@ -261,6 +267,7 @@ namespace Pixelaria.ExportPipeline
         {
             private readonly BehaviorSubject<Animation> _output;
 
+            public string Name { get; } = "Animation";
             public IPipelineNode Node { get; }
             public Type DataType => typeof(Animation);
 
@@ -476,6 +483,7 @@ namespace Pixelaria.ExportPipeline
         {
             private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
 
+            public string Name { get; } = "Generated Sprite Sheet";
             public IPipelineNode Node { get; }
 
             public Type[] DataTypes { get; } = {typeof(BundleSheetExport)};
@@ -514,7 +522,8 @@ namespace Pixelaria.ExportPipeline
     public abstract class AbstractSinglePipelineInput<T> : IPipelineInput
     {
         private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
-        
+
+        public string Name { get; protected set; } = "";
         public IPipelineNode Node { get; }
         public Type[] DataTypes => new[] { typeof(T) };
         public IPipelineOutput[] Connections => _connections.ToArray();
@@ -564,14 +573,15 @@ namespace Pixelaria.ExportPipeline
         [NotNull]
         public IObservable<T> Source;
 
+        public string Name { get; protected set; } = "";
+        public IPipelineNode Node { get; }
+        public Type DataType => typeof(T);
+
         protected AbstractPipelineOutput([NotNull] IPipelineNode step, [NotNull] IObservable<T> source)
         {
             Node = step;
             Source = source;
         }
-
-        public IPipelineNode Node { get; }
-        public Type DataType => typeof(T);
 
         public IObservable<object> GetConnection()
         {
@@ -584,18 +594,20 @@ namespace Pixelaria.ExportPipeline
     /// <summary>
     /// A simple output source that feeds a single static value on every subscription.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of object output by this static pipeline output</typeparam>
     public class StaticPipelineOutput<T> : IPipelineOutput
     {
         private readonly T _value;
-
+        
+        public virtual string Name { get; }
         public IPipelineNode Node { get; } = null;
 
         public Type DataType { get; } = typeof(T);
 
-        public StaticPipelineOutput(T value)
+        public StaticPipelineOutput(T value, string name)
         {
             _value = value;
+            Name = name;
         }
 
         public IObservable<object> GetConnection()
@@ -622,7 +634,7 @@ namespace Pixelaria.ExportPipeline
     {
         public SheetSettingsInput([NotNull] IPipelineNode step) : base(step)
         {
-
+            Name = "Sprite Sheet Settings";
         }
 
         public override object[] GetMetadata()
@@ -639,7 +651,7 @@ namespace Pixelaria.ExportPipeline
         public BundleSheetExportOutput([NotNull] IPipelineNode step, [NotNull] IObservable<BundleSheetExport> source)
             : base(step, source)
         {
-
+            Name = "Generated Sprite Sheet";
         }
 
         public override object[] GetMetadata()
@@ -655,7 +667,7 @@ namespace Pixelaria.ExportPipeline
     {
         public AnimationInput([NotNull] IPipelineNode step) : base(step)
         {
-
+            Name = "Animation";
         }
 
         public override object[] GetMetadata()
@@ -671,7 +683,7 @@ namespace Pixelaria.ExportPipeline
     {
         public AnimationsInput([NotNull] IPipelineNode step) : base(step)
         {
-
+            Name = "Animations";
         }
 
         public override object[] GetMetadata()
@@ -687,7 +699,7 @@ namespace Pixelaria.ExportPipeline
     {
         public AnimationsOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Animation[]> source) : base(step, source)
         {
-
+            Name = "Animations";
         }
 
         public override object[] GetMetadata()
@@ -703,7 +715,7 @@ namespace Pixelaria.ExportPipeline
     {
         public PipelineBitmapInput([NotNull] IPipelineNode step) : base(step)
         {
-
+            Name = "Bitmap";
         }
 
         public override object[] GetMetadata()
@@ -719,7 +731,7 @@ namespace Pixelaria.ExportPipeline
     {
         public PipelineBitmapOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Bitmap> source) : base(step, source)
         {
-
+            Name = "Bitmap";
         }
 
         public override object[] GetMetadata()

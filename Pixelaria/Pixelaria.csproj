@@ -519,6 +519,8 @@
     </Compile>
     <Compile Include="Views\ModelViews\PipelineView\AABB.cs" />
     <Compile Include="Views\ModelViews\PipelineView\BezierPathView.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\GraphLayout.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\LabelView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeLinkView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\Vector.cs" />

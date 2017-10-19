@@ -607,7 +607,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// After the action block is finished, marks the parent view as dirty on both the before
         /// and after regions after transforming the view with the given action block.
         /// </summary>
-        private void PerformMarkingDirty([NotNull] Action action)
+        protected void PerformMarkingDirty([NotNull] Action action)
         {
             // Prepare invalidation area on parent
             var parent = Parent;

@@ -34,6 +34,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// </summary>
     public class PipelineNodeView : BaseView
     {
+        private const float LinkSize = 10;
+        private const float LinkSeparation = 23;
+
         private readonly List<PipelineNodeLinkView> _inputs = new List<PipelineNodeLinkView>();
         private readonly List<PipelineNodeLinkView> _outputs = new List<PipelineNodeLinkView>();
         private Image _icon;
@@ -82,7 +85,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public void AutoSize([NotNull] Graphics g)
         {
             var nameSize = g.MeasureString(Name, Font);
-            var vertLinkSize = Math.Max(GetInputViews().Length, GetOutputViews().Length) * 35;
+            int vertLinkSize = (int)(Math.Max(GetInputViews().Length, GetOutputViews().Length) * (LinkSize + LinkSeparation * 1.5f));
 
             if (Icon != null)
                 nameSize.Width += Icon.Width + 5;
@@ -130,8 +133,6 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var inputs = (PipelineNode as IPipelineStep)?.Input ?? (PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
             var outputs = (PipelineNode as IPipelineStep)?.Output ?? new IPipelineOutput[0];
 
-            const int linkSize = 10;
-
             var contentArea = GetContentArea();
 
             var topLeft = new Vector(contentArea.Left, contentArea.Top);
@@ -139,8 +140,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var topRight = new Vector(contentArea.Right, contentArea.Top);
             var botRight = new Vector(contentArea.Right, contentArea.Bottom);
 
-            var ins = AlignedBoxesAcrossEdge(inputs.Count, new Vector(linkSize), topLeft, botLeft, (int)(linkSize * 1.5));
-            var outs = AlignedBoxesAcrossEdge(outputs.Count, new Vector(linkSize), topRight, botRight, (int)(linkSize * 1.5));
+            var ins = AlignedBoxesAcrossEdge(inputs.Count, new Vector(LinkSize), topLeft, botLeft, LinkSeparation);
+            var outs = AlignedBoxesAcrossEdge(outputs.Count, new Vector(LinkSize), topRight, botRight, LinkSeparation);
 
             for (var i = 0; i < inputs.Count; i++)
             {

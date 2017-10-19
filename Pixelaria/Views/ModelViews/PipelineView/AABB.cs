@@ -36,6 +36,13 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     // ReSharper disable once InconsistentNaming
     public struct AABB : IEquatable<AABB>
     {
+        /// <summary>
+        /// Gets an AABB that has zero bounds area.
+        /// 
+        /// AABB has minimum and maximum == Vector.Zero, and is Valid.
+        /// </summary>
+        public static readonly AABB Empty = new AABB(Vector.Zero, Vector.Zero);
+
         public readonly Vector Minimum;
         public readonly Vector Maximum;
         public readonly State Validity;
@@ -92,6 +99,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                     Minimum, new Vector(Maximum.X, Minimum.Y), Maximum, new Vector(Minimum.X, Maximum.Y)
                 };
             }
+        }
+
+        public AABB(float left, float top, float bottom, float right)
+            : this(new Vector(left, top), new Vector(left + right, top + bottom))
+        {
+
         }
 
         public AABB(Vector minimum, Vector maximum)
@@ -360,6 +373,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             return Corners.Transform(matrix).Area();
         }
 
+        [Pure]
+        public AABB Inset(InsetBounds inset)
+        {
+            return inset.Inset(this);
+        }
+
         public bool Equals(AABB other)
         {
             return Minimum.Equals(other.Minimum) && Maximum.Equals(other.Maximum) && Validity == other.Validity;
@@ -409,6 +428,33 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             Invalid,
             Valid
+        }
+    }
+
+    /// <summary>
+    /// Specifies left-top-bottom-right regions to expand AABB and RectangleF's with.
+    /// </summary>
+    public struct InsetBounds
+    {
+        public static readonly InsetBounds Empty = new InsetBounds(0, 0, 0, 0);
+
+        public readonly float Left;
+        public readonly float Top;
+        public readonly float Bottom;
+        public readonly float Right;
+
+        public InsetBounds(float left, float top, float bottom, float right)
+        {
+            Bottom = bottom;
+            Right = right;
+            Left = left;
+            Top = top;
+        }
+
+        [Pure]
+        public AABB Inset(AABB aabb)
+        {
+            return aabb.OffsetBy(Left, Top).WithSize(aabb.Width - Right, aabb.Height - Bottom);
         }
     }
 }

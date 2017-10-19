@@ -127,7 +127,7 @@ namespace Pixelaria.Views.ModelViews
                 HighPrecisionAreaMatching = false, ReuseIdenticalFramesArea = false
             };
 
-            var sheetSettingsOutput = new StaticPipelineOutput<AnimationSheetExportSettings>(exportSettings);
+            var sheetSettingsOutput = new StaticPipelineOutput<AnimationSheetExportSettings>(exportSettings, "Sheet Export Settings");
 
             var sheetStep = new SpriteSheetGenerationPipelineStep();
 
@@ -887,6 +887,7 @@ namespace Pixelaria.Views.ModelViews
                     g.MultiplyTransform(_container.Root.LocalTransform);
 
                     // Render bezier paths
+                    var labels = _container.Root.Children.OfType<LabelView>().ToArray();
                     var beziers = _container.Root.Children.OfType<BezierPathView>().ToArray();
                     var beziersLow = beziers.Where(b => !b.RenderOnTop);
                     var beziersOver = beziers.Where(b => b.RenderOnTop);
@@ -903,6 +904,11 @@ namespace Pixelaria.Views.ModelViews
                     foreach (var bezier in beziersOver)
                     {
                         RenderBezierView(bezier, g, decorators.ToArray());
+                    }
+
+                    foreach (var label in labels.Where(l => l.Visible))
+                    {
+                        RenderLabelView(label, g, decorators.ToArray());
                     }
                 });
 
@@ -923,67 +929,6 @@ namespace Pixelaria.Views.ModelViews
             public void PushTemporaryDecorator(IRenderingDecorator decorator)
             {
                 _temporaryDecorators.Add(decorator);
-            }
-
-            private void RenderBackground([NotNull] Graphics g)
-            {
-                g.CompositingMode = CompositingMode.SourceCopy;
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.CompositingQuality = CompositingQuality.HighSpeed;
-                g.PixelOffsetMode = PixelOffsetMode.None;
-
-                var backColor = Color.FromArgb(255, 25, 25, 25);
-
-                g.Clear(backColor);
-
-                var scale = _container.Root.Scale;
-                var gridOffset = _container.Root.Location * _container.Root.Scale;
-
-                // Raw, non-transformed target grid separation.
-                var baseGridSize = new Vector(100, 100);
-
-                // Scale grid to increments of baseGridSize over zoom step.
-                var largeGridSize = Vector.Round(baseGridSize * scale);
-                var smallGridSize = largeGridSize / 10;
-
-                var reg = new RectangleF(PointF.Empty, _control.Size);
-                
-                float startX = gridOffset.X % largeGridSize.X - largeGridSize.X;
-                float endX = reg.Right;
-
-                float startY = gridOffset.Y % largeGridSize.Y - largeGridSize.Y;
-                float endY = reg.Bottom;
-                
-                // Draw small grid (when zoomed in enough)
-                if (scale > new Vector(1.5f, 1.5f))
-                {
-                    using (var gridPen = new Pen(Color.FromArgb(40, 40, 40), 0))
-                    {
-                        for (var x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
-                        {
-                            g.DrawLine(gridPen, (int)x, (int)reg.Top, (int)x, (int)reg.Bottom);
-                        }
-
-                        for (var y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
-                        {
-                            g.DrawLine(gridPen, (int)reg.Left, (int)y, (int)reg.Right, (int)y);
-                        }
-                    }
-                }
-
-                // Draw large grid on top
-                using (var gridPen = new Pen(Color.FromArgb(50, 50, 50), 0))
-                {
-                    for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
-                    {
-                        g.DrawLine(gridPen, (int)x, (int)reg.Top, (int)x, (int)reg.Bottom);
-                    }
-
-                    for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
-                    {
-                        g.DrawLine(gridPen, (int)reg.Left, (int)y, (int)reg.Right, (int)y);
-                    }
-                }
             }
 
             private void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Graphics g, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
@@ -1174,6 +1119,113 @@ namespace Pixelaria.Views.ModelViews
                 });
             }
 
+            private void RenderLabelView([NotNull] LabelView labelView, [NotNull] Graphics g, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
+            {
+                g.WithTemporaryState(() =>
+                {
+                    g.MultiplyTransform(labelView.LocalTransform);
+
+                    var visibleArea =
+                        labelView
+                            .GetFullBounds().Corners
+                            .Transform(labelView.GetAbsoluteTransform()).Area();
+
+                    if (!ClipRectangle.IntersectsWith((Rectangle) visibleArea))
+                        return;
+
+                    var state = new LabelViewState
+                    {
+                        StrokeColor = labelView.StrokeColor,
+                        StrokeWidth = labelView.StrokeWidth,
+                        TextColor = labelView.TextColor,
+                        BackgroundColor = labelView.BackgroundColor
+                    };
+
+                    // Decorate
+                    foreach (var decorator in decorators)
+                        decorator.DecorateLabelView(labelView, g, ref state);
+
+                    using (var pen = new Pen(state.StrokeColor, state.StrokeWidth))
+                    using (var brush = new SolidBrush(state.BackgroundColor))
+                    using (var path = new GraphicsPath())
+                    {
+                        path.AddRoundedRectangle((RectangleF)labelView.Bounds, 5);
+
+                        g.FillPath(brush, path);
+                        g.DrawPath(pen, path);
+                    }
+
+                    if (state.TextColor != Color.Transparent)
+                    {
+                        using (var brush = new SolidBrush(state.TextColor))
+                        {
+                            g.DrawString(labelView.Text, labelView.TextFont, brush, labelView.TextBounds.Minimum);
+                        }
+                    }
+                });
+            }
+
+            private void RenderBackground([NotNull] Graphics g)
+            {
+                g.CompositingMode = CompositingMode.SourceCopy;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+                g.PixelOffsetMode = PixelOffsetMode.None;
+
+                var backColor = Color.FromArgb(255, 25, 25, 25);
+
+                g.Clear(backColor);
+
+                var scale = _container.Root.Scale;
+                var gridOffset = _container.Root.Location * _container.Root.Scale;
+
+                // Raw, non-transformed target grid separation.
+                var baseGridSize = new Vector(100, 100);
+
+                // Scale grid to increments of baseGridSize over zoom step.
+                var largeGridSize = Vector.Round(baseGridSize * scale);
+                var smallGridSize = largeGridSize / 10;
+
+                var reg = new RectangleF(PointF.Empty, _control.Size);
+
+                float startX = gridOffset.X % largeGridSize.X - largeGridSize.X;
+                float endX = reg.Right;
+
+                float startY = gridOffset.Y % largeGridSize.Y - largeGridSize.Y;
+                float endY = reg.Bottom;
+
+                // Draw small grid (when zoomed in enough)
+                if (scale > new Vector(1.5f, 1.5f))
+                {
+                    using (var gridPen = new Pen(Color.FromArgb(40, 40, 40), 0))
+                    {
+                        for (var x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
+                        {
+                            g.DrawLine(gridPen, (int)x, (int)reg.Top, (int)x, (int)reg.Bottom);
+                        }
+
+                        for (var y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
+                        {
+                            g.DrawLine(gridPen, (int)reg.Left, (int)y, (int)reg.Right, (int)y);
+                        }
+                    }
+                }
+
+                // Draw large grid on top
+                using (var gridPen = new Pen(Color.FromArgb(50, 50, 50), 0))
+                {
+                    for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
+                    {
+                        g.DrawLine(gridPen, (int)x, (int)reg.Top, (int)x, (int)reg.Bottom);
+                    }
+
+                    for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
+                    {
+                        g.DrawLine(gridPen, (int)reg.Left, (int)y, (int)reg.Right, (int)y);
+                    }
+                }
+            }
+
             public struct PipelineStepViewState
             {
                 public int StrokeWidth { get; set; }
@@ -1195,6 +1247,14 @@ namespace Pixelaria.Views.ModelViews
                 public int StrokeWidth { get; set; }
                 public Color StrokeColor { get; set; }
                 public Color FillColor { get; set; }
+            }
+
+            public struct LabelViewState
+            {
+                public int StrokeWidth { get; set; }
+                public Color StrokeColor { get; set; }
+                public Color TextColor { get; set; }
+                public Color BackgroundColor { get; set; }
             }
         }
 
@@ -1552,6 +1612,11 @@ namespace Pixelaria.Views.ModelViews
                     state.StrokeWidth += 2;
             }
 
+            public void DecorateLabelView(LabelView pathView, Graphics g, ref Renderer.LabelViewState state)
+            {
+                
+            }
+
             #endregion
 
             private struct MouseHoverState
@@ -1567,7 +1632,8 @@ namespace Pixelaria.Views.ModelViews
             /// List of on-going drag operations.
             /// </summary>
             private readonly List<IDragOperation> _operations = new List<IDragOperation>();
-            
+
+            private bool _isMouseDown;
             private bool _isDragging;
 
             private Vector _mouseDownPoint;
@@ -1585,12 +1651,15 @@ namespace Pixelaria.Views.ModelViews
                 {
                     _mouseDownPoint = e.Location;
                     _isDragging = false;
+                    _isMouseDown = true;
                 }
             }
 
             public override void OnMouseUp(MouseEventArgs e)
             {
                 base.OnMouseUp(e);
+
+                _isMouseDown = false;
 
                 if (e.Button == MouseButtons.Left)
                 {
@@ -1602,7 +1671,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseMove(e);
 
-                if (e.Button == MouseButtons.Left)
+                if (_isMouseDown && e.Button == MouseButtons.Left)
                 {
                     // Dragging happens when a minimum distance has been travelled
                     if (!_isDragging && _mouseDownPoint.Distance(e.Location) > 3)
@@ -1846,6 +1915,8 @@ namespace Pixelaria.Views.ModelViews
                 private readonly BezierPathView[] _linkDrawingPaths;
                 [NotNull, ItemNotNull]
                 private readonly BezierPathView[] _linkConnectingPaths;
+                [NotNull, ItemNotNull]
+                private readonly LabelView[] _linkConnectionLabels;
 
                 /// <summary>
                 /// Target objects for dragging
@@ -1862,6 +1933,7 @@ namespace Pixelaria.Views.ModelViews
 
                     _linkDrawingPaths = new BezierPathView[linkViews.Length];
                     _linkConnectingPaths = new BezierPathView[linkViews.Length];
+                    _linkConnectionLabels = new LabelView[linkViews.Length];
                     for (int i = 0; i < linkViews.Length; i++)
                     {
                         var pathView = new BezierPathView();
@@ -1871,6 +1943,18 @@ namespace Pixelaria.Views.ModelViews
                         var connectionView = new BezierPathView {RenderOnTop = true};
                         container.Root.AddChild(connectionView);
                         _linkConnectingPaths[i] = connectionView;
+
+                        var label = new LabelView
+                        {
+                            TextColor = Color.White,
+                            BackgroundColor = Color.Black.Fade(Color.Transparent, 0.1f, true),
+                            Text = "",
+                            Visible = false,
+                            TextInsetBounds = new InsetBounds(5, 5, 5, 5)
+                        };
+
+                        container.Root.AddChild(label);
+                        _linkConnectionLabels[i] = label;
                     }
                 }
 
@@ -1890,7 +1974,7 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 private void UpdateLinkPreview([NotNull] PipelineNodeLinkView linkView, [NotNull] PipelineNodeLinkView targetLinkView,
-                    [NotNull] BezierPathView pathView, [NotNull] BezierPathView connectView)
+                    [NotNull] BezierPathView pathView, [NotNull] BezierPathView connectView, [NotNull] LabelView labelView)
                 {
                     pathView.ClearPath();
                     connectView.ClearPath();
@@ -1907,6 +1991,19 @@ namespace Pixelaria.Views.ModelViews
 
                     connectView.AddRectangle(connectView.ConvertFrom(targetLinkView.Bounds, targetLinkView).Inflated(3, 3));
                     connectView.AddRectangle(connectView.ConvertFrom(targetLinkView.NodeView.GetTitleArea(), targetLinkView.NodeView).Inflated(3, 3));
+
+                    if (targetLinkView.NodeLink.Node != null)
+                    {
+                        labelView.Text = targetLinkView.NodeLink.Name;
+
+                        float xOffset = isEndToRight
+                            ? -targetLinkView.Bounds.Width / 2 - labelView.Bounds.Width - 5
+                            : targetLinkView.Bounds.Width / 2 + 5;
+
+                        labelView.Location =
+                            _container.Root.ConvertFrom(targetLinkView.Bounds.Center, targetLinkView) +
+                            new Vector(xOffset, -labelView.Bounds.Height / 2);
+                    }
                 }
 
                 /// <summary>
@@ -1924,12 +2021,20 @@ namespace Pixelaria.Views.ModelViews
                         var linkView = LinkViews[i];
                         var path = _linkDrawingPaths[i];
                         var connectView = _linkConnectingPaths[i];
+                        var labelView = _linkConnectionLabels[i];
                         var target = targetLinks[i];
 
                         if (target != null)
-                            UpdateLinkPreview(linkView, target, path, connectView);
+                        {
+                            labelView.Visible = true;
+
+                            UpdateLinkPreview(linkView, target, path, connectView, labelView);
+                        }
                         else
                         {
+                            labelView.Visible = false;
+                            labelView.Location = Vector.Zero;
+
                             connectView.ClearPath();
                             UpdateLinkPreview(linkView, mousePosition, path);
                         }
@@ -1941,11 +2046,7 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Finish(Vector mousePosition)
                 {
-                    for (var i = 0; i < _linkDrawingPaths.Length; i++)
-                    {
-                        _linkDrawingPaths[i].RemoveFromParent();
-                        _linkConnectingPaths[i].RemoveFromParent();
-                    }
+                    RemoveAuxiliaryViews();
 
                     var rootPosition = _container.Root.ConvertFrom(mousePosition, null);
 
@@ -1965,9 +2066,16 @@ namespace Pixelaria.Views.ModelViews
                 /// </summary>
                 public void Cancel()
                 {
-                    foreach (var path in _linkDrawingPaths)
+                    RemoveAuxiliaryViews();
+                }
+
+                private void RemoveAuxiliaryViews()
+                {
+                    for (var i = 0; i < _linkDrawingPaths.Length; i++)
                     {
-                        path.RemoveFromParent();
+                        _linkDrawingPaths[i].RemoveFromParent();
+                        _linkConnectingPaths[i].RemoveFromParent();
+                        _linkConnectionLabels[i].RemoveFromParent();
                     }
                 }
             }
@@ -2085,6 +2193,8 @@ namespace Pixelaria.Views.ModelViews
 
             void DecorateBezierPathView([NotNull] BezierPathView pathView, Graphics g,
                 ref Renderer.BezierPathViewState state);
+
+            void DecorateLabelView([NotNull] LabelView pathView, Graphics g, ref Renderer.LabelViewState state);
         }
     }
 }
