@@ -220,10 +220,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             bool startToRight = Start.NodeLink is IPipelineOutput;
             bool endToRight   = End.NodeLink is IPipelineOutput;
 
+            float maxSep = Math.Min(75, Math.Abs(center1.Distance(center2)));
+
             var pt1 = center1;
             var pt4 = center2;
-            var pt2 = new Vector(startToRight ? pt1.X + 75 : pt1.X - 75, pt1.Y);
-            var pt3 = new Vector(endToRight ? pt4.X + 75 : pt4.X - 75, pt4.Y);
+            var pt2 = new Vector(startToRight ? pt1.X + maxSep : pt1.X - maxSep, pt1.Y);
+            var pt3 = new Vector(endToRight ? pt4.X + maxSep : pt4.X - maxSep, pt4.Y);
 
             ClearPath();
             AddBezierPoints(pt1, pt2, pt3, pt4);

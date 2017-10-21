@@ -22,10 +22,9 @@
 
 using System.Drawing.Drawing2D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Views.ModelViews;
 using Pixelaria.Views.ModelViews.PipelineView;
 
-namespace PixelariaTests.PixelariaTests.Views.ModelViews
+namespace PixelariaTests.PixelariaTests.Views.ModelViews.PipelineView
 {
     /// <summary>
     /// Tests for BaseView class

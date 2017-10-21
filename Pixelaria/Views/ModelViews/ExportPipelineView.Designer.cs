@@ -28,9 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportPipelineView));
             this.exportPipelineControl = new Pixelaria.Views.ModelViews.ExportPipelineControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.tsb_sortSelected = new System.Windows.Forms.ToolStripButton();
+            this.tab_open = new System.Windows.Forms.ToolStripButton();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -48,7 +51,9 @@
             // 
             this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1});
+            this.tab_open,
+            this.toolStripButton1,
+            this.tsb_sortSelected});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(1181, 25);
@@ -62,6 +67,26 @@
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton1.Text = "Add Animation";
+            // 
+            // tsb_sortSelected
+            // 
+            this.tsb_sortSelected.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsb_sortSelected.Image = ((System.Drawing.Image)(resources.GetObject("tsb_sortSelected.Image")));
+            this.tsb_sortSelected.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_sortSelected.Name = "tsb_sortSelected";
+            this.tsb_sortSelected.Size = new System.Drawing.Size(79, 22);
+            this.tsb_sortSelected.Text = "&Sort Selected";
+            this.tsb_sortSelected.Click += new System.EventHandler(this.tsb_sortSelected_Click);
+            // 
+            // tab_open
+            // 
+            this.tab_open.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tab_open.Image = global::Pixelaria.Properties.Resources.document_open;
+            this.tab_open.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tab_open.Name = "tab_open";
+            this.tab_open.Size = new System.Drawing.Size(23, 22);
+            this.tab_open.Text = "toolStripButton2";
+            this.tab_open.Click += new System.EventHandler(this.tab_open_Click);
             // 
             // ExportPipelineView
             // 
@@ -85,5 +110,7 @@
         private ExportPipelineControl exportPipelineControl;
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton tsb_sortSelected;
+        private System.Windows.Forms.ToolStripButton tab_open;
     }
 }

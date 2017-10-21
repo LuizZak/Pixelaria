@@ -51,16 +51,65 @@ namespace Pixelaria.Utils
         /// </summary>
         public static void WithTemporaryState([NotNull] this Graphics g, [NotNull, InstantHandle] Action action)
         {
-            GraphicsState state = null;
+            var compositing = g.CompositingMode;
+            var interpolationMode = g.InterpolationMode;
+            var pixelOffsetMode = g.PixelOffsetMode;
+            var smoothingMode = g.SmoothingMode;
+            var textRenderingHint = g.TextRenderingHint;
+            var compositingQuality = g.CompositingQuality;
+            int textContrast = g.TextContrast;
+            var transform = g.Transform;
+            
             try
             {
-                state = g.Save();
                 action();
             }
             finally
             {
-                if (state != null)
-                    g.Restore(state);
+                g.CompositingMode = compositing;
+                g.InterpolationMode = interpolationMode;
+                g.PixelOffsetMode = pixelOffsetMode;
+                g.SmoothingMode = smoothingMode;
+                g.TextRenderingHint = textRenderingHint;
+                g.CompositingQuality = compositingQuality;
+                g.TextContrast = textContrast;
+                g.Transform = transform;
+            }
+        }
+
+        /// <summary>
+        /// Performs a set of changes on an action block that reset the Graphics object to its previous
+        /// Graphics State afterwards.
+        /// </summary>
+        public static void WithTemporaryClippingState([NotNull] this Graphics g, [NotNull] Region clip, [NotNull, InstantHandle] Action action)
+        {
+            var compositing = g.CompositingMode;
+            var interpolationMode = g.InterpolationMode;
+            var pixelOffsetMode = g.PixelOffsetMode;
+            var smoothingMode = g.SmoothingMode;
+            var textRenderingHint = g.TextRenderingHint;
+            var compositingQuality = g.CompositingQuality;
+            int textContrast = g.TextContrast;
+            var transform = g.Transform;
+            var region = g.Clip;
+
+            try
+            {
+                action();
+            }
+            finally
+            {
+                g.CompositingMode = compositing;
+                g.InterpolationMode = interpolationMode;
+                g.PixelOffsetMode = pixelOffsetMode;
+                g.SmoothingMode = smoothingMode;
+                g.TextRenderingHint = textRenderingHint;
+                g.CompositingQuality = compositingQuality;
+                g.TextContrast = textContrast;
+                g.Transform = transform;
+                g.Clip = region;
+                region.Dispose();
+                clip.Dispose();
             }
         }
 

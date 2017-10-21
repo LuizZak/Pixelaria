@@ -37,7 +37,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
-    public class BaseView
+    public class BaseView : IEquatable<BaseView>
     {
         private Vector _size;
         private Vector _location;
@@ -376,18 +376,31 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [NotNull]
         public IEnumerable<BaseView> ViewsUnder(Vector point, Vector inflatingArea)
         {
+            var views = new List<BaseView>();
+
+            InternalViewsUnder(point, inflatingArea, views);
+
+            return views;
+        }
+
+        private void InternalViewsUnder(Vector point, Vector inflatingArea, ICollection<BaseView> target)
+        {
             // Search children first
             for (var i = children.Count - 1; i >= 0; i--)
             {
                 var baseView = children[i];
 
-                foreach (var view in baseView.ViewsUnder(point * baseView.LocalTransform.Inverted(), inflatingArea))
-                    yield return view;
+                var vector = point * baseView.LocalTransform.Inverted();
+                // Early out this view
+                if (!baseView.Contains(vector, inflatingArea))
+                    continue;
+
+                baseView.InternalViewsUnder(vector, inflatingArea, target);
             }
 
             // Test this instance now
             if (Contains(point, inflatingArea))
-                yield return this;
+                target.Add(this);
         }
 
         /// <summary>
@@ -407,14 +420,29 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [NotNull]
         public IEnumerable<BaseView> ViewsUnder(AABB aabb, Vector inflatingArea)
         {
+            var views = new List<BaseView>();
+            InternalViewsUnder(aabb, inflatingArea, views);
+
+            return views;
+        }
+        
+        private void InternalViewsUnder(AABB aabb, Vector inflatingArea, ICollection<BaseView> target)
+        {
             // Search children first
             foreach (var baseView in children.AsQueryable().Reverse())
-            foreach (var view in baseView.ViewsUnder(aabb.TransformedBounds(baseView.LocalTransform.Inverted()), inflatingArea))
-                yield return view;
+            {
+                var transformed = aabb.TransformedBounds(baseView.LocalTransform.Inverted());
+
+                // Early-out the view
+                if (!baseView.Intersects(transformed, inflatingArea))
+                    continue;
+
+                baseView.InternalViewsUnder(transformed, inflatingArea, target);
+            }
 
             // Test this instance now
             if (Intersects(aabb, inflatingArea))
-                yield return this;
+                target.Add(this);
         }
 
         /// <summary>
@@ -636,6 +664,25 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         protected virtual void OnResize()
         {
             
+        }
+
+        public bool Equals(BaseView other)
+        {
+            return ReferenceEquals(this, other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((BaseView) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
+            return base.GetHashCode();
         }
     }
 }

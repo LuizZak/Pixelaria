@@ -32,7 +32,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// <summary>
     /// A basic view for a single pipeline step
     /// </summary>
-    public class PipelineNodeView : BaseView
+    public class PipelineNodeView : BaseView, IEquatable<PipelineNodeView>
     {
         private const float LinkSize = 10;
         private const float LinkSeparation = 23;
@@ -243,6 +243,24 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                 return Color.Beige;
 
             return Color.White;
+        }
+
+        public bool Equals(PipelineNodeView other)
+        {
+            return base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((PipelineNodeView) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

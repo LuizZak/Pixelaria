@@ -181,6 +181,9 @@ namespace Pixelaria.ExportPipeline
             {
                 foreach (var input in other.Input)
                 {
+                    if (input.Connections.Contains(output))
+                        continue;
+
                     if (!input.CanConnect(output)) continue;
 
                     input.Connect(output);
@@ -203,6 +206,9 @@ namespace Pixelaria.ExportPipeline
             {
                 foreach (var input in other.Input)
                 {
+                    if (input.Connections.Contains(output))
+                        continue;
+
                     if (!input.CanConnect(output)) continue;
 
                     input.Connect(output);
