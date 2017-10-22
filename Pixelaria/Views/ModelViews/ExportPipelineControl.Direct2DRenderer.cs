@@ -548,61 +548,68 @@ namespace Pixelaria.Views.ModelViews
                 var backColor = Color.FromArgb(255, 25, 25, 25);
                 renderingState.D2DRenderTarget.Clear(backColor.ToColor4());
 
-                var scale = _container.Root.Scale;
-                var gridOffset = _container.Root.Location * _container.Root.Scale;
-
-                // Raw, non-transformed target grid separation.
-                var baseGridSize = new Vector(100, 100);
-
-                // Scale grid to increments of baseGridSize over zoom step.
-                var largeGridSize = Vector.Round(baseGridSize * scale);
-                var smallGridSize = largeGridSize / 10;
-
-                var reg = new RectangleF(PointF.Empty, _control.Size);
-
-                float startX = gridOffset.X % largeGridSize.X - largeGridSize.X;
-                float endX = reg.Right;
-
-                float startY = gridOffset.Y % largeGridSize.Y - largeGridSize.Y;
-                float endY = reg.Bottom;
-
-                var smallGridColor = Color.FromArgb(40, 40, 40).ToColor4();
-                var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
-
-                // Draw small grid (when zoomed in enough)
-                if (scale > new Vector(1.5f, 1.5f))
+                renderingState.PushingTransform(() =>
                 {
-                    using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
+                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(_container.Root.GetAbsoluteTransform().Elements);
+
+                    var topLeft = _container.Root.ConvertFrom(Vector.Zero, null);
+
+                    var scale = Vector.Unit;
+                    var gridOffset = topLeft;
+
+                    // Raw, non-transformed target grid separation.
+                    var baseGridSize = new Vector(100, 100);
+
+                    // Scale grid to increments of baseGridSize over zoom step.
+                    var largeGridSize = Vector.Round(baseGridSize * scale);
+                    var smallGridSize = largeGridSize / 10;
+
+                    var reg = new RectangleF(topLeft, new SizeF(_control.Size / _container.Root.Scale));
+
+                    float startX = gridOffset.X;
+                    float endX = reg.Right;
+
+                    float startY = gridOffset.Y;
+                    float endY = reg.Bottom;
+
+                    var smallGridColor = Color.FromArgb(40, 40, 40).ToColor4();
+                    var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
+
+                    // Draw small grid (when zoomed in enough)
+                    if (_container.Root.Scale > new Vector(1.5f, 1.5f))
                     {
-                        for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
+                        using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
                         {
-                            renderingState.D2DRenderTarget.DrawLine(new RawVector2((int) x, (int) reg.Top),
-                                new RawVector2((int) x, (int) reg.Bottom), gridPen);
+                            for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
+                            {
+                                renderingState.D2DRenderTarget.DrawLine(new RawVector2(x, reg.Top),
+                                    new RawVector2(x, reg.Bottom), gridPen);
+                            }
+
+                            for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
+                            {
+                                renderingState.D2DRenderTarget.DrawLine(new RawVector2(reg.Left, y),
+                                    new RawVector2(reg.Right, y), gridPen);
+                            }
+                        }
+                    }
+
+                    // Draw large grid on top
+                    using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, largeGridColor))
+                    {
+                        for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
+                        {
+                            renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)x, (int)reg.Top),
+                                new RawVector2((int)x, (int)reg.Bottom), gridPen);
                         }
 
-                        for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
+                        for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
                         {
                             renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)reg.Left, (int)y),
                                 new RawVector2((int)reg.Right, (int)y), gridPen);
                         }
                     }
-                }
-
-                // Draw large grid on top
-                using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, largeGridColor))
-                {
-                    for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
-                    {
-                        renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)x, (int)reg.Top),
-                            new RawVector2((int)x, (int)reg.Bottom), gridPen);
-                    }
-
-                    for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
-                    {
-                        renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)reg.Left, (int)y),
-                            new RawVector2((int)reg.Right, (int)y), gridPen);
-                    }
-                }
+                });
             }
             
             private static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
