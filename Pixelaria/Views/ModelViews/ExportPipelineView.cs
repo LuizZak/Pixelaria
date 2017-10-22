@@ -55,8 +55,6 @@ using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using CombineMode = SharpDX.Direct2D1.CombineMode;
-using InterpolationMode = System.Drawing.Drawing2D.InterpolationMode;
-using LinearGradientBrush = System.Drawing.Drawing2D.LinearGradientBrush;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
