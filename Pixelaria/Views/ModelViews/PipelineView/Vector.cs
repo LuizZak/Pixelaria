@@ -224,7 +224,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             return !(lhs == rhs);
         }
-
+        
         public static Vector operator *([NotNull] Matrix m, Vector vec)
         {
             return m.Transform(vec);
@@ -274,7 +274,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             return new Vector(vec.X / factor, vec.Y / factor);
         }
-
+        
         public static implicit operator PointF(Vector vec)
         {
             return new PointF(vec.X, vec.Y);
@@ -309,6 +309,15 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             return new Vector2(vec.X, vec.Y);
         }
+
+        /*
+         * TODO: This one seems like a stretch. Maybe it's ok to keep it around?
+         * 
+        public static implicit operator Vector((float x, float y) vec)
+        {
+            return new Vector(vec.x, vec.y);
+        }
+        */
 
         public int CompareTo(Vector other)
         {

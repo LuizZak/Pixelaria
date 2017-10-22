@@ -52,6 +52,8 @@ using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
 using Pixelaria.ExportPipeline;
+using Pixelaria.ExportPipeline.Outputs;
+using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews.PipelineView;
@@ -65,6 +67,13 @@ namespace Pixelaria.Views.ModelViews
         public ExportPipelineView()
         {
             InitializeComponent();
+
+            exportPipelineControl.BackColor = exportPipelineControl.D2DRenderer.BackColor;
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
             
             Direct2DAttempt();
         }
@@ -112,16 +121,19 @@ namespace Pixelaria.Views.ModelViews
             ConfigurePipelineControl();
             InitTest();
 
-            RenderLoop.Run(this, () =>
+            using (var renderLoop = new RenderLoop(this) { UseApplicationDoEvents = true })
             {
-                RenderingState.D2DRenderTarget.BeginDraw();
+                while (renderLoop.NextFrame())
+                {
+                    RenderingState.D2DRenderTarget.BeginDraw();
 
-                exportPipelineControl.RenderDirect2D(RenderingState);
+                    exportPipelineControl.RenderDirect2D(RenderingState);
 
-                RenderingState.D2DRenderTarget.EndDraw();
+                    RenderingState.D2DRenderTarget.EndDraw();
 
-                RenderingState.SwapChain.Present(0, PresentFlags.None);
-            }, true);
+                    RenderingState.SwapChain.Present(0, PresentFlags.None);
+                }
+            }
         }
 
         public void ConfigurePipelineControl()
@@ -191,7 +203,7 @@ namespace Pixelaria.Views.ModelViews
         {
             var anim = new Animation("Anim 1", 48, 48);
 
-            var animNodeView = new PipelineNodeView(new AnimationPipelineStep(anim))
+            var animNodeView = new PipelineNodeView(new SingleAnimationPipelineStep(anim))
             {
                 Location = new Vector(0, 0),
                 Size = new Vector(100, 80),
@@ -251,9 +263,9 @@ namespace Pixelaria.Views.ModelViews
 
             var animSteps = new[]
             {
-                new AnimationPipelineStep(anim1),
-                new AnimationPipelineStep(anim2),
-                new AnimationPipelineStep(anim3)
+                new SingleAnimationPipelineStep(anim1),
+                new SingleAnimationPipelineStep(anim2),
+                new SingleAnimationPipelineStep(anim3)
             };
 
             var animJoinerStep = new AnimationJoinerStep();
@@ -313,41 +325,35 @@ namespace Pixelaria.Views.ModelViews
                     Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("sheet_save_icon")
                 });
 
-                var animSteps = new List<AnimationPipelineStep>();
-                foreach (var animation in bundle.Animations)
+                // Anim steps for animations w/ no owners
+                foreach (var animation in bundle.Animations.Where(anim => bundle.GetOwningAnimationSheet(anim) == null))
                 {
-                    var node = new AnimationPipelineStep(animation);
+                    var node = new SingleAnimationPipelineStep(animation);
                     var step = new PipelineNodeView(node)
                     {
                         Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("anim_icon")
                     };
 
                     exportPipelineControl.PipelineContainer.AddNodeView(step);
-                    animSteps.Add(node);
                 }
                 
                 foreach (var sheet in bundle.AnimationSheets)
                 {
                     var sheetStep = new SpriteSheetGenerationPipelineStep();
 
-                    // Create an animation joiner to join all animations for this sheet
-                    var joiner = new AnimationJoinerStep();
+                    var animsStep = new AnimationsPipelineStep(sheet.Animations);
                     
                     exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(sheetStep)
                     {
                         Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("sheet_new")
                     });
-                    exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(joiner));
-
-                    exportPipelineControl.PipelineContainer.AddConnection(sheetStep, exportStep);
-                    exportPipelineControl.PipelineContainer.AddConnection(joiner, sheetStep);
-
-                    // Find all matching nodes to connect to
-                    var steps = animSteps.Where(anim => sheet.ContainsAnimation(anim.Animation));
-                    foreach (var pipelineStep in steps)
+                    exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(animsStep)
                     {
-                        exportPipelineControl.PipelineContainer.AddConnection(pipelineStep, joiner);
-                    }
+                        Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("anim_icon")
+                    });
+
+                    exportPipelineControl.PipelineContainer.AddConnection(animsStep, sheetStep);
+                    exportPipelineControl.PipelineContainer.AddConnection(sheetStep, exportStep);
                 }
 
                 exportPipelineControl.PipelineContainer.AutosizeNodes();
@@ -387,6 +393,8 @@ namespace Pixelaria.Views.ModelViews
             _features.Add(new DragAndDropUiFeature(this));
             _features.Add(new ViewPanAndZoomUiFeature(this));
             _features.Add(new SelectionUiFeature(this));
+
+            _d2DRenderer.AddDecorator(new ConnectedLinksDecorator(_container));
 
             _invalidatedRegion = new Region(new Rectangle(Point.Empty, Size));
         }
@@ -635,17 +643,22 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's output.
             /// </summary>
-            IEnumerable<PipelineNodeView> ConnectionsFrom([NotNull] PipelineNodeView source);
+            IEnumerable<PipelineNodeView> GetConnectionsFrom([NotNull] PipelineNodeView source);
             
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's input.
             /// </summary>
-            IEnumerable<PipelineNodeView> ConnectionsTo([NotNull] PipelineNodeView source);
+            IEnumerable<PipelineNodeView> GetConnectionsTo([NotNull] PipelineNodeView source);
 
             /// <summary>
             /// Returns a list of node views that are directly connected to a given source node view.
             /// </summary>
             IEnumerable<PipelineNodeView> DirectlyConnectedNodeViews([NotNull] PipelineNodeView source);
+
+            /// <summary>
+            /// Returns all pipeline node link views that are connected to the given link views.
+            /// </summary>
+            IEnumerable<PipelineNodeLinkView> GetConnections([NotNull] PipelineNodeLinkView source);
 
             /// <summary>
             /// Retrieves the view that represent the given pipeline node within this container
@@ -785,7 +798,6 @@ namespace Pixelaria.Views.ModelViews
 
                 _selection.Add(node);
 
-                // Invalidate view region
                 var view = ViewForPipelineNode(node);
                 if (view != null)
                 {
@@ -800,8 +812,7 @@ namespace Pixelaria.Views.ModelViews
                     return;
 
                 _selection.Add(link);
-
-                // Invalidate view region
+                
                 var view = ViewForPipelineNodeLink(link);
                 if (view != null)
                 {
@@ -837,6 +848,28 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 _selection.Clear();
+            }
+
+            public void Deselect(BaseView view)
+            {
+                if (view is PipelineNodeView nodeView)
+                {
+                    if (!_selection.Contains(nodeView.PipelineNode))
+                        return;
+
+                    _selection.Remove(nodeView.PipelineNode);
+                    view.StrokeWidth = 1;
+                    view.StrokeColor = Color.Black;
+                }
+                else if (view is PipelineNodeLinkView linkView)
+                {
+                    if (!_selection.Contains(linkView.NodeLink))
+                        return;
+
+                    _selection.Remove(linkView.NodeLink);
+                    view.StrokeWidth = 1;
+                    view.StrokeColor = Color.Black;
+                }
             }
 
             public void AddConnectionView([NotNull] PipelineNodeLinkView start, [NotNull] PipelineNodeLinkView end)
@@ -898,7 +931,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's output.
             /// </summary>
-            public IEnumerable<PipelineNodeView> ConnectionsFrom(PipelineNodeView source)
+            public IEnumerable<PipelineNodeView> GetConnectionsFrom(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
 
@@ -917,7 +950,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's input.
             /// </summary>
-            public IEnumerable<PipelineNodeView> ConnectionsTo(PipelineNodeView source)
+            public IEnumerable<PipelineNodeView> GetConnectionsTo(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
 
@@ -931,6 +964,28 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 return output.ToArray();
+            }
+            
+            /// <summary>
+            /// Returns all pipeline node link views that are connected to the given link views.
+            /// </summary>
+            public IEnumerable<PipelineNodeLinkView> GetConnections(PipelineNodeLinkView source)
+            {
+                var connections = new List<PipelineNodeLinkView>();
+
+                foreach (var connectionView in _connectionViews)
+                {
+                    if (Equals(connectionView.Start, source))
+                    {
+                        connections.Add(connectionView.End);
+                    }
+                    else if (Equals(connectionView.End, source))
+                    {
+                        connections.Add(connectionView.Start);
+                    }
+                }
+
+                return connections;
             }
 
             /// <summary>
@@ -959,7 +1014,7 @@ namespace Pixelaria.Views.ModelViews
             /// 
             /// Returns nodes listed from nearest to farthest from the source node.
             /// </summary>
-            public IEnumerable<PipelineNodeView> NetworkForNodeView(PipelineNodeView source)
+            public IEnumerable<PipelineNodeView> NetworkForNodeView(PipelineNodeView source, IReadOnlyCollection<PipelineNodeView> except = null)
             {
                 var output = new List<PipelineNodeView>();
                 var queue = new Queue<PipelineNodeView>();
@@ -975,7 +1030,7 @@ namespace Pixelaria.Views.ModelViews
 
                     foreach (var connected in DirectlyConnectedNodeViews(cur))
                     {
-                        if(!output.Contains(connected))
+                        if(!output.Contains(connected) && (except == null || !except.Contains(connected)))
                             queue.Enqueue(connected);
                     }
                 }
@@ -1118,12 +1173,9 @@ namespace Pixelaria.Views.ModelViews
             
             public void AutosizeNodes()
             {
-                using (var graphics = _control.CreateGraphics())
+                foreach (var view in _stepViews)
                 {
-                    foreach (var view in _stepViews)
-                    {
-                        view.AutoSize(graphics);
-                    }
+                    view.AutoSize(_control.D2DRenderer);
                 }
             }
 
@@ -1260,13 +1312,14 @@ namespace Pixelaria.Views.ModelViews
 
             private bool _isDrawingSelection;
             private Vector _mouseDown;
+            private bool _skipMouseUp;
             private HashSet<PipelineNodeView> _underSelectionArea = new HashSet<PipelineNodeView>();
 
             // For drawing the selection outline with
             private readonly BezierPathView _pathView = new BezierPathView
             {
                 RenderOnTop = true,
-                FillColor = Color.Orange.ToAhsl().WithTransparency(0.03f).ToColor()
+                FillColor = Color.Orange.ToAhsl().WithTransparency(0.1f).ToColor()
             };
 
             public SelectionUiFeature([NotNull] ExportPipelineControl control) : base(control)
@@ -1294,16 +1347,44 @@ namespace Pixelaria.Views.ModelViews
                         root
                             .ViewsUnder(root.ConvertFrom(e.Location, null), new Vector(5, 5))
                             .FirstOrDefault();
-
-                    var nodeView = (view as PipelineNodeConnectionLineView)?.Start.NodeView ?? view as PipelineNodeView;
-
-                    if (nodeView != null)
+                    
+                    if (view is PipelineNodeLinkView linkView)
                     {
-                        var network = container.NetworkForNodeView(nodeView);
+                        // Select all nodes connected to the given link view
+                        var connected = container.GetConnections(linkView);
 
-                        foreach (var node in network)
+                        foreach (var v in connected)
                         {
-                            container.AttemptSelect(node);
+                            var network = container.NetworkForNodeView(v.NodeView, new[] {linkView.NodeView});
+
+                            foreach (var node in network)
+                            {
+                                container.AttemptSelect(node);
+                            }
+                            
+                            container.AttemptSelect(v.NodeView);
+                        }
+                        
+                        // Drop selection of link view
+                        container.Deselect(linkView);
+
+                        _skipMouseUp = true;
+                    }
+                    else
+                    {
+                        // Select all nodes from network
+                        var nodeView = (view as PipelineNodeConnectionLineView)?.Start.NodeView ?? view as PipelineNodeView;
+
+                        if (nodeView != null)
+                        {
+                            var network = container.NetworkForNodeView(nodeView);
+
+                            foreach (var node in network)
+                            {
+                                container.AttemptSelect(node);
+                            }
+
+                            _skipMouseUp = true;
                         }
                     }
                 }
@@ -1312,6 +1393,8 @@ namespace Pixelaria.Views.ModelViews
             public override void OnMouseDown(MouseEventArgs e)
             {
                 base.OnMouseDown(e);
+
+                _skipMouseUp = false;
 
                 if (OtherFeatureHasExclusiveControl() || e.Button != MouseButtons.Left)
                     return;
@@ -1324,7 +1407,7 @@ namespace Pixelaria.Views.ModelViews
                     Control._container.ClearSelection();
 
                 // Selection
-                if (!ModifierKeys.HasFlag(Keys.Shift) && closestView == null)
+                if (ModifierKeys.HasFlag(Keys.Shift) || closestView == null)
                 {
                     if (RequestExclusiveControl())
                     {
@@ -1405,6 +1488,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseUp(e);
 
+                if (_skipMouseUp)
+                    return;
+
                 if (hasExclusiveControl)
                 {
                     // Handle selection of new objects if user let the mouse go over a view
@@ -1424,7 +1510,6 @@ namespace Pixelaria.Views.ModelViews
                         // Append selection
                         foreach (var nodeView in _underSelectionArea)
                         {
-                            nodeView.StrokeWidth = 1;
                             container.AttemptSelect(nodeView);
                         }
 
@@ -1948,7 +2033,7 @@ namespace Pixelaria.Views.ModelViews
 
                 private void RemoveAuxiliaryViews()
                 {
-                    for (var i = 0; i < _linkDrawingPaths.Length; i++)
+                    for (int i = 0; i < _linkDrawingPaths.Length; i++)
                     {
                         _linkDrawingPaths[i].RemoveFromParent();
                         _linkConnectingPaths[i].RemoveFromParent();
@@ -1960,6 +2045,7 @@ namespace Pixelaria.Views.ModelViews
 
         private class ViewPanAndZoomUiFeature : ExportPipelineUiFeature
         {
+            private readonly Vector _minZoom = new Vector(0.25f);
             private Vector _dragStart;
             private Point _mouseDownPoint;
             private bool _dragging;
@@ -2026,8 +2112,8 @@ namespace Pixelaria.Views.ModelViews
                 {
                     var scale = root.Scale;
                     scale *= new Vector(1.0f + Math.Sign(e.Delta) * 0.1f);
-                    if (scale < new Vector(0.5f))
-                        scale = new Vector(0.5f);
+                    if (scale < _minZoom)
+                        scale = _minZoom;
                     if (scale > new Vector(25f))
                         scale = new Vector(25f);
 
@@ -2049,6 +2135,66 @@ namespace Pixelaria.Views.ModelViews
                 }
             }
         }
+
+        private abstract class AbstractRenderingDecorator : IRenderingDecorator
+        {
+            public virtual void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
+            {
+
+            }
+
+            public virtual void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+                ref PipelineStepViewLinkState state)
+            {
+
+            }
+
+            public virtual void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+                ref PipelineStepViewLinkState state)
+            {
+
+            }
+
+            public virtual void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
+            {
+
+            }
+
+            public virtual void DecorateLabelView(LabelView pathView, ref LabelViewState state)
+            {
+
+            }
+        }
+
+        private class ConnectedLinksDecorator : AbstractRenderingDecorator
+        {
+            private readonly IPipelineContainer _container;
+
+            public ConnectedLinksDecorator(IPipelineContainer container)
+            {
+                _container = container;
+            }
+
+            public override void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+                ref PipelineStepViewLinkState state)
+            {
+                if (!_container.GetConnections(link).Any())
+                {
+                    state.FillColor = Color.Transparent;
+                    state.StrokeColor = Color.Gray;
+                }
+            }
+
+            public override void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+                ref PipelineStepViewLinkState state)
+            {
+                if (!_container.GetConnections(link).Any())
+                {
+                    state.FillColor = Color.Transparent;
+                    state.StrokeColor = Color.Gray;
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -2063,10 +2209,10 @@ namespace Pixelaria.Views.ModelViews
         {
             void DecoratePipelineStep([NotNull] PipelineNodeView nodeView, ref PipelineStepViewState state);
 
-            void DecoratePipelineStepInput([NotNull] PipelineNodeView nodeView, PipelineNodeLinkView link,
+            void DecoratePipelineStepInput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
                 ref PipelineStepViewLinkState state);
 
-            void DecoratePipelineStepOutput([NotNull] PipelineNodeView nodeView, PipelineNodeLinkView link,
+            void DecoratePipelineStepOutput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
                 ref PipelineStepViewLinkState state);
 
             void DecorateBezierPathView([NotNull] BezierPathView pathView, ref BezierPathViewState state);
@@ -2080,7 +2226,8 @@ namespace Pixelaria.Views.ModelViews
             public Color FillColor { get; set; }
             public Color TitleFillColor { get; set; }
             public Color StrokeColor { get; set; }
-            public Color FontColor { get; set; }
+            public Color TitleFontColor { get; set; }
+            public Color BodyFontColor { get; set; }
         }
 
         public struct PipelineStepViewLinkState
@@ -2121,9 +2268,18 @@ namespace Pixelaria.Views.ModelViews
             var selectedNodes = container.SelectionModel.NodeViews();
             var nodeViews = selectedNodes.Length > 0 ? selectedNodes : container.NodeViews;
 
+            // No work to do
+            if (nodeViews.Length == 0)
+                return;
+
             // Create a quick graph for the views
             var root = new DirectedAcyclicNode<PipelineNodeView>(null);
             var nodes = nodeViews.Select(nodeView => new DirectedAcyclicNode<PipelineNodeView>(nodeView)).ToList();
+
+            // Record geometric center so we can re-center later
+            var originalCenter =
+                nodeViews.Select(nv => nv.Center)
+                    .Aggregate(Vector.Zero, (v1, v2) => v1 + v2) / nodeViews.Length;
 
             // Deal with connections, now
             foreach (var node in nodes)
@@ -2132,8 +2288,8 @@ namespace Pixelaria.Views.ModelViews
                 if (view == null)
                     continue;
 
-                var previous = container.ConnectionsTo(view);
-                var next = container.ConnectionsFrom(view);
+                var previous = container.GetConnectionsTo(view);
+                var next = container.GetConnectionsFrom(view);
 
                 foreach (var prevView in previous)
                 {
@@ -2156,7 +2312,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             var sorted = root.TopologicalSorted().ToArray();
-
+            
             // Organize the sortings, now
             float x = 0;
             foreach (var node in sorted)
@@ -2179,7 +2335,7 @@ namespace Pixelaria.Views.ModelViews
                 if (view == null)
                     continue;
 
-                var conTo = container.ConnectionsFrom(view).FirstOrDefault();
+                var conTo = container.GetConnectionsFrom(view).FirstOrDefault();
                 if (conTo == null)
                     continue;
 
@@ -2194,7 +2350,24 @@ namespace Pixelaria.Views.ModelViews
                 float targetY = globY - linkFrom.Center.Y;
 
                 view.Location = new Vector(view.Location.X, targetY);
+            }
+            
+            // Recenter around common origin
+            if (selectedNodes.Length > 0)
+            {
+                var newCenter =
+                    nodeViews.Select(nv => nv.Center)
+                        .Aggregate(Vector.Zero, (v1, v2) => v1 + v2) / nodeViews.Length;
 
+                foreach (var view in nodeViews)
+                {
+                    view.Center += originalCenter - newCenter;
+                }
+            }
+
+            // Update link connections
+            foreach (var view in nodeViews)
+            {
                 container.UpdateConnectionViewsFor(view);
             }
         }

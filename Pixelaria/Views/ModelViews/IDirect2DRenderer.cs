@@ -31,6 +31,11 @@ namespace Pixelaria.Views.ModelViews
     /// </summary>
     public interface IDirect2DRenderer : ILabelViewSizeProvider
     {
+        /// <summary>
+        /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
+        /// </summary>
+        Color BackColor { get; set; }
+
         void AddImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
         void RemoveImageResource([NotNull] string resourceName);
         void RemoveImageResources();

@@ -210,6 +210,27 @@
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
+    <Compile Include="ExportPipeline\Outputs\AbstractPipelineOutput.cs" />
+    <Compile Include="ExportPipeline\Steps\AbstractPipelineStep.cs" />
+    <Compile Include="ExportPipeline\Inputs\AbstractSinglePipelineInput.cs" />
+    <Compile Include="ExportPipeline\Inputs\AnimationInput.cs" />
+    <Compile Include="ExportPipeline\Inputs\AnimationsInput.cs" />
+    <Compile Include="ExportPipeline\Outputs\AnimationsOutput.cs" />
+    <Compile Include="ExportPipeline\Outputs\BundleSheetExportOutput.cs" />
+    <Compile Include="ExportPipeline\IPipelineEnd.cs" />
+    <Compile Include="ExportPipeline\PipelineMetadata.cs" />
+    <Compile Include="ExportPipeline\IPipelineStep.cs" />
+    <Compile Include="ExportPipeline\ObsExt.cs" />
+    <Compile Include="ExportPipeline\Inputs\PipelineBitmapInput.cs" />
+    <Compile Include="ExportPipeline\Outputs\PipelineBitmapOutput.cs" />
+    <Compile Include="ExportPipeline\Inputs\SheetSettingsInput.cs" />
+    <Compile Include="ExportPipeline\Outputs\StaticPipelineOutput.cs" />
+    <Compile Include="ExportPipeline\Steps\AnimationJoinerStep.cs" />
+    <Compile Include="ExportPipeline\Steps\SingleAnimationPipelineStep.cs" />
+    <Compile Include="ExportPipeline\Steps\AnimationsPipelineStep.cs" />
+    <Compile Include="ExportPipeline\Steps\FileExportPipelineStep.cs" />
+    <Compile Include="ExportPipeline\Steps\FilterPipelineStep.cs" />
+    <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
     <Compile Include="Utils\DrawingUtilities.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
@@ -219,7 +240,7 @@
     <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.Designer.cs">
       <DependentUpon>ColorPickerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="ExportPipeline\PipelineStep.cs" />
+    <Compile Include="ExportPipeline\PipelineHelpers.cs" />
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>

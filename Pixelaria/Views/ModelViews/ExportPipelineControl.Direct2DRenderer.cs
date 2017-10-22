@@ -47,6 +47,7 @@ using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews.PipelineView;
+using Font = System.Drawing.Font;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -80,6 +81,11 @@ namespace Pixelaria.Views.ModelViews
             /// For rendering title of pipeline nodes
             /// </summary>
             private TextFormat _nodeTitlesTextFormat;
+
+            /// <summary>
+            /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
+            /// </summary>
+            public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
 
             /// <summary>
             /// Control-space clip rectangle for current draw operation.
@@ -177,6 +183,21 @@ namespace Pixelaria.Views.ModelViews
                 }
             }
 
+            public SizeF CalculateTextBounds(string text, Font font)
+            {
+                var renderState = _lastRenderingState;
+                if (renderState == null)
+                    return SizeF.Empty;
+
+                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font.Name, font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center, WordWrapping = WordWrapping.WholeWord})
+                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+                {
+                    var line = textLayout.Metrics.LineCount;
+
+                    return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
+                }
+            }
+
             #endregion
 
             public void Render([NotNull] Direct2DRenderingState state)
@@ -252,7 +273,8 @@ namespace Pixelaria.Views.ModelViews
                         TitleFillColor = nodeView.Color.Fade(Color.Black, 0.8f),
                         StrokeColor = nodeView.StrokeColor,
                         StrokeWidth = nodeView.StrokeWidth,
-                        FontColor = Color.White
+                        TitleFontColor = Color.White,
+                        BodyFontColor = Color.Black
                     };
 
                     // Decorate
@@ -261,14 +283,13 @@ namespace Pixelaria.Views.ModelViews
 
                     var bounds = nodeView.Bounds;
 
-                    var roundedRectArea = new RoundedRectangleGeometry(state.D2DFactory,
-                        new RoundedRectangle
-                        {
-                            RadiusX = 5,
-                            RadiusY = 5,
-                            Rect = new RawRectangleF(0, 0, bounds.Width, bounds.Height)
-                        });
-                        
+                    var roundedRect = new RoundedRectangle
+                    {
+                        RadiusX = 5,
+                        RadiusY = 5,
+                        Rect = new RawRectangleF(0, 0, bounds.Width, bounds.Height)
+                    };
+
                     // Draw body fill
                     using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
                     {
@@ -285,74 +306,92 @@ namespace Pixelaria.Views.ModelViews
                         stopCollection))
 
                     {
-                        state.D2DRenderTarget.FillGeometry(roundedRectArea, gradientBrush);
+                        state.D2DRenderTarget.FillRoundedRectangle(roundedRect, gradientBrush);
                     }
 
                     var titleArea = nodeView.GetTitleArea();
-                    
-                    using (var clipPath = new PathGeometry(state.D2DFactory))
+
+                    // Title background (clipped)
+                    using (var titleAreaGeom = new PathGeometry(state.D2DFactory))
+                    using (var roundedRectArea = new RoundedRectangleGeometry(state.D2DFactory, roundedRect))
                     {
-                        var sink = clipPath.Open();
-
                         var titleRect = new RawRectangleF(0, 0, titleArea.Width, titleArea.Height);
-                        var titleClip = new RectangleGeometry(state.D2DFactory, titleRect);
-                        titleClip.Combine(roundedRectArea, CombineMode.Intersect, sink);
-
-                        sink.Close();
-                        sink.Dispose();
-
-                        titleClip.Dispose();
-                            
-                        // Fill BG
-                        using (var solidColorBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
+                        using (var titleClip = new RectangleGeometry(state.D2DFactory, titleRect))
                         {
-                            state.D2DRenderTarget.FillGeometry(clipPath, solidColorBrush);
+                            var sink = titleAreaGeom.Open();
+
+                            titleClip.Combine(roundedRectArea, CombineMode.Intersect, sink);
+
+                            sink.Close();
+                            sink.Dispose();
                         }
-                            
-                        int titleX = 4;
 
-                        // Draw icon, if available
-                        if (nodeView.Icon != null)
+                        // Fill title BG
+                        using (var solidColorBrush =
+                            new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
                         {
-                            var icon = nodeView.Icon.Value;
+                            state.D2DRenderTarget.FillGeometry(titleAreaGeom, solidColorBrush);
+                        }
 
-                            titleX += icon.Width + 5;
-                                
-                            float imgY = titleArea.Height / 2 - (float)icon.Height / 2;
+                        roundedRectArea.Dispose();
+                    }
 
-                            var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
+                    // Draw title icon/text
+                    int titleX = 4;
 
-                            var bitmap = ImageResource(icon.ResourceName);
-                            if(bitmap != null)
+                    // Draw icon, if available
+                    if (nodeView.Icon != null)
+                    {
+                        var icon = nodeView.Icon.Value;
+
+                        titleX += icon.Width + 5;
+
+                        float imgY = titleArea.Height / 2 - (float)icon.Height / 2;
+
+                        var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
+
+                        var bitmap = ImageResource(icon.ResourceName);
+                        if (bitmap != null)
+                        {
+                            var mode = BitmapInterpolationMode.Linear;
+
+                            // Draw with high quality only when zoomed out
+                            if (new AABB(Vector.Zero, Vector.Unit).TransformedBounds(_container.Root.LocalTransform).Size >=
+                                Vector.Unit)
                             {
-                                var mode = BitmapInterpolationMode.Linear;
-
-                                // Draw with high quality only when zoomed out
-                                if (new AABB(Vector.Zero, Vector.Unit).TransformedBounds(_container.Root.LocalTransform).Size >=
-                                    Vector.Unit)
-                                {
-                                    mode = BitmapInterpolationMode.NearestNeighbor;
-                                }
-
-                                state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds, 1f, mode);
+                                mode = BitmapInterpolationMode.NearestNeighbor;
                             }
-                        }
 
-                        using (var textLayout = new TextLayout(state.DirectWriteFactory, nodeView.Name, _nodeTitlesTextFormat, titleArea.Width, titleArea.Height))
-                        using (var whiteBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.FontColor.ToColor4()))
+                            state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds, 1f, mode);
+                        }
+                    }
+
+                    // Draw title text
+                    using (var textLayout = new TextLayout(state.DirectWriteFactory, nodeView.Name, _nodeTitlesTextFormat, titleArea.Width, titleArea.Height))
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
+                    {
+                        state.D2DRenderTarget.DrawTextLayout(new RawVector2(titleX, 0), textLayout, brush, DrawTextOptions.EnableColorFont);
+                    }
+
+                    // Draw body text, if available
+                    string bodyText = nodeView.BodyText;
+                    if (bodyText != null)
+                    {
+                        var area = nodeView.GetBodyTextArea();
+
+                        using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, _nodeTitlesTextFormat, area.Width, area.Height))
+                        using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
                         {
-                            state.D2DRenderTarget.DrawTextLayout(new RawVector2(titleX, 0), textLayout, whiteBrush, DrawTextOptions.EnableColorFont);
+                            state.D2DRenderTarget.DrawTextLayout(area.Minimum, textLayout, brush, DrawTextOptions.EnableColorFont);
                         }
                     }
 
                     // Draw outline now
                     using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
                     {
-                        state.D2DRenderTarget.DrawGeometry(roundedRectArea, penBrush, stepViewState.StrokeWidth);
+                        state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
                     }
-    
-                    roundedRectArea.Dispose();
-
+                    
                     // Draw in-going and out-going links
                     var inLinks = nodeView.GetInputViews();
                     var outLinks = nodeView.GetOutputViews();
@@ -362,10 +401,6 @@ namespace Pixelaria.Views.ModelViews
                     {
                         state.PushingTransform(() =>
                         {
-                            state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
-
-                            var rectangle = link.Bounds;
-
                             var linkState = new PipelineStepViewLinkState
                             {
                                 FillColor = Color.White,
@@ -377,11 +412,17 @@ namespace Pixelaria.Views.ModelViews
                             foreach (var decorator in decorators)
                                 decorator.DecoratePipelineStepInput(nodeView, link, ref linkState);
                             
+                            state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
+
+                            var rectangle = link.Bounds;
+
                             using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
                             using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
                             {
-                                state.D2DRenderTarget.FillRectangle(rectangle, brush);
-                                state.D2DRenderTarget.DrawRectangle(rectangle, pen, linkState.StrokeWidth);
+                                var ellipse = new Ellipse(rectangle.Center, rectangle.Width / 2, rectangle.Width / 2);
+
+                                state.D2DRenderTarget.FillEllipse(ellipse, brush);
+                                state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
                             }
                         });
                     }
@@ -391,10 +432,6 @@ namespace Pixelaria.Views.ModelViews
                     {
                         state.PushingTransform(() =>
                         {
-                            state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
-
-                            var rectangle = link.Bounds;
-
                             var linkState = new PipelineStepViewLinkState
                             {
                                 FillColor = Color.White,
@@ -405,12 +442,18 @@ namespace Pixelaria.Views.ModelViews
                             // Decorate
                             foreach (var decorator in decorators)
                                 decorator.DecoratePipelineStepOutput(nodeView, link, ref linkState);
-                                
+                            
+                            state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
+
+                            var rectangle = link.Bounds;
+                            
                             using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
                             using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
                             {
-                                state.D2DRenderTarget.FillRectangle(rectangle, brush);
-                                state.D2DRenderTarget.DrawRectangle(rectangle, pen, linkState.StrokeWidth);
+                                var ellipse = new Ellipse(rectangle.Center, rectangle.Width / 2, rectangle.Width / 2);
+
+                                state.D2DRenderTarget.FillEllipse(ellipse, brush);
+                                state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
                             }
                         });
                     }
@@ -545,8 +588,7 @@ namespace Pixelaria.Views.ModelViews
 
             private void RenderBackground([NotNull] Direct2DRenderingState renderingState)
             {
-                var backColor = Color.FromArgb(255, 25, 25, 25);
-                renderingState.D2DRenderTarget.Clear(backColor.ToColor4());
+                renderingState.D2DRenderTarget.Clear(BackColor.ToColor4());
 
                 renderingState.PushingTransform(() =>
                 {
@@ -659,7 +701,7 @@ namespace Pixelaria.Views.ModelViews
             float g = color.G / 255f;
             float b = color.B / 255f;
             float a = color.A / 255f;
-
+            
             return new Color4(r, g, b, a);
         }
     }

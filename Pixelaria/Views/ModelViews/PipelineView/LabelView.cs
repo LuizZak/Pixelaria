@@ -150,10 +150,15 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             public SizeF CalculateTextBounds(LabelView label)
             {
+                return CalculateTextBounds(label.Text, label.TextFont);
+            }
+
+            public SizeF CalculateTextBounds(string text, Font font)
+            {
                 using (var dummy = new Bitmap(1, 1))
                 using (var graphics = Graphics.FromImage(dummy))
                 {
-                    return graphics.MeasureString(label.Text, label.TextFont);
+                    return graphics.MeasureString(text, font);
                 }
             }
         }
@@ -168,5 +173,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// Calculates the text size on a given label view
         /// </summary>
         SizeF CalculateTextBounds([NotNull] LabelView label);
+
+        /// <summary>
+        /// Calculates the text size for a given pair of string/font
+        /// </summary>
+        SizeF CalculateTextBounds([NotNull] string text, [NotNull] Font font);
     }
 }

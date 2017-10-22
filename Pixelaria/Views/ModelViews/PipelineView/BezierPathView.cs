@@ -99,13 +99,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             _containsPath?.Dispose();
             _containsPath = null;
-
-            // Find new maximum size
-            using (var path = new GraphicsPath())
-            {
-                path.AddBezier(pt1, pt2, pt3, pt4);
-                _inputsBounds = _inputsBounds.Union(path.GetBounds());
-            }
+            
+            _inputsBounds = _inputsBounds.Union(new AABB(new []{pt1, pt2, pt3, pt4}));
 
             _inputs.Add(new BezierPathInput(pt1, pt2, pt3, pt4));
         }
@@ -226,11 +221,20 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public void UpdateBezier()
         {
             // Convert coordinates first
+            var bezier = PathInputForConnection();
+
+            ClearPath();
+            AddBezierPoints(bezier.Start, bezier.ControlPoint1, bezier.ControlPoint2, bezier.End);
+        }
+
+        public BezierPathInput PathInputForConnection()
+        {
+            // Convert coordinates first
             var center1 = Start.ConvertTo(Start.Bounds.Center, this);
             var center2 = End.ConvertTo(End.Bounds.Center, this);
 
             bool startToRight = Start.NodeLink is IPipelineOutput;
-            bool endToRight   = End.NodeLink is IPipelineOutput;
+            bool endToRight = End.NodeLink is IPipelineOutput;
 
             float maxSep = Math.Min(75, Math.Abs(center1.Distance(center2)));
 
@@ -239,8 +243,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var pt2 = new Vector(startToRight ? pt1.X + maxSep : pt1.X - maxSep, pt1.Y);
             var pt3 = new Vector(endToRight ? pt4.X + maxSep : pt4.X - maxSep, pt4.Y);
 
-            ClearPath();
-            AddBezierPoints(pt1, pt2, pt3, pt4);
+            return new BezierPathInput(pt1, pt2, pt3, pt4);
         }
     }
 }

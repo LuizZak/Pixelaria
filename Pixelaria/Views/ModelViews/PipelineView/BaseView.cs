@@ -76,10 +76,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         protected List<BaseView> children { get; } = new List<BaseView>();
 
         /// <summary>
-        /// Returns the center point of this view's AABB when projected
+        /// Gets or sets the center point of this view's AABB when projected
         /// on the parent view.
         /// 
-        /// If Parent == null, returns the AABB's center property.
+        /// If Parent == null, returns the AABB's center property on get, and
+        /// set is ignored..
         /// </summary>
         public Vector Center
         {
@@ -89,6 +90,13 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                     return Bounds.Center;
 
                 return Parent.ConvertFrom(Bounds.Center, this);
+            }
+            set
+            {
+                if (Parent == null)
+                    return;
+
+                Location = value - Bounds.Size / 2;
             }
         }
 
