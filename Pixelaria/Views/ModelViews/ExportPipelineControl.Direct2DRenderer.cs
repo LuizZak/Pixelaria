@@ -23,6 +23,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Bitmap = System.Drawing.Bitmap;
+using Color = System.Drawing.Color;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
+using RectangleF = System.Drawing.RectangleF;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Windows.Forms;
@@ -34,18 +39,14 @@ using JetBrains.Annotations;
 
 using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
-using Bitmap = System.Drawing.Bitmap;
-using Color = System.Drawing.Color;
 using CombineMode = SharpDX.Direct2D1.CombineMode;
-using Point = System.Drawing.Point;
-using Rectangle = System.Drawing.Rectangle;
 
-using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews.PipelineView;
 using SharpDX.DXGI;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
-using RectangleF = System.Drawing.RectangleF;
+
+using Pixelaria.Utils;
+using Pixelaria.Views.ModelViews.PipelineView;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -535,7 +536,7 @@ namespace Pixelaria.Views.ModelViews
                 var largeGridSize = Vector.Round(baseGridSize * scale);
                 var smallGridSize = largeGridSize / 10;
 
-                var reg = new System.Drawing.RectangleF(PointF.Empty, _control.Size);
+                var reg = new RectangleF(PointF.Empty, _control.Size);
 
                 float startX = gridOffset.X % largeGridSize.X - largeGridSize.X;
                 float endX = reg.Right;

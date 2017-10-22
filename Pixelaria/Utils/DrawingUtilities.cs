@@ -333,8 +333,8 @@ namespace Pixelaria.Utils
         [Pure]
         public static float Distance(this PointF point, PointF point2)
         {
-            var dx = point.X - point2.X;
-            var dy = point.Y - point2.Y;
+            float dx = point.X - point2.X;
+            float dy = point.Y - point2.Y;
 
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
@@ -348,8 +348,8 @@ namespace Pixelaria.Utils
         [Pure]
         public static float Distance(this Point point, Point point2)
         {
-            var dx = point.X - point2.X;
-            var dy = point.Y - point2.Y;
+            float dx = point.X - point2.X;
+            float dy = point.Y - point2.Y;
 
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
