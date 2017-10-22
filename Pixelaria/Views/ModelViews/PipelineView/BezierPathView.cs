@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
@@ -34,9 +35,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// </summary>
     public class BezierPathView : BaseView
     {
+        private readonly List<IPathInput> _inputs = new List<IPathInput>();
         private readonly GraphicsPath _path = new GraphicsPath();
         private Color _fillColor = Color.Transparent;
-
+        
         public override AABB Bounds => _path.GetBounds().Inflated(StrokeWidth, StrokeWidth);
 
         /// <summary>
@@ -103,6 +105,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             MarkDirtyPath();
 
             _path.Reset();
+            _inputs.Clear();
         }
 
         /// <summary>
@@ -114,6 +117,20 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         }
 
         /// <summary>
+        /// Gets the original path instructions that where used to create the path since
+        /// the last ClearPath() call.
+        /// 
+        /// Every call to <see cref="AddBezierPoints"/> and <see cref="AddRectangle"/>
+        /// (and <see cref="SetAsRectangle"/>, which clears the path first) pushes a
+        /// matching IPathInput to the internal path history array and can be extracted 
+        /// through this method.
+        /// </summary>
+        public IPathInput[] GetPathInputs()
+        {
+            return _inputs.ToArray();
+        }
+
+        /// <summary>
         /// Sets the bezier points of this bezier path view
         /// </summary>
         public void AddBezierPoints(Vector pt1, Vector pt2, Vector pt3, Vector pt4)
@@ -121,6 +138,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             MarkingDirtyRegion(() =>
             {
                 _path.AddBezier(pt1, pt2, pt3, pt4);
+                _inputs.Add(new BezierPathInput(pt1, pt2, pt3, pt4));
             });
         }
 
@@ -132,6 +150,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             MarkingDirtyRegion(() =>
             {
                 _path.AddRectangle((RectangleF)area);
+                _inputs.Add(new RectanglePathInput(area));
             });
         }
 
@@ -146,6 +165,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             {
                 _path.Reset();
                 _path.AddRectangle((RectangleF)area);
+
+                _inputs.Clear();
+                _inputs.Add(new RectanglePathInput(area));
             });
         }
 
@@ -189,6 +211,40 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                 return;
 
             MarkDirty(Bounds);
+        }
+
+        /// <summary>
+        /// An interface that specifies an input path of a bezier path view
+        /// </summary>
+        public interface IPathInput
+        {
+            
+        }
+
+        public struct RectanglePathInput : IPathInput
+        {
+            public AABB Rectangle { get; }
+
+            public RectanglePathInput(AABB rectangle)
+            {
+                Rectangle = rectangle;
+            }
+        }
+
+        public struct BezierPathInput : IPathInput
+        {
+            public Vector Start { get; }
+            public Vector ControlPoint1 { get; }
+            public Vector ControlPoint2 { get; }
+            public Vector End { get; }
+
+            public BezierPathInput(Vector start, Vector controlPoint1, Vector controlPoint2, Vector end) : this()
+            {
+                Start = start;
+                ControlPoint1 = controlPoint1;
+                ControlPoint2 = controlPoint2;
+                End = end;
+            }
         }
     }
 

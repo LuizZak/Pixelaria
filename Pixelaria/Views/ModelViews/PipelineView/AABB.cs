@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
+using SharpDX.Mathematics.Interop;
 
 namespace Pixelaria.Views.ModelViews.PipelineView
 {
@@ -419,6 +420,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public static explicit operator Rectangle(AABB v)
         {
             return Rectangle.Round((RectangleF) v);
+        }
+
+        public static implicit operator RawRectangleF(AABB bounds)
+        {
+            return new RawRectangleF(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom);
         }
 
         /// <summary>

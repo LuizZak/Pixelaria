@@ -23,9 +23,12 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
+using SharpDX;
+using SharpDX.Mathematics.Interop;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using Point = System.Drawing.Point;
 
 namespace Pixelaria.Views.ModelViews.PipelineView
 {
@@ -224,12 +227,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         public static Vector operator *([NotNull] Matrix m, Vector vec)
         {
-            return (Vector)m.Transform(vec);
+            return m.Transform(vec);
         }
 
         public static Vector operator *(Vector vec, [NotNull] Matrix m)
         {
-            return (Vector)m.Transform(vec);
+            return m.Transform(vec);
         }
 
         public static Vector operator +(Vector vec1, Vector vec2)
@@ -295,6 +298,16 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public static implicit operator Vector(Point vec)
         {
             return new Vector(vec.X, vec.Y);
+        }
+
+        public static implicit operator RawVector2(Vector vec)
+        {
+            return new RawVector2(vec.X, vec.Y);
+        }
+
+        public static implicit operator Vector2(Vector vec)
+        {
+            return new Vector2(vec.X, vec.Y);
         }
 
         public int CompareTo(Vector other)
