@@ -30,6 +30,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// </summary>
     public sealed class LabelView : BaseView
     {
+        [NotNull]
+        public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
+        
         private AABB _bounds = AABB.Empty;
         private AABB _textBounds = AABB.Empty;
 
@@ -67,6 +70,14 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// Gets or sets the text color of this label view
         /// </summary>
         public Color TextColor { get; set; } = Color.White;
+
+        /// <summary>
+        /// Gets or sets the size provider for this label view.
+        /// 
+        /// Defaults to <see cref="DefaultLabelViewSizeProvider"/>
+        /// </summary>
+        [NotNull]
+        public ILabelViewSizeProvider SizeProvider { get; set; } = DefaultLabelViewSizeProvider;
 
         /// <summary>
         /// Gets or sets the text font for the text of this label view
@@ -126,16 +137,36 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         private void CalculateBounds()
         {
-            using (var dummy = new Bitmap(1, 1))
-            using (var graphics = Graphics.FromImage(dummy))
+            _textBounds = new RectangleF(PointF.Empty, SizeProvider.CalculateTextBounds(this));
+            Size = _textBounds.Size;
+
+            Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right,
+                TextInsetBounds.Top + TextInsetBounds.Bottom);
+
+            _bounds = new AABB(Vector.Zero, Size);
+        }
+
+        private class DefaultSizer : ILabelViewSizeProvider
+        {
+            public SizeF CalculateTextBounds(LabelView label)
             {
-                _textBounds = new RectangleF(PointF.Empty, graphics.MeasureString(_text, _font));
-                Size = _textBounds.Size;
-
-                Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right, TextInsetBounds.Top + TextInsetBounds.Bottom);
-
-                _bounds = new AABB(Vector.Zero, Size);
+                using (var dummy = new Bitmap(1, 1))
+                using (var graphics = Graphics.FromImage(dummy))
+                {
+                    return graphics.MeasureString(label.Text, label.TextFont);
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Interface for objects that are capable of figuring out sizes of text in label views
+    /// </summary>
+    public interface ILabelViewSizeProvider
+    {
+        /// <summary>
+        /// Calculates the text size on a given label view
+        /// </summary>
+        SizeF CalculateTextBounds([NotNull] LabelView label);
     }
 }

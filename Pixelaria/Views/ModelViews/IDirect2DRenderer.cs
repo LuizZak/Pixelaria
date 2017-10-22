@@ -29,7 +29,7 @@ namespace Pixelaria.Views.ModelViews
     /// <summary>
     /// Public interface for the Export Pipeline's Direct2D renderer
     /// </summary>
-    public interface IDirect2DRenderer
+    public interface IDirect2DRenderer : ILabelViewSizeProvider
     {
         void AddImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
         void RemoveImageResource([NotNull] string resourceName);

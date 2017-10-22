@@ -59,6 +59,9 @@ namespace Pixelaria.Views.ModelViews
         {
             private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
 
+            [CanBeNull]
+            private Direct2DRenderingState _lastRenderingState;
+
             /// <summary>
             /// For relative position calculations
             /// </summary>
@@ -96,6 +99,8 @@ namespace Pixelaria.Views.ModelViews
 
             public void Initialize([NotNull] Direct2DRenderingState state)
             {
+                _lastRenderingState = state;
+
                 _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11)
                 {
                     TextAlignment = TextAlignment.Leading,
@@ -153,6 +158,23 @@ namespace Pixelaria.Views.ModelViews
             private SharpDX.Direct2D1.Bitmap ImageResource([NotNull] string named)
             {
                 return _bitmapResources.TryGetValue(named, out SharpDX.Direct2D1.Bitmap bitmap) ? bitmap : null;
+            }
+
+            #endregion
+
+            #region LabelView Size Provider
+
+            public SizeF CalculateTextBounds(LabelView labelView)
+            {
+                var renderState = _lastRenderingState;
+                if (renderState == null)
+                    return SizeF.Empty;
+
+                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, labelView.Text, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+                {
+                    return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
+                }
             }
 
             #endregion
@@ -512,7 +534,7 @@ namespace Pixelaria.Views.ModelViews
                     if (state.TextColor != Color.Transparent)
                     {
                         using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
-                        using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.SizeInPoints) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near })
+                        using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
                         using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
                         {
                             renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum, textLayout, brush);

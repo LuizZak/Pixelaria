@@ -460,7 +460,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [Pure]
         public AABB Inset(AABB aabb)
         {
-            return aabb.OffsetBy(Left, Top).WithSize(aabb.Width - Right, aabb.Height - Bottom);
+            return aabb.OffsetBy(Left, Top).WithSize(aabb.Width - Left - Right, aabb.Height - Top - Bottom);
         }
     }
 }

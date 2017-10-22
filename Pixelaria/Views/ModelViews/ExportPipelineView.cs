@@ -107,7 +107,7 @@ namespace Pixelaria.Views.ModelViews
             
             exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
 
-            LoadResources();
+            ConfigurePipelineControl();
             InitTest();
 
             RenderLoop.Run(this, () =>
@@ -122,8 +122,10 @@ namespace Pixelaria.Views.ModelViews
             }, true);
         }
 
-        public void LoadResources()
+        public void ConfigurePipelineControl()
         {
+            LabelView.DefaultLabelViewSizeProvider = exportPipelineControl.D2DRenderer;
+
             exportPipelineControl.D2DRenderer.AddImageResource(RenderingState, Resources.anim_icon,
                     "anim_icon");
             exportPipelineControl.D2DRenderer.AddImageResource(RenderingState, Resources.sheet_new,
