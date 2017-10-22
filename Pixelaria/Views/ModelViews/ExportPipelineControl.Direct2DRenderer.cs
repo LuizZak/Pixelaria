@@ -643,4 +643,17 @@ namespace Pixelaria.Views.ModelViews
             }
         }
     }
+
+    internal static class DirectXHelpers
+    {
+        public static Color4 ToColor4(this Color color)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+            float a = color.A / 255f;
+
+            return new Color4(r, g, b, a);
+        }
+    }
 }

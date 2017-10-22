@@ -25,21 +25,29 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using Point = System.Drawing.Point;
+using Color = System.Drawing.Color;
+using Rectangle = System.Drawing.Rectangle;
 using System.Linq;
 using System.Windows.Forms;
 
-using SharpDX;
+using JetBrains.Annotations;
+
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
 
-using AlphaMode = SharpDX.Direct2D1.AlphaMode;
-using Device = SharpDX.Direct3D11.Device;
 using Factory = SharpDX.DXGI.Factory;
 
-using JetBrains.Annotations;
+using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode;
+using PixelFormat = SharpDX.Direct2D1.PixelFormat;
+
+using Resource = SharpDX.Direct3D11.Resource;
+using Device = SharpDX.Direct3D11.Device;
+
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
@@ -47,12 +55,6 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews.PipelineView;
-using Color = System.Drawing.Color;
-using PixelFormat = SharpDX.Direct2D1.PixelFormat;
-using Point = System.Drawing.Point;
-using Rectangle = System.Drawing.Rectangle;
-using Resource = SharpDX.Direct3D11.Resource;
-using TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -2195,19 +2197,6 @@ namespace Pixelaria.Views.ModelViews
 
                 container.UpdateConnectionViewsFor(view);
             }
-        }
-    }
-
-    internal static class DirectXHelpers
-    {
-        public static Color4 ToColor4(this Color color)
-        {
-            float r = color.R / 255f;
-            float g = color.G / 255f;
-            float b = color.B / 255f;
-            float a = color.A / 255f;
-
-            return new Color4(r, g, b, a);
         }
     }
 }
