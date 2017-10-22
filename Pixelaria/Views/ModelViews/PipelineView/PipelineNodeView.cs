@@ -39,7 +39,6 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         private readonly List<PipelineNodeLinkView> _inputs = new List<PipelineNodeLinkView>();
         private readonly List<PipelineNodeLinkView> _outputs = new List<PipelineNodeLinkView>();
-        private Image _icon;
 
         public string Name => PipelineNode.Name;
 
@@ -55,20 +54,16 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// The font to use when drawing the title of the node view
         /// </summary>
         public Font Font { get; set; }
-
+        
         /// <summary>
-        /// Gets or sets an icon to display besides this pipeline node's title
+        /// Gets or sets the resource for the icon to display besides this pipeline node's title.
+        /// 
+        /// The actual resource contents for the icon's image is dependent on the implementation of the
+        /// renderer that is passed in this node view.
+        /// 
+        /// Set as null to specify no icon should be drawn.
         /// </summary>
-        [CanBeNull]
-        public Image Icon
-        {
-            get => _icon;
-            set
-            {
-                _icon = value;
-                MarkDirty(GetTitleArea());
-            }
-        }
+        public ImageResource? Icon { get; set; }
 
         public IPipelineNode PipelineNode { get; }
 
@@ -88,7 +83,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             int vertLinkSize = (int)(Math.Max(GetInputViews().Length, GetOutputViews().Length) * (LinkSize + LinkSeparation * 1.5f));
 
             if (Icon != null)
-                nameSize.Width += Icon.Width + 5;
+                nameSize.Width += Icon.Value.Width + 5;
 
             Size = new Vector(Math.Max(80, nameSize.Width + 8), Math.Max(60, vertLinkSize));
 
@@ -261,6 +256,23 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Represents an image resource
+        /// </summary>
+        public struct ImageResource
+        {
+            public string ResourceName { get; }
+            public int Width { get; }
+            public int Height { get; }
+
+            public ImageResource(string resourceName, int width, int height)
+            {
+                ResourceName = resourceName;
+                Width = width;
+                Height = height;
+            }
         }
     }
 }

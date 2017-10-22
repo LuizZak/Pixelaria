@@ -26,7 +26,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ModelViews.PipelineView
 {
@@ -35,39 +34,18 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// </summary>
     public class BezierPathView : BaseView
     {
+        /// <summary>
+        /// Cached path for Contains calls
+        /// </summary>
+        [CanBeNull]
+        private GraphicsPath _containsPath;
+
+        private AABB _inputsBounds = AABB.Empty;
+
         private readonly List<IPathInput> _inputs = new List<IPathInput>();
-        private readonly GraphicsPath _path = new GraphicsPath();
-        private Color _fillColor = Color.Transparent;
+
+        public override AABB Bounds => _inputsBounds.Inflated(StrokeWidth, StrokeWidth);
         
-        public override AABB Bounds => _path.GetBounds().Inflated(StrokeWidth, StrokeWidth);
-
-        /// <summary>
-        /// The stroke color of this bezier path
-        /// </summary>
-        public sealed override Color StrokeColor
-        {
-            set
-            {
-                base.StrokeColor = value;
-
-                MarkDirtyPath();
-            }
-        }
-
-        /// <summary>
-        /// The width of the line for this bezier path view
-        /// </summary>
-        public sealed override int StrokeWidth
-        {
-            set
-            {
-                MarkingDirtyRegion(() =>
-                {
-                    base.StrokeWidth = value;
-                });
-            }
-        }
-
         /// <summary>
         /// Whether to force rendering this bezier path view on top of all other views.
         /// 
@@ -80,16 +58,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// 
         /// Defaults to <see cref="Color.Transparent"/>
         /// </summary>
-        public Color FillColor
-        {
-            get => _fillColor;
-            set
-            {
-                _fillColor = value;
-                
-                MarkDirtyPath();
-            }
-        }
+        public Color FillColor { get; set; } = Color.Transparent;
 
         public BezierPathView()
         {
@@ -102,18 +71,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         public void ClearPath()
         {
-            MarkDirtyPath();
+            _containsPath?.Dispose();
+            _containsPath = null;
 
-            _path.Reset();
+            _inputsBounds = AABB.Empty;
             _inputs.Clear();
-        }
-
-        /// <summary>
-        /// Gets a copy of the underlying path of this bezier path view
-        /// </summary>
-        public GraphicsPath GetPath()
-        {
-            return (GraphicsPath)_path.Clone();
         }
 
         /// <summary>
@@ -135,11 +97,17 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         public void AddBezierPoints(Vector pt1, Vector pt2, Vector pt3, Vector pt4)
         {
-            MarkingDirtyRegion(() =>
+            _containsPath?.Dispose();
+            _containsPath = null;
+
+            // Find new maximum size
+            using (var path = new GraphicsPath())
             {
-                _path.AddBezier(pt1, pt2, pt3, pt4);
-                _inputs.Add(new BezierPathInput(pt1, pt2, pt3, pt4));
-            });
+                path.AddBezier(pt1, pt2, pt3, pt4);
+                _inputsBounds = _inputsBounds.Union(path.GetBounds());
+            }
+
+            _inputs.Add(new BezierPathInput(pt1, pt2, pt3, pt4));
         }
 
         /// <summary>
@@ -147,11 +115,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         public void AddRectangle(AABB area)
         {
-            MarkingDirtyRegion(() =>
-            {
-                _path.AddRectangle((RectangleF)area);
-                _inputs.Add(new RectanglePathInput(area));
-            });
+            _containsPath?.Dispose();
+            _containsPath = null;
+
+            _inputsBounds = _inputsBounds.Union(area);
+            _inputs.Add(new RectanglePathInput(area));
         }
 
         /// <summary>
@@ -161,56 +129,44 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         public void SetAsRectangle(AABB area)
         {
-            MarkingDirtyRegion(() =>
-            {
-                _path.Reset();
-                _path.AddRectangle((RectangleF)area);
-
-                _inputs.Clear();
-                _inputs.Add(new RectanglePathInput(area));
-            });
+            ClearPath();
+            AddRectangle(area);
         }
 
         public override bool Contains(Vector point, Vector inflatingArea)
         {
+            if (!_inputsBounds.Inflated(inflatingArea).Contains(point))
+                return false;
+
+            var path = _containsPath ?? (_containsPath = GetPath());
+
             using (var pen = new Pen(StrokeColor, StrokeWidth + inflatingArea.X))
             {
-                return _path.IsOutlineVisible(point, pen);
+                return path.IsOutlineVisible(point, pen);
             }
         }
 
         /// <summary>
-        /// Records the region taken by the current path, then runs a path-modifying closure, and
-        /// on return, performs a differential invalidation routine on the parent view's region.
+        /// Gets a copy of the underlying path of this bezier path view
         /// </summary>
-        private void MarkingDirtyRegion([NotNull] Action execute)
+        private GraphicsPath GetPath()
         {
-            // No before to dirty
-            if (_path.GetBounds().IsEmpty)
+            var path = new GraphicsPath();
+
+            // Re-create path
+            foreach (var input in _inputs)
             {
-                execute();
-                MarkDirtyPath();
-                return;
+                if (input is RectanglePathInput rectangle)
+                {
+                    path.AddRectangle((Rectangle)rectangle.Rectangle);
+                }
+                else if (input is BezierPathInput bezier)
+                {
+                    path.AddBezier(bezier.Start, bezier.ControlPoint1, bezier.ControlPoint2, bezier.End);
+                }
             }
-            
-            var prev = new Region(_path);
 
-            execute();
-
-            prev.Xor(_path);
-
-            MarkDirty(prev);
-        }
-
-        /// <summary>
-        /// Marks the wholeregion of this view's path as dirty on its parent view
-        /// </summary>
-        private void MarkDirtyPath()
-        {
-            if (Math.Abs(Bounds.Area) < float.Epsilon)
-                return;
-
-            MarkDirty(Bounds);
+            return path;
         }
 
         /// <summary>

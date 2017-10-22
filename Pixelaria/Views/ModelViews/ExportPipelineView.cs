@@ -25,9 +25,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -50,11 +47,7 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews.PipelineView;
-using SharpDX.DirectWrite;
-using SharpDX.Mathematics.Interop;
-using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
-using CombineMode = SharpDX.Direct2D1.CombineMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
@@ -70,15 +63,8 @@ namespace Pixelaria.Views.ModelViews
         public ExportPipelineView()
         {
             InitializeComponent();
-
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             
-            InitTest();
-
-            //exportPipelineControl.Visible = false;
-
             Direct2DAttempt();
-            RenderingState = new Direct2DRenderingState();
         }
 
         public void Direct2DAttempt()
@@ -119,6 +105,11 @@ namespace Pixelaria.Views.ModelViews
                 TextAntialiasMode = TextAntialiasMode.Cleartype
             };
             
+            exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
+
+            LoadResources();
+            InitTest();
+
             RenderLoop.Run(this, () =>
             {
                 RenderingState.D2DRenderTarget.BeginDraw();
@@ -129,6 +120,16 @@ namespace Pixelaria.Views.ModelViews
 
                 RenderingState.SwapChain.Present(0, PresentFlags.None);
             }, true);
+        }
+
+        public void LoadResources()
+        {
+            exportPipelineControl.D2DRenderer.AddImageResource(RenderingState, Resources.anim_icon,
+                    "anim_icon");
+            exportPipelineControl.D2DRenderer.AddImageResource(RenderingState, Resources.sheet_new,
+                    "sheet_new");
+            exportPipelineControl.D2DRenderer.AddImageResource(RenderingState, Resources.sheet_save_icon,
+                    "sheet_save_icon");
         }
 
         /// <summary>
@@ -184,15 +185,13 @@ namespace Pixelaria.Views.ModelViews
 
         public void InitTest()
         {
-            DoubleBuffered = true;
-
             var anim = new Animation("Anim 1", 48, 48);
 
             var animNodeView = new PipelineNodeView(new AnimationPipelineStep(anim))
             {
                 Location = new Vector(0, 0),
                 Size = new Vector(100, 80),
-                Icon = Resources.anim_icon
+                Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("anim_icon")
             };
             var animJoinerNodeView = new PipelineNodeView(new AnimationJoinerStep())
             {
@@ -203,13 +202,13 @@ namespace Pixelaria.Views.ModelViews
             {
                 Location = new Vector(450, 30),
                 Size = new Vector(100, 80),
-                Icon = Resources.sheet_new
+                Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("sheet_new")
             };
             var fileExportView = new PipelineNodeView(new FileExportPipelineStep())
             {
                 Location = new Vector(550, 30),
                 Size = new Vector(100, 80),
-                Icon = Resources.sheet_save_icon
+                Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("sheet_save_icon")
             };
 
             exportPipelineControl.PipelineContainer.AddNodeView(animNodeView);
@@ -305,13 +304,19 @@ namespace Pixelaria.Views.ModelViews
 
                 // Add export node from which all sheet steps will derive to
                 var exportStep = new FileExportPipelineStep();
-                exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(exportStep));
+                exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(exportStep)
+                {
+                    Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("sheet_save_icon")
+                });
 
                 var animSteps = new List<AnimationPipelineStep>();
                 foreach (var animation in bundle.Animations)
                 {
                     var node = new AnimationPipelineStep(animation);
-                    var step = new PipelineNodeView(node);
+                    var step = new PipelineNodeView(node)
+                    {
+                        Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("anim_icon")
+                    };
 
                     exportPipelineControl.PipelineContainer.AddNodeView(step);
                     animSteps.Add(node);
@@ -324,7 +329,10 @@ namespace Pixelaria.Views.ModelViews
                     // Create an animation joiner to join all animations for this sheet
                     var joiner = new AnimationJoinerStep();
                     
-                    exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(sheetStep));
+                    exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(sheetStep)
+                    {
+                        Icon = exportPipelineControl.D2DRenderer.PipelineNodeImageResource("sheet_new")
+                    });
                     exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(joiner));
 
                     exportPipelineControl.PipelineContainer.AddConnection(sheetStep, exportStep);
@@ -341,16 +349,15 @@ namespace Pixelaria.Views.ModelViews
                 exportPipelineControl.PipelineContainer.AutosizeNodes();
 
                 exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
-                
-                exportPipelineControl.ResumeLayout(true);
             }
         }
     }
 
-    public class ExportPipelineControl: Control
+    public partial class ExportPipelineControl: Control
     {
+        private readonly Direct2DRenderer _d2DRenderer;
+
         private readonly InternalPipelineContainer _container;
-        private readonly Direct2DRenderer _d2Renderer;
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
         private readonly Region _invalidatedRegion;
 
@@ -358,13 +365,16 @@ namespace Pixelaria.Views.ModelViews
         private ExportPipelineUiFeature _exclusiveControl;
 
         public Point MousePoint { get; private set; }
-        
+
+        public IDirect2DRenderer D2DRenderer => _d2DRenderer;
+
         public IPipelineContainer PipelineContainer => _container;
         
         public ExportPipelineControl()
         {
             _container = new InternalPipelineContainer(this);
-            _d2Renderer = new Direct2DRenderer(_container, this);
+
+            _d2DRenderer = new Direct2DRenderer(_container, this);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
 
@@ -381,6 +391,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (disposing)
             {
+                _d2DRenderer.Dispose();
                 _container.Modified -= ContainerOnModified;
                 _invalidatedRegion.Dispose();
             }
@@ -388,9 +399,17 @@ namespace Pixelaria.Views.ModelViews
             base.Dispose(disposing);
         }
 
+        public void InitializeDirect2DRenderer([NotNull] Direct2DRenderingState state)
+        {
+            _d2DRenderer.Initialize(state);
+        }
+
         public void RenderDirect2D([NotNull] Direct2DRenderingState state)
         {
-            _d2Renderer.Render(state);
+            if(_d2DRenderer == null)
+                throw new InvalidOperationException("Direct2D renderer was not initialized");
+
+            _d2DRenderer.Render(state);
         }
         
         private void ContainerOnModified(object sender, EventArgs eventArgs)
@@ -607,7 +626,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Invalidates all connection line views connected to a given pipeline step
             /// </summary>
-            void InvalidateConnectionViewsFor([NotNull] PipelineNodeView nodeView);
+            void UpdateConnectionViewsFor([NotNull] PipelineNodeView nodeView);
 
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's output.
@@ -688,6 +707,8 @@ namespace Pixelaria.Views.ModelViews
         {
             private readonly List<object> _selection = new List<object>();
 
+            private readonly List<PipelineNodeView> _stepViews = new List<PipelineNodeView>();
+
             private readonly List<PipelineNodeConnectionLineView> _connectionViews =
                 new List<PipelineNodeConnectionLineView>();
 
@@ -704,9 +725,7 @@ namespace Pixelaria.Views.ModelViews
 
             public BaseView Root { get; } = new BaseView();
 
-            public readonly List<PipelineNodeView> StepViews = new List<PipelineNodeView>();
-
-            public PipelineNodeView[] NodeViews => StepViews.ToArray();
+            public PipelineNodeView[] NodeViews => _stepViews.ToArray();
 
             public event EventHandler Modified;
             
@@ -726,14 +745,14 @@ namespace Pixelaria.Views.ModelViews
                     Root.RemoveChild(view);
                 }
 
-                StepViews.Clear();
+                _stepViews.Clear();
                 _connectionViews.Clear();
             }
 
             public void AddNodeView(PipelineNodeView nodeView)
             {
                 Root.AddChild(nodeView);
-                StepViews.Add(nodeView);
+                _stepViews.Add(nodeView);
 
                 Modified?.Invoke(this, EventArgs.Empty);
             }
@@ -984,7 +1003,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public PipelineNodeView ViewForPipelineNode(IPipelineNode node)
             {
-                return StepViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
+                return _stepViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
             }
 
             /// <summary>
@@ -1002,7 +1021,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Invalidates all connection line views connected to a given pipeline step
             /// </summary>
-            public void InvalidateConnectionViewsFor(PipelineNodeView nodeView)
+            public void UpdateConnectionViewsFor(PipelineNodeView nodeView)
             {
                 foreach (var view in _connectionViews)
                 {
@@ -1097,7 +1116,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 using (var graphics = _control.CreateGraphics())
                 {
-                    foreach (var view in StepViews)
+                    foreach (var view in _stepViews)
                     {
                         view.AutoSize(graphics);
                     }
@@ -1151,462 +1170,6 @@ namespace Pixelaria.Views.ModelViews
                 }
             }
         }
-        
-        /// <summary>
-        /// Renders a pipeline export view
-        /// </summary>
-        private class Direct2DRenderer
-        {
-            /// <summary>
-            /// For relative position calculations
-            /// </summary>
-            private readonly InternalPipelineContainer _container;
-
-            private readonly Control _control;
-
-            private readonly List<IRenderingDecorator> _decorators = new List<IRenderingDecorator>();
-
-            /// <summary>
-            /// List of decorators that is removed after paint operations complete
-            /// </summary>
-            private readonly List<IRenderingDecorator> _temporaryDecorators = new List<IRenderingDecorator>();
-
-            /// <summary>
-            /// Control-space clip rectangle for current draw operation.
-            /// </summary>
-            private Rectangle ClipRectangle { get; set; }
-
-            public Direct2DRenderer(InternalPipelineContainer container, Control control)
-            {
-                _container = container;
-                _control = control;
-            }
-            
-            public void Render([NotNull] Direct2DRenderingState state)
-            {
-                var decorators = _decorators.Concat(_temporaryDecorators).ToList();
-
-                ClipRectangle = new Rectangle(Point.Empty, _control.Size);
-
-                foreach (var nodeView in _container.StepViews)
-                {
-                    RenderStepView(nodeView, state, _decorators.ToArray());
-                }
-
-                // Draw background across visible region
-                RenderBackground(state);
-                
-                // Render bezier paths
-                var labels = _container.Root.Children.OfType<LabelView>().ToArray();
-                var beziers = _container.Root.Children.OfType<BezierPathView>().ToArray();
-                var beziersLow = beziers.Where(b => !b.RenderOnTop);
-                var beziersOver = beziers.Where(b => b.RenderOnTop);
-                foreach (var bezier in beziersLow)
-                {
-                    RenderBezierView(bezier, state, decorators.ToArray());
-                }
-
-                foreach (var stepView in _container.StepViews)
-                {
-                    RenderStepView(stepView, state, decorators.ToArray());
-                }
-
-                foreach (var bezier in beziersOver)
-                {
-                    RenderBezierView(bezier, state, decorators.ToArray());
-                }
-
-                foreach (var label in labels.Where(l => l.Visible))
-                {
-                    RenderLabelView(label, state, decorators.ToArray());
-                }
-            }
-
-            public void AddDecorator(IRenderingDecorator decorator)
-            {
-                _decorators.Add(decorator);
-            }
-
-            public void RemoveDecorator(IRenderingDecorator decorator)
-            {
-                _decorators.Remove(decorator);
-            }
-
-            public void PushTemporaryDecorator(IRenderingDecorator decorator)
-            {
-                _temporaryDecorators.Add(decorator);
-            }
-
-            private void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
-            {
-                renderingState.PushingTransform(() =>
-                {
-                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(nodeView.GetAbsoluteTransform().Elements);
-                    
-                    var visibleArea = nodeView.GetFullBounds().Corners.Transform(nodeView.GetAbsoluteTransform()).Area();
-                    
-                    if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
-                        return;
-                    
-                    // Create rendering states for decorators
-                    var state = new PipelineStepViewState
-                    {
-                        FillColor = nodeView.Color,
-                        TitleFillColor = nodeView.Color.Fade(Color.Black, 0.8f),
-                        StrokeColor = nodeView.StrokeColor,
-                        StrokeWidth = nodeView.StrokeWidth,
-                        FontColor = Color.White
-                    };
-
-                    // Decorate
-                    foreach (var decorator in decorators)
-                        decorator.DecoratePipelineStep(nodeView, ref state);
-
-                    var bounds = nodeView.Bounds;
-
-                    var rectangleGeometry = new RoundedRectangleGeometry(renderingState.D2DFactory,
-                        new RoundedRectangle
-                        {
-                            RadiusX = 5,
-                            RadiusY = 5,
-                            Rect = new RawRectangleF(0, 0, bounds.Width, bounds.Height)
-                        });
-                        
-                    // Draw body fill
-                    using (var stopCollection = new GradientStopCollection(renderingState.D2DRenderTarget, new[]
-                    {
-                        new GradientStop {Color = state.FillColor.ToColor4(), Position = 0},
-                        new GradientStop {Color = state.FillColor.Fade(Color.Black, 0.1f).ToColor4(), Position = 1}
-                    }))
-                    using (var brushy = new SharpDX.Direct2D1.LinearGradientBrush(
-                        renderingState.D2DRenderTarget,
-                        new LinearGradientBrushProperties
-                        {
-                            StartPoint = new RawVector2(0, 0),
-                            EndPoint = new RawVector2(0, bounds.Height)
-                        },
-                        stopCollection))
-
-                    {
-                        renderingState.D2DRenderTarget.FillGeometry(rectangleGeometry, brushy);
-                    }
-
-                    var titleArea = nodeView.GetTitleArea();
-
-                    using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, "Microsoft Sans Serif", 11) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
-                    using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, nodeView.Name, textFormat, titleArea.Width, titleArea.Height))
-                    using (var clipPath = new PathGeometry(renderingState.D2DFactory))
-                    {
-                        var sink = clipPath.Open();
-
-                        var titleRect = new RawRectangleF(0, 0, titleArea.Width, titleArea.Height);
-                        var titleClip = new RectangleGeometry(renderingState.D2DFactory, titleRect);
-                        titleClip.Combine(rectangleGeometry, CombineMode.Intersect, sink);
-
-                        sink.Close();
-                        sink.Dispose();
-
-                        titleClip.Dispose();
-                            
-                        // Fill BG
-                        using (var solidColorBrush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TitleFillColor.ToColor4()))
-                        {
-                            renderingState.D2DRenderTarget.FillGeometry(clipPath, solidColorBrush);
-                        }
-                            
-                        int titleX = 4;
-
-                        // Draw icon, if available
-                        if (nodeView.Icon != null)
-                        {
-                            titleX += nodeView.Icon.Width + 5;
-                                
-                            float imgY = titleArea.Height / 2 - (float)nodeView.Icon.Height / 2;
-
-                            using (var bmp =
-                                DirectXHelpers.CreateSharpDxBitmap(renderingState.D2DRenderTarget, (Bitmap)nodeView.Icon))
-                            {
-                                var mode = BitmapInterpolationMode.Linear;
-
-                                // Draw with high quality only when zoomed out
-                                if (new AABB(Vector.Zero, Vector.Unit).TransformedBounds(_container.Root.LocalTransform).Size >=
-                                    Vector.Unit)
-                                {
-                                    mode = BitmapInterpolationMode.NearestNeighbor;
-                                }
-
-                                renderingState.D2DRenderTarget.DrawBitmap(bmp,
-                                    new RawRectangleF(imgY, imgY, nodeView.Icon.Width, nodeView.Icon.Height), 1,
-                                    mode);
-                            }
-                        }
-                            
-                        using (var whiteBrush = new SolidColorBrush(renderingState.D2DRenderTarget, state.FontColor.ToColor4()))
-                        {
-                            renderingState.D2DRenderTarget.DrawTextLayout(new RawVector2(titleX, 0), textLayout, whiteBrush, DrawTextOptions.EnableColorFont);
-                        }
-                    }
-
-                    // Draw outline now
-                    using (var penBrush = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.DrawGeometry(rectangleGeometry, penBrush, state.StrokeWidth);
-                    }
-    
-                    rectangleGeometry.Dispose();
-
-                    // Draw in-going and out-going links
-                    var inLinks = nodeView.GetInputViews();
-                    var outLinks = nodeView.GetOutputViews();
-
-                    // Draw inputs
-                    foreach (var link in inLinks)
-                    {
-                        renderingState.PushingTransform(() =>
-                        {
-                            renderingState.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
-
-                            var rectangle = link.Bounds;
-
-                            var linkState = new PipelineStepViewLinkState
-                            {
-                                FillColor = Color.White,
-                                StrokeColor = Color.Black,
-                                StrokeWidth = 1
-                            };
-
-                            // Decorate
-                            foreach (var decorator in decorators)
-                                decorator.DecoratePipelineStepInput(nodeView, link, ref linkState);
-                            
-                            using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                            using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                            {
-                                renderingState.D2DRenderTarget.FillRectangle(rectangle, brush);
-                                renderingState.D2DRenderTarget.DrawRectangle(rectangle, pen, linkState.StrokeWidth);
-                            }
-                        });
-                    }
-
-                    // Draw outputs
-                    foreach (var link in outLinks)
-                    {
-                        renderingState.PushingTransform(() =>
-                        {
-                            renderingState.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
-
-                            var rectangle = link.Bounds;
-
-                            var linkState = new PipelineStepViewLinkState
-                            {
-                                FillColor = Color.White,
-                                StrokeColor = Color.Black,
-                                StrokeWidth = 1
-                            };
-
-                            // Decorate
-                            foreach (var decorator in decorators)
-                                decorator.DecoratePipelineStepOutput(nodeView, link, ref linkState);
-                                
-                            using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                            using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                            {
-                                renderingState.D2DRenderTarget.FillRectangle(rectangle, brush);
-                                renderingState.D2DRenderTarget.DrawRectangle(rectangle, pen, linkState.StrokeWidth);
-                            }
-                        });
-                    }
-                });
-            }
-            
-            private void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
-            {
-                renderingState.PushingTransform(() =>
-                {
-                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(bezierView.GetAbsoluteTransform().Elements);
-                    
-                    var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
-
-                    if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
-                        return;
-                    
-                    var state = new BezierPathViewState
-                    {
-                        StrokeColor = bezierView.StrokeColor,
-                        StrokeWidth = bezierView.StrokeWidth,
-                        FillColor = bezierView.FillColor
-                    };
-                        
-                    var geom = new PathGeometry(renderingState.D2DRenderTarget.Factory);
-                        
-                    var sink = geom.Open();
-                    
-                    foreach (var input in bezierView.GetPathInputs())
-                    {
-                        if (input is BezierPathView.RectanglePathInput recInput)
-                        {
-                            var rec = recInput.Rectangle;
-
-                            sink.BeginFigure(rec.Minimum, FigureBegin.Filled);
-                            sink.AddLine(new Vector(rec.Right, rec.Top));
-                            sink.AddLine(new Vector(rec.Right, rec.Bottom));
-                            sink.AddLine(new Vector(rec.Left, rec.Bottom));
-                            sink.EndFigure(FigureEnd.Closed);
-                        }
-                        else if (input is BezierPathView.BezierPathInput bezInput)
-                        {
-                            sink.BeginFigure(bezInput.Start, FigureBegin.Filled);
-
-                            sink.AddBezier(new BezierSegment
-                            {
-                                Point1 = bezInput.ControlPoint1,
-                                Point2 = bezInput.ControlPoint2,
-                                Point3 = bezInput.End
-                            });
-
-                            sink.EndFigure(FigureEnd.Open);
-                        }
-                    }
-
-                    sink.Close();
-
-                    // Decorate
-                    foreach (var decorator in decorators)
-                        decorator.DecorateBezierPathView(bezierView, ref state);
-
-                    if (state.FillColor != Color.Transparent)
-                    {
-                        using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.FillColor.ToColor4()))
-                        {
-                            renderingState.D2DRenderTarget.FillGeometry(geom, brush);
-                        }
-                    }
-
-                    using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.DrawGeometry(geom, brush, state.StrokeWidth);
-                    }
-                    
-                    sink.Dispose();
-                    geom.Dispose();
-                });
-            }
-
-            private void RenderLabelView([NotNull] LabelView labelView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
-            {
-                renderingState.PushingTransform(() =>
-                {
-                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(labelView.GetAbsoluteTransform().Elements);
-
-                    var visibleArea =
-                        labelView
-                            .GetFullBounds().Corners
-                            .Transform(labelView.GetAbsoluteTransform()).Area();
-
-                    if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
-                        return;
-
-                    var state = new LabelViewState
-                    {
-                        StrokeColor = labelView.StrokeColor,
-                        StrokeWidth = labelView.StrokeWidth,
-                        TextColor = labelView.TextColor,
-                        BackgroundColor = labelView.BackgroundColor
-                    };
-
-                    // Decorate
-                    foreach (var decorator in decorators)
-                        decorator.DecorateLabelView(labelView, ref state);
-
-                    var roundedRect = new RoundedRectangle
-                    {
-                        RadiusX = 5, RadiusY = 5,
-                        Rect = new RawRectangleF(0, 0, labelView.Bounds.Width, labelView.Bounds.Height)
-                    };
-
-                    using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                    using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.BackgroundColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
-                        renderingState.D2DRenderTarget.DrawRoundedRectangle(roundedRect, pen);
-                    }
-
-                    var textBounds = labelView.TextBounds;
-
-                    if (state.TextColor != Color.Transparent)
-                    {
-                        using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
-                        using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.SizeInPoints) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near })
-                        using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
-                        {
-                            renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum, textLayout, brush);
-                        }
-                    }
-                });
-            }
-
-            private void RenderBackground([NotNull] Direct2DRenderingState renderingState)
-            {
-                var backColor = Color.FromArgb(255, 25, 25, 25);
-                renderingState.D2DRenderTarget.Clear(backColor.ToColor4());
-
-                var scale = _container.Root.Scale;
-                var gridOffset = _container.Root.Location * _container.Root.Scale;
-
-                // Raw, non-transformed target grid separation.
-                var baseGridSize = new Vector(100, 100);
-
-                // Scale grid to increments of baseGridSize over zoom step.
-                var largeGridSize = Vector.Round(baseGridSize * scale);
-                var smallGridSize = largeGridSize / 10;
-
-                var reg = new System.Drawing.RectangleF(PointF.Empty, _control.Size);
-
-                float startX = gridOffset.X % largeGridSize.X - largeGridSize.X;
-                float endX = reg.Right;
-
-                float startY = gridOffset.Y % largeGridSize.Y - largeGridSize.Y;
-                float endY = reg.Bottom;
-
-                var smallGridColor = Color.FromArgb(40, 40, 40).ToColor4();
-                var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
-
-                // Draw small grid (when zoomed in enough)
-                if (scale > new Vector(1.5f, 1.5f))
-                {
-                    using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
-                    {
-                        for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
-                        {
-                            renderingState.D2DRenderTarget.DrawLine(new RawVector2((int) x, (int) reg.Top),
-                                new RawVector2((int) x, (int) reg.Bottom), gridPen);
-                        }
-
-                        for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
-                        {
-                            renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)reg.Left, (int)y),
-                                new RawVector2((int)reg.Right, (int)y), gridPen);
-                        }
-                    }
-                }
-
-                // Draw large grid on top
-                using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, largeGridColor))
-                {
-                    for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
-                    {
-                        renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)x, (int)reg.Top),
-                            new RawVector2((int)x, (int)reg.Bottom), gridPen);
-                    }
-
-                    for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
-                    {
-                        renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)reg.Left, (int)y),
-                            new RawVector2((int)reg.Right, (int)y), gridPen);
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Base class for managing UI states/functionalities based on current states of UI and keyboard/mouse.
@@ -1630,7 +1193,7 @@ namespace Pixelaria.Views.ModelViews
             /// work that modifies the position/scaling of views on screen, which could otherwise
             /// interfere with other exclusive feature's functionalities.
             /// </summary>
-            public bool HasExclusiveControl => Control.CurrentExclusiveControlFeature() == this;
+            protected bool hasExclusiveControl => Control.CurrentExclusiveControlFeature() == this;
 
             protected InternalPipelineContainer container => Control._container;
             protected BaseView root => Control._container.Root;
@@ -1684,24 +1247,6 @@ namespace Pixelaria.Views.ModelViews
                 var feature = Control.CurrentExclusiveControlFeature();
                 return feature != null && feature != this;
             }
-
-            /// <summary>
-            /// Shortcut for <see cref="FeatureRequestedExclusiveControl"/>, with a closure that
-            /// is called if access was granted.
-            /// 
-            /// Performs temporary exclusive control, resetting it back before returning.
-            /// </summary>
-            protected bool RequestTemporaryExclusiveControl(Action ifGranted)
-            {
-                bool hasAccess = RequestExclusiveControl();
-                if (hasAccess)
-                {
-                    ifGranted();
-                    Control.WaiveExclusiveControl(this);
-                }
-
-                return hasAccess;
-            }
         }
 
         private class SelectionUiFeature : ExportPipelineUiFeature, IRenderingDecorator
@@ -1722,7 +1267,7 @@ namespace Pixelaria.Views.ModelViews
 
             public SelectionUiFeature([NotNull] ExportPipelineControl control) : base(control)
             {
-                control._d2Renderer.AddDecorator(this);
+                control._d2DRenderer.AddDecorator(this);
             }
 
             public override void OnMouseLeave(EventArgs e)
@@ -1766,6 +1311,8 @@ namespace Pixelaria.Views.ModelViews
 
                 if (OtherFeatureHasExclusiveControl() || e.Button != MouseButtons.Left)
                     return;
+                
+                _mouseDown = e.Location;
 
                 var closestView = root.ViewUnder(root.ConvertFrom(e.Location, null), new Vector(5));
 
@@ -1778,7 +1325,6 @@ namespace Pixelaria.Views.ModelViews
                     if (RequestExclusiveControl())
                     {
                         _isDrawingSelection = true;
-                        _mouseDown = e.Location;
 
                         _pathView.ClearPath();
                         root.AddChild(_pathView);
@@ -1855,7 +1401,7 @@ namespace Pixelaria.Views.ModelViews
             {
                 base.OnMouseUp(e);
 
-                if (HasExclusiveControl)
+                if (hasExclusiveControl)
                 {
                     // Handle selection of new objects if user let the mouse go over a view
                     // without moving the mouse much (click event)
@@ -1881,6 +1427,15 @@ namespace Pixelaria.Views.ModelViews
                         _underSelectionArea.Clear();
 
                         ReturnExclusiveControl();
+                    }
+                }
+                else if (!OtherFeatureHasExclusiveControl())
+                {
+                    if (_mouseDown.Distance(e.Location) < 3)
+                    {
+                        var view = root.ViewUnder(root.ConvertFrom(e.Location, null), new Vector(5, 5));
+                        if (view != null)
+                            container.AttemptSelect(view);
                     }
                 }
             }
@@ -2185,7 +1740,7 @@ namespace Pixelaria.Views.ModelViews
 
                     DragMaster.Location = masterPos;
 
-                    _container.InvalidateConnectionViewsFor(DragMaster);
+                    _container.UpdateConnectionViewsFor(DragMaster);
                     
                     foreach (var (view, targetOffset) in Targets.Zip(_targetOffsets, (v, p) => (v, p)))
                     {
@@ -2195,7 +1750,7 @@ namespace Pixelaria.Views.ModelViews
                         var position = DragMaster.Location + targetOffset;
                         view.Location = position;
                         
-                        _container.InvalidateConnectionViewsFor(view);
+                        _container.UpdateConnectionViewsFor(view);
                     }
                 }
 
@@ -2490,11 +2045,17 @@ namespace Pixelaria.Views.ModelViews
                 }
             }
         }
+    }
 
+    /// <summary>
+    /// Rendering sub-part of export pipeline control
+    /// </summary>
+    public partial class ExportPipelineControl
+    {
         /// <summary>
         /// Decorator that modifies rendering of objects in the export pipeline view.
         /// </summary>
-        private interface IRenderingDecorator
+        public interface IRenderingDecorator
         {
             void DecoratePipelineStep([NotNull] PipelineNodeView nodeView, ref PipelineStepViewState state);
 
@@ -2558,12 +2119,7 @@ namespace Pixelaria.Views.ModelViews
 
             // Create a quick graph for the views
             var root = new DirectedAcyclicNode<PipelineNodeView>(null);
-            var nodes = new List<DirectedAcyclicNode<PipelineNodeView>>();
-
-            foreach (var nodeView in nodeViews)
-            {
-                nodes.Add(new DirectedAcyclicNode<PipelineNodeView>(nodeView));
-            }
+            var nodes = nodeViews.Select(nodeView => new DirectedAcyclicNode<PipelineNodeView>(nodeView)).ToList();
 
             // Deal with connections, now
             foreach (var node in nodes)
@@ -2578,15 +2134,14 @@ namespace Pixelaria.Views.ModelViews
                 foreach (var prevView in previous)
                 {
                     var prevNode = nodes.FirstOrDefault(n => Equals(n.Value, prevView));
-                    Debug.Assert(prevNode != null, "prevNode != null");
-                    prevNode.AddChild(node);
+                    prevNode?.AddChild(node);
                 }
 
                 foreach (var nextView in next)
                 {
                     var nextNode = nodes.FirstOrDefault(n => Equals(n.Value, nextView));
-                    Debug.Assert(nextNode != null, "nextNode != null");
-                    node.AddChild(nextNode);
+                    if (nextNode != null)
+                        node.AddChild(nextNode);
                 }
 
                 // For nodes w/ no parents, add root as their parents
@@ -2609,7 +2164,7 @@ namespace Pixelaria.Views.ModelViews
                 view.Location = new Vector(x, 0);
                 x += view.GetFullBounds().Width + 40;
 
-                container.InvalidateConnectionViewsFor(view);
+                container.UpdateConnectionViewsFor(view);
             }
 
             // Organize Y coordinates
@@ -2630,56 +2185,19 @@ namespace Pixelaria.Views.ModelViews
 
                 var (linkFrom, linkTo) = connections[0];
 
-                var globY = linkTo.ConvertTo(linkTo.Bounds.Center, container.Root).Y;
+                float globY = linkTo.ConvertTo(linkTo.Bounds.Center, container.Root).Y;
 
-                var targetY = globY - linkFrom.Center.Y;
+                float targetY = globY - linkFrom.Center.Y;
 
                 view.Location = new Vector(view.Location.X, targetY);
 
-                container.InvalidateConnectionViewsFor(view);
+                container.UpdateConnectionViewsFor(view);
             }
         }
     }
 
     internal static class DirectXHelpers
     {
-        public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
-        {
-            var sourceArea = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-            var bitmapProperties =
-                new BitmapProperties(new PixelFormat(Format.R8G8B8A8_UNorm, AlphaMode.Premultiplied));
-            var size = new Size2(bitmap.Width, bitmap.Height);
-
-            // Transform pixels from BGRA to RGBA
-            int stride = bitmap.Width * sizeof(int);
-            using (var tempStream = new DataStream(bitmap.Height * stride, true, true))
-            {
-                // Lock System.Drawing.Bitmap
-                var bitmapData = bitmap.LockBits(sourceArea, ImageLockMode.ReadOnly,
-                    System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
-                var data = (byte*)bitmapData.Scan0;
-
-                // Convert all pixels 
-                for (int y = 0; y < bitmap.Height; y++)
-                {
-                    int offset = bitmapData.Stride * y;
-                    for (int x = 0; x < bitmap.Width; x++)
-                    {
-                        byte b = data[offset++];
-                        byte g = data[offset++];
-                        byte r = data[offset++];
-                        byte a = data[offset++];
-                        int rgba = r | (g << 8) | (b << 16) | (a << 24);
-                        tempStream.Write(rgba);
-                    }
-                }
-                bitmap.UnlockBits(bitmapData);
-                tempStream.Position = 0;
-
-                return new SharpDX.Direct2D1.Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
-            }
-        }
-
         public static Color4 ToColor4(this Color color)
         {
             float r = color.R / 255f;

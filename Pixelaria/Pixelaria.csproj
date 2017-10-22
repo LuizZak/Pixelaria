@@ -236,6 +236,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\ModelViews\Direct2DRenderingState.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineControl.Direct2DRenderer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\ModelViews\IDirect2DRenderer.cs" />
     <Compile Include="Views\ModelViews\PipelineView\BaseView.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />

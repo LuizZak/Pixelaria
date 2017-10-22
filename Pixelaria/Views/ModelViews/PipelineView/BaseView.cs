@@ -40,16 +40,6 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     public class BaseView : IEquatable<BaseView>
     {
         private Vector _size;
-        private Vector _location;
-        private Vector _scale = Vector.Unit;
-        private float _rotation;
-
-        /// <summary>
-        /// Event fired whenever the DirtyRegion of this base view has been updated.
-        /// 
-        /// Fired only for Root views.
-        /// </summary>
-        public event EventHandler DirtyRegionUpdated;
 
         /// <summary>
         /// Gets the parent view, if any, of this base view.
@@ -58,17 +48,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         [CanBeNull]
         public BaseView Parent { get; private set; }
-
-        /// <summary>
-        /// Gets the dirty region for this BaseView, in local coordinates.
-        /// 
-        /// Every time a child view is modified, it propagates its dirty region
-        /// up to parent views until reaching the Root entity, wherein the dirty
-        /// region will be used during screen refreshing.
-        /// </summary>
-        [NotNull]
-        public Region DirtyRegion { get; } = new Region();
-
+        
         /// <summary>
         /// Transformation matrix.
         /// 
@@ -120,17 +100,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Top-left location of view, in pixels
         /// </summary>
-        public virtual Vector Location
-        {
-            get => _location;
-            set
-            {
-                PerformMarkingDirty(() =>
-                {
-                    _location = value;
-                });
-            }
-        }
+        public virtual Vector Location { get; set; }
 
         /// <summary>
         /// Size of view, in pixels
@@ -151,33 +121,13 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Relative scale of this base view
         /// </summary>
-        public Vector Scale
-        {
-            get => _scale;
-            set
-            {
-                PerformMarkingDirty(() =>
-                {
-                    _scale = value;
-                });
-            }
-        }
+        public Vector Scale { get; set; } = Vector.Unit;
 
         /// <summary>
         /// Gets or sets the rotation of this view.
         /// Rotations are relative to the view's top-left corner.
         /// </summary>
-        public float Rotation
-        {
-            get => _rotation;
-            set
-            {
-                PerformMarkingDirty(() =>
-                {
-                    _rotation = value;
-                });
-            }
-        }
+        public float Rotation { get; set; }
 
         /// <summary>
         /// The stroke color of this bezier path
@@ -203,7 +153,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var cur = this;
             while (cur != null)
             {
-                if(cur == child)
+                if(Equals(cur, child))
                     throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
 
                 cur = cur.Parent;
@@ -213,8 +163,6 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
             child.Parent = this;
             children.Add(child);
-
-            child.MarkDirty(child.GetFullBounds());
         }
 
         /// <summary>
@@ -226,7 +174,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var cur = child;
             while (cur != null)
             {
-                if (cur == this)
+                if (Equals(cur, this))
                     throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
 
                 cur = child.Parent;
@@ -236,8 +184,6 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
             child.Parent = this;
             children.Insert(index, child);
-
-            child.MarkDirty(child.GetFullBounds());
         }
 
         /// <summary>
@@ -245,11 +191,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// </summary>
         public void RemoveChild([NotNull] BaseView child)
         {
-            if(child.Parent != this)
+            if(!Equals(child.Parent, this))
                 throw new ArgumentException(@"Child BaseView passed in is not a direct child of this base view", nameof(child));
-
-            MarkDirty(child.GetFullBounds().TransformedBounds(child.LocalTransform));
-
+            
             child.Parent = null;
             children.Remove(child);
         }
@@ -319,8 +263,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public BaseView ViewUnder(Vector point, Vector inflatingArea)
         {
             // Search children first
-            foreach (var baseView in children.AsQueryable().Reverse())
+            for (var i = children.Count - 1; i >= 0; i--)
             {
+                var baseView = children[i];
                 var ht = baseView.ViewUnder(point * baseView.LocalTransform.Inverted(), inflatingArea);
                 if (ht != null)
                 {
@@ -349,8 +294,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public BaseView ViewUnder(Vector point, Vector inflatingArea, Func<BaseView, bool> predicate)
         {
             // Search children first
-            foreach (var baseView in children.AsQueryable().Reverse())
+            for (var i = children.Count - 1; i >= 0; i--)
             {
+                var baseView = children[i];
                 var ht = baseView.ViewUnder(point * baseView.LocalTransform.Inverted(), inflatingArea, predicate);
                 if (ht != null)
                     return ht;
@@ -429,8 +375,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         private void InternalViewsUnder(AABB aabb, Vector inflatingArea, ICollection<BaseView> target)
         {
             // Search children first
-            foreach (var baseView in children.AsQueryable().Reverse())
+            for (var i = children.Count - 1; i >= 0; i--)
             {
+                var baseView = children[i];
                 var transformed = aabb.TransformedBounds(baseView.LocalTransform.Inverted());
 
                 // Early-out the view
@@ -580,87 +527,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
             return bounds;
         }
-
-        /// <summary>
-        /// Marks a (local) rectangle area of this base view as dirty.
-        /// </summary>
-        public void MarkDirty(AABB area)
-        {
-            // Transform area to Region
-            var region = new Region((RectangleF) area);
-
-            MarkDirty(region);
-        }
-
-        /// <summary>
-        /// Marks a (local) region of this base view as dirty.
-        /// </summary>
-        public void MarkDirty([NotNull] Region region)
-        {
-            if (Parent != null)
-            {
-                region.Transform(LocalTransform.Inverted());
-
-                Parent.MarkDirty(region);
-                return;
-            }
-            
-            // Expand rects to deal w/ artifacts
-            var rects = region.GetRegionScans(new Matrix()).Select(r => r.Inflated(3, 3)).ToArray();
-
-            region.MakeEmpty();
-            foreach (var rectangleF in rects)
-            {
-                region.Union(rectangleF);
-            }
-
-            DirtyRegion.Union(region);
-
-            DirtyRegionUpdated?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Clears the dirty region of this view and all parents up the hierarchy.
-        /// </summary>
-        public void ClearDirtyRegion()
-        {
-            Parent?.ClearDirtyRegion();
-            DirtyRegion.MakeEmpty();
-        }
-
-        /// <summary>
-        /// Helper for marking a region dirty after modifying the bounds of this base view
-        /// on its parent during an action.
-        /// 
-        /// After the action block is finished, marks the parent view as dirty on both the before
-        /// and after regions after transforming the view with the given action block.
-        /// </summary>
-        protected void PerformMarkingDirty([NotNull] Action action)
-        {
-            // Prepare invalidation area on parent
-            var parent = Parent;
-            if (parent == null)
-            {
-                // This is the root view- apply changes directly to dirty region
-                MarkDirty(GetFullBounds().Inflated(5, 5));
-
-                action();
-                
-                MarkDirty(GetFullBounds().Inflated(5, 5));
-
-                return;
-            }
-            
-            var beforeBounds = parent.ConvertFrom(GetFullBounds(), this);
-
-            action();
-
-            var afterBounds = parent.ConvertFrom(GetFullBounds(), this);
-
-            parent.MarkDirty(beforeBounds.Inflated(15, 15));
-            parent.MarkDirty(afterBounds.Inflated(15, 15));
-        }
-
+        
         protected virtual void OnResize()
         {
             

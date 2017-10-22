@@ -37,23 +37,13 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         private string _text = "";
         [NotNull]
         private Font _font = new Font(FontFamily.GenericSansSerif.Name, 10);
-        private Color _textColor = Color.White;
-        private Color _backgroundColor;
-        private bool _visible;
+
         private InsetBounds _textInsetBounds;
 
         /// <summary>
         /// Gets or sets the background color that is drawn around the label.
         /// </summary>
-        public Color BackgroundColor
-        {
-            get => _backgroundColor;
-            set
-            {
-                _backgroundColor = value;
-                MarkDirty(Bounds);
-            }
-        }
+        public Color BackgroundColor { get; set; }
 
         /// <summary>
         /// Gets or sets the string this label represents
@@ -66,27 +56,17 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             {
                 if (_text == value)
                     return;
+                
+                _text = value;
 
-                PerformMarkingDirty(() => {
-                    _text = value;
-
-                    CalculateBounds();
-                });
+                CalculateBounds();
             }
         }
         
         /// <summary>
         /// Gets or sets the text color of this label view
         /// </summary>
-        public Color TextColor
-        {
-            get => _textColor;
-            set
-            {
-                _textColor = value;
-                MarkDirty(Bounds);
-            }
-        }
+        public Color TextColor { get; set; } = Color.White;
 
         /// <summary>
         /// Gets or sets the text font for the text of this label view
@@ -97,11 +77,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             get => _font;
             set
             {
-                PerformMarkingDirty(() => {
-                    _font = value;
+                _font = value;
 
-                    CalculateBounds();
-                });
+                CalculateBounds();
             }
         }
 
@@ -119,32 +97,16 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             {
                 if (TextInsetBounds.Equals(value))
                     return;
-
-                PerformMarkingDirty(() =>
-                {
-                    _textInsetBounds = value;
-                    CalculateBounds();
-                });
+                
+                _textInsetBounds = value;
+                CalculateBounds();
             }
         }
 
         /// <summary>
         /// Gets or sets if this label should be visible on screen.
         /// </summary>
-        public bool Visible
-        {
-            get => _visible;
-            set
-            {
-                if (_visible == value)
-                    return;
-
-                PerformMarkingDirty(() =>
-                {
-                    _visible = value;
-                });
-            }
-        }
+        public bool Visible { get; set; }
 
         public override AABB Bounds => _bounds;
 
