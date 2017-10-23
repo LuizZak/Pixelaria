@@ -50,11 +50,28 @@ namespace Pixelaria.ExportPipeline.Outputs
             Source = source;
         }
 
-        public IObservable<object> GetConnection()
+        public IObservable<object> GetObservable()
         {
             return Source.Select(value => (object)value);
         }
 
         public abstract IPipelineMetadata GetMetadata();
+    }
+
+    /// <summary>
+    /// A generic pipeline output.
+    /// Used for basic output value types that don't need special handling.
+    /// </summary>
+    public sealed class GenericPipelineOutput<T> : AbstractPipelineOutput<T>
+    {
+        public GenericPipelineOutput([NotNull] IPipelineNode step, [NotNull] IObservable<T> source, [NotNull] string name) : base(step, source)
+        {
+            Name = name;
+        }
+
+        public override IPipelineMetadata GetMetadata()
+        {
+            return PipelineMetadata.Empty;
+        }
     }
 }

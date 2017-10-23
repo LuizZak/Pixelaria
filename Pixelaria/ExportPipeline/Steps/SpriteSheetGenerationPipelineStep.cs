@@ -59,18 +59,8 @@ namespace Pixelaria.ExportPipeline.Steps
                 SheetSettingsInput
             };
             
-            var animConnections =
-                AnimationsInput
-                    .ConnectionsObservable
-                    .SelectMany(o => o.GetConnection())
-                    .OfType<Animation[]>();
-
-            var settingsConnections =
-                SheetSettingsInput
-                    .ConnectionsObservable
-                    .Select(o => o.GetConnection())
-                    .SelectMany(o => o)
-                    .OfType<AnimationSheetExportSettings>();
+            var animConnections = AnimationsInput.AnyConnection();
+            var settingsConnections = SheetSettingsInput.AnyConnection();
 
             var source =
                 animConnections

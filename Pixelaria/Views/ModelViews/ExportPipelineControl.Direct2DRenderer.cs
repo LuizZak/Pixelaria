@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
+using Font = System.Drawing.Font;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
@@ -32,10 +33,10 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Windows.Forms;
 
+using JetBrains.Annotations;
+
 using SharpDX;
 using SharpDX.Direct2D1;
-
-using JetBrains.Annotations;
 
 using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
@@ -45,9 +46,10 @@ using SharpDX.DXGI;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
+using TextRange = SharpDX.DirectWrite.TextRange;
+
 using Pixelaria.Utils;
 using Pixelaria.Views.ModelViews.PipelineView;
-using Font = System.Drawing.Font;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -69,6 +71,8 @@ namespace Pixelaria.Views.ModelViews
             private readonly IPipelineContainer _container;
 
             private readonly Control _control;
+
+            private readonly TextColorRenderer _textColorRenderer = new TextColorRenderer();
 
             private readonly List<IRenderingDecorator> _decorators = new List<IRenderingDecorator>();
 
@@ -101,11 +105,16 @@ namespace Pixelaria.Views.ModelViews
             public void Dispose()
             {
                 _nodeTitlesTextFormat.Dispose();
+
+                _textColorRenderer.DefaultBrush.Dispose();
+                _textColorRenderer.Dispose();
             }
 
             public void Initialize([NotNull] Direct2DRenderingState state)
             {
                 _lastRenderingState = state;
+
+                _textColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
 
                 _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11)
                 {
@@ -172,28 +181,36 @@ namespace Pixelaria.Views.ModelViews
 
             public SizeF CalculateTextBounds(LabelView labelView)
             {
-                var renderState = _lastRenderingState;
-                if (renderState == null)
-                    return SizeF.Empty;
-
-                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
-                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, labelView.Text, textFormat, float.PositiveInfinity, float.PositiveInfinity))
-                {
-                    return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
-                }
+                return CalculateTextBounds(labelView.AttributedText, labelView.TextFont);
+            }
+            
+            public SizeF CalculateTextBounds(string text, Font font)
+            {
+                return CalculateTextBounds(new AttributedText(text), font);
             }
 
-            public SizeF CalculateTextBounds(string text, Font font)
+            public SizeF CalculateTextBounds(IAttributedText text, Font font)
             {
                 var renderState = _lastRenderingState;
                 if (renderState == null)
                     return SizeF.Empty;
 
                 using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font.Name, font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center, WordWrapping = WordWrapping.WholeWord})
-                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
                 {
-                    var line = textLayout.Metrics.LineCount;
+                    foreach (var textSegment in text.GetTextSegments())
+                    {
+                        if (!textSegment.HasAttribute<TextFontAttribute>())
+                            continue;
 
+                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+
+                        textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        textLayout.SetFontSize(fontAttr.Font.Size,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+                    
                     return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
                 }
             }
@@ -202,41 +219,44 @@ namespace Pixelaria.Views.ModelViews
 
             public void Render([NotNull] Direct2DRenderingState state)
             {
+                // Update text renderer's references
+                _textColorRenderer.DefaultBrush.Dispose();
+                _textColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
+
                 var decorators = _decorators.Concat(_temporaryDecorators).ToList();
 
                 ClipRectangle = new Rectangle(Point.Empty, _control.Size);
 
-                foreach (var nodeView in _container.NodeViews)
-                {
-                    RenderStepView(nodeView, state, _decorators.ToArray());
-                }
-
                 // Draw background across visible region
                 RenderBackground(state);
-                
-                // Render bezier paths
-                var labels = _container.Root.Children.OfType<LabelView>().ToArray();
-                var beziers = _container.Root.Children.OfType<BezierPathView>().ToArray();
+
+                RenderInView(_container.ContentsView, state, decorators.ToArray());
+                RenderInView(_container.UiContainerView, state, decorators.ToArray());
+            }
+
+            private void RenderInView([NotNull] BaseView view, [NotNull] Direct2DRenderingState state, IRenderingDecorator[] decorators)
+            {
+                // Render all remaining objects
+                var labels = view.Children.OfType<LabelView>().ToArray();
+                var beziers = view.Children.OfType<BezierPathView>().ToArray();
+                var nodeViews = view.Children.OfType<PipelineNodeView>().ToArray();
                 var beziersLow = beziers.Where(b => !b.RenderOnTop);
                 var beziersOver = beziers.Where(b => b.RenderOnTop);
                 foreach (var bezier in beziersLow)
                 {
-                    RenderBezierView(bezier, state, decorators.ToArray());
+                    RenderBezierView(bezier, state, decorators);
                 }
-
-                foreach (var stepView in _container.NodeViews)
+                foreach (var stepView in nodeViews)
                 {
-                    RenderStepView(stepView, state, decorators.ToArray());
+                    RenderStepView(stepView, state, decorators);
                 }
-
                 foreach (var bezier in beziersOver)
                 {
-                    RenderBezierView(bezier, state, decorators.ToArray());
+                    RenderBezierView(bezier, state, decorators);
                 }
-
                 foreach (var label in labels.Where(l => l.Visible))
                 {
-                    RenderLabelView(label, state, decorators.ToArray());
+                    RenderLabelView(label, state, decorators);
                 }
             }
 
@@ -356,7 +376,7 @@ namespace Pixelaria.Views.ModelViews
                             var mode = BitmapInterpolationMode.Linear;
 
                             // Draw with high quality only when zoomed out
-                            if (new AABB(Vector.Zero, Vector.Unit).TransformedBounds(_container.Root.LocalTransform).Size >=
+                            if (new AABB(Vector.Zero, Vector.Unit).TransformedBounds(_container.ContentsView.LocalTransform).Size >=
                                 Vector.Unit)
                             {
                                 mode = BitmapInterpolationMode.NearestNeighbor;
@@ -573,12 +593,55 @@ namespace Pixelaria.Views.ModelViews
                     }
 
                     var textBounds = labelView.TextBounds;
-
-                    if (state.TextColor != Color.Transparent)
+                    
+                    using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
+                    using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                    using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
                     {
-                        using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
-                        using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
-                        using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
+                        // Apply text attributes
+                        if (labelView.AttributedText.HasAttributes)
+                        {
+                            var disposes = new List<IDisposable>();
+
+                            foreach (var textSegment in labelView.AttributedText.GetTextSegments())
+                            {
+                                if (textSegment.HasAttribute<ForegroundColorAttribute>())
+                                {
+                                    var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
+
+                                    var segmentBrush =
+                                        new SolidColorBrush(renderingState.D2DRenderTarget,
+                                            colorAttr.ForeColor.ToColor4());
+
+                                    disposes.Add(segmentBrush);
+
+                                    textLayout.SetDrawingEffect(segmentBrush,
+                                        new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                                }
+                                if (textSegment.HasAttribute<TextFontAttribute>())
+                                {
+                                    var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+                                        
+                                    textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                                        new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                                    textLayout.SetFontSize(fontAttr.Font.Size,
+                                        new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                                }
+                            }
+
+                            var prev = _textColorRenderer.DefaultBrush;
+                            _textColorRenderer.DefaultBrush = brush;
+
+                            textLayout.Draw(_textColorRenderer, textBounds.Minimum.X, textBounds.Minimum.Y);
+
+                            _textColorRenderer.DefaultBrush = prev;
+                                
+                            foreach (var disposable in disposes)
+                            {
+                                disposable.Dispose();
+                            }
+                        }
+                        else
                         {
                             renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum, textLayout, brush);
                         }
@@ -592,9 +655,9 @@ namespace Pixelaria.Views.ModelViews
 
                 renderingState.PushingTransform(() =>
                 {
-                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(_container.Root.GetAbsoluteTransform().Elements);
+                    var transform = _container.ContentsView.GetAbsoluteTransform();
 
-                    var topLeft = _container.Root.ConvertFrom(Vector.Zero, null);
+                    var topLeft = _container.ContentsView.ConvertFrom(Vector.Zero, null);
 
                     var scale = Vector.Unit;
                     var gridOffset = topLeft;
@@ -606,7 +669,7 @@ namespace Pixelaria.Views.ModelViews
                     var largeGridSize = Vector.Round(baseGridSize * scale);
                     var smallGridSize = largeGridSize / 10;
 
-                    var reg = new RectangleF(topLeft, new SizeF(_control.Size / _container.Root.Scale));
+                    var reg = new RectangleF(topLeft, new SizeF(_control.Size / _container.ContentsView.Scale));
 
                     float startX = gridOffset.X;
                     float endX = reg.Right;
@@ -618,20 +681,24 @@ namespace Pixelaria.Views.ModelViews
                     var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
 
                     // Draw small grid (when zoomed in enough)
-                    if (_container.Root.Scale > new Vector(1.5f, 1.5f))
+                    if (_container.ContentsView.Scale > new Vector(1.5f, 1.5f))
                     {
                         using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
                         {
                             for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
                             {
-                                renderingState.D2DRenderTarget.DrawLine(new RawVector2(x, reg.Top),
-                                    new RawVector2(x, reg.Bottom), gridPen);
+                                var start = new Vector(x, reg.Top) * transform;
+                                var end = new Vector(x, reg.Bottom) * transform;
+
+                                renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
                             }
 
                             for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
                             {
-                                renderingState.D2DRenderTarget.DrawLine(new RawVector2(reg.Left, y),
-                                    new RawVector2(reg.Right, y), gridPen);
+                                var start = new Vector(reg.Left, y) * transform;
+                                var end = new Vector(reg.Right, y) * transform;
+
+                                renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
                             }
                         }
                     }
@@ -641,14 +708,18 @@ namespace Pixelaria.Views.ModelViews
                     {
                         for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
                         {
-                            renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)x, (int)reg.Top),
-                                new RawVector2((int)x, (int)reg.Bottom), gridPen);
+                            var start = new Vector(x, reg.Top) * transform;
+                            var end = new Vector(x, reg.Bottom) * transform;
+
+                            renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
                         }
 
                         for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
                         {
-                            renderingState.D2DRenderTarget.DrawLine(new RawVector2((int)reg.Left, (int)y),
-                                new RawVector2((int)reg.Right, (int)y), gridPen);
+                            var start = new Vector(reg.Left, y) * transform;
+                            var end = new Vector(reg.Right, y) * transform;
+
+                            renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
                         }
                     }
                 });
@@ -688,6 +759,35 @@ namespace Pixelaria.Views.ModelViews
                     tempStream.Position = 0;
 
                     return new SharpDX.Direct2D1.Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
+                }
+            }
+
+            public class TextColorRenderer : TextRendererBase
+            {
+                private RenderTarget _renderTarget;
+                public SolidColorBrush DefaultBrush { get; set; }
+
+                public void AssignResources(RenderTarget renderTarget, SolidColorBrush defaultBrush)
+                {
+                    _renderTarget = renderTarget;
+                    DefaultBrush = defaultBrush;
+                }
+
+                public override Result DrawGlyphRun(object clientDrawingContext, float baselineOriginX, float baselineOriginY, MeasuringMode measuringMode, GlyphRun glyphRun, GlyphRunDescription glyphRunDescription, ComObject clientDrawingEffect)
+                {
+                    var sb = DefaultBrush;
+                    if (clientDrawingEffect is SolidColorBrush brush)
+                        sb = brush;
+
+                    try
+                    {
+                        _renderTarget.DrawGlyphRun(new Vector2(baselineOriginX, baselineOriginY), glyphRun, sb, measuringMode);
+                        return Result.Ok;
+                    }
+                    catch
+                    {
+                        return Result.Fail;
+                    }
                 }
             }
         }

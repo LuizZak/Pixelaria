@@ -54,15 +54,30 @@ namespace Pixelaria.ExportPipeline.Inputs
             }
         }
 
+        /// <summary>
+        /// Returns an observable sequence that is equal to the flatmap of <see cref="ConnectionsObservable"/>
+        /// filtered by types <see cref="T"/>.
+        /// </summary>
+        public IObservable<T> AnyConnection()
+        {
+            return
+                ConnectionsObservable
+                    .SelectMany(o => o.GetObservable())
+                    .OfType<T>();
+        }
+
         protected AbstractSinglePipelineInput([NotNull] IPipelineNode step)
         {
             Node = step;
         }
         
-        public void Connect(IPipelineOutput output)
+        public IPipelineLinkConnection Connect(IPipelineOutput output)
         {
-            if (!_connections.Contains(output))
-                _connections.Add(output);
+            if (_connections.Contains(output))
+                return null;
+
+            _connections.Add(output);
+            return new PipelineLinkConnection(this, output);
         }
 
         public void Disconnect(IPipelineOutput output)
@@ -71,5 +86,22 @@ namespace Pixelaria.ExportPipeline.Inputs
         }
 
         public abstract IPipelineMetadata GetMetadata();
+    }
+
+    /// <summary>
+    /// A generic pipeline output.
+    /// Used for basic input value types that don't need special handling.
+    /// </summary>
+    public sealed class GenericPipelineInput<T> : AbstractSinglePipelineInput<T>
+    {
+        public GenericPipelineInput([NotNull] IPipelineNode step, [NotNull] string name) : base(step)
+        {
+            Name = name;
+        }
+
+        public override IPipelineMetadata GetMetadata()
+        {
+            return PipelineMetadata.Empty;
+        }
     }
 }

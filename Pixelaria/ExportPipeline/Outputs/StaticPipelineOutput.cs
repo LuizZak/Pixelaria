@@ -46,7 +46,7 @@ namespace Pixelaria.ExportPipeline.Outputs
             Name = name;
         }
 
-        public IObservable<object> GetConnection()
+        public IObservable<object> GetObservable()
         {
             return Observable.Create<T>(obs =>
             {

@@ -217,7 +217,6 @@
     <Compile Include="ExportPipeline\Inputs\AnimationsInput.cs" />
     <Compile Include="ExportPipeline\Outputs\AnimationsOutput.cs" />
     <Compile Include="ExportPipeline\Outputs\BundleSheetExportOutput.cs" />
-    <Compile Include="ExportPipeline\IPipelineEnd.cs" />
     <Compile Include="ExportPipeline\PipelineMetadata.cs" />
     <Compile Include="ExportPipeline\IPipelineStep.cs" />
     <Compile Include="ExportPipeline\ObsExt.cs" />
@@ -565,6 +564,7 @@
     <Compile Include="Views\ModelViews\PipelineView\AABB.cs" />
     <Compile Include="Views\ModelViews\PipelineView\BezierPathView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\GraphLayout.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\AttributedText.cs" />
     <Compile Include="Views\ModelViews\PipelineView\LabelView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeLinkView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeView.cs" />

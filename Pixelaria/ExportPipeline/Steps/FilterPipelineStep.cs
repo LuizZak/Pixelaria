@@ -20,11 +20,13 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using JetBrains.Annotations;
+using Pixelaria.Data.Exports;
 using Pixelaria.ExportPipeline.Inputs;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.Filters;
@@ -51,7 +53,7 @@ namespace Pixelaria.ExportPipeline.Steps
             
             var connections =
                 Input[0].Connections
-                    .Select(o => o.GetConnection()).ToObservable()
+                    .Select(o => o.GetObservable()).ToObservable()
                     .SelectMany(o => o)
                     .Repeat();
 
@@ -74,6 +76,122 @@ namespace Pixelaria.ExportPipeline.Steps
         public override IPipelineMetadata GetMetadata()
         {
             return PipelineMetadata.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Pipeline step that applies a filter onto a Bitmap and passes a copy of it
+    /// forward.
+    /// </summary>
+    internal sealed class TransparencyFilterPipelineStep : AbstractPipelineStep
+    {
+        public override string Name => "Transparency Filter";
+        
+        public override IReadOnlyList<IPipelineInput> Input { get; }
+        public override IReadOnlyList<IPipelineOutput> Output { get; }
+
+        public TransparencyFilterPipelineStep()
+        {
+            var alphaInput = new GenericPipelineInput<float>(this, "Transparency factor");
+            var bitmapInput = new FilterBitmapInput(this);
+
+            Input = new IPipelineInput[]
+            {
+                alphaInput,
+                bitmapInput
+            };
+
+            var bitmapConnections = bitmapInput.AnyConnectionBitmap();
+            var transp = alphaInput.AnyConnection();
+
+            var source =
+                bitmapConnections
+                    .WithLatestFrom(transp, (bitmap, alpha) => (bitmap, alpha))
+                    .Select(tup =>
+                    {
+                        var (bitmap, alpha) = tup;
+
+                        // Clone before applying filter
+                        var bit = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+
+                        var filter = new TransparencyFilter {Transparency = alpha};
+                        filter.ApplyToBitmap(bit);
+
+                        return bit;
+                    });
+
+            Output = new IPipelineOutput[] { new PipelineBitmapOutput(this, source, "Filtered Bitmap") };
+        }
+
+        /// <summary>
+        /// Input that accepts bitmaps
+        /// </summary>
+        public class FilterBitmapInput : IPipelineInput
+        {
+            private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
+
+            public IPipelineNode Node { get; }
+            public string Name { get; }
+
+            public Type[] DataTypes { get; } = {typeof(Bitmap), typeof(BundleSheetExport)};
+            public IPipelineOutput[] Connections => _connections.ToArray();
+
+            public FilterBitmapInput([NotNull] IPipelineNode step)
+            {
+                Node = step;
+                Name = "Image";
+            }
+            
+            /// <summary>
+            /// Returns a one-off observable that fetches the latest value of the Connections
+            /// field everytime it is subscribed to.
+            /// </summary>
+            public IObservable<IPipelineOutput> ConnectionsObservable
+            {
+                get
+                {
+                    return Observable.Create<IPipelineOutput>(obs => Connections.ToObservable().Subscribe(obs));
+                }
+            }
+
+            /// <summary>
+            /// Returns an observable sequence that is equal to the flatmap of <see cref="ConnectionsObservable"/>
+            /// filtered by types <see cref="Bitmap"/>.
+            /// </summary>
+            public IObservable<Bitmap> AnyConnectionBitmap()
+            {
+                return
+                    ConnectionsObservable
+                        .SelectMany(o => o.GetObservable())
+                        .Where(input => input is BundleSheetExport || input is Bitmap)
+                        .Select(input =>
+                        {
+                            if (input is BundleSheetExport sheet)
+                            {
+                                return (Bitmap)sheet.Sheet;
+                            }
+                            return (Bitmap) input;
+                        });
+            }
+
+            public IPipelineLinkConnection Connect(IPipelineOutput output)
+            {
+                if (_connections.Contains(output))
+                    return null;
+
+                _connections.Add(output);
+                return new PipelineLinkConnection(this, output);
+            }
+
+            public void Disconnect(IPipelineOutput output)
+            {
+                _connections.Remove(output);
+            }
+
+            public IPipelineMetadata GetMetadata()
+            {
+                return PipelineMetadata.Empty;
+            }
         }
     }
 }

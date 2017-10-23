@@ -204,13 +204,15 @@ namespace Pixelaria.Views.ModelViews.PipelineView
     /// </summary>
     public class PipelineNodeConnectionLineView : BezierPathView
     {
-        public PipelineNodeLinkView Start { get; set; }
-        public PipelineNodeLinkView End { get; set; }
+        public PipelineNodeLinkView Start { get; }
+        public PipelineNodeLinkView End { get; }
+        public IPipelineLinkConnection Connection { get; }
 
-        public PipelineNodeConnectionLineView(PipelineNodeLinkView start, PipelineNodeLinkView end)
+        public PipelineNodeConnectionLineView(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineLinkConnection connection)
         {
             Start = start;
             End = end;
+            Connection = connection;
 
             UpdateBezier();
         }

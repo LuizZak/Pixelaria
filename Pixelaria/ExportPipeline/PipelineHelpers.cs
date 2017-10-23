@@ -34,8 +34,8 @@ namespace Pixelaria.ExportPipeline
         /// Connects the first Output from <see cref="step"/> that matches the first Input from
         /// <see cref="other"/>.
         /// </summary>
-        /// <returns>true if a connection was made; false otherwise.</returns>
-        public static bool ConnectTo([NotNull] this IPipelineStep step, IPipelineStep other)
+        [CanBeNull]
+        public static IPipelineLinkConnection ConnectTo([NotNull] this IPipelineStep step, IPipelineStep other)
         {
             // Find first matching output from this that matches an input from other
             foreach (var output in step.Output)
@@ -47,20 +47,19 @@ namespace Pixelaria.ExportPipeline
 
                     if (!input.CanConnect(output)) continue;
 
-                    input.Connect(output);
-                    return true;
+                    return input.Connect(output);
                 }
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
         /// Connects the first Output from <see cref="step"/> that matches the first Input from
         /// <see cref="other"/>.
         /// </summary>
-        /// <returns>true if a connection was made; false otherwise.</returns>
-        public static bool ConnectTo([NotNull] this IPipelineStep step, IPipelineEnd other)
+        [CanBeNull]
+        public static IPipelineLinkConnection ConnectTo([NotNull] this IPipelineStep step, IPipelineEnd other)
         {
             // Find first matching output from this that matches an input from other
             foreach (var output in step.Output)
@@ -72,12 +71,11 @@ namespace Pixelaria.ExportPipeline
 
                     if (!input.CanConnect(output)) continue;
 
-                    input.Connect(output);
-                    return true;
+                    return input.Connect(output);
                 }
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
@@ -86,9 +84,11 @@ namespace Pixelaria.ExportPipeline
         /// The method looks through the proper data types accepted by the input and the data type
         /// of the output to make the decision.
         /// </summary>
-        public static bool CanConnect([NotNull] this IPipelineInput input, IPipelineOutput output)
+        public static bool CanConnect([NotNull] this IPipelineInput input, [NotNull] IPipelineOutput output)
         {
-            return input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType));
+            return
+                input.Node != output.Node &&
+                input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType));
         }
     }
 }

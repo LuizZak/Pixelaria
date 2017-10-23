@@ -54,7 +54,7 @@ namespace Pixelaria.ExportPipeline.Steps
             Input[0]
                 .Connections
                 .ToObservable()
-                .SelectMany(o => o.GetConnection())
+                .SelectMany(o => o.GetObservable())
                 .OfType<BundleSheetExport>()
                 .Subscribe(sheet =>
                 {
@@ -94,10 +94,13 @@ namespace Pixelaria.ExportPipeline.Steps
                 Node = step;
             }
 
-            public void Connect(IPipelineOutput output)
+            public IPipelineLinkConnection Connect(IPipelineOutput output)
             {
-                if (!_connections.Contains(output))
-                    _connections.Add(output);
+                if (_connections.Contains(output))
+                    return null;
+
+                _connections.Add(output);
+                return new PipelineLinkConnection(this, output);
             }
 
             public void Disconnect(IPipelineOutput output)

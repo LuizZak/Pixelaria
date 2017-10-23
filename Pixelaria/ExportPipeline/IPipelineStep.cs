@@ -124,7 +124,9 @@ namespace Pixelaria.ExportPipeline
         /// <summary>
         /// Called to include a pipeline output on this pipeline input
         /// </summary>
-        void Connect(IPipelineOutput output);
+        /// <returns>An object that can be use as a reference for this connection. Can be null, in case a connection is already present.</returns>
+        [CanBeNull]
+        IPipelineLinkConnection Connect(IPipelineOutput output);
 
         /// <summary>
         /// Removes a given output from this input
@@ -149,6 +151,57 @@ namespace Pixelaria.ExportPipeline
         /// Subscribing for this output awaits until one item is produced, which is then
         /// forwarded replicatively to all consumers.
         /// </summary>
-        IObservable<object> GetConnection();
+        IObservable<object> GetObservable();
+    }
+
+    /// <summary>
+    /// Describes a connection between a node's output and another node's input.
+    /// 
+    /// This is unique per connection of output to another input.
+    /// </summary>
+    public interface IPipelineLinkConnection
+    {
+        IPipelineInput Input { get; }
+        IPipelineOutput Output { get; }
+
+        /// <summary>
+        /// Disconnects this connection across the two links
+        /// </summary>
+        void Disconnect();
+
+        /// <summary>
+        /// Gets specific metadata for this pipeline connection
+        /// </summary>
+        [CanBeNull]
+        IPipelineMetadata GetMetadata();
+    }
+
+    public class PipelineLinkConnection : IPipelineLinkConnection
+    {
+        private bool _connected = true;
+
+        public IPipelineInput Input { get; }
+        public IPipelineOutput Output { get; }
+
+        public PipelineLinkConnection(IPipelineInput input, IPipelineOutput output)
+        {
+            Input = input;
+            Output = output;
+        }
+
+        public void Disconnect()
+        {
+            if (!_connected)
+                return;
+
+            Input.Disconnect(Output);
+
+            _connected = false;
+        }
+
+        public IPipelineMetadata GetMetadata()
+        {
+            return PipelineMetadata.Empty;
+        }
     }
 }

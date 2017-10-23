@@ -23,7 +23,7 @@
 using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using Pixelaria.Data;
+
 using Pixelaria.ExportPipeline.Inputs;
 using Pixelaria.ExportPipeline.Outputs;
 
@@ -42,19 +42,14 @@ namespace Pixelaria.ExportPipeline.Steps
         public AnimationJoinerStep()
         {
             var animationInput = new AnimationInput(this);
-            Input = new IPipelineInput[] { animationInput };
-
-            var connections =
-                animationInput
-                    .ConnectionsObservable
-                    .SelectMany(o => o.GetConnection());
-
+            Input = new IPipelineInput[] {animationInput};
+            
             var source =
-                connections
+                animationInput
+                    .AnyConnection()
                     .ObserveOn(NewThreadScheduler.Default)
-                    .OfType<Animation>()
                     .ToArray();
-
+            
             Output = new IPipelineOutput[] { new AnimationsOutput(this, source) };
         }
 

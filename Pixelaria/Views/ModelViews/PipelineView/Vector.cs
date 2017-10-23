@@ -274,7 +274,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             return new Vector(vec.X / factor, vec.Y / factor);
         }
-        
+
+        public static Vector operator /(float factor, Vector vec)
+        {
+            return new Vector(factor / vec.X, factor / vec.Y);
+        }
+
         public static implicit operator PointF(Vector vec)
         {
             return new PointF(vec.X, vec.Y);
@@ -311,7 +316,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         }
 
         /*
-         * TODO: This one seems like a stretch. Maybe it's ok to keep it around?
+         * TODO: This one seems like a bit of a stretch. Maybe it's ok?
          * 
         public static implicit operator Vector((float x, float y) vec)
         {

@@ -75,7 +75,7 @@ namespace Pixelaria.ExportPipeline
                 Flags.Add(flag);
             }
         }
-
+        
         public object GetValue(string key)
         {
             return Metadata.TryGetValue(key, out object value) ? value : null;

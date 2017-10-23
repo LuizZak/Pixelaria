@@ -68,7 +68,7 @@ namespace Pixelaria.ExportPipeline.Steps
                 _output = output;
             }
 
-            public IObservable<object> GetConnection()
+            public IObservable<object> GetObservable()
             {
                 return _output.Take(1);
             }

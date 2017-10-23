@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 
-namespace Pixelaria.ExportPipeline
+namespace Pixelaria.ExportPipeline.Steps
 {
     /// <summary>
     /// Base abstract pipeline step to start subclassing and specializing pipeline steps
@@ -33,7 +33,14 @@ namespace Pixelaria.ExportPipeline
 
         public abstract IReadOnlyList<IPipelineInput> Input { get; }
         public abstract IReadOnlyList<IPipelineOutput> Output { get; }
-        
-        public abstract IPipelineMetadata GetMetadata();
+
+        /// <summary>
+        /// Default implementation for <see cref="IPipelineStep.GetMetadata"/>
+        /// that returns an empty pipeline metadata object
+        /// </summary>
+        public virtual IPipelineMetadata GetMetadata()
+        {
+            return PipelineMetadata.Empty;
+        }
     }
 }

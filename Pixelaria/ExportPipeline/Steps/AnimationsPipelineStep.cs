@@ -35,6 +35,8 @@ namespace Pixelaria.ExportPipeline.Steps
     /// </summary>
     public class AnimationsPipelineStep : AbstractPipelineStep
     {
+        private string _stepBodyText = "";
+
         public Animation[] Animations { get; }
 
         public override string Name => "Animations";
@@ -48,12 +50,12 @@ namespace Pixelaria.ExportPipeline.Steps
             Animations = animations;
 
             Output = new[] {new AnimationsOutput(this, output)};
+
+            CreateStepBodyText();
         }
 
-        public override IPipelineMetadata GetMetadata()
+        private void CreateStepBodyText()
         {
-            // TODO: Provide the array of animations as its own PipelineMetadataKeys key and allow the
-            // node view to come up with the proper display text
             const int displayMax = 7;
 
             string text = "";
@@ -66,8 +68,15 @@ namespace Pixelaria.ExportPipeline.Steps
 
             text = text.Trim();
 
+            _stepBodyText = text;
+        }
+
+        public override IPipelineMetadata GetMetadata()
+        {
+            // TODO: Provide the array of animations as its own PipelineMetadataKeys key and allow the
+            // node view to come up with the proper display text
             return new PipelineMetadata(
-                new Dictionary<string, object> {{PipelineMetadataKeys.PipelineStepBodyText, text}});
+                new Dictionary<string, object> {{PipelineMetadataKeys.PipelineStepBodyText, _stepBodyText}});
         }
     }
 }

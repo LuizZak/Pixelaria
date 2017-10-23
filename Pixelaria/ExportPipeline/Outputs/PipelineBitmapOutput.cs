@@ -31,9 +31,9 @@ namespace Pixelaria.ExportPipeline.Outputs
     /// </summary>
     public class PipelineBitmapOutput : AbstractPipelineOutput<Bitmap>
     {
-        public PipelineBitmapOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Bitmap> source) : base(step, source)
+        public PipelineBitmapOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Bitmap> source, [NotNull] string name = "Output") : base(step, source)
         {
-            Name = "Bitmap";
+            Name = name;
         }
 
         public override IPipelineMetadata GetMetadata()

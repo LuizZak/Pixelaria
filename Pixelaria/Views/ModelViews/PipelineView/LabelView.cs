@@ -20,7 +20,11 @@
     base directory of this project.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Views.ModelViews.PipelineView
@@ -35,9 +39,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         
         private AABB _bounds = AABB.Empty;
         private AABB _textBounds = AABB.Empty;
-
+        
         [NotNull]
-        private string _text = "";
+        private readonly AttributedText _attributedText = new AttributedText();
+
         [NotNull]
         private Font _font = new Font(FontFamily.GenericSansSerif.Name, 10);
 
@@ -54,18 +59,22 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         [NotNull]
         public string Text
         {
-            get => _text;
+            get => _attributedText.String;
             set
             {
-                if (_text == value)
+                if (!_attributedText.HasAttributes && _attributedText.String == value)
                     return;
-                
-                _text = value;
 
-                CalculateBounds();
+                AttributedText.SetText(value);
             }
         }
-        
+
+        /// <summary>
+        /// Gets or sets the attributed text for this label view
+        /// </summary>
+        [NotNull]
+        public IAttributedText AttributedText => _attributedText;
+
         /// <summary>
         /// Gets or sets the text color of this label view
         /// </summary>
@@ -74,10 +83,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Gets or sets the size provider for this label view.
         /// 
-        /// Defaults to <see cref="DefaultLabelViewSizeProvider"/>
+        /// If null, label view defaults to using <see cref="DefaultLabelViewSizeProvider"/>
         /// </summary>
-        [NotNull]
-        public ILabelViewSizeProvider SizeProvider { get; set; } = DefaultLabelViewSizeProvider;
+        [CanBeNull]
+        public ILabelViewSizeProvider SizeProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the text font for the text of this label view
@@ -117,7 +126,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Gets or sets if this label should be visible on screen.
         /// </summary>
-        public bool Visible { get; set; }
+        public bool Visible { get; set; } = true;
 
         public override AABB Bounds => _bounds;
 
@@ -135,9 +144,19 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             }
         }
 
+        public LabelView()
+        {
+            _attributedText.Modified += AttributedTextModified;
+        }
+
+        private void AttributedTextModified(object sender, EventArgs eventArgs)
+        {
+            CalculateBounds();
+        }
+
         private void CalculateBounds()
         {
-            _textBounds = new RectangleF(PointF.Empty, SizeProvider.CalculateTextBounds(this));
+            _textBounds = new RectangleF(PointF.Empty, (SizeProvider ?? DefaultLabelViewSizeProvider).CalculateTextBounds(this));
             Size = _textBounds.Size;
 
             Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right,
@@ -150,15 +169,23 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             public SizeF CalculateTextBounds(LabelView label)
             {
-                return CalculateTextBounds(label.Text, label.TextFont);
+                return CalculateTextBounds(new AttributedText(label.Text), label.TextFont);
             }
 
+            /// <summary>
+            /// Calculates the text size for a given pair of string/font
+            /// </summary>
             public SizeF CalculateTextBounds(string text, Font font)
+            {
+                return CalculateTextBounds(new AttributedText(text), font);
+            }
+
+            public SizeF CalculateTextBounds(IAttributedText text, Font font)
             {
                 using (var dummy = new Bitmap(1, 1))
                 using (var graphics = Graphics.FromImage(dummy))
                 {
-                    return graphics.MeasureString(text, font);
+                    return graphics.MeasureString(text.String, font);
                 }
             }
         }
@@ -178,5 +205,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// Calculates the text size for a given pair of string/font
         /// </summary>
         SizeF CalculateTextBounds([NotNull] string text, [NotNull] Font font);
+
+        /// <summary>
+        /// Calculates the text size for a given pair of attributed string/font
+        /// </summary>
+        SizeF CalculateTextBounds([NotNull] IAttributedText text, [NotNull] Font font);
     }
 }
