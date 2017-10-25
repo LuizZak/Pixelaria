@@ -156,7 +156,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         private void CalculateBounds()
         {
-            _textBounds = new RectangleF(PointF.Empty, (SizeProvider ?? DefaultLabelViewSizeProvider).CalculateTextBounds(this));
+            _textBounds = new RectangleF(PointF.Empty, (SizeProvider ?? DefaultLabelViewSizeProvider).CalculateTextSize(this));
             Size = _textBounds.Size;
 
             Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right,
@@ -167,20 +167,20 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         private class DefaultSizer : ILabelViewSizeProvider
         {
-            public SizeF CalculateTextBounds(LabelView label)
+            public SizeF CalculateTextSize(LabelView label)
             {
-                return CalculateTextBounds(new AttributedText(label.Text), label.TextFont);
+                return CalculateTextSize(new AttributedText(label.Text), label.TextFont);
             }
 
             /// <summary>
             /// Calculates the text size for a given pair of string/font
             /// </summary>
-            public SizeF CalculateTextBounds(string text, Font font)
+            public SizeF CalculateTextSize(string text, Font font)
             {
-                return CalculateTextBounds(new AttributedText(text), font);
+                return CalculateTextSize(new AttributedText(text), font);
             }
 
-            public SizeF CalculateTextBounds(IAttributedText text, Font font)
+            public SizeF CalculateTextSize(IAttributedText text, Font font)
             {
                 using (var dummy = new Bitmap(1, 1))
                 using (var graphics = Graphics.FromImage(dummy))
@@ -199,16 +199,16 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Calculates the text size on a given label view
         /// </summary>
-        SizeF CalculateTextBounds([NotNull] LabelView label);
+        SizeF CalculateTextSize([NotNull] LabelView label);
 
         /// <summary>
         /// Calculates the text size for a given pair of string/font
         /// </summary>
-        SizeF CalculateTextBounds([NotNull] string text, [NotNull] Font font);
+        SizeF CalculateTextSize([NotNull] string text, [NotNull] Font font);
 
         /// <summary>
         /// Calculates the text size for a given pair of attributed string/font
         /// </summary>
-        SizeF CalculateTextBounds([NotNull] IAttributedText text, [NotNull] Font font);
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] Font font);
     }
 }

@@ -84,7 +84,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         public void AutoSize([NotNull] ILabelViewSizeProvider sizeProvider)
         {
-            var nameSize = sizeProvider.CalculateTextBounds(Name, Font);
+            var nameSize = sizeProvider.CalculateTextSize(Name, Font);
             int vertLinkSize = (int)(Math.Max(GetInputViews().Length, GetOutputViews().Length) * (LinkSize + LinkSeparation * 1.5f));
 
             if (Icon != null)
@@ -98,7 +98,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             string bodyText = BodyText;
             if (!string.IsNullOrEmpty(bodyText))
             {
-                bodySize = sizeProvider.CalculateTextBounds(bodyText, Font) +
+                bodySize = sizeProvider.CalculateTextSize(bodyText, Font) +
                            new Vector(_bodyTextInset.Left + _bodyTextInset.Right,
                                _bodyTextInset.Top + _bodyTextInset.Bottom);
 

@@ -21,7 +21,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
+using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -32,6 +34,8 @@ namespace Pixelaria.Views.ModelViews
 {
     public class Direct2DRenderingState
     {
+        private Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
+
         public SwapChain SwapChain;
         public Surface DxgiSurface { set; get; }
         public RenderTarget D2DRenderTarget { set; get; }
@@ -47,6 +51,18 @@ namespace Pixelaria.Views.ModelViews
             var transform = D2DRenderTarget.Transform;
             execute();
             D2DRenderTarget.Transform = transform;
+        }
+
+        public void PushMatrix(Matrix3x2 matrix)
+        {
+            _matrixStack.Push(D2DRenderTarget.Transform);
+
+            D2DRenderTarget.Transform = D2DRenderTarget.Transform * matrix;
+        }
+
+        public void PopMatrix()
+        {
+            D2DRenderTarget.Transform = _matrixStack.Pop();
         }
     }
 }

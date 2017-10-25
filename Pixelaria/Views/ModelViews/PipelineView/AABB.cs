@@ -245,7 +245,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
         /// <summary>
         /// Returns an AABB which is an inflated version of this AABB 
-        /// (i.e. bounds are larger by <see cref="size"/>, but center 
+        /// (i.e. bounds are larger by (x, y), but center 
         /// remains the same)
         /// </summary>
         [Pure]

@@ -252,14 +252,22 @@
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Views\Direct2D\PxlRenderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\ModelViews\D2DImageResources.cs" />
     <Compile Include="Views\ModelViews\Direct2DRenderingState.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineControl.Direct2DRenderer.cs">
+    <Compile Include="Views\ModelViews\ExportPipelineFeatures\ControlViewFeature.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\ModelViews\ExportPipelineControl.Direct2DRenderer.cs" />
     <Compile Include="Views\ModelViews\IDirect2DRenderer.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
     <Compile Include="Views\ModelViews\PipelineView\BaseView.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />
@@ -569,6 +577,8 @@
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeLinkView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\Vector.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineFeatures\SelectionUiFeature.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineFeatures\ViewPanAndZoomUiFeature.cs" />
     <Compile Include="Views\SettingsViews\BundleSettingsView.cs">
       <SubType>Form</SubType>
     </Compile>

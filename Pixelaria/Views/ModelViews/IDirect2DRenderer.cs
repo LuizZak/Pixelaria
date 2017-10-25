@@ -29,13 +29,27 @@ namespace Pixelaria.Views.ModelViews
     /// <summary>
     /// Public interface for the Export Pipeline's Direct2D renderer
     /// </summary>
-    public interface IDirect2DRenderer : ILabelViewSizeProvider
+    internal interface IDirect2DRenderer : ILabelViewSizeProvider
     {
         /// <summary>
         /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
         /// </summary>
         Color BackColor { get; set; }
 
+        /// <summary>
+        /// Gets the imaage resources manager for this D2DRenderer
+        /// </summary>
+        ID2DImageResourceManager ImageResources { get; }
+
+        void AddDecorator(IRenderingDecorator decorator);
+
+        void RemoveDecorator(IRenderingDecorator decorator);
+        
+        void PushTemporaryDecorator(IRenderingDecorator decorator);
+    }
+
+    internal interface ID2DImageResourceManager
+    {
         void AddImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
         void RemoveImageResource([NotNull] string resourceName);
         void RemoveImageResources();
