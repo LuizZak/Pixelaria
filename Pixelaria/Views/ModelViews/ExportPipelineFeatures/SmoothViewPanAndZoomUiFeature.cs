@@ -29,19 +29,35 @@ using Pixelaria.Views.ModelViews.PipelineView;
 
 namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
 {
-    internal class ViewPanAndZoomUiFeature : ExportPipelineUiFeature
+    internal class SmoothViewPanAndZoomUiFeature : ExportPipelineUiFeature
     {
         private readonly Vector _minZoom = new Vector(0.25f);
+        private readonly Vector _maxZoom = new Vector(25f);
         private Vector _dragStart;
         private Point _mouseDownPoint;
         private bool _dragging;
 
-        public ViewPanAndZoomUiFeature([NotNull] ExportPipelineControl control)
+        private Vector _targetScale;
+        private Vector _panTarget;
+
+        public SmoothViewPanAndZoomUiFeature([NotNull] ExportPipelineControl control)
             : base(control)
         {
-
+            _targetScale = contentsView.Scale;
         }
 
+        public override void OnFixedFrame(EventArgs e)
+        {
+            base.OnFixedFrame(e);
+
+            if (_targetScale.Distance(contentsView.Scale) >= 0.001f)
+            {
+                var newZoom = (_targetScale - contentsView.Scale) * 0.35f;
+
+                SetZoom(contentsView.Scale + newZoom, _panTarget);
+            }
+        }
+        
         public override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
@@ -52,7 +68,7 @@ namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
                 if (_dragging && e.Location.Distance(_mouseDownPoint) > 5)
                     return;
 
-                SetZoom(Vector.Unit, ((AABB)Control.Bounds).Center);
+                SetTargetScale(Vector.Unit, e.Location);
             }
         }
 
@@ -96,15 +112,22 @@ namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
 
             if (!OtherFeatureHasExclusiveControl())
             {
-                var scale = contentsView.Scale;
+                var scale = _targetScale;
                 scale *= new Vector(1.0f + Math.Sign(e.Delta) * 0.1f);
-                if (scale < _minZoom)
-                    scale = _minZoom;
-                if (scale > new Vector(25f))
-                    scale = new Vector(25f);
 
-                SetZoom(scale, e.Location);
+                scale = Vector.Min(scale, _maxZoom);
+                scale = Vector.Max(scale, _minZoom);
+
+                var center = (Vector)Control.Size / 2;
+
+                SetTargetScale(scale, center);
             }
+        }
+
+        public void SetTargetScale(Vector newScale, Vector targetFocusPosition)
+        {
+            _targetScale = newScale;
+            _panTarget = targetFocusPosition;
         }
 
         private void SetZoom(Vector newZoom, Vector focusPosition, bool repositioning = true)

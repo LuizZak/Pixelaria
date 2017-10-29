@@ -23,7 +23,9 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
@@ -50,14 +52,20 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
+using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ModelViews.ExportPipelineFeatures;
 using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ModelViews.PipelineView.Controls;
 
 namespace Pixelaria.Views.ModelViews
 {
     public partial class ExportPipelineView : PxlRenderForm
     {
+        private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
+
+        private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
+
         public Direct2DRenderingState RenderingState { get; } = new Direct2DRenderingState();
 
         public ExportPipelineView()
@@ -88,6 +96,8 @@ namespace Pixelaria.Views.ModelViews
                     RenderingState.SwapChain?.Dispose();
                     RenderingState.Factory?.Dispose();
                 }
+
+                _disposeBag.Dispose();
 
                 if (components != null)
                     components.Dispose();
@@ -153,6 +163,18 @@ namespace Pixelaria.Views.ModelViews
             {
                 while (renderLoop.NextFrame())
                 {
+                    // Frame interval timespan
+                    if (!_frameDeltaTimer.IsRunning)
+                    {
+                        _frameDeltaTimer.Start();
+                        RenderingState.SetFrameDeltaTime(TimeSpan.FromMilliseconds(16));
+                    }
+                    else
+                    {
+                        RenderingState.SetFrameDeltaTime(TimeSpan.FromTicks(_frameDeltaTimer.ElapsedTicks));
+                        _frameDeltaTimer.Restart();
+                    }
+
                     RenderingState.D2DRenderTarget.BeginDraw();
 
                     exportPipelineControl.RenderDirect2D(RenderingState);
@@ -183,29 +205,45 @@ namespace Pixelaria.Views.ModelViews
 
             var scrollView = new ScrollViewControl
             {
-                Location = new Vector(150, 300),
-                Size = new Vector(150, 150),
-                ContentSize = new Vector(300, 300)
+                Size = new Vector(300, exportPipelineControl.Size.Height),
+                ContentSize = new Vector(600, 1800),
+                BackColor = Color.Black.WithTransparency(0.3f),
+                ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
             };
-            scrollView.AddChild(new LabelViewControl {Location = new Vector(100, 100), Text = "Test test rs"});
-
-            var buttonControl = new ButtonControl
-            {
-                Location = new Vector(150, 150),
-                Size = new Vector(90, 50),
-                Text = "Is Duddera Gayzitto?"
-            };
-            buttonControl.Clicked += ButtonClicked;
-
+            
             control.AddControl(scrollView);
-            control.AddControl(buttonControl);
-        }
 
-        private void ButtonClicked(object sender, EventArgs eventArgs)
-        {
-            MessageBox.Show(this, @"¡Si!");
-        }
+            var transpFilter = new ButtonControl
+            {
+                Location = new Vector(20, 20),
+                Size = new Size(80, 60),
+                Text = "Transparency Filter",
+                BackColor = Color.Black.WithTransparency(0.3f),
+                NormalColor = Color.Black.WithTransparency(0.3f),
+                HighlightColor = Color.Black.WithTransparency(0.3f).Blend(Color.White),
+                SelectedColor = Color.Black.WithTransparency(0.3f),
+                StrokeWidth = 2,
+                CornerRadius = 5,
+                StrokeColor = Color.Black.WithTransparency(0.5f),
+                TextColor = Color.White
+            };
 
+            transpFilter.Rx
+                .MouseClick
+                .Subscribe(_ =>
+                {
+                    var node = new TransparencyFilterPipelineStep();
+                    AddPipelineNode(node);
+                }).AddToDisposable(_disposeBag);
+
+            scrollView.ContainerView.AddChild(transpFilter);
+            
+            exportPipelineControl.SizeChanged += (sender, args) =>
+            {
+                scrollView.Size = new Vector(300, exportPipelineControl.Size.Height);
+            };
+        }
+        
         private void ExportPipelineControlOnResize(object sender, EventArgs eventArgs)
         {
             ResetSwapChain();
@@ -233,6 +271,51 @@ namespace Pixelaria.Views.ModelViews
             RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
             RenderingState.D2DRenderTarget = new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface,
                 new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
+        }
+
+        public void AddPipelineNode([NotNull] IPipelineNode node)
+        {
+            var view = new PipelineNodeView(node);
+
+            string iconName = null;
+
+            // Automatically setup icons for known pipeline nodes
+            switch (node)
+            {
+                case TransparencyFilterPipelineStep _:
+                    iconName = "filter_transparency_icon";
+                    break;
+
+                case SingleAnimationPipelineStep _:
+                    iconName = "anim_icon";
+                    break;
+
+                case FileExportPipelineStep _:
+                    iconName = "sheet_save_icon";
+                    break;
+
+                case SpriteSheetGenerationPipelineStep _:
+                    iconName = "sheet_new";
+                    break;
+            }
+
+            if (iconName != null)
+            {
+                view.Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource(iconName);
+            }
+
+            exportPipelineControl.PipelineContainer.AddNodeView(view);
+            exportPipelineControl.PipelineContainer.AutosizeNode(view);
+            
+            // Automatically adjust view to be on center of view port
+            var center = exportPipelineControl.Bounds.Center();
+
+            var centerCont =
+                exportPipelineControl
+                    .PipelineContainer
+                    .ContentsView.ConvertFrom(center, null);
+
+            view.Location = centerCont - view.Size / 2;
         }
 
         public void InitTest()
@@ -347,6 +430,8 @@ namespace Pixelaria.Views.ModelViews
                 return;
             
             exportPipelineControl.PipelineContainer.RemoveAllViews();
+
+            exportPipelineControl.SetPanAndZoom(Vector.Zero, Vector.Unit);
 
             exportPipelineControl.PipelineContainer.ContentsView.Scale = Vector.Unit;
             exportPipelineControl.PipelineContainer.ContentsView.Location = Vector.Zero;

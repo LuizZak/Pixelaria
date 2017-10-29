@@ -20,8 +20,11 @@
     base directory of this project.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Pixelaria.Views.ModelViews.PipelineView;
 
 namespace Pixelaria.ExportPipeline
 {
@@ -89,6 +92,88 @@ namespace Pixelaria.ExportPipeline
             return
                 input.Node != output.Node &&
                 input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType));
+        }
+
+        /// <summary>
+        /// From a given node, traverses all parent nodes (connected via outputs) in breadth-first order until
+        /// either <see cref="closure"/> returns false or all nodes have been traversed.
+        /// </summary>
+        /// <param name="node">Node to start traversing from.</param>
+        /// <param name="closure">
+        /// A visitor closure that will be called for <see cref="node"/> and all parent nodes.
+        /// If this closure returns false, traversal stops earlier.
+        /// </param>
+        public static void TraverseInputs([NotNull] this IPipelineNode node, Func<IPipelineNode, bool> closure)
+        {
+            var visited = new HashSet<IPipelineNode>();
+            var queue = new Queue<IPipelineNode>();
+
+            queue.Enqueue(node);
+
+            // Do a breadth-first search
+            while (queue.Count > 0)
+            {
+                var cur = queue.Dequeue();
+
+                if (!closure(cur))
+                    return;
+
+                visited.Add(cur);
+
+                if (cur is IPipelineStep step)
+                {
+                    foreach (var input in step.Input)
+                    {
+                        foreach (var connection in input.Connections)
+                        {
+                            if(!visited.Contains(connection.Node))
+                                queue.Enqueue(connection.Node);
+                        }
+                    }
+                }
+                else if (cur is IPipelineEnd end)
+                {
+                    foreach (var input in end.Input)
+                    {
+                        foreach (var connection in input.Connections)
+                        {
+                            if (!visited.Contains(connection.Node))
+                                queue.Enqueue(connection.Node);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns if a node is directly connected to another node either via inputs or outputs.
+        /// 
+        /// Used to detect cycles before they can be made.
+        /// </summary>
+        public static bool IsDirectlyConnected([NotNull] this IPipelineNode node, [NotNull] IPipelineNode target)
+        {
+            bool connected = false;
+
+            // Try target -> node cycle first
+            node.TraverseInputs(n =>
+            {
+                if (n == target)
+                    connected = true;
+                return !connected;
+            });
+
+            if (connected)
+                return true;
+
+            // Now try again just to see if we're not connected from node -> target instead
+            target.TraverseInputs(n =>
+            {
+                if (n == node)
+                    connected = true;
+                return !connected;
+            });
+            
+            return connected;
         }
     }
 }

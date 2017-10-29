@@ -116,7 +116,7 @@ namespace Pixelaria.ExportPipeline
         Type[] DataTypes { get; }
 
         /// <summary>
-        /// Gets an array of all connections this pipeline input has
+        /// Gets an array of all output connections that are connecting into this pipeline input.
         /// </summary>
         [NotNull]
         IPipelineOutput[] Connections { get; }

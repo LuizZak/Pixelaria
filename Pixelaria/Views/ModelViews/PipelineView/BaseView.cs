@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
 
 using JetBrains.Annotations;
 
@@ -132,7 +131,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public Vector Scale { get; set; } = Vector.Unit;
 
         /// <summary>
-        /// Gets or sets the rotation of this view.
+        /// Gets or sets the rotation of this view, in degrees.
         /// Rotations are relative to the view's top-left corner.
         /// </summary>
         public float Rotation { get; set; }
@@ -155,7 +154,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Adds a base view as the child of this base view.
         /// </summary>
-        public void AddChild([NotNull] BaseView child)
+        public virtual void AddChild([NotNull] BaseView child)
         {
             // Check recursiveness
             var cur = this;
@@ -176,7 +175,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Inserts a base view as the child of this base view at a given index.
         /// </summary>
-        public void InsertChild(int index, [NotNull] BaseView child)
+        public virtual void InsertChild(int index, [NotNull] BaseView child)
         {
             // Check recursiveness
             var cur = child;
@@ -197,7 +196,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         /// <summary>
         /// Removes a given child from this base view
         /// </summary>
-        public void RemoveChild([NotNull] BaseView child)
+        public virtual void RemoveChild([NotNull] BaseView child)
         {
             if(!Equals(child.Parent, this))
                 throw new ArgumentException(@"Child BaseView passed in is not a direct child of this base view", nameof(child));
@@ -234,8 +233,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             float closestD = float.PositiveInfinity;
 
             // Search children first
-            foreach (var baseView in children.AsQueryable().Reverse())
+            for (var i = children.Count - 1; i >= 0; i--)
             {
+                var baseView = children[i];
                 var ht = baseView.HitTestClosest(point * baseView.LocalTransform.Inverted(), inflatingArea);
                 if (ht != null)
                 {
@@ -249,7 +249,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                     }
                 }
             }
-            
+
             // Test this instance now
             if (Contains(point, inflatingArea) &&
                 Bounds.Center.Distance(point) < closestD)
@@ -514,7 +514,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
 
             return total;
         }
-
+        
         /// <summary>
         /// Gets the full bounds of this BaseView (in its local coordinates system),
         /// counting the child bounds as well.

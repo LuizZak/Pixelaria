@@ -103,7 +103,7 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         }
 
         public AABB(float left, float top, float bottom, float right)
-            : this(new Vector(left, top), new Vector(left + right, top + bottom))
+            : this(new Vector(left, top), new Vector(right, bottom))
         {
 
         }
@@ -400,6 +400,22 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                 hashCode = (hashCode * 397) ^ (int) Validity;
                 return hashCode;
             }
+        }
+
+        /// <summary>
+        /// Returns an AABB that represents a given rectangle using x, y + width, height
+        /// </summary>
+        public static AABB FromRectangle(float x, float y, float width, float height)
+        {
+            return new AABB(x, y, y + height, x + width);
+        }
+
+        /// <summary>
+        /// Returns an AABB that represents a given rectangle using x, y + width, height
+        /// </summary>
+        public static AABB FromRectangle(Vector position, Vector size)
+        {
+            return FromRectangle(position.X, position.Y, size.X, size.Y);
         }
 
         public static implicit operator AABB(RectangleF rect)

@@ -23,12 +23,13 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using JetBrains.Annotations;
 using Pixelaria.Utils;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
 using Matrix = System.Drawing.Drawing2D.Matrix;
 using Point = System.Drawing.Point;
+
+using JetBrains.Annotations;
 
 namespace Pixelaria.Views.ModelViews.PipelineView
 {
@@ -139,6 +140,16 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         {
             this = -this;
         }
+
+        /// <summary>
+        /// Returns a copy of this Vector instance with the X and Y
+        /// coordinates clamped to be within the min and max limits
+        /// of a given AABB.
+        /// </summary>
+        public Vector LimitedWithin(AABB aabb)
+        {
+            return Max(aabb.Minimum, Min(aabb.Maximum, this));
+        }
         
         public override string ToString()
         {
@@ -146,8 +157,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         }
 
         /// <summary>
-        /// Returns a vector with the minimum x, y coordinates between
-        /// two given vectors
+        /// Returns a vector with the smallest x and y coordinate values across
+        /// the two given vectors
         /// </summary>
         [Pure]
         public static Vector Min(Vector lhs, Vector rhs)
@@ -156,8 +167,8 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         }
 
         /// <summary>
-        /// Returns a vector with the maximum x, y coordinates between
-        /// two given vectors
+        /// Returns a vector with the largest x and y coordinate values across
+        /// the two given vectors
         /// </summary>
         [Pure]
         public static Vector Max(Vector lhs, Vector rhs)
@@ -193,6 +204,18 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public static Vector Ceiling(Vector vec)
         {
             return new Vector((float)Math.Ceiling(vec.X), (float)Math.Ceiling(vec.Y));
+        }
+
+        /// <summary>
+        /// Performs a linear interpolation between <see cref="start"/> and <see cref="end"/>
+        /// with a specified factor.
+        /// </summary>
+        /// <param name="start">Start of linear interpolation</param>
+        /// <param name="end">End of linear interpolation</param>
+        /// <param name="factor">A factor, usually between zero and one, that controls where the final interpolad point lands</param>
+        public static Vector Lerp(Vector start, Vector end, float factor)
+        {
+            return start + (end - start) * factor;
         }
 
         public static bool operator <(Vector lhs, Vector rhs)

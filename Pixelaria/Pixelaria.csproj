@@ -260,12 +260,19 @@
     </Compile>
     <Compile Include="Views\ModelViews\D2DImageResources.cs" />
     <Compile Include="Views\ModelViews\Direct2DRenderingState.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\Controls\ButtonControl.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\Controls\ControlView.cs" />
     <Compile Include="Views\ModelViews\ExportPipelineFeatures\ControlViewFeature.cs" />
     <Compile Include="Views\ModelViews\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
     <Compile Include="Views\ModelViews\ExportPipelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\ModelViews\ExportPipelineControl.Direct2DRenderer.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\Controls\LabelViewControl.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\Controls\ScrollBarControl.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\Controls\ScrollViewControl.cs" />
+    <Compile Include="Views\ModelViews\PipelineView\Controls\SelfRenderingBaseView.cs" />
+    <Compile Include="Views\ModelViews\ExportPipelineFeatures\SmoothViewPanAndZoomUiFeature.cs" />
     <Compile Include="Views\ModelViews\IDirect2DRenderer.cs" />
     <Compile Include="Views\ModelViews\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
     <Compile Include="Views\ModelViews\PipelineView\BaseView.cs" />
@@ -578,7 +585,6 @@
     <Compile Include="Views\ModelViews\PipelineView\PipelineNodeView.cs" />
     <Compile Include="Views\ModelViews\PipelineView\Vector.cs" />
     <Compile Include="Views\ModelViews\ExportPipelineFeatures\SelectionUiFeature.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineFeatures\ViewPanAndZoomUiFeature.cs" />
     <Compile Include="Views\SettingsViews\BundleSettingsView.cs">
       <SubType>Form</SubType>
     </Compile>

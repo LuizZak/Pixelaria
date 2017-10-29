@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
@@ -82,15 +83,17 @@ namespace Pixelaria.Views.ModelViews
 
         private readonly D2DImageResources _imageResources;
 
-        /// <summary>
-        /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
-        /// </summary>
-        public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
+        private Stopwatch _timeSpanStopwatch;
 
         /// <summary>
         /// Control-space clip rectangle for current draw operation.
         /// </summary>
         private Rectangle ClipRectangle { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
+        /// </summary>
+        public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
 
         public ID2DImageResourceManager ImageResources => _imageResources;
 
@@ -723,26 +726,27 @@ namespace Pixelaria.Views.ModelViews
             }
         }
     }
-
+    
     /// <summary>
-    /// A visitor that walks through a hierarchy of BaseView instances passing them to a base view renderer.
+    /// A visitor that walks through a hierarchy of BaseView instances passing them to a base view visitor,
+    /// along with a shared state.
     /// </summary>
-    internal sealed class BaseViewRendererVisitor
+    internal sealed class BaseViewTraverser<T>
     {
-        private readonly Direct2DRenderingState _state;
-        private readonly IBaseViewRenderer _viewRenderer;
+        private readonly T _state;
+        private readonly IBaseViewVisitor<T> _viewVisitor;
 
-        public BaseViewRendererVisitor([NotNull] Direct2DRenderingState state, [NotNull] IBaseViewRenderer viewRenderer)
+        public BaseViewTraverser(T state, [NotNull] IBaseViewVisitor<T> viewVisitor)
         {
             _state = state;
-            _viewRenderer = viewRenderer;
+            _viewVisitor = viewVisitor;
         }
 
         public void Visit([NotNull] BaseView view)
         {
-            _viewRenderer.OnRendererEnter(_state, view);
+            _viewVisitor.OnVisitorEnter(_state, view);
 
-            _viewRenderer.RenderView(_state, view);
+            _viewVisitor.VisitView(_state, view);
 
             // Render children
             foreach (var child in view.Children)
@@ -750,30 +754,59 @@ namespace Pixelaria.Views.ModelViews
                 Visit(child);
             }
 
-            _viewRenderer.OnRendererExit(_state, view);
+            _viewVisitor.OnVisitorExit(_state, view);
         }
     }
-
+    
     /// <summary>
-    /// Interface for objects that deal with rendering of base view instances with their own logic.
+    /// Interface for objects that deal with visiting of base view instances with their own logic.
     /// </summary>
-    internal interface IBaseViewRenderer
+    internal interface IBaseViewVisitor<in T>
     {
         /// <summary>
-        /// Called when the renderer visitor first arrives at a view
+        /// Called when the visitor first arrives at a view
         /// </summary>
-        void OnRendererEnter([NotNull] Direct2DRenderingState state, [NotNull] BaseView view);
+        void OnVisitorEnter(T state, [NotNull] BaseView view);
 
         /// <summary>
-        /// Called to actually render a view
+        /// Called to apply a visit logic to a view
         /// </summary>
-        void RenderView([NotNull] Direct2DRenderingState state, [NotNull] BaseView view);
+        void VisitView(T state, [NotNull] BaseView view);
 
         /// <summary>
         /// Called when the last child of a view has been visited and traversal will 
         /// continue up the siblings/parent chain
         /// </summary>
-        void OnRendererExit([NotNull] Direct2DRenderingState state, [NotNull] BaseView view);
+        void OnVisitorExit(T state, [NotNull] BaseView view);
+    }
+
+    /// <summary>
+    /// A generic implementation of IBaseViewVisitor that calls a closure on each call to
+    /// <see cref="IBaseViewVisitor{T}.VisitView"/>.
+    /// </summary>
+    internal class BaseViewVisitor<T> : IBaseViewVisitor<T>
+    {
+        private readonly Action<T, BaseView> _onVisit;
+
+        internal BaseViewVisitor(Action<T, BaseView> onVisit)
+        {
+            _onVisit = onVisit;
+        }
+
+        public void OnVisitorEnter(T state, BaseView view)
+        {
+
+        }
+
+        public void VisitView(T state, BaseView view)
+        {
+            _onVisit(state, view);
+        }
+
+        public void OnVisitorExit(T state, BaseView view)
+        {
+
+        }
     }
 
     /// <summary>

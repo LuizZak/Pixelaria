@@ -26,7 +26,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
+
 using Pixelaria.Data;
 
 namespace Pixelaria.Utils
@@ -50,7 +52,7 @@ namespace Pixelaria.Utils
         /// <param name="filespec">The file path</param>
         /// <param name="folder">The base folder to create the relative path</param>
         /// <returns>A relative path between folder and filespec</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static string GetRelativePath([NotNull] string filespec, string folder)
         {
             var pathUri = new Uri(filespec);
@@ -69,7 +71,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="value">The value to snap to the closest power of two value</param>
         /// <returns>The given uint value snapped to the next highest power of two value</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static uint SnapToNextPowerOfTwo(uint value)
         {
             value--;
@@ -89,7 +91,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="bytes">The number of bytes</param>
         /// <returns>A formated string with the byte count converted to the most significant magnitude</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static string FormatByteSize(long bytes)
         {
             int magnitude = 0;
@@ -115,7 +117,7 @@ namespace Pixelaria.Utils
         /// <param name="b1">The first array of bytes</param>
         /// <param name="b2">The second array of bytes</param>
         /// <returns>True if the byte arrays are identical</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static bool ByteArrayCompare([NotNull] byte[] b1, [NotNull] byte[] b2)
         {
             // Validate buffers are the same length.
@@ -136,10 +138,19 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="color">The Color to convert to AHSL</param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static AhslColor ToAhsl(this Color color)
         {
             return AhslColor.FromArgb(color.ToArgb());
+        }
+
+        /// <summary>
+        /// Returns a Color instance with a new transparency value (and all other components kept the same).
+        /// </summary>
+        [Pure]
+        public static Color WithTransparency(this Color color, float alpha)
+        {
+            return Color.FromArgb((int) (alpha * 255), color.R, color.G, color.B);
         }
 
         /// <summary>
@@ -147,7 +158,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="color">The Color to convert to get the lightness component from</param>
         /// <returns>The lightness of this System.Drawing.Color. The lightness ranges from 0.0 through 1.0, where 0.0 is black and 1.0 is white.</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static float GetLightness(this Color color)
         {
             return color.ToAhsl().Lightness / 100.0f;
@@ -158,7 +169,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="color">The color to invert</param>
         /// <returns>An inverted version of this Color object</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static Color Invert(this Color color)
         {
             const int rgbmax = 255;
@@ -167,14 +178,16 @@ namespace Pixelaria.Utils
 
         /// <summary>
         /// Fades the first color with the second, using the given factor to decide
-        /// how much of each color will be used. The alpha channel is optionally changed
+        /// how much of each color will be used. The alpha channel is optionally changed.
+        /// 
+        /// Unlike <see cref="Blend"/>, this method allows specifying whether the alpha channel is to be mixed in as well.
         /// </summary>
         /// <param name="color">The color to fade</param>
         /// <param name="fadeColor">The color to fade the first color to</param>
         /// <param name="factor">A number from [0 - 1] that decides how much the first color will fade into the second</param>
         /// <param name="blendAlpha">Whether to fade the alpha channel as well. If left false, the first color's alpha channel will be used</param>
         /// <returns>The faded color</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static Color Fade(this Color color, Color fadeColor, float factor = 0.5f, bool blendAlpha = false)
         {
             float from = 1 - factor;
@@ -194,7 +207,7 @@ namespace Pixelaria.Utils
         /// <param name="backColor">Color to blend the other color onto.</param>
         /// <param name="factor">The factor to blend the two colors on. 0.0 will return the first color, 1.0 will return the back color, any values in between will blend the two colors accordingly</param>
         /// <returns>The blended color</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static Color Blend(this Color color, Color backColor, float factor = 0.5f)
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -247,7 +260,7 @@ namespace Pixelaria.Utils
         /// <param name="backColor">The back color to blend</param>
         /// <param name="foreColor">The fore color to blend</param>
         /// <returns>The two colors, blended with a GDI+ like color bleding mode</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static Color FlattenColor(Color backColor, Color foreColor)
         {
             // Based off an answer by an anonymous user on StackOverlow http://stackoverflow.com/questions/1718825/blend-formula-for-gdi/2223241#2223241
@@ -275,7 +288,7 @@ namespace Pixelaria.Utils
         /// <param name="backColor">The back color to blend</param>
         /// <param name="foreColor">The fore color to blend</param>
         /// <returns>The two colors, blended with a GDI+ like color bleding mode</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static uint FlattenColor(uint backColor, uint foreColor)
         {
             // Based off an answer by an anonymous user on StackOverlow http://stackoverflow.com/questions/1718825/blend-formula-for-gdi/2223241#2223241
@@ -361,6 +374,7 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="pointList">An array of points to convert</param>
         /// <returns>The smallest Rectangle object that encloses all points provided</returns>
+        [Pure]
         public static Rectangle GetRectangleArea([NotNull] Point[] pointList)
         {
             int minX = pointList[0].X;
@@ -386,13 +400,14 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="pointList">An array of points to convert</param>
         /// <returns>The smallest Rectangle object that encloses all points provided</returns>
+        [Pure]
         public static RectangleF GetRectangleArea([NotNull] IReadOnlyList<PointF> pointList)
         {
-            var minX = pointList[0].X;
-            var minY = pointList[0].Y;
+            float minX = pointList[0].X;
+            float minY = pointList[0].Y;
 
-            var maxX = pointList[0].X;
-            var maxY = pointList[0].Y;
+            float maxX = pointList[0].X;
+            float maxY = pointList[0].Y;
 
             foreach (var p in pointList)
             {

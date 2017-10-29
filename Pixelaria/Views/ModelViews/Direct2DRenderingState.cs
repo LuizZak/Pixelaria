@@ -34,7 +34,7 @@ namespace Pixelaria.Views.ModelViews
 {
     public class Direct2DRenderingState
     {
-        private Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
+        private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
 
         public SwapChain SwapChain;
         public Surface DxgiSurface { set; get; }
@@ -45,6 +45,16 @@ namespace Pixelaria.Views.ModelViews
         public Device Device;
         public Factory Factory;
         public SharpDX.DirectWrite.Factory DirectWriteFactory;
+
+        /// <summary>
+        /// Gets the time span since the last frame rendered
+        /// </summary>
+        public TimeSpan FrameRenderDeltaTime { get; private set; }
+        
+        public void SetFrameDeltaTime(TimeSpan frameDeltaTime)
+        {
+            FrameRenderDeltaTime = frameDeltaTime;
+        }
 
         public void PushingTransform([NotNull] Action execute)
         {

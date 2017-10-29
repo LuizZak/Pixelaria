@@ -103,7 +103,11 @@ namespace Pixelaria.Utils
             }
             trace += $" {message}";
 
+#if DEBUG
+            Debug.WriteLine(trace);
+#elif TRACE
             Trace.WriteLine(trace);
+#endif
         }
     }
 }

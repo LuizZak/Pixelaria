@@ -36,11 +36,15 @@ namespace Pixelaria.Views.ModelViews
 {
     internal class ExportPipelineControl: Control
     {
+        private readonly Timer _fixedTimer;
+
+        private readonly SmoothViewPanAndZoomUiFeature _panAndZoom;
+
         private readonly Direct2DRenderer _d2DRenderer;
 
         private readonly InternalPipelineContainer _container;
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
-        
+
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
 
@@ -52,39 +56,50 @@ namespace Pixelaria.Views.ModelViews
         
         public ExportPipelineControl()
         {
+            _fixedTimer = new Timer {Interval = 8};
+            _fixedTimer.Tick += fixedTimer_Tick;
+            _fixedTimer.Start();
+
             _container = new InternalPipelineContainer(this);
 
             _d2DRenderer = new Direct2DRenderer(_container, this);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-
-            _container.Modified += ContainerOnModified;
+            
+            _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
 
             AddFeature(new NodeLinkHoverLabelFeature(this));
-            AddFeature(new ViewPanAndZoomUiFeature(this));
+            AddFeature(_panAndZoom);
             AddFeature(new DragAndDropUiFeature(this));
             AddFeature(new SelectionUiFeature(this));
 
             _d2DRenderer.AddDecorator(new ConnectedLinksDecorator(_container));
         }
-        
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
                 _d2DRenderer.Dispose();
-                _container.Modified -= ContainerOnModified;
+
+                _fixedTimer.Tick -= fixedTimer_Tick;
+                _fixedTimer.Dispose();
             }
 
             base.Dispose(disposing);
         }
 
+        public void SetPanAndZoom(Vector pan, Vector zoom)
+        {
+            _panAndZoom.SetTargetScale(zoom, pan);
+        }
+
         /// <summary>
         /// Adds a feature to this export pipeline control.
         /// 
-        /// Features added later take priority of receiving events first.
+        /// Features that are added later are put at the start of the event
+        /// handling queue when handling events.
         /// </summary>
-        /// <param name="feature">Feature to add</param>
         public void AddFeature([NotNull] ExportPipelineUiFeature feature)
         {
             _features.Insert(0, feature);
@@ -106,17 +121,28 @@ namespace Pixelaria.Views.ModelViews
                 feature.OnRender(state);
         }
         
-        private void ContainerOnModified(object sender, EventArgs eventArgs)
+        private void fixedTimer_Tick(object sender, EventArgs e)
         {
-            Invalidate();
+            if (!Visible)
+                return;
+
+            if (!InvokeRequired)
+            {
+                foreach (var feature in _features)
+                {
+                    feature.OnFixedFrame(e);
+                }
+            }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseLeave(e);
+            });
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -125,8 +151,10 @@ namespace Pixelaria.Views.ModelViews
 
             MousePoint = e.Location;
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseClick(e);
+            });
         }
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
@@ -135,8 +163,10 @@ namespace Pixelaria.Views.ModelViews
 
             MousePoint = e.Location;
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseDoubleClick(e);
+            });
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -145,8 +175,10 @@ namespace Pixelaria.Views.ModelViews
 
             MousePoint = e.Location;
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseDown(e);
+            });
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -155,8 +187,10 @@ namespace Pixelaria.Views.ModelViews
 
             MousePoint = e.Location;
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseUp(e);
+            });
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -165,8 +199,10 @@ namespace Pixelaria.Views.ModelViews
 
             MousePoint = e.Location;
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseMove(e);
+            });
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -175,40 +211,50 @@ namespace Pixelaria.Views.ModelViews
 
             MousePoint = e.Location;
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnMouseWheel(e);
+            });
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnKeyDown(e);
+            });
         }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnKeyUp(e);
+            });
         }
 
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             base.OnKeyPress(e);
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnKeyPress(e);
+            });
         }
 
         protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
             base.OnPreviewKeyDown(e);
 
-            foreach (var feature in _features)
+            LoopFeaturesUntilConsumed(feature =>
+            {
                 feature.OnPreviewKeyDown(e);
+            });
         }
 
         protected override void OnResize(EventArgs e)
@@ -217,6 +263,37 @@ namespace Pixelaria.Views.ModelViews
 
             foreach (var feature in _features)
                 feature.OnResize(e);
+        }
+
+        /// <summary>
+        /// Resets all export pipeline UI features registered on this pipeline control
+        /// and runs a loop sequentially calling <see cref="executing"/> until one
+        /// of the features sets its <see cref="ExportPipelineUiFeature.IsEventConsumed"/>
+        /// to true, or all features are looped through instead.
+        /// </summary>
+        private void LoopFeaturesUntilConsumed(Action<ExportPipelineUiFeature> executing)
+        {
+            ResetEventConsumed();
+
+            foreach (var feature in _features)
+            {
+                executing(feature);
+
+                if (feature.IsEventConsumed)
+                    return;
+            }
+        }
+
+        /// <summary>
+        /// Resets <see cref="ExportPipelineUiFeature.IsEventConsumed"/> to false for
+        /// all UI features.
+        /// </summary>
+        private void ResetEventConsumed()
+        {
+            foreach (var feature in _features)
+            {
+                feature.IsEventConsumed = false;
+            }
         }
 
         /// <summary>
@@ -280,7 +357,9 @@ namespace Pixelaria.Views.ModelViews
             ISelection SelectionModel { get; }
             
             /// <summary>
-            /// View contents that should be zoomable should be put on this container
+            /// View contents that should be zoomable should be put on this container.
+            /// 
+            /// Usually all <see cref="PipelineNodeView"/> instances to be interacted with are added here.
             /// </summary>
             BaseView ContentsView { get; }
 
@@ -433,6 +512,11 @@ namespace Pixelaria.Views.ModelViews
             /// Performs automatic resizing of nodes
             /// </summary>
             void AutosizeNodes();
+
+            /// <summary>
+            /// Performs automatic resizing of a single node view
+            /// </summary>
+            void AutosizeNode([NotNull] PipelineNodeView view);
 
             void PerformAction([NotNull] IExportPipelineAction action);
         }
@@ -675,6 +759,10 @@ namespace Pixelaria.Views.ModelViews
 
             public void AddConnection(IPipelineStep start, IPipelineNode end)
             {
+                // Detect cycles
+                if (start.IsDirectlyConnected(end))
+                    return;
+
                 if (end is IPipelineStep step)
                 {
                     var con = start.ConnectTo(step);
@@ -685,7 +773,7 @@ namespace Pixelaria.Views.ModelViews
 
                         var inpView = ViewForPipelineNodeLink(input);
                         var outView = ViewForPipelineNodeLink(output);
-
+                        
                         Debug.Assert(inpView != null, "inpView != null");
                         Debug.Assert(outView != null, "outView != null");
 
@@ -720,12 +808,21 @@ namespace Pixelaria.Views.ModelViews
             {
                 if (!input.CanConnect(output))
                     return;
-                
+
+                var inpNode = input.Node;
+                var outNode = output.Node;
+                if (inpNode == null || outNode == null)
+                    return;
+
                 var inpView = ViewForPipelineNodeLink(input);
                 var outView = ViewForPipelineNodeLink(output);
 
                 Debug.Assert(inpView != null, "inpView != null");
                 Debug.Assert(outView != null, "outView != null");
+
+                // Detect cycles
+                if (inpNode.IsDirectlyConnected(outNode))
+                    return;
 
                 var con = input.Connect(output);
 
@@ -921,13 +1018,13 @@ namespace Pixelaria.Views.ModelViews
             
             public PipelineNodeLinkView[] FindTargetsForLinkViews(IReadOnlyCollection<PipelineNodeLinkView> linkViews, Vector position)
             {
-                return
-                    linkViews.Select(view =>
+                return linkViews
+                    .Select(view =>
                         PotentialLinkViewForLinking(view, position)
-                    ).Select(found => 
-                        // Remove links that where part of the input set.
-                            linkViews.Contains(found) ? null : found
-                    ).ToArray();
+                    ).Select(found =>
+                        linkViews.Contains(found) ? null : found
+                    ) // Remove links that where part of the input set.
+                    .ToArray();
             }
 
             [CanBeNull]
@@ -959,29 +1056,37 @@ namespace Pixelaria.Views.ModelViews
                     if (AreConnected(linkView, nodeLinkView))
                         continue;
 
-                    // Avoid linking inputs-to-inputs and outputs-to-outputs
+                    // Can't link inputs to other inputs and outputs to other outputs
                     if (!(linkSource is IPipelineInput && linkTarget is IPipelineOutput) &&
                         !(linkSource is IPipelineOutput && linkTarget is IPipelineInput))
                         continue;
                     
                     // Check type validity
-                    var source = linkSource as IPipelineInput;
-                    if (source != null && linkTarget is IPipelineOutput)
-                    {
-                        var input = source;
-                        var output = (IPipelineOutput)linkTarget;
+                    IPipelineInput input;
+                    IPipelineOutput output;
 
-                        if (input.CanConnect(output))
-                            return nodeLinkView;
+                    if (linkSource is IPipelineInput source && linkTarget is IPipelineOutput)
+                    {
+                        input = source;
+                        output = (IPipelineOutput)linkTarget;
                     }
                     else
                     {
-                        var input = (IPipelineInput)linkTarget;
-                        var output = (IPipelineOutput)linkSource;
-                        
-                        if (input.CanConnect(output))
-                            return nodeLinkView;
+                        input = (IPipelineInput)linkTarget;
+                        output = (IPipelineOutput)linkSource;
+
                     }
+                    
+                    // Verify connections won't result in a cycle in the node graphs
+                    var node = output.Node;
+                    if (node == null)
+                        continue;
+
+                    if (input.Node != null && node.IsDirectlyConnected(input.Node))
+                        continue;
+
+                    if (input.CanConnect(output))
+                        return nodeLinkView;
                 }
 
                 return null;
@@ -993,6 +1098,11 @@ namespace Pixelaria.Views.ModelViews
                 {
                     view.AutoSize(_control.D2DRenderer);
                 }
+            }
+
+            public void AutosizeNode(PipelineNodeView view)
+            {
+                view.AutoSize(_control.D2DRenderer);
             }
 
             public void PerformAction(IExportPipelineAction action)
@@ -1070,6 +1180,15 @@ namespace Pixelaria.Views.ModelViews
         protected readonly ExportPipelineControl Control;
 
         /// <summary>
+        /// When an <see cref="ExportPipelineControl"/> calls one of the event handlers
+        /// On[...] (like OnMouseDown, OnMouseLeave, OnKeyDown, etc., except <see cref="OnRender"/>,
+        /// <see cref="OnResize"/> and <see cref="OnFixedFrame"/>) this flag is reset to false on all pipeline UI 
+        /// features, and after every feature's event handler call this flag is checked to 
+        /// stop calling the event handler on further events.
+        /// </summary>
+        public bool IsEventConsumed { get; set; }
+
+        /// <summary>
         /// States whether this pipeline feature has exclusive UI control.
         /// 
         /// Exclusive UI control should be requested whenever a UI feature wants to do
@@ -1087,9 +1206,17 @@ namespace Pixelaria.Views.ModelViews
         {
             Control = control;
         }
-        
+
+        /// <summary>
+        /// Called on a fixed 8ms (on average) interval across all UI features to perform fixed-update operations.
+        /// </summary>
+        public virtual void OnFixedFrame([NotNull] EventArgs e) { }
+
+        /// <summary>
+        /// Called whenever a new Direct2D frame is being rendered.
+        /// </summary>
         public virtual void OnRender([NotNull] Direct2DRenderingState state) { }
-        public virtual void OnPaint([NotNull] PaintEventArgs e) { }
+
         public virtual void OnMouseLeave([NotNull] EventArgs e) { }
         public virtual void OnMouseClick([NotNull] MouseEventArgs e) { }
         public virtual void OnMouseDoubleClick([NotNull] MouseEventArgs e) { }
@@ -1104,6 +1231,17 @@ namespace Pixelaria.Views.ModelViews
         public virtual void OnKeyPress([NotNull] KeyPressEventArgs e) { }
         public virtual void OnPreviewKeyDown([NotNull] PreviewKeyDownEventArgs e) { }
         public virtual void OnResize([NotNull] EventArgs e) { }
+
+        /// <summary>
+        /// Consumes the current event handler call such that no further UI features
+        /// receive it on the current event loop.
+        /// 
+        /// See <see cref="IsEventConsumed"/> for more info.
+        /// </summary>
+        protected void ConsumeEvent()
+        {
+            IsEventConsumed = true;
+        }
 
         /// <summary>
         /// Shortcut for <see cref="ExportPipelineControl.FeatureRequestedExclusiveControl"/>, returning whether
