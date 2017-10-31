@@ -22,9 +22,9 @@
 
 using System;
 using System.Windows.Forms;
-using Pixelaria.Views.ModelViews.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
-namespace Pixelaria.Views.ModelViews.PipelineView.Controls
+namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A container view which scrolls to allow panning contents into a rectangular view

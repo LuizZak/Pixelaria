@@ -27,9 +27,9 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView;
 
-namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
+namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
     internal class DragAndDropUiFeature : ExportPipelineUiFeature
     {

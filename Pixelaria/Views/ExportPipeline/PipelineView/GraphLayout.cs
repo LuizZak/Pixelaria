@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// Used to auto-layout graph nodes for the export pipeline view

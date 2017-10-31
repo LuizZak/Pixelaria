@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
@@ -48,9 +49,28 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public FilterPipelineStep([NotNull] IFilter filter)
         {
+            var props = filter.InspectableProperties();
+
             Filter = filter;
-            Input = new IPipelineInput[] { new PipelineBitmapInput(this) };
-            
+            var inputs = new IPipelineInput[props.Length + 1];
+            // First input is always the input bitmap
+            inputs[0] = new PipelineBitmapInput(this);
+
+            for (int i = 0; i < props.Length; i++)
+            {
+                var propertyInfo = props[i];
+
+                var pipelineInput = typeof(GenericPipelineInput<>).MakeGenericType(propertyInfo.PropertyType);
+                var constructor =
+                    pipelineInput.GetConstructor(new[] {typeof(IPipelineNode), typeof(string)});
+
+                Debug.Assert(constructor != null, "constructor != null");
+
+                inputs[i + 1] = (IPipelineInput)constructor.Invoke(new object[]{this, propertyInfo.Name});
+            }
+
+            Input = inputs;
+
             var connections =
                 Input[0].Connections
                     .Select(o => o.GetObservable()).ToObservable()
@@ -97,10 +117,10 @@ namespace Pixelaria.ExportPipeline.Steps
 
             Input = new IPipelineInput[]
             {
-                alphaInput,
-                bitmapInput
+                bitmapInput,
+                alphaInput
             };
-
+            
             var bitmapConnections = bitmapInput.AnyConnectionBitmap();
             var transp = alphaInput.AnyConnection();
 

@@ -24,12 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-
 using JetBrains.Annotations;
-
 using Pixelaria.Utils;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// A simple base view for creating UI elements with.

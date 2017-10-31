@@ -1,4 +1,4 @@
-﻿namespace Pixelaria.Views.ModelViews
+﻿namespace Pixelaria.Views.ExportPipeline
 {
     partial class ExportPipelineView
     {
@@ -16,7 +16,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportPipelineView));
-            this.exportPipelineControl = new Pixelaria.Views.ModelViews.ExportPipelineControl();
+            this.exportPipelineControl = new ExportPipelineControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.tsb_sortSelected = new System.Windows.Forms.ToolStripButton();

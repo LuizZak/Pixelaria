@@ -27,7 +27,7 @@ using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// A view for a graphics path.

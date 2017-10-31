@@ -43,8 +43,7 @@ namespace Pixelaria.ExportPipeline
         [CanBeNull]
         IPipelineMetadata GetMetadata();
     }
-
-
+    
     /// <summary>
     /// Interface for a pipeline step
     /// </summary>
@@ -152,6 +151,14 @@ namespace Pixelaria.ExportPipeline
         /// forwarded replicatively to all consumers.
         /// </summary>
         IObservable<object> GetObservable();
+    }
+
+    /// <summary>
+    /// An interface for a pipeline output that sends down static data values on subscription.
+    /// </summary>
+    public interface IStaticPipelineOutput : IPipelineOutput
+    {
+        
     }
 
     /// <summary>

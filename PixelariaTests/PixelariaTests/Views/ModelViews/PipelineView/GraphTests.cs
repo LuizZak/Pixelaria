@@ -23,7 +23,7 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace PixelariaTests.PixelariaTests.Views.ModelViews.PipelineView
 {

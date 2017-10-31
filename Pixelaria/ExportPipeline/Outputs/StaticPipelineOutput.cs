@@ -31,7 +31,7 @@ namespace Pixelaria.ExportPipeline.Outputs
     /// A simple output source that feeds a single static value on every subscription.
     /// </summary>
     /// <typeparam name="T">The type of object output by this static pipeline output</typeparam>
-    public class StaticPipelineOutput<T> : IPipelineOutput
+    public class StaticPipelineOutput<T> : IStaticPipelineOutput
     {
         private readonly T _value;
         

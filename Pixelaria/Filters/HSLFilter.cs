@@ -23,6 +23,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Reflection;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
@@ -53,12 +54,12 @@ namespace Pixelaria.Filters
         /// <summary>
         /// HUE value ranging from 0 - 360
         /// </summary>
-        public int Hue;
+        public int Hue { get; set; }
 
         /// <summary>
         /// Gets or sets whether the changes made by this HSL filter are relative to current values
         /// </summary>
-        public bool Relative;
+        public bool Relative { get; set; }
 
         /// <summary>
         /// Applies this HueFilter to a Bitmap
@@ -91,6 +92,20 @@ namespace Pixelaria.Filters
                     * scan0++ = new AhslColor(ahsl.FloatAlpha, newHue, ahsl.FloatSaturation, ahsl.FloatLightness).ToArgb();
                 }
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new[]
+            {
+                GetType().GetProperty(nameof(Hue)),
+                GetType().GetProperty(nameof(Relative))
+            };
         }
 
         /// <summary>
@@ -150,22 +165,22 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Saturation value ranging from 0 - 100
         /// </summary>
-        public int Saturation;
+        public int Saturation { get; set; }
 
         /// <summary>
         /// Gets or sets whether the changes made by this HSL filter are relative to current values
         /// </summary>
-        public bool Relative;
+        public bool Relative { get; set; }
 
         /// <summary>
         /// Gets or sets whether to keep the grays
         /// </summary>
-        public bool KeepGrays;
+        public bool KeepGrays { get; set; }
 
         /// <summary>
         /// Gets or sets whether to multiply the current values instead of adding to them
         /// </summary>
-        public bool Multiply;
+        public bool Multiply { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the SaturationFilter class
@@ -220,6 +235,22 @@ namespace Pixelaria.Filters
                     *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, s, ahsl.FloatLightness).ToArgb();
                 }
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new[]
+            {
+                GetType().GetProperty(nameof(Saturation)),
+                GetType().GetProperty(nameof(Relative)),
+                GetType().GetProperty(nameof(KeepGrays)),
+                GetType().GetProperty(nameof(Multiply))
+            };
         }
 
         /// <summary>
@@ -282,17 +313,17 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Lightness value ranging from 0 - 100
         /// </summary>
-        public int Lightness;
+        public int Lightness { get; set; }
 
         /// <summary>
         /// Gets or sets whether the changes made by this HSL filter are relative to current values
         /// </summary>
-        public bool Relative;
+        public bool Relative { get; set; }
 
         /// <summary>
         /// Gets or sets whether to multiply the current values instead of adding to them
         /// </summary>
-        public bool Multiply;
+        public bool Multiply { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the LightnessFilter class
@@ -343,6 +374,21 @@ namespace Pixelaria.Filters
                     *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, ahsl.FloatSaturation, l).ToArgb();
                 }
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new[]
+            {
+                GetType().GetProperty(nameof(Lightness)),
+                GetType().GetProperty(nameof(Relative)),
+                GetType().GetProperty(nameof(Multiply))
+            };
         }
 
         /// <summary>

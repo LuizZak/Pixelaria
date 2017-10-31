@@ -27,7 +27,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     public interface IAttributedText
     {

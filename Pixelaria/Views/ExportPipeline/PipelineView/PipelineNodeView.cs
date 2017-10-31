@@ -28,7 +28,7 @@ using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// A basic view for a single pipeline step
@@ -38,7 +38,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         private InsetBounds _bodyTextInset = new InsetBounds(7, 7, 7, 7);
 
         private const float LinkSize = 10;
-        private const float LinkSeparation = 23;
+        private const float LinkSeparation = 5;
+
+        /// <summary>
+        /// Padding between links and top/bottom of content view
+        /// </summary>
+        private const float LinkPadding = 20;
 
         private readonly List<PipelineNodeLinkView> _inputs = new List<PipelineNodeLinkView>();
         private readonly List<PipelineNodeLinkView> _outputs = new List<PipelineNodeLinkView>();
@@ -85,7 +90,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public void AutoSize([NotNull] ILabelViewSizeProvider sizeProvider)
         {
             var nameSize = sizeProvider.CalculateTextSize(Name, Font);
-            int vertLinkSize = (int)(Math.Max(GetInputViews().Length, GetOutputViews().Length) * (LinkSize + LinkSeparation * 1.5f));
+
+            // Calculate link size
+            int maxLinkCount = Math.Max(GetInputViews().Length, GetOutputViews().Length);
+            float vertLinkSize = maxLinkCount * (LinkSize + LinkSeparation) + LinkPadding;
 
             if (Icon != null)
             {
@@ -109,7 +117,10 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                     bodySize += new Vector(LinkSize, 0);
             }
 
-            Size = new Vector(Math.Max(80, Math.Max(bodySize.X, nameSize.Width + 8)), Math.Max(60, Math.Max(nameSize.Height + bodySize.Y, vertLinkSize)));
+            const float minBodySize = 10;
+            
+            Size = new Vector(Math.Max(80, Math.Max(bodySize.X, nameSize.Width + 8)),
+                Math.Max(minBodySize, nameSize.Height + Math.Max(bodySize.Y, vertLinkSize)));
 
             PositionLinkViews();
         }
@@ -161,17 +172,17 @@ namespace Pixelaria.Views.ModelViews.PipelineView
             var topRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Top);
             var botRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Bottom);
 
-            var ins = AlignedBoxesAcrossEdge(inputs.Count, linkSize, topLeft, botLeft, LinkSeparation);
-            var outs = AlignedBoxesAcrossEdge(outputs.Count, linkSize, topRight, botRight, LinkSeparation);
+            var ins = AlignedBoxesAcrossEdge(inputs.Count, linkSize, topLeft, botLeft, LinkSize + LinkSeparation);
+            var outs = AlignedBoxesAcrossEdge(outputs.Count, linkSize, topRight, botRight, LinkSize + LinkSeparation);
 
-            for (var i = 0; i < inputs.Count; i++)
+            for (int i = 0; i < inputs.Count; i++)
             {
                 var rect = ins[i];
                 _inputs[i].Location = rect.Minimum;
                 _inputs[i].Size = rect.Size;
             }
 
-            for (var i = 0; i < outputs.Count; i++)
+            for (int i = 0; i < outputs.Count; i++)
             {
                 var rect = outs[i];
                 _outputs[i].Location = rect.Minimum;
@@ -258,9 +269,9 @@ namespace Pixelaria.Views.ModelViews.PipelineView
                 return new AABB[0];
 
             var output = new AABB[count];
-
+            
             var mid = (edgeStart + edgeEnd) / 2;
-            var norm = (edgeStart - edgeEnd).Normalized();
+            var norm = (edgeEnd - edgeStart).Normalized();
 
             float total = separation * (count - 1);
             var offset = mid - norm * (total / 2.0f);

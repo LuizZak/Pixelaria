@@ -22,9 +22,9 @@
 
 using System.Drawing;
 using JetBrains.Annotations;
-using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView;
 
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.ExportPipeline
 {
     /// <summary>
     /// Public interface for the Export Pipeline's Direct2D renderer

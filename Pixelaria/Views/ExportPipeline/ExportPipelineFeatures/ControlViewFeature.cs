@@ -23,16 +23,15 @@
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
-using Color = System.Drawing.Color;
 using System.Windows.Forms;
-
 using JetBrains.Annotations;
+using Pixelaria.Views.ExportPipeline.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 using SharpDX;
 using SharpDX.Direct2D1;
-using Pixelaria.Views.ModelViews.PipelineView;
-using Pixelaria.Views.ModelViews.PipelineView.Controls;
+using Color = System.Drawing.Color;
 
-namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
+namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
     internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<Direct2DRenderingState>
     {

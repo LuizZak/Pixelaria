@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Filters
@@ -101,6 +102,21 @@ namespace Pixelaria.Filters
 
                 gfx.Flush();
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new[]
+            {
+                GetType().GetProperty(nameof(Rotation)),
+                GetType().GetProperty(nameof(RotateAroundCenter)),
+                GetType().GetProperty(nameof(PixelQuality))
+            };
         }
 
         /// <summary>

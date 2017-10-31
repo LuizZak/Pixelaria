@@ -26,10 +26,9 @@ using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Views.ModelViews.ExportPipelineFeatures;
-using SharpDX.Direct2D1;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
-namespace Pixelaria.Views.ModelViews.PipelineView.Controls
+namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A base view with added UI interactivity capabilities
@@ -65,6 +64,11 @@ namespace Pixelaria.Views.ModelViews.PipelineView.Controls
         /// of the control.
         /// </summary>
         public virtual AABB ContentBounds => Bounds;
+
+        /// <summary>
+        /// A user-defined tag that can be defined for this control
+        /// </summary>
+        public object Tag { get; set; }
 
         ~ControlView()
         {

@@ -30,7 +30,7 @@ using SharpDX.DXGI;
 using Device = SharpDX.Direct3D11.Device;
 using Factory = SharpDX.DXGI.Factory;
 
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.ExportPipeline
 {
     public class Direct2DRenderingState
     {

@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Filters
@@ -151,6 +152,22 @@ namespace Pixelaria.Filters
 
                 g.Flush();
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new[]
+            {
+                GetType().GetProperty(nameof(OffsetX)),
+                GetType().GetProperty(nameof(OffsetY)),
+                GetType().GetProperty(nameof(WrapHorizontal)),
+                GetType().GetProperty(nameof(WrapVertical))
+            };
         }
 
         /// <summary>

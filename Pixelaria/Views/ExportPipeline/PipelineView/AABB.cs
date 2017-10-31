@@ -28,7 +28,7 @@ using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using SharpDX.Mathematics.Interop;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// An axis-aligned bounding box.

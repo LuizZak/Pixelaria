@@ -22,37 +22,31 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Windows.Forms;
+using JetBrains.Annotations;
+using Pixelaria.Utils;
+using Pixelaria.Views.ExportPipeline.PipelineView;
+using SharpDX;
+using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
+using SharpDX.DXGI;
+using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Windows.Forms;
-
-using JetBrains.Annotations;
-
-using SharpDX;
-using SharpDX.Direct2D1;
-
-using SharpDX.DirectWrite;
-using SharpDX.Mathematics.Interop;
 using CombineMode = SharpDX.Direct2D1.CombineMode;
-
-using SharpDX.DXGI;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
 using TextRange = SharpDX.DirectWrite.TextRange;
 
-using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews.PipelineView;
-
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.ExportPipeline
 {
     /// <summary>
     /// Renders a pipeline export view
@@ -82,9 +76,7 @@ namespace Pixelaria.Views.ModelViews
         protected readonly List<IRenderingDecorator> TemporaryDecorators = new List<IRenderingDecorator>();
 
         private readonly D2DImageResources _imageResources;
-
-        private Stopwatch _timeSpanStopwatch;
-
+        
         /// <summary>
         /// Control-space clip rectangle for current draw operation.
         /// </summary>

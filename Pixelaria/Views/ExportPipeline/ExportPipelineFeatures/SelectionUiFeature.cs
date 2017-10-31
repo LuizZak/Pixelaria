@@ -25,11 +25,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using JetBrains.Annotations;
-using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews.PipelineView;
 
-namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
+using JetBrains.Annotations;
+
+using Pixelaria.Utils;
+using Pixelaria.Views.ExportPipeline.PipelineView;
+
+namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
     internal class SelectionUiFeature : ExportPipelineUiFeature, IRenderingDecorator
     {
@@ -77,7 +79,7 @@ namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
                 if (view is PipelineNodeLinkView linkView)
                 {
                     // Select all nodes connected to the given link view
-                    var connected = container.GetConnections(linkView);
+                    var connected = container.GetLinksConnectedTo(linkView);
 
                     foreach (var v in connected)
                     {
@@ -269,16 +271,20 @@ namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
                     if (e.KeyCode != Keys.Delete)
                         return;
 
+                    var nodes = container.SelectionModel.NodeViews();
                     var cons = container.SelectionModel.NodeLinkConnections();
-                    if (cons.Length > 0)
-                    {
-                        foreach (var con in cons)
-                        {
-                            container.RemoveConnection(con.Connection);
-                        }
 
-                        container.ClearSelection();
+                    foreach (var node in nodes)
+                    {
+                        container.RemoveNodeView(node);
                     }
+                    foreach (var con in cons)
+                    {
+                        container.RemoveConnection(con.Connection);
+                    }
+
+                    if (nodes.Length > 0 || cons.Length > 0)
+                        container.ClearSelection();
                 });
             }
         }

@@ -22,10 +22,12 @@
 
 using System;
 using System.Drawing;
+
 using JetBrains.Annotations;
+
 using SharpDX.Direct2D1;
 
-namespace Pixelaria.Views.ModelViews.PipelineView.Controls
+namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A base view that provides its own basic self-rendering logic.
@@ -92,6 +94,26 @@ namespace Pixelaria.Views.ModelViews.PipelineView.Controls
                     var roundedRect = new RoundedRectangle {RadiusX = CornerRadius, RadiusY = CornerRadius, Rect = Bounds};
 
                     state.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
+                }
+            }
+
+            // Stroke
+            using (var brush = new SolidColorBrush(state.D2DRenderTarget, StrokeColor.ToColor4()))
+            {
+                if (Math.Abs(CornerRadius) < float.Epsilon)
+                {
+                    state.D2DRenderTarget.DrawRectangle(Bounds, brush, StrokeWidth);
+                }
+                else
+                {
+                    var roundedRect = new RoundedRectangle
+                    {
+                        RadiusX = CornerRadius,
+                        RadiusY = CornerRadius,
+                        Rect = Bounds
+                    };
+
+                    state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, brush, StrokeWidth);
                 }
             }
         }

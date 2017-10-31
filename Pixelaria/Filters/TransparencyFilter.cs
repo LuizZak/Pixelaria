@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Reflection;
 using FastBitmapLib;
 using JetBrains.Annotations;
 
@@ -53,7 +54,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets or sets the Transparency component as a floating point value ranging from [0 - 1]
         /// </summary>
-        public float Transparency;
+        public float Transparency { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the TransparencyFilter class
@@ -112,6 +113,19 @@ namespace Pixelaria.Filters
                     scan0b += 4;
                 }
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new []
+            {
+                GetType().GetProperty(nameof(Transparency))
+            };
         }
 
         /// <summary>

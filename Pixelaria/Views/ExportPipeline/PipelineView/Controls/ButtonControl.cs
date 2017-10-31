@@ -23,17 +23,24 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using FontFamily = System.Drawing.FontFamily;
 
-namespace Pixelaria.Views.ModelViews.PipelineView.Controls
+namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A basic Button control
     /// </summary>
     internal class ButtonControl : ControlView
     {
+        /// <summary>
+        /// Cached text format instance refreshed on redraw, and reset every time text settings change
+        /// </summary>
+        [CanBeNull]
+        private TextFormat _textFormat;
+
         private ButtonState _state = ButtonState.Normal;
 
         private Color _normalColor = Color.FromKnownColor(KnownColor.Control);
@@ -100,7 +107,15 @@ namespace Pixelaria.Views.ModelViews.PipelineView.Controls
         /// <summary>
         /// Text label for the button
         /// </summary>
-        public string Text { get; set; } = "Button";
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                ResetTestFormat();
+            }
+        }
 
         /// <summary>
         /// Color for button's label
@@ -112,20 +127,36 @@ namespace Pixelaria.Views.ModelViews.PipelineView.Controls
         /// </summary>
         public EventHandler Clicked;
 
+        private string _text = "Button";
+
         public ButtonControl()
         {
             CornerRadius = 3;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _textFormat?.Dispose();
+
+            base.Dispose(disposing);
+        }
+
         public override void RenderForeground(Direct2DRenderingState state)
         {
             // Render text
+            if (_textFormat == null)
+            {
+                _textFormat = new TextFormat(state.DirectWriteFactory, FontFamily.GenericSansSerif.Name, 12)
+                {
+                    TextAlignment = TextAlignment.Center,
+                    ParagraphAlignment = ParagraphAlignment.Center
+                };
+            }
+
             using (var brush = new SolidColorBrush(state.D2DRenderTarget, TextColor.ToColor4()))
             {
-                using (var textFormat = new TextFormat(state.DirectWriteFactory, FontFamily.GenericSansSerif.Name, 12) { TextAlignment = TextAlignment.Center, ParagraphAlignment = ParagraphAlignment.Center })
-                {
-                    state.D2DRenderTarget.DrawText(Text, textFormat, Bounds, brush);
-                }
+                state.D2DRenderTarget.DrawText(Text, _textFormat, Bounds, brush);
             }
         }
 
@@ -192,6 +223,12 @@ namespace Pixelaria.Views.ModelViews.PipelineView.Controls
                     BackColor = HighlightColor;
                     break;
             }
+        }
+
+        private void ResetTestFormat()
+        {
+            _textFormat?.Dispose();
+            _textFormat = null;
         }
 
         /// <summary>

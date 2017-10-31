@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Reflection;
 using FastBitmapLib;
 using JetBrains.Annotations;
 
@@ -185,6 +186,22 @@ namespace Pixelaria.Filters
                     gphOut.Flush();
                 }
             }
+        }
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        public PropertyInfo[] InspectableProperties()
+        {
+            return new[]
+            {
+                GetType().GetProperty(nameof(StrokeColor)),
+                GetType().GetProperty(nameof(StrokeRadius)),
+                GetType().GetProperty(nameof(KnockoutImage)),
+                GetType().GetProperty(nameof(Smooth))
+            };
         }
 
         /// <summary>

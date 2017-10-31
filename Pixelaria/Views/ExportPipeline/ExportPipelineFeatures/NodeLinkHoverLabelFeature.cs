@@ -27,9 +27,9 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView;
 
-namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
+namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
     internal class NodeLinkHoverLabelFeature : ExportPipelineUiFeature
     {
@@ -145,7 +145,7 @@ namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
             }
 
             // Append connection count, if available
-            int count = container.GetConnections(linkView).Count;
+            int count = container.GetLinksConnectedTo(linkView).Count;
             if (count > 0)
             {
                 labelText.Append("\n");
@@ -153,7 +153,7 @@ namespace Pixelaria.Views.ModelViews.ExportPipelineFeatures
 
                 if (count == 1)
                 {
-                    labelText.Append(": " + container.GetConnections(linkView).First().NodeView.Name, new TextFontAttribute(new Font(FontFamily.GenericSansSerif, 13)));
+                    labelText.Append(": " + container.GetLinksConnectedTo(linkView).First().NodeView.Name, new TextFontAttribute(new Font(FontFamily.GenericSansSerif, 13)));
                 }
             }
 

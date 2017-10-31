@@ -24,9 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
-using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView;
 
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.ExportPipeline
 {
     /// <summary>
     /// Helper class for dealing with Direct2D image resource loading

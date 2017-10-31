@@ -20,15 +20,25 @@
     base directory of this project.
 */
 
+using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// A view for a link of a pipeline step view
     /// </summary>
     public class PipelineNodeLinkView : BaseView
     {
+        /// <summary>
+        /// A static pipeline output connected to this node link, if available.
+        /// 
+        /// Is set to null and replaced by any other output that is connected to
+        /// this input.
+        /// </summary>
+        [CanBeNull]
+        public IStaticPipelineOutput FixedOutput { get; set; }
+
         /// <summary>
         /// The connection this link references on its parent step view
         /// </summary>

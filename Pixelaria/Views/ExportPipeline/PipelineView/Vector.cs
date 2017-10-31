@@ -23,15 +23,14 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using JetBrains.Annotations;
 using Pixelaria.Utils;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
 using Matrix = System.Drawing.Drawing2D.Matrix;
 using Point = System.Drawing.Point;
 
-using JetBrains.Annotations;
-
-namespace Pixelaria.Views.ModelViews.PipelineView
+namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// Represents a 2D vector with X and Y components.
@@ -204,6 +203,15 @@ namespace Pixelaria.Views.ModelViews.PipelineView
         public static Vector Ceiling(Vector vec)
         {
             return new Vector((float)Math.Ceiling(vec.X), (float)Math.Ceiling(vec.Y));
+        }
+
+        /// <summary>
+        /// Returns a vector with absoluite x and y coordinates 
+        /// </summary>
+        [Pure]
+        public static Vector Abs(Vector vec)
+        {
+            return new Vector(Math.Abs(vec.X), Math.Abs(vec.Y));
         }
 
         /// <summary>

@@ -21,12 +21,13 @@
 */
 
 using JetBrains.Annotations;
+using Pixelaria.Views.ModelViews;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using Font = System.Drawing.Font;
 using FontFamily = System.Drawing.FontFamily;
 
-namespace Pixelaria.Views.ModelViews.PipelineView.Controls
+namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A basic textual label

@@ -27,12 +27,11 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-
 using Pixelaria.ExportPipeline;
-using Pixelaria.Views.ModelViews.ExportPipelineFeatures;
-using Pixelaria.Views.ModelViews.PipelineView;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.PipelineView;
 
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.ExportPipeline
 {
     internal class ExportPipelineControl: Control
     {
@@ -377,7 +376,17 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             void RemoveAllViews();
 
+            /// <summary>
+            /// Adds a new node view.
+            /// </summary>
             void AddNodeView([NotNull] PipelineNodeView nodeView);
+
+            /// <summary>
+            /// Removes a given node view.
+            /// 
+            /// Removing a node also removes all of its connections.
+            /// </summary>
+            void RemoveNodeView([NotNull] PipelineNodeView nodeView);
 
             /// <summary>
             /// Selects a given pipeline node.
@@ -439,14 +448,19 @@ namespace Pixelaria.Views.ModelViews
             void UpdateConnectionViewsFor([NotNull] PipelineNodeView nodeView);
 
             /// <summary>
+            /// Returns all pipeline node view connections that are connected to the given node view's inputs and outputs
+            /// </summary>
+            IEnumerable<PipelineNodeConnectionLineView> GetConnections([NotNull] PipelineNodeView source);
+
+            /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's output.
             /// </summary>
-            IEnumerable<PipelineNodeView> GetConnectionsFrom([NotNull] PipelineNodeView source);
+            IEnumerable<PipelineNodeView> GetNodesGoingFrom([NotNull] PipelineNodeView source);
             
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's input.
             /// </summary>
-            IEnumerable<PipelineNodeView> GetConnectionsTo([NotNull] PipelineNodeView source);
+            IEnumerable<PipelineNodeView> GetNodesGoingTo([NotNull] PipelineNodeView source);
 
             /// <summary>
             /// Returns a list of node views that are directly connected to a given source node view.
@@ -456,7 +470,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node link views that are connected to the given link views.
             /// </summary>
-            IReadOnlyList<PipelineNodeLinkView> GetConnections([NotNull] PipelineNodeLinkView source);
+            IReadOnlyList<PipelineNodeLinkView> GetLinksConnectedTo([NotNull] PipelineNodeLinkView source);
 
             /// <summary>
             /// Retrieves the view that represents the given pipeline node within this container
@@ -563,7 +577,7 @@ namespace Pixelaria.Views.ModelViews
         {
             private readonly BaseView _root = new BaseView();
             private readonly List<object> _selection = new List<object>();
-            private readonly List<PipelineNodeView> _stepViews = new List<PipelineNodeView>();
+            private readonly List<PipelineNodeView> _nodeViews = new List<PipelineNodeView>();
             private readonly List<PipelineNodeConnectionLineView> _connectionViews =
                 new List<PipelineNodeConnectionLineView>();
             private readonly _Selection _sel;
@@ -576,9 +590,7 @@ namespace Pixelaria.Views.ModelViews
             public BaseView ContentsView { get; } = new BaseView();
             public BaseView UiContainerView { get; } = new BaseView();
 
-            public PipelineNodeView[] NodeViews => _stepViews.ToArray();
-
-            public event EventHandler Modified;
+            public PipelineNodeView[] NodeViews => _nodeViews.ToArray();
             
             public InternalPipelineContainer(ExportPipelineControl control)
             {
@@ -611,18 +623,31 @@ namespace Pixelaria.Views.ModelViews
                 _root.AddChild(ContentsView);
                 _root.AddChild(UiContainerView);
 
-                _stepViews.Clear();
+                _nodeViews.Clear();
                 _connectionViews.Clear();
             }
 
             public void AddNodeView(PipelineNodeView nodeView)
             {
                 ContentsView.AddChild(nodeView);
-                _stepViews.Add(nodeView);
-
-                Modified?.Invoke(this, EventArgs.Empty);
+                _nodeViews.Add(nodeView);
             }
-            
+
+            public void RemoveNodeView(PipelineNodeView nodeView)
+            {
+                Deselect(nodeView);
+
+                // Remove connections
+                foreach (var connection in GetConnections(nodeView))
+                {
+                    RemoveConnection(connection.Connection);
+                }
+
+                nodeView.RemoveFromParent();
+
+                _nodeViews.Remove(nodeView);
+            }
+
             public void AttemptSelect(BaseView view)
             {
                 if (view is PipelineNodeView nodeView)
@@ -850,7 +875,15 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's output.
             /// </summary>
-            public IEnumerable<PipelineNodeView> GetConnectionsFrom(PipelineNodeView source)
+            public IEnumerable<PipelineNodeConnectionLineView> GetConnections(PipelineNodeView source)
+            {
+                return _connectionViews.Where(connection => connection.Start.NodeView.Equals(source) || connection.End.NodeView.Equals(source)).ToArray();
+            }
+
+            /// <summary>
+            /// Returns all pipeline node views that are connected to one of the given node view's output.
+            /// </summary>
+            public IEnumerable<PipelineNodeView> GetNodesGoingFrom(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
 
@@ -869,7 +902,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's input.
             /// </summary>
-            public IEnumerable<PipelineNodeView> GetConnectionsTo(PipelineNodeView source)
+            public IEnumerable<PipelineNodeView> GetNodesGoingTo(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
 
@@ -888,7 +921,7 @@ namespace Pixelaria.Views.ModelViews
             /// <summary>
             /// Returns all pipeline node link views that are connected to the given link views.
             /// </summary>
-            public IReadOnlyList<PipelineNodeLinkView> GetConnections(PipelineNodeLinkView source)
+            public IReadOnlyList<PipelineNodeLinkView> GetLinksConnectedTo(PipelineNodeLinkView source)
             {
                 var connections = new List<PipelineNodeLinkView>();
 
@@ -981,7 +1014,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             public PipelineNodeView ViewForPipelineNode(IPipelineNode node)
             {
-                return _stepViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
+                return _nodeViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
             }
 
             /// <summary>
@@ -1094,7 +1127,7 @@ namespace Pixelaria.Views.ModelViews
             
             public void AutosizeNodes()
             {
-                foreach (var view in _stepViews)
+                foreach (var view in _nodeViews)
                 {
                     view.AutoSize(_control.D2DRenderer);
                 }
@@ -1381,7 +1414,7 @@ namespace Pixelaria.Views.ModelViews
         public override void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
             ref PipelineStepViewLinkState state)
         {
-            if (!_container.GetConnections(link).Any())
+            if (!_container.GetLinksConnectedTo(link).Any())
             {
                 state.FillColor = Color.Transparent;
                 state.StrokeColor = Color.Gray;
@@ -1391,7 +1424,7 @@ namespace Pixelaria.Views.ModelViews
         public override void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
             ref PipelineStepViewLinkState state)
         {
-            if (!_container.GetConnections(link).Any())
+            if (!_container.GetLinksConnectedTo(link).Any())
             {
                 state.FillColor = Color.Transparent;
                 state.StrokeColor = Color.Gray;

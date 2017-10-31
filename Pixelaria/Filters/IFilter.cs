@@ -22,6 +22,7 @@
 
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 
 namespace Pixelaria.Filters
 {
@@ -52,6 +53,13 @@ namespace Pixelaria.Filters
         /// </summary>
         /// <param name="target">The image to apply the filter to</param>
         void ApplyToBitmap(Bitmap target);
+
+        /// <summary>
+        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// 
+        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// </summary>
+        PropertyInfo[] InspectableProperties();
 
         /// <summary>
         /// Saves the properties of this filter to the given stream

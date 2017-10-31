@@ -21,21 +21,32 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
-
 using JetBrains.Annotations;
-
+using Pixelaria.Controllers.DataControllers;
+using Pixelaria.Data;
+using Pixelaria.Data.Persistence;
+using Pixelaria.ExportPipeline;
+using Pixelaria.ExportPipeline.Outputs;
+using Pixelaria.ExportPipeline.Steps;
+using Pixelaria.Filters;
+using Pixelaria.Properties;
+using Pixelaria.Utils;
+using Pixelaria.Views.Direct2D;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
-
 using Factory = SharpDX.DXGI.Factory;
 
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
@@ -45,25 +56,13 @@ using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using Resource = SharpDX.Direct3D11.Resource;
 using Device = SharpDX.Direct3D11.Device;
 
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
-using Pixelaria.Data.Persistence;
-using Pixelaria.ExportPipeline;
-using Pixelaria.ExportPipeline.Outputs;
-using Pixelaria.ExportPipeline.Steps;
-using Pixelaria.Properties;
-using Pixelaria.Utils;
-using Pixelaria.Views.Direct2D;
-using Pixelaria.Views.ModelViews.ExportPipelineFeatures;
-using Pixelaria.Views.ModelViews.PipelineView;
-using Pixelaria.Views.ModelViews.PipelineView.Controls;
-
-namespace Pixelaria.Views.ModelViews
+namespace Pixelaria.Views.ExportPipeline
 {
     public partial class ExportPipelineView : PxlRenderForm
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-
+        
+        private ExportPipelineNodesPanelManager _panelManager;
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
 
         public Direct2DRenderingState RenderingState { get; } = new Direct2DRenderingState();
@@ -98,6 +97,7 @@ namespace Pixelaria.Views.ModelViews
                 }
 
                 _disposeBag.Dispose();
+                _panelManager?.Dispose();
 
                 if (components != null)
                     components.Dispose();
@@ -113,164 +113,59 @@ namespace Pixelaria.Views.ModelViews
             InitializeDirect2D();
         }
 
-        public void InitializeDirect2D()
+        public void ConfigureForm()
         {
-            if (DesignMode)
-                return;
-
-            // SwapChain description
-            var desc = new SwapChainDescription
-            {
-                BufferCount = 1,
-                ModeDescription =
-                    new ModeDescription(exportPipelineControl.Width, exportPipelineControl.Height,
-                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
-                IsWindowed = true,
-                OutputHandle = exportPipelineControl.Handle,
-                SampleDescription = new SampleDescription(1, 0),
-                SwapEffect = SwapEffect.Discard,
-                Usage = Usage.RenderTargetOutput
-            };
-
-            // Create Device and SwapChain
-            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, new [] { SharpDX.Direct3D.FeatureLevel.Level_10_0 }, desc, out RenderingState.Device, out RenderingState.SwapChain);
-
-            RenderingState.D2DFactory = new SharpDX.Direct2D1.Factory();
-            RenderingState.DirectWriteFactory = new SharpDX.DirectWrite.Factory();
-
-            // Ignore all windows events
-            RenderingState.Factory = RenderingState.SwapChain.GetParent<Factory>();
-            RenderingState.Factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
-
-            // New RenderTargetView from the backbuffer
-            RenderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(RenderingState.SwapChain, 0);
-            RenderingState.RenderTargetView = new RenderTargetView(RenderingState.Device, RenderingState.BackBuffer);
-
-            RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
-
-            RenderingState.D2DRenderTarget = new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface,
-                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)))
-            {
-                TextAntialiasMode = TextAntialiasMode.Cleartype
-            };
-            
-            exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
-
             ConfigurePipelineControl();
-            //InitTest();
-
-            using (var renderLoop = new RenderLoop(this) { UseApplicationDoEvents = true })
-            {
-                while (renderLoop.NextFrame())
-                {
-                    // Frame interval timespan
-                    if (!_frameDeltaTimer.IsRunning)
-                    {
-                        _frameDeltaTimer.Start();
-                        RenderingState.SetFrameDeltaTime(TimeSpan.FromMilliseconds(16));
-                    }
-                    else
-                    {
-                        RenderingState.SetFrameDeltaTime(TimeSpan.FromTicks(_frameDeltaTimer.ElapsedTicks));
-                        _frameDeltaTimer.Restart();
-                    }
-
-                    RenderingState.D2DRenderTarget.BeginDraw();
-
-                    exportPipelineControl.RenderDirect2D(RenderingState);
-
-                    RenderingState.D2DRenderTarget.EndDraw();
-
-                    RenderingState.SwapChain.Present(0, PresentFlags.None);
-                }
-            }
+            ConfigureNodesPanel();
         }
 
         public void ConfigurePipelineControl()
         {
             LabelView.DefaultLabelViewSizeProvider = exportPipelineControl.D2DRenderer;
+            var imageResources = exportPipelineControl.D2DRenderer.ImageResources;
 
-            exportPipelineControl.D2DRenderer.ImageResources.AddImageResource(RenderingState, Resources.anim_icon,
-                "anim_icon");
-            exportPipelineControl.D2DRenderer.ImageResources.AddImageResource(RenderingState, Resources.sheet_new,
-                "sheet_new");
-            exportPipelineControl.D2DRenderer.ImageResources.AddImageResource(RenderingState, Resources.sheet_save_icon,
-                "sheet_save_icon");
-            exportPipelineControl.D2DRenderer.ImageResources.AddImageResource(RenderingState, Resources.filter_transparency_icon,
-                "filter_transparency_icon");
+            void AddImage(System.Drawing.Bitmap bitmap, string name)
+            {
+                imageResources.AddImageResource(RenderingState, bitmap, name);
+            }
 
+            AddImage(Resources.anim_icon, "anim_icon");
+            AddImage(Resources.sheet_new, "sheet_new");
+            AddImage(Resources.sheet_save_icon, "sheet_save_icon");
+            AddImage(Resources.filter_transparency_icon, "filter_transparency_icon");
+            AddImage(Resources.filter_hue, "filter_hue");
+            AddImage(Resources.filter_saturation, "filter_saturation");
+            AddImage(Resources.filter_lightness, "filter_lightness");
+            AddImage(Resources.filter_offset_icon, "filter_offset_icon");
+            AddImage(Resources.filter_scale_icon, "filter_scale_icon");
+            AddImage(Resources.filter_rotation_icon, "filter_rotation_icon");
+            AddImage(Resources.filter_stroke, "filter_stroke");
+        }
+
+        public void ConfigureNodesPanel()
+        {
             // Add controls
             var control = new ControlViewFeature(exportPipelineControl);
             exportPipelineControl.AddFeature(control);
 
-            var scrollView = new ScrollViewControl
-            {
-                Size = new Vector(300, exportPipelineControl.Size.Height),
-                ContentSize = new Vector(600, 1800),
-                BackColor = Color.Black.WithTransparency(0.3f),
-                ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
-            };
-            
-            control.AddControl(scrollView);
+            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl, control);
 
-            var transpFilter = new ButtonControl
-            {
-                Location = new Vector(20, 20),
-                Size = new Size(80, 60),
-                Text = "Transparency Filter",
-                BackColor = Color.Black.WithTransparency(0.3f),
-                NormalColor = Color.Black.WithTransparency(0.3f),
-                HighlightColor = Color.Black.WithTransparency(0.3f).Blend(Color.White),
-                SelectedColor = Color.Black.WithTransparency(0.3f),
-                StrokeWidth = 2,
-                CornerRadius = 5,
-                StrokeColor = Color.Black.WithTransparency(0.5f),
-                TextColor = Color.White
-            };
+            _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
 
-            transpFilter.Rx
-                .MouseClick
-                .Subscribe(_ =>
-                {
-                    var node = new TransparencyFilterPipelineStep();
-                    AddPipelineNode(node);
-                }).AddToDisposable(_disposeBag);
+            // Add nodes from the default provider
+            var provider = new DefaultPipelineNodeSpecsProvider();
 
-            scrollView.ContainerView.AddChild(transpFilter);
-            
-            exportPipelineControl.SizeChanged += (sender, args) =>
-            {
-                scrollView.Size = new Vector(300, exportPipelineControl.Size.Height);
-            };
+            _panelManager.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
         }
-        
+
         private void ExportPipelineControlOnResize(object sender, EventArgs eventArgs)
         {
             ResetSwapChain();
         }
 
-        private void ResetSwapChain()
+        private void PanelManagerOnPipelineNodeSelected(object sender, [NotNull] ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e)
         {
-            if (RenderingState.SwapChain == null)
-                return;
-
-            RenderingState.Device.ImmediateContext.ClearState();
-
-            RenderingState.DxgiSurface.Dispose();
-            RenderingState.D2DRenderTarget.Dispose();
-            RenderingState.RenderTargetView.Dispose();
-            RenderingState.BackBuffer.Dispose();
-
-            RenderingState.SwapChain.ResizeBuffers(RenderingState.SwapChain.Description.BufferCount,
-                exportPipelineControl.Width, exportPipelineControl.Height,
-                RenderingState.SwapChain.Description.ModeDescription.Format,
-                RenderingState.SwapChain.Description.Flags);
-
-            RenderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(RenderingState.SwapChain, 0);
-            RenderingState.RenderTargetView = new RenderTargetView(RenderingState.Device, RenderingState.BackBuffer);
-            RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
-            RenderingState.D2DRenderTarget = new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface,
-                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
+            AddPipelineNode(e.Node);
         }
 
         public void AddPipelineNode([NotNull] IPipelineNode node)
@@ -278,12 +173,31 @@ namespace Pixelaria.Views.ModelViews
             var view = new PipelineNodeView(node);
 
             string iconName = null;
-
+            
             // Automatically setup icons for known pipeline nodes
             switch (node)
             {
                 case TransparencyFilterPipelineStep _:
                     iconName = "filter_transparency_icon";
+                    break;
+
+                case FilterPipelineStep filterStep:
+
+                    if (filterStep.Filter is HueFilter)
+                        iconName = "filter_hue";
+                    else if (filterStep.Filter is SaturationFilter)
+                        iconName = "filter_saturation";
+                    else if (filterStep.Filter is LightnessFilter)
+                        iconName = "filter_lightness";
+                    else if (filterStep.Filter is OffsetFilter)
+                        iconName = "filter_offset_icon";
+                    else if (filterStep.Filter is RotationFilter)
+                        iconName = "filter_rotation_icon";
+                    else if (filterStep.Filter is ScaleFilter)
+                        iconName = "filter_scale_icon";
+                    else if (filterStep.Filter is StrokeFilter)
+                        iconName = "filter_stroke";
+
                     break;
 
                 case SingleAnimationPipelineStep _:
@@ -298,7 +212,7 @@ namespace Pixelaria.Views.ModelViews
                     iconName = "sheet_new";
                     break;
             }
-
+            
             if (iconName != null)
             {
                 view.Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource(iconName);
@@ -484,8 +398,257 @@ namespace Pixelaria.Views.ModelViews
 
             exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
         }
+
+        #region Direct2D Setup
+
+        public void InitializeDirect2D()
+        {
+            if (DesignMode)
+                return;
+
+            // SwapChain description
+            var desc = new SwapChainDescription
+            {
+                BufferCount = 1,
+                ModeDescription =
+                    new ModeDescription(exportPipelineControl.Width, exportPipelineControl.Height,
+                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                IsWindowed = true,
+                OutputHandle = exportPipelineControl.Handle,
+                SampleDescription = new SampleDescription(1, 0),
+                SwapEffect = SwapEffect.Discard,
+                Usage = Usage.RenderTargetOutput
+            };
+
+            // Create Device and SwapChain
+            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, new[] { SharpDX.Direct3D.FeatureLevel.Level_10_0 }, desc, out RenderingState.Device, out RenderingState.SwapChain);
+
+            RenderingState.D2DFactory = new SharpDX.Direct2D1.Factory();
+            RenderingState.DirectWriteFactory = new SharpDX.DirectWrite.Factory();
+
+            // Ignore all windows events
+            RenderingState.Factory = RenderingState.SwapChain.GetParent<Factory>();
+            RenderingState.Factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
+
+            // New RenderTargetView from the backbuffer
+            RenderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(RenderingState.SwapChain, 0);
+            RenderingState.RenderTargetView = new RenderTargetView(RenderingState.Device, RenderingState.BackBuffer);
+
+            RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
+
+            RenderingState.D2DRenderTarget = new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface,
+                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)))
+            {
+                TextAntialiasMode = TextAntialiasMode.Cleartype
+            };
+
+            exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
+
+            ConfigureForm();
+            //InitTest();
+
+            using (var renderLoop = new RenderLoop(this) { UseApplicationDoEvents = true })
+            {
+                _frameDeltaTimer.Start();
+
+                while (renderLoop.NextFrame())
+                {
+                    if (_frameDeltaTimer.ElapsedMilliseconds <= 16)
+                        continue;
+
+                    RenderingState.SetFrameDeltaTime(TimeSpan.FromTicks(_frameDeltaTimer.ElapsedTicks));
+                    _frameDeltaTimer.Stop();
+                    _frameDeltaTimer.Reset();
+                    _frameDeltaTimer.Start();
+
+                    RenderingState.D2DRenderTarget.BeginDraw();
+
+                    exportPipelineControl.RenderDirect2D(RenderingState);
+
+                    RenderingState.D2DRenderTarget.EndDraw();
+
+                    RenderingState.SwapChain.Present(0, PresentFlags.None);
+                }
+            }
+        }
+
+        private void ResetSwapChain()
+        {
+            if (RenderingState.SwapChain == null)
+                return;
+
+            RenderingState.Device.ImmediateContext.ClearState();
+
+            RenderingState.DxgiSurface.Dispose();
+            RenderingState.D2DRenderTarget.Dispose();
+            RenderingState.RenderTargetView.Dispose();
+            RenderingState.BackBuffer.Dispose();
+
+            RenderingState.SwapChain.ResizeBuffers(RenderingState.SwapChain.Description.BufferCount,
+                exportPipelineControl.Width, exportPipelineControl.Height,
+                RenderingState.SwapChain.Description.ModeDescription.Format,
+                RenderingState.SwapChain.Description.Flags);
+
+            RenderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(RenderingState.SwapChain, 0);
+            RenderingState.RenderTargetView = new RenderTargetView(RenderingState.Device, RenderingState.BackBuffer);
+            RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
+            RenderingState.D2DRenderTarget = new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface,
+                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
+        }
+
+        #endregion
     }
 
+    /// <summary>
+    /// Manages export pipeline node items available on the side panel of an export pipeline view
+    /// </summary>
+    internal sealed class ExportPipelineNodesPanelManager: IDisposable
+    {
+        private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
+        private readonly ExportPipelineControl _pipelineControl;
+        private readonly ControlViewFeature _controlView;
+
+        private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
+        private List<ButtonControl> SpecButtons { get; } = new List<ButtonControl>();
+
+        private ScrollViewControl _scrollViewControl;
+
+        public delegate void PipelineNodeSelectedEventHandler(object sender, PipelineNodeSelectedEventArgs e);
+
+        public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
+
+        public ExportPipelineNodesPanelManager([NotNull] ExportPipelineControl pipelineControl, [NotNull] ControlViewFeature controlView)
+        {
+            _pipelineControl = pipelineControl;
+            _controlView = controlView;
+
+            Setup();
+        }
+        
+        public void Dispose()
+        {
+            _disposeBag?.Dispose();
+            _pipelineControl?.Dispose();
+        }
+
+        private void Setup()
+        {
+            _scrollViewControl = new ScrollViewControl
+            {
+                Size = new Vector(300, _pipelineControl.Size.Height),
+                ContentSize = new Vector(300, 1800),
+                BackColor = Color.Black.WithTransparency(0.7f),
+                ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
+            };
+
+            _controlView.AddControl(_scrollViewControl);
+
+            _pipelineControl.SizeChanged += (sender, args) =>
+            {
+                _scrollViewControl.Size = new Vector(300, _pipelineControl.Size.Height);
+            };
+        }
+
+        /// <summary>
+        /// Loads a list of pipeline nodes that can be created from the given array of pipeline node specs
+        /// </summary>
+        public void LoadCreatablePipelineNodes([NotNull] PipelineNodeSpec[] nodeSpecs)
+        {
+            LoadedSpecs.AddRange(nodeSpecs);
+
+            foreach (var spec in nodeSpecs)
+            {
+                var button = ButtonForPipelineSpec(spec);
+                button.Tag = spec;
+
+                SpecButtons.Add(button);
+
+                _scrollViewControl.ContainerView.AddChild(button);
+            }
+
+            // Adjust buttons
+            ArrangeButtons();
+        }
+
+        private void ArrangeButtons()
+        {
+            var buttonSize = GetButtonSize();
+            var sepSize = new Vector(15, 15);
+
+            int buttonsPerRow = (int)(_scrollViewControl.ContentSize.X / (buttonSize.Width + sepSize.X * 1.5f));
+
+            float xStep = buttonSize.Width + sepSize.X;
+            float yStep = buttonSize.Height + sepSize.Y;
+
+            for (int i = 0; i < SpecButtons.Count; i++)
+            {
+                var button = SpecButtons[i];
+
+                float x = xStep + i % buttonsPerRow * xStep;
+                float y = yStep + (float)Math.Floor((float)i / buttonsPerRow) * yStep;
+
+                button.Center = new Vector(x, y);
+            }
+        }
+
+        private ButtonControl ButtonForPipelineSpec([NotNull] PipelineNodeSpec spec)
+        {
+            var buttonSize = GetButtonSize();
+
+            var button = new ButtonControl
+            {
+                Location = new Vector(20, 20),
+                Size = buttonSize,
+                Text = spec.Name,
+                BackColor = Color.Black.WithTransparency(0.3f),
+                NormalColor = Color.Black.WithTransparency(0.3f),
+                HighlightColor = Color.Black.WithTransparency(0.3f).Blend(Color.White),
+                SelectedColor = Color.Black.WithTransparency(0.3f),
+                StrokeWidth = 2,
+                CornerRadius = 3,
+                StrokeColor = Color.Gray.WithTransparency(0.8f),
+                TextColor = Color.White,
+                ClipToBounds = false
+            };
+
+            button.Rx
+                .MouseClick
+                .Subscribe(_ =>
+                {
+                    var node = spec.CreateNode();
+                    PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(node));
+                }).AddToDisposable(_disposeBag);
+
+            return button;
+        }
+
+        private static Size GetButtonSize()
+        {
+            return new Size(80, 60);
+        }
+
+        [CanBeNull]
+        private ButtonControl ButtonForSpec(PipelineNodeSpec spec)
+        {
+            return SpecButtons.FirstOrDefault(b => b.Tag == spec);
+        }
+
+        /// <summary>
+        /// Arguments for event fired when user selects a pipeline node from the pipeline node panels.
+        /// 
+        /// Receives the pre-instantiated pipeline node for the event.
+        /// </summary>
+        public class PipelineNodeSelectedEventArgs : EventArgs
+        {
+            public IPipelineNode Node { get; }
+
+            public PipelineNodeSelectedEventArgs(IPipelineNode node)
+            {
+                Node = node;
+            }
+        }
+    }
+    
     /// <summary>
     /// Actions to be performed on a pipeline container's contents
     /// </summary>
@@ -521,8 +684,8 @@ namespace Pixelaria.Views.ModelViews
                 if (view == null)
                     continue;
 
-                var previous = container.GetConnectionsTo(view);
-                var next = container.GetConnectionsFrom(view);
+                var previous = container.GetNodesGoingTo(view);
+                var next = container.GetNodesGoingFrom(view);
 
                 foreach (var prevView in previous)
                 {
@@ -568,7 +731,7 @@ namespace Pixelaria.Views.ModelViews
                 if (view == null)
                     continue;
 
-                var conTo = container.GetConnectionsFrom(view).FirstOrDefault();
+                var conTo = container.GetNodesGoingFrom(view).FirstOrDefault();
                 if (conTo == null)
                     continue;
 

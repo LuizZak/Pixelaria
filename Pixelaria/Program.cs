@@ -23,7 +23,7 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-
+using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria

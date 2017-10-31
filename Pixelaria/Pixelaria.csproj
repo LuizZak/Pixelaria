@@ -210,6 +210,7 @@
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
+    <Compile Include="ExportPipeline\DefaultPipelineNodeSpecsProvider.cs" />
     <Compile Include="ExportPipeline\Outputs\AbstractPipelineOutput.cs" />
     <Compile Include="ExportPipeline\Steps\AbstractPipelineStep.cs" />
     <Compile Include="ExportPipeline\Inputs\AbstractSinglePipelineInput.cs" />
@@ -258,24 +259,24 @@
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\ModelViews\D2DImageResources.cs" />
-    <Compile Include="Views\ModelViews\Direct2DRenderingState.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Controls\ButtonControl.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Controls\ControlView.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineFeatures\ControlViewFeature.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineControl.cs">
+    <Compile Include="Views\ExportPipeline\D2DImageResources.cs" />
+    <Compile Include="Views\ExportPipeline\Direct2DRenderingState.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ButtonControl.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ControlView.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeature.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\ModelViews\ExportPipelineControl.Direct2DRenderer.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Controls\LabelViewControl.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Controls\ScrollBarControl.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Controls\ScrollViewControl.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Controls\SelfRenderingBaseView.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineFeatures\SmoothViewPanAndZoomUiFeature.cs" />
-    <Compile Include="Views\ModelViews\IDirect2DRenderer.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\BaseView.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineControl.Direct2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\LabelViewControl.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ScrollBarControl.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ScrollViewControl.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\SelfRenderingBaseView.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SmoothViewPanAndZoomUiFeature.cs" />
+    <Compile Include="Views\ExportPipeline\IDirect2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\BaseView.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />
@@ -539,10 +540,10 @@
     <Compile Include="Views\ModelViews\AnimationView.Designer.cs">
       <DependentUpon>AnimationView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\ModelViews\ExportPipelineView.cs">
+    <Compile Include="Views\ExportPipeline\ExportPipelineView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\ModelViews\ExportPipelineView.Designer.cs">
+    <Compile Include="Views\ExportPipeline\ExportPipelineView.Designer.cs">
       <DependentUpon>ExportPipelineView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ModelViews\ImageFilterView.cs">
@@ -576,15 +577,15 @@
     <Compile Include="Views\ModelViews\NewAnimationView.Designer.cs">
       <DependentUpon>NewAnimationView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\ModelViews\PipelineView\AABB.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\BezierPathView.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\GraphLayout.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\AttributedText.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\LabelView.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\PipelineNodeLinkView.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\PipelineNodeView.cs" />
-    <Compile Include="Views\ModelViews\PipelineView\Vector.cs" />
-    <Compile Include="Views\ModelViews\ExportPipelineFeatures\SelectionUiFeature.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\AABB.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\BezierPathView.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\GraphLayout.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\AttributedText.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\LabelView.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeLinkView.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeView.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Vector.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SelectionUiFeature.cs" />
     <Compile Include="Views\SettingsViews\BundleSettingsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -696,7 +697,7 @@
       <DependentUpon>AnimationView.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ModelViews\ExportPipelineView.resx">
+    <EmbeddedResource Include="Views\ExportPipeline\ExportPipelineView.resx">
       <DependentUpon>ExportPipelineView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\ImageFilterView.resx">

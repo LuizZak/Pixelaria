@@ -24,9 +24,9 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
-using Pixelaria.Views.ModelViews.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
-namespace Pixelaria.Views.ModelViews.PipelineView.Controls
+namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A scroll bar control that allows scrolling 
