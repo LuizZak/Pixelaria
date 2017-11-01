@@ -21,15 +21,18 @@
 */
 
 using System;
+using Color = System.Drawing.Color;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
-using Pixelaria.Views.ExportPipeline.PipelineView;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
+
 using SharpDX;
 using SharpDX.Direct2D1;
-using Color = System.Drawing.Color;
+
+using Pixelaria.Views.ExportPipeline.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -42,7 +45,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         /// was pressed down on
         /// </summary>
         [CanBeNull]
-        private IEventHandler _mouseDownControl;
+        private IMouseEventHandler _mouseDownTarget;
 
         /// <summary>
         /// Last control the mouse was resting on top of on the last call to OnMouseMove.
@@ -50,7 +53,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         /// Used to handle OnMouseEnter/OnMouseLeave on controls
         /// </summary>
         [CanBeNull]
-        private IEventHandler _mouseHoverControl;
+        private IMouseEventHandler _mouseHoverTarget;
 
         public ControlViewFeature([NotNull] ExportPipelineControl control) : base(control)
         {
@@ -130,10 +133,10 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnMouseLeave(e);
 
-            if (_mouseHoverControl != null)
+            if (_mouseHoverTarget != null)
             {
-                _mouseHoverControl.OnMouseLeave();
-                _mouseHoverControl = null;
+                _mouseHoverTarget.OnMouseLeave();
+                _mouseHoverTarget = null;
             }
         }
         
@@ -148,12 +151,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 // Make request
                 var request = new MouseEventRequest(MouseEventType.MouseDown, handler =>
                 {
-                    if (RequestExclusiveControl())
-                    {
-                        handler.OnMouseDown(ConvertMouseEvent(e, handler));
+                    if (!RequestExclusiveControl())
+                        return;
 
-                        _mouseDownControl = control;
-                    }
+                    handler.OnMouseDown(ConvertMouseEvent(e, handler));
+
+                    _mouseDownTarget = handler;
                 });
 
                 control.HandleOrPass(request);
@@ -167,9 +170,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (!OtherFeatureHasExclusiveControl())
             {
                 // Fixed mouse-over on control that was pressed down
-                if (_mouseDownControl != null)
+                if (_mouseDownTarget != null)
                 {
-                    _mouseDownControl.OnMouseMove(ConvertMouseEvent(e, _mouseDownControl));
+                    _mouseDownTarget.OnMouseMove(ConvertMouseEvent(e, _mouseDownTarget));
                 }
                 else
                 {
@@ -182,13 +185,13 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnMouseUp(e);
 
-            var control = _mouseDownControl;
+            var control = _mouseDownTarget;
             if (control != null)
             {
                 // Figure out if it's a click or mouse up event
                 // Click events fire when MouseDown + MouseUp occur over the same element
                 var upControl = ControlViewUnder(e.Location);
-                if (upControl != null && ReferenceEquals(upControl, _mouseDownControl))
+                if (upControl != null && ReferenceEquals(upControl, _mouseDownTarget))
                 {
                     upControl.OnMouseUp(ConvertMouseEvent(e, upControl));
                     upControl.OnMouseClick(ConvertMouseEvent(e, upControl));
@@ -198,7 +201,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     control.OnMouseUp(ConvertMouseEvent(e, control));
                 }
 
-                _mouseDownControl = null;
+                _mouseDownTarget = null;
 
                 UpdateMouseOver(e, MouseEventType.MouseMove);
 
@@ -219,7 +222,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 // Make request
                 var request = new MouseEventRequest(MouseEventType.MouseWheel, handler =>
                 {
-                    var mouse = _mouseDownControl;
+                    var mouse = _mouseDownTarget;
 
                     if (mouse != null)
                     {
@@ -246,12 +249,16 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 // Make request
                 var request = new MouseEventRequest(eventType, handler =>
                 {
-                    if (!ReferenceEquals(_mouseHoverControl, handler))
+                    if (!ReferenceEquals(_mouseHoverTarget, handler))
                     {
-                        _mouseHoverControl?.OnMouseLeave();
+                        _mouseHoverTarget?.OnMouseLeave();
                         handler.OnMouseEnter();
 
-                        _mouseHoverControl = handler;
+                        _mouseHoverTarget = handler;
+                    }
+                    else
+                    {
+                        _mouseHoverTarget?.OnMouseMove(e);
                     }
                 });
 
@@ -259,14 +266,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 if (request.NotAccepted)
                 {
-                    _mouseHoverControl?.OnMouseLeave();
-                    _mouseHoverControl = null;
+                    _mouseHoverTarget?.OnMouseLeave();
+                    _mouseHoverTarget = null;
                 }
             }
             else
             {
-                _mouseHoverControl?.OnMouseLeave();
-                _mouseHoverControl = null;
+                _mouseHoverTarget?.OnMouseLeave();
+                _mouseHoverTarget = null;
             }
         }
 
@@ -277,99 +284,47 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         }
 
         [CanBeNull]
-        private ControlView ControlViewUnder(Vector point)
+        private ControlView ControlViewUnder(Vector point, bool enabledOnly = true)
         {
             var loc = _baseControl.ConvertFrom(point, null);
-            var control = _baseControl.HitTestControl(loc);
+            var control = _baseControl.HitTestControl(loc, enabledOnly);
 
             return !ReferenceEquals(control, _baseControl) ? control : null;
         }
 
-        private class EventRequest : IEventRequest
+        private class EventRequest<THandler> : IEventRequest where THandler: IEventHandler
         {
-            private Action<IEventHandler> OnAccept { get; }
+            private Action<THandler> OnAccept { get; }
             public bool NotAccepted { get; private set; } = true;
 
-            protected EventRequest(Action<IEventHandler> onAccept)
+            protected EventRequest(Action<THandler> onAccept)
             {
                 OnAccept = onAccept;
             }
 
             public void Accept(IEventHandler handler)
             {
+                if (!(handler is THandler))
+                    return;
+
+                var casted = (THandler)handler;
+
                 NotAccepted = false;
-                OnAccept(handler);
+                OnAccept(casted);
             }
         }
 
-        private class MouseEventRequest : EventRequest, IMouseEventRequest
+        private class MouseEventRequest : EventRequest<IMouseEventHandler>, IMouseEventRequest
         {
             public MouseEventType EventType { get; }
 
-            public MouseEventRequest(MouseEventType eventType, Action<IEventHandler> onAccept) : base(onAccept)
+            public MouseEventRequest(MouseEventType eventType, Action<IMouseEventHandler> onAccept) : base(onAccept)
             {
                 EventType = eventType;
             }
         }
     }
 
-    internal interface IEventHandler
-    {
-        /// <summary>
-        /// Next target to direct an event to, in case this handler has not handled the event.
-        /// </summary>
-        [CanBeNull]
-        IEventHandler Next { get; }
-
-        /// <summary>
-        /// Asks this event handler to convert a screen-coordinate space point into its own
-        /// local coordinates when synthesizing location events (e.g. mouse events) into this 
-        /// event handler.
-        /// </summary>
-        Vector ConvertFromScreen(Vector vector);
-
-        void HandleOrPass(IEventRequest eventRequest);
-
-        void OnMouseLeave();
-        void OnMouseEnter();
-        
-        void OnMouseClick([NotNull] MouseEventArgs e);
-        void OnMouseDown([NotNull] MouseEventArgs e);
-        void OnMouseMove([NotNull] MouseEventArgs e);
-        void OnMouseUp([NotNull] MouseEventArgs e);
-        void OnMouseWheel([NotNull] MouseEventArgs e);
-    }
-
-    /// <summary>
-    /// Encapsulates an event request object that traverses responder chains looking
-    /// for a target for input events.
-    /// </summary>
-    internal interface IEventRequest
-    {
-        /// <summary>
-        /// Accepts a given event handler for receiving input events
-        /// </summary>
-        void Accept(IEventHandler handler);
-    }
-
-    internal interface IMouseEventRequest : IEventRequest
-    {
-        /// <summary>
-        /// Gets the event this mouse event request represents
-        /// </summary>
-        MouseEventType EventType { get; }
-    }
-
-    internal enum MouseEventType
-    {
-        MouseDown,
-        MouseMove,
-        MouseUp,
-        MouseClick,
-        MouseDoubleClick,
-        MouseWheel
-    }
-    
     internal static class ControlViewRxUtils
     {
         /// <summary>

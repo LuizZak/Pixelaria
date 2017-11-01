@@ -21,8 +21,11 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
+
 using JetBrains.Annotations;
+
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
@@ -36,7 +39,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         private readonly ButtonControl _decreaseScroll = new ButtonControl();
         private readonly ButtonControl _increaseScroll = new ButtonControl();
 
-        private readonly ControlView _scrollBar = new ControlView();
+        private readonly ControlView _scrollBarKnob = new ControlView();
+        private readonly ControlView _scrollBarArea = new ControlView();
+
         private ScrollBarStyles _scrollBarStyle = ScrollBarStyles.Dark;
         private ScrollBarOrientation _orientation = ScrollBarOrientation.Vertical;
         private float _contentSize;
@@ -125,7 +130,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             AddChild(_decreaseScroll);
             AddChild(_increaseScroll);
-            AddChild(_scrollBar);
+            AddChild(_scrollBarArea);
+            AddChild(_scrollBarKnob);
+
+            _scrollBarKnob.InteractionEnabled = false;
+
+            _scrollBarArea.BackColor = Color.Transparent;
+            _scrollBarArea.StrokeColor = Color.Transparent;
 
             _decreaseScroll.Text = "-";
             _increaseScroll.Text = "+";
@@ -145,6 +156,33 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 Scroll -= scrollSpeed;
                 ScrollChanged?.Invoke(this, EventArgs.Empty);
             });
+            
+            var mouseDrag = new DragMouseEventRecognizer();
+            _scrollBarArea.AddMouseRecognizer(mouseDrag);
+
+            var dragStart = Vector.Zero;
+            float scrollStart = Scroll;
+
+            mouseDrag.DragMouseEvent += (sender, args) =>
+            {
+                switch (args.State)
+                {
+                    case DragMouseEventRecognizer.DragMouseEventState.MousePressed:
+                        dragStart = args.MousePosition;
+                        scrollStart = Scroll;
+                        break;
+                    case DragMouseEventRecognizer.DragMouseEventState.MouseMoved:
+                        // Calculate scroll magnitude
+                        float magnitude = ContentSize / VisibleSize;
+
+                        var offset = args.MousePosition - dragStart;
+                        float axis = Orientation == ScrollBarOrientation.Horizontal ? offset.X : offset.Y;
+
+                        Scroll = scrollStart + axis * magnitude;
+                        ScrollChanged?.Invoke(this, EventArgs.Empty);
+                        break;
+                }
+            };
         }
 
         private void SetupRepeatFire([NotNull] ControlView button, [NotNull] Action onFire)
@@ -176,8 +214,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 float ratio = VisibleSize / ContentSize;
                 if (ratio >= 1)
                 {
-                    _scrollBar.Location = barArea.Minimum;
-                    _scrollBar.Size = barArea.Size;
+                    _scrollBarKnob.Location = barArea.Minimum;
+                    _scrollBarKnob.Size = barArea.Size;
 
                     return;
                 }
@@ -188,8 +226,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
                 start = Math.Max(barArea.Top, Math.Min(barArea.Bottom, start));
 
-                _scrollBar.Location = new Vector(barArea.Left, start);
-                _scrollBar.Size = new Vector(barArea.Width, barSize);
+                _scrollBarKnob.Location = new Vector(barArea.Left, start);
+                _scrollBarKnob.Size = new Vector(barArea.Width, barSize);
             }
             else
             {
@@ -200,8 +238,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 float ratio = VisibleSize / ContentSize;
                 if (ratio >= 1)
                 {
-                    _scrollBar.Location = barArea.Minimum;
-                    _scrollBar.Size = barArea.Size;
+                    _scrollBarKnob.Location = barArea.Minimum;
+                    _scrollBarKnob.Size = barArea.Size;
 
                     return;
                 }
@@ -212,8 +250,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
                 start = Math.Max(barArea.Left, Math.Min(barArea.Right, start));
 
-                _scrollBar.Location = new Vector(start, barArea.Top);
-                _scrollBar.Size = new Vector(barSize, barArea.Height);
+                _scrollBarKnob.Location = new Vector(start, barArea.Top);
+                _scrollBarKnob.Size = new Vector(barSize, barArea.Height);
             }
         }
 
@@ -227,6 +265,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
                     _decreaseScroll.Location = Vector.Zero;
                     _increaseScroll.Location = new Vector(0, Bounds.Bottom - _increaseScroll.Size.Y);
+
+                    _scrollBarArea.Location = new Vector(0, Bounds.Width);
+                    _scrollBarArea.Size = new Vector(Bounds.Width, Bounds.Height - Bounds.Width * 2);
                     break;
 
                 case ScrollBarOrientation.Horizontal:
@@ -235,10 +276,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
                     _decreaseScroll.Location = Vector.Zero;
                     _increaseScroll.Location = new Vector(Bounds.Right - _increaseScroll.Size.X, 0);
+
+                    _scrollBarArea.Location = new Vector(Bounds.Height, 0);
+                    _scrollBarArea.Size = new Vector(Bounds.Width - Bounds.Height * 2, Bounds.Height);
                     break;
             }
         }
-        
+
         private void SetupScrollBarColors()
         {
             CornerRadius = Size.X / 3;
@@ -260,7 +304,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             UpdateButtonColor(_increaseScroll, baseColor);
             UpdateButtonColor(_decreaseScroll, baseColor);
             BackColor = baseColor;
-            _scrollBar.BackColor = barColor;
+            _scrollBarKnob.BackColor = barColor;
 
             void UpdateButtonColor(ButtonControl button, Color color)
             {

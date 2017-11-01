@@ -22,7 +22,6 @@
 
 using System;
 using System.Windows.Forms;
-using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
@@ -107,6 +106,31 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public override AABB ContentBounds => new AABB(_contentOffset, _contentOffset + ContentSize);
 
         /// <summary>
+        /// Gets the visible content area of the <see cref="ContainerView"/> which is not occluded by
+        /// scroll bars.
+        /// 
+        /// If no scroll bars are visible, <see cref="VisibleContentBounds"/> is the same as <see cref="BaseView.Bounds"/>.
+        /// </summary>
+        public AABB VisibleContentBounds
+        {
+            get
+            {
+                var final = Bounds;
+
+                if (ScrollBarsMode.HasFlag(VisibleScrollBars.Vertical))
+                {
+                    final = final.Inset(new InsetBounds(0, 0, 0, ScrollBarSize));
+                }
+                if (ScrollBarsMode.HasFlag(VisibleScrollBars.Horizontal))
+                {
+                    final = final.Inset(new InsetBounds(0, 0, ScrollBarSize, 0));
+                }
+
+                return final;
+            }
+        }
+
+        /// <summary>
         /// Gets the horizontal scroll bar for this scroll view
         /// </summary>
         public ScrollBarControl HorizontalBar { get; } = new ScrollBarControl();
@@ -120,9 +144,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             UpdateScrollBarPositions();
 
+            base.AddChild(ContainerView);
             base.AddChild(HorizontalBar);
             base.AddChild(VerticalBar);
-            base.AddChild(ContainerView);
 
             HorizontalBar.ScrollChanged += HorizontalScrollChanged;
             VerticalBar.ScrollChanged += VerticalScrollChanged;
@@ -259,12 +283,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// <summary>
         /// Specifies which scroll bars to display on a <see cref="ScrollViewControl"/>
         /// </summary>
+        [Flags]
         public enum VisibleScrollBars
         {
-            Vertical,
-            Horizontal,
-            Both,
-            None
+            Vertical = 0b1,
+            Horizontal = 0b10,
+            Both = 0b11,
+            None = 0
         }
     }
 }

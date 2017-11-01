@@ -21,21 +21,46 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
-using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
     /// A base view with added UI interactivity capabilities
     /// </summary>
-    internal class ControlView : SelfRenderingBaseView, IEventHandler, IDisposable
+    internal class ControlView : SelfRenderingBaseView, IMouseEventHandler, IDisposable
     {
         private readonly Reactive _reactive = new Reactive();
+
+        private readonly List<MouseEventRecognizer> _recognizers = new List<MouseEventRecognizer>();
+
+        /// <summary>
+        /// Returns true only if this and all parent control views have <see cref="InteractionEnabled"/>
+        /// set to true.
+        /// </summary>
+        private bool IsRecursivelyInteractiveEnabled
+        {
+            get
+            {
+                var view = this;
+                while (view != null)
+                {
+                    if (!view.InteractionEnabled)
+                        return false;
+
+                    view = NextControlViewFrom(view);
+                }
+
+                return true;
+            }
+        }
 
         /// <summary>
         /// A composite disposable that is disposed automatically when this control view is
@@ -55,6 +80,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// Default implementation of Next searches the view hierarchy up.
         /// </summary>
         public IEventHandler Next => NextControlViewFrom(this);
+
+        /// <summary>
+        /// Whether mouse/keyboard interaction is enabled on this control.
+        /// 
+        /// If false, event handlers for keyboard and mouse are ignored for this
+        /// and every child control, including custom event recognizers registered.
+        /// 
+        /// Defaults to true.
+        /// </summary>
+        public bool InteractionEnabled { get; set; } = true;
         
         /// <summary>
         /// Gets the content bounds of this control, which are the inner area of this control
@@ -64,6 +99,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// of the control.
         /// </summary>
         public virtual AABB ContentBounds => Bounds;
+
+        /// <summary>
+        /// Gets an array of all mouse event recognizers registered on this control view
+        /// </summary>
+        public IReadOnlyList<MouseEventRecognizer> MouseEventRecognizers => _recognizers;
 
         /// <summary>
         /// A user-defined tag that can be defined for this control
@@ -94,11 +134,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// Returns null, if no control was found.
         /// </summary>
         /// <param name="point">Point to hit-test against, in local coordinates of this ControlView</param>
+        /// <param name="enabledOnly">Whether to only consider views that have interactivity enabled. See <see cref="InteractionEnabled"/></param>
         [CanBeNull]
-        public ControlView HitTestControl(Vector point)
+        public ControlView HitTestControl(Vector point, bool enabledOnly = true)
         {
             // Test children first
-            return ViewUnder(point, Vector.Zero, view => view is ControlView c && c.IsVisibleOnScreen()) as ControlView;
+            return ViewUnder(point, Vector.Zero,
+                view => view is ControlView c && c.IsVisibleOnScreen() &&
+                        (!enabledOnly || c.IsRecursivelyInteractiveEnabled)) as ControlView;
         }
 
         public void HandleMouseClick([NotNull] MouseEventArgs e)
@@ -168,6 +211,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public void HandleOrPass(IEventRequest eventRequest)
         {
+            if (!IsRecursivelyInteractiveEnabled)
+            {
+                Next?.HandleOrPass(eventRequest);
+                return;
+            }
+
+            // Check mouse recognizers, first
+            var recognizer = _recognizers.FirstOrDefault(r => r.CanHandle(eventRequest));
+            if (recognizer != null)
+            {
+                eventRequest.Accept(recognizer);
+                return;
+            }
+
             if (CanHandle(eventRequest))
                 eventRequest.Accept(this);
             else
@@ -182,7 +239,35 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             return false;
         }
-        
+
+        /// <summary>
+        /// Adds a mouse event recognizer that is capable of handling mouse events
+        /// that pass through this control.
+        /// 
+        /// If <see cref="recognizer"/> is already added to another control, an
+        /// <see cref="ArgumentException"/> is raised.
+        /// </summary>
+        public void AddMouseRecognizer([NotNull] MouseEventRecognizer recognizer)
+        {
+            if(recognizer.Control != null)
+                throw new ArgumentException(@"Recognizer is already contained on another control", nameof(recognizer));
+
+            recognizer.Control = this;
+
+            _recognizers.Add(recognizer);
+        }
+
+        /// <summary>
+        /// Removes 
+        /// </summary>
+        /// <param name="recognizer"></param>
+        public void RemoveMouseRecognizer([NotNull] MouseEventRecognizer recognizer)
+        {
+            recognizer.Control = null;
+
+            _recognizers.Remove(recognizer);
+        }
+
         /// <summary>
         /// Traverses the hierarchy of a given view, returning the first ControlView
         /// that the method finds.
@@ -238,6 +323,224 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             public IObservable<MouseEventArgs> MouseWheel => MouseWheelSubject;
             public IObservable<Unit> MouseEnter => MouseEnterSubject;
             public IObservable<Unit> MouseLeave => MouseLeaveSubject;
+        }
+    }
+
+    /// <summary>
+    /// Base class for all mouse event recognizers
+    /// </summary>
+    internal class MouseEventRecognizer : IMouseEventHandler
+    {
+        /// <summary>
+        /// Control this handler is associated with
+        /// </summary>
+        public ControlView Control { get; set; }
+
+        public IEventHandler Next
+        {
+            get
+            {
+                if (Control == null)
+                    return null;
+
+                // Find next mouse event handler from this one
+                for (int i = 1; i < Control.MouseEventRecognizers.Count; i++)
+                {
+                    if (Control.MouseEventRecognizers[i - 1] == this)
+                        return Control.MouseEventRecognizers[i];
+                }
+
+                // Fallback to the control's own next handler
+                return Control.Next;
+            }
+        }
+
+        public Vector ConvertFromScreen(Vector vector)
+        {
+            return Control.ConvertFrom(vector, null);
+        }
+
+        public void HandleOrPass(IEventRequest eventRequest)
+        {
+            if (CanHandle(eventRequest))
+                eventRequest.Accept(this);
+            else
+                Next?.HandleOrPass(eventRequest);
+        }
+
+        public virtual bool CanHandle(IEventRequest eventRequest)
+        {
+            return false;
+        }
+
+        public virtual void OnMouseLeave()
+        {
+
+        }
+
+        public virtual void OnMouseEnter()
+        {
+
+        }
+
+        public virtual void OnMouseClick(MouseEventArgs e)
+        {
+
+        }
+
+        public virtual void OnMouseWheel(MouseEventArgs e)
+        {
+
+        }
+
+        public virtual void OnMouseDown(MouseEventArgs e)
+        {
+
+        }
+
+        public virtual void OnMouseMove(MouseEventArgs e)
+        {
+
+        }
+
+        public virtual void OnMouseUp(MouseEventArgs e)
+        {
+
+        }
+
+        public class MouseEventRecognizerEventArgs : EventArgs
+        {
+            
+        }
+    }
+
+    /// <summary>
+    /// A mouse event handler that detects mouse presses and drags, reporting mouse
+    /// location as it moves over a control while pressed down.
+    /// </summary>
+    internal class DragMouseEventRecognizer : MouseEventRecognizer
+    {
+        /// <summary>
+        /// Called when this event recognizer's state is changed.
+        /// </summary>
+        public event DragMouseEventHandler DragMouseEvent;
+
+        /// <summary>
+        /// Current state of this mouse event
+        /// </summary>
+        public DragMouseEventState State { get; private set; } = DragMouseEventState.Idle;
+
+        /// <summary>
+        /// Location of mouse over control.
+        /// 
+        /// Only valid when <see cref="State"/> is either <see cref="DragMouseEventState.MousePressed"/> or
+        /// <see cref="DragMouseEventState.MouseMoved"/>.
+        /// </summary>
+        public Vector MousePosition { get; private set; } = Vector.Zero;
+
+        /// <summary>
+        /// Delegate for a DragMouseEvent event
+        /// </summary>
+        public delegate void DragMouseEventHandler(object sender, DragMouseEventArgs e);
+
+        public override bool CanHandle(IEventRequest eventRequest)
+        {
+            if (!(eventRequest is IMouseEventRequest mouseEvent))
+                return false;
+
+            return
+                mouseEvent.EventType == MouseEventType.MouseDown ||
+                mouseEvent.EventType == MouseEventType.MouseMove ||
+                mouseEvent.EventType == MouseEventType.MouseUp;
+        }
+
+        public override void OnMouseDown(MouseEventArgs e)
+        {
+            MousePosition = ConvertFromScreen(e.Location);
+
+            State = DragMouseEventState.MousePressed;
+
+            DragMouseEvent?.Invoke(this, new DragMouseEventArgs(MousePosition, State));
+        }
+
+        public override void OnMouseMove(MouseEventArgs e)
+        {
+            if (State != DragMouseEventState.MousePressed && State != DragMouseEventState.MouseMoved)
+                return;
+
+            MousePosition = ConvertFromScreen(e.Location);
+
+            State = DragMouseEventState.MouseMoved;
+
+            DragMouseEvent?.Invoke(this, new DragMouseEventArgs(MousePosition, State));
+        }
+
+        public override void OnMouseUp(MouseEventArgs e)
+        {
+            if (State != DragMouseEventState.MousePressed && State != DragMouseEventState.MouseMoved)
+                return;
+
+            MousePosition = ConvertFromScreen(e.Location);
+
+            State = DragMouseEventState.Idle;
+
+            DragMouseEvent?.Invoke(this, new DragMouseEventArgs(MousePosition, DragMouseEventState.MouseReleased));
+        }
+
+        /// <summary>
+        /// Event args for mouse drags
+        /// </summary>
+        public sealed class DragMouseEventArgs : MouseEventRecognizerEventArgs
+        {
+            /// <summary>
+            /// Mouse position in relation to <see cref="MouseEventRecognizer.Control"/> where
+            /// the mouse is located at during the time of this event args creation.
+            /// </summary>
+            public Vector MousePosition { get; }
+
+            /// <summary>
+            /// State for the event.
+            /// 
+            /// Is <see cref="DragMouseEventState.MousePressed"/> when called from <see cref="OnMouseDown"/>,
+            /// <see cref="DragMouseEventState.MouseMoved"/> when called from <see cref="OnMouseMove"/>, and
+            /// <see cref="DragMouseEventState.MouseReleased"/> when called from <see cref="OnMouseUp"/>.
+            /// 
+            /// <see cref="DragMouseEventState.Idle"/> is never sent with an event, and thus this property
+            /// never has this value.
+            /// </summary>
+            public DragMouseEventState State { get; }
+
+            public DragMouseEventArgs(Vector mousePosition, DragMouseEventState state)
+            {
+                MousePosition = mousePosition;
+                State = state;
+            }
+        }
+
+        /// <summary>
+        /// Possible states of a drag mouse event recognizer
+        /// </summary>
+        public enum DragMouseEventState
+        {
+            /// <summary>
+            /// Recognizer is not handling any state.
+            /// </summary>
+            Idle,
+            /// <summary>
+            /// Mouse has been pressed down, but not moved yet.
+            /// </summary>
+            MousePressed,
+            /// <summary>
+            /// Mouse has been moved while pressed down.
+            /// </summary>
+            MouseMoved,
+            /// <summary>
+            /// Mouse has been released.
+            /// 
+            /// Only ever used in event args and drag mouse event recognizers
+            /// never have this state explicitly through <see cref="State"/>.
+            /// </summary>
+            MouseReleased
         }
     }
 }

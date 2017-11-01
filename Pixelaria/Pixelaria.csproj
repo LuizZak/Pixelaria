@@ -256,6 +256,11 @@
     <Compile Include="Views\Direct2D\PxlRenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventHandler.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventRequest.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventRequest.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventHandler.cs" />
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>
