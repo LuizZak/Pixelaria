@@ -41,7 +41,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 TextColor = Color.White,
                 TextFont = new Font(FontFamily.GenericSansSerif, 17),
-                BackgroundColor = Color.Black.Fade(Color.Transparent, 0.1f, true),
+                BackgroundColor = Color.Black.Faded(Color.Transparent, 0.1f, true),
                 Text = "",
                 TextInsetBounds = new InsetBounds(5, 5, 5, 5)
             };

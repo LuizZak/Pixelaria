@@ -352,7 +352,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     var label = new LabelView
                     {
                         TextColor = Color.White,
-                        BackgroundColor = Color.Black.Fade(Color.Transparent, 0.1f, true),
+                        BackgroundColor = Color.Black.Faded(Color.Transparent, 0.1f, true),
                         Text = "",
                         Visible = false,
                         TextInsetBounds = new InsetBounds(5, 5, 5, 5)

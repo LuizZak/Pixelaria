@@ -68,7 +68,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// Base logic to render this view.
         /// Deals with setting up the renderer's transform state
         /// </summary>
-        public void Render([NotNull] Direct2DRenderingState state)
+        public void Render([NotNull] ControlRenderingContext state)
         {
             if (!Visible)
                 return;
@@ -80,29 +80,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// <summary>
         /// Renders this view's background
         /// </summary>
-        public virtual void RenderBackground([NotNull] Direct2DRenderingState state)
+        public virtual void RenderBackground([NotNull] ControlRenderingContext context)
         {
             // Default background renderer
-            using (var brush = new SolidColorBrush(state.D2DRenderTarget, BackColor.ToColor4()))
+            using (var brush = new SolidColorBrush(context.RenderTarget, BackColor.ToColor4()))
             {
                 if (Math.Abs(CornerRadius) < float.Epsilon)
                 {
-                    state.D2DRenderTarget.FillRectangle(Bounds, brush);
-                }
-                else
-                {
-                    var roundedRect = new RoundedRectangle {RadiusX = CornerRadius, RadiusY = CornerRadius, Rect = Bounds};
-
-                    state.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
-                }
-            }
-
-            // Stroke
-            using (var brush = new SolidColorBrush(state.D2DRenderTarget, StrokeColor.ToColor4()))
-            {
-                if (Math.Abs(CornerRadius) < float.Epsilon)
-                {
-                    state.D2DRenderTarget.DrawRectangle(Bounds, brush, StrokeWidth);
+                    context.RenderTarget.FillRectangle(Bounds, brush);
                 }
                 else
                 {
@@ -113,7 +98,27 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                         Rect = Bounds
                     };
 
-                    state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, brush, StrokeWidth);
+                    context.RenderTarget.FillRoundedRectangle(roundedRect, brush);
+                }
+            }
+
+            // Stroke
+            using (var brush = new SolidColorBrush(context.RenderTarget, StrokeColor.ToColor4()))
+            {
+                if (Math.Abs(CornerRadius) < float.Epsilon)
+                {
+                    context.RenderTarget.DrawRectangle(Bounds, brush, StrokeWidth);
+                }
+                else
+                {
+                    var roundedRect = new RoundedRectangle
+                    {
+                        RadiusX = CornerRadius,
+                        RadiusY = CornerRadius,
+                        Rect = Bounds
+                    };
+
+                    context.RenderTarget.DrawRoundedRectangle(roundedRect, brush, StrokeWidth);
                 }
             }
         }
@@ -121,7 +126,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// <summary>
         /// Renders this view's foreground content (not displayed on top of child views)
         /// </summary>
-        public virtual void RenderForeground([NotNull] Direct2DRenderingState state)
+        public virtual void RenderForeground([NotNull] ControlRenderingContext context)
         {
 
         }
@@ -141,6 +146,27 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             }
 
             return true;
+        }
+    }
+
+    /// <summary>
+    /// A control rendering state object that has the base state along with
+    /// a basic Direct2D renderer associated with it.
+    /// </summary>
+    internal class ControlRenderingContext
+    {
+        public Direct2DRenderingState State { get; }
+        public IDirect2DRenderer Renderer { get; }
+
+        /// <summary>
+        /// Shortcut for <see cref="State"/>'s <see cref="Direct2DRenderingState.D2DRenderTarget"/>.
+        /// </summary>
+        public RenderTarget RenderTarget => State.D2DRenderTarget;
+
+        public ControlRenderingContext(Direct2DRenderingState state, IDirect2DRenderer renderer)
+        {
+            State = state;
+            Renderer = renderer;
         }
     }
 }

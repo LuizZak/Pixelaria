@@ -20,39 +20,22 @@
     base directory of this project.
 */
 
-using JetBrains.Annotations;
-using Pixelaria.ExportPipeline;
-
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
-    /// A view for a link of a pipeline step view
+    /// Represents an image resource
     /// </summary>
-    internal class PipelineNodeLinkView : BaseView
+    public struct ImageResource
     {
-        /// <summary>
-        /// A static pipeline output connected to this node link, if available.
-        /// 
-        /// Is set to null and replaced by any other output that is connected to
-        /// this input.
-        /// </summary>
-        [CanBeNull]
-        public IStaticPipelineOutput FixedOutput { get; set; }
+        public string ResourceName { get; }
+        public int Width { get; }
+        public int Height { get; }
 
-        /// <summary>
-        /// The connection this link references on its parent step view
-        /// </summary>
-        public IPipelineNodeLink NodeLink { get; }
-
-        /// <summary>
-        /// Gets the parent step view for this link view
-        /// </summary>
-        // ReSharper disable once AnnotateCanBeNullTypeMember
-        public PipelineNodeView NodeView => (PipelineNodeView)Parent;
-
-        public PipelineNodeLinkView(IPipelineNodeLink nodeLink)
+        public ImageResource(string resourceName, int width, int height)
         {
-            NodeLink = nodeLink;
+            ResourceName = resourceName;
+            Width = width;
+            Height = height;
         }
     }
 }

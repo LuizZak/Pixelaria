@@ -180,7 +180,7 @@ namespace Pixelaria.Utils
         /// Fades the first color with the second, using the given factor to decide
         /// how much of each color will be used. The alpha channel is optionally changed.
         /// 
-        /// Unlike <see cref="Blend"/>, this method allows specifying whether the alpha channel is to be mixed in as well.
+        /// Unlike <see cref="BlendedOver"/>, this method allows specifying whether the alpha channel is to be mixed in as well.
         /// </summary>
         /// <param name="color">The color to fade</param>
         /// <param name="fadeColor">The color to fade the first color to</param>
@@ -188,7 +188,7 @@ namespace Pixelaria.Utils
         /// <param name="blendAlpha">Whether to fade the alpha channel as well. If left false, the first color's alpha channel will be used</param>
         /// <returns>The faded color</returns>
         [Pure]
-        public static Color Fade(this Color color, Color fadeColor, float factor = 0.5f, bool blendAlpha = false)
+        public static Color Faded(this Color color, Color fadeColor, float factor = 0.5f, bool blendAlpha = false)
         {
             float from = 1 - factor;
 
@@ -208,7 +208,7 @@ namespace Pixelaria.Utils
         /// <param name="factor">The factor to blend the two colors on. 0.0 will return the first color, 1.0 will return the back color, any values in between will blend the two colors accordingly</param>
         /// <returns>The blended color</returns>
         [Pure]
-        public static Color Blend(this Color color, Color backColor, float factor = 0.5f)
+        public static Color BlendedOver(this Color color, Color backColor, float factor = 0.5f)
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (factor == 1 || color.A == 0)

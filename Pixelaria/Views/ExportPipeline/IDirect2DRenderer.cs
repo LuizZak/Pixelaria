@@ -48,7 +48,10 @@ namespace Pixelaria.Views.ExportPipeline
         void PushTemporaryDecorator(IRenderingDecorator decorator);
     }
 
-    internal interface ID2DImageResourceManager
+    /// <summary>
+    /// Interface for objects capable of creating, updating, providing and destroying Direct2D bitmap resources.
+    /// </summary>
+    internal interface ID2DImageResourceManager: ID2DImageResourceProvider
     {
         void AddImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
         void RemoveImageResource([NotNull] string resourceName);
@@ -57,13 +60,35 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Shortcut for creating and assigning a bitmap to use in pipeline node view's icons and other image resources
         /// </summary>
-        PipelineNodeView.ImageResource AddPipelineNodeImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+        ImageResource AddPipelineNodeImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+    }
 
+    /// <summary>
+    /// Interface for objects that can provide encapsulated access to image resources.
+    /// </summary>
+    internal interface ID2DImageResourceProvider
+    {
         /// <summary>
-        /// Shortcut for fetching an image resource formatted as a pipeline node view's image resource struct.
+        /// Fetches an image resource formatted as an image resource struct.
         /// 
         /// Returns null, if no resource with the given name is found.
         /// </summary>
-        PipelineNodeView.ImageResource? PipelineNodeImageResource([NotNull] string resourceName);
+        ImageResource? PipelineNodeImageResource([NotNull] string resourceName);
+
+        /// <summary>
+        /// Gets a Direct2D bitmap object for a matching image resource from this provider.
+        /// 
+        /// Returns null, if resource could not be found.
+        /// </summary>
+        [CanBeNull]
+        SharpDX.Direct2D1.Bitmap BitmapForResource(ImageResource resource);
+
+        /// <summary>
+        /// Gets a Direct2D bitmap object for an image resource matching a given name from this provider.
+        /// 
+        /// Returns null, if resource could not be found.
+        /// </summary>
+        [CanBeNull]
+        SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string named);
     }
 }

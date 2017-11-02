@@ -32,7 +32,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// A view for a graphics path.
     /// </summary>
-    public class BezierPathView : BaseView
+    internal class BezierPathView : BaseView
     {
         /// <summary>
         /// Cached path for Contains calls
@@ -202,7 +202,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// View that represents a connection between two pipeline step nodes using a bezier path
     /// </summary>
-    public class PipelineNodeConnectionLineView : BezierPathView
+    internal class PipelineNodeConnectionLineView : BezierPathView
     {
         public PipelineNodeLinkView Start { get; }
         public PipelineNodeLinkView End { get; }

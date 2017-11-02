@@ -261,6 +261,7 @@
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventRequest.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventHandler.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\ImageResource.cs" />
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -273,7 +274,7 @@
     <Compile Include="Views\ExportPipeline\ExportPipelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\ExportPipeline\ExportPipelineControl.Direct2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\Direct2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\LabelViewControl.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\ScrollBarControl.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\ScrollViewControl.cs" />

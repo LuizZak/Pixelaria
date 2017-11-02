@@ -68,12 +68,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             Size = LabelView.DefaultLabelViewSizeProvider.CalculateTextSize(Text, TextFont);
         }
 
-        public override void RenderForeground(Direct2DRenderingState state)
+        public override void RenderForeground(ControlRenderingContext context)
         {
-            using (var brush = new SolidColorBrush(state.D2DRenderTarget, ForeColor.ToColor4()))
-            using (var textFormat = new TextFormat(state.DirectWriteFactory, _textFont.FontFamily.Name, _textFont.Size))
+            using (var brush = new SolidColorBrush(context.RenderTarget, ForeColor.ToColor4()))
+            using (var textFormat = new TextFormat(context.State.DirectWriteFactory, _textFont.FontFamily.Name, _textFont.Size))
             {
-                state.D2DRenderTarget.DrawText(_text, textFormat, Bounds, brush, DrawTextOptions.Clip);
+                context.RenderTarget.DrawText(_text, textFormat, Bounds, brush, DrawTextOptions.Clip);
             }
         }
     }

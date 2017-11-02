@@ -23,10 +23,12 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using FontFamily = System.Drawing.FontFamily;
+
 using JetBrains.Annotations;
+
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
-using FontFamily = System.Drawing.FontFamily;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
@@ -40,6 +42,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         [CanBeNull]
         private TextFormat _textFormat;
+        /// <summary>
+        /// Cached text layout instance refreshed on redraw, and reset every time text settings change
+        /// </summary>
+        [CanBeNull]
+        private TextLayout _textLayout;
 
         private ButtonState _state = ButtonState.Normal;
 
@@ -105,6 +112,19 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Gets or sets the horizontal text alignment for the control
+        /// </summary>
+        public HorizontalTextAlignment HorizontalTextAlignment
+        {
+            get => _textAlignment;
+            set
+            {
+                _textAlignment = value;
+                ResetTestFormat();
+            }
+        }
+
+        /// <summary>
         /// Text label for the button
         /// </summary>
         public string Text
@@ -123,11 +143,24 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public Color TextColor { get; set; } = Color.Black;
 
         /// <summary>
+        /// Gets or sets the inset region to retract the text label of this button by.
+        /// </summary>
+        public InsetBounds TextInset { get; set; }
+
+        /// <summary>
+        /// Gets or sets an image resource to draw besides the text label.
+        /// 
+        /// If an image is set, it is rendered to the left of the button's text.
+        /// </summary>
+        public ImageResource Image { get; set; }
+
+        /// <summary>
         /// OnClick event for button
         /// </summary>
         public EventHandler Clicked;
 
         private string _text = "Button";
+        private HorizontalTextAlignment _textAlignment;
 
         public ButtonControl()
         {
@@ -136,27 +169,56 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-                _textFormat?.Dispose();
+            _textFormat?.Dispose();
+            _textLayout?.Dispose();
 
             base.Dispose(disposing);
         }
 
-        public override void RenderForeground(Direct2DRenderingState state)
+        public override void RenderForeground(ControlRenderingContext context)
         {
             // Render text
             if (_textFormat == null)
             {
-                _textFormat = new TextFormat(state.DirectWriteFactory, FontFamily.GenericSansSerif.Name, 12)
+                TextAlignment textAlign;
+
+                switch (HorizontalTextAlignment)
                 {
-                    TextAlignment = TextAlignment.Center,
+                    case HorizontalTextAlignment.Left:
+                        textAlign = TextAlignment.Leading;
+                        break;
+                    case HorizontalTextAlignment.Right:
+                        textAlign = TextAlignment.Trailing;
+                        break;
+                    case HorizontalTextAlignment.Center:
+                        textAlign = TextAlignment.Center;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                string fontName = FontFamily.GenericSansSerif.Name;
+                const float fontSize = 12.0f;
+
+                _textFormat = new TextFormat(context.State.DirectWriteFactory, fontName, fontSize)
+                {
+                    TextAlignment = textAlign,
                     ParagraphAlignment = ParagraphAlignment.Center
                 };
+
+                // Get a text layout with the proper size for the button
+                var available = Bounds;
+                available = available.Inset(new InsetBounds(Image.Width, 0, 0, 0));
+                available = available.Inset(TextInset);
+
+                _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, available.Width, available.Height);
             }
 
-            using (var brush = new SolidColorBrush(state.D2DRenderTarget, TextColor.ToColor4()))
+            using (var brush = new SolidColorBrush(context.RenderTarget, TextColor.ToColor4()))
             {
-                state.D2DRenderTarget.DrawText(Text, _textFormat, Bounds, brush);
+                var bounds = Bounds.Inset(TextInset);
+                context.RenderTarget.DrawTextLayout(bounds.Minimum, _textLayout, brush);
+                //context.RenderTarget.DrawText(Text, _textFormat, bounds, brush);
             }
         }
 
@@ -206,7 +268,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             base.OnMouseLeave();
 
-            BackColor = NormalColor;
+            State = ButtonState.Normal;
         }
 
         private void UpdateColors()
@@ -229,6 +291,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             _textFormat?.Dispose();
             _textFormat = null;
+
+            _textLayout?.Dispose();
+            _textLayout = null;
         }
 
         /// <summary>
@@ -240,5 +305,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             Highlight,
             Selected
         }
+    }
+
+    /// <summary>
+    /// Specifies a horizontal text alignment for a button or label control
+    /// </summary>
+    internal enum HorizontalTextAlignment
+    {
+        Center,
+        Left,
+        Right
     }
 }

@@ -209,7 +209,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             // Start the fill operation by getting the color under the user's mouse
             var pColor = targetBitmap.GetPixel(point.X, point.Y);
             // Do a pre-blend of the color, if the composition mode is SourceOver
-            var newColor = (compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color);
+            var newColor = (compMode == CompositingMode.SourceOver ? color.BlendedOver(pColor) : color);
 
             uint pColorI = unchecked((uint)pColor.ToArgb());
             uint newColorI = unchecked((uint)newColor.ToArgb());

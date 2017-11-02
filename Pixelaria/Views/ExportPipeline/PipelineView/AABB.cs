@@ -418,6 +418,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return FromRectangle(position.X, position.Y, size.X, size.Y);
         }
 
+        /// <summary>
+        /// Returns an AABB with the coordinate values rounded to the nearest integer.
+        /// </summary>
+        public static AABB Rounded(AABB aabb)
+        {
+            return new AABB(Vector.Round(aabb.Minimum), Vector.Round(aabb.Maximum));
+        }
+
         public static implicit operator AABB(RectangleF rect)
         {
             return new AABB(rect);

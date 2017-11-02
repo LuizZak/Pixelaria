@@ -110,14 +110,14 @@ namespace Pixelaria.Views.ExportPipeline
         private void ArrangeButtons()
         {
             var buttonSize = GetButtonSize();
-            var sepSize = new Vector(15, 15);
+            var sepSize = new Vector(15, 10);
 
-            float minCellWidth = buttonSize.Width;
+            float minCellWidth = buttonSize.X;
 
             int buttonsPerRow = (int)(_scrollViewControl.VisibleContentBounds.Width / minCellWidth);
 
             float xStep = _scrollViewControl.VisibleContentBounds.Width / buttonsPerRow;
-            float yStep = buttonSize.Height + sepSize.Y;
+            float yStep = buttonSize.Y + sepSize.Y;
 
             for (int i = 0; i < SpecButtons.Count; i++)
             {
@@ -136,18 +136,19 @@ namespace Pixelaria.Views.ExportPipeline
 
             var button = new ButtonControl
             {
-                Location = new Vector(20, 20),
                 Size = buttonSize,
                 Text = spec.Name,
                 BackColor = Color.Black.WithTransparency(0.3f),
                 NormalColor = Color.Black.WithTransparency(0.3f),
-                HighlightColor = Color.Black.WithTransparency(0.3f).Blend(Color.White),
+                HighlightColor = Color.Black.WithTransparency(0.3f).BlendedOver(Color.White),
                 SelectedColor = Color.Black.WithTransparency(0.3f),
                 StrokeWidth = 2,
                 CornerRadius = 3,
                 StrokeColor = Color.Gray.WithTransparency(0.8f),
                 TextColor = Color.White,
-                ClipToBounds = false
+                ClipToBounds = false,
+                HorizontalTextAlignment = HorizontalTextAlignment.Left,
+                TextInset = new InsetBounds(5, 5, 5, 5)
             };
 
             button.Rx
@@ -161,9 +162,9 @@ namespace Pixelaria.Views.ExportPipeline
             return button;
         }
 
-        private static Size GetButtonSize()
+        private Vector GetButtonSize()
         {
-            return new Size(80, 60);
+            return new Vector(_scrollViewControl.VisibleContentBounds.Width / 2 - 20, 20);
         }
 
         [CanBeNull]

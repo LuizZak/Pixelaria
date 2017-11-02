@@ -53,7 +53,7 @@ namespace Pixelaria.ExportPipeline
                 new PipelineNodeSpec("Stroke Filter", () => new FilterPipelineStep(new StrokeFilter())),
                 new PipelineNodeSpec("File Export", () => new FileExportPipelineStep())
             };
-            
+
             return specs.ToArray();
         }
     }
@@ -68,7 +68,7 @@ namespace Pixelaria.ExportPipeline
         /// </summary>
         [NotNull]
         public string Name { get; }
-
+        
         /// <summary>
         /// Function that must instantiate pipeline nodes when called.
         /// </summary>

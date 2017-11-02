@@ -65,7 +65,7 @@ namespace Pixelaria.Views.ExportPipeline
         private ExportPipelineNodesPanelManager _panelManager;
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
 
-        public Direct2DRenderingState RenderingState { get; } = new Direct2DRenderingState();
+        internal Direct2DRenderingState RenderingState { get; } = new Direct2DRenderingState();
 
         public ExportPipelineView()
         {
@@ -436,12 +436,13 @@ namespace Pixelaria.Views.ExportPipeline
 
             RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
 
-            RenderingState.D2DRenderTarget = new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface,
-                new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)))
-            {
-                TextAntialiasMode = TextAntialiasMode.Cleartype
-            };
+            var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
 
+            RenderingState.D2DRenderTarget =
+                new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface, settings)
+                {
+                    TextAntialiasMode = TextAntialiasMode.Cleartype
+                };
             exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
 
             ConfigureForm();

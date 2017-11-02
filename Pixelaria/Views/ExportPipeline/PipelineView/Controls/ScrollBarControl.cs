@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 
 using JetBrains.Annotations;
@@ -36,19 +35,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     /// </summary>
     internal sealed class ScrollBarControl : ControlView
     {
+        private Vector _dragStart = Vector.Zero;
+        private float _scrollStart;
+
         private readonly ButtonControl _decreaseScroll = new ButtonControl();
         private readonly ButtonControl _increaseScroll = new ButtonControl();
 
         private readonly ControlView _scrollBarKnob = new ControlView();
         private readonly ControlView _scrollBarArea = new ControlView();
 
-        private ScrollBarStyles _scrollBarStyle = ScrollBarStyles.Dark;
+        private IScrollBarControlStyle _scrollBarStyle = new DarkScrollBarControlStyle();
         private ScrollBarOrientation _orientation = ScrollBarOrientation.Vertical;
         private float _contentSize;
         private float _visibleSize;
         private float _scroll;
-
-        public ScrollBarStyles ScrollBarStyle
+        
+        public IScrollBarControlStyle ScrollBarStyle
         {
             get => _scrollBarStyle;
             set
@@ -126,8 +128,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public ScrollBarControl()
         {
-            SetupScrollBarColors();
-
             AddChild(_decreaseScroll);
             AddChild(_increaseScroll);
             AddChild(_scrollBarArea);
@@ -160,29 +160,45 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             var mouseDrag = new DragMouseEventRecognizer();
             _scrollBarArea.AddMouseRecognizer(mouseDrag);
 
-            var dragStart = Vector.Zero;
-            float scrollStart = Scroll;
+            mouseDrag.DragMouseEvent += OnMouseDragOnDragMouseEvent;
 
-            mouseDrag.DragMouseEvent += (sender, args) =>
+            SetupScrollBarColors();
+        }
+
+        private void OnMouseDragOnDragMouseEvent(object sender, [NotNull] DragMouseEventRecognizer.DragMouseEventArgs args)
+        {
+            switch (args.State)
             {
-                switch (args.State)
-                {
-                    case DragMouseEventRecognizer.DragMouseEventState.MousePressed:
-                        dragStart = args.MousePosition;
-                        scrollStart = Scroll;
-                        break;
-                    case DragMouseEventRecognizer.DragMouseEventState.MouseMoved:
-                        // Calculate scroll magnitude
-                        float magnitude = ContentSize / VisibleSize;
+                case DragMouseEventRecognizer.DragMouseEventState.MouseEntered:
+                    _scrollBarKnob.BackColor = ScrollBarStyle.ScrollBarKnobHighlightColor();
+                    break;
 
-                        var offset = args.MousePosition - dragStart;
-                        float axis = Orientation == ScrollBarOrientation.Horizontal ? offset.X : offset.Y;
+                case DragMouseEventRecognizer.DragMouseEventState.MousePressed:
+                    _dragStart = args.MousePosition;
+                    _scrollStart = Scroll;
 
-                        Scroll = scrollStart + axis * magnitude;
-                        ScrollChanged?.Invoke(this, EventArgs.Empty);
-                        break;
-                }
-            };
+                    _scrollBarKnob.BackColor = ScrollBarStyle.ScrollBarKnobPressedColor();
+                    break;
+
+                case DragMouseEventRecognizer.DragMouseEventState.MouseMoved:
+                    // Calculate scroll magnitude
+                    float magnitude = ContentSize / VisibleSize;
+
+                    var offset = args.MousePosition - _dragStart;
+                    float axis = Orientation == ScrollBarOrientation.Horizontal ? offset.X : offset.Y;
+
+                    Scroll = _scrollStart + axis * magnitude;
+                    ScrollChanged?.Invoke(this, EventArgs.Empty);
+                    break;
+
+                case DragMouseEventRecognizer.DragMouseEventState.MouseReleased:
+                    _scrollBarKnob.BackColor = ScrollBarStyle.ScrollBarKnobHighlightColor();
+                    break;
+
+                case DragMouseEventRecognizer.DragMouseEventState.MouseLeft:
+                    _scrollBarKnob.BackColor = ScrollBarStyle.ScrollBarKnobNormalColor();
+                    break;
+            }
         }
 
         private void SetupRepeatFire([NotNull] ControlView button, [NotNull] Action onFire)
@@ -287,49 +303,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             CornerRadius = Size.X / 3;
 
-            Color baseColor;
-            Color barColor;
+            var baseColor = ScrollBarStyle.ScrollBarBackgroundColor();
+            var barColor = ScrollBarStyle.ScrollBarKnobNormalColor();
 
-            if (ScrollBarStyle == ScrollBarStyles.Light)
-            {
-                baseColor = Color.White;
-                barColor = Color.LightGray;
-            }
-            else
-            {
-                baseColor = Color.DimGray;
-                barColor = Color.DarkGray;
-            }
-
-            UpdateButtonColor(_increaseScroll, baseColor);
-            UpdateButtonColor(_decreaseScroll, baseColor);
+            UpdateButtonColor(_increaseScroll);
+            UpdateButtonColor(_decreaseScroll);
             BackColor = baseColor;
             _scrollBarKnob.BackColor = barColor;
 
-            void UpdateButtonColor(ButtonControl button, Color color)
+            void UpdateButtonColor(ButtonControl button)
             {
-                button.NormalColor = color;
-
-                if (ScrollBarStyle == ScrollBarStyles.Light)
-                {
-                    button.HighlightColor = color.Blend(Color.Black, 0.2f);
-                }
-                else
-                {
-                    button.HighlightColor = color.Blend(Color.White, 0.2f);
-                }
+                button.NormalColor = ScrollBarStyle.ScrollBarButtonNormalColor();
+                button.HighlightColor = ScrollBarStyle.ScrollBarButtonHighlightColor();
+                button.SelectedColor = ScrollBarStyle.ScrollBarButtonPressedColor();
             }
         }
-
-        /// <summary>
-        /// Specifies the color style of the scroll bar
-        /// </summary>
-        public enum ScrollBarStyles
-        {
-            Light,
-            Dark
-        }
-
+        
         /// <summary>
         /// Orientation of a scroll bar
         /// </summary>
@@ -337,6 +326,82 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             Vertical,
             Horizontal
+        }
+    }
+
+    /// <summary>
+    /// Interface for objects that provide styles for scroll bars
+    /// </summary>
+    internal interface IScrollBarControlStyle
+    {
+        /// <summary>
+        /// Background color for scroll bar
+        /// </summary>
+        Color ScrollBarBackgroundColor();
+
+        /// <summary>
+        /// Color for scrollbar knob when not pressed down and not
+        /// hovered.
+        /// </summary>
+        Color ScrollBarKnobNormalColor();
+
+        /// <summary>
+        /// Color for scrollbar knob when not pressed down and
+        /// hovered.
+        /// </summary>
+        Color ScrollBarKnobHighlightColor();
+
+        /// <summary>
+        /// Color for scrollbar knob when pressed down and
+        /// hovered.
+        /// </summary>
+        Color ScrollBarKnobPressedColor();
+
+        /// <summary>
+        /// Color for scrollbar increase/decrease button when not 
+        /// pressed down and not hovered.
+        /// </summary>
+        Color ScrollBarButtonNormalColor();
+
+        /// <summary>
+        /// Color for scrollbar increase/decrease button when not 
+        /// pressed down and hovered.
+        /// </summary>
+        Color ScrollBarButtonHighlightColor();
+
+        /// <summary>
+        /// Color for scrollbar increase/decrease button when
+        /// pressed down and hovered.
+        /// </summary>
+        Color ScrollBarButtonPressedColor();
+    }
+
+    internal class DarkScrollBarControlStyle : IScrollBarControlStyle
+    {
+        public Color ScrollBarBackgroundColor() => Color.DimGray;
+
+        public Color ScrollBarKnobNormalColor() => Color.DarkGray;
+
+        public Color ScrollBarKnobHighlightColor()
+        {
+            return ScrollBarKnobNormalColor().Faded(Color.White, 0.2f);
+        }
+
+        public Color ScrollBarKnobPressedColor()
+        {
+            return ScrollBarKnobNormalColor().Faded(Color.Black, 0.2f);
+        }
+
+        public Color ScrollBarButtonNormalColor() => Color.DimGray;
+
+        public Color ScrollBarButtonHighlightColor()
+        {
+            return ScrollBarButtonNormalColor().Faded(Color.White, 0.2f);
+        }
+
+        public Color ScrollBarButtonPressedColor()
+        {
+            return ScrollBarButtonNormalColor().Faded(Color.Black, 0.2f);
         }
     }
 }

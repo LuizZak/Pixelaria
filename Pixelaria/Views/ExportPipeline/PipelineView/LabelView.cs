@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
@@ -29,7 +30,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// A basic view that represents a text label
     /// </summary>
-    public sealed class LabelView : BaseView
+    internal sealed class LabelView : BaseView
     {
         [NotNull]
         public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
@@ -185,13 +186,23 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
                     return graphics.MeasureString(text.String, font);
                 }
             }
+
+            public SizeF CalculateTextSize(IAttributedText text, string fontName, float size)
+            {
+                using (var dummy = new Bitmap(1, 1))
+                using (var graphics = Graphics.FromImage(dummy))
+                using (var font = new Font(fontName, size))
+                {
+                    return graphics.MeasureString(text.String, font);
+                }
+            }
         }
     }
 
     /// <summary>
     /// Interface for objects that are capable of figuring out sizes of text in label views
     /// </summary>
-    public interface ILabelViewSizeProvider
+    internal interface ILabelViewSizeProvider
     {
         /// <summary>
         /// Calculates the text size on a given label view
@@ -207,5 +218,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// Calculates the text size for a given pair of attributed string/font
         /// </summary>
         SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] Font font);
+        
+        /// <summary>
+        /// Calculates the text size for a given pair of attributed string/font/font size
+        /// </summary>
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
     }
 }

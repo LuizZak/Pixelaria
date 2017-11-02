@@ -33,7 +33,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// A basic view for a single pipeline step
     /// </summary>
-    public class PipelineNodeView : BaseView, IEquatable<PipelineNodeView>
+    internal class PipelineNodeView : BaseView, IEquatable<PipelineNodeView>
     {
         private InsetBounds _bodyTextInset = new InsetBounds(7, 7, 7, 7);
 
@@ -317,23 +317,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public override int GetHashCode()
         {
             return base.GetHashCode();
-        }
-
-        /// <summary>
-        /// Represents an image resource
-        /// </summary>
-        public struct ImageResource
-        {
-            public string ResourceName { get; }
-            public int Width { get; }
-            public int Height { get; }
-
-            public ImageResource(string resourceName, int width, int height)
-            {
-                ResourceName = resourceName;
-                Width = width;
-                Height = height;
-            }
         }
     }
 }

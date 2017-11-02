@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+
 using JetBrains.Annotations;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
@@ -245,7 +246,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return text;
         }
 
-        public static implicit operator AttributedText([NotNull] string value)
+        public static explicit operator AttributedText([NotNull] string value)
         {
             return new AttributedText(value);
         }

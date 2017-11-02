@@ -269,7 +269,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public BaseView ViewUnder(Vector point, Vector inflatingArea)
         {
             // Search children first
-            for (var i = children.Count - 1; i >= 0; i--)
+            for (int i = children.Count - 1; i >= 0; i--)
             {
                 var baseView = children[i];
                 var ht = baseView.ViewUnder(point * baseView.LocalTransform.Inverted(), inflatingArea);
@@ -300,7 +300,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public BaseView ViewUnder(Vector point, Vector inflatingArea, Func<BaseView, bool> predicate)
         {
             // Search children first
-            for (var i = children.Count - 1; i >= 0; i--)
+            for (int i = children.Count - 1; i >= 0; i--)
             {
                 var baseView = children[i];
                 var ht = baseView.ViewUnder(point * baseView.LocalTransform.Inverted(), inflatingArea, predicate);
@@ -338,7 +338,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         private void InternalViewsUnder(Vector point, Vector inflatingArea, ICollection<BaseView> target)
         {
             // Search children first
-            for (var i = children.Count - 1; i >= 0; i--)
+            for (int i = children.Count - 1; i >= 0; i--)
             {
                 var baseView = children[i];
 
@@ -381,7 +381,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         private void InternalViewsUnder(AABB aabb, Vector inflatingArea, ICollection<BaseView> target)
         {
             // Search children first
-            for (var i = children.Count - 1; i >= 0; i--)
+            for (int i = children.Count - 1; i >= 0; i--)
             {
                 var baseView = children[i];
                 var transformed = aabb.TransformedBounds(baseView.LocalTransform.Inverted());

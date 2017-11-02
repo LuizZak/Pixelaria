@@ -115,16 +115,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             Dispose(false);
         }
 
+        /// <summary>
+        /// Disposes of resources allocated by this control view.
+        /// 
+        /// Child controls are <i>not</i> disposed of automatically.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing)
                 return;
-
+            
             DisposeBag.Dispose();
         }
 
@@ -426,7 +432,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public event DragMouseEventHandler DragMouseEvent;
 
         /// <summary>
-        /// Current state of this mouse event
+        /// Current state of this mouse event.
+        /// 
+        /// Only ever <see cref="DragMouseEventState.Idle"/>, <see cref="DragMouseEventState.MousePressed"/>
+        /// or <see cref="DragMouseEventState.MouseMoved"/>.
         /// </summary>
         public DragMouseEventState State { get; private set; } = DragMouseEventState.Idle;
 
@@ -487,6 +496,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             DragMouseEvent?.Invoke(this, new DragMouseEventArgs(MousePosition, DragMouseEventState.MouseReleased));
         }
 
+        public override void OnMouseEnter()
+        {
+            DragMouseEvent?.Invoke(this, new DragMouseEventArgs(Vector.Zero, DragMouseEventState.MouseEntered));
+        }
+
+        public override void OnMouseLeave()
+        {
+            DragMouseEvent?.Invoke(this, new DragMouseEventArgs(Vector.Zero, DragMouseEventState.MouseLeft));
+        }
+
         /// <summary>
         /// Event args for mouse drags
         /// </summary>
@@ -495,15 +514,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             /// <summary>
             /// Mouse position in relation to <see cref="MouseEventRecognizer.Control"/> where
             /// the mouse is located at during the time of this event args creation.
+            /// 
+            /// This value is not a valid mouse position when <see cref="State"/> is <see cref="DragMouseEventState.MouseEntered"/>
+            /// or <see cref="DragMouseEventState.MouseLeft"/>
             /// </summary>
             public Vector MousePosition { get; }
 
             /// <summary>
             /// State for the event.
             /// 
-            /// Is <see cref="DragMouseEventState.MousePressed"/> when called from <see cref="OnMouseDown"/>,
-            /// <see cref="DragMouseEventState.MouseMoved"/> when called from <see cref="OnMouseMove"/>, and
-            /// <see cref="DragMouseEventState.MouseReleased"/> when called from <see cref="OnMouseUp"/>.
+            /// Is <see cref="DragMouseEventState.MouseEntered"/> when called from <see cref="OnMouseEnter"/>,
+            /// <see cref="DragMouseEventState.MousePressed"/> when called from <see cref="OnMouseDown"/>,
+            /// <see cref="DragMouseEventState.MouseMoved"/> when called from <see cref="OnMouseMove"/>,
+            /// <see cref="DragMouseEventState.MouseReleased"/> when called from <see cref="OnMouseUp"/>, and
+            /// <see cref="DragMouseEventState.MouseLeft"/> when called from <see cref="OnMouseLeave"/>,.
             /// 
             /// <see cref="DragMouseEventState.Idle"/> is never sent with an event, and thus this property
             /// never has this value.
@@ -527,6 +551,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             /// </summary>
             Idle,
             /// <summary>
+            /// Mouse has entered the control's bounds
+            /// </summary>
+            MouseEntered,
+            /// <summary>
             /// Mouse has been pressed down, but not moved yet.
             /// </summary>
             MousePressed,
@@ -540,7 +568,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             /// Only ever used in event args and drag mouse event recognizers
             /// never have this state explicitly through <see cref="State"/>.
             /// </summary>
-            MouseReleased
+            MouseReleased,
+            /// <summary>
+            /// Mouse has left the control's bounds
+            /// </summary>
+            MouseLeft
         }
     }
 }

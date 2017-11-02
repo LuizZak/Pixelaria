@@ -206,7 +206,7 @@ namespace Pixelaria.Views.ExportPipeline
                 var stepViewState = new PipelineStepViewState
                 {
                     FillColor = nodeView.Color,
-                    TitleFillColor = nodeView.Color.Fade(Color.Black, 0.8f),
+                    TitleFillColor = nodeView.Color.Faded(Color.Black, 0.8f),
                     StrokeColor = nodeView.StrokeColor,
                     StrokeWidth = nodeView.StrokeWidth,
                     TitleFontColor = Color.White,
@@ -230,7 +230,7 @@ namespace Pixelaria.Views.ExportPipeline
                 using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
                 {
                     new GradientStop {Color = stepViewState.FillColor.ToColor4(), Position = 0},
-                    new GradientStop {Color = stepViewState.FillColor.Fade(Color.Black, 0.1f).ToColor4(), Position = 1}
+                    new GradientStop {Color = stepViewState.FillColor.Faded(Color.Black, 0.1f).ToColor4(), Position = 1}
                 }))
                 using (var gradientBrush = new LinearGradientBrush(
                     state.D2DRenderTarget,
@@ -286,7 +286,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                     var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
 
-                    var bitmap = _imageResources.ImageResource(icon.ResourceName);
+                    var bitmap = _imageResources.BitmapForResource(icon);
                     if (bitmap != null)
                     {
                         var mode = BitmapInterpolationMode.Linear;
@@ -655,11 +655,16 @@ namespace Pixelaria.Views.ExportPipeline
 
         public SizeF CalculateTextSize(IAttributedText text, Font font)
         {
+            return CalculateTextSize(text, font.Name, font.Size);
+        }
+
+        public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
+        {
             var renderState = _lastRenderingState;
             if (renderState == null)
                 return SizeF.Empty;
 
-            using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font.Name, font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center, WordWrapping = WordWrapping.WholeWord })
+            using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font, fontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center, WordWrapping = WordWrapping.WholeWord })
             using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())

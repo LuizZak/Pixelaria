@@ -36,7 +36,7 @@ using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
-    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<Direct2DRenderingState>
+    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>
     {
         private readonly ControlView _baseControl = new ControlView();
 
@@ -87,39 +87,41 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnRender(state);
 
+            var context = new ControlRenderingContext(state, Control.D2DRenderer);
+
             // Create a renderer visitor for the root UI element we got
-            var traverser = new BaseViewTraverser<Direct2DRenderingState>(state, this);
+            var traverser = new BaseViewTraverser<ControlRenderingContext>(context, this);
             traverser.Visit(_baseControl);
         }
 
-        public void OnVisitorEnter([NotNull] Direct2DRenderingState state, BaseView view)
+        public void OnVisitorEnter([NotNull] ControlRenderingContext context, BaseView view)
         {
-            state.PushMatrix(new Matrix3x2(view.LocalTransform.Elements));
+            context.State.PushMatrix(new Matrix3x2(view.LocalTransform.Elements));
 
             // Clip rendering area
             if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
             {
                 var clip = view.Bounds;
-                state.D2DRenderTarget.PushAxisAlignedClip(clip, AntialiasMode.Aliased);
+                context.RenderTarget.PushAxisAlignedClip(clip, AntialiasMode.Aliased);
             }
         }
 
-        public void VisitView([NotNull] Direct2DRenderingState state, BaseView view)
+        public void VisitView([NotNull] ControlRenderingContext context, BaseView view)
         {
             if (view is SelfRenderingBaseView selfRendering && selfRendering.IsVisibleOnScreen())
             {
-                selfRendering.Render(state);
+                selfRendering.Render(context);
             }
         }
 
-        public void OnVisitorExit([NotNull] Direct2DRenderingState state, BaseView view)
+        public void OnVisitorExit([NotNull] ControlRenderingContext context, BaseView view)
         {
             if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
             {
-                state.D2DRenderTarget.PopAxisAlignedClip();
+                context.RenderTarget.PopAxisAlignedClip();
             }
 
-            state.PopMatrix();
+            context.State.PopMatrix();
         }
 
         public override void OnResize(EventArgs e)

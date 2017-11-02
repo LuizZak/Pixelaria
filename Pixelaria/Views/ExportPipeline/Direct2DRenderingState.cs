@@ -22,17 +22,20 @@
 
 using System;
 using System.Collections.Generic;
+
 using JetBrains.Annotations;
+
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+
 using Device = SharpDX.Direct3D11.Device;
 using Factory = SharpDX.DXGI.Factory;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    public class Direct2DRenderingState
+    internal class Direct2DRenderingState
     {
         private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
 

@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using JetBrains.Annotations;
+
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -31,7 +31,7 @@ namespace Pixelaria.Views.ExportPipeline
     /// <summary>
     /// Helper class for dealing with Direct2D image resource loading
     /// </summary>
-    public sealed class D2DImageResources : IDisposable, ID2DImageResourceManager
+    internal sealed class D2DImageResources : IDisposable, ID2DImageResourceManager
     {
         private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
 
@@ -71,29 +71,33 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        public PipelineNodeView.ImageResource AddPipelineNodeImageResource(Direct2DRenderingState state,
+        public ImageResource AddPipelineNodeImageResource(Direct2DRenderingState state,
             Bitmap bitmap, string resourceName)
         {
-            var res = new PipelineNodeView.ImageResource(resourceName, bitmap.Width, bitmap.Height);
+            var res = new ImageResource(resourceName, bitmap.Width, bitmap.Height);
 
             AddImageResource(state, bitmap, resourceName);
 
             return res;
         }
 
-        public PipelineNodeView.ImageResource? PipelineNodeImageResource(string resourceName)
+        public ImageResource? PipelineNodeImageResource(string resourceName)
         {
-            var res = ImageResource(resourceName);
+            var res = BitmapForResource(resourceName);
             if (res != null)
-                return new PipelineNodeView.ImageResource(resourceName, res.PixelSize.Width, res.PixelSize.Height);
+                return new ImageResource(resourceName, res.PixelSize.Width, res.PixelSize.Height);
 
             return null;
         }
-
-        [CanBeNull]
-        public SharpDX.Direct2D1.Bitmap ImageResource([NotNull] string named)
+        
+        public SharpDX.Direct2D1.Bitmap BitmapForResource(ImageResource resource)
         {
-            return _bitmapResources.TryGetValue(named, out SharpDX.Direct2D1.Bitmap bitmap) ? bitmap : null;
+            return BitmapForResource(resource.ResourceName);
+        }
+
+        public SharpDX.Direct2D1.Bitmap BitmapForResource(string name)
+        {
+            return _bitmapResources.TryGetValue(name, out SharpDX.Direct2D1.Bitmap bitmap) ? bitmap : null;
         }
     }
 }
