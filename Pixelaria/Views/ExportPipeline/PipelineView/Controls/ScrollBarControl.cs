@@ -205,9 +205,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             button.Rx
                 .MouseDownRepeating(TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(50))
-                .Subscribe(_ =>
+                .Subscribe(e =>
                 {
-                    onFire();
+                    if(button.Bounds.Contains(e.Location))
+                        onFire();
                 }).AddToDisposable(DisposeBag);
         }
 

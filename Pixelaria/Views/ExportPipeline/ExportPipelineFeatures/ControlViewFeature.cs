@@ -359,25 +359,31 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         /// <param name="reactive">ControlView reactive bindings object.</param>
         /// <param name="delay">Initial delay before start rapid-firing.</param>
         /// <param name="interval">The interval between each subsequence repeat event</param>
-        public static IObservable<Unit> MouseDownRepeating([NotNull] this ControlView.IReactive reactive, TimeSpan delay, TimeSpan interval)
+        public static IObservable<MouseEventArgs> MouseDownRepeating([NotNull] this ControlView.IReactive reactive, TimeSpan delay, TimeSpan interval)
         {
-            return Observable.Create<Unit>(obs =>
+            return Observable.Create<MouseEventArgs>(obs =>
             {
                 IDisposable disposableRepeat = null;
 
+                var onDown = reactive.MouseDown.Select(e => (true, e));
+                var onUp = reactive.MouseUp.Select(e => (false, e));
+
+                var isMouseDown = onDown.Merge(onUp);
+
                 return
-                    reactive
-                        .IsMouseDown()
-                        .Select(isDown =>
+                    isMouseDown
+                        .Select(a =>
                         {
+                            var (isDown, e) = a;
+
                             if (!isDown)
-                                return Observable.Never<Unit>();
+                                return Observable.Never<MouseEventArgs>();
 
                             return
                                 Observable.Interval(interval)
-                                    .Select(_ => Unit.Default)
                                     .Delay(delay)
-                                    .StartWith(Unit.Default);
+                                    .WithLatestFrom(reactive.MouseMove.StartWith(e), (l, args) => args)
+                                    .StartWith(e);
                         })
                         .Subscribe(timer =>
                         {
