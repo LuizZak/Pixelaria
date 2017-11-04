@@ -28,6 +28,8 @@ using System.Windows.Forms;
 
 using JetBrains.Annotations;
 
+using Pixelaria.Utils;
+
 using SharpDX;
 using SharpDX.Direct2D1;
 

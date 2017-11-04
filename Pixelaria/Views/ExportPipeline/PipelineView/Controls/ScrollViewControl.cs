@@ -22,6 +22,7 @@
 
 using System;
 using System.Windows.Forms;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {

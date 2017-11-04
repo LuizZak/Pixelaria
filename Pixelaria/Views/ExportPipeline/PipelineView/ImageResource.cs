@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using System.Drawing;
+
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
@@ -30,6 +32,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public string ResourceName { get; }
         public int Width { get; }
         public int Height { get; }
+
+        public Size Size => new Size(Width, Height);
 
         public ImageResource(string resourceName, int width, int height)
         {

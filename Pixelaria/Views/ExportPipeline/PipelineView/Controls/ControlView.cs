@@ -29,6 +29,7 @@ using System.Reactive.Subjects;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {

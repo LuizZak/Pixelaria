@@ -26,7 +26,8 @@ using System.Windows.Forms;
 using FontFamily = System.Drawing.FontFamily;
 
 using JetBrains.Annotations;
-
+using Pixelaria.Utils;
+using Pixelaria.Utils.Layouting;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 
@@ -148,11 +149,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public InsetBounds TextInset { get; set; }
 
         /// <summary>
+        /// Gets or sets the inset region to retract the image of this button by.
+        /// </summary>
+        public InsetBounds ImageInset { get; set; }
+
+        /// <summary>
         /// Gets or sets an image resource to draw besides the text label.
         /// 
         /// If an image is set, it is rendered to the left of the button's text.
         /// </summary>
-        public ImageResource Image { get; set; }
+        public ImageResource? Image { get; set; }
 
         /// <summary>
         /// OnClick event for button
@@ -207,19 +213,53 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 };
 
                 // Get a text layout with the proper size for the button
-                var available = Bounds;
-                available = available.Inset(new InsetBounds(Image.Width, 0, 0, 0));
-                available = available.Inset(TextInset);
-
+                var available = BoundsForText();
+                
                 _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, available.Width, available.Height);
+            }
+
+            // Render image, if available
+            if (Image.HasValue)
+            {
+                var image = Image.Value;
+                var bitmapBounds = BoundsForImage(image);
+
+                var bitmap = context.Renderer.ImageResources.BitmapForResource(image);
+                context.RenderTarget.DrawBitmap(bitmap, bitmapBounds, 1, BitmapInterpolationMode.Linear);
             }
 
             using (var brush = new SolidColorBrush(context.RenderTarget, TextColor.ToColor4()))
             {
-                var bounds = Bounds.Inset(TextInset);
+                var bounds = BoundsForText();
+
                 context.RenderTarget.DrawTextLayout(bounds.Minimum, _textLayout, brush);
-                //context.RenderTarget.DrawText(Text, _textFormat, bounds, brush);
             }
+        }
+
+        private AABB BoundsForText()
+        {
+            var bounds = Bounds.Inset(TextInset);
+
+            if (!Image.HasValue)
+                return bounds;
+
+            var image = Image.Value;
+            var imgBounds = BoundsForImage(image);
+
+            bounds = bounds.Inset(new InsetBounds(imgBounds.Right, 0, 0, 0));
+
+            return bounds;
+        }
+
+        private AABB BoundsForImage(ImageResource image)
+        {
+            var bitmapBounds = AABB.FromRectangle(Vector.Zero, image.Size);
+            var bounds = Bounds.Inset(ImageInset);
+
+            bitmapBounds = bitmapBounds.OffsetBy(bounds.Minimum.X, 0);
+            bitmapBounds = LayoutingHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
+
+            return bitmapBounds;
         }
 
         public override void OnMouseClick(MouseEventArgs e)

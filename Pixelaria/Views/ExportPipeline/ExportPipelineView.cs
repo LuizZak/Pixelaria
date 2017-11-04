@@ -170,54 +170,11 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void AddPipelineNode([NotNull] IPipelineNode node)
         {
-            var view = new PipelineNodeView(node);
-
-            string iconName = null;
-            
-            // Automatically setup icons for known pipeline nodes
-            switch (node)
+            var view = new PipelineNodeView(node)
             {
-                case TransparencyFilterPipelineStep _:
-                    iconName = "filter_transparency_icon";
-                    break;
-
-                case FilterPipelineStep filterStep:
-
-                    if (filterStep.Filter is HueFilter)
-                        iconName = "filter_hue";
-                    else if (filterStep.Filter is SaturationFilter)
-                        iconName = "filter_saturation";
-                    else if (filterStep.Filter is LightnessFilter)
-                        iconName = "filter_lightness";
-                    else if (filterStep.Filter is OffsetFilter)
-                        iconName = "filter_offset_icon";
-                    else if (filterStep.Filter is RotationFilter)
-                        iconName = "filter_rotation_icon";
-                    else if (filterStep.Filter is ScaleFilter)
-                        iconName = "filter_scale_icon";
-                    else if (filterStep.Filter is StrokeFilter)
-                        iconName = "filter_stroke";
-
-                    break;
-
-                case SingleAnimationPipelineStep _:
-                    iconName = "anim_icon";
-                    break;
-
-                case FileExportPipelineStep _:
-                    iconName = "sheet_save_icon";
-                    break;
-
-                case SpriteSheetGenerationPipelineStep _:
-                    iconName = "sheet_new";
-                    break;
-            }
+                Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, exportPipelineControl.D2DRenderer.ImageResources)
+            };
             
-            if (iconName != null)
-            {
-                view.Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource(iconName);
-            }
-
             exportPipelineControl.PipelineContainer.AddNodeView(view);
             exportPipelineControl.PipelineContainer.AutosizeNode(view);
             

@@ -232,6 +232,7 @@
     <Compile Include="ExportPipeline\Steps\FilterPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
     <Compile Include="Utils\DrawingUtilities.cs" />
+    <Compile Include="Utils\Layouting\LayoutingHelper.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
@@ -583,14 +584,14 @@
     <Compile Include="Views\ModelViews\NewAnimationView.Designer.cs">
       <DependentUpon>NewAnimationView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\ExportPipeline\PipelineView\AABB.cs" />
+    <Compile Include="Utils\AABB.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\BezierPathView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\GraphLayout.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\AttributedText.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\LabelView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeLinkView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeView.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Vector.cs" />
+    <Compile Include="Utils\Vector.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SelectionUiFeature.cs" />
     <Compile Include="Views\SettingsViews\BundleSettingsView.cs">
       <SubType>Form</SubType>

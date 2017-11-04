@@ -38,16 +38,24 @@ namespace Pixelaria.ExportPipeline.Steps
     /// Pipeline step that applies a filter onto a Bitmap and passes a copy of it
     /// forward.
     /// </summary>
-    public sealed class FilterPipelineStep : AbstractPipelineStep
+    public sealed class FilterPipelineStep<T> : AbstractPipelineStep where T: IFilter, new()
     {
         [NotNull]
-        public IFilter Filter;
+        public T Filter;
 
         public override string Name => Filter.Name;
         public override IReadOnlyList<IPipelineInput> Input { get; }
         public override IReadOnlyList<IPipelineOutput> Output { get; }
 
-        public FilterPipelineStep([NotNull] IFilter filter)
+        /// <summary>
+        /// Creates a filter pipeline step with an empty filter instance constructed from <see cref="T"/>'s default constructor.
+        /// </summary>
+        public FilterPipelineStep() : this(new T())
+        {
+
+        }
+
+        public FilterPipelineStep([NotNull] T filter)
         {
             var props = filter.InspectableProperties();
 

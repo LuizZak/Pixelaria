@@ -29,6 +29,8 @@ using System.Reactive.Disposables;
 using JetBrains.Annotations;
 
 using Pixelaria.ExportPipeline;
+using Pixelaria.ExportPipeline.Steps;
+using Pixelaria.Filters;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
@@ -148,9 +150,11 @@ namespace Pixelaria.Views.ExportPipeline
                 TextColor = Color.White,
                 ClipToBounds = false,
                 HorizontalTextAlignment = HorizontalTextAlignment.Left,
-                TextInset = new InsetBounds(5, 5, 5, 5)
+                TextInset = new InsetBounds(5, 5, 5, 5),
+                ImageInset = new InsetBounds(7, 0, 0, 0),
+                Image = IconForPipelineNodeType(spec.NodeType, _pipelineControl.D2DRenderer.ImageResources)
             };
-
+            
             button.Rx
                 .MouseClick
                 .Subscribe(_ =>
@@ -164,13 +168,81 @@ namespace Pixelaria.Views.ExportPipeline
 
         private Vector GetButtonSize()
         {
-            return new Vector(_scrollViewControl.VisibleContentBounds.Width / 2 - 20, 20);
+            return new Vector(_scrollViewControl.VisibleContentBounds.Width / 2 - 20, 40);
         }
 
         [CanBeNull]
         private ButtonControl ButtonForSpec(PipelineNodeSpec spec)
         {
             return SpecButtons.FirstOrDefault(b => b.Tag == spec);
+        }
+
+        /// <summary>
+        /// Gets an image resource from a given image resources provider that matches the given pipeline node.
+        /// 
+        /// This image is used for representing the node's type visually in a small icon form.
+        /// </summary>
+        public static ImageResource? IconForPipelineNode([NotNull] IPipelineNode node, ID2DImageResourceProvider resourcesProvider)
+        {
+            return IconForPipelineNodeType(node.GetType(), resourcesProvider);
+        }
+
+        /// <summary>
+        /// Gets an image resource from a given image resources provider that matches the given pipeline node.
+        /// 
+        /// This image is used for representing the node's type visually in a small icon form.
+        /// </summary>
+        public static ImageResource? IconForPipelineNodeType(Type nodeType, ID2DImageResourceProvider resourcesProvider)
+        {
+            string iconName = null;
+
+            // Automatically setup icons for known pipeline nodes
+            if (nodeType == typeof(TransparencyFilterPipelineStep))
+            {
+                iconName = "filter_transparency_icon";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<HueFilter>))
+            {
+                iconName = "filter_hue";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<SaturationFilter>))
+            {
+                iconName = "filter_saturation";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<LightnessFilter>))
+            {
+                iconName = "filter_lightness";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<OffsetFilter>))
+            {
+                iconName = "filter_offset_icon";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<RotationFilter>))
+            {
+                iconName = "filter_rotation_icon";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<ScaleFilter>))
+            {
+                iconName = "filter_scale_icon";
+            }
+            else if (nodeType == typeof(FilterPipelineStep<StrokeFilter>))
+            {
+                iconName = "filter_stroke";
+            }
+            else if (nodeType == typeof(SingleAnimationPipelineStep))
+            {
+                iconName = "anim_icon";
+            }
+            else if (nodeType == typeof(FileExportPipelineStep))
+            {
+                iconName = "sheet_save_icon";
+            }
+            else if (nodeType == typeof(SpriteSheetGenerationPipelineStep))
+            {
+                iconName = "sheet_new";
+            }
+
+            return iconName != null ? resourcesProvider.PipelineNodeImageResource(iconName) : null;
         }
 
         /// <summary>

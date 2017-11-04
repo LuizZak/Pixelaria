@@ -22,6 +22,7 @@
 
 using System.Drawing.Drawing2D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace PixelariaTests.PixelariaTests.Views.ModelViews.PipelineView

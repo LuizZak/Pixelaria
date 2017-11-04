@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using JetBrains.Annotations;
 
@@ -45,13 +44,12 @@ namespace Pixelaria.ExportPipeline
         {
             var specs = new List<PipelineNodeSpec>
             {
-                PipelineNodeSpec.WithReflection("Transparency Filter", typeof(TransparencyFilterPipelineStep)),
-                new PipelineNodeSpec("Offset Filter", () => new FilterPipelineStep(new OffsetFilter())),
-                new PipelineNodeSpec("Hue Filter", () => new FilterPipelineStep(new HueFilter())),
-                new PipelineNodeSpec("Saturation Filter", () => new FilterPipelineStep(new SaturationFilter())),
-                new PipelineNodeSpec("Lightness Filter", () => new FilterPipelineStep(new LightnessFilter())),
-                new PipelineNodeSpec("Stroke Filter", () => new FilterPipelineStep(new StrokeFilter())),
-                new PipelineNodeSpec("File Export", () => new FileExportPipelineStep())
+                PipelineNodeSpec.WithReflection<TransparencyFilterPipelineStep>("Transparency Filter"),
+                PipelineNodeSpec.WithReflection<FilterPipelineStep<OffsetFilter>>("Offset Filter"),
+                PipelineNodeSpec.WithReflection<FilterPipelineStep<HueFilter>>("Saturation Filter"),
+                PipelineNodeSpec.WithReflection<FilterPipelineStep<SaturationFilter>>("Lightness Filter"),
+                PipelineNodeSpec.WithReflection<FilterPipelineStep<LightnessFilter>>("Stroke Filter"),
+                PipelineNodeSpec.WithReflection<FileExportPipelineStep>("File Export")
             };
 
             return specs.ToArray();
@@ -68,6 +66,12 @@ namespace Pixelaria.ExportPipeline
         /// </summary>
         [NotNull]
         public string Name { get; }
+
+        /// <summary>
+        /// Gets the node's reflection type
+        /// </summary>
+        [NotNull]
+        public Type NodeType { get; }
         
         /// <summary>
         /// Function that must instantiate pipeline nodes when called.
@@ -75,9 +79,10 @@ namespace Pixelaria.ExportPipeline
         [NotNull]
         public Func<IPipelineNode> CreateNode;
 
-        public PipelineNodeSpec([NotNull] string name, [NotNull] Func<IPipelineNode> createNode)
+        public PipelineNodeSpec([NotNull] string name, [NotNull] Type nodeType, [NotNull] Func<IPipelineNode> createNode)
         {
             CreateNode = createNode;
+            NodeType = nodeType;
             Name = name;
         }
 
@@ -86,12 +91,9 @@ namespace Pixelaria.ExportPipeline
         /// to fetch a parameter-less constructor for the node type.
         /// </summary>
         [NotNull]
-        public static PipelineNodeSpec WithReflection([NotNull] string name, [NotNull] Type nodeType)
+        public static PipelineNodeSpec WithReflection<T>([NotNull] string name) where T: IPipelineNode, new()
         {
-            var constructor = nodeType.GetConstructor(Type.EmptyTypes);
-            Debug.Assert(constructor != null, "constructor != null");
-
-            return new PipelineNodeSpec(name, () => (IPipelineNode) constructor.Invoke(new object[0]));
+            return new PipelineNodeSpec(name, typeof(T), () => new T());
         }
     }
 }

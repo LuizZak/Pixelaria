@@ -89,6 +89,7 @@
     <Compile Include="PixelariaTests\Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
     <Compile Include="PixelariaTests\Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
     <Compile Include="PixelariaTests\Tests\Utils\ImageUtilitiesTests.cs" />
+    <Compile Include="PixelariaTests\Tests\Utils\Layouting\LayoutingTests.cs" />
     <Compile Include="PixelariaTests\Tests\Utils\UtilsTests.cs" />
     <Compile Include="PixelariaTests\Views\ModelViews\PipelineView\BaseViewTests.cs" />
     <Compile Include="PixelariaTests\Views\ModelViews\PipelineView\GraphTests.cs" />
