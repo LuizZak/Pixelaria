@@ -27,7 +27,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
-
+using System.Windows.Threading;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
 
@@ -38,7 +38,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     /// </summary>
     internal class ControlView : SelfRenderingBaseView, IMouseEventHandler, IDisposable
     {
-        private readonly Reactive _reactive = new Reactive();
+        /// <summary>
+        /// Gets or sets the dispatcher for UI events.
+        /// 
+        /// Must be set before initializing a <see cref="ControlView"/> instance.
+        /// </summary>
+        public static Dispatcher UiDispatcher { get; set; }
+
+        private readonly Reactive _reactive;
 
         private readonly List<MouseEventRecognizer> _recognizers = new List<MouseEventRecognizer>();
 
@@ -110,6 +117,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// A user-defined tag that can be defined for this control
         /// </summary>
         public object Tag { get; set; }
+
+        public ControlView()
+        {
+            if(UiDispatcher == null)
+                throw new InvalidOperationException(
+                        @"ControlView.UiDispatcher static property must be set prior to creating instances of ControlView. " +
+                        @"Consider setting it to the proper UI dispatcher when creating the very first Form control of your program.");
+
+            _reactive = new Reactive(UiDispatcher);
+        }
 
         ~ControlView()
         {
@@ -301,6 +318,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public interface IReactive
         {
+            Dispatcher Dispatcher { get; }
+
             IObservable<MouseEventArgs> MouseClick { get; }
             IObservable<MouseEventArgs> MouseDown { get; }
             IObservable<MouseEventArgs> MouseMove { get; }
@@ -315,6 +334,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         private class Reactive : IReactive
         {
+            public Dispatcher Dispatcher { get; }
+
+            public Reactive(Dispatcher dispatcher)
+            {
+                Dispatcher = dispatcher;
+            }
+
             public readonly Subject<MouseEventArgs> MouseClickSubject = new Subject<MouseEventArgs>();
             public readonly Subject<MouseEventArgs> MouseDownSubject = new Subject<MouseEventArgs>();
             public readonly Subject<MouseEventArgs> MouseMoveSubject = new Subject<MouseEventArgs>();

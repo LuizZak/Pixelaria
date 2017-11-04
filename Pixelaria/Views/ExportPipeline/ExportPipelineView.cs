@@ -26,7 +26,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
-
+using System.Windows.Threading;
 using JetBrains.Annotations;
 
 using SharpDX.Direct2D1;
@@ -49,12 +49,12 @@ using Pixelaria.Data.Persistence;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
-using Pixelaria.Filters;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -69,6 +69,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         public ExportPipelineView()
         {
+            ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+
             InitializeComponent();
 
             exportPipelineControl.Resize += ExportPipelineControlOnResize;

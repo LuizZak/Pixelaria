@@ -23,7 +23,9 @@
 using System;
 using Color = System.Drawing.Color;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
@@ -383,7 +385,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                                 Observable.Interval(interval)
                                     .Delay(delay)
                                     .WithLatestFrom(reactive.MouseMove.StartWith(e), (l, args) => args)
-                                    .StartWith(e);
+                                    .StartWith(e)
+                                    .ObserveOn(reactive.Dispatcher);
                         })
                         .Subscribe(timer =>
                         {
