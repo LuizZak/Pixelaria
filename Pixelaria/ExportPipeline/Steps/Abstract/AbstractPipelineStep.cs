@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 
-namespace Pixelaria.ExportPipeline.Steps
+namespace Pixelaria.ExportPipeline.Steps.Abstract
 {
     /// <summary>
     /// Base abstract pipeline step to start subclassing and specializing pipeline steps

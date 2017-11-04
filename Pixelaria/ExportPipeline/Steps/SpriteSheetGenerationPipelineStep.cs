@@ -28,6 +28,7 @@ using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using Pixelaria.ExportPipeline.Inputs;
 using Pixelaria.ExportPipeline.Outputs;
+using Pixelaria.ExportPipeline.Steps.Abstract;
 
 namespace Pixelaria.ExportPipeline.Steps
 {

@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reactive.Subjects;
 using Pixelaria.Data;
 using Pixelaria.ExportPipeline.Outputs;
+using Pixelaria.ExportPipeline.Steps.Abstract;
 
 namespace Pixelaria.ExportPipeline.Steps
 {

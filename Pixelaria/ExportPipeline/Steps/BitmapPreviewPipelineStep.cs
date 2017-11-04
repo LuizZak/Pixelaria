@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,43 +20,53 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
-using System.Reactive.Concurrency;
+using System.Drawing;
 using System.Reactive.Linq;
-
+using JetBrains.Annotations;
 using Pixelaria.ExportPipeline.Inputs;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps.Abstract;
 
 namespace Pixelaria.ExportPipeline.Steps
 {
+    // TODO: Make a generic of this guy for any input/output.
+    
     /// <summary>
-    /// Joins all connected animation sources into one Animation array
+    /// A pipeline step that allows inspecting bitmaps that flow through it
     /// </summary>
-    public sealed class AnimationJoinerStep : AbstractPipelineStep
+    internal class BitmapPreviewPipelineStep: AbstractPipelineStep
     {
-        public override string Name { get; } = "Animation Joiner";
-
+        public override string Name => "Bitmap Preview";
         public override IReadOnlyList<IPipelineInput> Input { get; }
         public override IReadOnlyList<IPipelineOutput> Output { get; }
 
-        public AnimationJoinerStep()
-        {
-            var animationInput = new AnimationInput(this);
-            Input = new IPipelineInput[] {animationInput};
-            
-            var source =
-                animationInput
-                    .AnyConnection()
-                    .ObserveOn(NewThreadScheduler.Default)
-                    .ToArray();
-            
-            Output = new IPipelineOutput[] { new AnimationsOutput(this, source) };
-        }
+        /// <summary>
+        /// Gets or sets the callback to fire whenever a bitmap flows through this pipeline node.
+        /// </summary>
+        [CanBeNull]
+        public Action<Bitmap> OnReceive { get; set; }
 
-        public override IPipelineMetadata GetMetadata()
+        public BitmapPreviewPipelineStep()
         {
-            return PipelineMetadata.Empty;
+            var input = new PipelineBitmapInput(this);
+
+            var obs = 
+                input.AnyConnection()
+                    .Do(bitmap => OnReceive?.Invoke(bitmap));
+
+            var output = new PipelineBitmapOutput(this, obs);
+
+            Input = new[]
+            {
+                input
+            };
+
+            Output = new[]
+            {
+                output
+            };
         }
     }
 }

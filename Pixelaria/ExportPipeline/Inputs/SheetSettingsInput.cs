@@ -22,6 +22,7 @@
 
 using JetBrains.Annotations;
 using Pixelaria.Data;
+using Pixelaria.ExportPipeline.Inputs.Abstract;
 
 namespace Pixelaria.ExportPipeline.Inputs
 {

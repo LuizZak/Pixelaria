@@ -24,7 +24,7 @@ using System;
 using System.Reactive.Linq;
 using JetBrains.Annotations;
 
-namespace Pixelaria.ExportPipeline.Outputs
+namespace Pixelaria.ExportPipeline.Outputs.Abstract
 {
     /// <summary>
     /// A base implementation for a simple pipeline output that outputs a single type.

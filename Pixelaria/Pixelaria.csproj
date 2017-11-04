@@ -211,9 +211,9 @@
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
     <Compile Include="ExportPipeline\DefaultPipelineNodeSpecsProvider.cs" />
-    <Compile Include="ExportPipeline\Outputs\AbstractPipelineOutput.cs" />
-    <Compile Include="ExportPipeline\Steps\AbstractPipelineStep.cs" />
-    <Compile Include="ExportPipeline\Inputs\AbstractSinglePipelineInput.cs" />
+    <Compile Include="ExportPipeline\Outputs\Abstract\AbstractPipelineOutput.cs" />
+    <Compile Include="ExportPipeline\Steps\Abstract\AbstractPipelineStep.cs" />
+    <Compile Include="ExportPipeline\Inputs\Abstract\AbstractSinglePipelineInput.cs" />
     <Compile Include="ExportPipeline\Inputs\AnimationInput.cs" />
     <Compile Include="ExportPipeline\Inputs\AnimationsInput.cs" />
     <Compile Include="ExportPipeline\Outputs\AnimationsOutput.cs" />
@@ -226,6 +226,7 @@
     <Compile Include="ExportPipeline\Inputs\SheetSettingsInput.cs" />
     <Compile Include="ExportPipeline\Outputs\StaticPipelineOutput.cs" />
     <Compile Include="ExportPipeline\Steps\AnimationJoinerStep.cs" />
+    <Compile Include="ExportPipeline\Steps\BitmapPreviewPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SingleAnimationPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\AnimationsPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\FileExportPipelineStep.cs" />

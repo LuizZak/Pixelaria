@@ -44,9 +44,11 @@ namespace Pixelaria.Views.ExportPipeline
 
         private readonly InternalPipelineContainer _container;
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
-
+        
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
+
+        public delegate void PipelineNodeViewEventHandler(object sender, [NotNull] PipelineNodeViewEventArgs e);
 
         public Point MousePoint { get; private set; }
 
@@ -373,6 +375,16 @@ namespace Pixelaria.Views.ExportPipeline
             PipelineNodeView[] NodeViews { get; }
 
             /// <summary>
+            /// Called when a node has been added to this container
+            /// </summary>
+            event PipelineNodeViewEventHandler NodeAdded;
+
+            /// <summary>
+            /// Called when a node has been removed from this container
+            /// </summary>
+            event PipelineNodeViewEventHandler NodeRemoved;
+
+            /// <summary>
             /// Removes all views on this pipeline container
             /// </summary>
             void RemoveAllViews();
@@ -583,6 +595,10 @@ namespace Pixelaria.Views.ExportPipeline
                 new List<PipelineNodeConnectionLineView>();
             private readonly _Selection _sel;
             private readonly ExportPipelineControl _control;
+            
+            public event PipelineNodeViewEventHandler NodeAdded;
+
+            public event PipelineNodeViewEventHandler NodeRemoved;
 
             public ISelection SelectionModel => _sel;
 
@@ -632,6 +648,8 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 ContentsView.AddChild(nodeView);
                 _nodeViews.Add(nodeView);
+
+                NodeAdded?.Invoke(this, new PipelineNodeViewEventArgs(nodeView));
             }
 
             public void RemoveNodeView(PipelineNodeView nodeView)
@@ -647,6 +665,8 @@ namespace Pixelaria.Views.ExportPipeline
                 nodeView.RemoveFromParent();
 
                 _nodeViews.Remove(nodeView);
+
+                NodeRemoved?.Invoke(this, new PipelineNodeViewEventArgs(nodeView));
             }
 
             public void AttemptSelect(BaseView view)
@@ -1430,6 +1450,17 @@ namespace Pixelaria.Views.ExportPipeline
                 state.FillColor = Color.Transparent;
                 state.StrokeColor = Color.Gray;
             }
+        }
+    }
+
+    internal class PipelineNodeViewEventArgs: EventArgs
+    {
+        [NotNull]
+        public PipelineNodeView Node { get; }
+
+        public PipelineNodeViewEventArgs([NotNull] PipelineNodeView node)
+        {
+            Node = node;
         }
     }
 }

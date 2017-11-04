@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using JetBrains.Annotations;
 
-namespace Pixelaria.ExportPipeline.Inputs
+namespace Pixelaria.ExportPipeline.Inputs.Abstract
 {
     /// <summary>z
     /// A base implementation for a simple pipeline input that accepts a single type.

@@ -29,7 +29,9 @@ using System.Reactive.Linq;
 using JetBrains.Annotations;
 using Pixelaria.Data.Exports;
 using Pixelaria.ExportPipeline.Inputs;
+using Pixelaria.ExportPipeline.Inputs.Abstract;
 using Pixelaria.ExportPipeline.Outputs;
+using Pixelaria.ExportPipeline.Steps.Abstract;
 using Pixelaria.Filters;
 
 namespace Pixelaria.ExportPipeline.Steps

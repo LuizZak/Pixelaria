@@ -114,7 +114,7 @@ namespace Pixelaria.Views.ExportPipeline
             var buttonSize = GetButtonSize();
             var sepSize = new Vector(15, 10);
 
-            float minCellWidth = buttonSize.X;
+            float minCellWidth = buttonSize.X + sepSize.X / 2;
 
             int buttonsPerRow = (int)(_scrollViewControl.VisibleContentBounds.Width / minCellWidth);
 
@@ -149,7 +149,7 @@ namespace Pixelaria.Views.ExportPipeline
                 StrokeColor = Color.Gray.WithTransparency(0.8f),
                 TextColor = Color.White,
                 ClipToBounds = false,
-                HorizontalTextAlignment = HorizontalTextAlignment.Left,
+                HorizontalTextAlignment = HorizontalTextAlignment.Center,
                 TextInset = new InsetBounds(5, 5, 5, 5),
                 ImageInset = new InsetBounds(7, 0, 0, 0),
                 Image = IconForPipelineNodeType(spec.NodeType, _pipelineControl.D2DRenderer.ImageResources)

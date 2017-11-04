@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -63,6 +64,8 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
         
         private ExportPipelineNodesPanelManager _panelManager;
+        private BitmapPreviewPipelineWindowManager _previewManager;
+
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
 
         internal Direct2DRenderingState RenderingState { get; } = new Direct2DRenderingState();
@@ -119,6 +122,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             ConfigurePipelineControl();
             ConfigureNodesPanel();
+            ConfigurePreviewManager();
         }
 
         public void ConfigurePipelineControl()
@@ -158,6 +162,14 @@ namespace Pixelaria.Views.ExportPipeline
             var provider = new DefaultPipelineNodeSpecsProvider();
 
             _panelManager.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
+        }
+
+        public void ConfigurePreviewManager()
+        {
+            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl);
+            exportPipelineControl.AddFeature(manager);
+
+            _previewManager = manager;
         }
 
         private void ExportPipelineControlOnResize(object sender, EventArgs eventArgs)
@@ -575,6 +587,122 @@ namespace Pixelaria.Views.ExportPipeline
             foreach (var view in nodeViews)
             {
                 container.UpdateConnectionViewsFor(view);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A 'picture-in-picture' style manager for bitmap preview pipeline steps.
+    /// </summary>
+    internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature
+    {
+        [CanBeNull]
+        private Direct2DRenderingState _latestRenderState;
+
+        private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
+        private readonly Dictionary<BitmapPreviewPipelineStep, Bitmap> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, Bitmap>();
+
+        public BitmapPreviewPipelineWindowManager([NotNull] ExportPipelineControl control) : base(control)
+        {
+            control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
+            control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
+        }
+
+        ~BitmapPreviewPipelineWindowManager()
+        {
+            foreach (var bitmap in _latestPreviews.Values)
+            {
+                bitmap?.Dispose();
+            }
+        }
+        
+        private void PipelineContainerOnNodeAdded(object sender, [NotNull] PipelineNodeViewEventArgs e)
+        {
+            if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
+                return;
+
+            AddPreview(step);
+        }
+
+        private void PipelineContainerOnNodeRemoved(object sender, [NotNull] PipelineNodeViewEventArgs e)
+        {
+            if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
+                return;
+
+            RemovePreview(step);
+        }
+
+        private void AddPreview([NotNull] BitmapPreviewPipelineStep step)
+        {
+            _previewSteps.Add(step);
+            _latestPreviews[step] = null;
+
+            step.OnReceive = bitmap =>
+            {
+                UpdatePreview(step, bitmap);
+            };
+        }
+
+        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step)
+        {
+            _previewSteps.Remove(step);
+            _latestPreviews.Remove(step);
+        }
+
+        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap)
+        {
+            if (_latestRenderState == null)
+                return;
+
+            if(_latestPreviews.TryGetValue(step, out Bitmap old))
+                old.Dispose();
+
+            var newBit = Direct2DRenderer.CreateSharpDxBitmap(_latestRenderState.D2DRenderTarget, bitmap);
+
+            _latestPreviews[step] = newBit;
+        }
+
+        public override void OnRender(Direct2DRenderingState state)
+        {
+            base.OnRender(state);
+
+            _latestRenderState = state;
+
+            float y = 0;
+
+            foreach (var step in _previewSteps)
+            {
+                _latestPreviews.TryGetValue(step, out var bitmap);
+                
+                var size = new Vector(120, 90);
+                if(bitmap != null)
+                    size = new Vector(120, 120 * ((float)bitmap.PixelSize.Height / bitmap.PixelSize.Width));
+
+                var availableBounds = 
+                    AABB.FromRectangle(Vector.Zero, Control.Size)
+                    .Inset(new InsetBounds(5, 5, 5, 5));
+
+                var bounds = AABB.FromRectangle(availableBounds.Width - size.X, availableBounds.Height - y - size.Y, size.X, size.Y);
+
+                // Draw image, or opaque background
+                if (bitmap != null)
+                {
+                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds, 1, BitmapInterpolationMode.Linear);
+                }
+                else
+                {
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, System.Drawing.Color.DimGray.ToColor4()))
+                    {
+                        state.D2DRenderTarget.FillRectangle(bounds, brush);
+                    }
+                }
+
+                using (var brush = new SolidColorBrush(state.D2DRenderTarget, System.Drawing.Color.Gray.ToColor4()))
+                {
+                    state.D2DRenderTarget.DrawRectangle(bounds, brush);
+                }
+
+                y += size.Y - 5;
             }
         }
     }

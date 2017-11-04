@@ -44,12 +44,16 @@ namespace Pixelaria.ExportPipeline
         {
             var specs = new List<PipelineNodeSpec>
             {
-                PipelineNodeSpec.WithReflection<TransparencyFilterPipelineStep>("Transparency Filter"),
-                PipelineNodeSpec.WithReflection<FilterPipelineStep<OffsetFilter>>("Offset Filter"),
-                PipelineNodeSpec.WithReflection<FilterPipelineStep<HueFilter>>("Saturation Filter"),
-                PipelineNodeSpec.WithReflection<FilterPipelineStep<SaturationFilter>>("Lightness Filter"),
-                PipelineNodeSpec.WithReflection<FilterPipelineStep<LightnessFilter>>("Stroke Filter"),
-                PipelineNodeSpec.WithReflection<FileExportPipelineStep>("File Export")
+                PipelineNodeSpec.Of<BitmapPreviewPipelineStep>("Image Inspection"),
+
+                PipelineNodeSpec.Of<AnimationJoinerStep>("Animations Joiner"),
+                PipelineNodeSpec.Of<SpriteSheetGenerationPipelineStep>("Sprite Sheet Generation"),
+                PipelineNodeSpec.Of<TransparencyFilterPipelineStep>("Transparency Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<OffsetFilter>>("Offset Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<HueFilter>>("Saturation Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<SaturationFilter>>("Lightness Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<LightnessFilter>>("Stroke Filter"),
+                PipelineNodeSpec.Of<FileExportPipelineStep>("File Export")
             };
 
             return specs.ToArray();
@@ -91,7 +95,7 @@ namespace Pixelaria.ExportPipeline
         /// to fetch a parameter-less constructor for the node type.
         /// </summary>
         [NotNull]
-        public static PipelineNodeSpec WithReflection<T>([NotNull] string name) where T: IPipelineNode, new()
+        public static PipelineNodeSpec Of<T>([NotNull] string name) where T: IPipelineNode, new()
         {
             return new PipelineNodeSpec(name, typeof(T), () => new T());
         }
