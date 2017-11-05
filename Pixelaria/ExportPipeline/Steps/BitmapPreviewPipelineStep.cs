@@ -36,11 +36,11 @@ namespace Pixelaria.ExportPipeline.Steps
     /// <summary>
     /// A pipeline step that allows inspecting bitmaps that flow through it
     /// </summary>
-    internal class BitmapPreviewPipelineStep: AbstractPipelineStep
+    internal class BitmapPreviewPipelineStep: IPipelineStep
     {
-        public override string Name => "Bitmap Preview";
-        public override IReadOnlyList<IPipelineInput> Input { get; }
-        public override IReadOnlyList<IPipelineOutput> Output { get; }
+        public string Name { get; set; } = "Bitmap Preview";
+        public IReadOnlyList<IPipelineInput> Input { get; }
+        public IReadOnlyList<IPipelineOutput> Output { get; }
 
         /// <summary>
         /// Gets or sets the callback to fire whenever a bitmap flows through this pipeline node.
@@ -67,6 +67,15 @@ namespace Pixelaria.ExportPipeline.Steps
             {
                 output
             };
+        }
+
+        /// <summary>
+        /// Default implementation for <see cref="IPipelineStep.GetMetadata"/>
+        /// that returns an empty pipeline metadata object
+        /// </summary>
+        public virtual IPipelineMetadata GetMetadata()
+        {
+            return PipelineMetadata.Empty;
         }
     }
 }

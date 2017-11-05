@@ -64,6 +64,37 @@ namespace Pixelaria.Utils.Layouting
         {
             return aabb.OffsetTo(newCenter - aabb.Size / 2);
         }
+
+        /// <summary>
+        /// Returns an array of AABB rectangles that represent a set of rectangles laid out against an edge,
+        /// with the given size and separation.
+        /// </summary>
+        public static AABB[] AlignedRectanglesAcrossEdge(int count, Vector size, Vector edgeStart, Vector edgeEnd, float separation)
+        {
+            if (count <= 0)
+                return new AABB[0];
+
+            var output = new AABB[count];
+            
+            var mid = (edgeStart + edgeEnd) / 2;
+            var norm = (edgeEnd - edgeStart).Normalized();
+
+            float total = separation * (count - 1);
+            var offset = mid - norm * (total / 2.0f);
+
+            for (int i = 0; i < count; i++)
+            {
+                var point = offset + norm * (separation * i);
+
+                // Re-center rect
+                var rect = new AABB(point, point + size);
+                rect = rect.OffsetBy(-rect.Width / 2, -rect.Height / 2);
+
+                output[i] = rect;
+            }
+
+            return output;
+        }
     }
 
     [Flags]

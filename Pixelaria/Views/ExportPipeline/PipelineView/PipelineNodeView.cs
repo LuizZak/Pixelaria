@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using JetBrains.Annotations;
+
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Utils;
@@ -36,21 +36,33 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// </summary>
     internal class PipelineNodeView : BaseView, IEquatable<PipelineNodeView>
     {
-        private InsetBounds _bodyTextInset = new InsetBounds(7, 7, 7, 7);
-
-        private const float LinkSize = 10;
-        private const float LinkSeparation = 5;
-
-        /// <summary>
-        /// Padding between links and top/bottom of content view
-        /// </summary>
-        private const float LinkPadding = 20;
-
         private readonly List<PipelineNodeLinkView> _inputs = new List<PipelineNodeLinkView>();
         private readonly List<PipelineNodeLinkView> _outputs = new List<PipelineNodeLinkView>();
 
+        /// <summary>
+        /// Gets the list of input views on this node view
+        /// </summary>
+        public IReadOnlyList<PipelineNodeLinkView> InputViews => _inputs;
+
+        /// <summary>
+        /// Gets the list of output views on this node view
+        /// </summary>
+        public IReadOnlyList<PipelineNodeLinkView> OutputViews => _outputs;
+
+        /// <summary>
+        /// Gets the text associated with this node view's pipeline node's metadata object,
+        /// identifier by key <see cref="PipelineMetadataKeys.PipelineStepBodyText"/>.
+        /// </summary>
         public string BodyText => PipelineNode.GetMetadata()?.GetValue(PipelineMetadataKeys.PipelineStepBodyText) as string ?? "";
 
+        /// <summary>
+        /// Area where <see cref="BodyText"/> should be laid onto on this node view.
+        /// </summary>
+        public AABB BodyTextArea { get; set; }
+
+        /// <summary>
+        /// Gets this node view's underlying node name.
+        /// </summary>
         public string Name => PipelineNode.Name;
 
         /// <summary>
@@ -87,45 +99,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             
             ReloadLinkViews();
         }
-
-        public void AutoSize([NotNull] ILabelViewSizeProvider sizeProvider)
-        {
-            var nameSize = sizeProvider.CalculateTextSize(Name, Font);
-
-            // Calculate link size
-            int maxLinkCount = Math.Max(GetInputViews().Length, GetOutputViews().Length);
-            float vertLinkSize = maxLinkCount * (LinkSize + LinkSeparation) + LinkPadding;
-
-            if (Icon != null)
-            {
-                nameSize.Width += Icon.Value.Width + 5;
-                nameSize.Height = Math.Max(Icon.Value.Height + 5, nameSize.Height);
-            }
-
-            // Measure text from node, if available
-            var bodySize = new Vector();
-            string bodyText = BodyText;
-            if (!string.IsNullOrEmpty(bodyText))
-            {
-                bodySize = sizeProvider.CalculateTextSize(bodyText, Font) +
-                           new Vector(_bodyTextInset.Left + _bodyTextInset.Right,
-                               _bodyTextInset.Top + _bodyTextInset.Bottom);
-
-                if (_inputs.Count > 0)
-                    bodySize += new Vector(LinkSize, 0);
-
-                if (_outputs.Count > 0)
-                    bodySize += new Vector(LinkSize, 0);
-            }
-
-            const float minBodySize = 10;
-            
-            Size = new Vector(Math.Max(80, Math.Max(bodySize.X, nameSize.Width + 8)),
-                Math.Max(minBodySize, nameSize.Height + Math.Max(bodySize.Y, vertLinkSize)));
-
-            PositionLinkViews();
-        }
-
+        
         private void ReloadLinkViews()
         {
             _inputs.Clear();
@@ -155,64 +129,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
                 _outputs.Add(output);
                 AddChild(output);
             }
-
-            PositionLinkViews();
-        }
-
-        private void PositionLinkViews()
-        {
-            var inputs = (PipelineNode as IPipelineStep)?.Input ?? (PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
-            var outputs = (PipelineNode as IPipelineStep)?.Output ?? new IPipelineOutput[0];
-
-            var linkSize = new Vector(LinkSize);
-
-            var contentArea = GetContentArea();
-
-            var topLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Top);
-            var botLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Bottom);
-            var topRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Top);
-            var botRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Bottom);
-
-            var ins = AlignedBoxesAcrossEdge(inputs.Count, linkSize, topLeft, botLeft, LinkSize + LinkSeparation);
-            var outs = AlignedBoxesAcrossEdge(outputs.Count, linkSize, topRight, botRight, LinkSize + LinkSeparation);
-
-            for (int i = 0; i < inputs.Count; i++)
-            {
-                var rect = ins[i];
-                _inputs[i].Location = rect.Minimum;
-                _inputs[i].Size = rect.Size;
-            }
-
-            for (int i = 0; i < outputs.Count; i++)
-            {
-                var rect = outs[i];
-                _outputs[i].Location = rect.Minimum;
-                _outputs[i].Size = rect.Size;
-            }
-        }
-
-        protected override void OnResize()
-        {
-            base.OnResize();
-
-            PositionLinkViews();
-        }
-
-        public PipelineNodeLinkView[] GetLinkViews()
-        {
-            return GetInputViews().Concat(GetOutputViews()).ToArray();
-        }
-
-        public PipelineNodeLinkView[] GetInputViews()
-        {
-            return _inputs.ToArray();
-        }
-
-        public PipelineNodeLinkView[] GetOutputViews()
-        {
-            return _outputs.ToArray();
         }
         
+        public PipelineNodeLinkView[] GetLinkViews()
+        {
+            return InputViews.Concat(OutputViews).ToArray();
+        }
+
         /// <summary>
         /// Returns the rectangle that represents the title area for this step view.
         /// 
@@ -248,58 +171,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public AABB GetBodyTextArea()
         {
-            if(BodyText == null)
-                return AABB.Empty;
-            
-            var content = GetContentArea().Inset(_bodyTextInset);
-            if (_inputs.Count > 0)
-            {
-                content = content.Inset(new InsetBounds(LinkSize, 0, 0, 0));
-            }
-            if (_outputs.Count > 0)
-            {
-                content = content.Inset(new InsetBounds(0, 0, 0, LinkSize));
-            }
-
-            return content;
-        }
-
-        private static AABB[] AlignedBoxesAcrossEdge(int count, Vector size, Vector edgeStart, Vector edgeEnd, float separation)
-        {
-            if (count <= 0)
-                return new AABB[0];
-
-            var output = new AABB[count];
-            
-            var mid = (edgeStart + edgeEnd) / 2;
-            var norm = (edgeEnd - edgeStart).Normalized();
-
-            float total = separation * (count - 1);
-            var offset = mid - norm * (total / 2.0f);
-
-            for (int i = 0; i < count; i++)
-            {
-                var point = offset + norm * (separation * i);
-
-                // Re-center rect
-                var rect = new AABB(point, point + size);
-                rect = rect.OffsetBy(-rect.Width / 2, -rect.Height / 2);
-
-                output[i] = rect;
-            }
-
-            return output;
-        }
-
-        /// <summary>
-        /// Gets the default color for the given implementation instance of IPipelineStep.
-        /// </summary>
-        public static Color DefaultColorForPipelineStep(IPipelineNode step)
-        {
-            if (step is SpriteSheetGenerationPipelineStep)
-                return Color.Beige;
-
-            return Color.White;
+            return BodyTextArea;
         }
 
         public bool Equals(PipelineNodeView other)
@@ -318,6 +190,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+        
+        /// <summary>
+        /// Gets the default color for the given implementation instance of IPipelineStep.
+        /// </summary>
+        public static Color DefaultColorForPipelineStep(IPipelineNode step)
+        {
+            if (step is SpriteSheetGenerationPipelineStep)
+                return Color.Beige;
+
+            return Color.White;
         }
     }
 }

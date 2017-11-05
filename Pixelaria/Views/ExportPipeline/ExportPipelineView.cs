@@ -184,21 +184,37 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void AddPipelineNode([NotNull] IPipelineNode node)
         {
+            var container = exportPipelineControl.PipelineContainer;
+
+            // Rename bitmap preview steps w/ numbers so they are easily identifiable
+            if (node is BitmapPreviewPipelineStep bitmapPreview)
+            {
+                bool HasPreviewWithName(string name)
+                {
+                    return container.Nodes.OfType<BitmapPreviewPipelineStep>().Any(n => n.Name == name);
+                }
+
+                int count =
+                    container.Nodes.OfType<BitmapPreviewPipelineStep>().Count() + 1;
+                
+                // Ensure unique names
+                while (HasPreviewWithName($"Bitmap Preview #{count}"))
+                    count += 1;
+
+                bitmapPreview.Name = $"Bitmap Preview #{count}";
+            }
+
             var view = new PipelineNodeView(node)
             {
                 Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, exportPipelineControl.D2DRenderer.ImageResources)
             };
-            
-            exportPipelineControl.PipelineContainer.AddNodeView(view);
-            exportPipelineControl.PipelineContainer.AutosizeNode(view);
+
+            container.AddNodeView(view);
+            container.AutosizeNode(view);
             
             // Automatically adjust view to be on center of view port
             var center = exportPipelineControl.Bounds.Center();
-
-            var centerCont =
-                exportPipelineControl
-                    .PipelineContainer
-                    .ContentsView.ConvertFrom(center, null);
+            var centerCont = container.ContentsView.ConvertFrom(center, null);
 
             view.Location = centerCont - view.Size / 2;
         }
@@ -702,7 +718,7 @@ namespace Pixelaria.Views.ExportPipeline
                     state.D2DRenderTarget.DrawRectangle(bounds, brush);
                 }
 
-                y += size.Y - 5;
+                y += size.Y + 5;
             }
         }
     }

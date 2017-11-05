@@ -45,7 +45,7 @@ namespace Pixelaria.ExportPipeline
             var specs = new List<PipelineNodeSpec>
             {
                 PipelineNodeSpec.Of<BitmapPreviewPipelineStep>("Image Inspection"),
-
+                PipelineNodeSpec.Of<SinkPipelineStep>("Pipeline Sink"),
                 PipelineNodeSpec.Of<AnimationJoinerStep>("Animations Joiner"),
                 PipelineNodeSpec.Of<SpriteSheetGenerationPipelineStep>("Sprite Sheet Generation"),
                 PipelineNodeSpec.Of<TransparencyFilterPipelineStep>("Transparency Filter"),

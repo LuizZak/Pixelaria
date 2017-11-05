@@ -145,7 +145,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             }
 
             // Append connection count, if available
-            int count = container.GetLinksConnectedTo(linkView).Count;
+            int count = container.GetLinksConnectedTo(linkView).Count();
             if (count > 0)
             {
                 labelText.Append("\n");

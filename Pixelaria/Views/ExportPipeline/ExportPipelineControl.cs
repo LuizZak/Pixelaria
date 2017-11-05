@@ -55,6 +55,11 @@ namespace Pixelaria.Views.ExportPipeline
         public IDirect2DRenderer D2DRenderer => _d2DRenderer;
 
         public IPipelineContainer PipelineContainer => _container;
+
+        /// <summary>
+        /// Gets or sets the sizer to apply to pipeline node views.
+        /// </summary>
+        public IPipelineNodeViewSizer PipelineNodeViewSizer { get; set; } = new PipelineNodeViewSizer();
         
         public ExportPipelineControl()
         {
@@ -128,12 +133,12 @@ namespace Pixelaria.Views.ExportPipeline
             if (!Visible)
                 return;
 
-            if (!InvokeRequired)
+            if (InvokeRequired)
+                return;
+
+            foreach (var feature in _features)
             {
-                foreach (var feature in _features)
-                {
-                    feature.OnFixedFrame(e);
-                }
+                feature.OnFixedFrame(e);
             }
         }
 
@@ -371,8 +376,19 @@ namespace Pixelaria.Views.ExportPipeline
             /// Subviews on this view are shown over <see cref="ContentsView"/>.
             /// </summary>
             BaseView UiContainerView { get; }
-
+            
+            /// <summary>
+            /// Gets an array of all visible node views.
+            /// 
+            /// Each node from <see cref="Nodes"/> has a matching node view contained here.
+            /// Ordering between the two arrays is not guaranteed.
+            /// </summary>
             PipelineNodeView[] NodeViews { get; }
+
+            /// <summary>
+            /// Gets an array of all nodes from this container
+            /// </summary>
+            IPipelineNode[] Nodes { get; }
 
             /// <summary>
             /// Called when a node has been added to this container
@@ -483,7 +499,7 @@ namespace Pixelaria.Views.ExportPipeline
             /// <summary>
             /// Returns all pipeline node link views that are connected to the given link views.
             /// </summary>
-            IReadOnlyList<PipelineNodeLinkView> GetLinksConnectedTo([NotNull] PipelineNodeLinkView source);
+            IEnumerable<PipelineNodeLinkView> GetLinksConnectedTo([NotNull] PipelineNodeLinkView source);
 
             /// <summary>
             /// Retrieves the view that represents the given pipeline node within this container
@@ -608,6 +624,7 @@ namespace Pixelaria.Views.ExportPipeline
             public BaseView UiContainerView { get; } = new BaseView();
 
             public PipelineNodeView[] NodeViews => _nodeViews.ToArray();
+            public IPipelineNode[] Nodes => _nodeViews.Select(n => n.PipelineNode).ToArray();
             
             public InternalPipelineContainer(ExportPipelineControl control)
             {
@@ -942,23 +959,17 @@ namespace Pixelaria.Views.ExportPipeline
             /// <summary>
             /// Returns all pipeline node link views that are connected to the given link views.
             /// </summary>
-            public IReadOnlyList<PipelineNodeLinkView> GetLinksConnectedTo(PipelineNodeLinkView source)
+            public IEnumerable<PipelineNodeLinkView> GetLinksConnectedTo(PipelineNodeLinkView source)
             {
-                var connections = new List<PipelineNodeLinkView>();
+                return
+                    _connectionViews.Select(connectionView =>
+                        {
+                            if (Equals(connectionView.Start, source))
+                                return connectionView.End;
 
-                foreach (var connectionView in _connectionViews)
-                {
-                    if (Equals(connectionView.Start, source))
-                    {
-                        connections.Add(connectionView.End);
-                    }
-                    else if (Equals(connectionView.End, source))
-                    {
-                        connections.Add(connectionView.Start);
-                    }
-                }
-
-                return connections;
+                            return Equals(connectionView.End, source) ? connectionView.Start : null;
+                        }
+                    ).Where(v => v != null);
             }
 
             /// <summary>
@@ -1018,9 +1029,9 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 var con = new List<(PipelineNodeLinkView from, PipelineNodeLinkView to)>();
 
-                foreach (var linkFrom in from.GetOutputViews())
+                foreach (var linkFrom in @from.OutputViews)
                 {
-                    foreach (var linkTo in to.GetInputViews())
+                    foreach (var linkTo in to.InputViews)
                     {
                         if(AreConnected(linkFrom, linkTo))
                             con.Add((linkFrom, linkTo));
@@ -1076,9 +1087,9 @@ namespace Pixelaria.Views.ExportPipeline
                     .Select(view =>
                         PotentialLinkViewForLinking(view, position)
                     ).Select(found =>
+                        // Remove links that where part of the input set.
                         linkViews.Contains(found) ? null : found
-                    ) // Remove links that where part of the input set.
-                    .ToArray();
+                    ).ToArray();
             }
 
             [CanBeNull]
@@ -1150,13 +1161,13 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 foreach (var view in _nodeViews)
                 {
-                    view.AutoSize(_control.D2DRenderer);
+                    _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer);
                 }
             }
 
             public void AutosizeNode(PipelineNodeView view)
             {
-                view.AutoSize(_control.D2DRenderer);
+                _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer);
             }
 
             public void PerformAction(IExportPipelineAction action)
@@ -1435,21 +1446,21 @@ namespace Pixelaria.Views.ExportPipeline
         public override void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
             ref PipelineStepViewLinkState state)
         {
-            if (!_container.GetLinksConnectedTo(link).Any())
-            {
-                state.FillColor = Color.Transparent;
-                state.StrokeColor = Color.Gray;
-            }
+            if (_container.GetLinksConnectedTo(link).Any())
+                return;
+
+            state.FillColor = Color.Transparent;
+            state.StrokeColor = Color.Gray;
         }
 
         public override void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
             ref PipelineStepViewLinkState state)
         {
-            if (!_container.GetLinksConnectedTo(link).Any())
-            {
-                state.FillColor = Color.Transparent;
-                state.StrokeColor = Color.Gray;
-            }
+            if (_container.GetLinksConnectedTo(link).Any())
+                return;
+
+            state.FillColor = Color.Transparent;
+            state.StrokeColor = Color.Gray;
         }
     }
 

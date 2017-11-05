@@ -329,8 +329,8 @@ namespace Pixelaria.Views.ExportPipeline
                 }
                     
                 // Draw in-going and out-going links
-                var inLinks = nodeView.GetInputViews();
-                var outLinks = nodeView.GetOutputViews();
+                var inLinks = nodeView.InputViews;
+                var outLinks = nodeView.OutputViews;
 
                 // Draw inputs
                 foreach (var link in inLinks)
