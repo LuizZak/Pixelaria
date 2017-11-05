@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 
@@ -28,7 +29,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// A view for a link of a pipeline step view
     /// </summary>
-    internal class PipelineNodeLinkView : BaseView
+    internal sealed class PipelineNodeLinkView : BaseView
     {
         /// <summary>
         /// A static pipeline output connected to this node link, if available.
@@ -50,9 +51,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         // ReSharper disable once AnnotateCanBeNullTypeMember
         public PipelineNodeView NodeView => (PipelineNodeView)Parent;
 
-        public PipelineNodeLinkView(IPipelineNodeLink nodeLink)
+        /// <summary>
+        /// Gets a label displayed alongside this node link view on the parent
+        /// node view's body
+        /// </summary>
+        public LabelView LinkLabel { get; } = new LabelView();
+
+        public PipelineNodeLinkView([NotNull] IPipelineNodeLink nodeLink)
         {
             NodeLink = nodeLink;
+            LinkLabel.Text = nodeLink.Name;
+            LinkLabel.StrokeWidth = 0;
+            LinkLabel.TextColor = Color.Black;
+
+            AddChild(LinkLabel);
         }
     }
 }

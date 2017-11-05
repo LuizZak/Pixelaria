@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
@@ -42,38 +43,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         
         public void AutoSize(PipelineNodeView nodeView, ILabelViewSizeProvider sizeProvider)
         {
-            var nameSize = sizeProvider.CalculateTextSize(nodeView.Name, nodeView.Font);
-            
-            // Calculate link size
-            int maxLinkCount = Math.Max(nodeView.InputViews.Count, nodeView.OutputViews.Count);
-            float vertLinkSize = maxLinkCount * (LinkSize + LinkSeparation) + LinkPadding;
+            // Calculate proper label size for the links
+            ConfigureLinkViewLabels(nodeView, sizeProvider);
 
-            if (nodeView.Icon != null)
-            {
-                nameSize.Width += nodeView.Icon.Value.Width + 5;
-                nameSize.Height = Math.Max(nodeView.Icon.Value.Height + 5, nameSize.Height);
-            }
-
-            // Measure text from node, if available
-            var bodySize = new Vector();
-            string bodyText = nodeView.BodyText;
-            if (!string.IsNullOrEmpty(bodyText))
-            {
-                bodySize = sizeProvider.CalculateTextSize(bodyText, nodeView.Font) +
-                           new Vector(_bodyTextInset.Left + _bodyTextInset.Right,
-                               _bodyTextInset.Top + _bodyTextInset.Bottom);
-
-                if (nodeView.InputViews.Count > 0)
-                    bodySize += new Vector(LinkSize, 0);
-
-                if (nodeView.OutputViews.Count > 0)
-                    bodySize += new Vector(LinkSize, 0);
-            }
+            var nameSize = TitleSize(nodeView, sizeProvider);
+            var bodyTextSize = BodyTextSize(nodeView, sizeProvider);
 
             const float minBodySize = 10;
 
-            nodeView.Size = new Vector(Math.Max(80, Math.Max(bodySize.X, nameSize.Width + 8)),
-                Math.Max(minBodySize, nameSize.Height + Math.Max(bodySize.Y, vertLinkSize)));
+            // Calculate link size
+            int maxLinkCount = Math.Max(nodeView.InputViews.Count, nodeView.OutputViews.Count);
+            float vertLinkSize = maxLinkCount * (LinkSize + LinkSeparation) + LinkPadding;
+            float horLinkSize = MinWidthForLinks(nodeView);
+
+            nodeView.Size = new Vector(Math.Max(80, Math.Max(bodyTextSize.X + horLinkSize, nameSize.X + 8)),
+                Math.Max(minBodySize, nameSize.Y + Math.Max(bodyTextSize.Y, vertLinkSize)));
 
             nodeView.BodyTextArea = GetBodyTextArea(nodeView);
 
@@ -98,6 +82,19 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return content;
         }
 
+        public static void ConfigureLinkViewLabels([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        {
+            foreach (var link in nodeView.InputViews)
+            {
+                link.LinkLabel.Size = sizeProvider.CalculateTextSize(link.LinkLabel);
+            }
+
+            foreach (var link in nodeView.OutputViews)
+            {
+                link.LinkLabel.Size = sizeProvider.CalculateTextSize(link.LinkLabel);
+            }
+        }
+
         public static void PositionLinkViews([NotNull] PipelineNodeView nodeView)
         {
             var inputs = (nodeView.PipelineNode as IPipelineStep)?.Input ?? (nodeView.PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
@@ -118,18 +115,69 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             for (int i = 0; i < inputs.Count; i++)
             {
                 var rect = ins[i];
-                
-                nodeView.InputViews[i].Location = rect.Minimum;
-                nodeView.InputViews[i].Size = rect.Size;
+                var link = nodeView.InputViews[i];
+
+                link.Location = rect.Minimum;
+                link.Size = rect.Size;
+
+                link.LinkLabel.Location = new Vector(link.Size.X + 5, link.Size.Y / 2 - link.LinkLabel.Size.Y / 2);
             }
 
             for (int i = 0; i < outputs.Count; i++)
             {
                 var rect = outs[i];
+                var link = nodeView.OutputViews[i];
 
-                nodeView.OutputViews[i].Location = rect.Minimum;
-                nodeView.OutputViews[i].Size = rect.Size;
+                link.Location = rect.Minimum;
+                link.Size = rect.Size;
+
+                link.LinkLabel.Location = new Vector(-link.LinkLabel.Size.X - 5, link.Size.Y / 2 - link.LinkLabel.Size.Y / 2);
             }
+        }
+
+        private static Vector TitleSize([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        {
+            // Calculate title size
+            var nameSize = sizeProvider.CalculateTextSize(nodeView.Name, nodeView.Font);
+
+            if (nodeView.Icon == null)
+                return nameSize;
+
+            nameSize.Width += nodeView.Icon.Value.Width + 5;
+            nameSize.Height = Math.Max(nodeView.Icon.Value.Height + 5, nameSize.Height);
+
+            return nameSize;
+        }
+
+        private Vector BodyTextSize([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        {
+            var bodySize = new Vector();
+            string bodyText = nodeView.BodyText;
+            if (!string.IsNullOrEmpty(bodyText))
+            {
+                bodySize = sizeProvider.CalculateTextSize(bodyText, nodeView.Font) +
+                           new Vector(_bodyTextInset.Left + _bodyTextInset.Right,
+                               _bodyTextInset.Top + _bodyTextInset.Bottom);
+
+                if (nodeView.InputViews.Count > 0)
+                    bodySize += new Vector(LinkSize, 0);
+
+                if (nodeView.OutputViews.Count > 0)
+                    bodySize += new Vector(LinkSize, 0);
+            }
+
+            return bodySize;
+        }
+
+        private static float MinWidthForLinks([NotNull] PipelineNodeView nodeView)
+        {
+            float inputWidth =
+                nodeView.InputViews.Select(linkView => LinkSize + 13 + linkView.LinkLabel.Width).Concat(new float[] {0}).Max();
+
+            float outputWidth =
+                nodeView.OutputViews.Select(linkView => LinkSize + 13 + linkView.LinkLabel.Width).Concat(new float[] {0}).Max();
+
+            return inputWidth + outputWidth;
         }
     }
 }

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
@@ -192,10 +193,10 @@ namespace Pixelaria.Utils
         {
             float from = 1 - factor;
 
-            int a = (int)(blendAlpha ? color.A * from + fadeColor.A * factor : color.A);
-            int r = (int)(color.R * from + fadeColor.R * factor);
-            int g = (int)(color.G * from + fadeColor.G * factor);
-            int b = (int)(color.B * from + fadeColor.B * factor);
+            int a = (int)(blendAlpha ? color.A * @from + fadeColor.A * factor : color.A);
+            int r = (int)(color.R * @from + fadeColor.R * factor);
+            int g = (int)(color.G * @from + fadeColor.G * factor);
+            int b = (int)(color.B * @from + fadeColor.B * factor);
 	        
 	        return Color.FromArgb(Math.Abs(a), Math.Abs(r), Math.Abs(g), Math.Abs(b));
         }
@@ -419,6 +420,27 @@ namespace Pixelaria.Utils
             }
 
             return new RectangleF(minX, minY, maxX - minX, maxY - minY);
+        }
+
+        /// <summary>
+        /// Converts a PascalCase string into a Title Case sentence string.
+        /// 
+        /// E.g.:
+        /// 
+        /// SampleCase          -> Sample Case
+        /// PerformHTTPRequest  -> Perform HTTP Request
+        /// AnotherSample       -> Anoter Sample
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [NotNull]
+        public static string DePascalCase([NotNull] string name)
+        {
+            string replace = Regex.Replace(name, "(.)([A-Z][a-z]+)", "$1 $2");
+            replace = Regex.Replace(replace, "([a-z0-9])([A-Z])", "$1 $2");
+
+            return replace;
         }
     }
 }

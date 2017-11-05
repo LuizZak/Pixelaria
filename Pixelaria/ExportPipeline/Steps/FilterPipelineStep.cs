@@ -33,6 +33,7 @@ using Pixelaria.ExportPipeline.Inputs.Abstract;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps.Abstract;
 using Pixelaria.Filters;
+using Pixelaria.Utils;
 
 namespace Pixelaria.ExportPipeline.Steps
 {
@@ -69,6 +70,7 @@ namespace Pixelaria.ExportPipeline.Steps
             for (int i = 0; i < props.Length; i++)
             {
                 var propertyInfo = props[i];
+                string name = Utilities.DePascalCase(propertyInfo.Name);
 
                 var pipelineInput = typeof(GenericPipelineInput<>).MakeGenericType(propertyInfo.PropertyType);
                 var constructor =
@@ -76,7 +78,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
                 Debug.Assert(constructor != null, "constructor != null");
 
-                inputs[i + 1] = (IPipelineInput)constructor.Invoke(new object[]{this, propertyInfo.Name});
+                inputs[i + 1] = (IPipelineInput)constructor.Invoke(new object[]{this, name });
             }
 
             Input = inputs;
@@ -122,7 +124,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public TransparencyFilterPipelineStep()
         {
-            var alphaInput = new GenericPipelineInput<float>(this, "Transparency factor");
+            var alphaInput = new GenericPipelineInput<float>(this, "Alpha");
             var bitmapInput = new FilterBitmapInput(this);
 
             Input = new IPipelineInput[]
@@ -150,7 +152,7 @@ namespace Pixelaria.ExportPipeline.Steps
                         return bit;
                     });
 
-            Output = new IPipelineOutput[] { new PipelineBitmapOutput(this, source, "Filtered Bitmap") };
+            Output = new IPipelineOutput[] { new PipelineBitmapOutput(this, source, "Bitmap") };
         }
 
         /// <summary>

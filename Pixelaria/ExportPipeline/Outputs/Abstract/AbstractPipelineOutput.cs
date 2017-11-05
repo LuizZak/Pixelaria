@@ -40,7 +40,7 @@ namespace Pixelaria.ExportPipeline.Outputs.Abstract
         [NotNull]
         public IObservable<T> Source;
 
-        public string Name { get; protected set; } = "";
+        public string Name { get; set; } = "";
         public IPipelineNode Node { get; }
         public Type DataType => typeof(T);
 

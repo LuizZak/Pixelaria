@@ -451,6 +451,12 @@ namespace Pixelaria.Views.ExportPipeline
             void AttemptSelect(BaseView view);
 
             /// <summary>
+            /// Returns whether a given base view subclass is recognized as a selectable entity type
+            /// by <see cref="AttemptSelect"/>.
+            /// </summary>
+            bool IsSelectable(BaseView view);
+
+            /// <summary>
             /// Returns if two link views are connected
             /// </summary>
             bool AreConnected([NotNull] PipelineNodeLinkView start, [NotNull] PipelineNodeLinkView end);
@@ -700,6 +706,16 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     SelectConnection(connectionView.Connection);
                 }
+            }
+
+            public bool IsSelectable(BaseView view)
+            {
+                if (view is PipelineNodeView)
+                    return true;
+                if (view is PipelineNodeLinkView)
+                    return true;
+
+                return view is PipelineNodeConnectionLineView;
             }
 
             public void SelectNode(IPipelineNode node)
@@ -1351,86 +1367,6 @@ namespace Pixelaria.Views.ExportPipeline
             action();
 
             ReleaseExclusiveControl();
-        }
-    }
-
-    /// <summary>
-    /// Decorator that modifies rendering of objects in the export pipeline view.
-    /// </summary>
-    internal interface IRenderingDecorator
-    {
-        void DecoratePipelineStep([NotNull] PipelineNodeView nodeView, ref PipelineStepViewState state);
-
-        void DecoratePipelineStepInput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
-            ref PipelineStepViewLinkState state);
-
-        void DecoratePipelineStepOutput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
-            ref PipelineStepViewLinkState state);
-
-        void DecorateBezierPathView([NotNull] BezierPathView pathView, ref BezierPathViewState state);
-
-        void DecorateLabelView([NotNull] LabelView pathView, ref LabelViewState state);
-    }
-
-    internal struct PipelineStepViewState
-    {
-        public int StrokeWidth { get; set; }
-        public Color FillColor { get; set; }
-        public Color TitleFillColor { get; set; }
-        public Color StrokeColor { get; set; }
-        public Color TitleFontColor { get; set; }
-        public Color BodyFontColor { get; set; }
-    }
-
-    internal struct PipelineStepViewLinkState
-    {
-        public int StrokeWidth { get; set; }
-        public Color FillColor { get; set; }
-        public Color StrokeColor { get; set; }
-    }
-
-    internal struct BezierPathViewState
-    {
-        public int StrokeWidth { get; set; }
-        public Color StrokeColor { get; set; }
-        public Color FillColor { get; set; }
-    }
-
-    internal struct LabelViewState
-    {
-        public int StrokeWidth { get; set; }
-        public Color StrokeColor { get; set; }
-        public Color TextColor { get; set; }
-        public Color BackgroundColor { get; set; }
-    }
-
-    internal abstract class AbstractRenderingDecorator : IRenderingDecorator
-    {
-        public virtual void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
-        {
-
-        }
-
-        public virtual void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
-            ref PipelineStepViewLinkState state)
-        {
-
-        }
-
-        public virtual void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
-            ref PipelineStepViewLinkState state)
-        {
-
-        }
-
-        public virtual void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
-        {
-
-        }
-
-        public virtual void DecorateLabelView(LabelView pathView, ref LabelViewState state)
-        {
-
         }
     }
 

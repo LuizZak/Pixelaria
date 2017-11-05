@@ -37,7 +37,7 @@ namespace Pixelaria.ExportPipeline.Inputs.Abstract
     {
         private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
 
-        public string Name { get; protected set; } = "";
+        public string Name { get; set; } = "";
         public IPipelineNode Node { get; }
         public Type[] DataTypes => new[] { typeof(T) };
         public IPipelineOutput[] Connections => _connections.ToArray();

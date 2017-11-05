@@ -20,26 +20,23 @@
     base directory of this project.
 */
 
-using System;
-using System.Drawing;
-using JetBrains.Annotations;
-using Pixelaria.ExportPipeline.Outputs.Abstract;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Pixelaria.ExportPipeline.Outputs
+namespace PixelariaTests.Tests.PaintOperations
 {
     /// <summary>
-    /// Output that outputs bitmaps
+    /// Tests the PlottingPaintUndoGenerator class and related components
     /// </summary>
-    public class PipelineBitmapOutput : AbstractPipelineOutput<Bitmap>
+    [TestClass]
+    public class PlottingPaintUndoGeneratorTests
     {
-        public PipelineBitmapOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Bitmap> source, [NotNull] string name = "Bitmap") : base(step, source)
+        /// <summary>
+        /// Tests the registering of the plotted pixels on the underlying
+        /// </summary>
+        [TestMethod]
+        public void TestPlottingRegistering()
         {
-            Name = name;
-        }
-
-        public override IPipelineMetadata GetMetadata()
-        {
-            return PipelineMetadata.Empty;
+            
         }
     }
 }

@@ -125,7 +125,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 // No selection: find view under mouse and use that instead.
                 var position = contentsView.ConvertFrom(mousePosition, null);
 
-                var viewUnder = contentsView.ViewUnder(position, new Vector(5));
+                var viewUnder = contentsView.ViewUnder(position, new Vector(5), view => view is PipelineNodeView || view is PipelineNodeLinkView);
                 if (viewUnder is PipelineNodeView nodeView)
                 {
                     var operation = new NodeDragOperation(container, new[] { nodeView }, mousePosition);

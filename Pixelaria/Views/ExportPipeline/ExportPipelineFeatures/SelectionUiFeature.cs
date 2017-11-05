@@ -129,7 +129,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             _mouseDown = e.Location;
 
-            var closestView = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5));
+            var closestView = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
             var isInSelection = container.SelectionModel.Contains(closestView);
 
             if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift) && !isInSelection)
@@ -195,7 +195,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             else if (e.Button == MouseButtons.None)
             {
                 // Check hovering a link view
-                var closest = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5));
+                var closest = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
 
                 if (closest != null)
                 {
@@ -228,7 +228,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 {
                     if (_mouseDown.Distance(e.Location) < 3)
                     {
-                        var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5));
+                        var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5), container.IsSelectable);
                         if (view != null)
                             container.AttemptSelect(view);
                     }
@@ -251,7 +251,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 if (_mouseDown.Distance(e.Location) < 3)
                 {
-                    var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5));
+                    var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5), container.IsSelectable);
                     if (view != null)
                         container.AttemptSelect(view);
                 }

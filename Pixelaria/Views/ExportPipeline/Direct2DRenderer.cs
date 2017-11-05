@@ -27,6 +27,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using SharpDX;
@@ -335,64 +336,59 @@ namespace Pixelaria.Views.ExportPipeline
                 // Draw inputs
                 foreach (var link in inLinks)
                 {
-                    state.PushingTransform(() =>
-                    {
-                        var linkState = new PipelineStepViewLinkState
-                        {
-                            FillColor = Color.White,
-                            StrokeColor = link.StrokeColor,
-                            StrokeWidth = link.StrokeWidth
-                        };
-
-                        // Decorate
-                        foreach (var decorator in decorators)
-                            decorator.DecoratePipelineStepInput(nodeView, link, ref linkState);
-                            
-                        state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
-
-                        var rectangle = link.Bounds;
-
-                        using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                        using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                        {
-                            var ellipse = new Ellipse(rectangle.Center, rectangle.Width / 2, rectangle.Width / 2);
-
-                            state.D2DRenderTarget.FillEllipse(ellipse, brush);
-                            state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
-                        }
-                    });
+                    RenderNodeLinkView(state, link, decorators);
                 }
 
                 // Draw outputs
                 foreach (var link in outLinks)
                 {
-                    state.PushingTransform(() =>
-                    {
-                        var linkState = new PipelineStepViewLinkState
-                        {
-                            FillColor = Color.White,
-                            StrokeColor = link.StrokeColor,
-                            StrokeWidth = link.StrokeWidth
-                        };
-
-                        // Decorate
-                        foreach (var decorator in decorators)
-                            decorator.DecoratePipelineStepOutput(nodeView, link, ref linkState);
-                            
-                        state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
-
-                        var rectangle = link.Bounds;
-                            
-                        using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                        using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                        {
-                            var ellipse = new Ellipse(rectangle.Center, rectangle.Width / 2, rectangle.Width / 2);
-
-                            state.D2DRenderTarget.FillEllipse(ellipse, brush);
-                            state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
-                        }
-                    });
+                    RenderNodeLinkView(state, link, decorators);
                 }
+            });
+        }
+
+        private void RenderNodeLinkView([NotNull] Direct2DRenderingState state, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
+        {
+            state.PushingTransform(() =>
+            {
+                var visibleArea =
+                    link.GetFullBounds().Corners
+                        .Transform(link.GetAbsoluteTransform()).Area();
+
+                if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
+                    return;
+
+                var linkState = new PipelineStepViewLinkState
+                {
+                    FillColor = Color.White,
+                    StrokeColor = link.StrokeColor,
+                    StrokeWidth = link.StrokeWidth
+                };
+
+                // Decorate
+                foreach (var decorator in decorators)
+                {
+                    if (link.NodeLink is IPipelineInput)
+                        decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
+                    else
+                        decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
+                }
+
+                state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
+
+                var rectangle = link.Bounds;
+
+                using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
+                using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
+                {
+                    var ellipse = new Ellipse(rectangle.Center, rectangle.Width / 2, rectangle.Width / 2);
+
+                    state.D2DRenderTarget.FillEllipse(ellipse, brush);
+                    state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
+                }
+
+                // Draw label view
+                RenderLabelView(link.LinkLabel, state, decorators);
             });
         }
 
@@ -501,12 +497,16 @@ namespace Pixelaria.Views.ExportPipeline
                     Rect = new RawRectangleF(0, 0, labelView.Bounds.Width, labelView.Bounds.Height)
                 };
 
-                using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
                 using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.BackgroundColor.ToColor4()))
                 {
                     renderingState.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
-                    renderingState.D2DRenderTarget.DrawRoundedRectangle(roundedRect, pen);
                 }
+                
+                if(state.StrokeWidth > 0)
+                    using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
+                    {
+                        renderingState.D2DRenderTarget.DrawRoundedRectangle(roundedRect, pen, state.StrokeWidth);
+                    }
 
                 var textBounds = labelView.TextBounds;
                     
@@ -640,7 +640,7 @@ namespace Pixelaria.Views.ExportPipeline
                 }
             });
         }
-            
+        
         #region LabelView Size Provider
 
         public SizeF CalculateTextSize(LabelView labelView)
@@ -837,7 +837,87 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
     }
+    
+    /// <summary>
+    /// Decorator that modifies rendering of objects in the export pipeline view.
+    /// </summary>
+    internal interface IRenderingDecorator
+    {
+        void DecoratePipelineStep([NotNull] PipelineNodeView nodeView, ref PipelineStepViewState state);
 
+        void DecoratePipelineStepInput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
+            ref PipelineStepViewLinkState state);
+
+        void DecoratePipelineStepOutput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
+            ref PipelineStepViewLinkState state);
+
+        void DecorateBezierPathView([NotNull] BezierPathView pathView, ref BezierPathViewState state);
+
+        void DecorateLabelView([NotNull] LabelView pathView, ref LabelViewState state);
+    }
+
+    internal struct PipelineStepViewState
+    {
+        public int StrokeWidth { get; set; }
+        public Color FillColor { get; set; }
+        public Color TitleFillColor { get; set; }
+        public Color StrokeColor { get; set; }
+        public Color TitleFontColor { get; set; }
+        public Color BodyFontColor { get; set; }
+    }
+
+    internal struct PipelineStepViewLinkState
+    {
+        public int StrokeWidth { get; set; }
+        public Color FillColor { get; set; }
+        public Color StrokeColor { get; set; }
+    }
+
+    internal struct BezierPathViewState
+    {
+        public int StrokeWidth { get; set; }
+        public Color StrokeColor { get; set; }
+        public Color FillColor { get; set; }
+    }
+
+    internal struct LabelViewState
+    {
+        public int StrokeWidth { get; set; }
+        public Color StrokeColor { get; set; }
+        public Color TextColor { get; set; }
+        public Color BackgroundColor { get; set; }
+    }
+
+    internal abstract class AbstractRenderingDecorator : IRenderingDecorator
+    {
+        public virtual void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
+        {
+
+        }
+
+        public virtual void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+            ref PipelineStepViewLinkState state)
+        {
+
+        }
+
+        public virtual void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+            ref PipelineStepViewLinkState state)
+        {
+
+        }
+
+        public virtual void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
+        {
+
+        }
+
+        public virtual void DecorateLabelView(LabelView pathView, ref LabelViewState state)
+        {
+
+        }
+    }
+    
     internal static class DirectXHelpers
     {
         public static Color4 ToColor4(this Color color)

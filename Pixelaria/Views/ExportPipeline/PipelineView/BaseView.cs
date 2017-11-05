@@ -124,6 +124,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         }
 
         /// <summary>
+        /// This view's width size, not counting children bounds.
+        /// 
+        /// Shortcut for <see cref="Size"/>'s <see cref="Vector.X"/>
+        /// </summary>
+        public float Width => Size.X;
+
+        /// <summary>
+        /// This view's local height size, not counting children bounds.
+        /// 
+        /// Shortcut for <see cref="Size"/>'s <see cref="Vector.Y"/>
+        /// </summary>
+        public float Height => Size.Y;
+
+        /// <summary>
         /// Relative scale of this base view
         /// </summary>
         public Vector Scale { get; set; } = Vector.Unit;

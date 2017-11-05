@@ -53,7 +53,11 @@ namespace Pixelaria.ExportPipeline.Steps
             var exporter = new DefaultPngExporter();
 
             AnimationsInput = new AnimationsInput(this);
-            SheetSettingsInput = new SheetSettingsInput(this);
+            SheetSettingsInput = new SheetSettingsInput(this)
+            {
+                Name = "Settings"
+            };
+
             Input = new IPipelineInput[]
             {
                 AnimationsInput,
@@ -74,7 +78,13 @@ namespace Pixelaria.ExportPipeline.Steps
                         return exporter.ExportBundleSheet(provider, cancellation);
                     });
 
-            Output = new[] {new BundleSheetExportOutput(this, source)};
+            Output = new[]
+            {
+                new BundleSheetExportOutput(this, source)
+                {
+                    Name = "Sheet"
+                }
+            };
         }
 
         public override IPipelineMetadata GetMetadata()

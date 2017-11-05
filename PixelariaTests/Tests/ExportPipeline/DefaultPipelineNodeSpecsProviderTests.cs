@@ -20,26 +20,14 @@
     base directory of this project.
 */
 
-using System;
-using System.Drawing;
-using JetBrains.Annotations;
-using Pixelaria.ExportPipeline.Outputs.Abstract;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.Utils;
 
-namespace Pixelaria.ExportPipeline.Outputs
+namespace PixelariaTests.Tests.ExportPipeline
 {
-    /// <summary>
-    /// Output that outputs bitmaps
-    /// </summary>
-    public class PipelineBitmapOutput : AbstractPipelineOutput<Bitmap>
+    [TestClass]
+    public class DefaultPipelineNodeSpecsProviderTests
     {
-        public PipelineBitmapOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Bitmap> source, [NotNull] string name = "Bitmap") : base(step, source)
-        {
-            Name = name;
-        }
-
-        public override IPipelineMetadata GetMetadata()
-        {
-            return PipelineMetadata.Empty;
-        }
+        
     }
 }

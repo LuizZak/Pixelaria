@@ -69,30 +69,31 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="PixelariaTests\Generators\AnimationGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\AnimationSheetGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\BundleGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\FrameGenerator.cs" />
-    <Compile Include="PixelariaTests\Tests\Algorithms\Packers\DefaultTexturePackerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\FrameBoundsMapTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\AnimationSheetTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\AnimationControllerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\BundleTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\SheetExportTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\TextureAtlasTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\FrameTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\FileBlocksTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceHelperTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Filters\FilterPresetTests.cs" />
-    <Compile Include="PixelariaTests\Tests\PaintOperations\PencilPaintOperationTests.cs" />
-    <Compile Include="PixelariaTests\Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\ImageUtilitiesTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\Layouting\LayoutingTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\UtilsTests.cs" />
-    <Compile Include="PixelariaTests\Views\ModelViews\PipelineView\BaseViewTests.cs" />
-    <Compile Include="PixelariaTests\Views\ModelViews\PipelineView\GraphTests.cs" />
+    <Compile Include="Generators\AnimationGenerator.cs" />
+    <Compile Include="Generators\AnimationSheetGenerator.cs" />
+    <Compile Include="Generators\BundleGenerator.cs" />
+    <Compile Include="Generators\FrameGenerator.cs" />
+    <Compile Include="Tests\Algorithms\Packers\DefaultTexturePackerTests.cs" />
+    <Compile Include="Tests\Data\Exports\FrameBoundsMapTests.cs" />
+    <Compile Include="Tests\Data\AnimationSheetTests.cs" />
+    <Compile Include="Tests\Data\AnimationControllerTests.cs" />
+    <Compile Include="Tests\Data\BundleTests.cs" />
+    <Compile Include="Tests\Data\Exports\SheetExportTests.cs" />
+    <Compile Include="Tests\Data\Exports\TextureAtlasTests.cs" />
+    <Compile Include="Tests\Data\FrameTests.cs" />
+    <Compile Include="Tests\Data\Persistence\FileBlocksTests.cs" />
+    <Compile Include="Tests\Data\Persistence\PersistenceHelperTests.cs" />
+    <Compile Include="Tests\Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="Tests\ExportPipeline\DefaultPipelineNodeSpecsProviderTests.cs" />
+    <Compile Include="Tests\Filters\FilterPresetTests.cs" />
+    <Compile Include="Tests\PaintOperations\PencilPaintOperationTests.cs" />
+    <Compile Include="Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
+    <Compile Include="Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
+    <Compile Include="Tests\Utils\ImageUtilitiesTests.cs" />
+    <Compile Include="Tests\Utils\Layouting\LayoutingTests.cs" />
+    <Compile Include="Tests\Utils\UtilsTests.cs" />
+    <Compile Include="Tests\Views\ModelViews\PipelineView\BaseViewTests.cs" />
+    <Compile Include="Tests\Views\ModelViews\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +106,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
