@@ -42,8 +42,8 @@ namespace PixelariaTests.Tests.Data.Persistence
         public void TestImagePersistence()
         {
             // Setup the test
-            Bitmap bitmap1 = FrameGenerator.GenerateRandomBitmap(48, 37, 0);
-            Bitmap bitmap2 = FrameGenerator.GenerateRandomBitmap(12, 45, 0);
+            Bitmap bitmap1 = BitmapGenerator.GenerateRandomBitmap(48, 37, 0);
+            Bitmap bitmap2 = BitmapGenerator.GenerateRandomBitmap(12, 45, 0);
 
             Stream stream = new MemoryStream();
 

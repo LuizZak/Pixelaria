@@ -69,7 +69,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
             var source =
                 animConnections
-                    .WithLatestFrom(settingsConnections.Take(1), (animations, settings) => (animations, settings))
+                    .PxlWithLatestFrom(settingsConnections.Take(1), (animations, settings) => (animations, settings))
                     .ObserveOn(NewThreadScheduler.Default)
                     .SelectMany((tuple, i, cancellation) =>
                     {

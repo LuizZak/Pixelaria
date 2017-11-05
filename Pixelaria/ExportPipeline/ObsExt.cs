@@ -21,25 +21,51 @@
 */
 
 using System;
+using System.IO;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 namespace Pixelaria.ExportPipeline
 {
     // TODO: Test stuff - remove me later
     public static class ObsExt
     {
-        public static IObservable<T> Debug<T>(this IObservable<T> obs)
+        public static IObservable<T> Debug<T>(this IObservable<T> obs, [CallerMemberName] string memberName = "",
+            [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
+            string fileName = Path.GetFileName(sourceFilePath);
+            
+            string sourceLog = $"{fileName} [{memberName}:{sourceLineNumber}] <{typeof(T).Name}>";
+
             return obs.Do(next =>
             {
-                System.Diagnostics.Debug.WriteLine($"OnNext: {next}");
+                Console.WriteLine($@"{sourceLog} OnNext: {next}");
+                System.Diagnostics.Debug.WriteLine($"{sourceLog} OnNext: {next}");
             }, error =>
             {
-                System.Diagnostics.Debug.WriteLine($"OnError: {error}");
+                Console.WriteLine($@"{sourceLog} OnError: {error}");
+                System.Diagnostics.Debug.WriteLine($"{sourceLog} OnError: {error}");
             }, () =>
             {
-                System.Diagnostics.Debug.WriteLine("OnCompleted");
+                Console.WriteLine($@"{sourceLog} OnCompleted");
+                System.Diagnostics.Debug.WriteLine($"{sourceLog} OnCompleted");
             });
+        }
+
+        /// <summary>
+        /// A version of "WithLatestFrom" with a more tradicional and predictable behavior.
+        /// </summary>
+        public static IObservable<TResult> PxlWithLatestFrom<TLeft, TRight, TResult>(this IObservable<TLeft> source, IObservable<TRight> other, [NotNull] Func<TLeft, TRight, TResult> resultSelector)
+        {
+            return
+                source.Publish(os =>
+                {
+                    return
+                        other
+                            .Select(a => os
+                                .Select(b => resultSelector(b, a))).Switch();
+                });
         }
     }
 }

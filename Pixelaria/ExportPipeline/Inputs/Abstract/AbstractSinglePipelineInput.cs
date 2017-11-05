@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reactive.Linq;
 using JetBrains.Annotations;
 
 namespace Pixelaria.ExportPipeline.Inputs.Abstract
@@ -41,31 +40,7 @@ namespace Pixelaria.ExportPipeline.Inputs.Abstract
         public IPipelineNode Node { get; }
         public Type[] DataTypes => new[] { typeof(T) };
         public IPipelineOutput[] Connections => _connections.ToArray();
-
-        /// <summary>
-        /// Returns a one-off observable that fetches the latest value of the Connections
-        /// field everytime it is subscribed to.
-        /// </summary>
-        public IObservable<IPipelineOutput> ConnectionsObservable
-        {
-            get
-            {
-                return Observable.Create<IPipelineOutput>(obs => Connections.ToObservable().Subscribe(obs));
-            }
-        }
-
-        /// <summary>
-        /// Returns an observable sequence that is equal to the flatmap of <see cref="ConnectionsObservable"/>
-        /// filtered by types <see cref="T"/>.
-        /// </summary>
-        public IObservable<T> AnyConnection()
-        {
-            return
-                ConnectionsObservable
-                    .SelectMany(o => o.GetObservable())
-                    .OfType<T>();
-        }
-
+        
         protected AbstractSinglePipelineInput([NotNull] IPipelineNode step)
         {
             Node = step;

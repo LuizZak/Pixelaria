@@ -20,11 +20,6 @@
     base directory of this project.
 */
 
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using FastBitmapLib;
-using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Factories;
@@ -36,11 +31,6 @@ namespace PixelariaTests.Generators
     /// </summary>
     public static class FrameGenerator
     {
-        /// <summary>
-        /// Random number generator used to randomize seeds for image generation when none are provided
-        /// </summary>
-        private static readonly Random SeedRandom = new Random();
-
         /// <summary>
         /// Next available unique ID to use in methods generating frames in this static class
         /// </summary>
@@ -64,77 +54,14 @@ namespace PixelariaTests.Generators
 
             var controller = new FrameController(frame);
 
-            frame.SetFrameBitmap(GenerateRandomBitmap(width, height, seed));
+            frame.SetFrameBitmap(BitmapGenerator.GenerateRandomBitmap(width, height, seed));
 
             for (int i = 1; i < layerCount; i++)
             {
-                controller.CreateLayer(GenerateRandomBitmap(width, height, seed + 1));
+                controller.CreateLayer(BitmapGenerator.GenerateRandomBitmap(width, height, seed + 1));
             }
 
             return frame;
-        }
-
-        /// <summary>
-        /// Generates a frame image with a given set of parameters.
-        /// The seed is used to randomize the frame, and any call with the same width, height and seed will generate the same image
-        /// </summary>
-        /// <param name="width">The width of the image to generate</param>
-        /// <param name="height">The height of the image to generate</param>
-        /// <param name="seed">The seed for the image, used to seed the random number generator that will generate the image contents</param>
-        /// <returns>An image with the passed parameters</returns>
-        public static Bitmap GenerateRandomBitmap(int width, int height, int seed = -1)
-        {
-            if (seed == -1)
-            {
-                seed = SeedRandom.Next();
-            }
-
-            var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-
-            var fastBitmap = new FastBitmap(bitmap);
-            fastBitmap.Lock();
-
-            // Plot the image with random pixels now
-            var r = new Random(seed);
-
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    uint pixelColor = (uint)(r.NextDouble() * 0xFFFFFFFF);
-                    fastBitmap.SetPixel(x, y, pixelColor);
-                }
-            }
-
-            fastBitmap.Unlock();
-
-            return bitmap;
-        }
-
-        /// <summary>
-        /// Generates a bitmap that is guaranteed to be considered different from another bitmap.
-        /// The bitmap retains the original bitmap's size and bitdepth
-        /// </summary>
-        /// <param name="bitmap">A valid Bitmap</param>
-        /// <returns>A new Bitmap, that is considered to be different from the provided bitmap</returns>
-        public static Bitmap GenerateDifferentFrom([NotNull] Bitmap bitmap)
-        {
-            var bit = new Bitmap(bitmap);
-            var c = Color.FromArgb((bitmap.GetPixel(0, 0).ToArgb() + 1) % 0xFFFFFFF);
-
-            bit.SetPixel(0, 0, c);
-
-            return bit;
-        }
-
-        /// <summary>
-        /// Randomizes the contents of this frame's bitmap based on a given seed
-        /// </summary>
-        /// <param name="frame">The frame to randomize</param>
-        /// <param name="seed">The seed to use when randomizing this frame. Leave -1 to use a random seed</param>
-        public static void RandomizeBitmap([NotNull] this FrameController frame, int seed = -1)
-        {
-            frame.SetFrameBitmap(GenerateRandomBitmap(frame.Width, frame.Height, seed));
         }
     }
 

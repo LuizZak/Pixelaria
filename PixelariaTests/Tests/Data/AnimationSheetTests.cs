@@ -43,13 +43,13 @@ namespace PixelariaTests.Tests.Data
 
             // Modify one of the sheet's properties
             var frame = sheet2.Animations[0].Frames[0] as Frame;
-            frame?.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+            frame?.SetFrameBitmap(BitmapGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
             Assert.AreNotEqual(sheet1, sheet2, "After modification of a cloned animation sheet's animation's frame, it must no longer be considered equal to the original");
 
             // Modify one of the sheet's properties
             frame = sheet2.Animations[0].Frames[0] as Frame;
-            frame?.SetFrameBitmap(FrameGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
+            frame?.SetFrameBitmap(BitmapGenerator.GenerateDifferentFrom(sheet1.Animations[0].Frames[0].GetComposedBitmap()));
 
             sheet2.SheetExportSettings = new AnimationSheetExportSettings {ExportJson = !sheet1.SheetExportSettings.ExportJson};
 

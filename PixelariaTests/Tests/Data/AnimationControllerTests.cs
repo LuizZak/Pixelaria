@@ -47,13 +47,13 @@ namespace PixelariaTests.Tests.Data
             Assert.AreEqual(fr1, fr2, "The frames after a Clone() operation must be equal");
 
             // Fill both frames with randomly generated images
-            Bitmap bit = FrameGenerator.GenerateRandomBitmap(64, 64, 0);
+            Bitmap bit = BitmapGenerator.GenerateRandomBitmap(64, 64, 0);
             fr1.SetFrameBitmap(bit);
             fr2.SetFrameBitmap(bit);
             
             Assert.AreEqual(fr1, fr2, "Frames with equal images must return true to .Equals()");
 
-            fr2.SetFrameBitmap(FrameGenerator.GenerateRandomBitmap(64, 64, 1));
+            fr2.SetFrameBitmap(BitmapGenerator.GenerateRandomBitmap(64, 64, 1));
 
             Assert.AreNotEqual(fr1, fr2, "Frames with different images must return false to .Equals()");
         }

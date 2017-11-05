@@ -252,7 +252,7 @@ namespace PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceCopyTransparentOperation()
         {
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             var operation = new PencilPaintOperation(target, true)
             {
@@ -289,7 +289,7 @@ namespace PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceOverTransparentOperation()
         {
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             var operation = new PencilPaintOperation(target)
             {
@@ -327,7 +327,7 @@ namespace PixelariaTests.Tests.PaintOperations
         [TestMethod]
         public void TestSourceOverAlphaAccumulationOffTransparentOperation()
         {
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             var operation = new PencilPaintOperation(target)
             {
@@ -525,7 +525,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceOverAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
             byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
@@ -565,7 +565,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceCopyAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
             byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
@@ -605,7 +605,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceOverAlpha_NoAccumulateAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
             byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
@@ -645,7 +645,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SizedSourceOverAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
             byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects
@@ -766,7 +766,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SourceOverAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
@@ -808,7 +808,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SourceCopyAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
@@ -850,7 +850,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SourceOverAlpha_NoAccumulateAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
@@ -892,7 +892,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestRedoOperation_SizedSourceOverAlpha()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Create the test subjects
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
@@ -939,7 +939,7 @@ namespace PixelariaTests.Tests.PaintOperations
         public void TestUndoOperation_SourceOverAlphaFailing()
         {
             // Create the objects
-            var target = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var target = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
             byte[] originalHash = UtilsTests.GetHashForBitmap(target);
 
             // Create the test subjects

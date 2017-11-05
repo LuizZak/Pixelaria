@@ -60,7 +60,7 @@ namespace PixelariaTests.Generators
 
                         for (int j = 0; j < r.Next(1, 2); j++)
                         {
-                            controller.CreateLayer(FrameGenerator.GenerateRandomBitmap(fr.Width, fr.Height, seed + j)).Name = $"Layer {++layersCount}";
+                            controller.CreateLayer(BitmapGenerator.GenerateRandomBitmap(fr.Width, fr.Height, seed + j)).Name = $"Layer {++layersCount}";
                         }
                     }
                 }

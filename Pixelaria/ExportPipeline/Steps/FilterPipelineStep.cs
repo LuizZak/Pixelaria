@@ -26,7 +26,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
+using FastBitmapLib;
 using JetBrains.Annotations;
+
 using Pixelaria.Data.Exports;
 using Pixelaria.ExportPipeline.Inputs;
 using Pixelaria.ExportPipeline.Inputs.Abstract;
@@ -63,9 +65,15 @@ namespace Pixelaria.ExportPipeline.Steps
             var props = filter.InspectableProperties();
 
             Filter = filter;
+
+            var bitmapInput = new PipelineBitmapInput(this);
+
             var inputs = new IPipelineInput[props.Length + 1];
+
             // First input is always the input bitmap
-            inputs[0] = new PipelineBitmapInput(this);
+            inputs[0] = bitmapInput;
+
+            var inputObs = new List<IObservable<object>>();
 
             for (int i = 0; i < props.Length; i++)
             {
@@ -78,24 +86,38 @@ namespace Pixelaria.ExportPipeline.Steps
 
                 Debug.Assert(constructor != null, "constructor != null");
 
-                inputs[i + 1] = (IPipelineInput)constructor.Invoke(new object[]{this, name });
+                var input = (IPipelineInput) constructor.Invoke(new object[] {this, name});
+                
+                // Tie input to property
+                var obs =
+                    input.ConnectionsObservable()
+                        .SelectMany(o => o.GetObservable())
+                        .Where(o => propertyInfo.PropertyType.IsInstanceOfType(o));
+
+                inputObs.Add(obs);
+
+                inputs[i + 1] = input;
             }
 
             Input = inputs;
 
-            var connections =
-                Input[0].Connections
-                    .Select(o => o.GetObservable()).ToObservable()
-                    .SelectMany(o => o)
-                    .Repeat();
+            var bitmaps = bitmapInput.AnyConnection();
 
-            var source = 
-                connections
-                    .OfType<Bitmap>()
-                    .Select(bitmap =>
+            var source =
+                bitmaps
+                    .PxlWithLatestFrom(inputObs.Zip(), (bitmap, list) => (bitmap, list))
+                    .Select(res =>
                     {
+                        var (bitmap, propList) = res;
+
+                        foreach (var (o, prop) in propList.Zip(props, (o, info) => (o, info)))
+                        {
+                            prop.SetValue(filter, o);
+                        }
+
                         // Clone before applying filter
                         var bit = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+                        FastBitmap.CopyPixels(bitmap, bit);
 
                         filter.ApplyToBitmap(bit);
 
@@ -138,7 +160,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
             var source =
                 bitmapConnections
-                    .WithLatestFrom(transp, (bitmap, alpha) => (bitmap, alpha))
+                    .PxlWithLatestFrom(transp, (bitmap, alpha) => (bitmap, alpha))
                     .Select(tup =>
                     {
                         var (bitmap, alpha) = tup;
@@ -152,7 +174,7 @@ namespace Pixelaria.ExportPipeline.Steps
                         return bit;
                     });
 
-            Output = new IPipelineOutput[] { new PipelineBitmapOutput(this, source, "Bitmap") };
+            Output = new IPipelineOutput[] { new PipelineBitmapOutput(this, source) };
         }
 
         /// <summary>

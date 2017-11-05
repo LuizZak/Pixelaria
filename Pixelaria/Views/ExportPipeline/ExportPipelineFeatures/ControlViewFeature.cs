@@ -29,7 +29,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
-
+using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 
 using SharpDX;
@@ -384,7 +384,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                             return
                                 Observable.Interval(interval)
                                     .Delay(delay)
-                                    .WithLatestFrom(reactive.MouseMove.StartWith(e), (l, args) => args)
+                                    .PxlWithLatestFrom(reactive.MouseMove.StartWith(e), (l, args) => args)
                                     .StartWith(e)
                                     .ObserveOn(reactive.Dispatcher);
                         })

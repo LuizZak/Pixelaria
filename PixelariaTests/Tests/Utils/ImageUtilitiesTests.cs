@@ -39,14 +39,14 @@ namespace PixelariaTests.Tests.Utils
         public void TestImagesAreIdentical()
         {
             // Generate the bitmaps
-            var bitmap1 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
-            var bitmap2 = FrameGenerator.GenerateRandomBitmap(64, 64, 10);
+            var bitmap1 = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
+            var bitmap2 = BitmapGenerator.GenerateRandomBitmap(64, 64, 10);
 
             // Test the equality
             Assert.IsTrue(ImageUtilities.ImagesAreIdentical(bitmap1, bitmap2), "ImagesAreIdentical should return true for images that are equal down to each pixel");
 
             // Generate a different random bitmap
-            bitmap2 = FrameGenerator.GenerateRandomBitmap(64, 64, 11);
+            bitmap2 = BitmapGenerator.GenerateRandomBitmap(64, 64, 11);
 
             Assert.IsFalse(ImageUtilities.ImagesAreIdentical(bitmap1, bitmap2), "ImagesAreIdentical should return false for images that are not equal down to each pixel");
         }

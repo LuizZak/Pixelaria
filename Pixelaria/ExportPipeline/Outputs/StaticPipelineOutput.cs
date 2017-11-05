@@ -33,7 +33,10 @@ namespace Pixelaria.ExportPipeline.Outputs
     /// <typeparam name="T">The type of object output by this static pipeline output</typeparam>
     public class StaticPipelineOutput<T> : IStaticPipelineOutput
     {
-        private readonly T _value;
+        /// <summary>
+        /// The value to feed to subscribers.
+        /// </summary>
+        public T Value { get; }
         
         public virtual string Name { get; }
         public IPipelineNode Node { get; } = null;
@@ -42,7 +45,7 @@ namespace Pixelaria.ExportPipeline.Outputs
 
         public StaticPipelineOutput(T value, [NotNull] string name)
         {
-            _value = value;
+            Value = value;
             Name = name;
         }
 
@@ -50,7 +53,7 @@ namespace Pixelaria.ExportPipeline.Outputs
         {
             return Observable.Create<T>(obs =>
             {
-                obs.OnNext(_value);
+                obs.OnNext(Value);
                 obs.OnCompleted();
 
                 return Disposable.Empty;
