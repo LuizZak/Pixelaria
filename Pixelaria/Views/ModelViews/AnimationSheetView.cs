@@ -187,7 +187,7 @@ namespace Pixelaria.Views.ModelViews
                     .Select(_ => Unit.Default);
 
             Observable
-                .Merge(new []{ onUpdateSheet, onUpdateAnimationViews })
+                .Merge(onUpdateSheet, onUpdateAnimationViews, Rx.Change)
                 .Throttle(TimeSpan.FromMilliseconds(16))
                 .ObserveOn(this)
                 .Subscribe(next =>
