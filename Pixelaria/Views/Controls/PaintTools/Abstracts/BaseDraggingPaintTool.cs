@@ -76,7 +76,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 

@@ -61,7 +61,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// </summary>
         /// <param name="pictureBox">The picture box to decorate</param>
         /// <param name="controller">The layer controller for this layer decorator</param>
-        public LayerDecorator(ImageEditPanel.InternalPictureBox pictureBox, LayerController controller) : base(pictureBox)
+        public LayerDecorator(PaintingOperationsPictureBox pictureBox, LayerController controller) : base(pictureBox)
         {
             _layerController = controller;
         }

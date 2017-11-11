@@ -70,7 +70,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this PencilPaintTool
         /// </summary>
         /// <param name="targetPictureBox"></param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 

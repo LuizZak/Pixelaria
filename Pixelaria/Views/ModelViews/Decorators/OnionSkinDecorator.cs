@@ -68,7 +68,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// </summary>
         /// <param name="frameView">The frame editor view to show the onion skin to</param>
         /// <param name="pictureBox">The picture box to decorate</param>
-        public OnionSkinDecorator(FrameView frameView, ImageEditPanel.InternalPictureBox pictureBox)
+        public OnionSkinDecorator(FrameView frameView, PaintingOperationsPictureBox pictureBox)
             : base(pictureBox)
         {
             this.frameView = frameView;

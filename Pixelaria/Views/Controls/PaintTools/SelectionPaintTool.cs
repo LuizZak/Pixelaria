@@ -206,7 +206,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize([NotNull] ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize([NotNull] PaintingOperationsPictureBox targetPictureBox)
         {
             // Initialize the operation cursor
             var cursorMemoryStream = new MemoryStream(Properties.Resources.sel_cursor);

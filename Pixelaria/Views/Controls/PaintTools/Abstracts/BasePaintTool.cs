@@ -37,7 +37,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// The PictureBox owning this PaintOperation
         /// </summary>
         [CanBeNull]
-        protected ImageEditPanel.InternalPictureBox pictureBox;
+        protected PaintingOperationsPictureBox pictureBox;
 
         /// <summary>
         /// The cursor to use when hovering over the InternalPictureBox while this operation is up
@@ -74,7 +74,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public virtual void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public virtual void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             pictureBox = targetPictureBox;
         }

@@ -70,7 +70,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this EraserPaintTool
         /// </summary>
         /// <param name="targetPictureBox">The target picture box</param>
-        public override void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox)
+        public override void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 

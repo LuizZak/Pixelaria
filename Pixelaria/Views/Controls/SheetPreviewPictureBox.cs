@@ -552,7 +552,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="number">The number to measure</param>
         /// <param name="digitScale">The scale of the number to produce</param>
         /// <returns>The size of the number, in pixels</returns>
-        Size SizeForImageNumber(int number, int digitScale)
+        private static Size SizeForImageNumber(int number, int digitScale)
         {
             return new Size(((int)Math.Floor(Math.Log10(number)) + 1) * 5 * digitScale, 5 * digitScale);
         }
@@ -564,7 +564,7 @@ namespace Pixelaria.Views.Controls
         /// <param name="point">The point to render the number at</param>
         /// <param name="number">The number to render</param>
         /// <param name="digitsScale">The scaling to use. Set to 1 to pass the default scale</param>
-        static void RenderPixelNumber(Graphics g, Point point, int number, int digitsScale = 1)
+        private static void RenderPixelNumber(Graphics g, Point point, int number, int digitsScale = 1)
         {
             string numberString = Math.Abs(number).ToString();
             int x = 0;
@@ -590,7 +590,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="digit">A valid digit between 0-9</param>
         /// <returns>An image that represents the given digit</returns>
-        static Image ImageForDigit(int digit)
+        private static Image ImageForDigit(int digit)
         {
             if (digit < 0 || digit >= _pixelDigitsImages.Length)
                 return _pixelDigitsImages[0];
@@ -605,7 +605,7 @@ namespace Pixelaria.Views.Controls
     public class SheetPreviewFrameBoundsClickEventArgs : MouseEventArgs
     {
         /// <summary>
-        /// The index of the sheet bounds on the texture atlas' Frame Bounds Map that represents the frame that was tapped.
+        /// The index of the sheet bounds on the texture atlas' Frame Bounds Map that represents the frame that was pressed.
         /// Is -1, if no sheet was under the mouse pointer.
         /// </summary>
         public int SheetBoundsIndex { get; }

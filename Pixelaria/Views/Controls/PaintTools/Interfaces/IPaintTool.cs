@@ -45,7 +45,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Interfaces
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        void Initialize(ImageEditPanel.InternalPictureBox targetPictureBox);
+        void Initialize(PaintingOperationsPictureBox targetPictureBox);
         
         /// <summary>
         /// Changes the bitmap currently being edited

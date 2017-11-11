@@ -40,28 +40,28 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The main controller owning this form
         /// </summary>
-        readonly Controller _controller;
+        private readonly Controller _controller;
 
         /// <summary>
         /// The loaded image sheet
         /// </summary>
-        Image _spriteSheet;
+        private Image _spriteSheet;
 
         /// <summary>
         /// The current SheetSettings being edited on the form
         /// </summary>
-        SheetSettings _sheetSettings;
+        private SheetSettings _sheetSettings;
 
         /// <summary>
         /// The current preview animation
         /// </summary>
-        PreviewAnimation _currentPreviewAnimation;
+        private PreviewAnimation _currentPreviewAnimation;
         
         /// <summary>
         /// Optional AnimationSheet that will own the newly created animation
         /// </summary>
         [CanBeNull]
-        readonly AnimationSheet _parentSheet;
+        private readonly AnimationSheet _parentSheet;
 
         /// <summary>
         /// Intiializes a new instance of the ImportAnimationView class
@@ -171,24 +171,20 @@ namespace Pixelaria.Views.ModelViews
             if (_spriteSheet == null)
                 return;
 
-            if (_currentPreviewAnimation != null)
-            {
-                _currentPreviewAnimation.Dispose();
-                _currentPreviewAnimation = null;
-            }
+            _currentPreviewAnimation = null;
 
             if (nud_frameCount.Value != 0)
             {
                 _currentPreviewAnimation = new PreviewAnimation
                 {
-                    SourceBitmap = (Bitmap)_spriteSheet,
+                    SourceBitmap = (Bitmap) _spriteSheet,
                     SheetSettings = _sheetSettings,
                     FrameBounds = _controller.DefaultImporter.GenerateFrameBounds(_spriteSheet, _sheetSettings)
                 };
 
                 var playback = _currentPreviewAnimation.PlaybackSettings;
 
-                playback.FPS = (int)nud_fps.Value;
+                playback.FPS = (int) nud_fps.Value;
                 playback.FrameSkip = cb_frameskip.Checked;
 
                 _currentPreviewAnimation.PlaybackSettings = playback;
@@ -504,12 +500,7 @@ namespace Pixelaria.Views.ModelViews
             /// The bounds for each frame imported
             /// </summary>
             public Rectangle[] FrameBounds;
-
-            public void Dispose()
-            {
-                
-            }
-
+            
             public string Name => "Preview";
 
             public int Width => SheetSettings.FrameWidth;
