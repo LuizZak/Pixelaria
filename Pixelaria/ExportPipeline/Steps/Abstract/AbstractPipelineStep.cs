@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace Pixelaria.ExportPipeline.Steps.Abstract
@@ -29,6 +30,7 @@ namespace Pixelaria.ExportPipeline.Steps.Abstract
     /// </summary>
     public abstract class AbstractPipelineStep : IPipelineStep
     {
+        public Guid Id { get; } = Guid.NewGuid();
         public abstract string Name { get; }
 
         public abstract IReadOnlyList<IPipelineInput> Input { get; }

@@ -44,7 +44,7 @@ namespace PixelariaTests.Tests.ExportPipeline.Steps
     public class FilterPipelineStepTests
     {
         [TestMethod]
-        //[Timeout(1000)]
+        [Timeout(1000)]
         public async Task TestFilterReflection()
         {
             var filter = new MockFilter();

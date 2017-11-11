@@ -37,6 +37,9 @@ namespace Pixelaria.ExportPipeline.Steps
     public sealed class FileExportPipelineStep : IPipelineEnd
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
+
+        public Guid Id { get; } = Guid.NewGuid();
+
         public string Name { get; } = "Export to File";
 
         public IReadOnlyList<IPipelineInput> Input { get; }
@@ -100,7 +103,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     return null;
 
                 _connections.Add(output);
-                return new PipelineLinkConnection(this, output);
+                return new PipelineLinkConnection(this, output, _ => { Disconnect(output); });
             }
 
             public void Disconnect(IPipelineOutput output)

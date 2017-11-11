@@ -28,9 +28,16 @@ using JetBrains.Annotations;
 
 namespace Pixelaria.ExportPipeline
 {
-    // TODO: Test stuff - remove me later
     public static class ObsExt
     {
+        /// <summary>
+        /// Helper for debugging observable sequences.
+        /// 
+        /// Reports with <see cref="Console.WriteLine(string)"/> and <see cref="System.Diagnostics.Debug.WriteLine(string)"/>
+        /// every time an OnNext, OnCompleted and OnError event are produced by the original observable sequence.
+        /// 
+        /// The resulting sequence produces the same events/elements as the original sequence.
+        /// </summary>
         public static IObservable<T> Debug<T>(this IObservable<T> obs, [CallerMemberName] string memberName = "",
             [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {

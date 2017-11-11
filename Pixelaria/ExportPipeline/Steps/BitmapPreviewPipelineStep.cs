@@ -37,6 +37,7 @@ namespace Pixelaria.ExportPipeline.Steps
     /// </summary>
     internal class BitmapPreviewPipelineStep: IPipelineStep
     {
+        public Guid Id { get; } = Guid.NewGuid();
         public string Name { get; set; } = "Bitmap Preview";
         public IReadOnlyList<IPipelineInput> Input { get; }
         public IReadOnlyList<IPipelineOutput> Output { get; }

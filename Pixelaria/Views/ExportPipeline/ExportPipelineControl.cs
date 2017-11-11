@@ -1155,7 +1155,6 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         input = (IPipelineInput)linkTarget;
                         output = (IPipelineOutput)linkSource;
-
                     }
                     
                     // Verify connections won't result in a cycle in the node graphs

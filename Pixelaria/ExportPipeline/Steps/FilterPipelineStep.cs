@@ -234,7 +234,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     return null;
 
                 _connections.Add(output);
-                return new PipelineLinkConnection(this, output);
+                return new PipelineLinkConnection(this, output, _ => { Disconnect(output); });
             }
 
             public void Disconnect(IPipelineOutput output)

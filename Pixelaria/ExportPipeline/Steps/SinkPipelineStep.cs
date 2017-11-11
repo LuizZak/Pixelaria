@@ -39,7 +39,11 @@ namespace Pixelaria.ExportPipeline.Steps
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
 
         private readonly GenericPipelineInput<object> _input;
+        
+        public Guid Id { get; } = Guid.NewGuid();
+
         public string Name => "Sink";
+
         public IReadOnlyList<IPipelineInput> Input { get; }
 
         public SinkPipelineStep()

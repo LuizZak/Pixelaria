@@ -32,6 +32,14 @@ namespace Pixelaria.ExportPipeline
     public interface IPipelineNode
     {
         /// <summary>
+        /// Gets an identifier that uniquely identifies this node between different nodes within
+        /// a node container.
+        /// 
+        /// A pipeline node that is initializing itself must always set this value to <see cref="Guid.NewGuid()"/>.
+        /// </summary>
+        Guid Id { get; }
+
+        /// <summary>
         /// The display name of this pipeline node
         /// </summary>
         [NotNull]
@@ -172,6 +180,13 @@ namespace Pixelaria.ExportPipeline
         IPipelineOutput Output { get; }
 
         /// <summary>
+        /// Gets a value specifying whether this connection is effective.
+        /// 
+        /// Calling <see cref="Disconnect"/> sets this value to false and permanently disables this connection instance.
+        /// </summary>
+        bool Connected { get; }
+
+        /// <summary>
         /// Disconnects this connection across the two links
         /// </summary>
         void Disconnect();
@@ -185,25 +200,27 @@ namespace Pixelaria.ExportPipeline
 
     public class PipelineLinkConnection : IPipelineLinkConnection
     {
-        private bool _connected = true;
+        private readonly Action<PipelineLinkConnection> _onDisconnect;
 
         public IPipelineInput Input { get; }
         public IPipelineOutput Output { get; }
+        public bool Connected { get; private set; } = true;
 
-        public PipelineLinkConnection(IPipelineInput input, IPipelineOutput output)
+        public PipelineLinkConnection(IPipelineInput input, IPipelineOutput output, Action<PipelineLinkConnection> onDisconnect)
         {
+            _onDisconnect = onDisconnect;
             Input = input;
             Output = output;
         }
 
         public void Disconnect()
         {
-            if (!_connected)
+            if (!Connected)
                 return;
 
-            Input.Disconnect(Output);
-
-            _connected = false;
+            _onDisconnect(this);
+            
+            Connected = false;
         }
 
         public IPipelineMetadata GetMetadata()

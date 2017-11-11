@@ -210,8 +210,11 @@
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
+    <Compile Include="ExportPipeline\DefaultPipelineConnectionDelegate.cs" />
     <Compile Include="ExportPipeline\DefaultPipelineNodeSpecsProvider.cs" />
+    <Compile Include="ExportPipeline\IPipelineContainer.cs" />
     <Compile Include="ExportPipeline\Outputs\Abstract\AbstractPipelineOutput.cs" />
+    <Compile Include="ExportPipeline\PipelineContainer.cs" />
     <Compile Include="ExportPipeline\Steps\Abstract\AbstractPipelineStep.cs" />
     <Compile Include="ExportPipeline\Inputs\Abstract\AbstractSinglePipelineInput.cs" />
     <Compile Include="ExportPipeline\Inputs\AnimationInput.cs" />

@@ -52,7 +52,7 @@ namespace Pixelaria.ExportPipeline.Inputs.Abstract
                 return null;
 
             _connections.Add(output);
-            return new PipelineLinkConnection(this, output);
+            return new PipelineLinkConnection(this, output, c => { Disconnect(output); });
         }
 
         public void Disconnect(IPipelineOutput output)
