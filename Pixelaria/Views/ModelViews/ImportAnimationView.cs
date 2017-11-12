@@ -498,7 +498,7 @@ namespace Pixelaria.Views.ModelViews
             
             public AnimationPlaybackSettings PlaybackSettings { get; set; }
 
-            public AnimationSheetExportSettings ExportSettings => new AnimationExportSettings();
+            public AnimationSheetExportSettings SheetExportSettings => new AnimationSheetExportSettings();
             
             public PreviewAnimation([NotNull] Bitmap sourceBitmap, [NotNull] Rectangle[] rectangles) : base(sourceBitmap, rectangles)
             {

@@ -42,7 +42,7 @@ namespace Pixelaria.Data
         /// <summary>
         /// The export settings of this animation
         /// </summary>
-        AnimationSheetExportSettings ExportSettings { get; }
+        AnimationSheetExportSettings SheetExportSettings { get; }
         
         /// <summary>
         /// Returns the matching frame at a givne index
