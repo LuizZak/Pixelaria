@@ -24,11 +24,14 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using FastBitmapLib;
+
 using JetBrains.Annotations;
+
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Data;
+using Pixelaria.Views.Controls;
+using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -37,6 +40,8 @@ namespace Pixelaria.Views.ModelViews
     /// </summary>
     public partial class ImportAnimationView : Form
     {
+        private readonly SheetPreviewHoverMouseTool _sheetPreviewTool;
+
         /// <summary>
         /// The main controller owning this form
         /// </summary>
@@ -45,7 +50,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// The loaded image sheet
         /// </summary>
-        private Image _spriteSheet;
+        private Bitmap _spriteSheet;
 
         /// <summary>
         /// The current SheetSettings being edited on the form
@@ -74,9 +79,15 @@ namespace Pixelaria.Views.ModelViews
             _parentSheet = parentSheet;
 
             InitializeComponent();
-            cpb_sheetPreview.HookToControl(this);
 
-            cpb_sheetPreview.Importer = controller.DefaultImporter;
+            cpb_sheetPreview.PictureBox.PanMode = PictureBoxPanMode.LeftMouseDrag;
+            cpb_sheetPreview.PictureBox.SetBitmap(new Bitmap(32, 32));
+            cpb_sheetPreview.Init();
+
+            _sheetPreviewTool = new SheetPreviewHoverMouseTool();
+            cpb_sheetPreview.CurrentPaintTool = _sheetPreviewTool;
+
+            _sheetPreviewTool.Importer = controller.AnimationImporter;
 
             _spriteSheet = null;
 
@@ -138,9 +149,10 @@ namespace Pixelaria.Views.ModelViews
 
             txt_fileName.Text = filePath;
 
-            _spriteSheet = image;
+            _spriteSheet = new Bitmap(image);
 
-            cpb_sheetPreview.LoadPreview(_spriteSheet, _sheetSettings);
+            cpb_sheetPreview.PictureBox.SetBitmap(_spriteSheet);
+            _sheetPreviewTool.LoadPreview(_spriteSheet, _sheetSettings);
 
             txt_animationName.Text = Path.GetFileNameWithoutExtension(filePath);
 
@@ -175,12 +187,8 @@ namespace Pixelaria.Views.ModelViews
 
             if (nud_frameCount.Value != 0)
             {
-                _currentPreviewAnimation = new PreviewAnimation
-                {
-                    SourceBitmap = (Bitmap) _spriteSheet,
-                    SheetSettings = _sheetSettings,
-                    FrameBounds = _controller.DefaultImporter.GenerateFrameBounds(_spriteSheet, _sheetSettings)
-                };
+                var rects = _controller.AnimationImporter.GenerateFrameBounds(_spriteSheet.Size, _sheetSettings);
+                _currentPreviewAnimation = new PreviewAnimation(_spriteSheet, rects);
 
                 var playback = _currentPreviewAnimation.PlaybackSettings;
 
@@ -212,7 +220,7 @@ namespace Pixelaria.Views.ModelViews
                 OffsetY = (int)nud_startY.Value
             };
 
-            cpb_sheetPreview.SheetSettings = _sheetSettings;
+            _sheetPreviewTool.SheetSettings = _sheetSettings;
 
             GenerateAnimationPreview();
         }
@@ -226,7 +234,7 @@ namespace Pixelaria.Views.ModelViews
             if (nud_frameCount.Value == 0 || _currentPreviewAnimation == null || _currentPreviewAnimation.FrameCount <= 0)
                 return;
 
-            var anim = _controller.DefaultImporter.ImportAnimationFromImage(txt_animationName.Text, _spriteSheet, _sheetSettings);
+            var anim = _controller.AnimationImporter.ImportAnimationFromImage(txt_animationName.Text, _spriteSheet, _sheetSettings);
 
             var playback = _currentPreviewAnimation.PlaybackSettings;
 
@@ -484,48 +492,22 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Preview animation used to display preview of animation imports on the form's animation view
         /// </summary>
-        private class PreviewAnimation : IAnimation
+        private class PreviewAnimation : FrameSequencer, IAnimation
         {
-            /// <summary>
-            /// The source image to splice
-            /// </summary>
-            public Bitmap SourceBitmap;
-
-            /// <summary>
-            /// The current SheetSettings being edited on the form
-            /// </summary>
-            public SheetSettings SheetSettings;
-
-            /// <summary>
-            /// The bounds for each frame imported
-            /// </summary>
-            public Rectangle[] FrameBounds;
-            
             public string Name => "Preview";
-
-            public int Width => SheetSettings.FrameWidth;
-
-            public int Height => SheetSettings.FrameHeight;
-
-            public Size Size => new Size(Width, Height);
-
-            public int FrameCount => FrameBounds.Length;
-
+            
             public AnimationPlaybackSettings PlaybackSettings { get; set; }
 
             public AnimationExportSettings ExportSettings => new AnimationExportSettings();
+            
+            public PreviewAnimation([NotNull] Bitmap sourceBitmap, [NotNull] Rectangle[] rectangles) : base(sourceBitmap, rectangles)
+            {
+
+            }
 
             public IFrame GetFrameAtIndex(int i)
             {
                 throw new NotImplementedException();
-            }
-
-            public Bitmap GetComposedBitmapForFrame(int frameIndex)
-            {
-                // Splice the source image
-                var bounds = FrameBounds[frameIndex];
-
-                return FastBitmap.SliceBitmap(SourceBitmap, bounds);
             }
         }
     }

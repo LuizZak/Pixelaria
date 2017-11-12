@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Zoom paint tool
     /// </summary>
-    internal class ZoomPaintTool : BaseDraggingPaintTool
+    internal class ZoomPaintTool : AbstractDraggingPaintTool
     {
         /// <summary>
         /// The relative point where the mouse was held down, in control coordinates

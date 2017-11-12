@@ -29,7 +29,7 @@ namespace Pixelaria.Controllers.Importers
     /// <summary>
     /// Defines a default importer behavior that must be implemented by importers in the program
     /// </summary>
-    public interface IDefaultImporter
+    public interface IAnimationImporter
     {
         /// <summary>
         /// Imports an animation from an image on disk
@@ -47,20 +47,29 @@ namespace Pixelaria.Controllers.Importers
         /// <param name="sheet">The sheet image</param>
         /// <param name="settings">The sheet import settings</param>
         /// <returns>The final imported animation</returns>
-        Animation ImportAnimationFromImage([NotNull] string animationName, [NotNull] Image sheet, SheetSettings settings);
+        Animation ImportAnimationFromImage([NotNull] string animationName, [NotNull] Bitmap sheet, SheetSettings settings);
 
         /// <summary>
         /// Generates and returns an array of rectangles that represents the frames of the animation described by the given sheet settings.
-        /// The rectangles are relatives to the image used as sheet.
+        /// The rectangles are all sourced from a rectangle of size <see cref="textureSize"/>.
+        /// </summary>
+        /// <param name="textureSize">The size of the sheet textxure to slice</param>
+        /// <param name="settings">The sheet settings to use to calculate the rectangle frames</param>
+        /// <returns>An array of rectangles that represents the frames of the animation described by the given sheet settings</returns>
+        Rectangle[] GenerateFrameBounds(Size textureSize, SheetSettings settings);
+
+        /// <summary>
+        /// From a given image and sheet settings pair, generates a frame sequence where each extracted frame
+        /// represents the proper frame square within the input image.
         /// </summary>
         /// <param name="sheet">The image to use as sheet</param>
         /// <param name="settings">The sheet settings to use to calculate the rectangle frames</param>
-        /// <returns>An array of rectangles that represents the frames of the animation described by the given sheet settings</returns>
-        Rectangle[] GenerateFrameBounds([NotNull] Image sheet, SheetSettings settings);
+        /// <returns>A bitmap frame sequence for the animation</returns>
+        IBitmapFrameSequence GenerateFrameSequence([NotNull] Bitmap sheet, SheetSettings settings);
     }
 
     /// <summary>
-    /// Struct used as import settings when feeding to the IDefaultImporter methods
+    /// Struct used as import settings when feeding to the <see cref="IAnimationImporter"/> methods
     /// </summary>
     public struct SheetSettings
     {

@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Rectangle paint operation
     /// </summary>
-    internal class RectanglePaintTool : BaseShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
+    internal class RectanglePaintTool : AbstractShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
     {
         /// <summary>
         /// Initialies a new instance of the RectanglePaintOperation class, setting the two drawing colors

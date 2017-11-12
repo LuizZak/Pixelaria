@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Base class for pencil-like paint tools
     /// </summary>
-    internal abstract class BasePencilPaintTool : BasePaintTool
+    internal abstract class AbstractPencilPaintTool : AbstractPaintTool
     {
         /// <summary>
         /// Whether the pencil is visible
@@ -206,7 +206,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// Initializes a new instance of the BasePencilPaintTool class
         /// </summary>
-        protected BasePencilPaintTool()
+        protected AbstractPencilPaintTool()
         {
             size = 1;
         }

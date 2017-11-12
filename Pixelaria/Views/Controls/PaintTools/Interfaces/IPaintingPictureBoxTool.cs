@@ -23,105 +23,99 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Pixelaria.Views.Controls.PaintTools.Interfaces;
+using JetBrains.Annotations;
 
-namespace Pixelaria.Views.Controls.PaintTools
+namespace Pixelaria.Views.Controls.PaintTools.Interfaces
 {
     /// <summary>
-    /// Specifies an empty paint operation
+    /// Specifies a Paint Tool to be used on a <see cref="PaintingOperationsPictureBox"/>
     /// </summary>
-    internal sealed class NullPaintTool : IPaintTool
+    internal interface IPaintingPictureBoxTool : IDisposable
     {
         /// <summary>
-        /// Gets the cursor to use when hovering over the InternalPictureBox while this operation is up
+        /// Gets the cursor to use when hovering over the InternalPictureBox while this tool is up
         /// </summary>
-        public Cursor ToolCursor => Cursors.Default;
+        Cursor ToolCursor { get; }
 
         /// <summary>
         /// Gets whether this Paint Tool has resources loaded
         /// </summary>
-        public bool Loaded => true;
+        bool Loaded { get; }
 
         /// <summary>
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public void Initialize(PaintingOperationsPictureBox targetPictureBox) { }
+        void Initialize([NotNull] PaintingOperationsPictureBox targetPictureBox);
         
-        public void Dispose()
-        {
-
-        }
-
         /// <summary>
-        /// Finalizes this Paint Tool
-        /// </summary>
-        public void Destroy() { }
-
-        /// <summary>
-        /// Changes the bitmap currently being edited
+        /// Called when the bitmap currently being edited changes to a specified instance
         /// </summary>
         /// <param name="newBitmap">The new bitmap being edited</param>
-        public void ChangeBitmap(Bitmap newBitmap) { }
+        void ChangeBitmap(Bitmap newBitmap);
 
         /// <summary>
-        /// Called to notify this PaintTool that the control is being redrawn
+        /// Called to notify this Paint Tool that the control is being redrawn.
+        /// 
+        /// Drawings made on this event handler appear under the picture box's image.
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void Paint(PaintEventArgs e) { }
+        void Paint([NotNull] PaintEventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintTool that the control is being redrawn
+        /// Called to notify this Paint Tool that the foreground of the control is being redrawn.
+        /// 
+        /// Drawings made on this event handler appear above the picture box's image.
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void PaintForeground(PaintEventArgs e) { }
-        
-        /// <summary>
-        /// Called to notify this PaintTool that the mouse is clicked
-        /// </summary>
-        /// <param name="e">The event args for this event</param>
-        public void MouseClick(MouseEventArgs e) { }
+        void PaintForeground([NotNull] PaintEventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintTool that the mouse is being held down
+        /// Called to notify this PaintOperation that the mouse was clicked
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void MouseDown(MouseEventArgs e) { }
+        void MouseClick([NotNull] MouseEventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintTool that the mouse is being moved
+        /// Called to notify this Paint Tool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void MouseMove(MouseEventArgs e) { }
+        void MouseDown([NotNull] MouseEventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintTool that the mouse is being released
+        /// Called to notify this Paint Tool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void MouseUp(MouseEventArgs e) { }
+        void MouseMove([NotNull] MouseEventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse left the image area
+        /// Called to notify this Paint Tool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void MouseLeave(EventArgs e) { }
+        void MouseUp([NotNull] MouseEventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse entered the image area
+        /// Called to notify this Paint Tool that the mouse left the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void MouseEnter(EventArgs e) { }
+        void MouseLeave([NotNull] EventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintTool that a keyboard key was pressed down
+        /// Called to notify this Paint Tool that the mouse entered the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void KeyDown(KeyEventArgs e) { }
+        void MouseEnter([NotNull] EventArgs e);
 
         /// <summary>
-        /// Called to notify this PaintTool that a keyboard key was released
+        /// Called to notify this Paint Tool that a keyboard key was pressed down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public void KeyUp(KeyEventArgs e) { }
+        void KeyDown([NotNull] KeyEventArgs e);
+
+        /// <summary>
+        /// Called to notify this Paint Tool that a keyboard key was released
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        void KeyUp([NotNull] KeyEventArgs e);
     }
 }

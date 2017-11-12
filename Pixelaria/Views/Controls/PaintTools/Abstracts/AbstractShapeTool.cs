@@ -33,7 +33,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Base class for shape dragging paint operations
     /// </summary>
-    internal abstract class BaseShapeTool : BaseDraggingPaintTool
+    internal abstract class AbstractShapeTool : AbstractDraggingPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint operation
@@ -112,7 +112,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
         /// <param name="secondColor">The second color for the paint operation</param>
-        protected BaseShapeTool(Color firstColor, Color secondColor)
+        protected AbstractShapeTool(Color firstColor, Color secondColor)
         {
             this.firstColor = firstColor;
             this.secondColor = secondColor;

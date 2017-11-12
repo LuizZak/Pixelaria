@@ -202,7 +202,11 @@
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\PaintingOperationsPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
+    <Compile Include="Views\Controls\PaintTools\Interfaces\IPaintingPictureBoxTool.cs" />
     <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
@@ -247,8 +251,8 @@
     <Compile Include="Filters\ScaleFilter.cs" />
     <Compile Include="Filters\StrokeFilter.cs" />
     <Compile Include="Filters\TransparencyFilter.cs" />
-    <Compile Include="Controllers\Importers\DefaultPngImporter.cs" />
-    <Compile Include="Controllers\Importers\IDefaultImporter.cs" />
+    <Compile Include="Controllers\Importers\AnimationPngImporter.cs" />
+    <Compile Include="Controllers\Importers\IAnimationImporter.cs" />
     <Compile Include="Localization\AnimationMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -283,15 +287,15 @@
     <Compile Include="Views\Controls\LayerControls\LayerControl.Designer.cs">
       <DependentUpon>LayerControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\PaintTools\Abstracts\BasePencilPaintTool.cs" />
-    <Compile Include="Views\Controls\PaintTools\Abstracts\BaseShapeTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractPencilPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractShapeTool.cs" />
     <Compile Include="Views\Controls\PaintTools\BucketPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\EllipsePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\EraserPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAirbrushPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\LinePaintTool.cs" />
-    <Compile Include="Views\Controls\PaintTools\Abstracts\BaseDraggingPaintTool.cs" />
-    <Compile Include="Views\Controls\PaintTools\Abstracts\BasePaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractDraggingPaintTool.cs" />
+    <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractPaintTool.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -402,9 +406,7 @@
     </Compile>
     <Compile Include="Views\Controls\PaintTools\RectanglePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SelectionPaintTool.cs" />
-    <Compile Include="Views\Controls\SheetPreviewPictureBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Views\Controls\PaintTools\SheetPreviewHoverMouseTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SprayPaintTool.cs" />
     <Compile Include="Views\Controls\TimelineControl.cs">
       <SubType>Component</SubType>

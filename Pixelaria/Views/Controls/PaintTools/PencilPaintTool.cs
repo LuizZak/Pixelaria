@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Pencil paint tool
     /// </summary>
-    internal class PencilPaintTool : BasePencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool, IAirbrushPaintTool
+    internal class PencilPaintTool : AbstractPencilPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool, IAirbrushPaintTool
     {
         /// <summary>
         /// Gets or sets whether this paint tool should work in Airbrush mode.

@@ -81,7 +81,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets the current IDefaultImporter of the program
         /// </summary>
-        public IDefaultImporter DefaultImporter { get; }
+        public IAnimationImporter AnimationImporter { get; }
 
         /// <summary>
         /// Gets the current IAnimationValidator of the program
@@ -195,7 +195,7 @@ namespace Pixelaria.Controllers
             AnimationSheetValidator = defValidator;
             InterfaceStateProvider = this;
 
-            DefaultImporter = new DefaultPngImporter();
+            AnimationImporter = new AnimationPngImporter();
 
             // Initialize the Settings singleton
             Settings.GetSettings(Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\settings.ini");

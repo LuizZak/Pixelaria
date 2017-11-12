@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements an Ellipse paint tool
     /// </summary>
-    internal class EllipsePaintTool : BaseShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
+    internal class EllipsePaintTool : AbstractShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
     {
         /// <summary>
         /// Initialies a new instance of the EllipsePaintTool class, setting the two drawing colors

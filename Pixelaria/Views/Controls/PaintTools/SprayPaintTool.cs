@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Spray paint operation
     /// </summary>
-    internal class SprayPaintTool : BasePencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
+    internal class SprayPaintTool : AbstractPencilPaintTool, IColoredPaintTool, ISizedPaintTool, ICompositingPaintTool, IAirbrushPaintTool
     {
         /// <summary>
         /// Instance of a Random class used to randomize the spray of this SprayPaintTool

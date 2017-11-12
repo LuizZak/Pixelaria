@@ -35,7 +35,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements an Eraser paint operation
     /// </summary>
-    internal class EraserPaintTool : BasePencilPaintTool, IColoredPaintTool, IColorBlender, ISizedPaintTool
+    internal class EraserPaintTool : AbstractPencilPaintTool, IColoredPaintTool, IColorBlender, ISizedPaintTool
     {
         /// <summary>
         /// Gets or sets the compositing mode for the pen

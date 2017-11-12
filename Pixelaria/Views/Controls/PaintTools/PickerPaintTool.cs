@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Picker paint operation
     /// </summary>
-    internal class PickerPaintTool : BasePaintTool
+    internal class PickerPaintTool : AbstractPaintTool
     {
         /// <summary>
         /// The last absolute position of the mouse

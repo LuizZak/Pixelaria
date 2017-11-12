@@ -31,7 +31,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Implements basic functionality to paint operations
     /// </summary>
-    internal abstract class BasePaintTool : IPaintTool
+    internal abstract class AbstractPaintTool : IPaintTool
     {
         /// <summary>
         /// The PictureBox owning this PaintOperation
@@ -79,7 +79,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pictureBox = targetPictureBox;
         }
 
-        ~BasePaintTool()
+        ~AbstractPaintTool()
         {
             Dispose(false);
         }
@@ -123,6 +123,12 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public virtual void PaintForeground(PaintEventArgs e) { }
+
+        /// <summary>
+        /// Called to notify this PaintOperation that the mouse was clicked
+        /// </summary>
+        /// <param name="e">The event args for this event</param>
+        public virtual void MouseClick(MouseEventArgs e) { }
 
         /// <summary>
         /// Called to notify this PaintOperation that the mouse is being held down

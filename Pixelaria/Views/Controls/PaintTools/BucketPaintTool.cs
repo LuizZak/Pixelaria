@@ -37,7 +37,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Bucket paint tool
     /// </summary>
-    internal class BucketPaintTool : BasePaintTool, IColoredPaintTool, ICompositingPaintTool
+    internal class BucketPaintTool : AbstractPaintTool, IColoredPaintTool, ICompositingPaintTool
     {
         /// <summary>
         /// The compositing mode for this paint Tool

@@ -39,10 +39,12 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationSheetView));
+            Pixelaria.Data.Undo.UndoSystem undoSystem1 = new Pixelaria.Data.Undo.UndoSystem();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cb_autoUpdatePreview = new System.Windows.Forms.CheckBox();
             this.pb_unsavedAnimWarning = new System.Windows.Forms.PictureBox();
             this.pb_exportProgress = new System.Windows.Forms.ProgressBar();
             this.nud_yPadding = new System.Windows.Forms.NumericUpDown();
@@ -70,7 +72,7 @@ namespace Pixelaria.Views.ModelViews
             this.txt_sheetName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_sheetPreview = new System.Windows.Forms.Label();
-            this.zpb_sheetPreview = new Pixelaria.Views.Controls.SheetPreviewPictureBox();
+            this.zpb_sheetPreview = new Pixelaria.Views.Controls.ImageEditPanel();
             this.gb_sheetInfo = new System.Windows.Forms.GroupBox();
             this.lbl_frameCount = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -94,7 +96,6 @@ namespace Pixelaria.Views.ModelViews
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
-            this.cb_autoUpdatePreview = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
@@ -105,7 +106,6 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_errorPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.zpb_sheetPreview)).BeginInit();
             this.gb_sheetInfo.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.gb_exportSummary.SuspendLayout();
@@ -163,6 +163,23 @@ namespace Pixelaria.Views.ModelViews
             this.groupBox2.TabIndex = 27;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Export Settings";
+            // 
+            // cb_autoUpdatePreview
+            // 
+            this.cb_autoUpdatePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cb_autoUpdatePreview.AutoSize = true;
+            this.cb_autoUpdatePreview.Checked = true;
+            this.cb_autoUpdatePreview.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_autoUpdatePreview.Location = new System.Drawing.Point(206, 155);
+            this.cb_autoUpdatePreview.Name = "cb_autoUpdatePreview";
+            this.helpProvider1.SetShowHelp(this.cb_autoUpdatePreview, true);
+            this.cb_autoUpdatePreview.Size = new System.Drawing.Size(86, 30);
+            this.cb_autoUpdatePreview.TabIndex = 36;
+            this.cb_autoUpdatePreview.Text = "Auto Update\r\nPreview\r\n";
+            this.tt_mainTooltip.SetToolTip(this.cb_autoUpdatePreview, "Auto updates the preview whenever animations are changed while this view is open." +
+        "\r\n");
+            this.cb_autoUpdatePreview.UseVisualStyleBackColor = true;
+            this.cb_autoUpdatePreview.CheckedChanged += new System.EventHandler(this.cb_autoUpdatePreview_CheckedChanged);
             // 
             // pb_unsavedAnimWarning
             // 
@@ -522,31 +539,23 @@ namespace Pixelaria.Views.ModelViews
             // 
             // zpb_sheetPreview
             // 
-            this.zpb_sheetPreview.AllowMouseHover = true;
-            this.zpb_sheetPreview.AllowScrollbars = false;
             this.zpb_sheetPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.zpb_sheetPreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
-            this.zpb_sheetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.zpb_sheetPreview.ClipBackgroundToImage = true;
-            this.zpb_sheetPreview.HorizontalScrollValue = 0;
-            this.zpb_sheetPreview.Importer = null;
+            this.zpb_sheetPreview.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            this.zpb_sheetPreview.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
+            this.zpb_sheetPreview.EditingEnabled = true;
             this.zpb_sheetPreview.Location = new System.Drawing.Point(317, 90);
-            this.zpb_sheetPreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MaximumZoom")));
-            this.zpb_sheetPreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.MinimumZoom")));
             this.zpb_sheetPreview.Name = "zpb_sheetPreview";
-            this.zpb_sheetPreview.SheetExport = null;
+            this.zpb_sheetPreview.NotifyTo = null;
+            this.zpb_sheetPreview.PictureBoxBackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.helpProvider1.SetShowHelp(this.zpb_sheetPreview, true);
-            this.zpb_sheetPreview.ShowImageArea = true;
             this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 379);
             this.zpb_sheetPreview.TabIndex = 0;
             this.zpb_sheetPreview.TabStop = false;
-            this.zpb_sheetPreview.VerticalScrollValue = 0;
-            this.zpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_sheetPreview.Zoom")));
-            this.zpb_sheetPreview.ZoomFactor = 2F;
-            this.zpb_sheetPreview.FrameBoundsMouseClicked += new Pixelaria.Views.Controls.SheetPreviewPictureBox.FrameBoundsBoxClicked(this.sppb_clickedFrameRect);
-            this.zpb_sheetPreview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_sheetPreview_ZoomChanged);
+            undoSystem1.MaximumTaskCount = 15;
+            this.zpb_sheetPreview.UndoSystem = undoSystem1;
             // 
             // gb_sheetInfo
             // 
@@ -830,23 +839,6 @@ namespace Pixelaria.Views.ModelViews
             0});
             this.anud_zoom.ValueChanged += new System.EventHandler(this.anud_zoom_ValueChanged);
             // 
-            // cb_autoUpdatePreview
-            // 
-            this.cb_autoUpdatePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cb_autoUpdatePreview.AutoSize = true;
-            this.cb_autoUpdatePreview.Checked = true;
-            this.cb_autoUpdatePreview.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_autoUpdatePreview.Location = new System.Drawing.Point(206, 155);
-            this.cb_autoUpdatePreview.Name = "cb_autoUpdatePreview";
-            this.helpProvider1.SetShowHelp(this.cb_autoUpdatePreview, true);
-            this.cb_autoUpdatePreview.Size = new System.Drawing.Size(86, 30);
-            this.cb_autoUpdatePreview.TabIndex = 36;
-            this.cb_autoUpdatePreview.Text = "Auto Update\r\nPreview\r\n";
-            this.tt_mainTooltip.SetToolTip(this.cb_autoUpdatePreview, "Auto updates the preview whenever animations are changed while this view is open." +
-        "\r\n");
-            this.cb_autoUpdatePreview.UseVisualStyleBackColor = true;
-            this.cb_autoUpdatePreview.CheckedChanged += new System.EventHandler(this.cb_autoUpdatePreview_CheckedChanged);
-            // 
             // AnimationSheetView
             // 
             this.AcceptButton = this.btn_ok;
@@ -890,7 +882,6 @@ namespace Pixelaria.Views.ModelViews
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.zpb_sheetPreview)).EndInit();
             this.gb_sheetInfo.ResumeLayout(false);
             this.gb_sheetInfo.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
@@ -916,7 +907,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.TextBox txt_sheetName;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox2;
-        private Pixelaria.Views.Controls.SheetPreviewPictureBox zpb_sheetPreview;
+        private Pixelaria.Views.Controls.ImageEditPanel zpb_sheetPreview;
         private System.Windows.Forms.Label lbl_sheetPreview;
         private System.Windows.Forms.Button btn_generatePreview;
         private System.Windows.Forms.CheckBox cb_forcePowerOfTwoDimensions;

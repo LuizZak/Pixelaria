@@ -27,33 +27,13 @@ namespace Pixelaria.Data
     /// <summary>
     /// Common interface for animation objects
     /// </summary>
-    public interface IAnimation
+    public interface IAnimation : IBitmapFrameSequence
     {
         /// <summary>
         /// Gets or sets the name of this animation
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Gets the width of this animation's frames
-        /// </summary>
-        int Width { get; }
-
-        /// <summary>
-        /// Gets the height of this animation's frames
-        /// </summary>
-        int Height { get; }
-
-        /// <summary>
-        /// Gets the size of this animation's frames
-        /// </summary>
-        Size Size { get; }
-
-        /// <summary>
-        /// Gets the number of frames of this Animaion
-        /// </summary>
-        int FrameCount { get; }
-
+        
         /// <summary>
         /// The playbar settings for this Animation
         /// </summary>
@@ -63,17 +43,44 @@ namespace Pixelaria.Data
         /// The export settings of this animation
         /// </summary>
         AnimationExportSettings ExportSettings { get; }
-
-        /// <summary>
-        /// Gets the composed bitmap for a specified frame index
-        /// </summary>
-        /// <param name="frameIndex">The index of the frame to get the composed bitmap of</param>
-        /// <returns>The composed bitmap for the frame at the specified index on this animation</returns>
-        Bitmap GetComposedBitmapForFrame(int frameIndex);
-
+        
         /// <summary>
         /// Returns the matching frame at a givne index
         /// </summary>
         IFrame GetFrameAtIndex(int i);
+    }
+    
+    /// <summary>
+    /// A basic interface for objects that can provide sequences of individual bitmaps representing frames
+    /// for an animation.
+    /// </summary>
+    public interface IBitmapFrameSequence
+    {
+        /// <summary>
+        /// Gets the width of this frame sequence's frames
+        /// </summary>
+        int Width { get; }
+
+        /// <summary>
+        /// Gets the height of this frame sequence's frames
+        /// </summary>
+        int Height { get; }
+
+        /// <summary>
+        /// Gets the size of this frame sequence's frames
+        /// </summary>
+        Size Size { get; }
+
+        /// <summary>
+        /// Gets the number of frames of this frame sequence
+        /// </summary>
+        int FrameCount { get; }
+        
+        /// <summary>
+        /// Gets the composed bitmap for a specified frame index
+        /// </summary>
+        /// <param name="frameIndex">The index of the frame to get the composed bitmap of</param>
+        /// <returns>The composed bitmap for the frame at the specified index on this frame sequence</returns>
+        Bitmap GetComposedBitmapForFrame(int frameIndex);
     }
 }

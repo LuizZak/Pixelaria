@@ -51,12 +51,13 @@ namespace Pixelaria.Views.ModelViews
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImportAnimationView));
+            Pixelaria.Data.Undo.UndoSystem undoSystem1 = new Pixelaria.Data.Undo.UndoSystem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssl_dimensions = new System.Windows.Forms.ToolStripStatusLabel();
-            this.cpb_sheetPreview = new Pixelaria.Views.Controls.SheetPreviewPictureBox();
+            this.cpb_sheetPreview = new Pixelaria.Views.Controls.ImageEditPanel();
             this.btn_browse = new System.Windows.Forms.Button();
             this.txt_fileName = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -98,7 +99,6 @@ namespace Pixelaria.Views.ModelViews
             this.groupBox1.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cpb_sheetPreview)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_fps)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -175,21 +175,22 @@ namespace Pixelaria.Views.ModelViews
             // 
             // cpb_sheetPreview
             // 
-            this.cpb_sheetPreview.AllowScrollbars = false;
             this.cpb_sheetPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cpb_sheetPreview.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cpb_sheetPreview.BackgroundImage")));
-            this.cpb_sheetPreview.Importer = null;
+            this.cpb_sheetPreview.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            this.cpb_sheetPreview.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
+            this.cpb_sheetPreview.EditingEnabled = true;
             this.cpb_sheetPreview.Location = new System.Drawing.Point(3, 19);
-            this.cpb_sheetPreview.MaximumZoom = ((System.Drawing.PointF)(resources.GetObject("cpb_sheetPreview.MaximumZoom")));
-            this.cpb_sheetPreview.MinimumZoom = ((System.Drawing.PointF)(resources.GetObject("cpb_sheetPreview.MinimumZoom")));
             this.cpb_sheetPreview.Name = "cpb_sheetPreview";
+            this.cpb_sheetPreview.NotifyTo = null;
+            this.cpb_sheetPreview.PictureBoxBackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
             this.cpb_sheetPreview.Size = new System.Drawing.Size(359, 289);
             this.cpb_sheetPreview.TabIndex = 8;
             this.cpb_sheetPreview.TabStop = false;
-            this.cpb_sheetPreview.Zoom = ((System.Drawing.PointF)(resources.GetObject("cpb_sheetPreview.Zoom")));
-            this.cpb_sheetPreview.ZoomFactor = 1.414214F;
+            undoSystem1.MaximumTaskCount = 15;
+            this.cpb_sheetPreview.UndoSystem = undoSystem1;
             // 
             // btn_browse
             // 
@@ -665,7 +666,6 @@ namespace Pixelaria.Views.ModelViews
             this.groupBox5.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cpb_sheetPreview)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nud_fps)).EndInit();
@@ -719,7 +719,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown nud_startX;
-        private Pixelaria.Views.Controls.SheetPreviewPictureBox cpb_sheetPreview;
+        private Pixelaria.Views.Controls.ImageEditPanel cpb_sheetPreview;
         private AnimationPreviewPanel ap_animationPreview;
         private System.Windows.Forms.NumericUpDown nud_frameCount;
         private System.Windows.Forms.Label label9;

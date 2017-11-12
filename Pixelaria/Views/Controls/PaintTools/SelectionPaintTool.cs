@@ -39,7 +39,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Selection paint operation
     /// </summary>
-    internal class SelectionPaintTool : BaseDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation, IUndoIntercepterPaintTool
+    internal class SelectionPaintTool : AbstractDraggingPaintTool, IClipboardPaintTool, ICompositingPaintTool, IAreaOperation, IUndoIntercepterPaintTool
     {
         /// <summary>
         /// Timer used to animate the selection area
@@ -279,7 +279,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 return;
 
             // Find the minimum rectangle for the selection
-            Debug.Assert(internalPictureBox.Bitmap != null, "pictureBox.Bitmap != null");
+            Debug.Assert(internalPictureBox.Bitmap != null, "internalPictureBox.Bitmap != null");
             var selectionRectangle = ImageUtilities.FindMinimumImageArea(internalPictureBox.Bitmap);
 
             // If the whole area is empty, select the whole bitmap area

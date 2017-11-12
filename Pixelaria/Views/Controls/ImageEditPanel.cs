@@ -127,8 +127,10 @@ namespace Pixelaria.Views.Controls
         internal event OperationStatusEventHandler OperationStatusChanged;
 
         /// <summary>
-        /// Gets the internal picture box currently loaded into this ImageEditPanel
+        /// Gets the internal picture box currently loaded into this <see cref="ImageEditPanel"/>
         /// </summary>
+        // TODO: Replace this PictureBox class reference with a reduced interface.
+        [Browsable(false)]
         public PaintingOperationsPictureBox PictureBox { get; }
 
         /// <summary>
@@ -142,11 +144,11 @@ namespace Pixelaria.Views.Controls
         public bool Modified => NotifyTo?.Modified ?? false;
         
         /// <summary>
-        /// Gets or sets the current paint operation to perform on this ImageEditPanel
+        /// Gets or sets the current paint operation to perform on this <see cref="ImageEditPanel"/>
         /// </summary>
         [Browsable(false)]
         [DefaultValue(null)]
-        internal IPaintTool CurrentPaintTool
+        internal IPaintingPictureBoxTool CurrentPaintTool
         {
             get => PictureBox.CurrentPaintTool;
             set
@@ -345,7 +347,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="tool">The operation that fired the event</param>
         /// <param name="status">The status for the event</param>
-        internal void FireOperationStatusEvent(IPaintTool tool, string status)
+        internal void FireOperationStatusEvent(IPaintingPictureBoxTool tool, string status)
         {
             OperationStatusChanged?.Invoke(this, new OperationStatusEventArgs(tool, status));
         }
@@ -422,14 +424,14 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the operation that fired the status change
         /// </summary>
-        public IPaintTool Tool { get; }
+        public IPaintingPictureBoxTool Tool { get; }
 
         /// <summary>
         /// Creates a new instance of the OperationStatusChange event
         /// </summary>
         /// <param name="tool">The operation that fired the status change</param>
         /// <param name="status">The operation status</param>
-        public OperationStatusEventArgs(IPaintTool tool, string status)
+        public OperationStatusEventArgs(IPaintingPictureBoxTool tool, string status)
         {
             Tool = tool;
             Status = status;
@@ -684,38 +686,5 @@ namespace Pixelaria.Views.Controls
         /// Decorates the front image, using the given event arguments
         /// </summary>
         public virtual void DecorateOverBitmap(Bitmap bitmap) { }
-    }
-
-    /// <summary>
-    /// A mouse event fired by the internal picture box of an image edit panel.
-    /// This event allows listeners to intercept and handle mouse events of an internal picture box
-    /// </summary>
-    public class InternalPictureBoxMouseEventArgs : MouseEventArgs
-    {
-        /// <summary>
-        /// Whether this event was properly handled by the event listener
-        /// </summary>
-        public bool Handled;
-
-        /// <summary>
-        /// The x coordinate of this point, on image coordinates
-        /// </summary>
-        public int ImageX;
-
-        /// <summary>
-        /// The Y coordinate of this point, on image coordinates
-        /// </summary>
-        public int ImageY;
-
-        /// <summary>
-        /// Gets the point of this event, on absolute image coordinates
-        /// </summary>
-        public Point ImageLocation => new Point(ImageX, ImageY);
-
-        public InternalPictureBoxMouseEventArgs(MouseButtons button, int clicks, int x, int y, int mouseX, int mouseY, int delta) : base(button, clicks, x, y, delta)
-        {
-            ImageX = mouseX;
-            ImageY = mouseY;
-        }
     }
 }

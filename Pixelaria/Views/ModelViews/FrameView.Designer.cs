@@ -1314,7 +1314,6 @@ namespace Pixelaria.Views.ModelViews
             // 
             // iepb_frame
             // 
-            this.iepb_frame.CurrentPaintTool = nullPaintTool1;
             this.iepb_frame.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.iepb_frame.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.iepb_frame.Dock = System.Windows.Forms.DockStyle.Fill;

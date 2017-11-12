@@ -554,7 +554,7 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="paintTool">The new paint operation to replace the current one</param>
         private void ChangePaintOperation(IPaintTool paintTool)
         {
-            if (iepb_frame.CurrentPaintTool is BasePaintTool basePaintTool)
+            if (iepb_frame.CurrentPaintTool is AbstractPaintTool basePaintTool)
             {
                 basePaintTool.ColorPicked -= OnColorPicked;
             }
@@ -569,9 +569,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 (paintTool as IAirbrushPaintTool).AirbrushMode = cb_airbrushMode.Checked;
             }
-            if (paintTool is BasePaintTool)
+            if (paintTool is AbstractPaintTool)
             {
-                (paintTool as BasePaintTool).ColorPicked += OnColorPicked;
+                (paintTool as AbstractPaintTool).ColorPicked += OnColorPicked;
             }
 
             // Focus on the canvas
@@ -1981,7 +1981,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel interceptable mouse down
         // 
-        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] InternalPictureBoxMouseEventArgs eventArgs)
+        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] PaintingOperatinsPictureBoxMouseEventArgs eventArgs)
         {
             // Select first visible layer under mouse point, if the user is hitting Left Click + Alt
             if (eventArgs.Button != MouseButtons.Left || ModifierKeys != Keys.Alt)

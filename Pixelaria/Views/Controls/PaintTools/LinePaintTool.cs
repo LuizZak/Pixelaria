@@ -37,7 +37,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     /// <summary>
     /// Implements a Line paint operation
     /// </summary>
-    internal class LinePaintTool : BaseDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
+    internal class LinePaintTool : AbstractDraggingPaintTool, IColoredPaintTool, ICompositingPaintTool, ISizedPaintTool
     {
         /// <summary>
         /// Graphics used to draw on the bitmap

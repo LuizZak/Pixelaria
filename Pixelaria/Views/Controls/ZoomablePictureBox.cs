@@ -337,7 +337,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="image">The new image to display on this form</param>
         /// <param name="resetTransform">Whether to reset the transformation after setting the new image</param>
-        public void SetImage(Image image, bool resetTransform = false)
+        public virtual void SetImage(Image image, bool resetTransform = false)
         {
             Image = image;
 
@@ -404,6 +404,15 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// Resets the zoom and offset of this picture box to the default values.
+        /// </summary>
+        public void ResetZoomAndOffset()
+        {
+            offsetPoint = new Point();
+            Zoom = new PointF(1, 1);
+        }
+
+        /// <summary>
         /// Clips the offset and scale to be within the current acceptable bounds
         /// </summary>
         protected virtual void ClipTransform()
@@ -447,7 +456,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Updates the scrollbars display
         /// </summary>
-        protected void UpdateScrollbars()
+        public void UpdateScrollbars()
         {
             // Get the ammount of pixels that don't fit the control's width and height
             int excessW = (int)(Image.Width * scale.X - (Width - vScrollBar.Width));
@@ -624,8 +633,7 @@ namespace Pixelaria.Views.Controls
 
             if (e.Button == MouseButtons.Middle)
             {
-                offsetPoint = new Point();
-                Zoom = new PointF(1, 1);
+                ResetZoomAndOffset();
             }
         }
 

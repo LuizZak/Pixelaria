@@ -20,9 +20,16 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
+
 using FastBitmapLib;
+
+using JetBrains.Annotations;
+
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 
@@ -31,7 +38,7 @@ namespace Pixelaria.Controllers.Importers
     /// <summary>
     /// Default importer that uses PNG as the texture format
     /// </summary>
-    public class DefaultPngImporter : IDefaultImporter
+    public class AnimationPngImporter : IAnimationImporter
     {
         /// <summary>
         /// Imports an animation from an animation sheet
@@ -42,7 +49,7 @@ namespace Pixelaria.Controllers.Importers
         /// <returns>The final imported animation</returns>
         public Animation ImportAnimationFromPath(string animationName, string sheetPath, SheetSettings settings)
         {
-            return ImportAnimationFromImage(animationName, Image.FromFile(sheetPath), settings);
+            return ImportAnimationFromImage(animationName, new Bitmap(Image.FromFile(sheetPath)), settings);
         }
 
         /// <summary>
@@ -52,9 +59,9 @@ namespace Pixelaria.Controllers.Importers
         /// <param name="sheet">The sheet image</param>
         /// <param name="settings">The sheet import settings</param>
         /// <returns>The final imported animation</returns>
-        public Animation ImportAnimationFromImage(string animationName, Image sheet, SheetSettings settings)
+        public Animation ImportAnimationFromImage(string animationName, Bitmap sheet, SheetSettings settings)
         {
-            var frameBounds = GenerateFrameBounds(sheet, settings);
+            var frameSequence = GenerateFrameSequence(sheet, settings);
 
             int frameWidth = settings.FrameWidth > sheet.Width ? sheet.Width : settings.FrameWidth;
             int frameHeight = settings.FrameHeight > sheet.Height ? sheet.Height : settings.FrameHeight;
@@ -62,13 +69,15 @@ namespace Pixelaria.Controllers.Importers
 
             var controller = new AnimationController(null, animation);
 
-            foreach (var rect in frameBounds)
+            for (int i = 0; i < frameSequence.FrameCount; i++)
             {
+                var bitmap = frameSequence.GetComposedBitmapForFrame(i);
+
                 // Create the frame
                 var frameId = controller.CreateFrame(settings.FlipFrames ? 0 : -1);
                 var frame = controller.GetFrameController(frameId);
-                
-                frame.SetFrameBitmap(FastBitmap.SliceBitmap((Bitmap)sheet, rect));
+
+                frame.SetFrameBitmap(bitmap);
             }
 
             return animation;
@@ -76,42 +85,40 @@ namespace Pixelaria.Controllers.Importers
 
         /// <summary>
         /// Generates and returns an array of rectangles that represents the frames of the animation described by the given sheet settings.
-        /// The rectangles are relatives to the image used as sheet.
+        /// The rectangles are all sourced from a rectangle of size <see cref="textureSize"/>.
         /// </summary>
-        /// <param name="sheet">The image to use as sheet</param>
+        /// <param name="textureSize">The size of the sheet textxure to slice</param>
         /// <param name="settings">The sheet settings to use to calculate the rectangle frames</param>
         /// <returns>An array of rectangles that represents the frames of the animation described by the given sheet settings</returns>
-        public Rectangle[] GenerateFrameBounds(Image sheet, SheetSettings settings)
+        public Rectangle[] GenerateFrameBounds(Size textureSize, SheetSettings settings)
         {
-            List<Rectangle> frameBounds = new List<Rectangle>();
-
-            Image texture = sheet;
-
+            var frameBounds = new List<Rectangle>();
+            
             // Trim out the dimensions:
-            int frameWidth = (settings.FrameWidth > texture.Width ? texture.Width : settings.FrameWidth);
-            int frameHeight = (settings.FrameHeight > texture.Height ? texture.Height : settings.FrameHeight);
+            int frameWidth = settings.FrameWidth > textureSize.Width ? textureSize.Width : settings.FrameWidth;
+            int frameHeight = settings.FrameHeight > textureSize.Height ? textureSize.Height : settings.FrameHeight;
 
             // Calculate cells dimensions
-            int xCells = texture.Width / frameWidth;
-            int yCells = texture.Height / frameHeight;
+            int xCells = textureSize.Width / frameWidth;
+            int yCells = textureSize.Height / frameHeight;
 
             // No frame count set? Calculate by the image size
             if (settings.FrameCount == -1)
-                settings.FrameCount = (xCells * yCells) - settings.FirstFrame;
+                settings.FrameCount = xCells * yCells - settings.FirstFrame;
 
             // Frame count larger than frames on image? Trim the variable
             if (settings.FirstFrame + settings.FrameCount > xCells * yCells)
-                settings.FrameCount = (xCells * yCells) - settings.FirstFrame;
+                settings.FrameCount = xCells * yCells - settings.FirstFrame;
 
             int x = settings.OffsetX + settings.FirstFrame * frameWidth;
             int y = settings.OffsetY;
 
-            if (x > texture.Width - frameWidth)
+            if (x > textureSize.Width - frameWidth)
             {
                 x = 0;
 
                 // Break the loop once the maximum number of frames has been reached
-                if (y >= texture.Height - frameHeight)
+                if (y >= textureSize.Height - frameHeight)
                 {
                     return frameBounds.ToArray();
                 }
@@ -129,12 +136,12 @@ namespace Pixelaria.Controllers.Importers
 
                 x += frameWidth;
 
-                if (x > texture.Width - frameWidth)
+                if (x > textureSize.Width - frameWidth)
                 {
                     x = 0;
 
                     // Break the loop once the maximum number of frames has been reached
-                    if (y >= texture.Height - frameHeight)
+                    if (y >= textureSize.Height - frameHeight)
                     {
                         break;
                     }
@@ -143,6 +150,60 @@ namespace Pixelaria.Controllers.Importers
             }
 
             return frameBounds.ToArray();
+        }
+    
+        /// <summary>
+        /// From a given image and sheet settings pair, generates a frame sequence where each extracted frame
+        /// represents the proper frame square within the input image.
+        /// </summary>
+        /// <param name="sheet">The image to use as sheet</param>
+        /// <param name="settings">The sheet settings to use to calculate the rectangle frames</param>
+        /// <returns>A bitmap frame sequence for the animation</returns>
+        public IBitmapFrameSequence GenerateFrameSequence(Bitmap sheet, SheetSettings settings)
+        {
+            return new FrameSequencer(sheet, GenerateFrameBounds(sheet.Size, settings));
+        }
+    }
+
+    /// <summary>
+    /// A simple frame sequencer that exposes bitmap frames from a sequence of slice rectangles
+    /// of a source bitmap
+    /// </summary>
+    public class FrameSequencer : IBitmapFrameSequence
+    {
+        private readonly Bitmap _sourceBitmap;
+        private readonly Rectangle[] _rectangles;
+
+        public int Width => Size.Width;
+        public int Height => Size.Height;
+        public Size Size { get; }
+        public int FrameCount { get; }
+
+        public FrameSequencer([NotNull] Bitmap sourceBitmap, [NotNull] Rectangle[] rectangles)
+        {
+            _sourceBitmap = sourceBitmap;
+            _rectangles = rectangles;
+
+            // Frame size is the largest size from the input rectangles source
+            Size = _rectangles.Aggregate(Size.Empty, (size, rectangle) => new Size(Math.Max(size.Width, rectangle.Size.Width),
+                Math.Max(size.Height, rectangle.Size.Height)));
+
+            FrameCount = rectangles.Length;
+        }
+
+        public Bitmap GetComposedBitmapForFrame(int frameIndex)
+        {
+            var rect = _rectangles[frameIndex];
+
+            // Make quick check to see if slice isn't smaller than frame size
+            // If it is, paste it into a larger transparent background image
+            if (rect.Size == Size)
+                return FastBitmap.SliceBitmap(_sourceBitmap, rect);
+
+            var newBitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            FastBitmap.CopyRegion(_sourceBitmap, newBitmap, rect, new Rectangle(Point.Empty, Size));
+
+            return newBitmap;
         }
     }
 }

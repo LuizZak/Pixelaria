@@ -38,6 +38,8 @@ using Pixelaria.Controllers;
 using Pixelaria.Localization;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
+using Pixelaria.Views.Controls;
+using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -48,6 +50,8 @@ namespace Pixelaria.Views.ModelViews
     {
         private CompositeDisposable _disposeBag = new CompositeDisposable();
         private readonly Reactive _reactive = new Reactive();
+
+        private readonly SheetPreviewHoverMouseTool _sheetPreviewTool;
 
         public IReactive Rx => _reactive;
 
@@ -94,9 +98,7 @@ namespace Pixelaria.Views.ModelViews
         public AnimationSheetView(Controller controller, AnimationSheet sheetToEdit = null)
         {
             InitializeComponent();
-
-            zpb_sheetPreview.HookToControl(this);
-
+            
             _controller = controller;
             CurrentSheet = sheetToEdit;
 
@@ -114,6 +116,19 @@ namespace Pixelaria.Views.ModelViews
                 controller.ViewModifiedChanged += OnControllerOnViewModifiedChanged;
                 controller.ViewOpenedClosed += OnControllerOnViewOpenedClosed;
             }
+
+            zpb_sheetPreview.PictureBox.SetBitmap(new Bitmap(32, 32));
+            zpb_sheetPreview.PictureBox.PanMode = PictureBoxPanMode.LeftMouseDrag;
+            zpb_sheetPreview.Init();
+
+            _sheetPreviewTool = new SheetPreviewHoverMouseTool();
+
+            zpb_sheetPreview.CurrentPaintTool = _sheetPreviewTool;
+
+            zpb_sheetPreview.PictureBox.ZoomChanged += zpb_sheetPreview_ZoomChanged;
+            _sheetPreviewTool.FrameBoundsMouseClicked += sppb_clickedFrameRect;
+            
+            _sheetPreviewTool.AllowMouseHover = true;
 
             CreateObservers();
         }
@@ -242,7 +257,7 @@ namespace Pixelaria.Views.ModelViews
             nud_xPadding.Value = CurrentSheet.ExportSettings.XPadding;
             nud_yPadding.Value = CurrentSheet.ExportSettings.YPadding;
 
-            zpb_sheetPreview.MaximumZoom = new PointF(100, 100);
+            zpb_sheetPreview.PictureBox.MaximumZoom = new PointF(100, 100);
 
             modified = false;
 
@@ -372,7 +387,7 @@ namespace Pixelaria.Views.ModelViews
             var animView = sender as AnimationView;
             if (animView != null && _controller.GetOwningAnimationSheet(animView.CurrentAnimation)?.ID == CurrentSheet.ID && _generatedWhileUnsaved)
             {
-                zpb_sheetPreview.SheetExport = null;
+                _sheetPreviewTool.SheetExport = null;
                 _bundleSheetExport = null;
             }
 
@@ -473,7 +488,7 @@ namespace Pixelaria.Views.ModelViews
                     if (form != null)
                         form.Cursor = Cursors.Default;
 
-                    zpb_sheetPreview.SetImage(img);
+                    zpb_sheetPreview.PictureBox.SetBitmap((Bitmap)img);
 
                     pb_exportProgress.Visible = false;
 
@@ -507,7 +522,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_bundleSheetExport != null)
             {
-                zpb_sheetPreview.LoadExportSheet(_bundleSheetExport);
+                _sheetPreviewTool.LoadExportSheet(_bundleSheetExport);
             }
 
             cb_showReuseCount.Enabled = true;
@@ -518,7 +533,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void HideFrameBounds()
         {
-            zpb_sheetPreview.UnloadExportSheet();
+            _sheetPreviewTool.UnloadExportSheet();
 
             cb_showReuseCount.Enabled = false;
         }
@@ -528,7 +543,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void ShowReuseCount()
         {
-            zpb_sheetPreview.DisplayReusedCount = true;
+            _sheetPreviewTool.DisplayReusedCount = true;
         }
 
         /// <summary>
@@ -538,7 +553,7 @@ namespace Pixelaria.Views.ModelViews
         {
             if (_bundleSheetExport != null)
             {
-                zpb_sheetPreview.DisplayReusedCount = false;
+                _sheetPreviewTool.DisplayReusedCount = false;
             }
         }
 
@@ -547,11 +562,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void RemovePreview()
         {
-            if (zpb_sheetPreview.Image != null)
-            {
-                zpb_sheetPreview.Image.Dispose();
-                zpb_sheetPreview.Image = null;
-            }
+            zpb_sheetPreview.PictureBox.Image?.Dispose();
+            zpb_sheetPreview.PictureBox.SetBitmap(new Bitmap(1, 1));
 
             _bundleSheetExport = null;
         }
@@ -568,7 +580,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Displays frame context menu for the given sheet preview click action
         /// </summary>
-        public void DisplayFrameContextMenu([NotNull] Controls.SheetPreviewFrameBoundsClickEventArgs e)
+        public void DisplayFrameContextMenu([NotNull] SheetPreviewFrameBoundsClickEventArgs e)
         {
             var index = e.SheetBoundsIndex;
             var frameBoundsMap = _bundleSheetExport.Atlas.GetFrameBoundsMap();
@@ -638,8 +650,8 @@ namespace Pixelaria.Views.ModelViews
             // Used to fix drawing of selected frame
             menu.Closed += (sender, args) =>
             {
-                zpb_sheetPreview.AllowMouseHover = false;
-                zpb_sheetPreview.AllowMouseHover = true;
+                _sheetPreviewTool.AllowMouseHover = false;
+                _sheetPreviewTool.AllowMouseHover = true;
             };
 
             menu.Show(MousePosition);
@@ -694,7 +706,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void anud_zoom_ValueChanged(object sender, EventArgs e)
         {
-            zpb_sheetPreview.Zoom = new PointF((float)anud_zoom.Value, (float)anud_zoom.Value);
+            zpb_sheetPreview.PictureBox.Zoom = new PointF((float)anud_zoom.Value, (float)anud_zoom.Value);
         }
 
         // 
@@ -789,7 +801,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Sheet Preview right clicked frame rectangle event
         // 
-        private void sppb_clickedFrameRect(object sender, [NotNull] Controls.SheetPreviewFrameBoundsClickEventArgs e)
+        private void sppb_clickedFrameRect(object sender, [NotNull] SheetPreviewFrameBoundsClickEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {

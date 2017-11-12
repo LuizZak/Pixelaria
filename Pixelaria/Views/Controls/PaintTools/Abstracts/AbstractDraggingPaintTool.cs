@@ -30,7 +30,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
     /// <summary>
     /// Implements a basic functionality for paint operations that require 'dragging to draw' features
     /// </summary>
-    internal abstract class BaseDraggingPaintTool : BasePaintTool
+    internal abstract class AbstractDraggingPaintTool : AbstractPaintTool
     {
         /// <summary>
         /// Whether the mouse is currently being held down

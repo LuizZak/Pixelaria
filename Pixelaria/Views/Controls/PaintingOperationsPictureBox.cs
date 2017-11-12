@@ -22,6 +22,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -44,7 +46,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The current paint operation
         /// </summary>
-        private IPaintTool _currentPaintTool;
+        private IPaintingPictureBoxTool _currentPaintTool;
 
         /// <summary>
         /// The image to display under the current image
@@ -87,17 +89,29 @@ namespace Pixelaria.Views.Controls
         public event EventHandler Modified;
 
         /// <summary>
-        /// Gets or sets the current paint operation for this InternalPictureBox
+        /// Gets or sets the pan mode for this picture box.
+        /// 
+        /// Defaults to <see cref="PictureBoxPanMode.SpaceKeyDrag"/>
         /// </summary>
-        internal IPaintTool CurrentPaintTool { get => _currentPaintTool; set { if (IsDisposed) return; SetPaintTool(value); } }
+        [Browsable(true)]
+        [Description("Pan mode strategy for this picture box that specifies how the user may drag the view when zoomed in enough to display scroll bars.")]
+        [DefaultValue(PictureBoxPanMode.SpaceKeyDrag)]
+        public PictureBoxPanMode PanMode { get; set; } = PictureBoxPanMode.SpaceKeyDrag;
 
         /// <summary>
-        /// Gets the ImageEditPanel that owns this InternalPictureBox
+        /// Gets or sets the current paint operation for this <see cref="PaintingOperationsPictureBox"/>
         /// </summary>
+        [Browsable(false)]
+        internal IPaintingPictureBoxTool CurrentPaintTool { get => _currentPaintTool; set { if (IsDisposed) return; SetPaintTool(value); } }
+
+        /// <summary>
+        /// Gets the <see cref="ImageEditPanel"/> that owns this <see cref="PaintingOperationsPictureBox"/>
+        /// </summary>
+        [Browsable(false)]
         public ImageEditPanel OwningPanel { get; }
-
+        
         /// <summary>
-        /// Gets the Bitmap associated with this InternalPictureBox
+        /// Gets the Bitmap associated with this <see cref="PaintingOperationsPictureBox"/>
         /// </summary>
         [CanBeNull]
         public Bitmap Bitmap => Image as Bitmap;
@@ -105,6 +119,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets the buffer bitmap that the paint operations will use in order to buffer screen previews
         /// </summary>
+        [Browsable(false)]
         public Bitmap Buffer { get; private set; }
 
         /// <summary>
@@ -140,22 +155,24 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets a value specifying whether editing is currently enabled on this PictureBox
         /// </summary>
+        [Browsable(false)]
         public bool EditingEnabled => OwningPanel.EditingEnabled;
 
         /// <summary>
         /// Gets a value specifying whether the space keyboard key is currently being held down
         /// </summary>
+        [Browsable(false)]
         public bool SpaceHeld { get; private set; }
 
         /// <summary>
         /// Specifies the delegate signature for custom interceptable mouse events of this panel
         /// </summary>
-        public delegate void InternalPictureBoxMouseEvent(object sender, InternalPictureBoxMouseEventArgs e);
+        public delegate void PaintingOperationsPictureBoxMouseEvent(object sender, PaintingOperatinsPictureBoxMouseEventArgs e);
 
         /// <summary>
         /// An event for mouse down that may be interceptable by a listener
         /// </summary>
-        public event InternalPictureBoxMouseEvent InterceptableMouseDown;
+        public event PaintingOperationsPictureBoxMouseEvent InterceptableMouseDown;
 
         /// <summary>
         /// Initializes a new instance of the InternalPictureBox class
@@ -176,6 +193,7 @@ namespace Pixelaria.Views.Controls
             SetPaintTool(new PencilPaintTool());
         }
             
+        [SuppressMessage("ReSharper", "UseNullPropagation")]
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -205,7 +223,8 @@ namespace Pixelaria.Views.Controls
 
             _pictureBoxDecorators.Clear();
 
-            Buffer.Dispose();
+            if (Buffer != null)
+                Buffer.Dispose();
         }
 
         /// <summary>
@@ -240,11 +259,11 @@ namespace Pixelaria.Views.Controls
                 _currentPaintTool.ChangeBitmap(bitmap);
             }
         }
-
+        
         /// <summary>
-        /// Sets the current paint operation of this InternalPictureBox to be of the given type
+        /// Sets the current paint operation of this <see cref="PaintingOperationsPictureBox"/> to be of the given type
         /// </summary>
-        internal void SetPaintTool(IPaintTool newPaintTool)
+        internal void SetPaintTool(IPaintingPictureBoxTool newPaintTool)
         {
             if (_currentPaintTool != null)
             {
@@ -475,7 +494,10 @@ namespace Pixelaria.Views.Controls
         // 
         protected override void OnMouseClick(MouseEventArgs e)
         {
-            // Catch the mouse click so the middle mouse button doesn't reset the zoom
+            // Don't call base.OnMouseClick(e) to catch the mouse click so the middle mouse button doesn't reset the zoom
+
+            if (Image != null && EditingEnabled)
+                _currentPaintTool.MouseClick(e);
         }
 
         // 
@@ -483,11 +505,15 @@ namespace Pixelaria.Views.Controls
         // 
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            if (PanMode == PictureBoxPanMode.MiddleMouseDrag && e.Button == MouseButtons.Middle ||
+                PanMode == PictureBoxPanMode.LeftMouseDrag && e.Button == MouseButtons.Left)
+                AllowDrag = true;
+
             base.OnMouseDown(e);
 
             var location = GetAbsolutePoint(e.Location);
 
-            var args = new InternalPictureBoxMouseEventArgs(e.Button, e.Clicks, e.X, e.Y, location.X, location.Y, e.Delta);
+            var args = new PaintingOperatinsPictureBoxMouseEventArgs(e.Button, e.Clicks, e.X, e.Y, location.X, location.Y, e.Delta);
             InterceptableMouseDown?.Invoke(this, args);
 
             // Event was handled
@@ -532,6 +558,9 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseUp(e);
 
+            if (PanMode == PictureBoxPanMode.MiddleMouseDrag && e.Button == MouseButtons.Middle)
+                AllowDrag = false;
+
             if (_mouseDown && EditingEnabled && Image != null)
                 _currentPaintTool.MouseUp(e);
 
@@ -572,7 +601,7 @@ namespace Pixelaria.Views.Controls
             if (EditingEnabled && Image != null)
                 _currentPaintTool.KeyDown(e);
 
-            if (e.KeyCode == Keys.Space && !SpaceHeld)
+            if (PanMode == PictureBoxPanMode.SpaceKeyDrag && (e.KeyCode == Keys.Space && !SpaceHeld))
             {
                 AllowDrag = true;
                 SpaceHeld = true;
@@ -593,8 +622,8 @@ namespace Pixelaria.Views.Controls
 
             if (EditingEnabled && Image != null)
                 _currentPaintTool.KeyUp(e);
-
-            if (e.KeyCode == Keys.Space)
+            
+            if (PanMode == PictureBoxPanMode.SpaceKeyDrag && e.KeyCode == Keys.Space)
             {
                 AllowDrag = false;
                 SpaceHeld = false;
@@ -605,5 +634,65 @@ namespace Pixelaria.Views.Controls
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// A mouse event fired by the internal picture box of an image edit panel.
+    /// This event allows listeners to intercept and handle mouse events of an internal picture box
+    /// </summary>
+    public class PaintingOperatinsPictureBoxMouseEventArgs : MouseEventArgs
+    {
+        /// <summary>
+        /// Whether this event was properly handled by the event listener
+        /// </summary>
+        public bool Handled;
+
+        /// <summary>
+        /// The x coordinate of this point, on image coordinates
+        /// </summary>
+        public int ImageX;
+
+        /// <summary>
+        /// The Y coordinate of this point, on image coordinates
+        /// </summary>
+        public int ImageY;
+
+        /// <summary>
+        /// Gets the point of this event, on absolute image coordinates
+        /// </summary>
+        public Point ImageLocation => new Point(ImageX, ImageY);
+
+        public PaintingOperatinsPictureBoxMouseEventArgs(MouseButtons button, int clicks, int x, int y, int mouseX, int mouseY, int delta) : base(button, clicks, x, y, delta)
+        {
+            ImageX = mouseX;
+            ImageY = mouseY;
+        }
+    }
+
+    /// <summary>
+    /// Specifies the pan mode for a <see cref="PaintingOperationsPictureBox"/>.
+    /// </summary>
+    public enum PictureBoxPanMode
+    {
+        /// <summary>
+        /// No panning action is provided.
+        /// </summary>
+        None,
+        /// <summary>
+        /// Specifies the panning happens when the left mouse is pressed down.
+        /// 
+        /// Disables paint tools mouse operations.
+        /// </summary>
+        LeftMouseDrag,
+        /// <summary>
+        /// Panning happens when the user drags the picture box while holding
+        /// down the space key.
+        /// </summary>
+        SpaceKeyDrag,
+        /// <summary>
+        /// Panning happens when the user drags the picture box while holding
+        /// down the middle mouse button.
+        /// </summary>
+        MiddleMouseDrag
     }
 }

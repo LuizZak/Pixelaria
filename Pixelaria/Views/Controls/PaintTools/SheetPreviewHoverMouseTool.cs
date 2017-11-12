@@ -28,15 +28,16 @@ using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Controllers.Importers;
+using Pixelaria.Data;
 using Pixelaria.Data.Exports;
-using Pixelaria.Views.Controls.PaintTools;
+using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
-namespace Pixelaria.Views.Controls
+namespace Pixelaria.Views.Controls.PaintTools
 {
     /// <summary>
-    /// ZoomablePictureBox implementation used to preview the sheet settings to the user
+    /// A paint box tool that when applied, allows 
     /// </summary>
-    public class SheetPreviewPictureBox : ZoomablePictureBox
+    internal class SheetPreviewHoverMouseTool : AbstractPaintTool
     {
         /// <summary>
         /// Timer used to animate the selection area
@@ -71,7 +72,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// The array of rectangle areas for each frame
         /// </summary>
-        private Rectangle[] _frameRects;
+        private IBitmapFrameSequence _frameRects;
 
         /// <summary>
         /// Whether to display the number of frames that have been reused when drawing the frame bounds
@@ -120,7 +121,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Gets or sets the IDefaultImporter to use when generating the sheet rectangles
         /// </summary>
-        public IDefaultImporter Importer { get; set; }
+        public IAnimationImporter Importer { get; set; }
 
         /// <summary>
         /// Gets or sets the current Sheet Settings this SheetPreviewPictureBox is displaying
@@ -131,9 +132,11 @@ namespace Pixelaria.Views.Controls
             set
             {
                 _sheetSettings = value;
-                _frameRects = Importer.GenerateFrameBounds(Image, _sheetSettings);
+                if (pictureBox?.Bitmap != null)
+                    _frameRects = Importer.GenerateFrameSequence(pictureBox.Bitmap, _sheetSettings);
+
                 RefreshFrameBoundsPreview();
-                Invalidate();
+                pictureBox?.Invalidate();
             }
         }
 
@@ -147,7 +150,7 @@ namespace Pixelaria.Views.Controls
             {
                 _sheetExport = value;
                 RefreshFrameBoundsPreview();
-                Invalidate();
+                pictureBox?.Invalidate();
             }
         }
 
@@ -162,7 +165,7 @@ namespace Pixelaria.Views.Controls
             {
                 _displayReusedCount = value;
                 RefreshFrameBoundsPreview();
-                Invalidate();
+                pictureBox?.Invalidate();
             }
         }
 
@@ -178,16 +181,20 @@ namespace Pixelaria.Views.Controls
             get => _allowMouseHover;
             set
             {
-                _mouseLocation = PointToClient(MousePosition);
                 _allowMouseHover = value;
-                Invalidate();
+
+                if (pictureBox == null)
+                    return;
+
+                _mouseLocation = pictureBox.PointToClient(Control.MousePosition);
+                pictureBox?.Invalidate();
             }
         }
-        
+
         /// <summary>
-        /// Static constructor for the SheetPreviewPictureBox class
+        /// Static constructor for the <see cref="SheetPreviewHoverMouseTool"/> class
         /// </summary>
-        static SheetPreviewPictureBox()
+        static SheetPreviewHoverMouseTool()
         {
             LoadPixelDigitImages();
         }
@@ -212,28 +219,23 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
-        /// Initializes a new instance of the SheetPreviewPictureBox
+        /// Initializes a new instance of the <see cref="SheetPreviewHoverMouseTool"/> class.
         /// </summary>
-        public SheetPreviewPictureBox()
+        public SheetPreviewHoverMouseTool()
         {
             _animTimer = new Timer { Interval = 150 };
             _animTimer.Tick += animTimer_Tick;
             _animTimer.Start();
         }
-        
+
         protected override void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                _animTimer.Dispose();
+            }
+
             base.Dispose(disposing);
-
-            if (!disposing)
-                return;
-
-            // ReSharper disable once UseNullPropagation
-            if (_frameRectSheet != null)
-                _frameRectSheet.Dispose();
-
-            _animTimer.Stop();
-            _animTimer.Dispose();
         }
 
         /// <summary>
@@ -241,23 +243,25 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="previewImage">The image to use as preview</param>
         /// <param name="sheetSettings">The sheet settings</param>
-        public void LoadPreview(Image previewImage, SheetSettings sheetSettings)
+        public void LoadPreview(Bitmap previewImage, SheetSettings sheetSettings)
         {
             UnloadExportSheet();
 
-            // Reset the transformations
-            scale = new PointF(1, 1);
-            offsetPoint = Point.Empty;
+            if (pictureBox == null)
+                return;
 
-            Image = previewImage;
+            // Reset the transformations
+            pictureBox.Zoom = new PointF(1, 1);
+            pictureBox.Offset = Point.Empty;
+
+            pictureBox.Image = previewImage;
             _sheetSettings = sheetSettings;
 
-            _frameRects = Importer.GenerateFrameBounds(Image, sheetSettings);
+            _frameRects = Importer.GenerateFrameSequence(previewImage, sheetSettings);
             RefreshFrameBoundsPreview();
 
-            Invalidate();
-
-            UpdateScrollbars();
+            pictureBox?.Invalidate();
+            pictureBox?.UpdateScrollbars();
         }
 
         /// <summary>
@@ -269,14 +273,15 @@ namespace Pixelaria.Views.Controls
             UnloadExportSheet();
 
             // Reset the transformations
-            Image = bundleSheetExport.Sheet;
+            if (pictureBox != null)
+                pictureBox.Image = bundleSheetExport.Sheet;
+
             _sheetExport = bundleSheetExport;
 
             RefreshFrameBoundsPreview();
 
-            Invalidate();
-
-            UpdateScrollbars();
+            pictureBox?.Invalidate();
+            pictureBox?.UpdateScrollbars();
         }
 
         /// <summary>
@@ -289,7 +294,7 @@ namespace Pixelaria.Views.Controls
 
             RefreshFrameBoundsPreview();
 
-            Invalidate();
+            pictureBox?.Invalidate();
         }
 
         /// <summary>
@@ -297,12 +302,15 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         private void RefreshFrameBoundsPreview()
         {
-            _frameRectSheet?.Dispose();
-
-            if (Image == null)
+            if (pictureBox == null)
                 return;
 
-            _frameRectSheet = new Bitmap(Image.Width, Image.Height);
+            _frameRectSheet?.Dispose();
+
+            if (pictureBox.Image == null)
+                return;
+
+            _frameRectSheet = new Bitmap(pictureBox.Image.Width, pictureBox.Image.Height);
 
             // Lay the frame rectangles on top of the image
             Rectangle[] rects = null;
@@ -313,12 +321,12 @@ namespace Pixelaria.Views.Controls
             }
             else if (Importer != null && _frameRects != null)
             {
-                rects = _frameRects;
+                rects = Importer.GenerateFrameBounds(_frameRectSheet.Size, _sheetSettings);
             }
 
             if (rects == null) return;
-            
-            using(var fast = _frameRectSheet.FastLock())
+
+            using (var fast = _frameRectSheet.FastLock())
             {
                 // Draw the frame bounds now
                 uint color = unchecked((uint)Color.Red.ToArgb());
@@ -345,7 +353,7 @@ namespace Pixelaria.Views.Controls
 
             if (!_displayReusedCount)
                 return;
-            
+
             using (var g = Graphics.FromImage(_frameRectSheet))
             {
                 g.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -359,12 +367,11 @@ namespace Pixelaria.Views.Controls
 
                     fRect.X += 1;
                     fRect.Y += 1;
-                    
+
                     if (!_displayReusedCount || _sheetExport == null)
                         continue;
-
-                    // TODO: Store pixel digits created and avoid rendering multiple pixel digits on top of each other
-                    Point pixelPoint = fRect.Location;
+                    
+                    var pixelPoint = fRect.Location;
 
                     int digitsScale = 3;
                     int frameCount = _sheetExport.Atlas.GetFrameBoundsMap().CountOfFramesAtSheetBoundsIndex(i);
@@ -378,25 +385,25 @@ namespace Pixelaria.Views.Controls
                 }
             }
         }
-        
+
         // 
         // Animation Timer tick
         // 
         private void animTimer_Tick(object sender, EventArgs e)
         {
             _dashOffset -= 0.5f;
-            if (AllowMouseHover && _mouseOver && ((_frameRects != null && _frameRects.Length > 0) || (_sheetExport != null && _sheetExport.FrameCount > 0)))
+            if (AllowMouseHover && _mouseOver && (_frameRects != null && _frameRects.FrameCount > 0 || _sheetExport != null && _sheetExport.FrameCount > 0))
             {
-                Invalidate();
+                pictureBox?.Invalidate();
             }
         }
 
         // 
-        // OnPaint event handler. Draws the underlying sheet, and the frame rectangles on the sheet
+        // PaintForeground event handler. Draws the sheet, and the frame rectangles on the sheet
         // 
-        protected override void OnPaint(PaintEventArgs pe)
+        public override void PaintForeground(PaintEventArgs pe)
         {
-            base.OnPaint(pe);
+            base.PaintForeground(pe);
 
             // Frame rect sheet display
             if (_frameRectSheet == null)
@@ -408,10 +415,22 @@ namespace Pixelaria.Views.Controls
             if (_mouseOver && AllowMouseHover && (_frameRects != null || _sheetExport != null))
             {
                 var absolute = GetAbsolutePoint(_mouseLocation);
-                
+
                 pe.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-                foreach (var rect in _frameRects ?? _sheetExport.Atlas.UniqueBounds)
+                Rectangle[] rects;
+                if (_sheetExport != null)
+                {
+                    rects = _sheetExport.Atlas.UniqueBounds;
+                }
+                else if (Importer != null)
+                {
+                    rects = Importer.GenerateFrameBounds(_frameRectSheet.Size, _sheetSettings);
+                }
+                else
+                    return;
+
+                foreach (var rect in rects)
                 {
                     if (rect.Contains(absolute))
                     {
@@ -420,13 +439,13 @@ namespace Pixelaria.Views.Controls
                 }
             }
         }
-        
+
         // 
         // OnMouseDown event handler. Used to pin down selected frame index
         // 
-        protected override void OnMouseDown(MouseEventArgs e)
+        public override void MouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
+            base.MouseDown(e);
 
             _mouseDown = true;
         }
@@ -434,20 +453,23 @@ namespace Pixelaria.Views.Controls
         // 
         // OnMouseDown event handler. Used to pin down selected frame index
         // 
-        protected override void OnMouseUp(MouseEventArgs e)
+        public override void MouseUp(MouseEventArgs e)
         {
-            base.OnMouseUp(e);
+            base.MouseUp(e);
+
+            if (pictureBox == null)
+                return;
 
             _mouseDown = false;
 
-            if(!ClientRectangle.Contains(PointToClient(MousePosition)) && _mouseOver)
+            if (!pictureBox.ClientRectangle.Contains(pictureBox.PointToClient(Control.MousePosition)) && _mouseOver)
             {
                 _mouseOver = false;
                 _mouseOverRectangleIndex = -1;
 
                 if (AllowMouseHover)
                 {
-                    Invalidate();
+                    pictureBox.Invalidate();
                 }
             }
         }
@@ -455,16 +477,16 @@ namespace Pixelaria.Views.Controls
         // 
         // OnClick event handler. Handles clicks over frame rectangle bounds
         // 
-        protected override void OnMouseClick(MouseEventArgs e)
+        public override void MouseClick(MouseEventArgs e)
         {
-            base.OnMouseClick(e);
+            base.MouseClick(e);
 
             if (FrameBoundsMouseClicked == null)
                 return;
-            
+
             if (_sheetExport == null)
                 return;
-            
+
             var absolute = GetAbsolutePoint(_mouseLocation);
 
             for (int i = 0; i < _sheetExport.Atlas.UniqueBounds.Length; i++)
@@ -477,13 +499,13 @@ namespace Pixelaria.Views.Controls
                 }
             }
         }
-        
+
         // 
         // OnMouseMove event handler. Used in conjunction with the AllowMouseHover flag to mark 
         // 
-        protected override void OnMouseMove(MouseEventArgs e)
+        public override void MouseMove(MouseEventArgs e)
         {
-            base.OnMouseMove(e);
+            base.MouseMove(e);
 
             _mouseLocation = e.Location;
 
@@ -507,7 +529,7 @@ namespace Pixelaria.Views.Controls
 
                 if (_mouseOverRectangleIndex != nextIndex)
                 {
-                    Invalidate();
+                    pictureBox?.Invalidate();
                 }
             }
         }
@@ -515,18 +537,18 @@ namespace Pixelaria.Views.Controls
         // 
         // OnMouseLeave event handler. Clears the current area under the mouse if the AllowMouseHover flag is true
         // 
-        protected override void OnMouseLeave(EventArgs e)
+        public override void MouseLeave(EventArgs e)
         {
-            base.OnMouseLeave(e);
+            base.MouseLeave(e);
 
-            if(!_mouseDown)
+            if (!_mouseDown)
             {
                 _mouseOver = false;
                 _mouseOverRectangleIndex = -1;
 
                 if (AllowMouseHover)
                 {
-                    Invalidate();
+                    pictureBox?.Invalidate();
                 }
             }
         }
@@ -534,18 +556,18 @@ namespace Pixelaria.Views.Controls
         // 
         // OnMouseEnter event handler. Clears the current area under the mouse if the AllowMouseHover flag is true
         // 
-        protected override void OnMouseEnter(EventArgs e)
+        public override void MouseEnter(EventArgs e)
         {
-            base.OnMouseEnter(e);
+            base.MouseEnter(e);
 
             _mouseOver = true;
 
             if (AllowMouseHover)
             {
-                Invalidate();
+                pictureBox?.Invalidate();
             }
         }
-
+        
         /// <summary>
         /// Returns the size of a number to be rendered using pixel image digits
         /// </summary>
