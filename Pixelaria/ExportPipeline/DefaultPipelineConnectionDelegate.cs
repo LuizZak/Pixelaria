@@ -84,26 +84,15 @@ namespace Pixelaria.ExportPipeline
 
                 visited.Add(cur);
 
-                if (cur is IPipelineStep step)
+                if (!(cur is IPipelineNodeWithInputs n))
+                    continue;
+
+                foreach (var input in n.Input)
                 {
-                    foreach (var input in step.Input)
+                    foreach (var connection in container.ConnectionsFor(input))
                     {
-                        foreach (var connection in container.ConnectionsFor(input))
-                        {
-                            if (!visited.Contains(connection.Output.Node))
-                                queue.Enqueue(connection.Output.Node);
-                        }
-                    }
-                }
-                else if (cur is IPipelineEnd end)
-                {
-                    foreach (var input in end.Input)
-                    {
-                        foreach (var connection in container.ConnectionsFor(input))
-                        {
-                            if (!visited.Contains(connection.Output.Node))
-                                queue.Enqueue(connection.Output.Node);
-                        }
+                        if (!visited.Contains(connection.Output.Node))
+                            queue.Enqueue(connection.Output.Node);
                     }
                 }
             }

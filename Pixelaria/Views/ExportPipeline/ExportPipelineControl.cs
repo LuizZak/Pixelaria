@@ -842,39 +842,23 @@ namespace Pixelaria.Views.ExportPipeline
                 if (start.IsDirectlyConnected(end))
                     return;
 
-                if (end is IPipelineStep step)
-                {
-                    var con = start.ConnectTo(step);
-                    if (con != null)
-                    {
-                        var input = step.Input.First(i => i.Connections.Any(start.Output.Contains));
-                        var output = input.Connections.First(start.Output.Contains);
+                if (!(end is IPipelineNodeWithInputs node))
+                    return;
 
-                        var inpView = ViewForPipelineNodeLink(input);
-                        var outView = ViewForPipelineNodeLink(output);
+                var con = start.ConnectTo(node);
+                if (con == null)
+                    return;
+
+                var input = node.Input.First(i => i.Connections.Any(start.Output.Contains));
+                var output = input.Connections.First(start.Output.Contains);
+
+                var inpView = ViewForPipelineNodeLink(input);
+                var outView = ViewForPipelineNodeLink(output);
                         
-                        Debug.Assert(inpView != null, "inpView != null");
-                        Debug.Assert(outView != null, "outView != null");
+                Debug.Assert(inpView != null, "inpView != null");
+                Debug.Assert(outView != null, "outView != null");
 
-                        AddConnectionView(inpView, outView, con);
-                    }
-                }
-                else if (end is IPipelineEnd endStep)
-                {
-                    var con = start.ConnectTo(endStep);
-                    if (con != null)
-                    {
-                        var input = endStep.Input.First(i => i.Connections.Any(start.Output.Contains));
-                        var output = input.Connections.First(start.Output.Contains);
-
-                        var inpView = ViewForPipelineNodeLink(input);
-                        var outView = ViewForPipelineNodeLink(output);
-
-                        Debug.Assert(inpView != null, "inpView != null");
-                        Debug.Assert(outView != null, "outView != null");
-                        AddConnectionView(inpView, outView, con);
-                    }
-                }
+                AddConnectionView(inpView, outView, con);
             }
 
             public bool AreConnected(PipelineNodeLinkView start, PipelineNodeLinkView end)

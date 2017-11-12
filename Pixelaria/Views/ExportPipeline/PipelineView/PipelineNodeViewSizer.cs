@@ -97,8 +97,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
         public static void PositionLinkViews([NotNull] PipelineNodeView nodeView)
         {
-            var inputs = (nodeView.PipelineNode as IPipelineStep)?.Input ?? (nodeView.PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
-            var outputs = (nodeView.PipelineNode as IPipelineStep)?.Output ?? new IPipelineOutput[0];
+            var inputs = (nodeView.PipelineNode as IPipelineNodeWithInputs)?.Input ?? new IPipelineInput[0];
+            var outputs = (nodeView.PipelineNode as IPipelineNodeWithOutputs)?.Output ?? new IPipelineOutput[0];
 
             var linkSize = new Vector(LinkSize);
 

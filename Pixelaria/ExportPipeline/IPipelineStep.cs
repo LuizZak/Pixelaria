@@ -27,7 +27,7 @@ using JetBrains.Annotations;
 namespace Pixelaria.ExportPipeline
 {
     /// <summary>
-    /// Base interface for IPipelineEnd and IPipelineStep nodes
+    /// Base interface for pipeline nodes that accept and/or produce outputs.
     /// </summary>
     public interface IPipelineNode
     {
@@ -51,18 +51,24 @@ namespace Pixelaria.ExportPipeline
         [CanBeNull]
         IPipelineMetadata GetMetadata();
     }
-    
+
     /// <summary>
-    /// Interface for a pipeline step
+    /// Interface for a pipeline node that accepts one or more inputs
     /// </summary>
-    public interface IPipelineStep : IPipelineNode
+    public interface IPipelineNodeWithInputs : IPipelineNode
     {
         /// <summary>
-        /// Accepted inputs for this pipeline step
+        /// Accepted inputs for this pipeline node
         /// </summary>
         [NotNull]
         IReadOnlyList<IPipelineInput> Input { get; }
+    }
 
+    /// <summary>
+    /// Interface for a pipeline node that produces one or more outputs
+    /// </summary>
+    public interface IPipelineNodeWithOutputs : IPipelineNode
+    {
         /// <summary>
         /// Accepted outputs for this pipeline step
         /// </summary>
@@ -71,16 +77,27 @@ namespace Pixelaria.ExportPipeline
     }
 
     /// <summary>
+    /// Interface for a pipeline step
+    /// </summary>
+    public interface IPipelineStep : IPipelineNodeWithInputs, IPipelineNodeWithOutputs
+    {
+        
+    }
+
+    /// <summary>
+    /// Interface for a pipeline step that has only outputs, and requires no inputs to produce
+    /// values.
+    /// </summary>
+    public interface IPipelineStart : IPipelineNodeWithOutputs
+    {
+        
+    }
+
+    /// <summary>
     /// Represents a pipeline step that is the final output of the sequence of pipeline steps
     /// </summary>
-    public interface IPipelineEnd : IPipelineNode, IDisposable
+    public interface IPipelineEnd : IPipelineNodeWithInputs, IDisposable
     {
-        /// <summary>
-        /// Accepted inputs for this pipeline step
-        /// </summary>
-        [NotNull]
-        IReadOnlyList<IPipelineInput> Input { get; }
-
         /// <summary>
         /// Starts the chain of consumption of pipeline steps linked to this pipeline end.
         /// </summary>

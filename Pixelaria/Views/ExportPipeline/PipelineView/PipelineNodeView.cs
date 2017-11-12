@@ -111,10 +111,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             }
 
             // Create inputs
-            var inputs = (PipelineNode as IPipelineStep)?.Input ?? (PipelineNode as IPipelineEnd)?.Input ?? new IPipelineInput[0];
-            var outputs = (PipelineNode as IPipelineStep)?.Output ?? new IPipelineOutput[0];
+            var inputs = (PipelineNode as IPipelineNodeWithInputs)?.Input ?? new IPipelineInput[0];
+            var outputs = (PipelineNode as IPipelineNodeWithOutputs)?.Output ?? new IPipelineOutput[0];
 
-            for (var i = 0; i < inputs.Count; i++)
+            for (int i = 0; i < inputs.Count; i++)
             {
                 var input = new PipelineNodeLinkView(inputs.ElementAt(i));
 
@@ -122,7 +122,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
                 AddChild(input);
             }
 
-            for (var i = 0; i < outputs.Count; i++)
+            for (int i = 0; i < outputs.Count; i++)
             {
                 var output = new PipelineNodeLinkView(outputs.ElementAt(i));
 

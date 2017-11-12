@@ -39,7 +39,7 @@ namespace Pixelaria.ExportPipeline
         /// <see cref="other"/>.
         /// </summary>
         [CanBeNull]
-        public static IPipelineLinkConnection ConnectTo([NotNull] this IPipelineStep step, IPipelineStep other)
+        public static IPipelineLinkConnection ConnectTo([NotNull] this IPipelineNodeWithOutputs step, IPipelineNodeWithInputs other)
         {
             // Find first matching output from this that matches an input from other
             foreach (var output in step.Output)
@@ -57,31 +57,7 @@ namespace Pixelaria.ExportPipeline
 
             return null;
         }
-
-        /// <summary>
-        /// Connects the first Output from <see cref="step"/> that matches the first Input from
-        /// <see cref="other"/>.
-        /// </summary>
-        [CanBeNull]
-        public static IPipelineLinkConnection ConnectTo([NotNull] this IPipelineStep step, IPipelineEnd other)
-        {
-            // Find first matching output from this that matches an input from other
-            foreach (var output in step.Output)
-            {
-                foreach (var input in other.Input)
-                {
-                    if (input.Connections.Contains(output))
-                        continue;
-
-                    if (!input.CanConnect(output)) continue;
-
-                    return input.Connect(output);
-                }
-            }
-
-            return null;
-        }
-
+        
         /// <summary>
         /// Returns whether a pipeline input can be connected to an output.
         /// 
@@ -121,26 +97,15 @@ namespace Pixelaria.ExportPipeline
 
                 visited.Add(cur);
 
-                if (cur is IPipelineStep step)
+                if (!(cur is IPipelineNodeWithInputs inputNode))
+                    continue;
+
+                foreach (var input in inputNode.Input)
                 {
-                    foreach (var input in step.Input)
+                    foreach (var connection in input.Connections)
                     {
-                        foreach (var connection in input.Connections)
-                        {
-                            if(!visited.Contains(connection.Node))
-                                queue.Enqueue(connection.Node);
-                        }
-                    }
-                }
-                else if (cur is IPipelineEnd end)
-                {
-                    foreach (var input in end.Input)
-                    {
-                        foreach (var connection in input.Connections)
-                        {
-                            if (!visited.Contains(connection.Node))
-                                queue.Enqueue(connection.Node);
-                        }
+                        if(!visited.Contains(connection.Node))
+                            queue.Enqueue(connection.Node);
                     }
                 }
             }

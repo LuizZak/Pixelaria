@@ -50,9 +50,10 @@ namespace Pixelaria.ExportPipeline
                 PipelineNodeSpec.Of<SpriteSheetGenerationPipelineStep>("Sprite Sheet Generation"),
                 PipelineNodeSpec.Of<TransparencyFilterPipelineStep>("Transparency Filter"),
                 PipelineNodeSpec.Of<FilterPipelineStep<OffsetFilter>>("Offset Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<HueFilter>>("Saturation Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<SaturationFilter>>("Lightness Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<LightnessFilter>>("Stroke Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<HueFilter>>("Hue Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<SaturationFilter>>("Saturation Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<LightnessFilter>>("Lightness Filter"),
+                PipelineNodeSpec.Of<FilterPipelineStep<StrokeFilter>>("Stroke Filter"),
                 PipelineNodeSpec.Of<FileExportPipelineStep>("File Export")
             };
 
