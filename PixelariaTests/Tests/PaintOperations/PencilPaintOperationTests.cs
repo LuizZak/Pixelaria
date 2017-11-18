@@ -430,13 +430,13 @@ namespace PixelariaTests.Tests.PaintOperations
             // Test line from 5x5 -> 10x10
             for (int i = 5; i <= 10; i++)
             {
-                var i1 = i;
+                int i1 = i;
                 stubNotifier.AssertWasCalled(x => x.PlottedPixel(new Point(i1, i1), Color.Transparent.ToArgb(), Color.Black.ToArgb()));
             }
             // Test line that goes back from 9x9 -> 5x5, in which the black pixels due to the previous DrawTo() are ignored
             for (int i = 5; i < 10; i++)
             {
-                var i1 = i;
+                int i1 = i;
                 stubNotifier.AssertWasNotCalled(x => x.PlottedPixel(new Point(i1, i1), Color.Black.ToArgb(), Color.Black.ToArgb()));
             }
         }

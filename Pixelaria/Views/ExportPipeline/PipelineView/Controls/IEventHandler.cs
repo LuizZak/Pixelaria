@@ -33,6 +33,37 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     internal interface IEventHandler
     {
         /// <summary>
+        /// Returns whether this event handler is the first responder in the responder chain.
+        /// </summary>
+        bool IsFirstResponder { get; }
+
+        /// <summary>
+        /// Returns whether this event handler can become the first responder of targeted events.
+        /// </summary>
+        bool CanBecomeFirstResponder { get; }
+
+        /// <summary>
+        /// If this event handler is the first responder, returns whether it can currently resign
+        /// the state.
+        /// </summary>
+        bool CanResignFirstResponder { get; }
+
+        /// <summary>
+        /// Asks this event handler to become the first responder on the event responder chain.
+        /// 
+        /// Returns a value specifying whether this event handler successfully became the first responder.
+        /// If another event handler in the hierarchy is the first responder and it denies resigning it, or 
+        /// this event handler returns <see cref="CanBecomeFirstResponder"/> as false, false is returned and
+        /// this event handler does not become the first responder.
+        /// </summary>
+        bool BecomeFirstResponder();
+
+        /// <summary>
+        /// Asks this event handler to dismiss its first responder status.
+        /// </summary>
+        void ResignFirstResponder();
+
+        /// <summary>
         /// Next target to direct an event to, in case this handler has not handled the event.
         /// </summary>
         [CanBeNull]

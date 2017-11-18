@@ -71,6 +71,7 @@
       <HintPath>..\packages\System.Reactive.Windows.Threading.3.1.1\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -116,8 +117,11 @@
     <Compile Include="Tests\Utils\ImageUtilitiesTests.cs" />
     <Compile Include="Tests\Utils\Layouting\LayoutingTests.cs" />
     <Compile Include="Tests\Utils\UtilsTests.cs" />
-    <Compile Include="Tests\Views\ModelViews\PipelineView\BaseViewTests.cs" />
-    <Compile Include="Tests\Views\ModelViews\PipelineView\GraphTests.cs" />
+    <Compile Include="Tests\Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeatureTests.cs" />
+    <Compile Include="Tests\Views\ExportPipeline\PipelineView\BaseViewTests.cs" />
+    <Compile Include="Tests\Views\ExportPipeline\PipelineView\Controls\TextFieldTests.cs" />
+    <Compile Include="Tests\Views\ExportPipeline\PipelineView\Controls\TestControlView.cs" />
+    <Compile Include="Tests\Views\ExportPipeline\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

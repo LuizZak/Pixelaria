@@ -21,11 +21,7 @@
 */
 
 using System;
-using Color = System.Drawing.Color;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
@@ -40,9 +36,9 @@ using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
-    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>
+    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>, IFirstResponderDelegate<IEventHandler>
     {
-        private readonly ControlView _baseControl = new ControlView();
+        private readonly RootControlView _baseControl;
 
         /// <summary>
         /// When mouse is down on a control, this is the control that the mouse
@@ -59,10 +55,18 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         [CanBeNull]
         private IMouseEventHandler _mouseHoverTarget;
 
+        /// <summary>
+        /// First responder for keyboard events
+        /// </summary>
+        [CanBeNull]
+        private IKeyboardEventHandler _firstResponder;
+
         public ControlViewFeature([NotNull] ExportPipelineControl control) : base(control)
         {
-            _baseControl.Size = control.Size;
-            _baseControl.BackColor = Color.Transparent;
+            _baseControl = new RootControlView(this)
+            {
+                Size = control.Size
+            };
         }
 
         public void AddControl([NotNull] ControlView view)
@@ -135,6 +139,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             _baseControl.Size = Control.Size;
         }
 
+        #region Mouse Events
+
         public override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -152,21 +158,21 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             // Find control
             var control = ControlViewUnder(e.Location);
-            if (control != null && !ReferenceEquals(control, _baseControl))
+            if (control == null)
+                return;
+
+            // Make request
+            var request = new MouseEventRequest(MouseEventType.MouseDown, handler =>
             {
-                // Make request
-                var request = new MouseEventRequest(MouseEventType.MouseDown, handler =>
-                {
-                    if (!RequestExclusiveControl())
-                        return;
+                if (!RequestExclusiveControl())
+                    return;
 
-                    handler.OnMouseDown(ConvertMouseEvent(e, handler));
+                handler.OnMouseDown(ConvertMouseEvent(e, handler));
 
-                    _mouseDownTarget = handler;
-                });
+                _mouseDownTarget = handler;
+            });
 
-                control.HandleOrPass(request);
-            }
+            control.HandleOrPass(request);
         }
 
         public override void OnMouseMove(MouseEventArgs e)
@@ -246,6 +252,92 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             }
         }
 
+        #endregion
+
+        #region Keyboard Events
+
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            if (OtherFeatureHasExclusiveControl())
+                return;
+
+            if (_firstResponder == null)
+                return;
+
+            var request = new KeyboardEventRequest(KeyboardEventType.KeyDown, handler =>
+            {
+                ConsumeEvent();
+
+                handler.OnKeyDown(e);
+            });
+
+            _firstResponder.HandleOrPass(request);
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+
+            if (OtherFeatureHasExclusiveControl())
+                return;
+
+            if (_firstResponder == null)
+                return;
+
+            var request = new KeyboardEventRequest(KeyboardEventType.KeyUp, handler =>
+            {
+                ConsumeEvent();
+
+                handler.OnKeyUp(e);
+            });
+
+            _firstResponder.HandleOrPass(request);
+        }
+
+        public override void OnKeyPress(KeyPressEventArgs e)
+        {
+            base.OnKeyPress(e);
+
+            if (OtherFeatureHasExclusiveControl())
+                return;
+
+            if (_firstResponder == null)
+                return;
+
+            var request = new KeyboardEventRequest(KeyboardEventType.KeyPress, handler =>
+            {
+                ConsumeEvent();
+
+                handler.OnKeyPress(e);
+            });
+
+            _firstResponder.HandleOrPass(request);
+        }
+
+        public override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+
+            if (OtherFeatureHasExclusiveControl())
+                return;
+
+            if (_firstResponder == null)
+                return;
+
+            var request = new KeyboardEventRequest(KeyboardEventType.PreviewKeyDown, handler =>
+            {
+                ConsumeEvent();
+
+                handler.OnPreviewKeyDown(e);
+            });
+
+            _firstResponder.HandleOrPass(request);
+        }
+
+        #endregion
+
         private void UpdateMouseOver([NotNull] MouseEventArgs e, MouseEventType eventType)
         {
             var control = ControlViewUnder(e.Location);
@@ -295,7 +387,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             var loc = _baseControl.ConvertFrom(point, null);
             var control = _baseControl.HitTestControl(loc, enabledOnly);
 
-            return !ReferenceEquals(control, _baseControl) ? control : null;
+            return control;
         }
 
         private class EventRequest<THandler> : IEventRequest where THandler: IEventHandler
@@ -329,6 +421,49 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 EventType = eventType;
             }
         }
+
+        private class KeyboardEventRequest : EventRequest<IKeyboardEventHandler>, IKeyboardEventRequest
+        {
+            public KeyboardEventType EventType { get; }
+
+            public KeyboardEventRequest(KeyboardEventType eventType, Action<IKeyboardEventHandler> onAccept) : base(onAccept)
+            {
+                EventType = eventType;
+            }
+        }
+
+        #region IFirstResponderDelegate<IEventHandler>
+
+        public bool SetAsFirstResponder(IEventHandler firstResponder, bool force)
+        {
+            if (!(firstResponder is IKeyboardEventHandler keyboardResponder))
+                return false;
+
+            // Try to resign previous first responder, first
+            if (_firstResponder != null)
+            {
+                if (!_firstResponder.CanResignFirstResponder && !force)
+                    return false;
+
+                _firstResponder.ResignFirstResponder();
+            }
+
+            _firstResponder = keyboardResponder;
+
+            return true;
+        }
+
+        public void RemoveCurrentResponder()
+        {
+            _firstResponder = null;
+        }
+
+        public bool IsFirstResponder(IEventHandler handler)
+        {
+            return _firstResponder == handler;
+        }
+
+        #endregion
     }
 
     internal static class ControlViewRxUtils

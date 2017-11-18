@@ -34,4 +34,25 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         void OnMouseMove([NotNull] MouseEventArgs e);
         void OnMouseUp([NotNull] MouseEventArgs e);
     }
+
+    /// <summary>
+    /// Event requests for mouse input
+    /// </summary>
+    internal interface IMouseEventRequest : IEventRequest
+    {
+        /// <summary>
+        /// Gets the event this mouse event request represents
+        /// </summary>
+        MouseEventType EventType { get; }
+    }
+
+    internal enum MouseEventType
+    {
+        MouseDown,
+        MouseMove,
+        MouseUp,
+        MouseClick,
+        MouseDoubleClick,
+        MouseWheel
+    }
 }

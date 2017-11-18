@@ -264,9 +264,11 @@
     </Compile>
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventHandler.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventRequest.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventRequest.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IKeyboardEventHandler.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventHandler.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\RootControlView.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Controls\TextField.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\ImageResource.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\IPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeViewSizer.cs" />

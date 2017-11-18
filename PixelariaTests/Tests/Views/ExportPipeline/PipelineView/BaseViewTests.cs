@@ -25,7 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
-namespace PixelariaTests.Tests.Views.ModelViews.PipelineView
+namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// Tests for BaseView class

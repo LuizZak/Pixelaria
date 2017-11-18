@@ -27,6 +27,8 @@ namespace Pixelaria.ExportPipeline
 {
     /// <summary>
     /// A container for pipeline nodes and connections.
+    /// 
+    /// Exposes the nodes and connections between these nodes on this container.
     /// </summary>
     internal interface IPipelineContainer
     {
@@ -40,7 +42,7 @@ namespace Pixelaria.ExportPipeline
         /// Gets a list of all node connections present
         /// </summary>
         [NotNull, ItemNotNull]
-        IReadOnlyList<IPipelineLinkConnection>  Connections { get; }
+        IReadOnlyList<IPipelineLinkConnection> Connections { get; }
         
         /// <summary>
         /// Returns true if the given input and output links have a connection present

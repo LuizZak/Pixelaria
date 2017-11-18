@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,23 +20,40 @@
     base directory of this project.
 */
 
+using System.Windows.Forms;
+using JetBrains.Annotations;
+
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
-    internal interface IMouseEventRequest : IEventRequest
+    /// <summary>
+    /// Event handler for keyboard inputs
+    /// </summary>
+    internal interface IKeyboardEventHandler: IEventHandler
     {
-        /// <summary>
-        /// Gets the event this mouse event request represents
-        /// </summary>
-        MouseEventType EventType { get; }
+        void OnKeyPress([NotNull] KeyPressEventArgs e);
+
+        void OnKeyDown([NotNull] KeyEventArgs e);
+        void OnKeyUp([NotNull] KeyEventArgs e);
+
+        void OnPreviewKeyDown([NotNull] PreviewKeyDownEventArgs e);
     }
 
-    internal enum MouseEventType
+    /// <summary>
+    /// Event requests for keyboard input
+    /// </summary>
+    internal interface IKeyboardEventRequest : IEventRequest
     {
-        MouseDown,
-        MouseMove,
-        MouseUp,
-        MouseClick,
-        MouseDoubleClick,
-        MouseWheel
+        /// <summary>
+        /// Gets the event this keyboard event request represents
+        /// </summary>
+        KeyboardEventType EventType { get; }
+    }
+
+    internal enum KeyboardEventType
+    {
+        KeyDown,
+        KeyPress,
+        KeyUp,
+        PreviewKeyDown
     }
 }

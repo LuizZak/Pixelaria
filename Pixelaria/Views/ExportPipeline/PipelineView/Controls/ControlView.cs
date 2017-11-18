@@ -63,7 +63,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                     if (!view.InteractionEnabled)
                         return false;
 
-                    view = NextControlViewFrom(view);
+                    view = ClosestParentViewOfType<ControlView>(view);
                 }
 
                 return true;
@@ -85,9 +85,30 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public IReactive Rx => _reactive;
 
         /// <summary>
-        /// Default implementation of Next searches the view hierarchy up.
+        /// Default implementation of <see cref="Next"/> searches the view hierarchy up.
         /// </summary>
-        public IEventHandler Next => NextControlViewFrom(this);
+        public IEventHandler Next => ClosestParentViewOfType<ControlView>(this);
+
+        /// <summary>
+        /// Default implementathi of this method returns false.
+        /// </summary>
+        public bool IsFirstResponder => ClosestParentViewOfType<RootControlView>(this)?.IsFirstResponder(this) ?? false;
+
+        /// <summary>
+        /// Default implementation of this method returns false.
+        /// 
+        /// Subclasses may override with true to indicate they can become first
+        /// responders of keyboard events.
+        /// </summary>
+        public virtual bool CanBecomeFirstResponder => false;
+
+        /// <summary>
+        /// Default implementation of this method returns true.
+        /// 
+        /// Subclasses may override with false to indicate under certain circumstances
+        /// that they cannot currently resign first responder status.
+        /// </summary>
+        public virtual bool CanResignFirstResponder => true;
 
         /// <summary>
         /// Whether mouse/keyboard interaction is enabled on this control.
@@ -264,6 +285,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             return false;
         }
 
+        public virtual bool BecomeFirstResponder()
+        {
+            if (!CanBecomeFirstResponder)
+                return false;
+
+            var closest = ClosestParentViewOfType<RootControlView>(this);
+
+            return closest?.SetFirstResponder(this) ?? false;
+        }
+
+        public virtual void ResignFirstResponder()
+        {
+            var closest = ClosestParentViewOfType<RootControlView>(this);
+            closest?.RemoveAsFirstResponder(this);
+        }
+
         /// <summary>
         /// Adds a mouse event recognizer that is capable of handling mouse events
         /// that pass through this control.
@@ -293,26 +330,26 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
-        /// Traverses the hierarchy of a given view, returning the first ControlView
+        /// Traverses the hierarchy of a given view, returning the first <see cref="T"/>
         /// that the method finds.
         /// 
         /// The method ignores <see cref="view"/> itself.
         /// </summary>
         [CanBeNull]
-        private static ControlView NextControlViewFrom([NotNull] BaseView view)
+        private static T ClosestParentViewOfType<T>([NotNull] BaseView view) where T: BaseView
         {
             var next = view.Parent;
             while (next != null)
             {
-                if (next is ControlView control)
-                    return control;
+                if (next is T type)
+                    return type;
 
                 next = next.Parent;
             }
 
             return null;
         }
-
+        
         /// <summary>
         /// Available reactive signals for a <see cref="ControlView"/>
         /// </summary>
@@ -368,7 +405,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// Control this handler is associated with
         /// </summary>
         public ControlView Control { get; set; }
+        
+        public bool IsFirstResponder => false;
+        public bool CanBecomeFirstResponder => false;
 
+        public bool CanResignFirstResponder => true;
+        
         public IEventHandler Next
         {
             get
@@ -400,7 +442,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             else
                 Next?.HandleOrPass(eventRequest);
         }
-
+        
         public virtual bool CanHandle(IEventRequest eventRequest)
         {
             return false;
@@ -437,6 +479,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         public virtual void OnMouseUp(MouseEventArgs e)
+        {
+
+        }
+
+        public bool BecomeFirstResponder()
+        {
+            return false;
+        }
+
+        public void ResignFirstResponder()
         {
 
         }
