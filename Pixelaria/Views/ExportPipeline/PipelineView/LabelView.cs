@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
@@ -68,7 +69,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         }
 
         /// <summary>
-        /// Gets or sets the attributed text for this label view
+        /// Gets the attributed text for this label view
         /// </summary>
         [NotNull]
         public IAttributedText AttributedText => _attributedText;
@@ -223,5 +224,57 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// Calculates the text size for a given pair of attributed string/font/font size
         /// </summary>
         SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
+    }
+
+    /// <summary>
+    /// Provides an interface for objects to request metrics about positions of glyphs in a string.
+    /// </summary>
+    internal interface ILabelViewTextMetricsProvider
+    {
+        /// <summary>
+        /// Gets the bounding box for a single character at a given absolute string offset
+        /// </summary>
+        AABB LocationOfCharacter(int offset, [NotNull] IAttributedText text, TextAttributes textAttributes);
+
+        /// <summary>
+        /// Gets the bounding box for a set of characters at a given absolute string offset + length
+        /// </summary>
+        AABB[] LocationOfCharacters(int offset, int length, [NotNull] IAttributedText text, TextAttributes textAttributes);
+    }
+
+    /// <summary>
+    /// Default struct for bundling text attributes to feed to calls to <see cref="ILabelViewTextMetricsProvider"/>
+    /// </summary>
+    internal struct TextAttributes
+    {
+        [NotNull]
+        public string Font { get; set; }
+        public float FontSize { get; set; }
+        public HorizontalTextAlignment HorizontalTextAlignment { get; set; }
+        public VerticalTextAlignment VerticalTextAlignment { get; set; }
+        public TextWordWrap WordWrap { get; set; }
+
+        /// <summary>
+        /// Total available width to draw text onto
+        /// </summary>
+        public float AvailableWidth { get; set; }
+
+        /// <summary>
+        /// Total available height to draw text onto
+        /// </summary>
+        public float AvailableHeight { get; set; }
+
+        public TextAttributes([NotNull] string font, float fontSize,
+            HorizontalTextAlignment horizontal = HorizontalTextAlignment.Leading,
+            VerticalTextAlignment vertical = VerticalTextAlignment.Near)
+        {
+            Font = font;
+            FontSize = fontSize;
+            HorizontalTextAlignment = horizontal;
+            VerticalTextAlignment = vertical;
+            AvailableWidth = float.PositiveInfinity;
+            AvailableHeight = float.PositiveInfinity;
+            WordWrap = TextWordWrap.ByWord;
+        }
     }
 }

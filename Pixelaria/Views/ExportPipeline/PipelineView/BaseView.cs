@@ -162,7 +162,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// Returns the local bounds of this view, with 0 x 0 mapping to its local top-left pixel
         /// </summary>
         public virtual AABB Bounds => new AABB(Vector.Zero, Size);
-        
+
+        /// <summary>
+        /// Sets the <see cref="Location"/> and <see cref="Size"/> to a given AABB value.
+        /// </summary>
+        public void SetFrame(AABB aabb)
+        {
+            Location = aabb.Minimum;
+            Size = aabb.Size;
+        }
+
         /// <summary>
         /// Adds a base view as the child of this base view.
         /// </summary>

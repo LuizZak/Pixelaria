@@ -23,13 +23,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using FontFamily = System.Drawing.FontFamily;
 
-using JetBrains.Annotations;
 using Pixelaria.Utils;
 using Pixelaria.Utils.Layouting;
 using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
@@ -39,17 +36,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     internal class ButtonControl : ControlView
     {
         /// <summary>
-        /// Cached text format instance refreshed on redraw, and reset every time text settings change
+        /// The textual label for the button
         /// </summary>
-        [CanBeNull]
-        private TextFormat _textFormat;
-        /// <summary>
-        /// Cached text layout instance refreshed on redraw, and reset every time text settings change
-        /// </summary>
-        [CanBeNull]
-        private TextLayout _textLayout;
-
+        private readonly LabelViewControl _label = new LabelViewControl();
+        
         private ButtonState _state = ButtonState.Normal;
+
+        private ImageResource? _image;
+        private InsetBounds _textInset;
+        private InsetBounds _imageInset;
 
         private Color _normalColor = Color.FromKnownColor(KnownColor.Control);
         private Color _highlightColor = Color.LightGray;
@@ -113,16 +108,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
-        /// Gets or sets the horizontal text alignment for the control
+        /// Gets or sets the horizontal text alignment for the control's contents
         /// </summary>
         public HorizontalTextAlignment HorizontalTextAlignment
         {
-            get => _textAlignment;
-            set
-            {
-                _textAlignment = value;
-                ResetTestFormat();
-            }
+            get => _label.HorizontalTextAlignment;
+            set => _label.HorizontalTextAlignment = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the vertical text alignment for the control's contents
+        /// </summary>
+        public VerticalTextAlignment VerticalTextAlignment
+        {
+            get => _label.VerticalTextAlignment;
+            set => _label.VerticalTextAlignment = value;
         }
 
         /// <summary>
@@ -130,110 +130,99 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public string Text
         {
-            get => _text;
-            set
-            {
-                _text = value;
-                ResetTestFormat();
-            }
+            get => _label.Text;
+            set => _label.Text = value;
         }
 
         /// <summary>
         /// Color for button's label
         /// </summary>
-        public Color TextColor { get; set; } = Color.Black;
+        public Color TextColor
+        {
+            get => _label.ForeColor;
+            set => _label.ForeColor = value;
+        }
 
         /// <summary>
         /// Gets or sets the inset region to retract the text label of this button by.
         /// </summary>
-        public InsetBounds TextInset { get; set; }
+        public InsetBounds TextInset
+        {
+            get => _textInset;
+            set
+            {
+                _textInset = value;
+                Layout();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the inset region to retract the image of this button by.
         /// </summary>
-        public InsetBounds ImageInset { get; set; }
+        public InsetBounds ImageInset
+        {
+            get => _imageInset;
+            set
+            {
+                _imageInset = value;
+                Layout();
+            }
+        }
 
         /// <summary>
         /// Gets or sets an image resource to draw besides the text label.
         /// 
         /// If an image is set, it is rendered to the left of the button's text.
         /// </summary>
-        public ImageResource? Image { get; set; }
+        public ImageResource? Image
+        {
+            get => _image;
+            set
+            {
+                _image = value;
+                Layout();
+            }
+        }
 
         /// <summary>
         /// OnClick event for button
         /// </summary>
         public EventHandler Clicked;
 
-        private string _text = "Button";
-        private HorizontalTextAlignment _textAlignment;
-
         public ButtonControl()
         {
             CornerRadius = 3;
+
+            _label.Text = "Button";
+
+            _label.BackColor = Color.Transparent;
+            _label.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            _label.VerticalTextAlignment = VerticalTextAlignment.Center;
+            _label.StrokeColor = Color.Transparent;
+
+            AddChild(_label);
+
+            Layout();
         }
-
-        protected override void Dispose(bool disposing)
+        
+        protected override void OnResize()
         {
-            _textFormat?.Dispose();
-            _textLayout?.Dispose();
+            base.OnResize();
 
-            base.Dispose(disposing);
+            Layout();
         }
 
         public override void RenderForeground(ControlRenderingContext context)
         {
-            // Render text
-            if (_textFormat == null)
-            {
-                TextAlignment textAlign;
-
-                switch (HorizontalTextAlignment)
-                {
-                    case HorizontalTextAlignment.Left:
-                        textAlign = TextAlignment.Leading;
-                        break;
-                    case HorizontalTextAlignment.Right:
-                        textAlign = TextAlignment.Trailing;
-                        break;
-                    case HorizontalTextAlignment.Center:
-                        textAlign = TextAlignment.Center;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                string fontName = FontFamily.GenericSansSerif.Name;
-                const float fontSize = 12.0f;
-
-                _textFormat = new TextFormat(context.State.DirectWriteFactory, fontName, fontSize)
-                {
-                    TextAlignment = textAlign,
-                    ParagraphAlignment = ParagraphAlignment.Center
-                };
-
-                // Get a text layout with the proper size for the button
-                var available = BoundsForText();
-                
-                _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, available.Width, available.Height);
-            }
-
             // Render image, if available
-            if (Image.HasValue)
-            {
-                var image = Image.Value;
-                var bitmapBounds = BoundsForImage(image);
+            if (!Image.HasValue)
+                return;
 
-                var bitmap = context.Renderer.ImageResources.BitmapForResource(image);
-                context.RenderTarget.DrawBitmap(bitmap, bitmapBounds, 1, BitmapInterpolationMode.Linear);
-            }
+            var image = Image.Value;
+            var bitmapBounds = BoundsForImage(image);
 
-            using (var brush = new SolidColorBrush(context.RenderTarget, TextColor.ToColor4()))
-            {
-                var bounds = BoundsForText();
-
-                context.RenderTarget.DrawTextLayout(bounds.Minimum, _textLayout, brush);
-            }
+            var bitmap = context.Renderer.ImageResources.BitmapForResource(image);
+            context.RenderTarget.DrawBitmap(bitmap, bitmapBounds, 1, BitmapInterpolationMode.Linear);
         }
 
         private AABB BoundsForText()
@@ -327,15 +316,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             }
         }
 
-        private void ResetTestFormat()
+        private void Layout()
         {
-            _textFormat?.Dispose();
-            _textFormat = null;
-
-            _textLayout?.Dispose();
-            _textLayout = null;
+            _label.SetFrame(BoundsForText());
         }
-
+        
         /// <summary>
         /// Describes possible button states
         /// </summary>
@@ -345,15 +330,5 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             Highlight,
             Selected
         }
-    }
-
-    /// <summary>
-    /// Specifies a horizontal text alignment for a button or label control
-    /// </summary>
-    internal enum HorizontalTextAlignment
-    {
-        Center,
-        Left,
-        Right
     }
 }

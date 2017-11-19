@@ -50,6 +50,8 @@ namespace Pixelaria.Views.ExportPipeline
         private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
         private List<ButtonControl> SpecButtons { get; } = new List<ButtonControl>();
 
+        private ControlView _container;
+        private TextField _searchField;
         private ScrollViewControl _scrollViewControl;
 
         public delegate void PipelineNodeSelectedEventHandler(object sender, PipelineNodeSelectedEventArgs e);
@@ -72,20 +74,50 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void Setup()
         {
-            _scrollViewControl = new ScrollViewControl
+            _container = new ControlView
             {
                 Size = new Vector(300, _pipelineControl.Size.Height),
+                BackColor = Color.Black.WithTransparency(0.7f)
+            };
+
+            _searchField = new TextField();
+
+            _scrollViewControl = new ScrollViewControl
+            {
+                Location = new Vector(0, 50),
+                Size = new Vector(300, _pipelineControl.Size.Height),
                 ContentSize = new Vector(300, 1800),
-                BackColor = Color.Black.WithTransparency(0.7f),
+                BackColor = Color.Transparent,
                 ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
             };
 
-            _controlView.AddControl(_scrollViewControl);
+            _container.AddChild(_scrollViewControl);
+            _container.AddChild(_searchField);
+
+            _controlView.AddControl(_container);
 
             _pipelineControl.SizeChanged += (sender, args) =>
             {
-                _scrollViewControl.Size = new Vector(300, _pipelineControl.Size.Height);
+                AdjustSize();
             };
+
+            AdjustSize();
+        }
+
+        private void AdjustSize()
+        {
+            _container.Size = new Vector(300, _pipelineControl.Size.Height);
+
+            var textFieldBounds = new AABB(0, 0, 40, _container.Size.X);
+
+            _searchField.Location = textFieldBounds.Minimum;
+            _searchField.Size = textFieldBounds.Size;
+
+            var scrollViewBounds = _container.Bounds;
+            scrollViewBounds = scrollViewBounds.Inset(new InsetBounds(0, 40, 0, 0));
+
+            _scrollViewControl.Location = scrollViewBounds.Minimum;
+            _scrollViewControl.Size = scrollViewBounds.Size;
         }
 
         /// <summary>

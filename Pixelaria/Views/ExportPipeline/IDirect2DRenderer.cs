@@ -41,6 +41,11 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         ID2DImageResourceManager ImageResources { get; }
 
+        /// <summary>
+        /// Text metrics provider for this Direct2D renderer
+        /// </summary>
+        ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
+
         void AddDecorator(IRenderingDecorator decorator);
 
         void RemoveDecorator(IRenderingDecorator decorator);

@@ -30,6 +30,7 @@ using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -90,11 +91,15 @@ namespace Pixelaria.Views.ExportPipeline
 
         public ID2DImageResourceManager ImageResources => _imageResources;
 
+        public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
+
         public Direct2DRenderer(ExportPipelineControl.IPipelineContainer container, Control control)
         {
             _container = container;
             _control = control;
             _imageResources = new D2DImageResources();
+            
+            LabelViewTextMetricsProvider = new TextMetrics(this);
         }
 
         ~Direct2DRenderer()
@@ -136,6 +141,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void Render([NotNull] Direct2DRenderingState state)
         {
+            _lastRenderingState = state;
+
             // Update text renderer's references
             _textColorRenderer.DefaultBrush.Dispose();
             _textColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
@@ -537,7 +544,7 @@ namespace Pixelaria.Views.ExportPipeline
                             if (textSegment.HasAttribute<TextFontAttribute>())
                             {
                                 var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-                                        
+                                
                                 textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
                                     new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
                                 textLayout.SetFontSize(fontAttr.Font.Size,
@@ -720,6 +727,141 @@ namespace Pixelaria.Views.ExportPipeline
                 tempStream.Position = 0;
 
                 return new SharpDX.Direct2D1.Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
+            }
+        }
+
+        public static TextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
+        {
+            TextAlignment horizontalAlign;
+
+            switch (alignment)
+            {
+                case HorizontalTextAlignment.Leading:
+                    horizontalAlign = TextAlignment.Leading;
+                    break;
+                case HorizontalTextAlignment.Center:
+                    horizontalAlign = TextAlignment.Center;
+                    break;
+                case HorizontalTextAlignment.Trailing:
+                    horizontalAlign = TextAlignment.Trailing;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return horizontalAlign;
+        }
+
+        public static ParagraphAlignment DirectWriteAlignmentFor(VerticalTextAlignment alignment)
+        {
+            ParagraphAlignment verticalAlign;
+
+            switch (alignment)
+            {
+                case VerticalTextAlignment.Near:
+                    verticalAlign = ParagraphAlignment.Near;
+                    break;
+                case VerticalTextAlignment.Center:
+                    verticalAlign = ParagraphAlignment.Center;
+                    break;
+                case VerticalTextAlignment.Far:
+                    verticalAlign = ParagraphAlignment.Far;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return verticalAlign;
+        }
+
+        public static WordWrapping DirectWriteWordWrapFor(TextWordWrap wordWrap)
+        {
+            WordWrapping verticalAlign;
+
+            switch (wordWrap)
+            {
+                case TextWordWrap.None:
+                    verticalAlign = WordWrapping.NoWrap;
+                    break;
+                case TextWordWrap.ByCharacter:
+                    verticalAlign = WordWrapping.Character;
+                    break;
+                case TextWordWrap.ByWord:
+                    verticalAlign = WordWrapping.Wrap;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return verticalAlign;
+        }
+
+        private class TextMetrics : ILabelViewTextMetricsProvider
+        {
+            private readonly Direct2DRenderer _renderer;
+
+            public TextMetrics(Direct2DRenderer renderer)
+            {
+                _renderer = renderer;
+            }
+
+            public AABB LocationOfCharacter(int offset, IAttributedText text, TextAttributes textAttributes)
+            {
+                var renderState = _renderer._lastRenderingState;
+                if (renderState == null)
+                    return AABB.Empty;
+
+                return
+                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
+                    {
+                        var metric = layout.HitTestTextPosition(offset, false, out float _, out float _);
+
+                        return AABB.FromRectangle(metric.Left, float.IsInfinity(metric.Top) ? 0 : metric.Top, metric.Width, metric.Height);
+                    });
+            }
+
+            public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextAttributes textAttributes)
+            {
+                var renderState = _renderer._lastRenderingState;
+                if (renderState == null)
+                    return new AABB[0];
+
+                return
+                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
+                    {
+                        var metrics = layout.HitTestTextRange(offset, length, 0, 0);
+                        return metrics
+                            .Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height))
+                            .ToArray();
+                    });
+            }
+
+            private static T WithTemporaryTextFormat<T>([NotNull] Direct2DRenderingState renderState, [NotNull] IAttributedText text, TextAttributes textAttributes,
+                [NotNull] Func<TextFormat, TextLayout, T> action)
+            {
+                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, textAttributes.Font, textAttributes.FontSize)
+                {
+                    TextAlignment = DirectWriteAlignmentFor(textAttributes.HorizontalTextAlignment),
+                    ParagraphAlignment = DirectWriteAlignmentFor(textAttributes.VerticalTextAlignment),
+                    WordWrapping = DirectWriteWordWrapFor(textAttributes.WordWrap)
+                })
+                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textAttributes.AvailableWidth, textAttributes.AvailableHeight))
+                {
+                    foreach (var textSegment in text.GetTextSegments())
+                    {
+                        if (!textSegment.HasAttribute<TextFontAttribute>())
+                            continue;
+
+                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+
+                        textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        textLayout.SetFontSize(fontAttr.Font.Size,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+
+                    return action(textFormat, textLayout);
+                }
             }
         }
     }

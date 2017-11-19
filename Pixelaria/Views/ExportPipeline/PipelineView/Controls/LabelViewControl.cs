@@ -20,61 +20,169 @@
     base directory of this project.
 */
 
+using Font = System.Drawing.Font;
+
 using JetBrains.Annotations;
-using Pixelaria.Views.ModelViews;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
-using Font = System.Drawing.Font;
-using FontFamily = System.Drawing.FontFamily;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
-    /// A basic textual label
+    /// A basic textual label.
+    /// 
+    /// By default, label controls don't have interaction enabled and pass through all mouse events.
     /// </summary>
     internal class LabelViewControl : ControlView
     {
-        private string _text = "";
-        private Font _textFont = new Font(FontFamily.GenericSansSerif, 11);
+        /// <summary>
+        /// Cached text format instance refreshed on redraw, and reset every time text settings change
+        /// </summary>
+        [CanBeNull]
+        private TextFormat _textFormat;
+        /// <summary>
+        /// Cached text layout instance refreshed on redraw, and reset every time text settings change
+        /// </summary>
+        [CanBeNull]
+        private TextLayout _textLayout;
 
+        /// <summary>
+        /// The backing label view for this label view control
+        /// </summary>
+        private readonly LabelView _labelView;
+
+        /// <summary>
+        /// Whether to automatically resize this label view's bounds
+        /// whenever its properties are updated.
+        /// </summary>
+        public bool AutoResize { get; set; } = true;
+        
         [NotNull]
         public Font TextFont
         {
-            get => _textFont;
+            get => _labelView.TextFont;
             set
             {
-                _textFont = value;
+                _labelView.TextFont = value;
                 CalculateBounds();
+                ResetTestFormat();
             }
         }
 
         [NotNull]
         public string Text
         {
-            get => _text;
+            get => _labelView.Text;
             set
             {
-                if (_text == value)
-                    return;
-
-                _text = value;
+                _labelView.Text = value;
 
                 CalculateBounds();
+                ResetTestFormat();
             }
         }
+
+        /// <summary>
+        /// Gets the attributed text for this label view control
+        /// </summary>
+        [NotNull]
+        public IAttributedText AttributedText => _labelView.AttributedText;
+
+        public HorizontalTextAlignment HorizontalTextAlignment { get; set; } = HorizontalTextAlignment.Leading;
+
+        public VerticalTextAlignment VerticalTextAlignment { get; set; } = VerticalTextAlignment.Near;
+
+        public TextWordWrap TextWordWrap { get; set; } = TextWordWrap.None;
+
+        public LabelViewControl()
+        {
+            _labelView = new LabelView();
+            InteractionEnabled = false;
+        }
         
+        protected override void Dispose(bool disposing)
+        {
+            _textFormat?.Dispose();
+            _textFormat = null;
+
+            _textLayout?.Dispose();
+            _textLayout = null;
+
+            base.Dispose(disposing);
+        }
+
         private void CalculateBounds()
         {
-            Size = LabelView.DefaultLabelViewSizeProvider.CalculateTextSize(Text, TextFont);
+            if (AutoResize)
+                Size = _labelView.Size;
         }
 
         public override void RenderForeground(ControlRenderingContext context)
         {
-            using (var brush = new SolidColorBrush(context.RenderTarget, ForeColor.ToColor4()))
-            using (var textFormat = new TextFormat(context.State.DirectWriteFactory, _textFont.FontFamily.Name, _textFont.Size))
+            // Render text
+            if (_textFormat == null)
             {
-                context.RenderTarget.DrawText(_text, textFormat, Bounds, brush, DrawTextOptions.Clip);
+                var horizontalAlign = 
+                    Direct2DRenderer.DirectWriteAlignmentFor(HorizontalTextAlignment);
+                var verticalAlign = 
+                    Direct2DRenderer.DirectWriteAlignmentFor(VerticalTextAlignment);
+                var wordWrap =
+                    Direct2DRenderer.DirectWriteWordWrapFor(TextWordWrap);
+                
+                _textFormat =
+                    new TextFormat(context.State.DirectWriteFactory, _labelView.TextFont.Name, _labelView.TextFont.Size)
+                    {
+                        TextAlignment = horizontalAlign,
+                        ParagraphAlignment = verticalAlign,
+                        WordWrapping = wordWrap
+                    };
+                
+                _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, Bounds.Width, Bounds.Height);
+            }
+
+            using (var brush = new SolidColorBrush(context.RenderTarget, ForeColor.ToColor4()))
+            {
+                context.RenderTarget.DrawText(_labelView.Text, _textFormat, Bounds, brush, DrawTextOptions.Clip);
             }
         }
+        
+        private void ResetTestFormat()
+        {
+            _textFormat?.Dispose();
+            _textFormat = null;
+
+            _textLayout?.Dispose();
+            _textLayout = null;
+        }
+    }
+
+    /// <summary>
+    /// Text alignment of a <see cref="LabelViewControl"/>.
+    /// </summary>
+    internal enum HorizontalTextAlignment
+    {
+        Leading,
+        Center,
+        Trailing
+    }
+
+    /// <summary>
+    /// Vertical text alignment of a <see cref="LabelViewControl"/>.
+    /// </summary>
+    public enum VerticalTextAlignment
+    {
+        Near,
+        Center,
+        Far
+    }
+    
+    /// <summary>
+    /// Text word wrap of a <see cref="LabelViewControl"/>.
+    /// </summary>
+    public enum TextWordWrap
+    {
+        None,
+        ByCharacter,
+        ByWord
     }
 }

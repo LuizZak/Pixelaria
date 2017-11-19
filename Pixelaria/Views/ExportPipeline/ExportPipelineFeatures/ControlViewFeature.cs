@@ -170,6 +170,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 handler.OnMouseDown(ConvertMouseEvent(e, handler));
 
                 _mouseDownTarget = handler;
+
+                if(handler != _firstResponder)
+                    _firstResponder?.ResignFirstResponder();
             });
 
             control.HandleOrPass(request);

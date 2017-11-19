@@ -284,7 +284,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             return false;
         }
-
+        
         public virtual bool BecomeFirstResponder()
         {
             if (!CanBecomeFirstResponder)
