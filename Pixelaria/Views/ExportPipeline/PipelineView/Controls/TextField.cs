@@ -44,7 +44,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
 
-        private TextRange CaretRange = new TextRange(0, 0);
+        private TextRange _caretRange = new TextRange(0, 0);
 
         /// <summary>
         /// Whether to allow line breaks when pressing the enter key.
@@ -194,12 +194,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             };
 
             var provider = context.Renderer.LabelViewTextMetricsProvider;
-            var bounds = provider.LocationOfCharacter(CaretRange.Start, new AttributedText(text), attributes);
+            var bounds = provider.LocationOfCharacter(_caretRange.Start, new AttributedText(text), attributes);
 
             caretLocation = _label.ConvertTo(caretLocation, this);
             
             caretLocation = caretLocation.OffsetBy(bounds.Minimum + new Vector(0, -2));
             caretLocation = caretLocation.WithSize(new Vector(caretLocation.Size.X, bounds.Height + 2));
+
+            // Round caret location to avoid aliasing
+            caretLocation = caretLocation.OffsetTo(Vector.Round(caretLocation.Minimum));
 
             var color = Color4.Black;
 
@@ -221,38 +224,38 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         private void MoveLeft()
         {
-            if (CaretRange.Start == 0)
+            if (_caretRange.Start == 0)
                 return;
 
-            CaretRange = new TextRange(CaretRange.Start - 1, 0);
+            _caretRange = new TextRange(_caretRange.Start - 1, 0);
             _blinker.Restart();
         }
 
         private void MoveRight()
         {
-            if (CaretRange.Start == Text.Length)
+            if (_caretRange.Start == Text.Length)
                 return;
 
-            CaretRange = new TextRange(CaretRange.Start + 1, 0);
+            _caretRange = new TextRange(_caretRange.Start + 1, 0);
 
             _blinker.Restart();
         }
 
         private void MoveToStart()
         {
-            if (CaretRange.Start == 0)
+            if (_caretRange.Start == 0)
                 return;
 
-            CaretRange = new TextRange(0, 0);
+            _caretRange = new TextRange(0, 0);
             _blinker.Restart();
         }
 
         private void MoveToEnd()
         {
-            if (CaretRange.Start == Text.Length)
+            if (_caretRange.Start == Text.Length)
                 return;
 
-            CaretRange = new TextRange(Text.Length, 0);
+            _caretRange = new TextRange(Text.Length, 0);
             _blinker.Restart();
         }
 
@@ -263,16 +266,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         private void InsertText(string text)
         {
-            if (CaretRange.Start == Text.Length)
+            if (_caretRange.Start == Text.Length)
             {
                 Text += text;
             }
             else
             {
-                Text = Text.Insert(CaretRange.Start, text);
+                Text = Text.Insert(_caretRange.Start, text);
             }
             
-            CaretRange = new TextRange(CaretRange.Start + 1, 0);
+            _caretRange = new TextRange(_caretRange.Start + 1, 0);
             _blinker.Restart();
         }
 
@@ -281,11 +284,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         private void BackspaceText()
         {
-            if (CaretRange.Start == 0)
+            if (_caretRange.Start == 0)
                 return;
             
-            Text = Text.Remove(CaretRange.Start - 1, CaretRange.Length == 0 ? 1 : CaretRange.Length);
-            CaretRange = new TextRange(CaretRange.Start - 1, 0);
+            Text = Text.Remove(_caretRange.Start - 1, _caretRange.Length == 0 ? 1 : _caretRange.Length);
+            _caretRange = new TextRange(_caretRange.Start - 1, 0);
             _blinker.Restart();
         }
 
@@ -306,7 +309,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             /// Blink interval; time going from fully opaque to transparent, right
             /// up to before the cursor goes fully opaque again.
             /// </summary>
-            public TimeSpan BlinkInterval { get; set; } = TimeSpan.FromSeconds(1);
+            public TimeSpan BlinkInterval { private get; set; } = TimeSpan.FromSeconds(1);
 
             /// <summary>
             /// Cursor blink state, from 0 to 1.
@@ -327,9 +330,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             private float GetBlinkState()
             {
-                double state = _stopwatch.Elapsed.TotalMilliseconds % BlinkInterval.TotalMilliseconds;
-
-                if (state < BlinkInterval.TotalMilliseconds / 2)
+                double state = _stopwatch.Elapsed.TotalSeconds % BlinkInterval.TotalSeconds;
+                
+                if (state < BlinkInterval.TotalSeconds / 2)
                     return 1.0f;
 
                 return 0;
