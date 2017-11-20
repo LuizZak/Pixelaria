@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
@@ -485,7 +486,22 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             return onDown.Merge(onUp);
         }
-        
+
+        /// <summary>
+        /// Returns a signal that fires whenever the user double clicks the control within a specified time delay and
+        /// distance tolerance.
+        /// </summary>
+        public static IObservable<MouseEventArgs> MouseDoubleClick([NotNull] this ControlView.IReactive reactive, TimeSpan delay, Size size)
+        {
+            return
+                reactive
+                    .MouseClick
+                    .Buffer(delay, 2)
+                    .Where(l => l.Count == 2)
+                    .Where(l => Math.Abs(l[0].Location.X - l[1].Location.X) <= size.Width && Math.Abs(l[0].Location.Y - l[1].Location.Y) <= size.Height)
+                    .Select(l => l[0]);
+        }
+
         /// <summary>
         /// Returns an observable that fires repeatedly for as long as the user holds down the mouse button
         /// over the control.

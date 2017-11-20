@@ -286,7 +286,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         #endregion
-
+        
         public override bool BecomeFirstResponder()
         {
             if (IsFirstResponder)

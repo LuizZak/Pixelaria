@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using SharpDX.DirectWrite;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
@@ -153,6 +154,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                         @"Consider setting it to the proper UI dispatcher when creating the very first Form control of your program.");
             
             _reactive = new Reactive(UiDispatcher);
+
+            // Hookup our mouse double click event directly on the control itself
+            var time = TimeSpan.FromMilliseconds(SystemInformation.DoubleClickTime);
+            Rx.MouseDoubleClick(time, SystemInformation.DoubleClickSize)
+                .Subscribe(OnMouseDoubleClick)
+                .AddToDisposable(DisposeBag);
         }
 
         ~ControlView()
@@ -233,6 +240,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public virtual void OnMouseClick(MouseEventArgs e)
         {
             _reactive.MouseClickSubject.OnNext(e);
+        }
+
+        public virtual void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            
         }
 
         public virtual void OnMouseDown(MouseEventArgs e)
