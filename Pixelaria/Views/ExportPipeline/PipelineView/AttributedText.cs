@@ -443,6 +443,19 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             return new TextRange(start, end - start);
         }
+
+        /// <summary>
+        /// Given two string offsets, returns a <see cref="TextRange"/> where <see cref="Start"/> is
+        /// the minimum of the two offsets, and <see cref="Length"/> is the different between the two
+        /// offsets.
+        /// </summary>
+        public static TextRange FromOffsets(int offset1, int offset2)
+        {
+            int min = Math.Min(offset1, offset2);
+            int max = Math.Max(offset1, offset2);
+
+            return new TextRange(min, max - min);
+        }
     }
 
     public struct ForegroundColorAttribute : ITextAttribute, IEquatable<ForegroundColorAttribute>

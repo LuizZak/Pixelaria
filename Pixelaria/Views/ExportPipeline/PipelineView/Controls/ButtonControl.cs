@@ -144,6 +144,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Font for button's label
+        /// </summary>
+        public Font TextFont
+        {
+            get => _label.TextFont;
+            set => _label.TextFont = value;
+        }
+
+        /// <summary>
         /// Gets or sets the inset region to retract the text label of this button by.
         /// </summary>
         public InsetBounds TextInset
@@ -198,8 +207,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             _label.BackColor = Color.Transparent;
             _label.HorizontalTextAlignment = HorizontalTextAlignment.Center;
             _label.VerticalTextAlignment = VerticalTextAlignment.Center;
+            _label.TextWordWrap = TextWordWrap.ByWord;
             _label.StrokeColor = Color.Transparent;
-
+            _label.AutoResize = false;
+            
             AddChild(_label);
 
             Layout();

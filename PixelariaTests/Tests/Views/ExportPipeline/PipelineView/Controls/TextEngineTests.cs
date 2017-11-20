@@ -37,9 +37,11 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("Test");
             var sut = new TextEngine(buffer);
 
-            Assert.AreEqual(new TextRange(0, 0), sut.CaretRange, "Should start with caret at beginning of text");
+            Assert.AreEqual(new Caret(0), sut.Caret, "Should start with caret at beginning of text");
             Assert.AreEqual(buffer, sut.TextBuffer, "Should properly assign passed in text buffer");
         }
+
+        #region Move
 
         [TestMethod]
         public void TestMoveRight()
@@ -49,7 +51,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             sut.MoveRight();
 
-            Assert.AreEqual(new TextRange(1, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
         [TestMethod]
@@ -63,7 +65,31 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.MoveRight();
             sut.MoveRight(); // Should not move right any further
 
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveRightWithSelectionAtEnd()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.End));
+            sut.MoveRight();
+
+            Assert.AreEqual(new Caret(3), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveRightWithSelectionAtStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
+            sut.MoveRight();
+
+            Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
         [TestMethod]
@@ -76,7 +102,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             sut.MoveLeft();
 
-            Assert.AreEqual(new TextRange(2, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(2), sut.Caret);
         }
 
         [TestMethod]
@@ -92,7 +118,31 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.MoveLeft();
             sut.MoveLeft(); // Should not move right any further
 
-            Assert.AreEqual(new TextRange(0, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveLeftWithSelectionAtEnd()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+            sut.MoveLeft();
+
+            Assert.AreEqual(new Caret(2), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveLeftWithSelectionAtStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.Start));
+            sut.MoveLeft();
+
+            Assert.AreEqual(new Caret(0), sut.Caret);
         }
 
         [TestMethod]
@@ -103,7 +153,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             sut.MoveToEnd();
 
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
         }
 
         [TestMethod]
@@ -115,7 +165,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.MoveToEnd();
             sut.MoveToEnd();
 
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
         }
 
         [TestMethod]
@@ -128,7 +178,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             sut.MoveToStart();
 
-            Assert.AreEqual(new TextRange(0, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(0), sut.Caret);
         }
 
         [TestMethod]
@@ -142,8 +192,224 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.MoveToStart();
             sut.MoveToStart();
 
-            Assert.AreEqual(new TextRange(0, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(0), sut.Caret);
         }
+
+        #endregion
+
+        #region Selection Move
+
+        [TestMethod]
+        public void TestSelectRight()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SelectRight();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 1), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectRightStopsAtEndOfText()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SelectRight();
+            sut.SelectRight();
+            sut.SelectRight();
+            sut.SelectRight(); // Should not move right any further
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectRightWithSelection()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
+
+            sut.SelectRight();
+
+            Assert.AreEqual(new Caret(new TextRange(1, 1), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeft()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.SelectLeft();
+
+            Assert.AreEqual(new Caret(new TextRange(2, 1), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeftStopsAtBeginningOfText()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.SelectLeft();
+            sut.SelectLeft();
+            sut.SelectLeft();
+            sut.SelectLeft(); // Should not move left any further
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectToEnd()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SelectToEnd();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectToEndIdempotent()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SelectToEnd();
+            sut.SelectToEnd();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectToEndWithSelectionAtStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
+
+            sut.SelectToEnd();
+
+            Assert.AreEqual(new Caret(new TextRange(2, 1), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectToStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.SelectToStart();
+            
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectToStartIdempotent()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.SelectToStart();
+            sut.SelectToStart();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectToStartWithSelectionAtEnd()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+
+            sut.SelectToStart();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 1), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveCaretSelecting()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(1);
+
+            sut.MoveCaretSelecting(2);
+
+            Assert.AreEqual(new Caret(new TextRange(1, 1), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveCaretSelectingLeft()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(2);
+
+            sut.MoveCaretSelecting(1);
+
+            Assert.AreEqual(new Caret(new TextRange(1, 1), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveCaretSelectingSamePosition()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(1);
+
+            sut.MoveCaretSelecting(1);
+
+            Assert.AreEqual(new Caret(new TextRange(1, 0), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveCaretSelectingSamePositionStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(1, 1), CaretPosition.Start));
+
+            sut.MoveCaretSelecting(3);
+
+            Assert.AreEqual(new Caret(new TextRange(2, 1), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveCaretSelectingSamePositionEnd()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+
+            sut.MoveCaretSelecting(0);
+
+            Assert.AreEqual(new Caret(new TextRange(0, 1), CaretPosition.Start), sut.Caret);
+        }
+
+        #endregion
+
+        #region Set Caret
 
         [TestMethod]
         public void TestSetCaret()
@@ -151,9 +417,20 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
 
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+
+            Assert.AreEqual(new Caret(new TextRange(1, 2), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSetCaretTextRange()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
             sut.SetCaret(new TextRange(1, 2));
 
-            Assert.AreEqual(new TextRange(1, 2), sut.CaretRange);
+            Assert.AreEqual(new Caret(new TextRange(1, 2), CaretPosition.Start), sut.Caret);
         }
 
         [TestMethod]
@@ -166,7 +443,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             sut.SetCaret(1);
 
-            Assert.AreEqual(new TextRange(1, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
         [TestMethod]
@@ -175,10 +452,10 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
 
-            sut.SetCaret(new TextRange(-5, 0));
+            sut.SetCaret(new Caret(new TextRange(-5, 0), CaretPosition.Start));
 
             // Cap at start
-            Assert.AreEqual(new TextRange(0, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(0), sut.Caret);
         }
 
         [TestMethod]
@@ -187,10 +464,10 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
 
-            sut.SetCaret(new TextRange(10, 5));
+            sut.SetCaret(new Caret(new TextRange(10, 5), CaretPosition.Start));
 
             // Cap at end
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
         }
 
         [TestMethod]
@@ -199,11 +476,15 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
 
-            sut.SetCaret(new TextRange(-5, 10));
+            sut.SetCaret(new Caret(new TextRange(-5, 10), CaretPosition.Start));
 
             // Cap at whole available range
-            Assert.AreEqual(new TextRange(0, 3), sut.CaretRange);
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.Start), sut.Caret);
         }
+
+        #endregion
+
+        #region Insert Text
 
         [TestMethod]
         public void TestInsertTextCaretAtEnd()
@@ -218,7 +499,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.InsertText("456");
 
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
         }
 
         [TestMethod]
@@ -236,7 +517,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.InsertText("456");
             
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
         }
 
         [TestMethod]
@@ -254,8 +535,12 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.InsertText("456");
 
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new TextRange(3, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(3), sut.Caret);
         }
+
+        #endregion
+
+        #region Backspace
 
         [TestMethod]
         public void TestBackspace()
@@ -272,7 +557,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.BackspaceText();
 
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new TextRange(2, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(2), sut.Caret);
         }
 
         [TestMethod]
@@ -285,7 +570,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.BackspaceText();
 
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new TextRange(0, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(0), sut.Caret);
         }
 
         [TestMethod]
@@ -303,8 +588,65 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.BackspaceText();
 
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new TextRange(1, 0), sut.CaretRange);
+            Assert.AreEqual(new Caret(1), sut.Caret);
         }
+
+        #endregion
+
+        #region Delete
+
+        [TestMethod]
+        public void TestDelete()
+        {
+            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+
+            stub.Stub(b => b.TextLength).Return(3);
+            stub.Expect(b => b.Delete(0, 1));
+
+            var sut = new TextEngine(stub);
+            
+            sut.DeleteText();
+
+            stub.VerifyAllExpectations();
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestDeleteAtEndHasNoEffect()
+        {
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
+
+            stub.Stub(b => b.TextLength).Return(3);
+
+            var sut = new TextEngine(stub);
+
+            sut.SetCaret(3);
+
+            sut.DeleteText();
+
+            stub.VerifyAllExpectations();
+            Assert.AreEqual(new Caret(3), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestDeleteWithRange()
+        {
+            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+
+            stub.Stub(b => b.TextLength).Return(3);
+            stub.Expect(b => b.Delete(1, 2));
+
+            var sut = new TextEngine(stub);
+
+            sut.SetCaret(new TextRange(1, 2));
+
+            sut.DeleteText();
+
+            stub.VerifyAllExpectations();
+            Assert.AreEqual(new Caret(1), sut.Caret);
+        }
+
+        #endregion
 
         internal class TextBuffer : ITextEngineTextualBuffer
         {

@@ -23,6 +23,8 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
@@ -35,8 +37,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     /// <summary>
     /// A Text Field that accepts user inputs via keyboard to alter a text content within.
     /// </summary>
-    internal class TextField : ControlView, IKeyboardEventHandler
+    internal partial class TextField : ControlView, IKeyboardEventHandler
     {
+        private readonly Subject<string> _textUpdated = new Subject<string>();
+
+        private readonly TextEngine _textEngine;
+
         private readonly CursorBlinker _blinker = new CursorBlinker();
 
         private readonly ControlView _labelContainer = new ControlView();
@@ -44,7 +50,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
 
-        private TextRange _caretRange = new TextRange(0, 0);
+        /// <summary>
+        /// Gets or sets the color to use when drawing the background of selected
+        /// regions of this text field.
+        /// </summary>
+        public Color SelectionBackColor { get; set; } = Color.LightBlue;
+
+        /// <summary>
+        /// Gets or sets the color to use when drawing the caret.
+        /// </summary>
+        public Color CaretColor { get; set; } = Color.Black;
 
         /// <summary>
         /// Whether to allow line breaks when pressing the enter key.
@@ -80,6 +95,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public TextField()
         {
+            var buffer = new LabelViewTextBuffer(_label);
+
+            buffer.Changed += TextBufferOnChanged;
+
+            _textEngine = new TextEngine(buffer);
+            _textEngine.CaretChanged += TextEngineOnCaretChanged;
+
             _labelContainer.InteractionEnabled = false;
             _labelContainer.AddChild(_label);
 
@@ -96,6 +118,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             _blinker.BlinkInterval = TimeSpan.FromSeconds(1);
 
             AddChild(_labelContainer);
+        }
+
+        private void TextBufferOnChanged(object sender, EventArgs eventArgs)
+        {
+            _blinker.Restart();
+            _textUpdated.OnNext(Text);
         }
 
         protected override void OnResize()
@@ -122,22 +150,41 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             if (e.KeyChar == '\b')
             {
-                BackspaceText();
+                _textEngine.BackspaceText();
                 return;
             }
 
-            InsertText(e.KeyChar.ToString());
+            _textEngine.InsertText(e.KeyChar.ToString());
         }
 
         public void OnKeyDown(KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Home)
+            if (e.Modifiers.HasFlag(Keys.Shift))
             {
-                MoveToStart();
+                if (e.KeyCode == Keys.Home)
+                {
+                    _textEngine.SelectToStart();
+                }
+                else if (e.KeyCode == Keys.End)
+                {
+                    _textEngine.SelectToEnd();
+                }
             }
-            else if (e.KeyCode == Keys.End)
+            else
             {
-                MoveToEnd();
+                if (e.KeyCode == Keys.Home)
+                {
+                    _textEngine.MoveToStart();
+                }
+                else if (e.KeyCode == Keys.End)
+                {
+                    _textEngine.MoveToEnd();
+                }
+            }
+
+            if (e.KeyCode == Keys.Delete)
+            {
+                _textEngine.DeleteText();
             }
         }
 
@@ -148,11 +195,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
-            // Caret movement
-            if (e.KeyCode == Keys.Left)
-                MoveLeft();
-            else if (e.KeyCode == Keys.Right)
-                MoveRight();
+            // Caret selection/movement
+            if (e.Modifiers.HasFlag(Keys.Shift))
+            {
+                if (e.KeyCode == Keys.Left)
+                    _textEngine.SelectLeft();
+                else if (e.KeyCode == Keys.Right)
+                    _textEngine.SelectRight();
+            }
+            else
+            {
+                if (e.KeyCode == Keys.Left)
+                    _textEngine.MoveLeft();
+                else if (e.KeyCode == Keys.Right)
+                    _textEngine.MoveRight();
+            }
         }
 
         public override bool BecomeFirstResponder()
@@ -163,6 +220,30 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 _blinker.Restart();
 
             return isFirstResponder;
+        }
+        
+        public override void RenderBackground(ControlRenderingContext context)
+        {
+            base.RenderBackground(context);
+            
+            if (_textEngine.Caret.Length == 0)
+                return;
+            
+            _label.WithTextLayout(context, layout =>
+            {
+                var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
+
+                using (var brush = new SolidColorBrush(context.RenderTarget, SelectionBackColor.ToColor4()))
+                {
+                    foreach (var metric in metrics)
+                    {
+                        var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
+                        aabb = _label.ConvertTo(aabb, this);
+
+                        context.RenderTarget.FillRectangle(aabb, brush);
+                    }
+                }
+            });
         }
 
         public override void RenderForeground(ControlRenderingContext context)
@@ -194,18 +275,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             };
 
             var provider = context.Renderer.LabelViewTextMetricsProvider;
-            var bounds = provider.LocationOfCharacter(_caretRange.Start, new AttributedText(text), attributes);
+            var bounds = provider.LocationOfCharacter(_textEngine.Caret.Location, new AttributedText(text), attributes);
 
             caretLocation = _label.ConvertTo(caretLocation, this);
             
-            caretLocation = caretLocation.OffsetBy(bounds.Minimum + new Vector(0, -2));
-            caretLocation = caretLocation.WithSize(new Vector(caretLocation.Size.X, bounds.Height + 2));
+            caretLocation = caretLocation.OffsetBy(bounds.Minimum);
+            caretLocation = caretLocation.WithSize(new Vector(caretLocation.Size.X, bounds.Height));
 
             // Round caret location to avoid aliasing
             caretLocation = caretLocation.OffsetTo(Vector.Round(caretLocation.Minimum));
 
-            var color = Color4.Black;
-
+            var color = CaretColor.ToColor4();
             color.Alpha = transparency;
 
             using (var brush = new SolidColorBrush(context.RenderTarget, color))
@@ -221,77 +301,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             return base.CanHandle(eventRequest);
         }
-
-        private void MoveLeft()
+        
+        private void TextEngineOnCaretChanged(object sender, TextEngineCaretChangedEventArgs textEngineCaretChangedEventArgs)
         {
-            if (_caretRange.Start == 0)
-                return;
-
-            _caretRange = new TextRange(_caretRange.Start - 1, 0);
             _blinker.Restart();
         }
-
-        private void MoveRight()
-        {
-            if (_caretRange.Start == Text.Length)
-                return;
-
-            _caretRange = new TextRange(_caretRange.Start + 1, 0);
-
-            _blinker.Restart();
-        }
-
-        private void MoveToStart()
-        {
-            if (_caretRange.Start == 0)
-                return;
-
-            _caretRange = new TextRange(0, 0);
-            _blinker.Restart();
-        }
-
-        private void MoveToEnd()
-        {
-            if (_caretRange.Start == Text.Length)
-                return;
-
-            _caretRange = new TextRange(Text.Length, 0);
-            _blinker.Restart();
-        }
-
-        /// <summary>
-        /// Inserts the specified text on top of the current caret position.
-        /// 
-        /// Replaces text, if caret's length is > 0 and text is available on selection;
-        /// </summary>
-        private void InsertText(string text)
-        {
-            if (_caretRange.Start == Text.Length)
-            {
-                Text += text;
-            }
-            else
-            {
-                Text = Text.Insert(_caretRange.Start, text);
-            }
-            
-            _caretRange = new TextRange(_caretRange.Start + 1, 0);
-            _blinker.Restart();
-        }
-
-        /// <summary>
-        /// Deletes the text before the starting position of the caret.
-        /// </summary>
-        private void BackspaceText()
-        {
-            if (_caretRange.Start == 0)
-                return;
-            
-            Text = Text.Remove(_caretRange.Start - 1, _caretRange.Length == 0 ? 1 : _caretRange.Length);
-            _caretRange = new TextRange(_caretRange.Start - 1, 0);
-            _blinker.Restart();
-        }
-
+        
         private void Layout()
         {
             var bounds = Bounds.Inset(ContentInset);
@@ -338,5 +353,58 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 return 0;
             }
         }
+
+        private class LabelViewTextBuffer : ITextEngineTextualBuffer
+        {
+            private readonly LabelViewControl _label;
+            public int TextLength => _label.Text.Length;
+            
+            public event EventHandler Changed;
+
+            public LabelViewTextBuffer(LabelViewControl label)
+            {
+                _label = label;
+            }
+
+            public string TextInRange(TextRange range)
+            {
+                return _label.Text.Substring(range.Start, range.End);
+            }
+
+            public void Delete(int index, int length)
+            {
+                _label.Text = _label.Text.Remove(index, length);
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+
+            public void Insert(int index, string text)
+            {
+                _label.Text = _label.Text.Insert(index, text);
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+
+            public void Append(string text)
+            {
+                _label.Text += text;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+
+            public void Replace(int index, int length, string text)
+            {
+                _label.Text = _label.Text.Remove(index, length).Insert(index, text);
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    // Reactive bindings for TextField
+
+    internal partial class TextField
+    {
+        /// <summary>
+        /// On subscription, returns the current text value and receives updates
+        /// of next subsequent text values as the user updates it.
+        /// </summary>
+        public IObservable<string> RxTextUpdated => _textUpdated.StartWith(Text);
     }
 }

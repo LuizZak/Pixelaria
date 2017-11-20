@@ -20,9 +20,15 @@
     base directory of this project.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
+using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using SharpDX;
+using SharpDX.DirectWrite;
+using Color = System.Drawing.Color;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -51,6 +57,12 @@ namespace Pixelaria.Views.ExportPipeline
         void RemoveDecorator(IRenderingDecorator decorator);
         
         void PushTemporaryDecorator(IRenderingDecorator decorator);
+
+        /// <summary>
+        /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
+        /// the closure to allow the caller to perform rendering operations with the prepared text layout.
+        /// </summary>
+        void WithPreparedAttributedText(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull] Action<TextLayout, TextRendererBase> perform);
     }
 
     /// <summary>

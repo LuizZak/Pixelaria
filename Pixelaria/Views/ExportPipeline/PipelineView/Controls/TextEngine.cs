@@ -38,7 +38,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public delegate void TextEngineCaretChangedEventHandler(object sender, TextEngineCaretChangedEventArgs e);
 
         /// <summary>
-        /// Event fired whenever the current <see cref="CaretRange"/> value is changed.
+        /// Event fired whenever the current <see cref="Caret"/> value is changed.
         /// </summary>
         public event TextEngineCaretChangedEventHandler CaretChanged;
 
@@ -47,13 +47,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// inputs handled by this text engine.
         /// </summary>
         public ITextEngineTextualBuffer TextBuffer { get; }
-        
+
         /// <summary>
         /// Gets the caret range.
         /// 
-        /// To change the caret range, use <see cref="SetCaret(int)"/>/<see cref="SetCaret(TextRange)"/> methods.
+        /// To change the caret range, use <see cref="SetCaret(int)"/>/<see cref="SetCaret(Caret)"/>/<see cref="SetCaret(TextRange, CaretPosition)"/> methods.
         /// </summary>
-        public TextRange CaretRange { get; private set; } = new TextRange(0, 0);
+        public Caret Caret { get; private set; } = new Caret(new TextRange(0, 0), CaretPosition.Start);
 
         public TextEngine(ITextEngineTextualBuffer textBuffer)
         {
@@ -61,25 +61,25 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
-        /// Moves the caret to the left
-        /// </summary>
-        public void MoveLeft()
-        {
-            if (CaretRange.Start == 0)
-                return;
-
-            SetCaret(new TextRange(CaretRange.Start - 1, 0));
-        }
-
-        /// <summary>
         /// Moves the caret to the right
         /// </summary>
         public void MoveRight()
         {
-            if (CaretRange.Start == TextBuffer.TextLength)
+            if (Caret.Start == TextBuffer.TextLength)
                 return;
 
-            SetCaret(new TextRange(CaretRange.Start + 1, 0));
+            SetCaret(new TextRange(Caret.Location + 1, 0));
+        }
+
+        /// <summary>
+        /// Moves the caret to the left
+        /// </summary>
+        public void MoveLeft()
+        {
+            if (Caret.Start == 0)
+                return;
+
+            SetCaret(new TextRange(Caret.Location - 1, 0));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void MoveToStart()
         {
-            if (CaretRange.Start == 0)
+            if (Caret.Start == 0)
                 return;
 
             SetCaret(new TextRange(0, 0));
@@ -98,10 +98,82 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void MoveToEnd()
         {
-            if (CaretRange.Start == TextBuffer.TextLength)
+            if (Caret.Start == TextBuffer.TextLength)
                 return;
 
             SetCaret(new TextRange(TextBuffer.TextLength, 0));
+        }
+
+        /// <summary>
+        /// Performs a selection to the right of the caret.
+        /// 
+        /// If the caret's position is Start, the caret selects one character to the 
+        /// left, otherwise, it moves to the left and subtracts the character it 
+        /// moved over from the selection area.
+        /// </summary>
+        public void SelectRight()
+        {
+            if (Caret.Start == TextBuffer.TextLength)
+                return;
+
+            MoveCaretSelecting(Caret.Location + 1);
+        }
+
+        /// <summary>
+        /// Performs a selection to the left of the caret.
+        /// 
+        /// If the caret's position is End, the caret selects one character to the 
+        /// left, otherwise, it moves to the left and subtracts the character it 
+        /// moved over from the selection area.
+        /// </summary>
+        public void SelectLeft()
+        {
+            if (Caret.Start == 0)
+                return;
+
+            MoveCaretSelecting(Caret.Location - 1);
+        }
+
+        /// <summary>
+        /// Moves the caret to the beginning of the text range, selecting
+        /// any characters it moves over.
+        /// </summary>
+        public void SelectToStart()
+        {
+            if (Caret.Start == 0)
+                return;
+            
+            MoveCaretSelecting(0);
+        }
+
+        /// <summary>
+        /// Moves the caret to the end of the text range, selecting
+        /// any characters it moves over.
+        /// </summary>
+        public void SelectToEnd()
+        {
+            if (Caret.Start == TextBuffer.TextLength)
+                return;
+
+            MoveCaretSelecting(TextBuffer.TextLength);
+        }
+
+        /// <summary>
+        /// Moves the caret position to a given location, while mantaining a pivot 
+        /// over the other end of the selection.
+        /// 
+        /// If the caret's position is towards the End of its range, this method mantains 
+        /// its Start location the same, otherwise, it keeps the End location the same, instead.
+        /// </summary>
+        /// <param name="offset">New offset to move caret to, pinning the current selection position.</param>
+        public void MoveCaretSelecting(int offset)
+        {
+            int pivot = Caret.Position == CaretPosition.Start ? Caret.End : Caret.Start;
+            int newPos = offset;
+
+            var position = newPos > pivot ? CaretPosition.End : CaretPosition.Start;
+
+            SetCaret(new Caret(TextRange.FromOffsets(pivot, newPos), position));
         }
 
         /// <summary>
@@ -111,16 +183,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void InsertText([NotNull] string text)
         {
-            if (CaretRange.Start == TextBuffer.TextLength)
+            if (Caret.Start == TextBuffer.TextLength)
             {
                 TextBuffer.Append(text);
             }
             else
             {
-                TextBuffer.Insert(CaretRange.Start, text);
+                TextBuffer.Insert(Caret.Start, text);
             }
 
-            SetCaret(new TextRange(CaretRange.Start + text.Length, 0));
+            SetCaret(new TextRange(Caret.Start + text.Length, 0));
         }
 
         /// <summary>
@@ -128,18 +200,37 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void BackspaceText()
         {
-            if (CaretRange.Start == 0)
+            if (Caret.Start == 0)
                 return;
 
-            if (CaretRange.Length == 0)
+            if (Caret.Length == 0)
             {
-                TextBuffer.Delete(CaretRange.Start - 1, 1);
-                SetCaret(new TextRange(CaretRange.Start - 1, 0));
+                TextBuffer.Delete(Caret.Start - 1, 1);
+                SetCaret(new TextRange(Caret.Start - 1, 0));
             }
             else
             {
-                TextBuffer.Delete(CaretRange.Start, CaretRange.Length);
-                SetCaret(CaretRange.Start);
+                TextBuffer.Delete(Caret.Start, Caret.Length);
+                SetCaret(Caret.Start);
+            }
+        }
+
+        /// <summary>
+        /// Deletes the text exactly on top of the caret.
+        /// </summary>
+        public void DeleteText()
+        {
+            if (Caret.Start == TextBuffer.TextLength)
+                return;
+
+            if (Caret.Length == 0)
+            {
+                TextBuffer.Delete(Caret.Start, 1);
+            }
+            else
+            {
+                TextBuffer.Delete(Caret.Start, Caret.Length);
+                SetCaret(Caret.Start);
             }
         }
 
@@ -150,7 +241,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void SetCaret(int offset)
         {
-            SetCaret(new TextRange(offset, 0));
+            SetCaret(new Caret(offset));
         }
 
         /// <summary>
@@ -161,20 +252,33 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// 
         /// Calls to this method fire the <see cref="CaretChanged"/> event.
         /// </summary>
-        public void SetCaret(TextRange range)
+        public void SetCaret(TextRange range, CaretPosition position = CaretPosition.Start)
         {
-            var oldCaret = CaretRange;
+            SetCaret(new Caret(range, position));
+        }
+
+        /// <summary>
+        /// Sets the caret range for the text.
+        /// 
+        /// If <see cref="caret"/>.Length > 0, the caret is treated
+        /// as a selection range.
+        /// 
+        /// Calls to this method fire the <see cref="CaretChanged"/> event.
+        /// </summary>
+        public void SetCaret(Caret caret)
+        {
+            var oldCaret = Caret;
 
             // Overlap to keep caret within text bounds
             int total = TextBuffer.TextLength;
 
-            var clampedRange = new TextRange(0, total).Overlap(range);
+            var clampedRange = new TextRange(0, total).Overlap(caret.TextRange);
             if (clampedRange == null)
-                clampedRange = range.Start < 0 ? new TextRange(0, 0) : new TextRange(total, 0);
+                clampedRange = caret.Start < 0 ? new TextRange(0, 0) : new TextRange(total, 0);
 
-            CaretRange = clampedRange.Value;
+            Caret = new Caret(clampedRange.Value, caret.Position);
 
-            CaretChanged?.Invoke(this, new TextEngineCaretChangedEventArgs(CaretRange, oldCaret));
+            CaretChanged?.Invoke(this, new TextEngineCaretChangedEventArgs(Caret, oldCaret));
         }
     }
 
@@ -186,17 +290,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// <summary>
         /// New caret range
         /// </summary>
-        public TextRange CaretRange { get; }
+        public Caret Caret { get; }
 
         /// <summary>
         /// Old caret range
         /// </summary>
-        public TextRange OldCaretRange { get; }
+        public Caret OldCaret { get; }
 
-        public TextEngineCaretChangedEventArgs(TextRange caretRange, TextRange oldCaretRange)
+        public TextEngineCaretChangedEventArgs(Caret caret, Caret oldCaret)
         {
-            CaretRange = caretRange;
-            OldCaretRange = oldCaretRange;
+            Caret = caret;
+            OldCaret = oldCaret;
         }
     }
 
@@ -251,5 +355,103 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// Passing an empty string makes this method act as <see cref="Delete"/>.
         /// </param>
         void Replace(int index, int length, [NotNull] string text);
+    }
+
+    /// <summary>
+    /// Caret position of a <see cref="TextEngine"/>.
+    /// </summary>
+    internal struct Caret : IEquatable<Caret>
+    {
+        /// <summary>
+        /// Range of text this caret covers on a text engine
+        /// </summary>
+        public TextRange TextRange { get; }
+
+        /// <summary>
+        /// Position of this text caret.
+        /// </summary>
+        public int Location
+        {
+            get
+            {
+                switch (Position)
+                {
+                    case CaretPosition.Start:
+                        return Start;
+                    case CaretPosition.End:
+                        return End;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Position of the caret within the text range.
+        /// </summary>
+        public CaretPosition Position { get; }
+
+        /// <summary>
+        /// Start of text range this caret covers
+        /// </summary>
+        public int Start => TextRange.Start;
+
+        /// <summary>
+        /// Start of text range this caret covers
+        /// </summary>
+        public int End => TextRange.End;
+
+        /// <summary>
+        /// Length of text this caret covers
+        /// </summary>
+        public int Length => TextRange.Length;
+
+        public Caret(int location)
+        {
+            TextRange = new TextRange(location, 0);
+            Position = CaretPosition.Start;
+        }
+
+        public Caret(TextRange range, CaretPosition position)
+        {
+            TextRange = range;
+            Position = position;
+        }
+
+        public bool Equals(Caret other)
+        {
+            return TextRange.Equals(other.TextRange) && Position == other.Position;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is Caret && Equals((Caret) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (TextRange.GetHashCode() * 397) ^ (int) Position;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"Caret: {TextRange} : {Position}";
+        }
+    }
+
+    /// <summary>
+    /// Specifies the position a <see cref="Caret"/> is located within its own range.
+    /// 
+    /// If start, <see cref="Caret.Location"/> == <see cref="Caret.Start"/>, if end,
+    /// <see cref="Caret.Location"/> == <see cref="Caret.End"/>.
+    /// </summary>
+    internal enum CaretPosition
+    {
+        Start,
+        End
     }
 }

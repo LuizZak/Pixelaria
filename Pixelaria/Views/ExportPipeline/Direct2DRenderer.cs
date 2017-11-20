@@ -516,7 +516,7 @@ namespace Pixelaria.Views.ExportPipeline
                     }
 
                 var textBounds = labelView.TextBounds;
-                    
+
                 using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
                 using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
                 using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
@@ -570,6 +570,55 @@ namespace Pixelaria.Views.ExportPipeline
                     }
                 }
             });
+        }
+
+        public void WithPreparedAttributedText(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
+        {
+            if (_lastRenderingState == null)
+                throw new InvalidOperationException("Direct2D renderer has no previous rendering state to base this call on.");
+            
+            using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor))
+            {
+                var disposes = new List<IDisposable>();
+
+                foreach (var textSegment in text.GetTextSegments())
+                {
+                    if (textSegment.HasAttribute<ForegroundColorAttribute>())
+                    {
+                        var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
+
+                        var segmentBrush =
+                            new SolidColorBrush(_lastRenderingState.D2DRenderTarget,
+                                colorAttr.ForeColor.ToColor4());
+
+                        disposes.Add(segmentBrush);
+
+                        layout.SetDrawingEffect(segmentBrush,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+                    if (textSegment.HasAttribute<TextFontAttribute>())
+                    {
+                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+
+                        layout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        layout.SetFontSize(fontAttr.Font.Size,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+                }
+
+                var prev = _textColorRenderer.DefaultBrush;
+                _textColorRenderer.DefaultBrush = brush;
+                
+                perform(layout, _textColorRenderer);
+
+                _textColorRenderer.DefaultBrush = prev;
+
+                foreach (var disposable in disposes)
+                {
+                    disposable.Dispose();
+                }
+            }
         }
 
         public void RenderBackground([NotNull] Direct2DRenderingState renderingState)

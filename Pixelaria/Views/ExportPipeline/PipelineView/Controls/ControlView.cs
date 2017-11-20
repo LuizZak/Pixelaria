@@ -138,7 +138,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// A user-defined tag that can be defined for this control
         /// </summary>
         public object Tag { get; set; }
-
+        
         public ControlView()
         {
             if(UiDispatcher == null)
@@ -256,7 +256,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public void HandleOrPass(IEventRequest eventRequest)
         {
-            if (!IsRecursivelyInteractiveEnabled)
+            if (!Visible || !IsRecursivelyInteractiveEnabled)
             {
                 Next?.HandleOrPass(eventRequest);
                 return;

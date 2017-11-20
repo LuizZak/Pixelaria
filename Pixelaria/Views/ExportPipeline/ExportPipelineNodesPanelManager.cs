@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
-
+using System.Text;
 using JetBrains.Annotations;
 
 using Pixelaria.ExportPipeline;
@@ -102,6 +102,25 @@ namespace Pixelaria.Views.ExportPipeline
             };
 
             AdjustSize();
+
+            _searchField
+                .RxTextUpdated
+                .Subscribe(s =>
+                {
+                    foreach (var button in SpecButtons)
+                    {
+                        button.Visible = false;
+                    }
+
+                    var buttons = s == "" ? SpecButtons : SpecButtons.Where(b => b.Text.Contains(s)).ToList();
+
+                    foreach (var button in buttons)
+                    {
+                        button.Visible = true;
+                    }
+
+                    ArrangeButtons(buttons);
+                }).AddToDisposable(_disposeBag);
         }
 
         private void AdjustSize()
@@ -138,10 +157,10 @@ namespace Pixelaria.Views.ExportPipeline
             }
 
             // Adjust buttons
-            ArrangeButtons();
+            ArrangeButtons(SpecButtons);
         }
 
-        private void ArrangeButtons()
+        private void ArrangeButtons([NotNull] IReadOnlyList<ButtonControl> buttons)
         {
             var buttonSize = GetButtonSize();
             var sepSize = new Vector(15, 10);
@@ -153,9 +172,9 @@ namespace Pixelaria.Views.ExportPipeline
             float xStep = _scrollViewControl.VisibleContentBounds.Width / buttonsPerRow;
             float yStep = buttonSize.Y + sepSize.Y;
 
-            for (int i = 0; i < SpecButtons.Count; i++)
+            for (int i = 0; i < buttons.Count; i++)
             {
-                var button = SpecButtons[i];
+                var button = buttons[i];
 
                 float x = xStep / 2 + i % buttonsPerRow * xStep;
                 float y = yStep / 2 + (float)Math.Floor((float)i / buttonsPerRow) * yStep;
@@ -186,7 +205,9 @@ namespace Pixelaria.Views.ExportPipeline
                 ImageInset = new InsetBounds(7, 0, 0, 0),
                 Image = IconForPipelineNodeType(spec.NodeType, _pipelineControl.D2DRenderer.ImageResources)
             };
-            
+
+            button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
+
             button.Rx
                 .MouseClick
                 .Subscribe(_ =>

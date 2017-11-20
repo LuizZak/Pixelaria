@@ -485,7 +485,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             return onDown.Merge(onUp);
         }
-
+        
         /// <summary>
         /// Returns an observable that fires repeatedly for as long as the user holds down the mouse button
         /// over the control.

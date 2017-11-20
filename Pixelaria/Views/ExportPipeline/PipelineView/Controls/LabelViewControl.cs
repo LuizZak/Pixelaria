@@ -20,10 +20,12 @@
     base directory of this project.
 */
 
+using System;
+using System.Diagnostics;
 using Font = System.Drawing.Font;
 
 using JetBrains.Annotations;
-using SharpDX.Direct2D1;
+
 using SharpDX.DirectWrite;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
@@ -51,6 +53,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         private readonly LabelView _labelView;
 
+        private HorizontalTextAlignment _horizontalTextAlignment = HorizontalTextAlignment.Leading;
+        private VerticalTextAlignment _verticalTextAlignment = VerticalTextAlignment.Near;
+        private TextWordWrap _textWordWrap = TextWordWrap.None;
+
         /// <summary>
         /// Whether to automatically resize this label view's bounds
         /// whenever its properties are updated.
@@ -65,7 +71,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             {
                 _labelView.TextFont = value;
                 CalculateBounds();
-                ResetTestFormat();
+                ResetTextFormat();
             }
         }
 
@@ -78,7 +84,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 _labelView.Text = value;
 
                 CalculateBounds();
-                ResetTestFormat();
+                ResetTextFormat();
             }
         }
 
@@ -88,11 +94,35 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         [NotNull]
         public IAttributedText AttributedText => _labelView.AttributedText;
 
-        public HorizontalTextAlignment HorizontalTextAlignment { get; set; } = HorizontalTextAlignment.Leading;
+        public HorizontalTextAlignment HorizontalTextAlignment
+        {
+            get => _horizontalTextAlignment;
+            set
+            {
+                _horizontalTextAlignment = value;
+                ResetTextFormat();
+            }
+        }
 
-        public VerticalTextAlignment VerticalTextAlignment { get; set; } = VerticalTextAlignment.Near;
+        public VerticalTextAlignment VerticalTextAlignment
+        {
+            get => _verticalTextAlignment;
+            set
+            {
+                _verticalTextAlignment = value;
+                ResetTextFormat();
+            }
+        }
 
-        public TextWordWrap TextWordWrap { get; set; } = TextWordWrap.None;
+        public TextWordWrap TextWordWrap
+        {
+            get => _textWordWrap;
+            set
+            {
+                _textWordWrap = value;
+                ResetTextFormat();
+            }
+        }
 
         public LabelViewControl()
         {
@@ -116,37 +146,51 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             if (AutoResize)
                 Size = _labelView.Size;
         }
-
+        
         public override void RenderForeground(ControlRenderingContext context)
         {
-            // Render text
-            if (_textFormat == null)
-            {
-                var horizontalAlign = 
-                    Direct2DRenderer.DirectWriteAlignmentFor(HorizontalTextAlignment);
-                var verticalAlign = 
-                    Direct2DRenderer.DirectWriteAlignmentFor(VerticalTextAlignment);
-                var wordWrap =
-                    Direct2DRenderer.DirectWriteWordWrapFor(TextWordWrap);
-                
-                _textFormat =
-                    new TextFormat(context.State.DirectWriteFactory, _labelView.TextFont.Name, _labelView.TextFont.Size)
-                    {
-                        TextAlignment = horizontalAlign,
-                        ParagraphAlignment = verticalAlign,
-                        WordWrapping = wordWrap
-                    };
-                
-                _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, Bounds.Width, Bounds.Height);
-            }
+            RefreshTextFormat(context);
 
-            using (var brush = new SolidColorBrush(context.RenderTarget, ForeColor.ToColor4()))
+            Debug.Assert(_textLayout != null, "_textLayout != null");
+
+            context.Renderer.WithPreparedAttributedText(ForeColor.ToColor4(), AttributedText, _textLayout, (layout, renderer) =>
             {
-                context.RenderTarget.DrawText(_labelView.Text, _textFormat, Bounds, brush, DrawTextOptions.Clip);
-            }
+                layout.Draw(renderer, Bounds.Minimum.X, Bounds.Minimum.Y);
+            });
         }
-        
-        private void ResetTestFormat()
+
+        public void WithTextLayout([NotNull] ControlRenderingContext context, [NotNull] Action<TextLayout> perform)
+        {
+            RefreshTextFormat(context);
+
+            perform(_textLayout);
+        }
+
+        private void RefreshTextFormat(ControlRenderingContext context)
+        {
+            // Render text
+            if (_textFormat != null)
+                return;
+
+            var horizontalAlign =
+                Direct2DRenderer.DirectWriteAlignmentFor(HorizontalTextAlignment);
+            var verticalAlign =
+                Direct2DRenderer.DirectWriteAlignmentFor(VerticalTextAlignment);
+            var wordWrap =
+                Direct2DRenderer.DirectWriteWordWrapFor(TextWordWrap);
+
+            _textFormat =
+                new TextFormat(context.State.DirectWriteFactory, _labelView.TextFont.Name, _labelView.TextFont.Size)
+                {
+                    TextAlignment = horizontalAlign,
+                    ParagraphAlignment = verticalAlign,
+                    WordWrapping = wordWrap
+                };
+
+            _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, Bounds.Width, Bounds.Height);
+        }
+
+        private void ResetTextFormat()
         {
             _textFormat?.Dispose();
             _textFormat = null;
