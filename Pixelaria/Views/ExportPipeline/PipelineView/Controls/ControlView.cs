@@ -242,7 +242,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             _reactive.MouseClickSubject.OnNext(e);
         }
 
-        public virtual void OnMouseDoubleClick(MouseEventArgs e)
+        public virtual void OnMouseDoubleClick([NotNull] MouseEventArgs e)
         {
             
         }

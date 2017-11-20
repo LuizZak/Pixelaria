@@ -445,6 +445,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         }
 
         /// <summary>
+        /// Returns the result of the union operation between this and another text range.
+        /// </summary>
+        public TextRange Union(TextRange other)
+        {
+            return FromOffsets(Math.Min(Start, other.Start), Math.Max(End, other.End));
+        }
+
+        /// <summary>
         /// Given two string offsets, returns a <see cref="TextRange"/> where <see cref="Start"/> is
         /// the minimum of the two offsets, and <see cref="Length"/> is the different between the two
         /// offsets.

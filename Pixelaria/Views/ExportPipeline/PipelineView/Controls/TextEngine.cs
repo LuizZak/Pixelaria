@@ -299,6 +299,77 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Returns a text range that covers an entire word segment at a given text position.
+        /// 
+        /// If the text under the position contains a word, the range from the begginning to the
+        /// end of the word is returned, otherwise, the boundaries for the nearest word are given.
+        /// 
+        /// If no word is under or near the position, the non-word (white space)
+        /// </summary>
+        /// <param name="position">Position to get word segment under</param>
+        public TextRange WordSegmentIn(int position)
+        {
+            if (position >= TextBuffer.TextLength)
+                return new TextRange(TextBuffer.TextLength, 0);
+
+            int start;
+            int end;
+
+            if (IsWord(TextBuffer.CharacterAtOffset(position)))
+            {
+                start = position;
+                end = position;
+
+                while (start > 0 && IsWord(TextBuffer.CharacterAtOffset(start)))
+                {
+                    start -= 1;
+                }
+
+                if (start > 0)
+                    start += 1;
+
+                while (end < TextBuffer.TextLength && IsWord(TextBuffer.CharacterAtOffset(end)))
+                {
+                    end += 1;
+                }
+
+                return TextRange.FromOffsets(start, end);
+            }
+            if (position > 0 && IsWord(TextBuffer.CharacterAtOffset(position - 1)))
+            {
+                start = position - 1;
+
+                while (start > 0 && IsWord(TextBuffer.CharacterAtOffset(start)))
+                {
+                    start -= 1;
+                }
+
+                if (start > 0)
+                    start += 1;
+                
+                return TextRange.FromOffsets(start, position);
+            }
+
+            start = position;
+            end = position;
+
+            while (start > 0 && !IsWord(TextBuffer.CharacterAtOffset(start)))
+            {
+                start -= 1;
+            }
+
+            if (start > 0)
+                start += 1;
+
+            while (end < TextBuffer.TextLength && !IsWord(TextBuffer.CharacterAtOffset(end)))
+            {
+                end += 1;
+            }
+
+            return TextRange.FromOffsets(start, end);
+        }
+
+        /// <summary>
         /// Sets the caret range for the text, with no selection length associated with it.
         /// 
         /// Calls to this method fire the <see cref="CaretChanged"/> event.

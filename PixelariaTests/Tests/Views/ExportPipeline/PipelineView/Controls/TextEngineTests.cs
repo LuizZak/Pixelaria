@@ -575,6 +575,98 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
         #endregion
 
+        #region Word Segment In
+
+        [TestMethod]
+        public void TestWordSegmentIn()
+        {
+            var buffer = new TextBuffer("Abc def ghi");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(5);
+
+            Assert.AreEqual(new TextRange(4, 3), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInEmptyString()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(0);
+
+            Assert.AreEqual(new TextRange(0, 0), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInAtStartOfWord()
+        {
+            var buffer = new TextBuffer("Abc def ghi");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(4);
+
+            Assert.AreEqual(new TextRange(4, 3), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInAtEndOfWord()
+        {
+            var buffer = new TextBuffer("Abc def ghi");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(7);
+
+            Assert.AreEqual(new TextRange(4, 3), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInOverWhitespace()
+        {
+            var buffer = new TextBuffer("Abc   ghi");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(4);
+
+            Assert.AreEqual(new TextRange(3, 3), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInSingleWordText()
+        {
+            var buffer = new TextBuffer("Abcdef");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(3);
+
+            Assert.AreEqual(new TextRange(0, 6), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInSingleWhitespaceText()
+        {
+            var buffer = new TextBuffer("      ");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(3);
+
+            Assert.AreEqual(new TextRange(0, 6), segment);
+        }
+
+        [TestMethod]
+        public void TestWordSegmentInBeginningOfString()
+        {
+            var buffer = new TextBuffer("Abcdef");
+            var sut = new TextEngine(buffer);
+
+            var segment = sut.WordSegmentIn(0);
+
+            Assert.AreEqual(new TextRange(0, 6), segment);
+        }
+
+        #endregion
+
         #region Set Caret
 
         [TestMethod]

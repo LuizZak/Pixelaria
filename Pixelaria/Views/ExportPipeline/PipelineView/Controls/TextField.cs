@@ -51,6 +51,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
 
+        // TODO: Collapse these into an external handler or into ReactiveX to lower the state clutter here
+
+        private DateTime _lastMouseDown = DateTime.MinValue;
+        private Vector _lastMouseDownVec = Vector.Zero;
+        private bool _selectingWordSpan;
+        private int _wordSpanStartPosition;
         private bool _mouseDown;
 
         /// <summary>
@@ -137,7 +143,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         #region Mouse Handlers
-
+        
         public override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -152,6 +158,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             int offset = OffsetUnder(e.Location);
             _textEngine.SetCaret(offset);
+
+            // Double click selects word
+            if (_lastMouseDownVec.Distance(e.Location) < 10 && DateTime.Now.Subtract(_lastMouseDown).TotalMilliseconds < SystemInformation.DoubleClickTime)
+            {
+                _wordSpanStartPosition = OffsetUnder(e.Location);
+
+                var segment = _textEngine.WordSegmentIn(_wordSpanStartPosition);
+                _textEngine.SetCaret(segment);
+
+                _selectingWordSpan = true;
+            }
+
+            _lastMouseDown = DateTime.Now;
+            _lastMouseDownVec = e.Location;
         }
 
         public override void OnMouseEnter()
@@ -167,9 +187,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             Cursor.Current = Cursors.IBeam;
 
-            if (_mouseDown)
+            if (!_mouseDown)
+                return;
+
+            _blinker.Restart();
+
+            if (_selectingWordSpan)
             {
-                _blinker.Restart();
+                int offset = OffsetUnder(e.Location);
+
+                var original = _textEngine.WordSegmentIn(_wordSpanStartPosition);
+                var newSeg = _textEngine.WordSegmentIn(offset);
+
+                _textEngine.SetCaret(original.Union(newSeg), offset <= _wordSpanStartPosition ? CaretPosition.Start : CaretPosition.End);
+            }
+            else
+            {
                 int offset = OffsetUnder(e.Location);
                 _textEngine.MoveCaretSelecting(offset);
             }
@@ -396,6 +429,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         private int OffsetUnder(Vector point)
         {
+            if (DirectWriteFactory == null)
+                return 0;
+
             int offset = 0;
             var converted = _label.ConvertFrom(point, this);
 
@@ -407,7 +443,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             return Math.Min(offset, _label.Text.Length);
         }
-
+        
         /// <summary>
         /// A small class to handle cursor blinker timer
         /// </summary>

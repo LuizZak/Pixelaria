@@ -135,6 +135,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Gets the attributed text for this <see cref="ButtonControl"/>.
+        /// </summary>
+        public IAttributedText AttributedText => _label.AttributedText;
+
+        /// <summary>
         /// Color for button's label
         /// </summary>
         public Color TextColor
