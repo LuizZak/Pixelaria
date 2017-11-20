@@ -198,17 +198,37 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             // Caret selection/movement
             if (e.Modifiers.HasFlag(Keys.Shift))
             {
-                if (e.KeyCode == Keys.Left)
-                    _textEngine.SelectLeft();
-                else if (e.KeyCode == Keys.Right)
-                    _textEngine.SelectRight();
+                if (e.Modifiers.HasFlag(Keys.Control))
+                {
+                    if (e.KeyCode == Keys.Left)
+                        _textEngine.SelectLeftWord();
+                    else if (e.KeyCode == Keys.Right)
+                        _textEngine.SelectRightWord();
+                }
+                else
+                {
+                    if (e.KeyCode == Keys.Left)
+                        _textEngine.SelectLeft();
+                    else if (e.KeyCode == Keys.Right)
+                        _textEngine.SelectRight();
+                }
             }
             else
             {
-                if (e.KeyCode == Keys.Left)
-                    _textEngine.MoveLeft();
-                else if (e.KeyCode == Keys.Right)
-                    _textEngine.MoveRight();
+                if (e.Modifiers.HasFlag(Keys.Control))
+                {
+                    if (e.KeyCode == Keys.Left)
+                        _textEngine.MoveLeftWord();
+                    else if (e.KeyCode == Keys.Right)
+                        _textEngine.MoveRightWord();
+                }
+                else
+                {
+                    if (e.KeyCode == Keys.Left)
+                        _textEngine.MoveLeft();
+                    else if (e.KeyCode == Keys.Right)
+                        _textEngine.MoveRight();
+                }
             }
         }
 
@@ -369,6 +389,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             public string TextInRange(TextRange range)
             {
                 return _label.Text.Substring(range.Start, range.End);
+            }
+
+            public char CharacterAtOffset(int offset)
+            {
+                return _label.Text[offset];
             }
 
             public void Delete(int index, int length)

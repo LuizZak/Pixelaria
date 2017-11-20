@@ -41,6 +41,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             return Text.Substring(range.Start, range.Length);
         }
 
+        public char CharacterAtOffset(int offset)
+        {
+            return Text[offset];
+        }
+
         public void Delete(int index, int length)
         {
             Text = Text.Remove(index, length);

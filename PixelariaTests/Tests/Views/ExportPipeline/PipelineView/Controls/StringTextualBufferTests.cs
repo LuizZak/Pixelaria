@@ -46,6 +46,14 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         }
 
         [TestMethod]
+        public void TestCharacterAtOffset()
+        {
+            Assert.AreEqual('a', new StringTextualBuffer("abcdef").CharacterAtOffset(0));
+            Assert.AreEqual('c', new StringTextualBuffer("abcdef").CharacterAtOffset(2));
+            Assert.AreEqual('f', new StringTextualBuffer("abcdef").CharacterAtOffset(5));
+        }
+
+        [TestMethod]
         public void TestAppend()
         {
             var sut = new StringTextualBuffer("abc");

@@ -105,6 +105,38 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Moves right until the caret hits a word break.
+        /// 
+        /// From the current caret location, moves to the beginning of the next 
+        /// word.
+        /// If the caret is on top of a word, move to the end of that word.
+        /// </summary>
+        public void MoveRightWord()
+        {
+            if (Caret.Location == TextBuffer.TextLength)
+                return;
+
+            int offset = OffsetForRightWord();
+            SetCaret(offset);
+        }
+
+        /// <summary>
+        /// Moves left until the caret hits a word break.
+        /// 
+        /// From the current caret location, moves to the beginning of the previous
+        /// word.
+        /// If the caret is on top of a word, move to the beginning of that word.
+        /// </summary>
+        public void MoveLeftWord()
+        {
+            if (Caret.Location == 0)
+                return;
+
+            int offset = OffsetForLeftWord();
+            SetCaret(offset);
+        }
+
+        /// <summary>
         /// Performs a selection to the right of the caret.
         /// 
         /// If the caret's position is Start, the caret selects one character to the 
@@ -159,6 +191,38 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Selects right until the caret hits a word break.
+        /// 
+        /// From the current caret location, selects up to the beginning of the next 
+        /// word.
+        /// If the caret is on top of a word, selects up to the end of that word.
+        /// </summary>
+        public void SelectRightWord()
+        {
+            if (Caret.Location == TextBuffer.TextLength)
+                return;
+
+            int offset = OffsetForRightWord();
+            MoveCaretSelecting(offset);
+        }
+
+        /// <summary>
+        /// Selects to the left until the caret hits a word break.
+        /// 
+        /// From the current caret location, selects up to the beginning of the previous
+        /// word.
+        /// If the caret is on top of a word, selects up to the beginning of that word.
+        /// </summary>
+        public void SelectLeftWord()
+        {
+            if (Caret.Location == 0)
+                return;
+
+            int offset = OffsetForLeftWord();
+            MoveCaretSelecting(offset);
+        }
+
+        /// <summary>
         /// Moves the caret position to a given location, while mantaining a pivot 
         /// over the other end of the selection.
         /// 
@@ -200,7 +264,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void BackspaceText()
         {
-            if (Caret.Start == 0)
+            if (Caret.Location == 0 && Caret.Length == 0)
                 return;
 
             if (Caret.Length == 0)
@@ -220,7 +284,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         public void DeleteText()
         {
-            if (Caret.Start == TextBuffer.TextLength)
+            if (Caret.Location == TextBuffer.TextLength && Caret.Length == 0)
                 return;
 
             if (Caret.Length == 0)
@@ -280,6 +344,94 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             CaretChanged?.Invoke(this, new TextEngineCaretChangedEventArgs(Caret, oldCaret));
         }
+
+        private int OffsetForRightWord()
+        {
+            if (Caret.Location == TextBuffer.TextLength)
+                return Caret.Location;
+
+            if (IsWord(TextBuffer.CharacterAtOffset(Caret.Location)))
+            {
+                // Move to end of current word
+                int newOffset = Caret.Location;
+                while (newOffset < TextBuffer.TextLength && IsWord(TextBuffer.CharacterAtOffset(newOffset)))
+                {
+                    newOffset++;
+                }
+
+                return newOffset;
+            }
+            else
+            {
+                // Move to beginning of the next word
+                int newOffset = Caret.Location;
+                while (newOffset < TextBuffer.TextLength && !IsWord(TextBuffer.CharacterAtOffset(newOffset)))
+                {
+                    newOffset++;
+                }
+
+                return newOffset;
+            }
+        }
+
+        private int OffsetForLeftWord()
+        {
+            if (Caret.Location == 0)
+                return Caret.Location;
+
+            if (IsWord(TextBuffer.CharacterAtOffset(Caret.Location - 1)))
+            {
+                // Move to beginning of current word
+                int newOffset = Caret.Location - 1;
+                while (newOffset > 0 && IsWord(TextBuffer.CharacterAtOffset(newOffset)))
+                {
+                    newOffset--;
+                }
+
+                // We stopped because we hit the beginning of the string
+                if (newOffset == 0)
+                    return newOffset;
+
+                return newOffset + 1;
+            }
+            else
+            {
+                // Move to beginning of the previous word
+                int newOffset = Caret.Location - 1;
+                while (newOffset > 0 && !IsWord(TextBuffer.CharacterAtOffset(newOffset)))
+                {
+                    newOffset--;
+                }
+                while (newOffset > 0 && IsWord(TextBuffer.CharacterAtOffset(newOffset)))
+                {
+                    newOffset--;
+                }
+
+                // We stopped because we hit the beginning of the string
+                if (newOffset == 0)
+                    return newOffset;
+
+                return newOffset + 1;
+            }
+        }
+
+        /// <summary>
+        /// Returns if a given character is recognized as a word char.
+        /// </summary>
+        private static bool IsWord(char character)
+        {
+            return char.IsLetterOrDigit(character);
+        }
+
+        /// <summary>
+        /// Returns if a given character is recognized as a word break char.
+        /// 
+        /// Simply returns the inverse of <see cref="IsWord"/>.
+        /// </summary>
+        private static bool IsWordBreak(char character)
+        {
+            return !IsWord(character);
+        }
     }
 
     /// <summary>
@@ -324,6 +476,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><see cref="range"/> is outside the range 0 to <see cref="TextLength"/>.</exception>
         string TextInRange(TextRange range);
+
+        /// <summary>
+        /// Gets the character at a given offset.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"><see cref="offset"/> is outside the range 0 to <see cref="TextLength"/>.</exception>
+        char CharacterAtOffset(int offset);
 
         /// <summary>
         /// Deletes <see cref="length"/> number of sequential characters starting at <see cref="index"/>.

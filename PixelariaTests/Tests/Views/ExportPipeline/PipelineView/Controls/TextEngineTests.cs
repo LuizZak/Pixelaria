@@ -409,6 +409,172 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
         #endregion
 
+        #region Move Word
+
+        [TestMethod]
+        public void TestMoveRightWordEndOfWord()
+        {
+            var buffer = new TextBuffer("Abc Def");
+            var sut = new TextEngine(buffer);
+
+            sut.MoveRightWord();
+
+            Assert.AreEqual(new Caret(3), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveRightWordBeginningOfNextWord()
+        {
+            var buffer = new TextBuffer("Abc   Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.MoveRightWord();
+
+            Assert.AreEqual(new Caret(6), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveLeftWordBeginningOfWord()
+        {
+            var buffer = new TextBuffer("Abc Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(6);
+
+            sut.MoveLeftWord();
+
+            Assert.AreEqual(new Caret(4), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveLeftWordBeginningOfFirstWord()
+        {
+            var buffer = new TextBuffer("Abc Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.MoveLeftWord();
+
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveLeftWordEndOfPreviousWord()
+        {
+            var buffer = new TextBuffer("Abc   Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(6);
+
+            sut.MoveLeftWord();
+
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveLeftWordBeginningOfWordCaretAtEnd()
+        {
+            // Tests moving to the previous word when the caret is currently just after the end
+            // of a word
+
+            var buffer = new TextBuffer("Abc def ghi");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(7);
+
+            sut.MoveLeftWord();
+
+            Assert.AreEqual(new Caret(new TextRange(4, 0), CaretPosition.Start), sut.Caret);
+        }
+
+        #endregion
+
+        #region Selection Move Word
+
+        [TestMethod]
+        public void TestSelectRightWordEndOfWord()
+        {
+            var buffer = new TextBuffer("Abc Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SelectRightWord();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectRightWordBeginningOfNextWord()
+        {
+            var buffer = new TextBuffer("Abc   Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.SelectRightWord();
+
+            Assert.AreEqual(new Caret(new TextRange(3, 3), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeftWordBeginningOfWord()
+        {
+            var buffer = new TextBuffer("Abc Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(7);
+
+            sut.SelectLeftWord();
+
+            Assert.AreEqual(new Caret(new TextRange(4, 3), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeftWordBeginningOfFirstWord()
+        {
+            var buffer = new TextBuffer("Abc Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(3);
+
+            sut.SelectLeftWord();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeftWordBeginningOfPreviousWord()
+        {
+            var buffer = new TextBuffer("Abc   Def");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(6);
+
+            sut.SelectLeftWord();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 6), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeftWordBeginningOfWordCaretAtEnd()
+        {
+            // Tests selecting the previous word when the caret is currently just after the end
+            // of a word
+
+            var buffer = new TextBuffer("Abc def ghi");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(7);
+
+            sut.SelectLeftWord();
+
+            Assert.AreEqual(new Caret(new TextRange(4, 3), CaretPosition.Start), sut.Caret);
+        }
+
+        #endregion
+
         #region Set Caret
 
         [TestMethod]
@@ -591,6 +757,24 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
+        [TestMethod]
+        public void TestBackspaceAtBeginningWithRange()
+        {
+            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+
+            stub.Stub(b => b.TextLength).Return(3);
+            stub.Expect(b => b.Delete(0, 3));
+
+            var sut = new TextEngine(stub);
+
+            sut.SetCaret(new TextRange(0, 3));
+
+            sut.BackspaceText();
+
+            stub.VerifyAllExpectations();
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
         #endregion
 
         #region Delete
@@ -646,6 +830,24 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
+        [TestMethod]
+        public void TestDeleteAtEndWithRange()
+        {
+            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+
+            stub.Stub(b => b.TextLength).Return(3);
+            stub.Expect(b => b.Delete(0, 3));
+
+            var sut = new TextEngine(stub);
+
+            sut.SetCaret(new Caret(new TextRange(0, 3), CaretPosition.End));
+
+            sut.DeleteText();
+
+            stub.VerifyAllExpectations();
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
         #endregion
 
         internal class TextBuffer : ITextEngineTextualBuffer
@@ -662,6 +864,11 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             public string TextInRange(TextRange range)
             {
                 return Text.Substring(range.Start, range.Length);
+            }
+
+            public char CharacterAtOffset(int offset)
+            {
+                return Text[offset];
             }
 
             public void Delete(int index, int length)
