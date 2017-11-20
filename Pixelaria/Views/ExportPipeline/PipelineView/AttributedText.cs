@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -355,6 +356,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         T GetAttribute<T>() where T : ITextAttribute;
     }
 
+    [DebuggerDisplay("{Start} , {Length}")]
     public struct TextRange : IEquatable<TextRange>
     {
         public TextRange(int start, int length) : this()
@@ -365,6 +367,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
         public int Start { get; }
         public int Length { get; }
+
+        /// <summary>
+        /// End of range; Equivalent to <see cref="Start"/> + <see cref="Length"/>.
+        /// </summary>
+        public int End => Start + Length;
 
         public bool Equals(TextRange other)
         {
@@ -383,6 +390,58 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             {
                 return (Start * 397) ^ Length;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"[ {Start} : {Length} ]";
+        }
+
+        /// <summary>
+        /// Returns whether this range overlaps another range.
+        /// </summary>
+        public bool Intersects(TextRange other)
+        {
+            return Start <= other.End && other.Start <= End;
+        }
+
+        /// <summary>
+        /// Returns the intersection between this text range and another text range.
+        /// 
+        /// Intersection between the two ranges must have at least length 1 to be valid.
+        /// 
+        /// Returns null, if the ranges do not intersect.
+        /// </summary>
+        public TextRange? Intersection(TextRange other)
+        {
+            // Not intersecting
+            if (End <= other.Start || other.End <= Start)
+                return null;
+
+            int start = Math.Max(Start, other.Start);
+            int end = Math.Min(End, other.End);
+
+            return new TextRange(start, end - start);
+        }
+
+        /// <summary>
+        /// Returns the overlap between this text range and another text range.
+        /// 
+        /// Overlap between the two ranges can occur with 0-length overlaps; final overlap will
+        /// also have 0 <see cref="Length"/>.
+        /// 
+        /// Returns null, if the ranges do not overlap.
+        /// </summary>
+        public TextRange? Overlap(TextRange other)
+        {
+            // Not intersecting
+            if (End < other.Start || other.End < Start)
+                return null;
+
+            int start = Math.Max(Start, other.Start);
+            int end = Math.Min(End, other.End);
+
+            return new TextRange(start, end - start);
         }
     }
 
