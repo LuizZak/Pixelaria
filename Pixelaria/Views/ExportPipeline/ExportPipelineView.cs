@@ -120,6 +120,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void ConfigureForm()
         {
+            ControlView.DirectWriteFactory = RenderingState.DirectWriteFactory;
+
             ConfigurePipelineControl();
             ConfigureNodesPanel();
             ConfigurePreviewManager();

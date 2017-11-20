@@ -149,7 +149,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         
         public override void RenderForeground(ControlRenderingContext context)
         {
-            RefreshTextFormat(context);
+            RefreshTextFormat(context.State.DirectWriteFactory);
 
             Debug.Assert(_textLayout != null, "_textLayout != null");
 
@@ -159,17 +159,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             });
         }
 
-        public void WithTextLayout([NotNull] ControlRenderingContext context, [NotNull] Action<TextLayout> perform)
+        public void WithTextLayout([NotNull, InstantHandle] Action<TextLayout> perform)
         {
-            RefreshTextFormat(context);
+            RefreshTextFormat(DirectWriteFactory);
 
             perform(_textLayout);
         }
 
-        private void RefreshTextFormat(ControlRenderingContext context)
+        private void RefreshTextFormat(Factory factory)
         {
             // Render text
-            if (_textFormat != null)
+            if (_textFormat != null && _textLayout != null)
                 return;
 
             var horizontalAlign =
@@ -180,14 +180,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 Direct2DRenderer.DirectWriteWordWrapFor(TextWordWrap);
 
             _textFormat =
-                new TextFormat(context.State.DirectWriteFactory, _labelView.TextFont.Name, _labelView.TextFont.Size)
+                new TextFormat(factory, _labelView.TextFont.Name, _labelView.TextFont.Size)
                 {
                     TextAlignment = horizontalAlign,
                     ParagraphAlignment = verticalAlign,
                     WordWrapping = wordWrap
                 };
 
-            _textLayout = new TextLayout(context.State.DirectWriteFactory, Text, _textFormat, Bounds.Width, Bounds.Height);
+            _textLayout = new TextLayout(factory, Text, _textFormat, Bounds.Width, Bounds.Height);
         }
 
         private void ResetTextFormat()

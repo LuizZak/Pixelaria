@@ -28,8 +28,9 @@ using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
-using SharpDX;
+
 using SharpDX.Direct2D1;
+using SharpDX.Mathematics.Interop;
 using Color = System.Drawing.Color;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
@@ -49,6 +50,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         private readonly LabelViewControl _label = new LabelViewControl();
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
+
+        private bool _mouseDown;
 
         /// <summary>
         /// Gets or sets the color to use when drawing the background of selected
@@ -133,12 +136,62 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             Layout();
         }
 
-        public override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
+        #region Mouse Handlers
 
-            BecomeFirstResponder();
+        public override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            if (!BecomeFirstResponder())
+                return;
+
+            _mouseDown = true;
+
+            Cursor.Current = Cursors.IBeam;
+            _blinker.Restart();
+
+            int offset = OffsetUnder(e.Location);
+            _textEngine.SetCaret(offset);
         }
+
+        public override void OnMouseEnter()
+        {
+            base.OnMouseEnter();
+
+            Cursor.Current = Cursors.IBeam;
+        }
+
+        public override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            Cursor.Current = Cursors.IBeam;
+
+            if (_mouseDown)
+            {
+                _blinker.Restart();
+                int offset = OffsetUnder(e.Location);
+                _textEngine.MoveCaretSelecting(offset);
+            }
+        }
+
+        public override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            _mouseDown = false;
+        }
+
+        public override void OnMouseLeave()
+        {
+            base.OnMouseLeave();
+
+            Cursor.Current = Cursors.Default;
+        }
+
+        #endregion
+
+        #region Keyboard Handlers
 
         public void OnKeyPress(KeyPressEventArgs e)
         {
@@ -232,8 +285,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             }
         }
 
+        #endregion
+
         public override bool BecomeFirstResponder()
         {
+            if (IsFirstResponder)
+                return true;
+
             bool isFirstResponder = base.BecomeFirstResponder();
 
             if(isFirstResponder)
@@ -249,7 +307,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             if (_textEngine.Caret.Length == 0)
                 return;
             
-            _label.WithTextLayout(context, layout =>
+            _label.WithTextLayout(layout =>
             {
                 var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
 
@@ -331,6 +389,23 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             var bounds = Bounds.Inset(ContentInset);
             _labelContainer.SetFrame(bounds);
+        }
+
+        /// <summary>
+        /// Returns string offset at a given point on this text field.
+        /// </summary>
+        private int OffsetUnder(Vector point)
+        {
+            int offset = 0;
+            var converted = _label.ConvertFrom(point, this);
+
+            _label.WithTextLayout(layout =>
+            {
+                var metrics = layout.HitTestPoint(converted.X, converted.Y, out RawBool isTrailing, out RawBool _);
+                offset = metrics.TextPosition + (isTrailing ? 1 : 0);
+            });
+
+            return Math.Min(offset, _label.Text.Length);
         }
 
         /// <summary>

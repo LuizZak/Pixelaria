@@ -55,6 +55,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// If another event handler in the hierarchy is the first responder and it denies resigning it, or 
         /// this event handler returns <see cref="CanBecomeFirstResponder"/> as false, false is returned and
         /// this event handler does not become the first responder.
+        /// 
+        /// If this handler is already the first responder (see <see cref="IsFirstResponder"/>), the method
+        /// returns true immediately.
         /// </summary>
         bool BecomeFirstResponder();
 

@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
+using SharpDX.DirectWrite;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
@@ -38,6 +39,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     /// </summary>
     internal class ControlView : SelfRenderingBaseView, IMouseEventHandler, IDisposable
     {
+        /// <summary>
+        /// A global direct write factory used by controls that deal with text.
+        /// </summary>
+        public static Factory DirectWriteFactory { get; set; }
+
         /// <summary>
         /// Gets or sets the dispatcher for UI events.
         /// 
@@ -145,7 +151,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 throw new InvalidOperationException(
                         @"ControlView.UiDispatcher static property must be set prior to creating instances of ControlView. " +
                         @"Consider setting it to the proper UI dispatcher when creating the very first Form control of your program.");
-
+            
             _reactive = new Reactive(UiDispatcher);
         }
 
@@ -287,6 +293,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         
         public virtual bool BecomeFirstResponder()
         {
+            // Already first responder
+            if (IsFirstResponder)
+                return true;
+
             if (!CanBecomeFirstResponder)
                 return false;
 
