@@ -500,16 +500,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             return char.IsLetterOrDigit(character);
         }
-
-        /// <summary>
-        /// Returns if a given character is recognized as a word break char.
-        /// 
-        /// Simply returns the inverse of <see cref="IsWord"/>.
-        /// </summary>
-        private static bool IsWordBreak(char character)
-        {
-            return !IsWord(character);
-        }
     }
 
     /// <summary>
