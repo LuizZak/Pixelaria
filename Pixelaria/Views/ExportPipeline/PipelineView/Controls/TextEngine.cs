@@ -243,7 +243,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// <summary>
         /// Inserts the specified text on top of the current caret position.
         /// 
-        /// Replaces text, if caret's length is > 0 and text is available on selection;
+        /// Replaces text if caret's range is > 0.
         /// </summary>
         public void InsertText([NotNull] string text)
         {
