@@ -40,6 +40,78 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             Assert.AreEqual(new Caret(0), sut.Caret, "Should start with caret at beginning of text");
             Assert.AreEqual(buffer, sut.TextBuffer, "Should properly assign passed in text buffer");
         }
+        
+        #region Selected Text
+        
+        [TestMethod]
+        public void TestSelectedTextEmptyText()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+
+            Assert.AreEqual("", sut.SelectedText());
+        }
+
+        [TestMethod]
+        public void TestSelectedTextEmptyRange()
+        {
+            var buffer = new TextBuffer("Abcdef");
+            var sut = new TextEngine(buffer);
+
+            Assert.AreEqual("", sut.SelectedText());
+        }
+
+        [TestMethod]
+        public void TestSelectedTextPartialRange()
+        {
+            var buffer = new TextBuffer("Abcdef");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new TextRange(2, 3));
+
+            Assert.AreEqual("cde", sut.SelectedText());
+        }
+
+        [TestMethod]
+        public void TestSelectedTextPartialRangeToEnd()
+        {
+            var buffer = new TextBuffer("Abcdef");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new TextRange(2, 4));
+
+            Assert.AreEqual("cdef", sut.SelectedText());
+        }
+
+        [TestMethod]
+        public void TestSelectedTextFullRange()
+        {
+            var buffer = new TextBuffer("Abcdef");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new TextRange(0, 6));
+
+            Assert.AreEqual("Abcdef", sut.SelectedText());
+        }
+
+        [TestMethod]
+        public void TestSelectedTextInvokesTextBuffer()
+        {
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
+
+            stub.Stub(b => b.TextLength).Return(6);
+            stub.Stub(b => b.TextInRange(new TextRange(2, 3))).Return("cde");
+
+            var sut = new TextEngine(stub);
+
+            sut.SetCaret(new TextRange(2, 3));
+
+            sut.SelectedText();
+
+            stub.VerifyAllExpectations();
+        }
+
+        #endregion
 
         #region Move
 

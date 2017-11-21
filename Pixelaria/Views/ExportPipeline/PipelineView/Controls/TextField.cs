@@ -242,6 +242,23 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public void OnKeyDown(KeyEventArgs e)
         {
+            // Copy/cut/paste
+            if (e.Modifiers == Keys.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.C:
+                        Copy();
+                        break;
+                    case Keys.X:
+                        Cut();
+                        break;
+                    case Keys.V:
+                        Paste();
+                        break;
+                }
+            }
+
             // Selection
             if (e.Modifiers.HasFlag(Keys.Shift))
             {
@@ -440,6 +457,36 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             _labelContainer.SetFrame(bounds);
         }
 
+        #region Copy/Cut/Paste
+
+        private void Copy()
+        {
+            if (_textEngine.Caret.Length == 0)
+                return;
+
+            string text = _textEngine.SelectedText();
+            Clipboard.SetText(text);
+        }
+
+        private void Cut()
+        {
+            if (_textEngine.Caret.Length == 0)
+                return;
+
+            Copy();
+            _textEngine.DeleteText();
+        }
+
+        private void Paste()
+        {
+            if (!Clipboard.ContainsText()) return;
+
+            string text = Clipboard.GetText();
+            _textEngine.InsertText(text);
+        }
+
+        #endregion
+
         /// <summary>
         /// Returns string offset at a given point on this text field.
         /// </summary>
@@ -515,7 +562,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             public string TextInRange(TextRange range)
             {
-                return _label.Text.Substring(range.Start, range.End);
+                return _label.Text.Substring(range.Start, range.Length);
             }
 
             public char CharacterAtOffset(int offset)

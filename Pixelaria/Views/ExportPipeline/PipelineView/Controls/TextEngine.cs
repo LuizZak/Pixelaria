@@ -61,6 +61,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
+        /// Returns all text currently under selection of the caret.
+        /// 
+        /// Returns an empty string, if no ranged selection is present.
+        /// </summary>
+        public string SelectedText()
+        {
+            return TextBuffer.TextInRange(Caret.TextRange);
+        }
+
+        /// <summary>
         /// Moves the caret to the right
         /// </summary>
         public void MoveRight()
