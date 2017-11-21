@@ -253,7 +253,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             }
             else
             {
-                TextBuffer.Insert(Caret.Start, text);
+                if (Caret.Length == 0)
+                {
+                    TextBuffer.Insert(Caret.Start, text);
+                }
+                else
+                {
+                    TextBuffer.Replace(Caret.Start, Caret.Length, text);
+                }
             }
 
             SetCaret(new TextRange(Caret.Start + text.Length, 0));

@@ -747,13 +747,22 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestInsertTextCaretAtEnd()
         {
-            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
 
-            stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Append("456"));
+            int length = 0;
+
+            stub.Stub(b => b.TextLength)
+                .WhenCalled(inv =>
+                {
+                    inv.ReturnValue = length;
+                })
+                .Return(0)
+                .TentativeReturn();
+
+            stub.Expect(b => b.Append("456")).WhenCalled(_ => length = 3);
             
             var sut = new TextEngine(stub);
-
+            
             sut.InsertText("456");
 
             stub.VerifyAllExpectations();
@@ -763,7 +772,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestInsertTextCaretNotAtEnd()
         {
-            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
 
             stub.Stub(b => b.TextLength).Return(3);
             stub.Expect(b => b.Insert(0, "456"));
@@ -771,7 +780,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var sut = new TextEngine(stub);
 
             sut.SetCaret(0);
-
             sut.InsertText("456");
             
             stub.VerifyAllExpectations();
@@ -781,19 +789,28 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestInsertTextWithSelection()
         {
-            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
 
-            stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Replace(1, 2, "456"));
+            int length = 3;
 
+            stub.Stub(b => b.TextLength)
+                .WhenCalled(inv =>
+                {
+                    inv.ReturnValue = length;
+                })
+                .Return(0)
+                .TentativeReturn();
+
+            stub.Expect(b => b.Replace(1, 2, "456")).WhenCalled(_ => length = 5);
+            
             var sut = new TextEngine(stub);
 
             sut.SetCaret(new TextRange(1, 2));
 
             sut.InsertText("456");
-
+            
             stub.VerifyAllExpectations();
-            Assert.AreEqual(new Caret(3), sut.Caret);
+            Assert.AreEqual(new Caret(4), sut.Caret);
         }
 
         #endregion
