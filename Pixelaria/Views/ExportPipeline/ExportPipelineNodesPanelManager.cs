@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Text;
+
 using JetBrains.Annotations;
 
 using Pixelaria.ExportPipeline;
@@ -103,23 +103,39 @@ namespace Pixelaria.Views.ExportPipeline
 
             AdjustSize();
 
+            SetupReactiveSearch();
+        }
+
+        private void SetupReactiveSearch()
+        {
             _searchField
                 .RxTextUpdated
                 .Subscribe(s =>
                 {
-                    foreach (var button in SpecButtons)
+                    var buttonPairs = SpecButtons.Zip(LoadedSpecs, (control, spec) => (control, spec)).ToArray();
+
+                    foreach (var (button, spec) in buttonPairs)
                     {
                         button.Visible = false;
+                        button.Text = spec.Name;
                     }
 
-                    var buttons = s == "" ? SpecButtons : SpecButtons.Where(b => b.Text.Contains(s)).ToList();
+                    var visible = s == "" ? buttonPairs : buttonPairs.Where(b => b.Item1.Text.ToLower().Contains(s.ToLower())).ToArray();
 
-                    foreach (var button in buttons)
+                    var highlightAttribute = 
+                    new BackgroundColorAttribute(Color.CornflowerBlue.WithTransparency(0.6f), new Vector(2, 2));
+
+                    foreach (var (button, spec) in visible)
                     {
                         button.Visible = true;
-                    }
+                        if (s == "")
+                            continue;
 
-                    ArrangeButtons(buttons);
+                        int index = spec.Name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase);
+                        button.AttributedText.SetAttributes(new TextRange(index, s.Length), highlightAttribute);
+                    }
+                    
+                    ArrangeButtons(visible.Select(p => p.Item1).ToArray());
                 }).AddToDisposable(_disposeBag);
         }
 
@@ -203,11 +219,10 @@ namespace Pixelaria.Views.ExportPipeline
                 HorizontalTextAlignment = HorizontalTextAlignment.Center,
                 TextInset = new InsetBounds(5, 5, 5, 5),
                 ImageInset = new InsetBounds(7, 0, 0, 0),
-                Image = IconForPipelineNodeType(spec.NodeType, _pipelineControl.D2DRenderer.ImageResources)
+                Image = IconForPipelineNodeType(spec.NodeType, _pipelineControl.D2DRenderer.ImageResources),
+                TextFont = new Font(FontFamily.GenericSansSerif.Name, 12)
             };
-
-            button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
-
+            
             button.Rx
                 .MouseClick
                 .Subscribe(_ =>

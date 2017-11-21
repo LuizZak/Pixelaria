@@ -62,7 +62,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.
         /// </summary>
-        void WithPreparedAttributedText(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull] Action<TextLayout, TextRendererBase> perform);
+        void WithPreparedTextLayout(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull] Action<TextLayout, TextRendererBase> perform);
     }
 
     /// <summary>

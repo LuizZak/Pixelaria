@@ -22,11 +22,14 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Font = System.Drawing.Font;
 
 using JetBrains.Annotations;
-
+using Pixelaria.Utils;
+using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using Factory = SharpDX.DirectWrite.Factory;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
@@ -153,8 +156,29 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             Debug.Assert(_textLayout != null, "_textLayout != null");
 
-            context.Renderer.WithPreparedAttributedText(ForeColor.ToColor4(), AttributedText, _textLayout, (layout, renderer) =>
+            context.Renderer.WithPreparedTextLayout(ForeColor.ToColor4(), AttributedText, _textLayout, (layout, renderer) =>
             {
+                // Render background segments
+                var backSegments =
+                    AttributedText.GetTextSegments()
+                        .Where(seg => seg.HasAttribute<BackgroundColorAttribute>());
+
+                foreach (var segment in backSegments)
+                {
+                    var attr = segment.GetAttribute<BackgroundColorAttribute>();
+
+                    using (var brush = new SolidColorBrush(context.RenderTarget, attr.BackColor.ToColor4()))
+                    {
+                        var metrics = layout.HitTestTextRange(segment.TextRange.Start, segment.TextRange.Length, 0, 0);
+
+                        foreach (var metric in metrics)
+                        {
+                            var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
+                            context.RenderTarget.FillRectangle(aabb.Inflated(attr.Inflation), brush);
+                        }
+                    }
+                }
+
                 layout.Draw(renderer, Bounds.Minimum.X, Bounds.Minimum.Y);
             });
         }

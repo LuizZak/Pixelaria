@@ -572,7 +572,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void WithPreparedAttributedText(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
+        public void WithPreparedTextLayout(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
         {
             if (_lastRenderingState == null)
                 throw new InvalidOperationException("Direct2D renderer has no previous rendering state to base this call on.");
