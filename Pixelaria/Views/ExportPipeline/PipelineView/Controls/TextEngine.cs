@@ -22,6 +22,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Pixelaria.Data.Undo;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
@@ -43,6 +44,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public event TextEngineCaretChangedEventHandler CaretChanged;
 
         /// <summary>
+        /// Gets or sets an undo system that this text engine can use when 
+        /// </summary>
+        [CanBeNull]
+        public IUndoSystem UndoSystem { get; set; }
+
+        /// <summary>
         /// The text buffer that receives instructions to add/remove/replace text based on caret
         /// inputs handled by this text engine.
         /// </summary>
@@ -51,7 +58,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// <summary>
         /// Gets the caret range.
         /// 
-        /// To change the caret range, use <see cref="SetCaret(int)"/>/<see cref="SetCaret(Caret)"/>/<see cref="SetCaret(TextRange, CaretPosition)"/> methods.
+        /// To change the caret range, use one of the SetCaret() methods.
         /// </summary>
         public Caret Caret { get; private set; } = new Caret(new TextRange(0, 0), CaretPosition.Start);
 

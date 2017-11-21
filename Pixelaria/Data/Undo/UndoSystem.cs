@@ -28,9 +28,44 @@ using JetBrains.Annotations;
 namespace Pixelaria.Data.Undo
 {
     /// <summary>
-    /// Enables performing of an undo/redo task
+    /// Base interface for undo systems.
+    /// 
+    /// See <see cref="UndoSystem"/> class.
     /// </summary>
-    public class UndoSystem
+    public interface IUndoSystem
+    {
+        /// <summary>
+        /// Gets whether this UndoSystem can currently undo a task
+        /// </summary>
+        bool CanUndo { get; }
+
+        /// <summary>
+        /// Gets whether this UndoSystem can currently redo a task
+        /// </summary>
+        bool CanRedo { get; }
+
+        /// <summary>
+        /// Registers the given UndoTask on this UndoSystem
+        /// </summary>
+        /// <param name="task">The task to undo</param>
+        /// <exception cref="ArgumentNullException">The undo task provided is null</exception>
+        void RegisterUndo([NotNull] IUndoTask task);
+
+        /// <summary>
+        /// Undoes one task on this UndoSystem
+        /// </summary>
+        void Undo();
+
+        /// <summary>
+        /// Redoes one task on this UndoSystem
+        /// </summary>
+        void Redo();
+    }
+
+    /// <summary>
+    /// Enables recording and performing of series of undo/redo tasks.
+    /// </summary>
+    public class UndoSystem : IUndoSystem
     {
         /// <summary>
         /// The list of tasks that can be undone/redone
@@ -185,7 +220,7 @@ namespace Pixelaria.Data.Undo
                 return;
 
             // Get the task to undo
-            IUndoTask task = _undoTasks[_currentTask - 1];
+            var task = _undoTasks[_currentTask - 1];
 
             // Fire the WillPerformUndo event handler
             WillPerformUndo?.Invoke(this, new UndoEventArgs(task));
@@ -213,7 +248,7 @@ namespace Pixelaria.Data.Undo
                 return;
 
             // Get the task to undo
-            IUndoTask task = _undoTasks[_currentTask];
+            var task = _undoTasks[_currentTask];
 
             // Fire the WillPerformRedo event handler
             WillPerformRedo?.Invoke(this, new UndoEventArgs(task));
@@ -253,7 +288,7 @@ namespace Pixelaria.Data.Undo
             if (!InGroupUndo)
                 return;
 
-            GroupUndoTask task = _currentGroupUndoTask;
+            var task = _currentGroupUndoTask;
             _currentGroupUndoTask = null;
 
             if (task.UndoList.Count > 0 && !cancel)
@@ -278,7 +313,7 @@ namespace Pixelaria.Data.Undo
             if (!CanUndo)
                 return null;
 
-            IUndoTask task = NextUndo;
+            var task = NextUndo;
 
             _undoTasks.Remove(task);
             _currentTask--;
@@ -298,7 +333,7 @@ namespace Pixelaria.Data.Undo
             if (!CanRedo)
                 return null;
 
-            IUndoTask task = NextRedo;
+            var task = NextRedo;
 
             _undoTasks.Remove(task);
 
@@ -310,7 +345,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Clear()
         {
-            foreach (IUndoTask task in _undoTasks)
+            foreach (var task in _undoTasks)
             {
                 task.Clear();
             }
@@ -450,7 +485,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Clear()
         {
-            foreach (IUndoTask task in _undoList)
+            foreach (var task in _undoList)
             {
                 task.Clear();
             }
@@ -473,7 +508,7 @@ namespace Pixelaria.Data.Undo
             }
             else
             {
-                foreach (IUndoTask task in _undoList)
+                foreach (var task in _undoList)
                 {
                     task.Undo();
                 }
@@ -485,7 +520,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
-            foreach (IUndoTask task in _undoList)
+            foreach (var task in _undoList)
             {
                 task.Redo();
             }
