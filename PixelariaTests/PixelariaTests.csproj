@@ -126,6 +126,7 @@
     <Compile Include="Tests\Views\ExportPipeline\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Views\ExportPipeline\PipelineView\TextRangeTests.cs" />
+    <Compile Include="Tests\Views\ExportPipeline\PipelineView\AttributedTextTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pixelaria\Pixelaria.csproj">

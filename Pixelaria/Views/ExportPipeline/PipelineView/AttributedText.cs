@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 
 using JetBrains.Annotations;
+using Pixelaria.Utils;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
@@ -80,6 +81,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         void Append([NotNull] string text, [NotNull] ITextAttribute[] attributes);
         
+        /// <summary>
+        /// Sets the text attribute at a given range of this attributed string.
+        /// 
+        /// Attributes that may be present at the ranges are removed before adding the new attributes.
+        /// </summary>
+        void SetAttributes(TextRange range, [NotNull] params ITextAttribute[] attributes);
+
         /// <summary>
         /// Clears all text and attributes on this <see cref="AttributedText"/>
         /// </summary>
@@ -204,6 +212,80 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             CallModifiedEvent();
         }
 
+        public void SetAttributes(TextRange range, params ITextAttribute[] attributes)
+        {
+            if (range.Length == 0)
+                throw new ArgumentException(@"Range must have length > 0", nameof(range));
+
+            var split = SplitSegments(range);
+
+            // Figure out indexes to replace on segments array
+            var indexes = split.Select(seg => _segments.IndexOf(seg));
+
+            foreach (var (segment, index) in split.Zip(indexes, (segment, i) => (segment, i)))
+            {
+                _segments[index] = segment.CloneWithAttributes(attributes);
+            }
+        }
+
+        private TextSegment[] SplitSegments(TextRange range)
+        {
+            if(range.Length == 0)
+                throw new ArgumentException(@"Range must have length > 0", nameof(range));
+
+            // Splits segments like so:
+            //
+            // Current: |----------|---------|
+            // Input:         | -  -  -  - |
+            //
+            // Result:  |-----|----|-------|-|
+
+            // Current: |----------|--|-|----|
+            // Input:         | -  -  -  - |
+            //
+            // Result:  |-----|----|--|-|--|-|
+
+            // Find segments that contain the start and end positions
+            // of the passed range to split
+            SplitSegmentUnder(range.Start);
+            SplitSegmentUnder(range.End);
+
+            return SegmentsIntersecting(range).ToArray();
+        }
+        
+        private void SplitSegmentUnder(int position)
+        {
+            if (position < 0 || position > Length)
+                throw new ArgumentOutOfRangeException(nameof(position), @"Position must be greater than 0 and less than or equal to Length");
+
+            if (position == Length)
+                return;
+
+            var segment = SegmentUnder(position);
+            if (segment.TextRange.Start == position || segment.TextRange.End == position)
+                return;
+
+            var firstHalfSeg = TextRange.FromOffsets(segment.TextRange.Start, position);
+            var secondHalfSeg = TextRange.FromOffsets(position, segment.TextRange.End);
+            
+            // Clone attributes as well
+            var attr1 = segment.TextAttributes.Select(att => att.Clone()).OfType<ITextAttribute>().ToArray();
+            var attr2 = segment.TextAttributes.Select(att => att.Clone()).OfType<ITextAttribute>().ToArray();
+
+            int offset = position - segment.TextRange.Start;
+            var firstHalf = new TextSegment(segment.Text.Substring(0, offset), attr1, firstHalfSeg);
+            var secondHalf = new TextSegment(segment.Text.Substring(offset), attr2, secondHalfSeg);
+
+            int index = _segments.IndexOf(segment);
+
+            _segments[index] = firstHalf;
+
+            if (index == _segments.Count - 1)
+                _segments.Add(secondHalf);
+            else
+                _segments.Insert(index + 1, secondHalf);
+        }
+
         public void Clear()
         {
             _segments.Clear();
@@ -215,6 +297,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public ITextSegment[] GetTextSegments()
         {
             return _segments.OfType<ITextSegment>().ToArray();
+        }
+        
+        private TextSegment SegmentUnder(int position)
+        {
+            return _segments.First(seg => seg.TextRange.Contains(position));
+        }
+        
+        private IEnumerable<TextSegment> SegmentsIntersecting(TextRange range)
+        {
+            return _segments.Where(seg => seg.TextRange.Intersects(range));
         }
 
         public bool Equals(AttributedText other)
@@ -311,11 +403,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             {
                 unchecked
                 {
-                    var hashCode = (Text != null ? Text.GetHashCode() : 0);
+                    int hashCode = (Text != null ? Text.GetHashCode() : 0);
                     hashCode = (hashCode * 397) ^ TextAttributes.GetHashCode();
                     hashCode = (hashCode * 397) ^ TextRange.GetHashCode();
                     return hashCode;
                 }
+            }
+
+            public TextSegment CloneWithAttributes([NotNull] ITextAttribute[] textAttributes)
+            {
+                return new TextSegment(Text, textAttributes, TextRange);
             }
 
             public object Clone()
@@ -373,36 +470,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public int End => Start + Length;
 
-        public bool Equals(TextRange other)
+        /// <summary>
+        /// Returns true if <see cref="value"/> is &gt;= Start and &lt;= End
+        /// </summary>
+        public bool Contains(int value)
         {
-            return Start == other.Start && Length == other.Length;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is TextRange && Equals((TextRange)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Start * 397) ^ Length;
-            }
-        }
-
-        public override string ToString()
-        {
-            return $"[ {Start} : {Length} ]";
+            return value >= Start && value <= End;
         }
 
         /// <summary>
-        /// Returns whether this range overlaps another range.
+        /// Returns whether this range intersects another range.
         /// </summary>
         public bool Intersects(TextRange other)
         {
-            return Start <= other.End && other.Start <= End;
+            return Start < other.End && other.Start < End;
         }
 
         /// <summary>
@@ -452,6 +533,30 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return FromOffsets(Math.Min(Start, other.Start), Math.Max(End, other.End));
         }
 
+        public bool Equals(TextRange other)
+        {
+            return Start == other.Start && Length == other.Length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is TextRange && Equals((TextRange)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Start * 397) ^ Length;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"[ {Start} : {Length} ]";
+        }
+
         /// <summary>
         /// Given two string offsets, returns a <see cref="TextRange"/> where <see cref="Start"/> is
         /// the minimum of the two offsets, and <see cref="Length"/> is the different between the two
@@ -494,6 +599,48 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public object Clone()
         {
             return new ForegroundColorAttribute(ForeColor);
+        }
+    }
+
+    public struct BackgroundColorAttribute : ITextAttribute, IEquatable<BackgroundColorAttribute>
+    {
+        public Color BackColor { get; }
+        public Vector Inflation { get; }
+
+        public BackgroundColorAttribute(Color backColor)
+        {
+            BackColor = backColor;
+            Inflation = Vector.Zero;
+        }
+
+        public BackgroundColorAttribute(Color backColor, Vector inflation)
+        {
+            BackColor = backColor;
+            Inflation = inflation;
+        }
+
+        public bool Equals(BackgroundColorAttribute other)
+        {
+            return BackColor.Equals(other.BackColor) && Inflation.Equals(other.Inflation);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is BackgroundColorAttribute && Equals((BackgroundColorAttribute) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (BackColor.GetHashCode() * 397) ^ Inflation.GetHashCode();
+            }
+        }
+
+        public object Clone()
+        {
+            return new BackgroundColorAttribute(BackColor, Inflation);
         }
     }
 
