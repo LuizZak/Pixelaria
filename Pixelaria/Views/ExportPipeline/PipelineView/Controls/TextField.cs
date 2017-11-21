@@ -233,18 +233,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 if (e.KeyChar == '\n' || e.KeyChar == '\r')
                     return;
             }
-
-            if (e.KeyChar == '\b')
-            {
-                _textEngine.BackspaceText();
+            
+            if (char.IsControl(e.KeyChar))
                 return;
-            }
 
             _textEngine.InsertText(e.KeyChar.ToString());
         }
 
         public void OnKeyDown(KeyEventArgs e)
         {
+            // Selection
             if (e.Modifiers.HasFlag(Keys.Shift))
             {
                 if (e.KeyCode == Keys.Home)
@@ -258,6 +256,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             }
             else
             {
+                // Navigation
                 if (e.KeyCode == Keys.Home)
                 {
                     _textEngine.MoveToStart();
@@ -268,8 +267,25 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                 }
             }
 
-            if (e.KeyCode == Keys.Delete)
+            // Delete/backspace
+            if (e.KeyCode == Keys.Back)
             {
+                // When control is held down, erase previous word
+                if (e.Modifiers == Keys.Control)
+                {
+                    _textEngine.SelectLeftWord();
+                }
+
+                _textEngine.BackspaceText();
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                // When control is held down, erase next word
+                if (e.Modifiers == Keys.Control)
+                {
+                    _textEngine.SelectRightWord();
+                }
+
                 _textEngine.DeleteText();
             }
         }
