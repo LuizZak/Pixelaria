@@ -174,7 +174,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         /// <param name="task">The task to undo</param>
         /// <exception cref="ArgumentNullException">The undo task provided is null</exception>
-        public void RegisterUndo([NotNull] IUndoTask task)
+        public void RegisterUndo(IUndoTask task)
         {
             if (task == null)
             {
@@ -414,7 +414,7 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// The description for this GroupUndoTask instance
         /// </summary>
-        readonly string _description;
+        private readonly string _description;
 
         /// <summary>
         /// Gets or sets a value specifying whether to discard the undo group if it's opened on an UndoSystem while it receives an undo/redo call

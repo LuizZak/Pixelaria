@@ -31,10 +31,11 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using SharpDX.Windows;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    internal class ExportPipelineControl: Control
+    internal class ExportPipelineControl: RenderControl
     {
         private readonly Timer _fixedTimer;
 

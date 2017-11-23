@@ -31,7 +31,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     /// 
     /// Base text input engine backing for <see cref="TextField"/>'s.
     /// </summary>
-    internal class TextEngine
+    internal class TextEngine : ITextEngine
     {
         /// <summary>
         /// Event handler for <see cref="CaretChanged"/> event.
@@ -262,7 +262,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// 
         /// Replaces text if caret's range is > 0.
         /// </summary>
-        public void InsertText([NotNull] string text)
+        public void InsertText(string text)
         {
             if (Caret.Start == TextBuffer.TextLength)
             {
@@ -516,6 +516,68 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         private static bool IsWord(char character)
         {
             return char.IsLetterOrDigit(character);
+        }
+    }
+
+    /// <summary>
+    /// Undo task for a text insert operation
+    /// </summary>
+    internal class TextInsertUndo : IUndoTask
+    {
+        /// <summary>
+        /// Text engine associated with this undo task
+        /// </summary>
+        public ITextEngine TextEngine;
+
+        /// <summary>
+        /// Position of caret when text was input
+        /// </summary>
+        public Caret Caret { get; }
+
+        /// <summary>
+        /// Text string that was replaced (if input replaced existing)
+        /// </summary>
+        public string Before { get; }
+
+        /// <summary>
+        /// Text string that replaced/was inserted into the buffer
+        /// </summary>
+        public string After { get; }
+
+        public TextInsertUndo(ITextEngine textEngine, Caret caret, string before, string after)
+        {
+            TextEngine = textEngine;
+            Caret = caret;
+            Before = before;
+            After = after;
+        }
+
+        public void Clear()
+        {
+
+        }
+
+        public void Undo()
+        {
+            TextEngine.SetCaret(new Caret(new TextRange(Caret.Start, After.Length), CaretPosition.Start));
+            TextEngine.DeleteText();
+
+            if (Before.Length > 0)
+            {
+                TextEngine.InsertText(Before);
+                TextEngine.SetCaret(Caret);
+            }
+        }
+
+        public void Redo()
+        {
+            TextEngine.SetCaret(Caret);
+            TextEngine.InsertText(After);
+        }
+
+        public string GetDescription()
+        {
+            return "Insert text";
         }
     }
 

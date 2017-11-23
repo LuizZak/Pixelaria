@@ -35,6 +35,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestStartState()
         {
             var buffer = new TextBuffer("Test");
+
             var sut = new TextEngine(buffer);
 
             Assert.AreEqual(new Caret(0), sut.Caret, "Should start with caret at beginning of text");
@@ -49,7 +50,9 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("");
             var sut = new TextEngine(buffer);
 
-            Assert.AreEqual("", sut.SelectedText());
+            string text = sut.SelectedText();
+
+            Assert.AreEqual("", text);
         }
 
         [TestMethod]
@@ -58,7 +61,9 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             var buffer = new TextBuffer("Abcdef");
             var sut = new TextEngine(buffer);
 
-            Assert.AreEqual("", sut.SelectedText());
+            string text = sut.SelectedText();
+
+            Assert.AreEqual("", text);
         }
 
         [TestMethod]
@@ -97,18 +102,14 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestSelectedTextInvokesTextBuffer()
         {
-            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
-
+            var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
             stub.Stub(b => b.TextLength).Return(6);
-            stub.Stub(b => b.TextInRange(new TextRange(2, 3))).Return("cde");
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(new TextRange(2, 3));
 
             sut.SelectedText();
 
-            stub.VerifyAllExpectations();
+            stub.AssertWasCalled(b => b.TextInRange(new TextRange(2, 3)));
         }
 
         #endregion
@@ -145,8 +146,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.End));
+
             sut.MoveRight();
 
             Assert.AreEqual(new Caret(3), sut.Caret);
@@ -157,8 +158,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
+
             sut.MoveRight();
 
             Assert.AreEqual(new Caret(1), sut.Caret);
@@ -169,7 +170,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.MoveLeft();
@@ -182,7 +182,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.MoveLeft();
@@ -198,8 +197,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+
             sut.MoveLeft();
 
             Assert.AreEqual(new Caret(2), sut.Caret);
@@ -210,8 +209,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.Start));
+
             sut.MoveLeft();
 
             Assert.AreEqual(new Caret(0), sut.Caret);
@@ -245,7 +244,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.MoveToStart();
@@ -258,7 +256,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.MoveToStart();
@@ -301,7 +298,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
 
             sut.SelectRight();
@@ -314,7 +310,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.SelectLeft();
@@ -327,7 +322,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.SelectLeft();
@@ -366,7 +360,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
 
             sut.SelectToEnd();
@@ -379,7 +372,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.SelectToStart();
@@ -392,7 +384,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.SelectToStart();
@@ -406,7 +397,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
 
             sut.SelectToStart();
@@ -419,7 +409,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(1);
 
             sut.MoveCaretSelecting(2);
@@ -432,7 +421,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(2);
 
             sut.MoveCaretSelecting(1);
@@ -445,7 +433,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(1);
 
             sut.MoveCaretSelecting(1);
@@ -458,7 +445,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(1, 1), CaretPosition.Start));
 
             sut.MoveCaretSelecting(3);
@@ -471,7 +457,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
 
             sut.MoveCaretSelecting(0);
@@ -499,7 +484,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc   Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.MoveRightWord();
@@ -512,7 +496,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(6);
 
             sut.MoveLeftWord();
@@ -525,7 +508,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.MoveLeftWord();
@@ -538,7 +520,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc   Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(6);
 
             sut.MoveLeftWord();
@@ -554,7 +535,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             var buffer = new TextBuffer("Abc def ghi");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(7);
 
             sut.MoveLeftWord();
@@ -582,7 +562,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc   Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.SelectRightWord();
@@ -595,7 +574,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(7);
 
             sut.SelectLeftWord();
@@ -608,7 +586,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(3);
 
             sut.SelectLeftWord();
@@ -621,7 +598,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("Abc   Def");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(6);
 
             sut.SelectLeftWord();
@@ -637,7 +613,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             var buffer = new TextBuffer("Abc def ghi");
             var sut = new TextEngine(buffer);
-
             sut.SetCaret(7);
 
             sut.SelectLeftWord();
@@ -768,7 +743,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         {
             var buffer = new TextBuffer("123");
             var sut = new TextEngine(buffer);
-            
             sut.SetCaret(new TextRange(2, 2));
 
             sut.SetCaret(1);
@@ -819,24 +793,17 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestInsertTextCaretAtEnd()
         {
-            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
-
             int length = 0;
-
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
             stub.Stub(b => b.TextLength)
-                .WhenCalled(inv =>
-                {
-                    inv.ReturnValue = length;
-                })
-                .Return(0)
-                .TentativeReturn();
-
-            stub.Expect(b => b.Append("456")).WhenCalled(_ => length = 3);
-            
+                .WhenCalled(inv => inv.ReturnValue = length)
+                .Return(0).TentativeReturn();
+            stub.Stub(b => b.Append("456")).WhenCalled(_ => length = 3);
             var sut = new TextEngine(stub);
             
             sut.InsertText("456");
 
+            stub.AssertWasCalled(b => b.Append("456"));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(3), sut.Caret);
         }
@@ -844,16 +811,14 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestInsertTextCaretNotAtEnd()
         {
-            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
-
+            var stub = MockRepository.GenerateMock<ITextEngineTextualBuffer>();
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Insert(0, "456"));
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(0);
+
             sut.InsertText("456");
             
+            stub.AssertWasCalled(b => b.Insert(0, "456"));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(3), sut.Caret);
         }
@@ -861,26 +826,18 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         [TestMethod]
         public void TestInsertTextWithSelection()
         {
-            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
-
             int length = 3;
-
+            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
             stub.Stub(b => b.TextLength)
-                .WhenCalled(inv =>
-                {
-                    inv.ReturnValue = length;
-                })
-                .Return(0)
-                .TentativeReturn();
-
-            stub.Expect(b => b.Replace(1, 2, "456")).WhenCalled(_ => length = 5);
-            
+                .WhenCalled(inv => inv.ReturnValue = length)
+                .Return(0).TentativeReturn();
+            stub.Stub(b => b.Replace(1, 2, "456")).WhenCalled(_ => length = 5);
             var sut = new TextEngine(stub);
-
             sut.SetCaret(new TextRange(1, 2));
 
             sut.InsertText("456");
             
+            stub.AssertWasCalled(b => b.Replace(1, 2, "456"));;
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(4), sut.Caret);
         }
@@ -893,16 +850,13 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestBackspace()
         {
             var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Delete(2, 1));
-
             var sut = new TextEngine(stub);
-            
             sut.SetCaret(3);
 
             sut.BackspaceText();
-
+            
+            stub.AssertWasCalled(b => b.Delete(2, 1));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(2), sut.Caret);
         }
@@ -911,7 +865,6 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestBackspaceAtBeginningHasNoEffect()
         {
             var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
-            
             var sut = new TextEngine(stub);
 
             sut.BackspaceText();
@@ -924,16 +877,13 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestBackspaceWithRange()
         {
             var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Delete(1, 2));
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(new TextRange(1, 2));
 
             sut.BackspaceText();
 
+            stub.AssertWasCalled(b => b.Delete(1, 2));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(1), sut.Caret);
         }
@@ -942,16 +892,13 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestBackspaceAtBeginningWithRange()
         {
             var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Delete(0, 3));
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(new TextRange(0, 3));
 
             sut.BackspaceText();
 
+            stub.AssertWasCalled(b => b.Delete(0, 3));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(0), sut.Caret);
         }
@@ -964,14 +911,12 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestDelete()
         {
             var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Delete(0, 1));
-
             var sut = new TextEngine(stub);
             
             sut.DeleteText();
 
+            stub.AssertWasCalled(b => b.Delete(0, 1));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(0), sut.Caret);
         }
@@ -980,11 +925,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestDeleteAtEndHasNoEffect()
         {
             var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(3);
 
             sut.DeleteText();
@@ -997,16 +939,13 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestDeleteWithRange()
         {
             var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Delete(1, 2));
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(new TextRange(1, 2));
 
             sut.DeleteText();
 
+            stub.AssertWasCalled(b => b.Delete(1, 2));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(1), sut.Caret);
         }
@@ -1015,19 +954,93 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestDeleteAtEndWithRange()
         {
             var stub = MockRepository.GenerateStub<ITextEngineTextualBuffer>();
-
             stub.Stub(b => b.TextLength).Return(3);
-            stub.Expect(b => b.Delete(0, 3));
-
             var sut = new TextEngine(stub);
-
             sut.SetCaret(new Caret(new TextRange(0, 3), CaretPosition.End));
 
             sut.DeleteText();
 
+            stub.AssertWasCalled(b => b.Delete(0, 3));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(0), sut.Caret);
         }
+
+        #endregion
+
+        #region Undo Operations
+
+        #region Text Insert
+
+        [TestMethod]
+        public void TestTextInsertUndo()
+        {
+            const string text = "abc";
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            var mock = MockRepository.GenerateStrictMock<ITextEngine>();
+            mock.Expect(m => m.SetCaret(caret));
+            mock.Expect(m => m.DeleteText());
+            var sut = new TextInsertUndo(mock, caret, "", text);
+
+            sut.Undo();
+
+            mock.VerifyAllExpectations();
+        }
+
+        [TestMethod]
+        public void TestTextInsertRedo()
+        {
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            const string text = "abc";
+            var mock = MockRepository.GenerateStrictMock<ITextEngine>();
+            mock.Expect(m => m.SetCaret(caret));
+            mock.Expect(m => m.InsertText(text));
+            var sut = new TextInsertUndo(mock, caret, "", text);
+
+            sut.Redo();
+
+            mock.VerifyAllExpectations();
+        }
+
+        [TestMethod]
+        public void TestTextInsertUndoExpectedText()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "agef";
+            const string replacedText = "bcd";
+            const string newText = "g";
+            var buffer = new TextBuffer(afterText);
+            var engine = new TextEngine(buffer);
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            var sut = new TextInsertUndo(engine, caret, replacedText, newText);
+
+            sut.Undo();
+
+            Assert.AreEqual(beforeText, buffer.Text);
+        }
+
+        [TestMethod]
+        public void TestTextInsertRedoExpectedText()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "agef";
+            const string replacedText = "bcd";
+            const string newText = "g";
+            var buffer = new TextBuffer(beforeText);
+            var engine = new TextEngine(buffer);
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.End);
+            var sut = new TextInsertUndo(engine, caret, replacedText, newText);
+
+            sut.Redo();
+
+            Assert.AreEqual(afterText, buffer.Text);
+            Assert.AreEqual(new Caret(new TextRange(2, 0), CaretPosition.Start), engine.Caret);
+        }
+
+        #endregion
+
+        #region Text Delete
+
+        #endregion
 
         #endregion
 
