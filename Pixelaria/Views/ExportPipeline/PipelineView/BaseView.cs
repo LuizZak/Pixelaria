@@ -164,6 +164,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public virtual AABB Bounds => new AABB(Vector.Zero, Size);
 
         /// <summary>
+        /// Returns the local bounds of this view, converted to the parent's frame coordinates.
+        /// 
+        /// If no parent is present, <see cref="Bounds"/> is returned instead.
+        /// </summary>
+        public virtual AABB FrameOnParent => Parent == null ? Bounds : ConvertTo(Bounds, Parent);
+
+        /// <summary>
         /// Sets the <see cref="Location"/> and <see cref="Size"/> to a given AABB value.
         /// </summary>
         public void SetFrame(AABB aabb)

@@ -93,7 +93,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             TextBuffer = textBuffer;
 
-            _undoSystem = new UndoSystem();
+            _undoSystem = new UndoSystem {MaximumTaskCount = 30};
 
             _undoSystem.WillPerformUndo += (sender, args) => { _isPerformingUndoRedo = true; };
             _undoSystem.WillPerformRedo += (sender, args) => { _isPerformingUndoRedo = true; };
@@ -932,6 +932,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         /// <summary>
         /// Position of this text caret.
+        /// 
+        /// If <see cref="Position"/> is <see cref="CaretPosition.Start"/>, this value
+        /// matches the value of <see cref="Start"/>, otherwise this value matches <see cref="End"/>,
+        /// instead.
         /// </summary>
         public int Location
         {

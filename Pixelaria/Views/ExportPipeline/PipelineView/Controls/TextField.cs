@@ -388,18 +388,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             
             _label.WithTextLayout(layout =>
             {
-                var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
-
-                using (var brush = new SolidColorBrush(context.RenderTarget, SelectionBackColor.ToColor4()))
+                context.State.WithTemporaryClipping(_labelContainer.FrameOnParent, () =>
                 {
-                    foreach (var metric in metrics)
-                    {
-                        var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
-                        aabb = _label.ConvertTo(aabb, this);
+                    var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
 
-                        context.RenderTarget.FillRectangle(aabb, brush);
+                    using (var brush = new SolidColorBrush(context.RenderTarget, SelectionBackColor.ToColor4()))
+                    {
+                        foreach (var metric in metrics)
+                        {
+                            var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
+                            aabb = _label.ConvertTo(aabb, this);
+
+                            context.RenderTarget.FillRectangle(aabb, brush);
+                        }
                     }
-                }
+                });
             });
         }
 
@@ -462,8 +465,31 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         private void TextEngineOnCaretChanged(object sender, TextEngineCaretChangedEventArgs textEngineCaretChangedEventArgs)
         {
             _blinker.Restart();
+
+            ScrollLabel();
         }
-        
+
+        /// <summary>
+        /// Scrolls the label positioning so the current caret location is always visible
+        /// </summary>
+        private void ScrollLabel()
+        {
+            var loc = LocationForOffset(_textEngine.Caret.Location);
+            
+            var locInContainer = _labelContainer.ConvertFrom(loc, this);
+            if (_labelContainer.Contains(locInContainer))
+                return;
+
+            var labelOffset = _label.Location;
+
+            if (locInContainer.X > _labelContainer.Width)
+                labelOffset = labelOffset - new Vector(locInContainer.X - _labelContainer.Width, 0);
+            else if (locInContainer.X < 0)
+                labelOffset = labelOffset - new Vector(locInContainer.X, 0);
+
+            _label.Location = labelOffset;
+        }
+
         private void Layout()
         {
             var bounds = Bounds.Inset(ContentInset);
@@ -519,7 +545,28 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
             return Math.Min(offset, _label.Text.Length);
         }
-        
+
+        /// <summary>
+        /// Returns the point for a given string offset, locally on this text field's coordinates.
+        /// </summary>
+        private Vector LocationForOffset(int offset)
+        {
+            if (DirectWriteFactory == null)
+                return Vector.Zero;
+            
+            var position = Vector.Zero;
+
+            _label.WithTextLayout(layout =>
+            {
+                layout.HitTestTextPosition(offset, false, out float x, out float y);
+                position = new Vector(x, y);
+            });
+
+            position = _label.ConvertTo(position, this);
+
+            return position;
+        }
+
         /// <summary>
         /// A small class to handle cursor blinker timer
         /// </summary>

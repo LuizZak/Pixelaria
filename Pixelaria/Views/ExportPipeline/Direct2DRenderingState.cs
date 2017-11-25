@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 
 using JetBrains.Annotations;
-
+using Pixelaria.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D11;
@@ -59,7 +59,16 @@ namespace Pixelaria.Views.ExportPipeline
             FrameRenderDeltaTime = frameDeltaTime;
         }
 
-        public void PushingTransform([NotNull] Action execute)
+        public void WithTemporaryClipping(AABB clipping, [NotNull, InstantHandle] Action execute)
+        {
+            D2DRenderTarget.PushAxisAlignedClip(clipping, AntialiasMode.Aliased);
+
+            execute();
+
+            D2DRenderTarget.PopAxisAlignedClip();
+        }
+
+        public void PushingTransform([NotNull, InstantHandle] Action execute)
         {
             var transform = D2DRenderTarget.Transform;
             execute();
