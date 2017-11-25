@@ -242,7 +242,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         public void OnKeyDown(KeyEventArgs e)
         {
-            // Copy/cut/paste
+            // Copy/cut/paste + undo/redo
             if (e.Modifiers == Keys.Control)
             {
                 switch (e.KeyCode)
@@ -256,9 +256,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
                     case Keys.V:
                         Paste();
                         break;
+                    case Keys.Z:
+                        Undo();
+                        break;
+                    case Keys.Y:
+                        Redo();
+                        break;
                 }
             }
 
+            // Ctrl+Shift+Z as alternative for Ctrl+Y (redo)
+            if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z)
+            {
+                Redo();
+                return;
+            }
+            
             // Selection
             if (e.Modifiers.HasFlag(Keys.Shift))
             {
@@ -455,9 +468,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             var bounds = Bounds.Inset(ContentInset);
             _labelContainer.SetFrame(bounds);
+            _label.Center = new Vector(_label.Center.X, _labelContainer.Height / 2);
         }
 
-        #region Copy/Cut/Paste
+        #region Copy/cut/paste + undo/redo
 
         private void Copy()
         {
@@ -472,6 +486,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         private void Paste()
         {
             _textEngine.Paste();
+        }
+
+        private void Undo()
+        {
+            _textEngine.UndoSystem.Undo();
+        }
+
+        private void Redo()
+        {
+            _textEngine.UndoSystem.Redo();
         }
 
         #endregion
