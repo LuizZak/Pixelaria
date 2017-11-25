@@ -1248,8 +1248,30 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             Assert.AreEqual("abc", buffer.Text);
         }
+        
+        [TestMethod]
+        public void TestBackwardsInsertionPlusDeleteUndo()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("c");
+            sut.SetCaret(0);
+            sut.InsertText("b");
+            sut.SetCaret(0);
+            sut.InsertText("a");
+            sut.SetCaret(0);
+            sut.UndoSystem.Undo();
+            sut.InsertText("a");
+            sut.SetCaret(0);
 
-        #region Text Insert
+            sut.UndoSystem.Undo();
+            sut.UndoSystem.Undo();
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("", buffer.Text);
+        }
+
+        #region Text Insert Undo Task
 
         [TestMethod]
         public void TestTextInsertUndo()
@@ -1318,7 +1340,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
         #endregion
 
-        #region Text Delete
+        #region Text Delete Undo Task
 
         [TestMethod]
         public void TestTextDeteleUndo()

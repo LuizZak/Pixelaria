@@ -98,8 +98,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             _undoSystem.WillPerformUndo += (sender, args) => { _isPerformingUndoRedo = true; };
             _undoSystem.WillPerformRedo += (sender, args) => { _isPerformingUndoRedo = true; };
 
-            _undoSystem.UndoPerformed += (sender, args) => { _isPerformingUndoRedo = true; };
-            _undoSystem.RedoPerformed += (sender, args) => { _isPerformingUndoRedo = true; };
+            _undoSystem.UndoPerformed += (sender, args) => { _isPerformingUndoRedo = false; };
+            _undoSystem.RedoPerformed += (sender, args) => { _isPerformingUndoRedo = false; };
         }
 
         private void RegisterUndo([NotNull] IUndoTask task)
