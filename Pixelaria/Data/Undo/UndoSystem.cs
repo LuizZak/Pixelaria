@@ -28,7 +28,7 @@ using JetBrains.Annotations;
 namespace Pixelaria.Data.Undo
 {
     /// <summary>
-    /// Base interface for undo systems.
+    /// Base interface for performing undo/redo in undo systems.
     /// 
     /// See <see cref="UndoSystem"/> class.
     /// </summary>
@@ -43,14 +43,7 @@ namespace Pixelaria.Data.Undo
         /// Gets whether this UndoSystem can currently redo a task
         /// </summary>
         bool CanRedo { get; }
-
-        /// <summary>
-        /// Registers the given UndoTask on this UndoSystem
-        /// </summary>
-        /// <param name="task">The task to undo</param>
-        /// <exception cref="ArgumentNullException">The undo task provided is null</exception>
-        void RegisterUndo([NotNull] IUndoTask task);
-
+        
         /// <summary>
         /// Undoes one task on this UndoSystem
         /// </summary>
@@ -67,6 +60,13 @@ namespace Pixelaria.Data.Undo
     /// </summary>
     public class UndoSystem : IUndoSystem
     {
+        /// <summary>
+        /// Set to true before any undo/redo task, and subsequently set to false before returning.
+        /// 
+        /// Used to detect incorrect reentry calls to this undo system
+        /// </summary>
+        private bool _isDoingWork;
+
         /// <summary>
         /// The list of tasks that can be undone/redone
         /// </summary>
@@ -174,12 +174,13 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         /// <param name="task">The task to undo</param>
         /// <exception cref="ArgumentNullException">The undo task provided is null</exception>
-        public void RegisterUndo(IUndoTask task)
+        /// <exception cref="UndoSystemRecursivelyModifiedException">If called by an <see cref="IUndoTask"/>'s Undo/Redo method, either directly or indirectly, before <see cref="Undo"/>/<see cref="Redo"/> return (calling during <see cref="UndoPerformed"/>/<see cref="RedoPerformed"/> is safe, however).</exception>
+        public void RegisterUndo([NotNull] IUndoTask task)
         {
+            CheckReentry();
+
             if (task == null)
-            {
                 throw new ArgumentNullException(nameof(task), @"The task cannot be null");
-            }
 
             // Grouped undos: record them inside the group undo
             if (InGroupUndo)
@@ -214,16 +215,10 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// Undoes one task on this UndoSystem
         /// </summary>
+        /// <exception cref="UndoSystemRecursivelyModifiedException">If called by an <see cref="IUndoTask"/>'s Undo/Redo method, either directly or indirectly, before <see cref="Undo"/>/<see cref="Redo"/> return (calling during <see cref="UndoPerformed"/>/<see cref="RedoPerformed"/> is safe, however).</exception>
         public void Undo()
         {
-            if (_currentTask == 0)
-                return;
-
-            // Get the task to undo
-            var task = _undoTasks[_currentTask - 1];
-
-            // Fire the WillPerformUndo event handler
-            WillPerformUndo?.Invoke(this, new UndoEventArgs(task));
+            CheckReentry();
 
             // Finish any currently opened group undos
             if (InGroupUndo)
@@ -231,38 +226,53 @@ namespace Pixelaria.Data.Undo
                 FinishGroupUndo(_currentGroupUndoTask.DiscardOnOperation);
             }
 
-            // Undo the task
+            if (_currentTask == 0)
+                return;
+
+            _isDoingWork = true;
+
+            // Get the task to undo
+            var task = _undoTasks[_currentTask - 1];
+            
+            WillPerformUndo?.Invoke(this, new UndoEventArgs(task));
+
             _currentTask--;
             task.Undo();
 
-            // Fire the UndoPerformed event handler
+            _isDoingWork = false;
+
             UndoPerformed?.Invoke(this, new UndoEventArgs(task));
         }
 
         /// <summary>
         /// Redoes one task on this UndoSystem
         /// </summary>
+        /// <exception cref="UndoSystemRecursivelyModifiedException">If called by an <see cref="IUndoTask"/>'s Undo/Redo method, either directly or indirectly, before <see cref="Undo"/>/<see cref="Redo"/> return (calling during <see cref="UndoPerformed"/>/<see cref="RedoPerformed"/> is safe, however).</exception>
         public void Redo()
         {
-            if (_currentTask == _undoTasks.Count)
-                return;
-
-            // Get the task to undo
-            var task = _undoTasks[_currentTask];
-
-            // Fire the WillPerformRedo event handler
-            WillPerformRedo?.Invoke(this, new UndoEventArgs(task));
+            CheckReentry();
 
             // Finish any currently opened group undos
             if (InGroupUndo)
             {
                 FinishGroupUndo(_currentGroupUndoTask.DiscardOnOperation);
             }
+            
+            if (_currentTask == _undoTasks.Count)
+                return;
+            
+            _isDoingWork = true;
+
+            // Get the task to undo
+            var task = _undoTasks[_currentTask];
+            
+            WillPerformRedo?.Invoke(this, new UndoEventArgs(task));
 
             _currentTask++;
             task.Redo();
 
-            // Fire the UndoPerformed event handler
+            _isDoingWork = false;
+            
             RedoPerformed?.Invoke(this, new UndoEventArgs(task));
         }
 
@@ -271,8 +281,11 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         /// <param name="description">A description for the task</param>
         /// <param name="discardOnOperation">Whether to discard the undo group if it's opened on this UndoSystem while it receives an undo/redo call</param>
+        /// <exception cref="UndoSystemRecursivelyModifiedException">If called by an <see cref="IUndoTask"/>'s Undo/Redo method, either directly or indirectly, before <see cref="Undo"/>/<see cref="Redo"/> return (calling during <see cref="UndoPerformed"/>/<see cref="RedoPerformed"/> is safe, however).</exception>
         public void StartGroupUndo(string description, bool discardOnOperation = false)
         {
+            CheckReentry();
+
             if (InGroupUndo)
                 return;
 
@@ -283,8 +296,11 @@ namespace Pixelaria.Data.Undo
         /// Finishes and records the current grouped undo tasks
         /// </summary>
         /// <param name="cancel">Whether to cancel the undo operations currently grouped</param>
+        /// <exception cref="UndoSystemRecursivelyModifiedException">If called by an <see cref="IUndoTask"/>'s Undo/Redo method, either directly or indirectly, before <see cref="Undo"/>/<see cref="Redo"/> return (calling during <see cref="UndoPerformed"/>/<see cref="RedoPerformed"/> is safe, however).</exception>
         public void FinishGroupUndo(bool cancel = false)
         {
+            CheckReentry();
+
             if (!InGroupUndo)
                 return;
 
@@ -302,8 +318,8 @@ namespace Pixelaria.Data.Undo
         }
 
         /// <summary>
-        /// Removes and returns the next undo task from this UndoSystem's undo list.
-        /// The undo task is not performed, and is not disposed before being returned.
+        /// Removes and returns the next undo task from this UndoSystem's undo list without
+        /// performing it.
         /// If no undo task is available, null is returned
         /// </summary>
         /// <returns>The next available undo operation if available, null otherwise</returns>
@@ -322,8 +338,8 @@ namespace Pixelaria.Data.Undo
         }
 
         /// <summary>
-        /// Removes and returns the next redo task from this UndoSystem's undo list.
-        /// The undo task is not performed, and is not disposed before being returned.
+        /// Removes and returns the next redo task from this UndoSystem's undo list without
+        /// performing it.
         /// If no redo task is available, null is returned
         /// </summary>
         /// <returns>The next available redo operation if available, null otherwise</returns>
@@ -371,6 +387,15 @@ namespace Pixelaria.Data.Undo
             }
 
             _undoTasks.RemoveRange(_currentTask, _undoTasks.Count - _currentTask);
+        }
+
+        /// <summary>
+        /// Throws an <see cref="UndoSystemRecursivelyModifiedException"/> if recursive reentry was detected.
+        /// </summary>
+        private void CheckReentry()
+        {
+            if(_isDoingWork)
+                throw new UndoSystemRecursivelyModifiedException();
         }
     }
 
@@ -553,6 +578,22 @@ namespace Pixelaria.Data.Undo
         public UndoEventArgs(IUndoTask task)
         {
             Task = task;
+        }
+    }
+
+    /// <summary>
+    /// Exception that signals when a modifying call to an <see cref="UndoSystem"/> is made while an undo/redo
+    /// task is being performed.
+    /// 
+    /// Usually this indicates that an undo task is calling code to undo work that itself is incorrectly trying to 
+    /// register an undo task of its own to undo its work.
+    /// </summary>
+    public class UndoSystemRecursivelyModifiedException : Exception
+    {
+        public UndoSystemRecursivelyModifiedException()
+            : base("A side-effect-containing call to UndoSystem was made while an undo operation was underway")
+        {
+
         }
     }
 }

@@ -106,6 +106,7 @@
     <Compile Include="Tests\Data\Persistence\FileBlocksTests.cs" />
     <Compile Include="Tests\Data\Persistence\PersistenceHelperTests.cs" />
     <Compile Include="Tests\Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="Tests\Data\Undo\UndoSystemTests.cs" />
     <Compile Include="Tests\ExportPipeline\DefaultPipelineNodeSpecsProviderTests.cs" />
     <Compile Include="Tests\ExportPipeline\Steps\FilterPipelineStepTests.cs" />
     <Compile Include="Tests\ExportPipeline\PipelineContainerTests.cs" />

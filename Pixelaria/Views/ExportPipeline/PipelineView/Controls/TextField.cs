@@ -461,28 +461,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
         private void Copy()
         {
-            if (_textEngine.Caret.Length == 0)
-                return;
-
-            string text = _textEngine.SelectedText();
-            Clipboard.SetText(text);
+            _textEngine.Copy();
         }
 
         private void Cut()
         {
-            if (_textEngine.Caret.Length == 0)
-                return;
-
-            Copy();
-            _textEngine.DeleteText();
+            _textEngine.Cut();
         }
 
         private void Paste()
         {
-            if (!Clipboard.ContainsText()) return;
-
-            string text = Clipboard.GetText();
-            _textEngine.InsertText(text);
+            _textEngine.Paste();
         }
 
         #endregion

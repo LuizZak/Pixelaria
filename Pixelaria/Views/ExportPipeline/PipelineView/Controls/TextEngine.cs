@@ -21,18 +21,36 @@
 */
 
 using System;
+using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Data.Undo;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>
-    /// A text + caret engine that handles manipulation of a text value.
+    /// A text + caret engine that handles manipulation of strings by insertion/removal of strings
+    /// at locations that can be specified via a caret position.
     /// 
     /// Base text input engine backing for <see cref="TextField"/>'s.
     /// </summary>
     internal class TextEngine : ITextEngine
     {
+        /// <summary>
+        /// Whenever sequential characters are input into the text engine via <see cref="InsertText"/>,
+        /// this undo run is incremented so the undo operation for these operations occur as one single 
+        /// undo for multiple characters.
+        /// </summary>
+        [CanBeNull]
+        private TextInsertUndo _currentInputUndoRun;
+
+        /// <summary>
+        /// When undoing/redoing work with <see cref="_undoSystem"/>, this flag is temporarely set to true so no
+        /// undo tasks are accidentally registered while another undo task performs changes to this text engine.
+        /// </summary>
+        private bool _isPerformingUndoRedo;
+
+        private readonly UndoSystem _undoSystem;
+
         /// <summary>
         /// Event handler for <see cref="CaretChanged"/> event.
         /// </summary>
@@ -44,16 +62,25 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public event TextEngineCaretChangedEventHandler CaretChanged;
 
         /// <summary>
-        /// Gets or sets an undo system that this text engine can use when 
+        /// Gets the internal undo system that this text engine records undo and redo operations in
         /// </summary>
-        [CanBeNull]
-        public IUndoSystem UndoSystem { get; set; }
+        [NotNull]
+        public IUndoSystem UndoSystem => _undoSystem;
 
         /// <summary>
         /// The text buffer that receives instructions to add/remove/replace text based on caret
         /// inputs handled by this text engine.
         /// </summary>
         public ITextEngineTextualBuffer TextBuffer { get; }
+
+        /// <summary>
+        /// Gets the text clipboard for this text engine to use during Copy/Cut/Paste operations.
+        /// 
+        /// Defaults to <see cref="WindowsTextClipboard"/>, but can be replaced at any time with any
+        /// other implementation.
+        /// </summary>
+        [NotNull]
+        public ITextClipboard TextClipboard { get; set; } = new WindowsTextClipboard();
 
         /// <summary>
         /// Gets the caret range.
@@ -65,6 +92,62 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public TextEngine(ITextEngineTextualBuffer textBuffer)
         {
             TextBuffer = textBuffer;
+
+            _undoSystem = new UndoSystem();
+
+            _undoSystem.WillPerformUndo += (sender, args) => { _isPerformingUndoRedo = true; };
+            _undoSystem.WillPerformRedo += (sender, args) => { _isPerformingUndoRedo = true; };
+
+            _undoSystem.UndoPerformed += (sender, args) => { _isPerformingUndoRedo = true; };
+            _undoSystem.RedoPerformed += (sender, args) => { _isPerformingUndoRedo = true; };
+        }
+
+        private void RegisterUndo([NotNull] IUndoTask task)
+        {
+            if (_isPerformingUndoRedo)
+                return;
+
+            _undoSystem.RegisterUndo(task);
+        }
+
+        /// <summary>
+        /// If any text insert undo is currently present under <see cref="_currentInputUndoRun"/>,
+        /// this method flushes it into <see cref="_undoSystem"/> and resets the text undo run so new
+        /// undo runs are started fresh.
+        /// </summary>
+        private void FlushTextInsertUndo()
+        {
+            if (_isPerformingUndoRedo)
+                return;
+
+            _undoSystem.FinishGroupUndo();
+            _currentInputUndoRun = null;
+        }
+
+        /// <summary>
+        /// Updates <see cref="_currentInputUndoRun"/> with a new character at a specified offset.
+        /// If the offset is not exactly at the end of the current undo run, a new undo run is started
+        /// and the current undo run is flushed (via <see cref="FlushTextInsertUndo"/>).
+        /// </summary>
+        private void UpdateTextInsertUndo(string replacing, string text, int offset)
+        {
+            if (_isPerformingUndoRedo)
+                return;
+
+            var current = _currentInputUndoRun;
+            if (current == null)
+            {
+                _undoSystem.StartGroupUndo("Insert text");
+            }
+            else if (replacing.Length != 0 || current.Caret.Start + current.After.Length != offset || current.Caret.Position != CaretPosition.Start)
+            {
+                FlushTextInsertUndo();
+                
+                _undoSystem.StartGroupUndo("Insert text");
+            }
+
+            _currentInputUndoRun = new TextInsertUndo(this, new Caret(offset), replacing, text);
+            RegisterUndo(_currentInputUndoRun);
         }
 
         /// <summary>
@@ -267,17 +350,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             if (Caret.Start == TextBuffer.TextLength)
             {
                 TextBuffer.Append(text);
+                UpdateTextInsertUndo("", text, Caret.Start);
+            }
+            else if (Caret.Length == 0)
+            {
+                TextBuffer.Insert(Caret.Start, text);
+                UpdateTextInsertUndo("", text, Caret.Start);
             }
             else
             {
-                if (Caret.Length == 0)
-                {
-                    TextBuffer.Insert(Caret.Start, text);
-                }
-                else
-                {
-                    TextBuffer.Replace(Caret.Start, Caret.Length, text);
-                }
+                string replaced = TextBuffer.TextInRange(Caret.TextRange);
+
+                TextBuffer.Replace(Caret.Start, Caret.Length, text);
+                
+                UpdateTextInsertUndo(replaced, text, Caret.Start);
             }
 
             SetCaret(new TextRange(Caret.Start + text.Length, 0));
@@ -291,15 +377,27 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             if (Caret.Location == 0 && Caret.Length == 0)
                 return;
 
+            FlushTextInsertUndo();
+
             if (Caret.Length == 0)
             {
+                var caret = Caret;
+                string removed = TextBuffer.TextInRange(new TextRange(Caret.Start - 1, 1));
+
                 TextBuffer.Delete(Caret.Start - 1, 1);
                 SetCaret(new TextRange(Caret.Start - 1, 0));
+
+                _undoSystem.RegisterUndo(new TextDeleteUndo(this, caret, caret.TextRange, removed));
             }
             else
             {
+                var caret = Caret;
+                string removed = TextBuffer.TextInRange(Caret.TextRange);
+
                 TextBuffer.Delete(Caret.Start, Caret.Length);
                 SetCaret(Caret.Start);
+                
+                _undoSystem.RegisterUndo(new TextDeleteUndo(this, caret, caret.TextRange, removed));
             }
         }
 
@@ -311,15 +409,73 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             if (Caret.Location == TextBuffer.TextLength && Caret.Length == 0)
                 return;
 
+            FlushTextInsertUndo();
+
             if (Caret.Length == 0)
             {
+                var caret = Caret;
+                string removed = TextBuffer.TextInRange(new TextRange(Caret.Start, 1));
+
                 TextBuffer.Delete(Caret.Start, 1);
+
+                RegisterUndo(new TextDeleteUndo(this, caret, caret.TextRange, removed));
             }
             else
             {
+                var caret = Caret;
+                string removed = TextBuffer.TextInRange(Caret.TextRange);
+
                 TextBuffer.Delete(Caret.Start, Caret.Length);
                 SetCaret(Caret.Start);
+
+                RegisterUndo(new TextDeleteUndo(this, caret, caret.TextRange, removed));
             }
+        }
+
+        /// <summary>
+        /// Copies the selected text content into <see cref="TextClipboard"/>.
+        /// 
+        /// If no text range is selected, nothing is done.
+        /// </summary>
+        public void Copy()
+        {
+            if (Caret.Length == 0)
+                return;
+
+            string text = SelectedText();
+            TextClipboard.SetText(text);
+        }
+
+        /// <summary>
+        /// Cuts the selected text content into <see cref="TextClipboard"/>, by
+        /// copying and subsequently deleting the text range.
+        /// 
+        /// If no text range is selected, nothing is done.
+        /// </summary>
+        public void Cut()
+        {
+            if (Caret.Length == 0)
+                return;
+
+            Copy();
+            DeleteText();
+        }
+
+        /// <summary>
+        /// Pastes any text content from <see cref="TextClipboard"/> into this 
+        /// text engine, replacing any selection range that is currently made.
+        /// 
+        /// If no text is available in the clipboard, nothing is done.
+        /// </summary>
+        public void Paste()
+        {
+            if (!TextClipboard.ContainsText())
+                return;
+
+            FlushTextInsertUndo();
+
+            string text = TextClipboard.GetText();
+            InsertText(text);
         }
 
         /// <summary>
@@ -520,6 +676,48 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
     }
 
     /// <summary>
+    /// Basic text clipboard for a <see cref="TextEngine"/> to use during copy/cut/paste operations.
+    /// </summary>
+    internal interface ITextClipboard
+    {
+        /// <summary>
+        /// Returns text from this clipboard, if present.
+        /// </summary>
+        string GetText();
+
+        /// <summary>
+        /// Sets the textual content to this clipboard
+        /// </summary>
+        void SetText([NotNull] string text);
+
+        /// <summary>
+        /// Returns whether this clipboard contains any text content in it
+        /// </summary>
+        bool ContainsText();
+    }
+
+    /// <summary>
+    /// Wraps Window's <see cref="Clipboard"/> into an <see cref="ITextClipboard"/> interface.
+    /// </summary>
+    internal class WindowsTextClipboard : ITextClipboard
+    {
+        public string GetText()
+        {
+            return Clipboard.GetText();
+        }
+
+        public void SetText(string text)
+        {
+            Clipboard.SetText(text);
+        }
+
+        public bool ContainsText()
+        {
+            return Clipboard.ContainsText();
+        }
+    }
+
+    /// <summary>
     /// Undo task for a text insert operation
     /// </summary>
     internal class TextInsertUndo : IUndoTask
@@ -578,6 +776,66 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         public string GetDescription()
         {
             return "Insert text";
+        }
+    }
+
+    /// <summary>
+    /// Undo task for a text delete operation
+    /// </summary>
+    internal class TextDeleteUndo : IUndoTask
+    {
+        /// <summary>
+        /// Text engine associated with this undo task
+        /// </summary>
+        public ITextEngine TextEngine;
+
+        /// <summary>
+        /// Position of caret to place when operation is undone
+        /// </summary>
+        public Caret BeforeCaret { get; }
+
+        /// <summary>
+        /// Range of text that was removed.
+        /// 
+        /// Must always have Length > 0.
+        /// </summary>
+        public TextRange DeletedRange { get; }
+
+        /// <summary>
+        /// Text string that was deleted
+        /// </summary>
+        public string Text { get; }
+        
+        public TextDeleteUndo(ITextEngine textEngine, Caret beforeCaret, TextRange deletedRange, string text)
+        {
+            TextEngine = textEngine;
+            DeletedRange = deletedRange;
+            Text = text;
+            BeforeCaret = beforeCaret;
+        }
+
+        public void Clear()
+        {
+            
+        }
+
+        public void Undo()
+        {
+            TextEngine.SetCaret(new Caret(DeletedRange.Start));
+            TextEngine.InsertText(Text);
+
+            TextEngine.SetCaret(BeforeCaret);
+        }
+
+        public void Redo()
+        {
+            TextEngine.SetCaret(new Caret(DeletedRange, CaretPosition.Start));
+            TextEngine.DeleteText();
+        }
+
+        public string GetDescription()
+        {
+            return "Delete text";
         }
     }
 

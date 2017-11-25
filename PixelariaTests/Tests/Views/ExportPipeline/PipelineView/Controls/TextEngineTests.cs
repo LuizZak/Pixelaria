@@ -24,6 +24,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
+
 using Rhino.Mocks;
 
 namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
@@ -827,7 +828,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         public void TestInsertTextWithSelection()
         {
             int length = 3;
-            var stub = MockRepository.GenerateStrictMock<ITextEngineTextualBuffer>();
+            var stub = MockRepository.GenerateMock<ITextEngineTextualBuffer>();
             stub.Stub(b => b.TextLength)
                 .WhenCalled(inv => inv.ReturnValue = length)
                 .Return(0).TentativeReturn();
@@ -837,7 +838,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
             sut.InsertText("456");
             
-            stub.AssertWasCalled(b => b.Replace(1, 2, "456"));;
+            stub.AssertWasCalled(b => b.Replace(1, 2, "456"));
             stub.VerifyAllExpectations();
             Assert.AreEqual(new Caret(4), sut.Caret);
         }
@@ -967,7 +968,286 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
 
         #endregion
 
+        #region Copy/Cut/Paste
+
+        [TestMethod]
+        public void TestCopy()
+        {
+            var mock = MockRepository.GenerateMock<ITextClipboard>();
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) {TextClipboard = mock};
+            sut.SetCaret(new TextRange(1, 2));
+
+            sut.Copy();
+
+            mock.AssertWasCalled(m => m.SetText("bc"));
+        }
+
+        [TestMethod]
+        public void TestCopyNotCalledWhenNoSelectionRangeAvailable()
+        {
+            var mock = MockRepository.GenerateStrictMock<ITextClipboard>();
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) { TextClipboard = mock };
+            sut.SetCaret(new TextRange(1, 0));
+
+            sut.Copy();
+
+            mock.VerifyAllExpectations();
+        }
+
+        [TestMethod]
+        public void TestCut()
+        {
+            var mock = MockRepository.GenerateMock<ITextClipboard>();
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) { TextClipboard = mock };
+            sut.SetCaret(new TextRange(1, 2));
+
+            sut.Cut();
+
+            mock.AssertWasCalled(m => m.SetText("bc"));
+            Assert.AreEqual(buffer.Text, "a");
+        }
+
+        [TestMethod]
+        public void TestCutNotCalledWhenNoSelectionRangeAvailable()
+        {
+            var mock = MockRepository.GenerateStrictMock<ITextClipboard>();
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) { TextClipboard = mock };
+            sut.SetCaret(new TextRange(1, 0));
+
+            sut.Cut();
+
+            mock.VerifyAllExpectations();
+            Assert.AreEqual(buffer.Text, "abc");
+        }
+
+        [TestMethod]
+        public void TestPaste()
+        {
+            var stub = MockRepository.GenerateStub<ITextClipboard>();
+            stub.Stub(s => s.ContainsText()).Return(true);
+            stub.Stub(s => s.GetText()).Return("def");
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) { TextClipboard = stub };
+            sut.SetCaret(new TextRange(3, 0));
+
+            sut.Paste();
+
+            stub.AssertWasCalled(m => m.ContainsText());
+            stub.AssertWasCalled(m => m.GetText());
+            Assert.AreEqual(buffer.Text, "abcdef");
+        }
+
+        [TestMethod]
+        public void TestPasteNotCalledWhenNoTextAvailable()
+        {
+            var stub = MockRepository.GenerateStub<ITextClipboard>();
+            stub.Stub(s => s.ContainsText()).Return(false);
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) { TextClipboard = stub };
+            sut.SetCaret(new TextRange(3, 0));
+
+            sut.Paste();
+
+            stub.AssertWasCalled(m => m.ContainsText());
+            stub.AssertWasNotCalled(m => m.GetText());
+            Assert.AreEqual(buffer.Text, "abc");
+        }
+
+        [TestMethod]
+        public void TestPasteReplacesSelectionRange()
+        {
+            var stub = MockRepository.GenerateStub<ITextClipboard>();
+            stub.Stub(s => s.ContainsText()).Return(true);
+            stub.Stub(s => s.GetText()).Return("def");
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer) { TextClipboard = stub };
+            sut.SetCaret(new TextRange(1, 2));
+
+            sut.Paste();
+            
+            Assert.AreEqual(buffer.Text, "adef");
+        }
+
+        #endregion
+
         #region Undo Operations
+        
+        /// <summary>
+        /// Tests that multiple sequential 1-char long InsertText calls are properly undone
+        /// as a single operation
+        /// </summary>
+        [TestMethod]
+        public void TestInsertTextUndo()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("a");
+            sut.InsertText("b");
+            sut.InsertText("c");
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("", buffer.Text);
+        }
+
+        /// <summary>
+        /// Tests that combining insert text undo operations into one only occur when the insertions
+        /// are located one after another sequentially.
+        /// </summary>
+        [TestMethod]
+        public void TestInsertTextUndoSequenceBreaksIfNotSequential()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("a");
+            sut.InsertText("b");
+            sut.InsertText("c");
+            sut.SetCaret(2);
+            sut.InsertText("d");
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        /// <summary>
+        /// Sequential insertions should be chained even if calls to SetCaret (but only SetCaret) are 
+        /// made between insertions, so long as the next text inserted is right after the previous inserted
+        /// string.
+        /// </summary>
+        [TestMethod]
+        public void TestInsertTextUndoSequenceDoesntBreakWhenCallingSetCaret()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("a");
+            sut.InsertText("b");
+            sut.InsertText("c");
+            sut.SetCaret(2);
+            sut.SetCaret(3);
+            sut.InsertText("d");
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("", buffer.Text);
+        }
+
+        /// <summary>
+        /// Tests that calling <see cref="TextEngine.Paste"/> interrupts insert undo sequences such 
+        /// that it's considered a distinct input undo operation from the characters being input so
+        /// far.
+        /// </summary>
+        [TestMethod]
+        public void TestInsertTextUndoSequenceBreaksAfterPaste()
+        {
+            var clipboard = MockRepository.GenerateStub<ITextClipboard>();
+            clipboard.Stub(c => c.GetText()).Return("d");
+            clipboard.Stub(c => c.ContainsText()).Return(true);
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer) {TextClipboard = clipboard};
+            sut.InsertText("a");
+            sut.InsertText("b");
+            sut.InsertText("c");
+            sut.Paste();
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        /// <summary>
+        /// Tests that calling <see cref="TextEngine.DeleteText"/> interrupts insert undo sequences.
+        /// </summary>
+        [TestMethod]
+        public void TestInsertTextUndoSequenceBreaksAfterDeleteText()
+        {
+            var buffer = new TextBuffer("e");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("a");
+            sut.InsertText("b");
+            sut.InsertText("c");
+            sut.DeleteText();
+            sut.InsertText("d");
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        /// <summary>
+        /// Tests that calling <see cref="TextEngine.BackspaceText"/> interrupts insert undo sequences.
+        /// </summary>
+        [TestMethod]
+        public void TestInsertTextUndoSequenceBreaksAfterBackspaceText()
+        {
+            var buffer = new TextBuffer("e");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("a");
+            sut.InsertText("b");
+            sut.InsertText("c");
+            sut.SetCaret(4);
+            sut.BackspaceText();
+            sut.InsertText("d");
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        [TestMethod]
+        public void TestBackspaceTextUndo()
+        {
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(3);
+
+            sut.BackspaceText();
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        [TestMethod]
+        public void TestBackspaceTextRangeUndo()
+        {
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new TextRange(1, 2), CaretPosition.End);
+
+            sut.BackspaceText();
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        [TestMethod]
+        public void TestDeleteTextUndo()
+        {
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer);
+
+            sut.DeleteText();
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
+
+        [TestMethod]
+        public void TestDeleteTextRangeUndo()
+        {
+            var buffer = new TextBuffer("abc");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new TextRange(1, 2), CaretPosition.End);
+
+            sut.DeleteText();
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("abc", buffer.Text);
+        }
 
         #region Text Insert
 
@@ -1039,6 +1319,123 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
         #endregion
 
         #region Text Delete
+
+        [TestMethod]
+        public void TestTextDeteleUndo()
+        {
+            const string text = "abc";
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            var mock = MockRepository.GenerateStrictMock<ITextEngine>();
+            mock.Expect(m => m.SetCaret(new Caret(caret.Location)));
+            mock.Expect(m => m.InsertText(text));
+            mock.Expect(m => m.SetCaret(caret));
+            var sut = new TextDeleteUndo(mock, caret, caret.TextRange, text);
+
+            sut.Undo();
+
+            mock.VerifyAllExpectations();
+        }
+
+        [TestMethod]
+        public void TestTextRedoUndo()
+        {
+            const string text = "abc";
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            var mock = MockRepository.GenerateStrictMock<ITextEngine>();
+            mock.Expect(m => m.SetCaret(caret));
+            mock.Expect(m => m.DeleteText());
+            var sut = new TextDeleteUndo(mock, caret, caret.TextRange, text);
+
+            sut.Redo();
+
+            mock.VerifyAllExpectations();
+        }
+        
+        [TestMethod]
+        public void TestTextDeleteUndoExpectedTextCaretAtStart()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "aef";
+            const string deletedText = "bcd";
+            var buffer = new TextBuffer(afterText);
+            var engine = new TextEngine(buffer);
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            var sut = new TextDeleteUndo(engine, caret, caret.TextRange, deletedText);
+
+            sut.Undo();
+
+            Assert.AreEqual(beforeText, buffer.Text);
+            Assert.AreEqual(new Caret(new TextRange(1, 3), CaretPosition.Start), engine.Caret);
+        }
+
+        [TestMethod]
+        public void TestTextDeleteUndoExpectedTextCaretAtEnd()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "aef";
+            const string deletedText = "bcd";
+            var buffer = new TextBuffer(afterText);
+            var engine = new TextEngine(buffer);
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.End);
+            var sut = new TextDeleteUndo(engine, caret, caret.TextRange, deletedText);
+
+            sut.Undo();
+
+            Assert.AreEqual(beforeText, buffer.Text);
+            Assert.AreEqual(new Caret(new TextRange(1, 3), CaretPosition.End), engine.Caret);
+        }
+
+        [TestMethod]
+        public void TestTextDeleteRedoExpectedTextCaretAtStart()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "aef";
+            const string deletedText = "bcd";
+            var buffer = new TextBuffer(beforeText);
+            var engine = new TextEngine(buffer);
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);
+            var sut = new TextDeleteUndo(engine, caret, caret.TextRange, deletedText);
+
+            sut.Redo();
+
+            Assert.AreEqual(afterText, buffer.Text);
+            Assert.AreEqual(new Caret(new TextRange(1, 0), CaretPosition.Start), engine.Caret);
+        }
+
+        [TestMethod]
+        public void TestTextDeleteRedoExpectedTextCaretAtEnd()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "aef";
+            const string deletedText = "bcd";
+            var buffer = new TextBuffer(beforeText);
+            var engine = new TextEngine(buffer);
+            var caret = new Caret(new TextRange(1, 3), CaretPosition.End);
+            var sut = new TextDeleteUndo(engine, caret, caret.TextRange, deletedText);
+
+            sut.Redo();
+
+            Assert.AreEqual(afterText, buffer.Text);
+            Assert.AreEqual(new Caret(new TextRange(1, 0), CaretPosition.Start), engine.Caret);
+        }
+
+        [TestMethod]
+        public void TestTextDeleteUndoRespectsUndoCaretLocation()
+        {
+            const string beforeText = "abcdef";
+            const string afterText = "abcde";
+            const string deletedText = "f";
+            var buffer = new TextBuffer(afterText);
+            var engine = new TextEngine(buffer);
+            var caretBefore = new Caret(new TextRange(6, 0), CaretPosition.Start);
+            var rangeRemoved = new TextRange(5, 1);
+            var sut = new TextDeleteUndo(engine, caretBefore, rangeRemoved, deletedText);
+
+            sut.Undo();
+
+            Assert.AreEqual(beforeText, buffer.Text);
+            Assert.AreEqual(caretBefore, engine.Caret);
+        }
 
         #endregion
 

@@ -39,7 +39,7 @@ namespace Pixelaria.Data.Clipboard
         private IClipboardObject _currentData;
 
         /// <summary>
-        /// Gets the type of the data currently stored in this ProgramClipboard
+        /// Gets the type of the data currently stored in this <see cref="DataClipboard"/>
         /// </summary>
         public string CurrentDataType => _currentData == null ? "" : _currentData.GetDataType;
 
@@ -136,7 +136,7 @@ namespace Pixelaria.Data.Clipboard
     }
 
     /// <summary>
-    /// Specifies an object that stores data and can be used with a DataClipboard instance
+    /// Specifies an object that stores data and can be used with a <see cref="DataClipboard"/> instance
     /// </summary>
     public interface IClipboardObject
     {
@@ -153,7 +153,7 @@ namespace Pixelaria.Data.Clipboard
     }
 
     /// <summary>
-    /// Defines a ClipboardObject that contains a list of frames
+    /// Defines an <see cref="IClipboardObject"/> that contains a list of frames
     /// </summary>
     public class FrameListClipboardObject : IClipboardObject
     {
@@ -223,27 +223,27 @@ namespace Pixelaria.Data.Clipboard
     }
 
     /// <summary>
-    /// Defines a ClipboardObject that contains a list of animations
+    /// Defines an <see cref="IClipboardObject"/> that contains a list of animations
     /// </summary>
     public class AnimationListClipboardObject : IClipboardObject
     {
         /// <summary>
-        /// The data type identifier for the AnimationListClipboardObject
+        /// The data type identifier for the <see cref="AnimationListClipboardObject"/>
         /// </summary>
         public static readonly string DataType = "AnimationList";
 
         /// <summary>
-        /// List of animations to store into this ClipboardObject
+        /// List of animations to store into this <see cref="IClipboardObject"/>
         /// </summary>
         private List<Animation> _animList;
 
         /// <summary>
-        /// Gets the animations currently added to this FrameListClipboardObject instance
+        /// Gets the animations currently added to this <see cref="FrameListClipboardObject"/> instance
         /// </summary>
         public Animation[] Aniamtions => _animList.ToArray();
 
         /// <summary>
-        /// Initializes a new instance of the FrameListClipboardObject 
+        /// Initializes a new instance of the <see cref="FrameListClipboardObject"/> 
         /// </summary>
         public AnimationListClipboardObject()
         {
@@ -251,16 +251,16 @@ namespace Pixelaria.Data.Clipboard
         }
 
         /// <summary>
-        /// Initializes a new AnimationListClipboardObject with a list of frames to 
+        /// Initializes a new <see cref="AnimationListClipboardObject"/> with a list of frames to 
         /// </summary>
         /// <param name="animList">A list of animations to initialize the internal animation list with</param>
-        public AnimationListClipboardObject([NotNull] List<Animation> animList)
+        public AnimationListClipboardObject([NotNull] IEnumerable<Animation> animList)
         {
             _animList = new List<Animation>(animList);
         }
 
         /// <summary>
-        /// Adds the given Animation to this AnimationListClipboardObject instance
+        /// Adds the given Animation to this <see cref="AnimationListClipboardObject"/> instance
         /// </summary>
         /// <param name="anim">The frame to add</param>
         public void AddAnimation([NotNull] Animation anim)
@@ -286,9 +286,9 @@ namespace Pixelaria.Data.Clipboard
         }
 
         /// <summary>
-        /// Returns a string that specifies the data type of this ClipboardObject instance
+        /// Returns a string that specifies the data type of this <see cref="IClipboardObject"/> instance
         /// </summary>
-        /// <returns>a string that specifies the data type of this ClipboardObject instance</returns>
+        /// <returns>a string that specifies the data type of this <see cref="IClipboardObject"/> instance</returns>
         public string GetDataType => DataType;
     }
 
@@ -298,7 +298,7 @@ namespace Pixelaria.Data.Clipboard
     public class ImageStreamClipboardObject : IClipboardObject
     {
         /// <summary>
-        /// The data type identifier for the ImageStreamClipboardObject
+        /// The data type identifier for the <see cref="ImageStreamClipboardObject"/>
         /// </summary>
         public static readonly string DataType = "ImageStream";
 
@@ -308,7 +308,7 @@ namespace Pixelaria.Data.Clipboard
         public Stream ImageStream { get; }
 
         /// <summary>
-        /// Initializes a new instance of the ImageStreamClipboardObject class with a stream to initialzie the stream with
+        /// Initializes a new instance of the <see cref="ImageStreamClipboardObject"/> class with a stream to initialzie the stream with
         /// </summary>
         /// <param name="stream">The stream containing the image data</param>
         public ImageStreamClipboardObject([NotNull] Stream stream)
@@ -325,9 +325,9 @@ namespace Pixelaria.Data.Clipboard
         }
 
         /// <summary>
-        /// Returns a string that specifies the data type of this ClipboardObject instance
+        /// Returns a string that specifies the data type of this <see cref="IClipboardObject"/> instance
         /// </summary>
-        /// <returns>a string that specifies the data type of this ClipboardObject instance</returns>
+        /// <returns>a string that specifies the data type of this <see cref="IClipboardObject"/> instance</returns>
         public string GetDataType => DataType;
     }
 }
