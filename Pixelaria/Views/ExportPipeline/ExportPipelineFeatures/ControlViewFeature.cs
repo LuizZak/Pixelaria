@@ -140,6 +140,13 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             _baseControl.Size = Control.Size;
         }
 
+        public override void OtherFeatureConsumedMouseDown()
+        {
+            base.OtherFeatureConsumedMouseDown();
+
+            _firstResponder?.ResignFirstResponder();
+        }
+
         #region Mouse Events
 
         public override void OnMouseLeave(EventArgs e)
@@ -156,11 +163,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         public override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
+            
             // Find control
             var control = ControlViewUnder(e.Location);
             if (control == null)
+            {
+                _firstResponder?.ResignFirstResponder();
                 return;
+            }
 
             // Make request
             var request = new MouseEventRequest(MouseEventType.MouseDown, handler =>
@@ -174,6 +184,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 if(handler != _firstResponder)
                     _firstResponder?.ResignFirstResponder();
+
+                ConsumeEvent();
             });
 
             control.HandleOrPass(request);

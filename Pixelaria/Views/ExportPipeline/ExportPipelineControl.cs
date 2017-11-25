@@ -183,10 +183,29 @@ namespace Pixelaria.Views.ExportPipeline
 
             MousePoint = e.Location;
 
-            LoopFeaturesUntilConsumed(feature =>
+            //LoopFeaturesUntilConsumed(feature =>
+            //{
+            //    feature.OnMouseDown(e);
+            //});
+
+            for (int i = 0; i < _features.Count; i++)
             {
+                var feature = _features[i];
                 feature.OnMouseDown(e);
-            });
+
+                if (feature.IsEventConsumed)
+                {
+                    for (int j = 0; j < _features.Count; j++)
+                    {
+                        if (i == j)
+                            continue;
+
+                        _features[j].OtherFeatureConsumedMouseDown();
+                    }
+
+                    return;
+                }
+            }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -1271,6 +1290,16 @@ namespace Pixelaria.Views.ExportPipeline
         {
             Control = control;
         }
+
+        // TODO: Method bellow is a hack, used to work around the fact control focus works only on
+        // ControlViewFeature and its components, but not across all export pipeline features.
+        // Maybe someday extend control focusing to allow it to happen between all export pipeline
+        // features of an export pipeline control.
+
+        /// <summary>
+        /// Called when another feature has consumed the <see cref="OnMouseDown"/> event.
+        /// </summary>
+        public virtual void OtherFeatureConsumedMouseDown() { }
 
         /// <summary>
         /// Called on a fixed 8ms (on average) interval across all UI features to perform fixed-update operations.

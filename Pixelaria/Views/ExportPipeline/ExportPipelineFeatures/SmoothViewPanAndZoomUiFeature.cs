@@ -25,7 +25,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
-using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -82,6 +81,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 _dragStart = contentsView.Location - e.Location / contentsView.Scale;
                 _dragging = true;
+
+                ConsumeEvent();
             }
         }
 
