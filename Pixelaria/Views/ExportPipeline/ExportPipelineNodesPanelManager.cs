@@ -32,7 +32,6 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
-using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
@@ -44,8 +43,7 @@ namespace Pixelaria.Views.ExportPipeline
     internal sealed class ExportPipelineNodesPanelManager: IDisposable
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly ExportPipelineControl _pipelineControl;
-        private readonly ControlViewFeature _controlView;
+        private readonly ExportPipelineControl _control;
 
         private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
         private List<ButtonControl> SpecButtons { get; } = new List<ButtonControl>();
@@ -58,10 +56,9 @@ namespace Pixelaria.Views.ExportPipeline
 
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
 
-        public ExportPipelineNodesPanelManager([NotNull] ExportPipelineControl pipelineControl, [NotNull] ControlViewFeature controlView)
+        public ExportPipelineNodesPanelManager([NotNull] ExportPipelineControl control)
         {
-            _pipelineControl = pipelineControl;
-            _controlView = controlView;
+            _control = control;
 
             Setup();
         }
@@ -69,14 +66,14 @@ namespace Pixelaria.Views.ExportPipeline
         public void Dispose()
         {
             _disposeBag?.Dispose();
-            _pipelineControl?.Dispose();
+            _control?.Dispose();
         }
 
         private void Setup()
         {
             _container = new ControlView
             {
-                Size = new Vector(300, _pipelineControl.Size.Height),
+                Size = new Vector(300, _control.Size.Height),
                 BackColor = Color.Black.WithTransparency(0.7f)
             };
 
@@ -85,7 +82,7 @@ namespace Pixelaria.Views.ExportPipeline
             _scrollViewControl = new ScrollViewControl
             {
                 Location = new Vector(0, 50),
-                Size = new Vector(300, _pipelineControl.Size.Height),
+                Size = new Vector(300, _control.Size.Height),
                 ContentSize = new Vector(300, 1800),
                 BackColor = Color.Transparent,
                 ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
@@ -93,10 +90,10 @@ namespace Pixelaria.Views.ExportPipeline
 
             _container.AddChild(_scrollViewControl);
             _container.AddChild(_searchField);
+            
+            _control.ControlContainer.AddControl(_container);
 
-            _controlView.AddControl(_container);
-
-            _pipelineControl.SizeChanged += (sender, args) =>
+            _control.SizeChanged += (sender, args) =>
             {
                 AdjustSize();
             };
@@ -141,7 +138,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void AdjustSize()
         {
-            _container.Size = new Vector(300, _pipelineControl.Size.Height);
+            _container.Size = new Vector(300, _control.Size.Height);
 
             var textFieldBounds = new AABB(0, 0, 40, _container.Size.X);
 
@@ -219,7 +216,7 @@ namespace Pixelaria.Views.ExportPipeline
                 HorizontalTextAlignment = HorizontalTextAlignment.Center,
                 TextInset = new InsetBounds(5, 5, 5, 5),
                 ImageInset = new InsetBounds(7, 0, 0, 0),
-                Image = IconForPipelineNodeType(spec.NodeType, _pipelineControl.D2DRenderer.ImageResources),
+                Image = IconForPipelineNodeType(spec.NodeType, _control.D2DRenderer.ImageResources),
                 TextFont = new Font(FontFamily.GenericSansSerif.Name, 12)
             };
             

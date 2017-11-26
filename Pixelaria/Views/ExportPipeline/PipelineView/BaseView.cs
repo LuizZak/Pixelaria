@@ -242,7 +242,24 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         {
             Parent?.RemoveChild(this);
         }
-        
+
+        /// <summary>
+        /// Returns whether this view is a direct or indirect child of another view
+        /// </summary>
+        public bool IsDescendentOf([NotNull] BaseView view)
+        {
+            var v = this;
+            while (v != null)
+            {
+                if (Equals(v, view))
+                    return true;
+
+                v = v.Parent;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Performs a hit test operation on the area of this, and all child
         /// base views, for the given absolute coordinates point.
@@ -576,10 +593,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((BaseView) obj);
+            return ReferenceEquals(this, obj);
         }
 
         public override int GetHashCode()

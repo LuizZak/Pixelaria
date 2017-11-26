@@ -24,7 +24,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.Utils;
 
-
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 {
     /// <summary>

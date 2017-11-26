@@ -15,23 +15,23 @@
         /// </summary>
         private void InitializeComponent()
         {
+            Pixelaria.Views.ExportPipeline.PipelineView.PipelineNodeViewSizer pipelineNodeViewSizer1 = new Pixelaria.Views.ExportPipeline.PipelineView.PipelineNodeViewSizer();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportPipelineView));
-            this.exportPipelineControl = new ExportPipelineControl();
+            this.exportPipelineControl = new Pixelaria.Views.ExportPipeline.ExportPipelineControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
+            this.tab_open = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.tsb_sortSelected = new System.Windows.Forms.ToolStripButton();
-            this.tab_open = new System.Windows.Forms.ToolStripButton();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // exportPipelineControl
             // 
-            this.exportPipelineControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportPipelineControl.Location = new System.Drawing.Point(0, 28);
+            this.exportPipelineControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.exportPipelineControl.Location = new System.Drawing.Point(0, 25);
             this.exportPipelineControl.Name = "exportPipelineControl";
-            this.exportPipelineControl.Size = new System.Drawing.Size(1181, 683);
+            this.exportPipelineControl.PipelineNodeViewSizer = pipelineNodeViewSizer1;
+            this.exportPipelineControl.Size = new System.Drawing.Size(1181, 686);
             this.exportPipelineControl.TabIndex = 0;
             // 
             // toolStrip
@@ -45,6 +45,16 @@
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(1181, 25);
             this.toolStrip.TabIndex = 1;
+            // 
+            // tab_open
+            // 
+            this.tab_open.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tab_open.Image = global::Pixelaria.Properties.Resources.document_open;
+            this.tab_open.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tab_open.Name = "tab_open";
+            this.tab_open.Size = new System.Drawing.Size(23, 22);
+            this.tab_open.Text = "toolStripButton2";
+            this.tab_open.Click += new System.EventHandler(this.tab_open_Click);
             // 
             // toolStripButton1
             // 
@@ -65,23 +75,13 @@
             this.tsb_sortSelected.Text = "&Sort Selected";
             this.tsb_sortSelected.Click += new System.EventHandler(this.tsb_sortSelected_Click);
             // 
-            // tab_open
-            // 
-            this.tab_open.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tab_open.Image = global::Pixelaria.Properties.Resources.document_open;
-            this.tab_open.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tab_open.Name = "tab_open";
-            this.tab_open.Size = new System.Drawing.Size(23, 22);
-            this.tab_open.Text = "toolStripButton2";
-            this.tab_open.Click += new System.EventHandler(this.tab_open_Click);
-            // 
             // ExportPipelineView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1181, 711);
-            this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.exportPipelineControl);
+            this.Controls.Add(this.toolStrip);
             this.DoubleBuffered = true;
             this.Name = "ExportPipelineView";
             this.Text = "ExportPipelineView";

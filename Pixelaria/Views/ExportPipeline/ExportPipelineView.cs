@@ -53,7 +53,6 @@ using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
-using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
@@ -118,8 +117,12 @@ namespace Pixelaria.Views.ExportPipeline
             InitializeDirect2D();
         }
 
+        #region Form Configuration
+
         public void ConfigureForm()
         {
+            //InitTest();
+
             ControlView.DirectWriteFactory = RenderingState.DirectWriteFactory;
 
             ConfigurePipelineControl();
@@ -152,11 +155,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void ConfigureNodesPanel()
         {
-            // Add controls
-            var control = new ControlViewFeature(exportPipelineControl);
-            exportPipelineControl.AddFeature(control);
-
-            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl, control);
+            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl);
 
             _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
 
@@ -173,6 +172,8 @@ namespace Pixelaria.Views.ExportPipeline
 
             _previewManager = manager;
         }
+
+        #endregion
 
         private void ExportPipelineControlOnResize(object sender, EventArgs eventArgs)
         {
@@ -411,10 +412,10 @@ namespace Pixelaria.Views.ExportPipeline
 
             // Create Device and SwapChain
             Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, new[] { SharpDX.Direct3D.FeatureLevel.Level_10_0 }, desc, out RenderingState.Device, out RenderingState.SwapChain);
-
+            
             RenderingState.D2DFactory = new SharpDX.Direct2D1.Factory();
             RenderingState.DirectWriteFactory = new SharpDX.DirectWrite.Factory();
-
+            
             // Ignore all windows events
             RenderingState.Factory = RenderingState.SwapChain.GetParent<Factory>();
             RenderingState.Factory.MakeWindowAssociation(Handle, WindowAssociationFlags.IgnoreAll);
@@ -424,18 +425,17 @@ namespace Pixelaria.Views.ExportPipeline
             RenderingState.RenderTargetView = new RenderTargetView(RenderingState.Device, RenderingState.BackBuffer);
 
             RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();
-
+            
             var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
-
             RenderingState.D2DRenderTarget =
                 new RenderTarget(RenderingState.D2DFactory, RenderingState.DxgiSurface, settings)
                 {
                     TextAntialiasMode = TextAntialiasMode.Cleartype
                 };
-            exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
 
+            exportPipelineControl.InitializeDirect2DRenderer(RenderingState);
+            
             ConfigureForm();
-            //InitTest();
 
             using (var renderLoop = new RenderLoop(this) { UseApplicationDoEvents = true })
             {
@@ -450,7 +450,7 @@ namespace Pixelaria.Views.ExportPipeline
                     _frameDeltaTimer.Stop();
                     _frameDeltaTimer.Reset();
                     _frameDeltaTimer.Start();
-
+                    
                     RenderingState.D2DRenderTarget.BeginDraw();
 
                     exportPipelineControl.RenderDirect2D(RenderingState);
@@ -468,7 +468,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return;
 
             RenderingState.Device.ImmediateContext.ClearState();
-
+            
             RenderingState.DxgiSurface.Dispose();
             RenderingState.D2DRenderTarget.Dispose();
             RenderingState.RenderTargetView.Dispose();
@@ -478,7 +478,7 @@ namespace Pixelaria.Views.ExportPipeline
                 exportPipelineControl.Width, exportPipelineControl.Height,
                 RenderingState.SwapChain.Description.ModeDescription.Format,
                 RenderingState.SwapChain.Description.Flags);
-
+            
             RenderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(RenderingState.SwapChain, 0);
             RenderingState.RenderTargetView = new RenderTargetView(RenderingState.Device, RenderingState.BackBuffer);
             RenderingState.DxgiSurface = RenderingState.BackBuffer.QueryInterface<Surface>();

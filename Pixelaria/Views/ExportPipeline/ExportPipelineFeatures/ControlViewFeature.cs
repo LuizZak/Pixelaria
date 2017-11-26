@@ -34,12 +34,22 @@ using SharpDX.Direct2D1;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
+using Pixelaria.Views.ExportPipeline.PipelineView.Visitor;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
-    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>, IFirstResponderDelegate<IEventHandler>
+    /// <summary>
+    /// Manages input handling of <see cref="ControlView"/> instances allowing the user to interact with control
+    /// using mouse/keyboard.
+    /// 
+    /// Also handles focus management for keyboard event receiving.
+    /// </summary>
+    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>, IFirstResponderDelegate<IEventHandler>, IControlContainer
     {
-        private readonly RootControlView _baseControl;
+        /// <summary>
+        /// Gets the base view that all control views must be added to to enable user interaction
+        /// </summary>
+        public RootControlView BaseControl { get; }
 
         /// <summary>
         /// When mouse is down on a control, this is the control that the mouse
@@ -64,15 +74,31 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public ControlViewFeature([NotNull] ExportPipelineControl control) : base(control)
         {
-            _baseControl = new RootControlView(this)
+            BaseControl = new RootControlView(this)
             {
                 Size = control.Size
             };
         }
 
-        public void AddControl([NotNull] ControlView view)
+        /// <summary>
+        /// Adds a new control to the UI
+        /// </summary>
+        public void AddControl(ControlView view)
         {
-            _baseControl.AddChild(view);
+            BaseControl.AddChild(view);
+        }
+
+        /// <summary>
+        /// Removes a control from the UI.
+        /// 
+        /// If view is not currently a control on this UI, nothing is done.
+        /// </summary>
+        public void RemoveControl(ControlView view)
+        {
+            if (!view.IsDescendentOf(BaseControl))
+                return;
+
+            view.RemoveFromParent();
         }
 
         public override void OnFixedFrame(EventArgs e)
@@ -89,7 +115,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             });
 
             var traverser = new BaseViewTraverser<object>(null, visitor);
-            traverser.Visit(_baseControl);
+            traverser.Visit(BaseControl);
         }
 
         public override void OnRender(Direct2DRenderingState state)
@@ -100,7 +126,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             // Create a renderer visitor for the root UI element we got
             var traverser = new BaseViewTraverser<ControlRenderingContext>(context, this);
-            traverser.Visit(_baseControl);
+            traverser.Visit(BaseControl);
         }
 
         public void OnVisitorEnter([NotNull] ControlRenderingContext context, BaseView view)
@@ -137,7 +163,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnResize(e);
 
-            _baseControl.Size = Control.Size;
+            BaseControl.Size = Control.Size;
         }
 
         public override void OtherFeatureConsumedMouseDown()
@@ -400,8 +426,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         [CanBeNull]
         private ControlView ControlViewUnder(Vector point, bool enabledOnly = true)
         {
-            var loc = _baseControl.ConvertFrom(point, null);
-            var control = _baseControl.HitTestControl(loc, enabledOnly);
+            var loc = BaseControl.ConvertFrom(point, null);
+            var control = BaseControl.HitTestControl(loc, enabledOnly);
 
             return control;
         }

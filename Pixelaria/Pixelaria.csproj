@@ -262,6 +262,11 @@
     <Compile Include="Views\Direct2D\PxlRenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\IControlContainer.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Visitor\BaseViewTraverser.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Visitor\BaseViewVisitor.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\PipelineLinkContextMenuFeature.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\Visitor\IBaseViewVisitor.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventHandler.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventRequest.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\Controls\IKeyboardEventHandler.cs" />

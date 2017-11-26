@@ -31,6 +31,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 
 using Device = SharpDX.Direct3D11.Device;
+using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Factory = SharpDX.DXGI.Factory;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -45,7 +46,9 @@ namespace Pixelaria.Views.ExportPipeline
         public SharpDX.Direct2D1.Factory D2DFactory { set; get; }
         public Texture2D BackBuffer { set; get; }
         public RenderTargetView RenderTargetView { set; get; }
+
         public Device Device;
+
         public Factory Factory;
         public SharpDX.DirectWrite.Factory DirectWriteFactory;
 

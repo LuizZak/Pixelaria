@@ -28,9 +28,12 @@ using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using System.Windows.Threading;
+
 using JetBrains.Annotations;
+
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+
 using SharpDX.DirectWrite;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
@@ -341,11 +344,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         }
 
         /// <summary>
-        /// Removes 
+        /// Removes a mouse recognizer from this control.
+        /// 
+        /// Mouse recognizer must be in list of registered recognizers on this control view.
         /// </summary>
-        /// <param name="recognizer"></param>
         public void RemoveMouseRecognizer([NotNull] MouseEventRecognizer recognizer)
         {
+            if (!Equals(recognizer.Control, this))
+                return;
+
             recognizer.Control = null;
 
             _recognizers.Remove(recognizer);

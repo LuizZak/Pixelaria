@@ -31,30 +31,57 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 using SharpDX.Windows;
 
 namespace Pixelaria.Views.ExportPipeline
 {
     internal class ExportPipelineControl: RenderControl
     {
+        private readonly InternalPipelineContainer _container;
+
+        // Timer used to tick the fixed step OnFixedFrame method on each control feature added
         private readonly Timer _fixedTimer;
 
-        private readonly SmoothViewPanAndZoomUiFeature _panAndZoom;
-
         private readonly Direct2DRenderer _d2DRenderer;
-
-        private readonly InternalPipelineContainer _container;
-        private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
         
+        private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
+
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
 
+        #region Intrinsic Features
+
+        private readonly SmoothViewPanAndZoomUiFeature _panAndZoom;
+        private readonly ControlViewFeature _controlViewFeature;
+
+        #endregion
+
+        /// <summary>
+        /// Container for <see cref="ControlView"/>-based controls
+        /// </summary>
+        public IControlContainer ControlContainer => _controlViewFeature;
+
+        /// <summary>
+        /// Delegate for <see cref="IPipelineContainer.NodeAdded"/>/<see cref="IPipelineContainer.NodeRemoved"/> events.
+        /// </summary>
         public delegate void PipelineNodeViewEventHandler(object sender, [NotNull] PipelineNodeViewEventArgs e);
 
+        /// <summary>
+        /// Latest registered location of the mouse on this control.
+        /// 
+        /// Is updated on every mouse event handler.
+        /// </summary>
         public Point MousePoint { get; private set; }
 
+        /// <summary>
+        /// Gets the Direct2D renderer initialized for this control
+        /// </summary>
         public IDirect2DRenderer D2DRenderer => _d2DRenderer;
 
+        /// <summary>
+        /// Gets the pipeline node and connections container for this control
+        /// </summary>
         public IPipelineContainer PipelineContainer => _container;
 
         /// <summary>
@@ -75,11 +102,14 @@ namespace Pixelaria.Views.ExportPipeline
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             
             _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
+            _controlViewFeature = new ControlViewFeature(this);
 
             AddFeature(new NodeLinkHoverLabelFeature(this));
             AddFeature(_panAndZoom);
             AddFeature(new DragAndDropUiFeature(this));
             AddFeature(new SelectionUiFeature(this));
+            AddFeature(new PipelineLinkContextMenuFeature(this));
+            AddFeature(_controlViewFeature);
 
             _d2DRenderer.AddDecorator(new ConnectedLinksDecorator(_container));
         }
@@ -1311,6 +1341,8 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         public virtual void OnRender([NotNull] Direct2DRenderingState state) { }
 
+        #region Mouse Events
+
         public virtual void OnMouseLeave([NotNull] EventArgs e) { }
         public virtual void OnMouseClick([NotNull] MouseEventArgs e) { }
         public virtual void OnMouseDoubleClick([NotNull] MouseEventArgs e) { }
@@ -1320,11 +1352,17 @@ namespace Pixelaria.Views.ExportPipeline
         public virtual void OnMouseEnter([NotNull] EventArgs e) { }
         public virtual void OnMouseWheel([NotNull] MouseEventArgs e) { }
 
+        #endregion
+
+        #region Keyboard Events
+
         public virtual void OnKeyDown([NotNull] KeyEventArgs e) { }
         public virtual void OnKeyUp([NotNull] KeyEventArgs e) { }
         public virtual void OnKeyPress([NotNull] KeyPressEventArgs e) { }
         public virtual void OnPreviewKeyDown([NotNull] PreviewKeyDownEventArgs e) { }
         public virtual void OnResize([NotNull] EventArgs e) { }
+
+        #endregion
 
         /// <summary>
         /// Consumes the current event handler call such that no further UI features

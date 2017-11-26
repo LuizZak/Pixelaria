@@ -21,10 +21,8 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
-using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using SharpDX;
 using SharpDX.DirectWrite;
@@ -52,17 +50,24 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
 
-        void AddDecorator(IRenderingDecorator decorator);
+        /// <summary>
+        /// Adds a new rendering decorator to this Direct2D renderer.
+        /// 
+        /// Decorators can affect some known rendering properties during rendering steps as the renderer
+        /// visits the related views and prepares to render them.
+        /// </summary>
+        void AddDecorator([NotNull] IRenderingDecorator decorator);
 
-        void RemoveDecorator(IRenderingDecorator decorator);
+        /// <summary>
+        /// Removes a decorator from this Direct2D renderer.
+        /// </summary>
+        void RemoveDecorator([NotNull] IRenderingDecorator decorator);
         
-        void PushTemporaryDecorator(IRenderingDecorator decorator);
-
         /// <summary>
         /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.
         /// </summary>
-        void WithPreparedTextLayout(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull] Action<TextLayout, TextRendererBase> perform);
+        void WithPreparedTextLayout(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull, InstantHandle] Action<TextLayout, TextRendererBase> perform);
     }
 
     /// <summary>

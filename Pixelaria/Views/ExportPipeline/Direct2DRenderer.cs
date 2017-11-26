@@ -26,16 +26,20 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
+
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
+
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
+
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
@@ -64,6 +68,11 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly ExportPipelineControl.IPipelineContainer _container;
         private readonly Control _control;
         private readonly TextColorRenderer _textColorRenderer = new TextColorRenderer();
+        
+        /// <summary>
+        /// A small 32x32 box used to draw shadow boxes for labels.
+        /// </summary>
+        private SharpDX.Direct2D1.Bitmap _shadowBox;
 
         /// <summary>
         /// For rendering title of pipeline nodes
@@ -71,12 +80,7 @@ namespace Pixelaria.Views.ExportPipeline
         private TextFormat _nodeTitlesTextFormat;
 
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
-
-        /// <summary>
-        /// List of decorators that is removed after paint operations complete
-        /// </summary>
-        protected readonly List<IRenderingDecorator> TemporaryDecorators = new List<IRenderingDecorator>();
-
+        
         private readonly D2DImageResources _imageResources;
         
         /// <summary>
@@ -85,7 +89,7 @@ namespace Pixelaria.Views.ExportPipeline
         private Rectangle ClipRectangle { get; set; }
         
         /// <summary>
-        /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
+        /// Gets or sets the background color that this <see cref="Direct2DRenderer"/> uses to clear the display area
         /// </summary>
         public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
 
@@ -118,6 +122,8 @@ namespace Pixelaria.Views.ExportPipeline
             if (!disposing)
                 return;
 
+            _shadowBox.Dispose();
+
             _nodeTitlesTextFormat.Dispose();
 
             _textColorRenderer.DefaultBrush.Dispose();
@@ -137,7 +143,15 @@ namespace Pixelaria.Views.ExportPipeline
                 TextAlignment = TextAlignment.Leading,
                 ParagraphAlignment = ParagraphAlignment.Center
             };
+
+            // Create shadow box image
+            using (var bitmap = new Bitmap(32, 32))
+            {
+                _shadowBox = CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            }
         }
+
+        #region View Rendering
 
         public void Render([NotNull] Direct2DRenderingState state)
         {
@@ -147,7 +161,7 @@ namespace Pixelaria.Views.ExportPipeline
             _textColorRenderer.DefaultBrush.Dispose();
             _textColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
 
-            var decorators = RenderingDecorators.Concat(TemporaryDecorators).ToList();
+            var decorators = RenderingDecorators;
 
             ClipRectangle = new Rectangle(Point.Empty, _control.Size);
 
@@ -158,7 +172,7 @@ namespace Pixelaria.Views.ExportPipeline
             RenderInView(_container.UiContainerView, state, decorators.ToArray());
         }
 
-        protected void RenderInView([NotNull] BaseView view, [NotNull] Direct2DRenderingState state, IRenderingDecorator[] decorators)
+        protected void RenderInView([NotNull] BaseView view, [NotNull] Direct2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
         {
             // Render all remaining objects
             var labels = view.Children.OfType<LabelView>().ToArray();
@@ -184,22 +198,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        public void AddDecorator(IRenderingDecorator decorator)
-        {
-            RenderingDecorators.Add(decorator);
-        }
-
-        public void RemoveDecorator(IRenderingDecorator decorator)
-        {
-            RenderingDecorators.Remove(decorator);
-        }
-
-        public void PushTemporaryDecorator(IRenderingDecorator decorator)
-        {
-            TemporaryDecorators.Add(decorator);
-        }
-
-        public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Direct2DRenderingState state, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
+        public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Direct2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             state.PushingTransform(() =>
             {
@@ -354,7 +353,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        private void RenderNodeLinkView([NotNull] Direct2DRenderingState state, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
+        private void RenderNodeLinkView([NotNull] Direct2DRenderingState state, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             state.PushingTransform(() =>
             {
@@ -399,7 +398,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
+        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             renderingState.PushingTransform(() =>
             {
@@ -472,12 +471,12 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void RenderLabelView([NotNull] LabelView labelView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IRenderingDecorator[] decorators)
+        public void RenderLabelView([NotNull] LabelView labelView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             renderingState.PushingTransform(() =>
             {
                 renderingState.D2DRenderTarget.Transform = new Matrix3x2(labelView.GetAbsoluteTransform().Elements);
-
+                
                 var visibleArea =
                     labelView
                         .GetFullBounds().Corners
@@ -572,55 +571,6 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void WithPreparedTextLayout(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
-        {
-            if (_lastRenderingState == null)
-                throw new InvalidOperationException("Direct2D renderer has no previous rendering state to base this call on.");
-            
-            using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor))
-            {
-                var disposes = new List<IDisposable>();
-
-                foreach (var textSegment in text.GetTextSegments())
-                {
-                    if (textSegment.HasAttribute<ForegroundColorAttribute>())
-                    {
-                        var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
-
-                        var segmentBrush =
-                            new SolidColorBrush(_lastRenderingState.D2DRenderTarget,
-                                colorAttr.ForeColor.ToColor4());
-
-                        disposes.Add(segmentBrush);
-
-                        layout.SetDrawingEffect(segmentBrush,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-                    if (textSegment.HasAttribute<TextFontAttribute>())
-                    {
-                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                        layout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                        layout.SetFontSize(fontAttr.Font.Size,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-                }
-
-                var prev = _textColorRenderer.DefaultBrush;
-                _textColorRenderer.DefaultBrush = brush;
-                
-                perform(layout, _textColorRenderer);
-
-                _textColorRenderer.DefaultBrush = prev;
-
-                foreach (var disposable in disposes)
-                {
-                    disposable.Dispose();
-                }
-            }
-        }
-
         public void RenderBackground([NotNull] Direct2DRenderingState renderingState)
         {
             renderingState.D2DRenderTarget.Clear(BackColor.ToColor4());
@@ -696,7 +646,72 @@ namespace Pixelaria.Views.ExportPipeline
                 }
             });
         }
-        
+
+        public void WithPreparedTextLayout(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
+        {
+            if (_lastRenderingState == null)
+                throw new InvalidOperationException("Direct2D renderer has no previous rendering state to base this call on.");
+
+            using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor))
+            {
+                var disposes = new List<IDisposable>();
+
+                foreach (var textSegment in text.GetTextSegments())
+                {
+                    if (textSegment.HasAttribute<ForegroundColorAttribute>())
+                    {
+                        var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
+
+                        var segmentBrush =
+                            new SolidColorBrush(_lastRenderingState.D2DRenderTarget,
+                                colorAttr.ForeColor.ToColor4());
+
+                        disposes.Add(segmentBrush);
+
+                        layout.SetDrawingEffect(segmentBrush,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+                    if (textSegment.HasAttribute<TextFontAttribute>())
+                    {
+                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+
+                        layout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        layout.SetFontSize(fontAttr.Font.Size,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+                }
+
+                var prev = _textColorRenderer.DefaultBrush;
+                _textColorRenderer.DefaultBrush = brush;
+
+                perform(layout, _textColorRenderer);
+
+                _textColorRenderer.DefaultBrush = prev;
+
+                foreach (var disposable in disposes)
+                {
+                    disposable.Dispose();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Decorators
+
+        public void AddDecorator(IRenderingDecorator decorator)
+        {
+            RenderingDecorators.Add(decorator);
+        }
+
+        public void RemoveDecorator(IRenderingDecorator decorator)
+        {
+            RenderingDecorators.Remove(decorator);
+        }
+
+        #endregion
+
         #region LabelView Size Provider
 
         public SizeF CalculateTextSize(LabelView labelView)
@@ -741,6 +756,8 @@ namespace Pixelaria.Views.ExportPipeline
         }
 
         #endregion
+
+        #region Static helpers
 
         public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
         {
@@ -845,6 +862,8 @@ namespace Pixelaria.Views.ExportPipeline
             return verticalAlign;
         }
 
+        #endregion
+
         private class TextMetrics : ILabelViewTextMetricsProvider
         {
             private readonly Direct2DRenderer _renderer;
@@ -912,88 +931,6 @@ namespace Pixelaria.Views.ExportPipeline
                     return action(textFormat, textLayout);
                 }
             }
-        }
-    }
-    
-    /// <summary>
-    /// A visitor that walks through a hierarchy of BaseView instances passing them to a base view visitor,
-    /// along with a shared state.
-    /// </summary>
-    internal sealed class BaseViewTraverser<T>
-    {
-        private readonly T _state;
-        private readonly IBaseViewVisitor<T> _viewVisitor;
-
-        public BaseViewTraverser(T state, [NotNull] IBaseViewVisitor<T> viewVisitor)
-        {
-            _state = state;
-            _viewVisitor = viewVisitor;
-        }
-
-        public void Visit([NotNull] BaseView view)
-        {
-            _viewVisitor.OnVisitorEnter(_state, view);
-
-            _viewVisitor.VisitView(_state, view);
-
-            // Render children
-            foreach (var child in view.Children)
-            {
-                Visit(child);
-            }
-
-            _viewVisitor.OnVisitorExit(_state, view);
-        }
-    }
-    
-    /// <summary>
-    /// Interface for objects that deal with visiting of base view instances with their own logic.
-    /// </summary>
-    internal interface IBaseViewVisitor<in T>
-    {
-        /// <summary>
-        /// Called when the visitor first arrives at a view
-        /// </summary>
-        void OnVisitorEnter(T state, [NotNull] BaseView view);
-
-        /// <summary>
-        /// Called to apply a visit logic to a view
-        /// </summary>
-        void VisitView(T state, [NotNull] BaseView view);
-
-        /// <summary>
-        /// Called when the last child of a view has been visited and traversal will 
-        /// continue up the siblings/parent chain
-        /// </summary>
-        void OnVisitorExit(T state, [NotNull] BaseView view);
-    }
-
-    /// <summary>
-    /// A generic implementation of IBaseViewVisitor that calls a closure on each call to
-    /// <see cref="IBaseViewVisitor{T}.VisitView"/>.
-    /// </summary>
-    internal class BaseViewVisitor<T> : IBaseViewVisitor<T>
-    {
-        private readonly Action<T, BaseView> _onVisit;
-
-        internal BaseViewVisitor(Action<T, BaseView> onVisit)
-        {
-            _onVisit = onVisit;
-        }
-
-        public void OnVisitorEnter(T state, BaseView view)
-        {
-
-        }
-
-        public void VisitView(T state, BaseView view)
-        {
-            _onVisit(state, view);
-        }
-
-        public void OnVisitorExit(T state, BaseView view)
-        {
-
         }
     }
 

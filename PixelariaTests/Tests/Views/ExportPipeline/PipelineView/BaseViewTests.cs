@@ -100,5 +100,36 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView
             Assert.AreEqual(new Vector(5, 5), pt2);
             //Assert.AreEqual(new Vector(5, 5), Point.Round(pt3));
         }
+
+        [TestMethod]
+        public void TestIsDescendentOf()
+        {
+            var sut = new BaseView();
+            var parent = new BaseView();
+            parent.AddChild(sut);
+
+            Assert.IsTrue(sut.IsDescendentOf(parent));
+        }
+
+        [TestMethod]
+        public void TestIsDescendentOfFalse()
+        {
+            var sut = new BaseView();
+            var nonParent = new BaseView();
+
+            Assert.IsFalse(sut.IsDescendentOf(nonParent));
+        }
+
+        [TestMethod]
+        public void TestIsDescendentOfIndirectParent()
+        {
+            var sut = new BaseView();
+            var parent = new BaseView();
+            var grandparent = new BaseView();
+            parent.AddChild(sut);
+            grandparent.AddChild(parent);
+
+            Assert.IsTrue(sut.IsDescendentOf(grandparent));
+        }
     }
 }
