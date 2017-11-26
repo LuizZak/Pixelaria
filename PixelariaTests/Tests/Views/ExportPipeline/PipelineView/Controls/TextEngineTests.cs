@@ -1306,6 +1306,20 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             Assert.AreEqual("test", buffer.Text);
         }
 
+        [TestMethod]
+        public void TestPasteBreaksTextInsertUndoChain()
+        {
+            var paste = new TestClipboard("test");
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer) { TextClipboard = paste };
+            sut.Paste();
+            sut.InsertText("t");
+
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual("test", buffer.Text);
+        }
+
         #region Text Insert Undo Task
 
         [TestMethod]

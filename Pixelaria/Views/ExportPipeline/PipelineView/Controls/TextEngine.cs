@@ -471,11 +471,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         {
             if (!TextClipboard.ContainsText())
                 return;
-
+            
             FlushTextInsertUndo();
 
             string text = TextClipboard.GetText();
             InsertText(text);
+
+            FlushTextInsertUndo();
         }
 
         /// <summary>
