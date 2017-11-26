@@ -129,7 +129,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
         /// If the offset is not exactly at the end of the current undo run, a new undo run is started
         /// and the current undo run is flushed (via <see cref="FlushTextInsertUndo"/>).
         /// </summary>
-        private void UpdateTextInsertUndo(string replacing, string text, int offset)
+        private void UpdateTextInsertUndo(string replacing, string text, Caret caret)
         {
             if (_isPerformingUndoRedo)
                 return;
@@ -139,14 +139,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             {
                 _undoSystem.StartGroupUndo("Insert text");
             }
-            else if (replacing.Length != 0 || current.Caret.Start + current.After.Length != offset || current.Caret.Position != CaretPosition.Start)
+            else if (replacing.Length != 0 || current.Caret.Start + current.After.Length != caret.Start || current.Caret.Position != CaretPosition.Start)
             {
                 FlushTextInsertUndo();
                 
                 _undoSystem.StartGroupUndo("Insert text");
             }
 
-            _currentInputUndoRun = new TextInsertUndo(this, new Caret(offset), replacing, text);
+            _currentInputUndoRun = new TextInsertUndo(this, caret, replacing, text);
             RegisterUndo(_currentInputUndoRun);
         }
 
@@ -350,12 +350,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
             if (Caret.Start == TextBuffer.TextLength)
             {
                 TextBuffer.Append(text);
-                UpdateTextInsertUndo("", text, Caret.Start);
+                UpdateTextInsertUndo("", text, Caret);
             }
             else if (Caret.Length == 0)
             {
                 TextBuffer.Insert(Caret.Start, text);
-                UpdateTextInsertUndo("", text, Caret.Start);
+                UpdateTextInsertUndo("", text, Caret);
             }
             else
             {
@@ -363,7 +363,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView.Controls
 
                 TextBuffer.Replace(Caret.Start, Caret.Length, text);
                 
-                UpdateTextInsertUndo(replaced, text, Caret.Start);
+                UpdateTextInsertUndo(replaced, text, Caret);
             }
 
             SetCaret(new TextRange(Caret.Start + text.Length, 0));

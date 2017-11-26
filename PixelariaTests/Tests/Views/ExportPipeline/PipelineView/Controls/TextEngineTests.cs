@@ -1271,6 +1271,41 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             Assert.AreEqual("", buffer.Text);
         }
 
+        [TestMethod]
+        public void TestPasteUndoRespectsSelectedRegion()
+        {
+            var paste = new TestClipboard("test");
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer) {TextClipboard = paste};
+            sut.InsertText("T");
+            sut.InsertText("e");
+            sut.SelectToStart();
+            sut.Paste();
+            
+            sut.UndoSystem.Undo();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 2), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestReplacingPasteUndoAndRedo()
+        {
+            var paste = new TestClipboard("test");
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer) { TextClipboard = paste };
+            sut.InsertText("T");
+            sut.InsertText("e");
+            sut.SelectToStart();
+            sut.Paste();
+
+            sut.UndoSystem.Undo();
+            sut.UndoSystem.Undo();
+            sut.UndoSystem.Redo();
+            sut.UndoSystem.Redo();
+
+            Assert.AreEqual("test", buffer.Text);
+        }
+
         #region Text Insert Undo Task
 
         [TestMethod]
@@ -1318,6 +1353,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             sut.Undo();
 
             Assert.AreEqual(beforeText, buffer.Text);
+            Assert.AreEqual(caret, sut.Caret);
         }
 
         [TestMethod]
@@ -1502,6 +1538,31 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.PipelineView.Controls
             public void Replace(int index, int length, string text)
             {
                 Text = Text.Remove(index, length).Insert(index, text);
+            }
+        }
+
+        internal class TestClipboard : ITextClipboard
+        {
+            public string Value { get; set; }
+            
+            public TestClipboard(string value = "")
+            {
+                Value = value;
+            }
+
+            public string GetText()
+            {
+                return Value;
+            }
+
+            public void SetText(string text)
+            {
+                Value = text;
+            }
+
+            public bool ContainsText()
+            {
+                return true;
             }
         }
     }
