@@ -26,7 +26,7 @@ using System.IO;
 using System.Reflection;
 using FastBitmapLib;
 using JetBrains.Annotations;
-using Pixelaria.Utils;
+using PixCore.Colors;
 
 namespace Pixelaria.Filters
 {

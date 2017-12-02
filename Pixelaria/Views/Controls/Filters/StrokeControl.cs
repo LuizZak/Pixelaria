@@ -29,12 +29,12 @@ using Pixelaria.Filters;
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles an OffsetFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles an <see cref="StrokeFilter"/>
     /// </summary>
-    internal partial class StrokeControl : FilterControl
+    internal partial class StrokeControl : FilterControl<StrokeFilter>
     {
         /// <summary>
-        /// Initializes a new instance of the StrokeControl class
+        /// Initializes a new instance of the <see cref="StrokeControl"/> class
         /// </summary>
         public StrokeControl()
         {
@@ -42,7 +42,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this StrokeControl
+        /// Initializes this <see cref="StrokeControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -62,21 +62,16 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="StrokeControl"/> based on the data from the
+        /// given <see cref="StrokeFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="StrokeFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(StrokeFilter referenceFilter)
         {
-            var strokeFilter = referenceFilter as StrokeFilter;
-
-            if (strokeFilter == null)
-                return;
-
-            anud_strokeSize.Value = strokeFilter.StrokeRadius;
-            cp_color.BackColor = strokeFilter.StrokeColor;
-            cb_knockout.Checked = strokeFilter.KnockoutImage;
-            cb_smooth.Checked = strokeFilter.Smooth;
+            anud_strokeSize.Value = referenceFilter.StrokeRadius;
+            cp_color.BackColor = referenceFilter.StrokeColor;
+            cb_knockout.Checked = referenceFilter.KnockoutImage;
+            cb_smooth.Checked = referenceFilter.Smooth;
         }
 
         // 
@@ -84,16 +79,16 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cp_color_Click(object sender, EventArgs e)
         {
-            ColorDialog cd = new ColorDialog { AllowFullOpen = true };
+            var cd = new ColorDialog { AllowFullOpen = true };
 
-            if (cd.ShowDialog(FindForm()) == DialogResult.OK)
-            {
-                cp_color.BackColor = cd.Color;
+            if (cd.ShowDialog(FindForm()) != DialogResult.OK)
+                return;
 
-                ((StrokeFilter)filter).StrokeColor = cd.Color;
+            cp_color.BackColor = cd.Color;
 
-                FireFilterUpdated();
-            }
+            filter.StrokeColor = cd.Color;
+
+            FireFilterUpdated();
         }
 
         // 
@@ -101,7 +96,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_strokeSize_ValueChanged(object sender, EventArgs e)
         {
-            ((StrokeFilter)filter).StrokeRadius = (int)anud_strokeSize.Value;
+            filter.StrokeRadius = (int)anud_strokeSize.Value;
             FireFilterUpdated();
         }
 
@@ -110,7 +105,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_knockout_CheckedChanged(object sender, EventArgs e)
         {
-            ((StrokeFilter)filter).KnockoutImage = cb_knockout.Checked;
+            filter.KnockoutImage = cb_knockout.Checked;
             FireFilterUpdated();
         }
 
@@ -119,7 +114,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_smooth_CheckedChanged(object sender, EventArgs e)
         {
-            ((StrokeFilter)filter).Smooth = cb_smooth.Checked;
+            filter.Smooth = cb_smooth.Checked;
             FireFilterUpdated();
         }
     }

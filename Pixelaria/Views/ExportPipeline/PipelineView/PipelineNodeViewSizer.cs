@@ -24,6 +24,7 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
+using Pixelaria.PixUI;
 using Pixelaria.Utils;
 using Pixelaria.Utils.Layouting;
 

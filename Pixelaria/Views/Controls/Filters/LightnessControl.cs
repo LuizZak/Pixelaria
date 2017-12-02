@@ -22,18 +22,18 @@
 
 using System;
 using System.Drawing;
-
+using PixCore.Controls.ColorControls;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a LightnessFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles a <see cref="LightnessFilter"/>
     /// </summary>
-    internal partial class LightnessControl : FilterControl
+    internal partial class LightnessControl : FilterControl<LightnessFilter>
     {
         /// <summary>
-        /// Initializes a new instance of the LightnessControl class
+        /// Initializes a new instance of the <see cref="LightnessControl"/> class
         /// </summary>
         public LightnessControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="LightnessControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -50,33 +50,32 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (filter == null)
             {
-                filter = new LightnessFilter();
-                ((LightnessFilter)filter).Lightness = 100;
-                ((LightnessFilter)filter).Relative = false;
+                filter = new LightnessFilter
+                {
+                    Lightness = 100,
+                    Relative = false
+                };
             }
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="LightnessControl"/> based on the data from the
+        /// given <see cref="LightnessFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="LightnessFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(LightnessFilter referenceFilter)
         {
-            if (!(referenceFilter is LightnessFilter))
-                return;
-
-            cs_lightness.CurrentValue = ((LightnessFilter)referenceFilter).Lightness / 100.0f;
-            cb_relative.Checked = ((LightnessFilter)referenceFilter).Relative;
-            cb_multiply.Checked = ((LightnessFilter)referenceFilter).Multiply;
+            cs_lightness.CurrentValue = referenceFilter.Lightness / 100.0f;
+            cb_relative.Checked = referenceFilter.Relative;
+            cb_multiply.Checked = referenceFilter.Multiply;
         }
 
         // 
         // Lightness slider value changed
         // 
-        private void cs_lightness_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_lightness_ColorChanged(object sender, ColorChangedEventArgs e)
         {
-            ((LightnessFilter)filter).Lightness = (int)(cs_lightness.CurrentValue * 100);
+            filter.Lightness = (int)(cs_lightness.CurrentValue * 100);
 
             FireFilterUpdated();
         }
@@ -86,7 +85,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_relative_CheckedChanged(object sender, EventArgs e)
         {
-            ((LightnessFilter)filter).Relative = cb_relative.Checked;
+            filter.Relative = cb_relative.Checked;
 
             FireFilterUpdated();
         }
@@ -98,7 +97,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             cb_relative.Enabled = !cb_multiply.Checked;
 
-            ((LightnessFilter)filter).Multiply = cb_multiply.Checked;
+            filter.Multiply = cb_multiply.Checked;
 
             FireFilterUpdated();
         }

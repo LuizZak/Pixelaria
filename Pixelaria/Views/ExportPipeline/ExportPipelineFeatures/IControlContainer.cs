@@ -21,7 +21,7 @@
 */
 
 using JetBrains.Annotations;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
+using Pixelaria.PixUI.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {

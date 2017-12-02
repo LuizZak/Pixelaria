@@ -31,9 +31,11 @@ using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
+using Pixelaria.PixUI;
+using Pixelaria.PixUI.Controls;
+using Pixelaria.PixUI.Controls.Text;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline
 {

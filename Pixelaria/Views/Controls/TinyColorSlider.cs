@@ -21,7 +21,7 @@
 */
 
 using System.Drawing;
-using Pixelaria.Views.Controls.ColorControls;
+using PixCore.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls
 {

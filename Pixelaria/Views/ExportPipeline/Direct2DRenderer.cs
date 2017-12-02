@@ -30,10 +30,10 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 
 using Pixelaria.ExportPipeline;
+using Pixelaria.PixUI;
+using Pixelaria.PixUI.Controls;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
-
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;

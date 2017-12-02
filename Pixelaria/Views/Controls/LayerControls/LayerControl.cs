@@ -29,7 +29,7 @@ using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
-using Pixelaria.Views.Controls.ColorControls;
+using PixCore.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.LayerControls
 {

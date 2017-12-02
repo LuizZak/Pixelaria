@@ -153,20 +153,20 @@ namespace Pixelaria.Filters
         /// <param name="filterName">The name of the filter to create the FilterControl out of</param>
         /// <returns>The created FilterControl, or null if the filter does not exists</returns>
         [CanBeNull]
-        public FilterControl CreateFilterControl(string filterName)
+        public IFilterControl CreateFilterControl(string filterName)
         {
-            FilterControl filterControl = null;
+            IFilterControl filterControl = null;
 
             foreach (var item in _filterItems)
             {
-                if (item.FilterName == filterName)
-                {
-                    var constructorInfo = item.FilterControlType.GetConstructor(Type.EmptyTypes);
-                    if (constructorInfo != null)
-                        filterControl = constructorInfo.Invoke(null) as FilterControl;
+                if (item.FilterName != filterName)
+                    continue;
 
-                    break;
-                }
+                var constructorInfo = item.FilterControlType.GetConstructor(Type.EmptyTypes);
+                if (constructorInfo != null)
+                    filterControl = constructorInfo.Invoke(null) as IFilterControl;
+
+                break;
             }
 
             return filterControl;
@@ -395,9 +395,9 @@ namespace Pixelaria.Filters
         /// Makes an array of filter controls based on the data stored on this FilterPreset
         /// </summary>
         /// <returns>An array of filter controls based on the data stored on this FilterPreset</returns>
-        public FilterControl[] MakeFilterControls()
+        public IFilterControl[] MakeFilterControls()
         {
-            var filterControls = new FilterControl[_filters.Length];
+            var filterControls = new IFilterControl[_filters.Length];
 
             for(int i = 0; i < _filters.Length; i++)
             {

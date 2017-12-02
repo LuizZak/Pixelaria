@@ -28,10 +28,11 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
+using Pixelaria.PixUI;
+using Pixelaria.PixUI.Controls;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 using SharpDX.Windows;
 
 namespace Pixelaria.Views.ExportPipeline

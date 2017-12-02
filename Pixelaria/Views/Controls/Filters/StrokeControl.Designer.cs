@@ -1,26 +1,4 @@
-﻿/*
-    Pixelaria
-    Copyright (C) 2013 Luiz Fernando Silva
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-    The full license may be found on the License.txt file attached to the
-    base directory of this project.
-*/
-
-using Pixelaria.Views.Controls.ColorControls;
+﻿using PixCore.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -56,7 +34,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.label1 = new System.Windows.Forms.Label();
             this.cb_knockout = new System.Windows.Forms.CheckBox();
             this.cb_smooth = new System.Windows.Forms.CheckBox();
-            this.cp_color = new Pixelaria.Views.Controls.ColorControls.ColorPanel();
+            this.cp_color = new PixCore.Controls.ColorControls.ColorPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -127,7 +105,7 @@ namespace Pixelaria.Views.Controls.Filters
             // cp_color
             // 
             this.cp_color.BackColor = System.Drawing.Color.White;
-            this.cp_color.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.cp_color.BackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.cp_color.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cp_color.Location = new System.Drawing.Point(50, 3);
             this.cp_color.Name = "cp_color";

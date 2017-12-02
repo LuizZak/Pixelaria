@@ -26,6 +26,7 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline;
+using Pixelaria.PixUI;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 

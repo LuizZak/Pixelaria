@@ -1,26 +1,4 @@
-﻿/*
-    Pixelaria
-    Copyright (C) 2013 Luiz Fernando Silva
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-    The full license may be found on the License.txt file attached to the
-    base directory of this project.
-*/
-
-namespace Pixelaria.Views.ModelViews
+﻿namespace Pixelaria.Views.ModelViews
 {
     partial class AnimationSheetView
     {
@@ -542,14 +520,14 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_sheetPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.zpb_sheetPreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_sheetPreview.BackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.zpb_sheetPreview.DefaultCompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
             this.zpb_sheetPreview.DefaultFillMode = Pixelaria.Views.Controls.OperationFillMode.SolidFillFirstColor;
             this.zpb_sheetPreview.EditingEnabled = true;
             this.zpb_sheetPreview.Location = new System.Drawing.Point(317, 90);
             this.zpb_sheetPreview.Name = "zpb_sheetPreview";
             this.zpb_sheetPreview.NotifyTo = null;
-            this.zpb_sheetPreview.PictureBoxBackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_sheetPreview.PictureBoxBackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.helpProvider1.SetShowHelp(this.zpb_sheetPreview, true);
             this.zpb_sheetPreview.Size = new System.Drawing.Size(285, 379);
             this.zpb_sheetPreview.TabIndex = 0;

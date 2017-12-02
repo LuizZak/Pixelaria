@@ -29,7 +29,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
-
+using PixCore.Colors;
 using Pixelaria.Data;
 
 namespace Pixelaria.Utils

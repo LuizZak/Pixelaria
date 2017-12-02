@@ -236,16 +236,13 @@
     <Compile Include="ExportPipeline\Steps\FilterPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SinkPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
+    <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />
+    <Compile Include="PixUI\TextRange.cs" />
     <Compile Include="Utils\DrawingUtilities.cs" />
     <Compile Include="Utils\Layouting\LayoutingHelper.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
-    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.Designer.cs">
-      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="ExportPipeline\PipelineHelpers.cs" />
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
@@ -262,22 +259,26 @@
     <Compile Include="Views\Direct2D\PxlRenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewRxUtils.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\IControlContainer.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Visitor\BaseViewTraverser.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Visitor\BaseViewVisitor.cs" />
+    <Compile Include="PixUI\Controls\ContextMenu\ContextMenuControl.cs" />
+    <Compile Include="PixUI\Controls\ContextMenu\ContextMenuDropDownItem.cs" />
+    <Compile Include="PixUI\Controls\ContextMenu\ContextMenuItem.cs" />
+    <Compile Include="PixUI\Visitor\BaseViewTraverser.cs" />
+    <Compile Include="PixUI\Visitor\BaseViewVisitor.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\PipelineLinkContextMenuFeature.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Visitor\IBaseViewVisitor.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventHandler.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IEventRequest.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IKeyboardEventHandler.cs" />
+    <Compile Include="PixUI\Visitor\IBaseViewVisitor.cs" />
+    <Compile Include="PixUI\Controls\IEventHandler.cs" />
+    <Compile Include="PixUI\Controls\IEventRequest.cs" />
+    <Compile Include="PixUI\Controls\IKeyboardEventHandler.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\IMouseEventHandler.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ITextEngine.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\RootControlView.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\StringTextualBuffer.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\TextEngine.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\TextField.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\ImageResource.cs" />
+    <Compile Include="PixUI\Controls\IMouseEventHandler.cs" />
+    <Compile Include="PixUI\Controls\Text\ITextEngine.cs" />
+    <Compile Include="PixUI\Controls\RootControlView.cs" />
+    <Compile Include="PixUI\Controls\Text\StringTextualBuffer.cs" />
+    <Compile Include="PixUI\Controls\Text\TextEngine.cs" />
+    <Compile Include="PixUI\Controls\TextField.cs" />
+    <Compile Include="PixUI\ImageResource.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\IPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeViewSizer.cs" />
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
@@ -285,22 +286,22 @@
     </Compile>
     <Compile Include="Views\ExportPipeline\D2DImageResources.cs" />
     <Compile Include="Views\ExportPipeline\Direct2DRenderingState.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ButtonControl.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ControlView.cs" />
+    <Compile Include="PixUI\Controls\ButtonControl.cs" />
+    <Compile Include="PixUI\Controls\ControlView.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\ExportPipeline\Direct2DRenderer.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\LabelViewControl.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ScrollBarControl.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\ScrollViewControl.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\Controls\SelfRenderingBaseView.cs" />
+    <Compile Include="PixUI\Controls\LabelViewControl.cs" />
+    <Compile Include="PixUI\Controls\ScrollBarControl.cs" />
+    <Compile Include="PixUI\Controls\ScrollViewControl.cs" />
+    <Compile Include="PixUI\Controls\SelfRenderingBaseView.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SmoothViewPanAndZoomUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\IDirect2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\BaseView.cs" />
+    <Compile Include="PixUI\BaseView.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />
@@ -361,7 +362,6 @@
     <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils\AhslColor.cs" />
     <Compile Include="Views\Controls\LabeledPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -383,27 +383,6 @@
     <Compile Include="Views\Controls\PaintTools\LinePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractDraggingPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractPaintTool.cs" />
-    <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorPicker.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorPicker.Designer.cs">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSlider.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSlider.Designer.cs">
-      <DependentUpon>ColorSlider.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.Designer.cs">
-      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\CPictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -602,10 +581,10 @@
       <DependentUpon>NewAnimationView.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils\AABB.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\BezierPathView.cs" />
+    <Compile Include="PixUI\BezierPathView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\GraphLayout.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\AttributedText.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\LabelView.cs" />
+    <Compile Include="PixUI\AttributedText.cs" />
+    <Compile Include="PixUI\LabelView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeLinkView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeView.cs" />
     <Compile Include="Utils\Vector.cs" />
@@ -628,18 +607,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\AssistedNumericUpDown.resx">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPicker.resx">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPickerDialog.resx">
-      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSlider.resx">
-      <DependentUpon>ColorSlider.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSwatchControl.resx">
-      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\FilterSelector.resx">
       <DependentUpon>FilterSelector.cs</DependentUpon>
@@ -747,6 +714,7 @@
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Pixelaria.licenseheader" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -791,9 +759,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\checkers_pattern.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\folder_open.png" />
@@ -924,7 +889,6 @@
     <None Include="Resources\line_cursor.cur" />
     <None Include="Resources\circle_cursor.cur" />
     <None Include="Resources\frame_edit_icon.png" />
-    <None Include="Resources\color_picker.png" />
     <None Include="Resources\zoom_icon.png" />
     <None Include="Resources\edit-redo.png" />
     <None Include="Resources\edit-undo.png" />
@@ -951,7 +915,12 @@
     <None Include="Resources\action_delete1.png" />
     <None Include="Resources\pxl_icon_256x256.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PixCore\PixCore.csproj">
+      <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
+      <Name>PixCore</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>

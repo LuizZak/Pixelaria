@@ -261,16 +261,6 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
-        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap checkers_pattern {
-            get {
-                object obj = ResourceManager.GetObject("checkers_pattern", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Consulta um recurso localizado do tipo System.Byte[].
         /// </summary>
         internal static byte[] circle_cursor {
@@ -286,16 +276,6 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap circle_icon {
             get {
                 object obj = ResourceManager.GetObject("circle_icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap color_picker {
-            get {
-                object obj = ResourceManager.GetObject("color_picker", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

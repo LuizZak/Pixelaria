@@ -136,7 +136,7 @@
             this.tcs_transparency.Size = new System.Drawing.Size(96, 10);
             this.tcs_transparency.TabIndex = 9;
             this.toolTip1.SetToolTip(this.tcs_transparency, "Change layer display transparency");
-            this.tcs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.tcs_transparency_ColorChanged);
+            this.tcs_transparency.ColorChanged += new PixCore.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.tcs_transparency_ColorChanged);
             // 
             // txt_layerNameEditBox
             // 
@@ -155,7 +155,7 @@
             // 
             this.pb_layerImage.AllowDrag = false;
             this.pb_layerImage.AllowScrollbars = false;
-            this.pb_layerImage.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.pb_layerImage.BackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.pb_layerImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pb_layerImage.ClipBackgroundToImage = true;
             this.pb_layerImage.HorizontalScrollValue = 0;

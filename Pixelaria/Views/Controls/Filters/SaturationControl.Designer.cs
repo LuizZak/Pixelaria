@@ -31,7 +31,7 @@
             this.cb_relative = new System.Windows.Forms.CheckBox();
             this.cb_keepGrays = new System.Windows.Forms.CheckBox();
             this.cb_multiply = new System.Windows.Forms.CheckBox();
-            this.cs_saturation = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_saturation = new PixCore.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // cb_relative
@@ -71,19 +71,19 @@
             // 
             // cs_saturation
             // 
-            this.cs_saturation.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 1F, 0.5F);
+            this.cs_saturation.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 1F, 0.5F);
             this.cs_saturation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_saturation.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Saturation;
+            this.cs_saturation.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Saturation;
             this.cs_saturation.CurrentValue = 1F;
             this.cs_saturation.CustomColorTitle = "Custom";
-            this.cs_saturation.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_saturation.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_saturation.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_saturation.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_saturation.Location = new System.Drawing.Point(1, 1);
             this.cs_saturation.Name = "cs_saturation";
             this.cs_saturation.Size = new System.Drawing.Size(532, 38);
             this.cs_saturation.TabIndex = 8;
-            this.cs_saturation.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_saturation_ColorChanged);
+            this.cs_saturation.ColorChanged += new PixCore.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_saturation_ColorChanged);
             // 
             // SaturationControl
             // 
@@ -105,6 +105,6 @@
         private System.Windows.Forms.CheckBox cb_relative;
         private System.Windows.Forms.CheckBox cb_keepGrays;
         private System.Windows.Forms.CheckBox cb_multiply;
-        private ColorControls.ColorSlider cs_saturation;
+        private PixCore.Controls.ColorControls.ColorSlider cs_saturation;
     }
 }

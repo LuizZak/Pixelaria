@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
         /// <param name="bitmap">A bitmap to apply the filter to</param>
-        public ImageFilterView([NotNull] FilterControl[] filters, [NotNull] Bitmap bitmap)
+        public ImageFilterView([NotNull] IFilterControl[] filters, [NotNull] Bitmap bitmap)
             : this(bitmap)
         {
             fs_filters.LoadFilters(filters);

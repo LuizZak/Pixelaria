@@ -22,18 +22,17 @@
 
 using System;
 using System.Drawing;
-using JetBrains.Annotations;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles an OffsetFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles an <see cref="OffsetFilter"/>
     /// </summary>
-    internal partial class OffsetControl : FilterControl
+    internal partial class OffsetControl : FilterControl<OffsetFilter>
     {
         /// <summary>
-        /// Initializes a new instance of the OffsetControl class
+        /// Initializes a new instance of the <see cref="OffsetControl"/> class
         /// </summary>
         public OffsetControl()
         {
@@ -41,20 +40,22 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this OffsetControl
+        /// Initializes this <see cref="OffsetControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
-        public override void Initialize([NotNull] Bitmap bitmap)
+        public override void Initialize( Bitmap bitmap)
         {
             base.Initialize(bitmap);
 
             if (filter == null)
             {
-                filter = new OffsetFilter();
-                ((OffsetFilter)filter).OffsetX = 0;
-                ((OffsetFilter)filter).OffsetY = 0;
-                ((OffsetFilter)filter).WrapHorizontal = false;
-                ((OffsetFilter)filter).WrapVertical = false;
+                filter = new OffsetFilter
+                {
+                    OffsetX = 0,
+                    OffsetY = 0,
+                    WrapHorizontal = false,
+                    WrapVertical = false
+                };
             }
 
             anud_offsetX.Minimum = -bitmap.Width;
@@ -65,16 +66,13 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="OffsetControl"/> based on the data from the
+        /// given <see cref="OffsetFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="OffsetFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(OffsetFilter referenceFilter)
         {
-            if (!(referenceFilter is OffsetFilter))
-                return;
-
-            var offsetFilter = ((OffsetFilter)referenceFilter);
+            var offsetFilter = referenceFilter;
 
             anud_offsetX.Value = (decimal)offsetFilter.OffsetX;
             anud_offsetY.Value = (decimal)offsetFilter.OffsetY;
@@ -87,7 +85,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_offsetX_ValueChanged(object sender, EventArgs e)
         {
-            ((OffsetFilter)filter).OffsetX = (float)anud_offsetX.Value;
+            filter.OffsetX = (float)anud_offsetX.Value;
 
             FireFilterUpdated();
         }
@@ -97,7 +95,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_offsetY_ValueChanged(object sender, EventArgs e)
         {
-            ((OffsetFilter)filter).OffsetY = (float)anud_offsetY.Value;
+            filter.OffsetY = (float)anud_offsetY.Value;
 
             FireFilterUpdated();
         }
@@ -107,7 +105,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_wrapHorizontal_CheckedChanged(object sender, EventArgs e)
         {
-            ((OffsetFilter)filter).WrapHorizontal = cb_wrapHorizontal.Checked;
+            filter.WrapHorizontal = cb_wrapHorizontal.Checked;
 
             FireFilterUpdated();
         }
@@ -117,7 +115,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_wrapVertical_CheckedChanged(object sender, EventArgs e)
         {
-            ((OffsetFilter)filter).WrapVertical = cb_wrapVertical.Checked;
+            filter.WrapVertical = cb_wrapVertical.Checked;
 
             FireFilterUpdated();
         }

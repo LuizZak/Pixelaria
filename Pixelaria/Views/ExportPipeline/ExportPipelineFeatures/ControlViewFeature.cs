@@ -21,20 +21,18 @@
 */
 
 using System;
-using System.Drawing;
-using System.Reactive.Linq;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
-using Pixelaria.ExportPipeline;
+using Pixelaria.PixUI;
+using Pixelaria.PixUI.Controls;
+using Pixelaria.PixUI.Visitor;
 using Pixelaria.Utils;
 
 using SharpDX;
 using SharpDX.Direct2D1;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
-using Pixelaria.Views.ExportPipeline.PipelineView.Visitor;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -506,86 +504,5 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         }
 
         #endregion
-    }
-
-    internal static class ControlViewRxUtils
-    {
-        /// <summary>
-        /// Returns a signal that alterns between true and false as the user presses/releases the mouse
-        /// on the control.
-        /// 
-        /// This observable only signals when the next <see cref="ControlView.IReactive.MouseDown"/> or
-        /// <see cref="ControlView.IReactive.MouseUp"/> observables fire.
-        /// </summary>
-        public static IObservable<bool> IsMouseDown([NotNull] this ControlView.IReactive reactive)
-        {
-            var onDown = reactive.MouseDown.Select(_ => true);
-            var onUp = reactive.MouseUp.Select(_ => false);
-
-            return onDown.Merge(onUp);
-        }
-
-        /// <summary>
-        /// Returns a signal that fires whenever the user double clicks the control within a specified time delay and
-        /// distance tolerance.
-        /// </summary>
-        public static IObservable<MouseEventArgs> MouseDoubleClick([NotNull] this ControlView.IReactive reactive, TimeSpan delay, Size size)
-        {
-            return
-                reactive
-                    .MouseClick
-                    .Buffer(delay, 2)
-                    .Where(l => l.Count == 2)
-                    .Where(l => Math.Abs(l[0].Location.X - l[1].Location.X) <= size.Width && Math.Abs(l[0].Location.Y - l[1].Location.Y) <= size.Height)
-                    .Select(l => l[0]);
-        }
-
-        /// <summary>
-        /// Returns an observable that fires repeatedly for as long as the user holds down the mouse button
-        /// over the control.
-        /// 
-        /// The observable always fires a single event for the mouse down right away, and configures a delayed
-        /// repeating interval of multiple signals afterwards.
-        /// 
-        /// The observable is non-terminating, and will remain subscribed until the subscription to itself is
-        /// disposed.
-        /// </summary>
-        /// <param name="reactive">ControlView reactive bindings object.</param>
-        /// <param name="delay">Initial delay before start rapid-firing.</param>
-        /// <param name="interval">The interval between each subsequence repeat event</param>
-        public static IObservable<MouseEventArgs> MouseDownRepeating([NotNull] this ControlView.IReactive reactive, TimeSpan delay, TimeSpan interval)
-        {
-            return Observable.Create<MouseEventArgs>(obs =>
-            {
-                IDisposable disposableRepeat = null;
-
-                var onDown = reactive.MouseDown.Select(e => (true, e));
-                var onUp = reactive.MouseUp.Select(e => (false, e));
-
-                var isMouseDown = onDown.Merge(onUp);
-
-                return
-                    isMouseDown
-                        .Select(a =>
-                        {
-                            var (isDown, e) = a;
-
-                            if (!isDown)
-                                return Observable.Never<MouseEventArgs>();
-
-                            return
-                                Observable.Interval(interval)
-                                    .Delay(delay)
-                                    .PxlWithLatestFrom(reactive.MouseMove.StartWith(e), (l, args) => args)
-                                    .StartWith(e)
-                                    .ObserveOn(reactive.Dispatcher);
-                        })
-                        .Subscribe(timer =>
-                        {
-                            disposableRepeat?.Dispose();
-                            disposableRepeat = timer.Subscribe(obs);
-                        });
-            });
-        }
     }
 }

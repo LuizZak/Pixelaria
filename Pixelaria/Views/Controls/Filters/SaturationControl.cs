@@ -22,18 +22,18 @@
 
 using System;
 using System.Drawing;
-
+using PixCore.Controls.ColorControls;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a SaturationFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles a <see cref="SaturationFilter"/>
     /// </summary>
-    internal partial class SaturationControl : FilterControl
+    internal partial class SaturationControl : FilterControl<SaturationFilter>
     {
         /// <summary>
-        /// Initializes a new instance of the SaturationControl class
+        /// Initializes a new instance of the <see cref="SaturationControl"/> class
         /// </summary>
         public SaturationControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="SaturationControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -55,16 +55,13 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="SaturationControl"/> based on the data from the
+        /// given <see cref="SaturationFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="SaturationFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(SaturationFilter referenceFilter)
         {
-            if (!(referenceFilter is SaturationFilter))
-                return;
-
-            var saturationFilter = (SaturationFilter)referenceFilter;
+            var saturationFilter = referenceFilter;
 
             cs_saturation.CurrentValue = saturationFilter.Saturation / 100.0f;
             cb_relative.Checked = saturationFilter.Relative;
@@ -75,9 +72,9 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         // Saturation slider value changed
         // 
-        private void cs_saturation_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_saturation_ColorChanged(object sender, ColorChangedEventArgs e)
         {
-            ((SaturationFilter)filter).Saturation = (int)(cs_saturation.CurrentValue * 100);
+            filter.Saturation = (int)(cs_saturation.CurrentValue * 100);
 
             FireFilterUpdated();
         }
@@ -87,7 +84,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_relative_CheckedChanged(object sender, EventArgs e)
         {
-            ((SaturationFilter)filter).Relative = cb_relative.Checked;
+            filter.Relative = cb_relative.Checked;
 
             FireFilterUpdated();
         }
@@ -97,7 +94,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_keepGrays_CheckedChanged(object sender, EventArgs e)
         {
-            ((SaturationFilter)filter).KeepGrays = cb_keepGrays.Checked;
+            filter.KeepGrays = cb_keepGrays.Checked;
 
             FireFilterUpdated();
         }
@@ -109,7 +106,7 @@ namespace Pixelaria.Views.Controls.Filters
         {
             cb_keepGrays.Enabled = cb_relative.Enabled = !cb_multiply.Checked;
 
-            ((SaturationFilter)filter).Multiply = cb_multiply.Checked;
+            filter.Multiply = cb_multiply.Checked;
 
             FireFilterUpdated();
         }

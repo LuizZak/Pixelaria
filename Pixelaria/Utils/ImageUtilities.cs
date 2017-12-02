@@ -29,7 +29,6 @@ using System.Security.Cryptography;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Data;
-using Pixelaria.Properties;
 
 namespace Pixelaria.Utils
 {
@@ -41,7 +40,7 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Checkers pattern used as the default tile
         /// </summary>
-        private static readonly Image CheckersPattern = Resources.checkers_pattern;
+        private static readonly Image CheckersPattern = PixCore.Properties.Resources.checkers_pattern;
 
         /// <summary>
         /// Resizes an image so it matches the given dimensions, scaling with the given scaling method, and interpolating

@@ -50,11 +50,12 @@ using Pixelaria.Data.Persistence;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
+using Pixelaria.PixUI;
+using Pixelaria.PixUI.Controls;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
 
 namespace Pixelaria.Views.ExportPipeline
 {

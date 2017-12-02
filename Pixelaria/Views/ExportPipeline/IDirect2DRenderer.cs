@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using JetBrains.Annotations;
+using Pixelaria.PixUI;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using SharpDX;
 using SharpDX.DirectWrite;

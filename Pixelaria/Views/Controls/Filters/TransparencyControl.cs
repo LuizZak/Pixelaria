@@ -22,18 +22,18 @@
 
 using System.ComponentModel;
 using System.Drawing;
-
+using PixCore.Controls.ColorControls;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a TransparencyFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles a <see cref="TransparencyFilter"/>
     /// </summary>
-    internal class TransparencyControl : FilterControl
+    internal class TransparencyControl : FilterControl<TransparencyFilter>
     {
         /// <summary>
-        /// Initializes a new class of the TransparencyControl class
+        /// Initializes a new class of the <see cref="TransparencyControl"/> class
         /// </summary>
         public TransparencyControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="TransparencyControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -50,35 +50,31 @@ namespace Pixelaria.Views.Controls.Filters
 
             if (filter == null)
             {
-                filter = new TransparencyFilter();
-                ((TransparencyFilter)filter).Transparency = 1;
+                filter = new TransparencyFilter {Transparency = 1};
             }
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="TransparencyControl"/> based on the data from the
+        /// given <see cref="TransparencyFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="TransparencyFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(TransparencyFilter referenceFilter)
         {
-            if (!(referenceFilter is TransparencyFilter))
-                return;
-
-            cs_transparency.CurrentValue = ((TransparencyFilter)referenceFilter).Transparency;
+            cs_transparency.CurrentValue = referenceFilter.Transparency;
         }
 
         // 
         // Transparency slider value changed
         //
-        private void cs_transparency_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_transparency_ColorChanged(object sender, ColorChangedEventArgs e)
         {
-            ((TransparencyFilter)filter).Transparency = cs_transparency.CurrentValue;
+            filter.Transparency = cs_transparency.CurrentValue;
 
             FireFilterUpdated();
         }
 
-        private ColorControls.ColorSlider cs_transparency;
+        private ColorSlider cs_transparency;
 
         #region Designer Required Code
 
@@ -114,23 +110,23 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         protected void InitializeComponent()
         {
-            this.cs_transparency = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_transparency = new PixCore.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // cs_transparency
             // 
-            this.cs_transparency.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_transparency.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_transparency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_transparency.CurrentValue = 1F;
             this.cs_transparency.CustomColorTitle = "Custom";
-            this.cs_transparency.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_transparency.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_transparency.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_transparency.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_transparency.Location = new System.Drawing.Point(1, 0);
             this.cs_transparency.Name = "cs_transparency";
             this.cs_transparency.Size = new System.Drawing.Size(479, 38);
             this.cs_transparency.TabIndex = 0;
-            this.cs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_transparency_ColorChanged);
+            this.cs_transparency.ColorChanged += new PixCore.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_transparency_ColorChanged);
             // 
             // TransparencyControl
             // 

@@ -25,12 +25,11 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Pixelaria.PixUI.Controls;
+using Pixelaria.PixUI.Controls.Text;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
-using Pixelaria.Views.ExportPipeline.PipelineView.Controls;
-
 using Rhino.Mocks;
 
 namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures

@@ -24,13 +24,14 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Colors;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// A control used to store a FilterControl inside
+    /// A control used to store a <see cref="IFilterControl"/> inside
     /// </summary>
     internal partial class FilterContainer : UserControl
     {
@@ -62,7 +63,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// <summary>
         /// Gets the FilterControl currently held by this FilterContainer
         /// </summary>
-        public FilterControl FilterControl { get; private set; }
+        public IFilterControl FilterControl { get; private set; }
 
         /// <summary>
         /// Gets or sets the background color for the control.
@@ -73,8 +74,8 @@ namespace Pixelaria.Views.Controls.Filters
             set
             {
                 // Adjust the buttons' colors
-                var lightColor = value.ToAhsl();
-                var darkColor = value.ToAhsl();
+                var lightColor = Utilities.ToAhsl(value);
+                var darkColor = Utilities.ToAhsl(value);
 
                 lightColor = new AhslColor(lightColor.Alpha, lightColor.Hue, lightColor.Saturation, lightColor.Lightness + 6);
                 darkColor = new AhslColor(darkColor.Alpha, darkColor.Hue, darkColor.Saturation, darkColor.Lightness - 19);
@@ -105,7 +106,7 @@ namespace Pixelaria.Views.Controls.Filters
                 {
                     btn_enable.Image = Properties.Resources.filter_disable_icon;
 
-                    var newColor = Color.FromKnownColor(KnownColor.Control).ToAhsl();
+                    var newColor = Utilities.ToAhsl(Color.FromKnownColor(KnownColor.Control));
 
                     newColor = new AhslColor(newColor.Alpha, newColor.Hue, newColor.Saturation, newColor.Lightness - 10);
 
@@ -141,7 +142,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         /// <param name="owningSelector">The view that will own this FilterContainer</param>
         /// <param name="filter">The filter to hold on this FilterContainer</param>
-        public FilterContainer(FilterSelector owningSelector, [NotNull] FilterControl filter)
+        public FilterContainer(FilterSelector owningSelector, [NotNull] IFilterControl filter)
         {
             InitializeComponent();
 
@@ -157,17 +158,19 @@ namespace Pixelaria.Views.Controls.Filters
         /// Loads the given FilterControl on this FilterContainer
         /// </summary>
         /// <param name="filter">The FilterControl to hold on this FilterContainer</param>
-        public void LoadFilter([NotNull] FilterControl filter)
+        public void LoadFilter([NotNull] IFilterControl filter)
         {
+            var asControl = (Control)filter;
+
             FilterControl = filter;
 
             lbl_filterName.Text = filter.FilterName;
 
-            pnl_container.Controls.Add(filter);
-            pnl_container.Height = filter.Height;
+            pnl_container.Controls.Add(asControl);
+            pnl_container.Height = asControl.Height;
 
-            filter.Width = pnl_container.Width;
-            filter.Dock = DockStyle.Top;
+            asControl.Width = pnl_container.Width;
+            asControl.Dock = DockStyle.Top;
 
             pb_filterIcon.Image = FilterStore.Instance.GetIconForFilter(filter.FilterName);
 
@@ -286,14 +289,14 @@ namespace Pixelaria.Views.Controls.Filters
             base.OnPaint(e);
 
             // Draw the dragging region
-            AhslColor lightColor = BackColor.ToAhsl();
-            AhslColor darkColor = BackColor.ToAhsl();
+            var lightColor = Utilities.ToAhsl(BackColor);
+            var darkColor = Utilities.ToAhsl(BackColor);
 
             lightColor = new AhslColor(lightColor.Alpha, lightColor.Hue, lightColor.Saturation, lightColor.Lightness + 6);
             darkColor = new AhslColor(darkColor.Alpha, darkColor.Hue, darkColor.Saturation, darkColor.Lightness - 19);
 
-            Pen lightPen = new Pen(lightColor.ToColor());
-            Pen darkPen = new Pen(darkColor.ToColor());
+            var lightPen = new Pen(lightColor.ToColor());
+            var darkPen = new Pen(darkColor.ToColor());
 
             // Draw the light stripes
             for (int x = 3; x <= 15; x += 3)

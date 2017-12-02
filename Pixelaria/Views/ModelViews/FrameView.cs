@@ -38,7 +38,7 @@ using Pixelaria.Data.Undo;
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
-using Pixelaria.Views.Controls.ColorControls;
+using PixCore.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;

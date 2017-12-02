@@ -222,7 +222,7 @@
             // zpb_original
             // 
             this.zpb_original.AllowScrollbars = false;
-            this.zpb_original.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_original.BackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.zpb_original.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_original.ClipBackgroundToImage = true;
             this.zpb_original.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -245,7 +245,7 @@
             // zpb_preview
             // 
             this.zpb_preview.AllowScrollbars = false;
-            this.zpb_preview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_preview.BackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.zpb_preview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.zpb_preview.ClipBackgroundToImage = true;
             this.zpb_preview.Dock = System.Windows.Forms.DockStyle.Fill;

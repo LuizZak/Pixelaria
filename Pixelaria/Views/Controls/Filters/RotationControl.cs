@@ -28,12 +28,12 @@ using Pixelaria.Filters;
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a RotationFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles a <see cref="RotationFilter"/>
     /// </summary>
-    internal partial class RotationControl : FilterControl
+    internal partial class RotationControl : FilterControl<RotationFilter>
     {
         /// <summary>
-        /// Initializes a new class of the RotationControl class
+        /// Initializes a new class of the <see cref="RotationControl"/> class
         /// </summary>
         public RotationControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this RotationControl
+        /// Initializes this <see cref="RotationControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -55,19 +55,16 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="RotationControl"/> based on the data from the
+        /// given <see cref="RotationFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="RotationFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(RotationFilter referenceFilter)
         {
-            if (!(referenceFilter is RotationFilter))
-                return;
+            anud_angle.Value = (decimal)referenceFilter.Rotation;
 
-            anud_angle.Value = (decimal)((RotationFilter)referenceFilter).Rotation;
-
-            cb_rotateAroundCenter.Checked = ((RotationFilter)referenceFilter).RotateAroundCenter;
-            cb_pixelQuality.Checked = ((RotationFilter)referenceFilter).PixelQuality;
+            cb_rotateAroundCenter.Checked = referenceFilter.RotateAroundCenter;
+            cb_pixelQuality.Checked = referenceFilter.PixelQuality;
         }
 
         // 
@@ -75,7 +72,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void anud_angle_ValueChanged(object sender, EventArgs e)
         {
-            ((RotationFilter)filter).Rotation = (float)anud_angle.Value;
+            filter.Rotation = (float)anud_angle.Value;
 
             FireFilterUpdated();
         }
@@ -85,7 +82,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_rotateAroundCenter_CheckedChanged(object sender, EventArgs e)
         {
-            ((RotationFilter)filter).RotateAroundCenter = cb_rotateAroundCenter.Checked;
+            filter.RotateAroundCenter = cb_rotateAroundCenter.Checked;
 
             FireFilterUpdated();
         }
@@ -95,7 +92,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cb_pixelQuality_CheckedChanged(object sender, EventArgs e)
         {
-            ((RotationFilter)filter).PixelQuality = cb_pixelQuality.Checked;
+            filter.PixelQuality = cb_pixelQuality.Checked;
 
             FireFilterUpdated();
         }

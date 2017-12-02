@@ -1,27 +1,5 @@
-﻿/*
-    Pixelaria
-    Copyright (C) 2013 Luiz Fernando Silva
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-    The full license may be found on the License.txt file attached to the
-    base directory of this project.
-*/
-
-using Pixelaria.Views.Controls;
-using Pixelaria.Views.Controls.ColorControls;
+﻿using Pixelaria.Views.Controls;
+using PixCore.Controls.ColorControls;
 using Pixelaria.Views.Controls.LayerControls;
 using Pixelaria.Views.Controls.PaintTools;
 
@@ -66,9 +44,9 @@ namespace Pixelaria.Views.ModelViews
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorControls.ColorSwatchControl();
+            this.cs_colorSwatch = new PixCore.Controls.ColorControls.ColorSwatchControl();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorControls.ColorPicker();
+            this.cp_mainColorPicker = new PixCore.Controls.ColorControls.ColorPicker();
             this.panel1 = new Pixelaria.Views.Controls.LabeledPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -326,7 +304,7 @@ namespace Pixelaria.Views.ModelViews
             this.zpb_framePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.zpb_framePreview.BackgroundImage = global::Pixelaria.Properties.Resources.checkers_pattern;
+            this.zpb_framePreview.BackgroundImage = global::PixCore.Properties.Resources.checkers_pattern;
             this.zpb_framePreview.ClipBackgroundToImage = true;
             this.zpb_framePreview.HorizontalScrollValue = 0;
             this.zpb_framePreview.Location = new System.Drawing.Point(0, 18);
@@ -443,7 +421,7 @@ namespace Pixelaria.Views.ModelViews
             this.cs_colorSwatch.Name = "cs_colorSwatch";
             this.cs_colorSwatch.Size = new System.Drawing.Size(171, 283);
             this.cs_colorSwatch.TabIndex = 4;
-            this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorControls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
+            this.cs_colorSwatch.ColorSelect += new PixCore.Controls.ColorControls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
             // 
             // splitter1
             // 
@@ -462,10 +440,10 @@ namespace Pixelaria.Views.ModelViews
             this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
             this.cp_mainColorPicker.Name = "cp_mainColorPicker";
             this.cp_mainColorPicker.SecondColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorControls.ColorPickerColor.FirstColor;
+            this.cp_mainColorPicker.SelectedColor = PixCore.Controls.ColorControls.ColorPickerColor.FirstColor;
             this.cp_mainColorPicker.Size = new System.Drawing.Size(172, 550);
             this.cp_mainColorPicker.TabIndex = 3;
-            this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorControls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
+            this.cp_mainColorPicker.ColorPick += new PixCore.Controls.ColorControls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
             // 
             // panel1
             // 

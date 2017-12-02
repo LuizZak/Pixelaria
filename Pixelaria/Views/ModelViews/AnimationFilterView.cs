@@ -76,7 +76,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         /// <param name="filters">The array of FilterControls to use as interface to mediate the interaction between the filters to be applied and the user</param>
         /// <param name="animation">The animation to apply the filter to</param>
-        public AnimationFilterView([NotNull] FilterControl[] filters, [NotNull] AnimationController animation)
+        public AnimationFilterView([NotNull] IFilterControl[] filters, [NotNull] AnimationController animation)
             : this(animation)
         {
             fs_filters.LoadFilters(filters);

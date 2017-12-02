@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using Pixelaria.PixUI;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline

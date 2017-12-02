@@ -28,9 +28,9 @@ using Pixelaria.Filters;
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a ScaleFilter
+    /// Represents a <see cref="FilterControl{T}"/> that handles a <see cref="ScaleFilter"/>
     /// </summary>
-    internal partial class ScaleControl : FilterControl
+    internal partial class ScaleControl : FilterControl<ScaleFilter>
     {
         /// <summary>
         /// Whether to ignore the next field updated event
@@ -38,7 +38,7 @@ namespace Pixelaria.Views.Controls.Filters
         private bool _ignoreEvent;
 
         /// <summary>
-        /// Initializes a new class of the ScaleControl class
+        /// Initializes a new class of the <see cref="ScaleControl"/> class
         /// </summary>
         public ScaleControl()
         {
@@ -46,7 +46,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="ScaleControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -62,24 +62,19 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Updates the fields from this FilterControl based on the data from the
-        /// given IFilter instance
+        /// Updates the fields from this <see cref="ScaleControl"/> based on the data from the
+        /// given <see cref="ScaleFilter"/> instance
         /// </summary>
-        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public override void UpdateFieldsFromFilter(IFilter referenceFilter)
+        /// <param name="referenceFilter">The <see cref="ScaleFilter"/> instance to update the fields from</param>
+        public override void UpdateFieldsFromFilter(ScaleFilter referenceFilter)
         {
-            if (!(referenceFilter is ScaleFilter))
-                return;
-
-            var castFilter = (ScaleFilter)referenceFilter;
-
             _ignoreEvent = true;
 
-            anud_scaleX.Value = (decimal)castFilter.ScaleX;
-            anud_scaleY.Value = (decimal)castFilter.ScaleY;
+            anud_scaleX.Value = (decimal)referenceFilter.ScaleX;
+            anud_scaleY.Value = (decimal)referenceFilter.ScaleY;
 
-            cb_centered.Checked = castFilter.Centered;
-            cb_pixelQuality.Checked = castFilter.PixelQuality;
+            cb_centered.Checked = referenceFilter.Centered;
+            cb_pixelQuality.Checked = referenceFilter.PixelQuality;
 
             _ignoreEvent = false;
         }
@@ -96,11 +91,11 @@ namespace Pixelaria.Views.Controls.Filters
             {
                 _ignoreEvent = true;
                 anud_scaleY.Value = anud_scaleX.Value;
-                ((ScaleFilter)filter).ScaleY = (float)anud_scaleY.Value;
+                filter.ScaleY = (float)anud_scaleY.Value;
                 _ignoreEvent = false;
             }
 
-            ((ScaleFilter)filter).ScaleX = (float)anud_scaleX.Value;
+            filter.ScaleX = (float)anud_scaleX.Value;
 
             FireFilterUpdated();
         }
@@ -117,11 +112,11 @@ namespace Pixelaria.Views.Controls.Filters
             {
                 _ignoreEvent = true;
                 anud_scaleX.Value = anud_scaleY.Value;
-                ((ScaleFilter)filter).ScaleX = (float)anud_scaleX.Value;
+                filter.ScaleX = (float)anud_scaleX.Value;
                 _ignoreEvent = false;
             }
 
-            ((ScaleFilter)filter).ScaleY = (float)anud_scaleY.Value;
+            filter.ScaleY = (float)anud_scaleY.Value;
 
             FireFilterUpdated();
         }
@@ -134,7 +129,7 @@ namespace Pixelaria.Views.Controls.Filters
             if (_ignoreEvent)
                 return;
 
-            ((ScaleFilter)filter).Centered = cb_centered.Checked;
+            filter.Centered = cb_centered.Checked;
 
             FireFilterUpdated();
         }
@@ -150,8 +145,8 @@ namespace Pixelaria.Views.Controls.Filters
                 anud_scaleY.Value = anud_scaleX.Value;
                 _ignoreEvent = false;
 
-                ((ScaleFilter)filter).ScaleX = (float)anud_scaleX.Value;
-                ((ScaleFilter)filter).ScaleY = (float)anud_scaleY.Value;
+                filter.ScaleX = (float)anud_scaleX.Value;
+                filter.ScaleY = (float)anud_scaleY.Value;
 
                 FireFilterUpdated();
             }
@@ -165,7 +160,7 @@ namespace Pixelaria.Views.Controls.Filters
             if (_ignoreEvent)
                 return;
 
-            ((ScaleFilter)filter).PixelQuality = cb_pixelQuality.Checked;
+            filter.PixelQuality = cb_pixelQuality.Checked;
 
             FireFilterUpdated();
         }

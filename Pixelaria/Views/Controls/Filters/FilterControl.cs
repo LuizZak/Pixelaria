@@ -23,20 +23,20 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
+using JetBrains.Annotations;
 using Pixelaria.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Base class for user controls that implement a visualization for twaking of filter parameters
+    /// Base class for user controls that implement a visualization for tweaking of filter parameters
     /// </summary>
-    internal class FilterControl : UserControl
+    internal class FilterControl<T> : UserControl, IFilterControl where T: IFilter
     {
         /// <summary>
         /// The filter that applies the modifications to the bitmap
         /// </summary>
-        protected IFilter filter;
+        protected T filter;
 
         /// <summary>
         /// The original bitmap
@@ -81,7 +81,16 @@ namespace Pixelaria.Views.Controls.Filters
         /// Swaps the filter currently loaded on this FilterControl with the given filter
         /// </summary>
         /// <param name="newFilter">The new filter to load on this FilterControl</param>
-        public virtual void SetFilter(IFilter newFilter)
+        public void SetFilter(IFilter newFilter)
+        {
+            SetFilter((T)newFilter);
+        }
+
+        /// <summary>
+        /// Swaps the filter currently loaded on this FilterControl with the given filter
+        /// </summary>
+        /// <param name="newFilter">The new filter to load on this FilterControl</param>
+        public virtual void SetFilter([NotNull] T newFilter)
         {
             filter = newFilter;
 
@@ -93,7 +102,17 @@ namespace Pixelaria.Views.Controls.Filters
         /// given IFilter instance
         /// </summary>
         /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
-        public virtual void UpdateFieldsFromFilter(IFilter referenceFilter)
+        public void UpdateFieldsFromFilter(IFilter referenceFilter)
+        {
+            UpdateFieldsFromFilter((T)referenceFilter);
+        }
+        
+        /// <summary>
+        /// Updates the fields from this FilterControl based on the data from the
+        /// given IFilter instance
+        /// </summary>
+        /// <param name="referenceFilter">The IFilter instance to update the fields from</param>
+        public virtual void UpdateFieldsFromFilter([NotNull] T referenceFilter)
         {
 
         }
@@ -111,7 +130,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Fires the FilterUpdated event
+        /// Fires the <see cref="FilterUpdated"/> event
         /// </summary>
         public void FireFilterUpdated()
         {

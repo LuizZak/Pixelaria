@@ -223,11 +223,11 @@ namespace Pixelaria.Views.Controls
         /// Loads the given FilterControl array on this BaseFilterView
         /// </summary>
         /// <param name="filters">The array of filter controls to load into this BaseFilterView</param>
-        public void LoadFilters([NotNull] FilterControl[] filters)
+        public void LoadFilters([NotNull] IFilterControl[] filters)
         {
-            foreach (FilterControl filter in filters)
+            foreach (var filterControl in filters)
             {
-                AddFilterControl(filter, false);
+                AddFilterControl(filterControl, false);
             }
 
             UpdateVisualization();
@@ -251,11 +251,11 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="filterControl">The filter control to load on this BaseFilterView</param>
         /// <param name="updateVisualization">Whether to update the filter visualization at the end of the method</param>
-        public void AddFilterControl([NotNull] FilterControl filterControl, bool updateVisualization = true)
+        public void AddFilterControl([NotNull] IFilterControl filterControl, bool updateVisualization = true)
         {
             filterControl.Initialize(_bitmapOriginal);
 
-            FilterContainer filterContainer = new FilterContainer(this, filterControl);
+            var filterContainer = new FilterContainer(this, filterControl);
 
             _filterContainers.Add(filterContainer);
 
