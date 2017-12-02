@@ -53,15 +53,15 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttributedTextTests.cs" />
+    <Compile Include="Text\AttributedTextTests.cs" />
     <Compile Include="BaseViewTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuControlTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuItemTests.cs" />
     <Compile Include="Controls\TestControlView.cs" />
     <Compile Include="Controls\TextFieldTests.cs" />
-    <Compile Include="Controls\Text\StringTextualBufferTests.cs" />
-    <Compile Include="Controls\Text\TextEngineTests.cs" />
-    <Compile Include="TextRangeTests.cs" />
+    <Compile Include="Text\StringTextualBufferTests.cs" />
+    <Compile Include="Text\TextEngineTests.cs" />
+    <Compile Include="Text\TextRangeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

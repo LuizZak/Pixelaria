@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using PixUI.Rendering;
+using PixUI.Text;
 using PixUI.Utils;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;

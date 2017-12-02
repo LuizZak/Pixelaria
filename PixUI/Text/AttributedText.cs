@@ -26,10 +26,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using PixUI.Controls.Text;
 using PixUI.Utils;
 
-namespace PixUI
+namespace PixUI.Text
 {
     public interface IAttributedText
     {

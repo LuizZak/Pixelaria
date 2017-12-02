@@ -23,9 +23,10 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixUI.Controls;
 using PixUI.Undo;
 
-namespace PixUI.Controls.Text
+namespace PixUI.Text
 {
     /// <summary>
     /// A text + caret engine that handles manipulation of strings by insertion/removal of strings

@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-namespace PixUI.Controls.Text
+namespace PixUI.Text
 {
     /// <summary>
     /// A simple string-backed <see cref="TextEngine"/> buffer.

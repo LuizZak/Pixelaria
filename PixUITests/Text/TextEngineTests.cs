@@ -21,10 +21,10 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixUI.Controls.Text;
+using PixUI.Text;
 using Rhino.Mocks;
 
-namespace PixUITests.Controls.Text
+namespace PixUITests.Text
 {
     [TestClass]
     public class TextEngineTests

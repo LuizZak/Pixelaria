@@ -22,7 +22,7 @@
 
 using JetBrains.Annotations;
 
-namespace PixUI.Controls.Text
+namespace PixUI.Text
 {
     /// <summary>
     /// A minimal interface for a text engine.

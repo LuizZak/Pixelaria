@@ -21,9 +21,9 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixUI.Controls.Text;
+using PixUI.Text;
 
-namespace PixUITests
+namespace PixUITests.Text
 {
     [TestClass]
     public class TextRangeTests

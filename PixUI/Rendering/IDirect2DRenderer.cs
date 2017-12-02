@@ -24,7 +24,7 @@ using System;
 using System.Drawing;
 using Color = System.Drawing.Color;
 using JetBrains.Annotations;
-
+using PixUI.Text;
 using SharpDX;
 using SharpDX.DirectWrite;
 
