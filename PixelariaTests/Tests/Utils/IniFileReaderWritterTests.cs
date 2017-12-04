@@ -40,65 +40,150 @@ namespace PixelariaTests.Tests.Utils
         public void TestGetValue()
         {
             const string file = "test=test value";
-            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
-            settings2.LoadSettings();
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+            settings.LoadSettings();
 
-            Assert.AreEqual("test value", settings2.GetValue("test"));
+            Assert.AreEqual("test value", settings.GetValue("test"));
         }
 
         [TestMethod]
         public void TestGetValueOnEmptySubpath()
         {
             const string file = "[]\ntest=test value";
-            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
-            settings2.LoadSettings();
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+            settings.LoadSettings();
 
-            Assert.AreEqual("test value", settings2.GetValue("test"));
+            Assert.AreEqual("test value", settings.GetValue("test"));
         }
 
         [TestMethod]
         public void TestGetValueNested()
         {
             const string file = "[child 1]\ntest=test value\n[child 2]\ntest=other test value";
-            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
-            settings2.LoadSettings();
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+            settings.LoadSettings();
 
-            Assert.AreEqual("test value", settings2.GetValue("child 1\\test"));
-            Assert.AreEqual("other test value", settings2.GetValue("child 2\\test"));
+            Assert.AreEqual("test value", settings.GetValue("child 1\\test"));
+            Assert.AreEqual("other test value", settings.GetValue("child 2\\test"));
         }
 
         [TestMethod]
-        public void TestGetValueReplacing()
+        public void TestLoadSettingsReplacing()
         {
             const string file = "test=test value\ntest=other test value";
-            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
-            settings2.LoadSettings();
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
             
-            Assert.AreEqual("other test value", settings2.GetValue("test"));
+            Assert.AreEqual("other test value", settings.GetValue("test"));
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsMissingValue()
+        {
+            const string file = "test=";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+
+            Assert.AreEqual("", settings.GetValue("test"));
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsMissingEquals()
+        {
+            const string file = "test";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+
+            Assert.IsNull(settings.GetValue("test"));
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsMissingValueName()
+        {
+            const string file = "=test";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+
+            Assert.IsNull(settings.GetValue("test"));
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsNamespaceMissingEndBracket()
+        {
+            const string file = "[test";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsNamespaceMissingStartBracket()
+        {
+            const string file = "test]";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsNamespaceAsValue()
+        {
+            const string file = "[test]=5";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+
+            Assert.IsNull(settings.GetValue("[test]"));
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsNamespaceMissingStartBracketAsValue()
+        {
+            const string file = "test]=abc";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+
+            Assert.IsNull(settings.GetValue("test]"));
+        }
+
+        [TestMethod]
+        public void TestLoadSettingsNamespaceWithEmptyComponent()
+        {
+            const string file = "[test\\\\space]\ntestValue=value";
+            var settings = new IniFileReaderWritter(new TestIniFile(file));
+
+            settings.LoadSettings();
+
+            Assert.AreEqual("value", settings.GetValue("test", "space", "testValue"));
         }
 
         internal class TestIniFile : IIniFileInterface
         {
-            public string File { get; set; }
+            public string Contents { get; set; }
 
-            public TestIniFile(string file)
+            public TestIniFile(string contents)
             {
-                File = file;
+                Contents = contents;
             }
 
             public TestIniFile()
             {
-                File = "";
+                Contents = "";
             }
 
             public void Save(string data)
             {
-                File = data;
+                Contents = data;
             }
 
             public string Load()
             {
-                return File;
+                return Contents;
             }
         }
     }

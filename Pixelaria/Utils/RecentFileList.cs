@@ -62,7 +62,7 @@ namespace Pixelaria.Utils
             for (int i = 0; i < fileCount; i++)
             {
                 // Assert first to make sure the value exists
-                settings.EnsureValue("Recent Files\\File" + i, EnsureValueType.String, "");
+                settings.SetDefaultIfMissing("Recent Files\\File" + i, EnsureValueType.String, "");
 
                 _fileList[i] = settings.GetValue("Recent Files", $"File{i}");
             }

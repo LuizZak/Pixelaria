@@ -50,34 +50,58 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Ensures that a specific value is present on the Settings object, and initializes it with a default value it of doesn't
+        /// Ensures that a specific value is present on the Settings object, and initializes it with a default value it of doesn't.
+        /// 
+        /// Boolean values must be specified either as 'true' or 'false', verbatim (i.e. full word and lowercase as written).
+        /// 
+        /// If <see cref="type"/> is <see cref="EnsureValueType.Int"/> or <see cref="EnsureValueType.Boolean"/>, and the string is not a valid
+        /// integer or boolean, respectively.
         /// </summary>
-        /// <param name="value">The path to the settings value</param>
+        /// <param name="path">The path to the settings value</param>
         /// <param name="type">The type the value must have in order to be valid</param>
         /// <param name="defaultValue">The default value to be set if the value does not exists or does not matches the provided type</param>
         /// <returns>True when the value was asserted, false if it was not present or not valid</returns>
-        public bool EnsureValue([NotNull] string value, EnsureValueType type, string defaultValue)
+        /// <exception cref="ArgumentException">
+        /// An exeption israised if <see cref="type"/> is <see cref="EnsureValueType.Int"/> or <see cref="EnsureValueType.Boolean"/> and the 
+        /// string is not a valid integer or boolean, respectively.
+        /// </exception>
+        public bool SetDefaultIfMissing([NotNull] string path, EnsureValueType type, string defaultValue)
         {
-            if (GetValue(value) == null)
+            // Sanitize input value
+            switch (type)
             {
-                SetValue(value, defaultValue);
+                case EnsureValueType.Int:
+                    if (!int.TryParse(defaultValue, out _))
+                        throw new ArgumentException($@"Value {defaultValue} is not a valid integer", nameof(defaultValue));
+
+                    break;
+                case EnsureValueType.Boolean:
+                    if (defaultValue != "true" && defaultValue != "false")
+                        throw new ArgumentException($@"Value {defaultValue} is not a valid boolean string (either 'true' or 'false', verbatim)", nameof(defaultValue));
+
+                    break;
+            }
+
+            if (GetValue(path) == null)
+            {
+                SetValue(path, defaultValue);
                 return false;
             }
 
             switch (type)
             {
                 case EnsureValueType.Boolean:
-                    if (GetValue(value) != "true" && GetValue(value) != "false")
+                    if (GetValue(path) != "true" && GetValue(path) != "false")
                     {
-                        SetValue(value, defaultValue);
+                        SetValue(path, defaultValue);
                         return false;
                     }
                     break;
                 case EnsureValueType.Int:
                     int a;
-                    if (!int.TryParse(GetValue(value), out a))
+                    if (!int.TryParse(GetValue(path), out a))
                     {
-                        SetValue(value, defaultValue);
+                        SetValue(path, defaultValue);
                         return false;
                     }
                     break;
@@ -465,7 +489,7 @@ namespace Pixelaria.Utils
             /// Saves this SettingsNode into the provided StringBuilder object
             /// </summary>
             /// <param name="builder">The StringBuilder to save the data to</param>
-            public void SaveToString(StringBuilder builder)
+            public void SaveToString([NotNull] StringBuilder builder)
             {
                 string path = _name;
                 var curNode = _parentNode;
@@ -494,6 +518,11 @@ namespace Pixelaria.Utils
                 foreach (var childNode in _subNodes)
                 {
                     childNode.SaveToString(builder);
+                }
+                
+                while (builder.Length > 0 && (builder[builder.Length - 1] == '\n' || builder[builder.Length - 1] == '\r'))
+                {
+                    builder.Remove(builder.Length - 1, 1);
                 }
             }
 

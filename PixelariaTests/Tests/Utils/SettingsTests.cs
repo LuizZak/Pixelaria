@@ -39,7 +39,19 @@ namespace PixelariaTests.Tests.Utils
 
             Assert.IsNotNull(sut);
         }
-        
+
+        [TestMethod]
+        public void TestSingletonSameFileAlways()
+        {
+            string path = Path.GetTempFileName();
+            var settings1 = Settings.GetSettings(path);
+            var settings2 = Settings.GetSettings(path);
+
+            settings1.SetValue("test", "value");
+
+            Assert.AreEqual("value", settings2.GetValue("test"));
+        }
+
         [TestMethod]
         public void TestGetSettings()
         {
@@ -87,6 +99,125 @@ namespace PixelariaTests.Tests.Utils
             Assert.IsNotNull(sut);
         }
 
+        [TestMethod]
+        public void TestSetDefaultIfMissingString()
+        {
+            var file = new TestIniFile("");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.String, "abc");
+
+            Assert.AreEqual("test = abc", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingStringDoesNotReplaceExisting()
+        {
+            var file = new TestIniFile("test=value");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.String, "abc");
+
+            Assert.AreEqual("test=value", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingDeepNodeCreation()
+        {
+            var file = new TestIniFile("");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test\\deep\\node", EnsureValueType.String, "abc");
+
+            Assert.AreEqual("[test\\deep]\r\nnode = abc", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingInt()
+        {
+            var file = new TestIniFile("");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Int, "123");
+
+            Assert.AreEqual("test = 123", file.Contents);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestSetDefaultIfMissingIntExceptionIfNotInt()
+        {
+            var file = new TestIniFile("");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Int, "abc");
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingIntDoesNotReplaceExisting()
+        {
+            var file = new TestIniFile("test=456");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Int, "123");
+
+            Assert.AreEqual("test=456", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingIntReplacesIfNotInteger()
+        {
+            var file = new TestIniFile("test=abc");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Int, "123");
+
+            Assert.AreEqual("test = 123", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingBoolean()
+        {
+            var file = new TestIniFile("");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Boolean, "true");
+
+            Assert.AreEqual("test = true", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingBooleanDoesNotReplaceExisting()
+        {
+            var file = new TestIniFile("test=false");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Boolean, "true");
+
+            Assert.AreEqual("test=false", file.Contents);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultIfMissingBooleanReplacesIfNotBoolean()
+        {
+            var file = new TestIniFile("test=123");
+            var settings = new Settings(file);
+
+            settings.SetDefaultIfMissing("test", EnsureValueType.Boolean, "true");
+
+            Assert.AreEqual("test = true", file.Contents);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestSetDefaultIfMissingBooleanExceptionIfNotBoolean()
+        {
+            var file = new TestIniFile("");
+            var settings = new Settings(file);
+            
+            settings.SetDefaultIfMissing("test", EnsureValueType.Boolean, "123");
+        }
+
         private static bool IsHeldOpen(string path)
         {
             try
@@ -98,6 +229,31 @@ namespace PixelariaTests.Tests.Utils
             catch (Exception)
             {
                 return true;
+            }
+        }
+
+        internal class TestIniFile : IIniFileInterface
+        {
+            public string Contents { get; set; }
+
+            public TestIniFile(string contents)
+            {
+                Contents = contents;
+            }
+
+            public TestIniFile()
+            {
+                Contents = "";
+            }
+
+            public void Save(string data)
+            {
+                Contents = data;
+            }
+
+            public string Load()
+            {
+                return Contents;
             }
         }
     }
