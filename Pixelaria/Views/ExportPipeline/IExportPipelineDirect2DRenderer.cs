@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -21,25 +21,14 @@
 */
 
 using JetBrains.Annotations;
+using PixUI.Rendering;
 
-namespace Pixelaria.PixUI.Controls.ContextMenu
+namespace Pixelaria.Views.ExportPipeline
 {
-    /// <summary>
-    /// An item for a <see cref="ContextMenuControl"/>.
-    /// </summary>
-    internal class ContextMenuItem
+    internal interface IExportPipelineDirect2DRenderer : IDirect2DRenderer
     {
-        /// <summary>
-        /// The drop down item that contains this menu item
-        /// </summary>
-        [CanBeNull]
-        public ContextMenuDropDownItem DropDownItem { get; internal set; }
+        void AddDecorator([NotNull] IRenderingDecorator decorator);
 
-        /// <summary>
-        /// Gets the index of this context menu item on its parent drop down item.
-        /// 
-        /// If this item is not added to a parent, -1 is returned.
-        /// </summary>
-        public int Index => DropDownItem?.DropDownItems.IndexOf(this) ?? -1;
+        void RemoveDecorator([NotNull] IRenderingDecorator decorator);
     }
 }

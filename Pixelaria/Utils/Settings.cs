@@ -37,15 +37,15 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The main configuration file reference
         /// </summary>
-        private readonly IniReader _iniFile;
+        private readonly IniFileReaderWritter _iniFileFile;
 
         /// <summary>
         /// Initializes the Settings class
         /// </summary>
         private Settings(string settingsFile)
         {
-            _iniFile = new IniReader(settingsFile);
-            _iniFile.LoadSettings();
+            _iniFileFile = new IniFileReaderWritter(settingsFile);
+            _iniFileFile.LoadSettings();
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Pixelaria.Utils
         /// </summary>
         public void SaveSettings()
         {
-            _iniFile.SaveSettings();
+            _iniFileFile.SaveSettings();
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Pixelaria.Utils
         [CanBeNull]
         public string GetValue([NotNull] params string[] valueName)
         {
-            return _iniFile.GetValue(string.Join("\\", valueName));
+            return _iniFileFile.GetValue(string.Join("\\", valueName));
         }
 
         /// <summary>
@@ -110,8 +110,8 @@ namespace Pixelaria.Utils
         /// <param name="value">The value to save</param>
         public void SetValue([NotNull] string valueName, string value)
         {
-            _iniFile.SetValue(valueName, value);
-            _iniFile.SaveSettings();
+            _iniFileFile.SetValue(valueName, value);
+            _iniFileFile.SaveSettings();
         }
 
         /// <summary>
@@ -119,32 +119,34 @@ namespace Pixelaria.Utils
         /// </summary>
         /// <param name="path">The path for the settings file</param>
         /// <returns>The current settings singleton class</returns>
-        public static Settings GetSettings(string path = "settings.ini")
+        public static Settings GetSettings([NotNull] string path = "settings.ini")
         {
-            if (_settings == null)
-                return _settings = new Settings(path);
+            if (SettingsMap.TryGetValue(path, out var settings))
+                return settings;
 
-            return _settings;
+            SettingsMap[path] = new Settings(path);
+
+            return SettingsMap[path];
         }
 
         /// <summary>
-        /// The main settings singleton class
+        /// MAps settings paths to singleton values
         /// </summary>
-        private static Settings _settings;
+        private static readonly Dictionary<string, Settings> SettingsMap = new Dictionary<string, Settings>();
     }
 
     /// <summary>
     /// Allows reading/saving of .ini files
     /// </summary>
-    public class IniReader
+    public class IniFileReaderWritter
     {
         /// <summary>
         /// Creates a new instance of the IniReader class
         /// </summary>
         /// <param name="path">A path to a .ini file</param>
-        public IniReader(string path)
+        public IniFileReaderWritter(string path)
         {
-            _filePath = path;
+            _fileInterface = new IniFileInterface(path);
             _values = new Dictionary<string, string>();
         }
 
@@ -156,121 +158,114 @@ namespace Pixelaria.Utils
             // Clear the values before adding the new ones
             _values.Clear();
 
-            // Create the file if it does not exists
-            if (!File.Exists(_filePath))
-                File.Create(_filePath).Close();
+            string file = _fileInterface.Load();
+            var reader = new StringReader(file);
 
             // Load the file line by line
-            using (var reader = new StreamReader(_filePath, Encoding.UTF8))
+            string currentPath = "";
+            string line;
+            while ((line = reader.ReadLine()) != null)
             {
-                string currentPath = "";
-                while (!reader.EndOfStream)
+                if (line.Trim() == "")
+                    continue;
+
+                // Path block, change current path block
+                if (line[0] == '[')
                 {
-                    string line = reader.ReadLine();
-                
-                    if (line == null)
-                        break;
+                    currentPath = "";
+                    string localPath = "";
+                    // Use a parser to guarantee consistency
+                    var parser = new MiniParser(line);
+                    parser.Next(); // Skip the starting '['
+                    parser.SkipWhiteSpace();
 
-                    if (line.Trim() != "")
+                    if (parser.Peek() == ']')
+                        continue;
+                    bool afterSeparator = false;
+                    while (!parser.EOF())
                     {
-                        // Path block, change current path block
-                        if (line[0] == '[')
+                        if (parser.Peek() == ']')
                         {
-                            currentPath = "";
-                            string localPath = "";
-                            // Use a parser to guarantee consistency
-                            MiniParser parser = new MiniParser(line);
-                            parser.Next(); // Skip the starting '['
-                            parser.SkipWhiteSpace();
-
-                            if (parser.Peek() == ']')
-                                continue;
-                            bool afterSeparator = false;
-                            while (!parser.EOF())
-                            {
-                                if (parser.Peek() == ']')
-                                {
-                                    currentPath = localPath;
-                                    break;
-                                }
-
-                                if (parser.Peek() == '\\')
-                                {
-                                    parser.Next();
-                                    afterSeparator = true;
-                                }
-                                else
-                                {
-                                    try
-                                    {
-                                        if (afterSeparator)
-                                            localPath += "\\";
-
-                                        afterSeparator = false;
-
-                                        // Buffer the path until a '\' sign
-                                        while (!parser.EOF())
-                                        {
-                                            if (parser.Peek() != '\\' && parser.Peek() != ']')
-                                            {
-                                                localPath += parser.Next();
-                                            }
-                                            else
-                                            {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                parser.SkipWhiteSpace();
-                            }
+                            currentPath = localPath;
+                            break;
                         }
-                        // Comment line, ignore
-                        else if (line.Trim()[0] == '\'')
+
+                        if (parser.Peek() == '\\')
                         {
-                        
+                            parser.Next();
+                            afterSeparator = true;
                         }
-                        // Normal line, read the settings
                         else
                         {
-                            // Parse the value
-                            MiniParser parser = new MiniParser(line);
-                            parser.SkipWhiteSpace();
-
                             try
                             {
-                                // VAR = VALUE
+                                if (afterSeparator)
+                                    localPath += "\\";
 
-                                // Read the settings identifier
-                                string valueName = parser.ReadIdent(false);
-                                parser.SkipWhiteSpace();
+                                afterSeparator = false;
 
-                                // If there's no '=', the line is not correctly formated
-                                if (parser.Next() != '=')
-                                    continue;
-
-                                // Skip to the value
-                                parser.SkipWhiteSpace();
-
-                                // Read the value
-                                StringBuilder builder = new StringBuilder();
-                                while (!parser.EOF() && (parser.Peek() != '\n' || parser.Peek() != '\r'))
+                                // Buffer the path until a '\' sign
+                                while (!parser.EOF())
                                 {
-                                    builder.Append(parser.Next());
+                                    if (parser.Peek() != '\\' && parser.Peek() != ']')
+                                    {
+                                        localPath += parser.Next();
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
-                                string value = builder.ToString();
-
-                                // 
-                                _values[currentPath + "\\" + valueName] = value;
                             }
-                            // ReSharper disable once EmptyGeneralCatchClause
-                            catch (Exception) { }
+                            catch (Exception)
+                            {
+                                continue;
+                            }
                         }
+
+                        parser.SkipWhiteSpace();
+                    }
+                }
+                else if (line.Trim()[0] == '\'')
+                {
+                    // Comment line, ignore
+                }
+                // Normal line, read the settings
+                else
+                {
+                    // Parse the value
+                    var parser = new MiniParser(line);
+                    parser.SkipWhiteSpace();
+
+                    try
+                    {
+                        // VAR = VALUE
+
+                        // Read the settings identifier
+                        string valueName = parser.ReadIdent(false);
+                        parser.SkipWhiteSpace();
+
+                        // If there's no '=', the line is not correctly formated
+                        if (parser.Next() != '=')
+                            continue;
+
+                        // Skip to the value
+                        parser.SkipWhiteSpace();
+
+                        // Read the value
+                        var builder = new StringBuilder();
+                        while (!parser.EOF() && (parser.Peek() != '\n' || parser.Peek() != '\r'))
+                        {
+                            builder.Append(parser.Next());
+                        }
+                        string value = builder.ToString();
+
+                        // 
+                        _values[currentPath + "\\" + valueName] = value;
+                    }
+                    catch (Exception)
+                    {
+                        // Empty
                     }
                 }
             }
@@ -295,7 +290,7 @@ namespace Pixelaria.Utils
                 }
                 else
                 {
-                    string[] subPath = path.Split('\\');
+                    var subPath = path.Split('\\');
 
                     path = "";
 
@@ -315,18 +310,11 @@ namespace Pixelaria.Utils
             baseNode.Sort();
 
             // Mount the settings string
-            var output = new StringBuilder();
+            var builder = new StringBuilder();
 
-            baseNode.SaveToString(output);
-
-            using (var stream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                stream.SetLength(0);
-
-                // Save the settings to the settings file now
-                var writer = new StreamWriter(stream, Encoding.UTF8, 512, true);
-                writer.Write(output.ToString().Trim());
-            }
+            baseNode.SaveToString(builder);
+            
+            _fileInterface.Save(builder.ToString());
 
             baseNode.Clear();
         }
@@ -338,7 +326,7 @@ namespace Pixelaria.Utils
         [CanBeNull]
         public string GetValue([NotNull] params string[] valueName)
         {
-            var collapsed = string.Join("\\", valueName);
+            string collapsed = string.Join("\\", valueName);
             return _values.ContainsKey(collapsed) ? _values[collapsed] : null;
         }
 
@@ -353,6 +341,11 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Main interface to load/save to
+        /// </summary>
+        private readonly IIniFileInterface _fileInterface;
+
+        /// <summary>
         /// The values stored in the .ini file
         /// </summary>
         private readonly Dictionary<string, string> _values;
@@ -360,8 +353,8 @@ namespace Pixelaria.Utils
         /// <summary>
         /// The filepath to the .ini file
         /// </summary>
-        private readonly string _filePath;
-
+        //private readonly string _filePath;
+        
         /// <summary>
         /// Specifies a node that contains settings and subnodes
         /// </summary>
@@ -661,6 +654,66 @@ namespace Pixelaria.Utils
             /// The scene script
             /// </summary>
             private readonly string _buffer;
+        }
+    }
+
+    /// <summary>
+    /// Serves as an interface for loading/saving on a <see cref="IniFileReaderWritter"/>.
+    /// </summary>
+    public interface IIniFileInterface
+    {
+        /// <summary>
+        /// Replaces all data with the given string
+        /// </summary>
+        void Save([NotNull] string data);
+
+        /// <summary>
+        /// Loads all data from the stream
+        /// </summary>
+        [NotNull]
+        string Load();
+    }
+
+    /// <summary>
+    /// Default implementation of <see cref="IIniFileInterface"/> that loads and saves to a file path.
+    /// 
+    /// File is not held open between calls to <see cref="Save"/> and <see cref="Load"/>
+    /// </summary>
+    public class IniFileInterface : IIniFileInterface
+    {
+        public string FilePath { get; }
+        public Encoding Encoding { get; }
+
+        public IniFileInterface(string filePath)
+            : this(filePath, Encoding.UTF8)
+        {
+            
+        }
+
+        public IniFileInterface(string filePath, Encoding encoding)
+        {
+            FilePath = filePath;
+            Encoding = encoding;
+        }
+
+        public void Save(string data)
+        {
+            using (var stream = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                var output = Encoding.GetBytes(data);
+
+                stream.SetLength(0);
+                stream.Write(output, 0, output.Length);
+            }
+        }
+
+        public string Load()
+        {
+            // Create the file if it does not exists
+            if (!File.Exists(FilePath))
+                File.Create(FilePath).Close();
+
+            return File.ReadAllText(FilePath, Encoding);
         }
     }
 

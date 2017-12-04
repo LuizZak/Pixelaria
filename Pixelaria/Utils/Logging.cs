@@ -99,13 +99,13 @@ namespace Pixelaria.Utils
 
         private static void WriteEntry(string message, string type = null, string module = null)
         {
-            var finalModule = module;
+            string finalModule = module;
             if (ModuleStack.Count > 0)
             {
                 if (finalModule == null)
                     finalModule = "";
 
-                foreach (var mod in ModuleStack)
+                foreach (string mod in ModuleStack)
                 {
                     if (finalModule.Length != 0)
                         finalModule += "/";
@@ -114,7 +114,7 @@ namespace Pixelaria.Utils
                 }
             }
 
-            var trace = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+            string trace = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}";
             if (module != null)
             {
                 trace += $" - [{module}]";

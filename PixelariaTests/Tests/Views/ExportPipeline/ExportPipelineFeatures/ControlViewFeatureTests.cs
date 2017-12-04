@@ -20,14 +20,14 @@
     base directory of this project.
 */
 
-using System;
 using System.Windows.Forms;
 using System.Windows.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.PixUI.Controls;
-using Pixelaria.PixUI.Controls.Text;
-using Pixelaria.Utils;
+
+using PixUI.Controls;
+using PixUI.Utils;
+
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Rhino.Mocks;

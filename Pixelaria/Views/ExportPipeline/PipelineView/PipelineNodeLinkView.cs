@@ -22,8 +22,10 @@
 
 using System.Drawing;
 using JetBrains.Annotations;
+
+using PixUI;
+
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {

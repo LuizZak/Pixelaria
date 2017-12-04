@@ -26,11 +26,14 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
+
+using PixUI;
+using PixUI.Utils;
+using PixUI.Rendering;
+
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI;
-using Pixelaria.PixUI.Controls;
-using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using SharpDX.Windows;
@@ -59,7 +62,7 @@ namespace Pixelaria.Views.ExportPipeline
         #endregion
 
         /// <summary>
-        /// Container for <see cref="ControlView"/>-based controls
+        /// Container for <see cref="PixUI.Controls.ControlView"/>-based controls
         /// </summary>
         public IControlContainer ControlContainer => _controlViewFeature;
 
@@ -78,7 +81,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
-        public IDirect2DRenderer D2DRenderer => _d2DRenderer;
+        public IExportPipelineDirect2DRenderer D2DRenderer => _d2DRenderer;
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control

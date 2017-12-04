@@ -31,7 +31,6 @@ namespace PixCore.Colors
     /// </summary>
     public static class ColorUtils
     {
-
         /// <summary>
         /// Converts a Color instance into an AHSL color
         /// </summary>

@@ -23,12 +23,16 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+
 using FastBitmapLib;
+
 using JetBrains.Annotations;
+
+using PixCore.Colors;
+
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Algorithms.PaintOperations
 {
@@ -495,7 +499,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 return foreColor;
             }
 
-            return Utilities.FlattenColor(backColor, foreColor);
+            return ColorUtils.FlattenColor(backColor, foreColor);
         }
     }
 

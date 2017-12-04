@@ -25,10 +25,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
+using PixUI;
+using PixUI.Utils;
+
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
-using Pixelaria.PixUI;
-using Pixelaria.Utils;
+
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {

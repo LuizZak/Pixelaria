@@ -24,7 +24,9 @@ using System;
 using System.Drawing;
 using System.Reactive.Linq;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
+
 using PixUI.Controls;
 
 namespace PixUI.Utils

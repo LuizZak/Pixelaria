@@ -28,11 +28,11 @@ namespace PixUI.Visitor
     /// A generic implementation of <see cref="IBaseViewVisitor{T}"/> that calls a closure on each call to
     /// <see cref="IBaseViewVisitor{T}.VisitView"/>.
     /// </summary>
-    internal class BaseViewVisitor<T> : IBaseViewVisitor<T>
+    public class BaseViewVisitor<T> : IBaseViewVisitor<T>
     {
         private readonly Action<T, BaseView> _onVisit;
 
-        internal BaseViewVisitor(Action<T, BaseView> onVisit)
+        public BaseViewVisitor(Action<T, BaseView> onVisit)
         {
             _onVisit = onVisit;
         }

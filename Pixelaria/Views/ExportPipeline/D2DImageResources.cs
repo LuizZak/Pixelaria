@@ -23,8 +23,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Pixelaria.PixUI;
-using Pixelaria.Views.ExportPipeline.PipelineView;
+
+using PixUI;
+using PixUI.Rendering;
 
 namespace Pixelaria.Views.ExportPipeline
 {

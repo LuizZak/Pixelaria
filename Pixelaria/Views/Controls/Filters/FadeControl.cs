@@ -23,11 +23,10 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using JetBrains.Annotations;
+using PixCore.Colors;
 using PixCore.Controls.ColorControls;
 
 using Pixelaria.Filters;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.Filters
 {

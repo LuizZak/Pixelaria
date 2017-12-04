@@ -22,8 +22,9 @@
 
 using System;
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI;
-using Pixelaria.Utils;
+
+using PixUI;
+using PixUI.Utils;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {

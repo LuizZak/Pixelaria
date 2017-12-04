@@ -31,7 +31,7 @@ namespace PixUI.Controls
     /// <summary>
     /// A scroll bar control that allows scrolling 
     /// </summary>
-    internal sealed class ScrollBarControl : ControlView
+    public sealed class ScrollBarControl : ControlView
     {
         private Vector _dragStart = Vector.Zero;
         private float _scrollStart;
@@ -201,13 +201,16 @@ namespace PixUI.Controls
 
         private void SetupRepeatFire([NotNull] ControlView button, [NotNull] Action onFire)
         {
-            button.Rx
-                .MouseDownRepeating(TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(50))
-                .Subscribe(e =>
-                {
-                    if(button.Bounds.Contains(e.Location))
-                        onFire();
-                }).AddToDisposable(DisposeBag);
+            var disposable =
+                button.Rx
+                    .MouseDownRepeating(TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(50))
+                    .Subscribe(e =>
+                    {
+                        if(button.Bounds.Contains(e.Location))
+                            onFire();
+                    });
+
+            DisposeBag.Add(disposable);
         }
 
         protected override void OnResize()
@@ -331,7 +334,7 @@ namespace PixUI.Controls
     /// <summary>
     /// Interface for objects that provide styles for scroll bars
     /// </summary>
-    internal interface IScrollBarControlStyle
+    public interface IScrollBarControlStyle
     {
         /// <summary>
         /// Background color for scroll bar
@@ -375,7 +378,7 @@ namespace PixUI.Controls
         Color ScrollBarButtonPressedColor();
     }
 
-    internal class DarkScrollBarControlStyle : IScrollBarControlStyle
+    public class DarkScrollBarControlStyle : IScrollBarControlStyle
     {
         public Color ScrollBarBackgroundColor() => Color.DimGray;
 

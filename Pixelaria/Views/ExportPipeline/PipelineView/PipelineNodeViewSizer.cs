@@ -23,9 +23,11 @@
 using System;
 using System.Linq;
 using JetBrains.Annotations;
+
+using PixUI;
+using PixUI.Utils;
+
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI;
-using Pixelaria.Utils;
 using Pixelaria.Utils.Layouting;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView

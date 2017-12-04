@@ -26,9 +26,13 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
+using PixCore.Colors;
+
+using PixUI;
+using PixUI.Rendering;
+using PixUI.Utils;
+
 using JetBrains.Annotations;
-using Pixelaria.PixUI;
-using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures

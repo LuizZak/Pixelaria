@@ -24,15 +24,15 @@ using System;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
-using Pixelaria.PixUI;
-using Pixelaria.PixUI.Controls;
-using Pixelaria.PixUI.Visitor;
-using Pixelaria.Utils;
+
+using PixUI;
+using PixUI.Controls;
+using PixUI.Rendering;
+using PixUI.Utils;
+using PixUI.Visitor;
 
 using SharpDX;
 using SharpDX.Direct2D1;
-
-using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -103,12 +103,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnFixedFrame(e);
 
+            var args = new FixedFrameEventArgs(TimeSpan.FromMilliseconds(8));
+
             // Call frame tick on all views
             var visitor = new BaseViewVisitor<object>((o, view) =>
             {
                 if (view is ControlView controlView)
                 {
-                    controlView.OnFixedFrame();
+                    controlView.OnFixedFrame(args);
                 }
             });
 

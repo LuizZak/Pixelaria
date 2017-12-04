@@ -25,8 +25,9 @@ using System.Drawing;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+
+using PixUI.Controls;
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {

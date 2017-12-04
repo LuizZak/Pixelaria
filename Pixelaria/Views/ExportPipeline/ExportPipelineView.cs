@@ -44,16 +44,18 @@ using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using Resource = SharpDX.Direct3D11.Resource;
 using Device = SharpDX.Direct3D11.Device;
 
+using PixUI;
+using PixUI.Controls;
+using PixUI.Rendering;
+using PixUI.Utils;
+
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
-using Pixelaria.PixUI;
-using Pixelaria.PixUI.Controls;
 using Pixelaria.Properties;
-using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 

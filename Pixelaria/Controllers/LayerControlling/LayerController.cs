@@ -224,7 +224,7 @@ namespace Pixelaria.Controllers.LayerControlling
         {
             get
             {
-                IFrameLayer[] layers = new IFrameLayer[_frame.LayerCount];
+                var layers = new IFrameLayer[_frame.LayerCount];
 
                 for (int i = 0; i < _frame.LayerCount; i++)
                 {

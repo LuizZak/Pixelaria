@@ -25,8 +25,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
+
+using PixUI.Utils;
+
 using Pixelaria.Filters;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -74,8 +76,8 @@ namespace Pixelaria.Views.Controls.Filters
             set
             {
                 // Adjust the buttons' colors
-                var lightColor = Utilities.ToAhsl(value);
-                var darkColor = Utilities.ToAhsl(value);
+                var lightColor = value.ToAhsl();
+                var darkColor = value.ToAhsl();
 
                 lightColor = new AhslColor(lightColor.Alpha, lightColor.Hue, lightColor.Saturation, lightColor.Lightness + 6);
                 darkColor = new AhslColor(darkColor.Alpha, darkColor.Hue, darkColor.Saturation, darkColor.Lightness - 19);
@@ -106,7 +108,7 @@ namespace Pixelaria.Views.Controls.Filters
                 {
                     btn_enable.Image = Properties.Resources.filter_disable_icon;
 
-                    var newColor = Utilities.ToAhsl(Color.FromKnownColor(KnownColor.Control));
+                    var newColor = Color.FromKnownColor(KnownColor.Control).ToAhsl();
 
                     newColor = new AhslColor(newColor.Alpha, newColor.Hue, newColor.Saturation, newColor.Lightness - 10);
 
@@ -289,8 +291,8 @@ namespace Pixelaria.Views.Controls.Filters
             base.OnPaint(e);
 
             // Draw the dragging region
-            var lightColor = Utilities.ToAhsl(BackColor);
-            var darkColor = Utilities.ToAhsl(BackColor);
+            var lightColor = BackColor.ToAhsl();
+            var darkColor = BackColor.ToAhsl();
 
             lightColor = new AhslColor(lightColor.Alpha, lightColor.Hue, lightColor.Saturation, lightColor.Lightness + 6);
             darkColor = new AhslColor(darkColor.Alpha, darkColor.Hue, darkColor.Saturation, darkColor.Lightness - 19);

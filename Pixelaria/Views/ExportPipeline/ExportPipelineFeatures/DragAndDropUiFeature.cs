@@ -24,10 +24,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
+using PixCore.Colors;
+using PixUI;
+using PixUI.Utils;
+
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI;
-using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures

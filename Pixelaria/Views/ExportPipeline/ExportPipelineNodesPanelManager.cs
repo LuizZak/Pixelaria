@@ -27,15 +27,17 @@ using System.Linq;
 using System.Reactive.Disposables;
 
 using JetBrains.Annotations;
+using PixCore.Colors;
+using PixUI;
+using PixUI.Controls;
+using PixUI.Rendering;
+using PixUI.Text;
+using PixUI.Utils;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
-using Pixelaria.PixUI;
-using Pixelaria.PixUI.Controls;
-using Pixelaria.PixUI.Controls.Text;
 using Pixelaria.Utils;
-using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline
 {

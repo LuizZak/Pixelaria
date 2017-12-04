@@ -63,7 +63,7 @@ namespace Pixelaria.Controllers.Exporters
         public async Task ExportBundleConcurrent([NotNull] Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             // Start with initial values for the progress export of every sheet
-            float[] stageProgresses = new float[bundle.AnimationSheets.Count];
+            var stageProgresses = new float[bundle.AnimationSheets.Count];
             var exports = new List<BundleSheetJson>();
             
             var progressAction = new Action<IAnimationProvider>(sheet =>

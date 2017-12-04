@@ -31,7 +31,7 @@ namespace PixUI.Controls
     /// 
     /// Exposes methods for working with first responder status of controls.
     /// </summary>
-    internal class RootControlView : BaseView
+    public class RootControlView : BaseView
     {
         private readonly IFirstResponderDelegate<IEventHandler> _firstResponderDelegate;
 
@@ -83,7 +83,7 @@ namespace PixUI.Controls
     /// For objects that manage first responder hierarchies of <see cref="RootControlView"/>.
     /// </summary>
     /// <typeparam name="T">The type of first responder (must be an object derived of <see cref="IEventHandler"/>) to handle.</typeparam>
-    internal interface IFirstResponderDelegate<in T> where T: IEventHandler
+    public interface IFirstResponderDelegate<in T> where T: IEventHandler
     {
         /// <summary>
         /// Sets a given object as the current first responder.

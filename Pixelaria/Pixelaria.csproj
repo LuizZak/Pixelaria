@@ -237,9 +237,8 @@
     <Compile Include="ExportPipeline\Steps\SinkPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
+    <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />
-    <Compile Include="PixUI\TextRange.cs" />
-    <Compile Include="Utils\DrawingUtilities.cs" />
     <Compile Include="Utils\Layouting\LayoutingHelper.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
@@ -261,47 +260,22 @@
     </Compile>
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewRxUtils.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\IControlContainer.cs" />
-    <Compile Include="PixUI\Controls\ContextMenu\ContextMenuControl.cs" />
-    <Compile Include="PixUI\Controls\ContextMenu\ContextMenuDropDownItem.cs" />
-    <Compile Include="PixUI\Controls\ContextMenu\ContextMenuItem.cs" />
-    <Compile Include="PixUI\Visitor\BaseViewTraverser.cs" />
-    <Compile Include="PixUI\Visitor\BaseViewVisitor.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\PipelineLinkContextMenuFeature.cs" />
-    <Compile Include="PixUI\Visitor\IBaseViewVisitor.cs" />
-    <Compile Include="PixUI\Controls\IEventHandler.cs" />
-    <Compile Include="PixUI\Controls\IEventRequest.cs" />
-    <Compile Include="PixUI\Controls\IKeyboardEventHandler.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
-    <Compile Include="PixUI\Controls\IMouseEventHandler.cs" />
-    <Compile Include="PixUI\Controls\Text\ITextEngine.cs" />
-    <Compile Include="PixUI\Controls\RootControlView.cs" />
-    <Compile Include="PixUI\Controls\Text\StringTextualBuffer.cs" />
-    <Compile Include="PixUI\Controls\Text\TextEngine.cs" />
-    <Compile Include="PixUI\Controls\TextField.cs" />
-    <Compile Include="PixUI\ImageResource.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\IPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeViewSizer.cs" />
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\ExportPipeline\D2DImageResources.cs" />
-    <Compile Include="Views\ExportPipeline\Direct2DRenderingState.cs" />
-    <Compile Include="PixUI\Controls\ButtonControl.cs" />
-    <Compile Include="PixUI\Controls\ControlView.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\ExportPipeline\Direct2DRenderer.cs" />
-    <Compile Include="PixUI\Controls\LabelViewControl.cs" />
-    <Compile Include="PixUI\Controls\ScrollBarControl.cs" />
-    <Compile Include="PixUI\Controls\ScrollViewControl.cs" />
-    <Compile Include="PixUI\Controls\SelfRenderingBaseView.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SmoothViewPanAndZoomUiFeature.cs" />
-    <Compile Include="Views\ExportPipeline\IDirect2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
-    <Compile Include="PixUI\BaseView.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
     <Compile Include="Data\Animation.cs" />
     <Compile Include="Data\Bundle.cs" />
@@ -580,14 +554,9 @@
     <Compile Include="Views\ModelViews\NewAnimationView.Designer.cs">
       <DependentUpon>NewAnimationView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils\AABB.cs" />
-    <Compile Include="PixUI\BezierPathView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\GraphLayout.cs" />
-    <Compile Include="PixUI\AttributedText.cs" />
-    <Compile Include="PixUI\LabelView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeLinkView.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeView.cs" />
-    <Compile Include="Utils\Vector.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SelectionUiFeature.cs" />
     <Compile Include="Views\SettingsViews\BundleSettingsView.cs">
       <SubType>Form</SubType>
@@ -919,6 +888,10 @@
     <ProjectReference Include="..\PixCore\PixCore.csproj">
       <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
       <Name>PixCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PixUI\PixUI.csproj">
+      <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
+      <Name>PixUI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

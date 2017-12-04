@@ -29,7 +29,7 @@ namespace PixUI.Controls
     /// <summary>
     /// A container view which scrolls to allow panning contents into a rectangular view
     /// </summary>
-    internal class ScrollViewControl : ControlView
+    public class ScrollViewControl : ControlView
     {
         private const float ScrollBarSize = 20;
         

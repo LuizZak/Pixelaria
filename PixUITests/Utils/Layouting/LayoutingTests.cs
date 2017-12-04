@@ -21,10 +21,10 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Utils;
-using Pixelaria.Utils.Layouting;
+using PixUI.Utils;
+using PixUI.Utils.Layouting;
 
-namespace PixelariaTests.Tests.Utils.Layouting
+namespace PixUITests.Utils.Layouting
 {
     [TestClass]
     public class LayoutingTests

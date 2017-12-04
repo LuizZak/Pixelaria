@@ -157,9 +157,11 @@ namespace PixUI.Controls
             // Hookup our mouse double click event directly on the control itself
             var time = TimeSpan.FromMilliseconds(SystemInformation.DoubleClickTime);
             
-            Rx.MouseDoubleClick(time, SystemInformation.DoubleClickSize)
-                .Subscribe(OnMouseDoubleClick)
-                .AddToDisposable(DisposeBag);
+            var disposable =
+                Rx.MouseDoubleClick(time, SystemInformation.DoubleClickSize)
+                    .Subscribe(OnMouseDoubleClick);
+
+            DisposeBag.Add(disposable);
         }
 
         ~ControlView()

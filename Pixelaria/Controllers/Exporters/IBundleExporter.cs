@@ -23,6 +23,7 @@
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
@@ -58,6 +59,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
+        [ItemCanBeNull]
         Task<BundleSheetExport> ExportBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
 
         /// <summary>

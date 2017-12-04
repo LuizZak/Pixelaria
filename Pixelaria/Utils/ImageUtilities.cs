@@ -28,6 +28,7 @@ using System.IO;
 using System.Security.Cryptography;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixCore.Colors;
 using Pixelaria.Data;
 
 namespace Pixelaria.Utils
@@ -249,7 +250,7 @@ namespace Pixelaria.Utils
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        fastTarget.SetPixel(x, y, Utilities.FlattenColor(fastTarget.GetPixelUInt(x, y), fastForeBitmap.GetPixelUInt(x, y)));
+                        fastTarget.SetPixel(x, y, ColorUtils.FlattenColor(fastTarget.GetPixelUInt(x, y), fastForeBitmap.GetPixelUInt(x, y)));
                     }
                 }
             }

@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,29 +20,36 @@
     base directory of this project.
 */
 
-using JetBrains.Annotations;
+using System.IO;
 
-namespace Pixelaria.PixUI.Visitor
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.Utils;
+
+namespace PixelariaTests.Tests.Utils
 {
-    /// <summary>
-    /// Interface for objects that deal with visiting of base view instances with their own logic.
-    /// </summary>
-    internal interface IBaseViewVisitor<in T>
+    [TestClass]
+    public class SettingsTests
     {
-        /// <summary>
-        /// Called when the visitor first arrives at a view
-        /// </summary>
-        void OnVisitorEnter(T state, [NotNull] BaseView view);
+        [TestMethod]
+        public void TestInitialize()
+        {
+            string path = Path.GetTempFileName();
+            var sut = Settings.GetSettings(path);
 
-        /// <summary>
-        /// Called to apply a visit logic to a view
-        /// </summary>
-        void VisitView(T state, [NotNull] BaseView view);
+            Assert.IsNotNull(sut);
+        }
+        
+        [TestMethod]
+        public void TestGetSettings()
+        {
+            string path1 = Path.GetTempFileName();
+            string path2 = Path.GetTempFileName();
+            var settings1 = Settings.GetSettings(path1);
+            settings1.SetValue("test", "test value");
 
-        /// <summary>
-        /// Called when the last child of a view has been visited and traversal will 
-        /// continue up the siblings/parent chain
-        /// </summary>
-        void OnVisitorExit(T state, [NotNull] BaseView view);
+            var settings2 = Settings.GetSettings(path2);
+
+            Assert.IsNull(settings2.GetValue("test"));
+        }
     }
 }

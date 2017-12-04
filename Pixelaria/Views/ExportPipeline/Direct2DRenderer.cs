@@ -29,11 +29,17 @@ using System.Windows.Forms;
 
 using JetBrains.Annotations;
 
+using PixCore.Colors;
+
+using PixUI;
+using PixUI.Rendering;
+using PixUI.Controls;
+using PixUI.Text;
+using PixUI.Utils;
+
 using Pixelaria.ExportPipeline;
-using Pixelaria.PixUI;
-using Pixelaria.PixUI.Controls;
-using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -57,7 +63,7 @@ namespace Pixelaria.Views.ExportPipeline
     /// <summary>
     /// Renders a pipeline export view
     /// </summary>
-    internal class Direct2DRenderer : IDisposable, IDirect2DRenderer
+    internal class Direct2DRenderer : IDisposable, IExportPipelineDirect2DRenderer
     {
         [CanBeNull]
         private Direct2DRenderingState _lastRenderingState;

@@ -33,14 +33,6 @@ namespace PixUI.Utils
     public static class Utilities
     {
         /// <summary>
-        /// Adds a disposable object into a collection of disposable (usually a CompositeDisposable)
-        /// </summary>
-        public static void AddToDisposable<T>(this IDisposable disposable, [NotNull] T target) where T : ICollection<IDisposable>, IDisposable
-        {
-            target.Add(disposable);
-        }
-        
-        /// <summary>
         /// Returns the smallest Rectangle object that encloses all points provided
         /// </summary>
         /// <param name="pointList">An array of points to convert</param>
