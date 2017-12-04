@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
@@ -42,7 +43,7 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Initializes the Settings class
         /// </summary>
-        private Settings(string settingsFile)
+        public Settings(IIniFileInterface settingsFile)
         {
             _iniFileFile = new IniFileReaderWritter(settingsFile);
             _iniFileFile.LoadSettings();
@@ -124,7 +125,7 @@ namespace Pixelaria.Utils
             if (SettingsMap.TryGetValue(path, out var settings))
                 return settings;
 
-            SettingsMap[path] = new Settings(path);
+            SettingsMap[path] = new Settings(new IniFileInterface(path));
 
             return SettingsMap[path];
         }
@@ -143,10 +144,10 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Creates a new instance of the IniReader class
         /// </summary>
-        /// <param name="path">A path to a .ini file</param>
-        public IniFileReaderWritter(string path)
+        /// <param name="source">Interface for underlying ini file data</param>
+        public IniFileReaderWritter(IIniFileInterface source)
         {
-            _fileInterface = new IniFileInterface(path);
+            _fileInterface = source;
             _values = new Dictionary<string, string>();
         }
 
@@ -261,7 +262,11 @@ namespace Pixelaria.Utils
                         string value = builder.ToString();
 
                         // 
-                        _values[currentPath + "\\" + valueName] = value;
+                        string finalPath = currentPath == "" ? valueName : currentPath + "\\" + valueName;
+
+                        Debug.Assert(finalPath != null, "finalPath != null");
+
+                        _values[finalPath] = value;
                     }
                     catch (Exception)
                     {

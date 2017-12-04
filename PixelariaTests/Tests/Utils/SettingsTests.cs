@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -50,6 +51,54 @@ namespace PixelariaTests.Tests.Utils
             var settings2 = Settings.GetSettings(path2);
 
             Assert.IsNull(settings2.GetValue("test"));
+        }
+
+        [TestMethod]
+        public void TestTargetFileIsNotHeldOpenAfterInitializing()
+        {
+            string path = Path.GetTempFileName();
+
+            var sut = Settings.GetSettings(path);
+
+            Assert.IsFalse(IsHeldOpen(path));
+            Assert.IsNotNull(sut);
+        }
+
+        [TestMethod]
+        public void TestTargetFileIsNotHeldOpenAfterLoadSettings()
+        {
+            string path = Path.GetTempFileName();
+
+            var sut = Settings.GetSettings(path);
+            
+            Assert.IsFalse(IsHeldOpen(path));
+            Assert.IsNotNull(sut);
+        }
+
+        [TestMethod]
+        public void TestTargetFileIsNotHeldOpenAfterSaveSettings()
+        {
+            string path = Path.GetTempFileName();
+            var sut = Settings.GetSettings(path);
+
+            sut.SaveSettings();
+
+            Assert.IsFalse(IsHeldOpen(path));
+            Assert.IsNotNull(sut);
+        }
+
+        private static bool IsHeldOpen(string path)
+        {
+            try
+            {
+                var file = File.OpenWrite(path);
+                file.Close();
+                return false;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
         }
     }
 }

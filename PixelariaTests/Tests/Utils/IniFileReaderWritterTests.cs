@@ -20,8 +20,6 @@
     base directory of this project.
 */
 
-using System;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Utils;
 
@@ -33,71 +31,74 @@ namespace PixelariaTests.Tests.Utils
         [TestMethod]
         public void TestInitialize()
         {
-            string path = Path.GetTempFileName();
-            var sut = new IniFileReaderWritter(path);
+            var sut = new IniFileReaderWritter(new TestIniFile(""));
 
             Assert.IsNotNull(sut);
         }
 
         [TestMethod]
-        public void TestGetSettings()
+        public void TestGetValue()
         {
-            string path1 = Path.GetTempFileName();
-            string path2 = Path.GetTempFileName();
-            var settings1 = new IniFileReaderWritter(path1);
-            settings1.SetValue("test", "test value");
+            const string file = "test=test value";
+            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
+            settings2.LoadSettings();
 
-            var settings2 = new IniFileReaderWritter(path2);
-
-            Assert.IsNull(settings2.GetValue("test"));
+            Assert.AreEqual("test value", settings2.GetValue("test"));
         }
-        
-        [TestMethod]
-        public void TestTargetFileIsNotHeldOpenAfterInitializing()
-        {
-            string path = Path.GetTempFileName();
 
-            var sut = new IniFileReaderWritter(path);
+        [TestMethod]
+        public void TestGetValueOnEmptySubpath()
+        {
+            const string file = "[]\ntest=test value";
+            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
+            settings2.LoadSettings();
+
+            Assert.AreEqual("test value", settings2.GetValue("test"));
+        }
+
+        [TestMethod]
+        public void TestGetValueNested()
+        {
+            const string file = "[child 1]\ntest=test value\n[child 2]\ntest=other test value";
+            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
+            settings2.LoadSettings();
+
+            Assert.AreEqual("test value", settings2.GetValue("child 1\\test"));
+            Assert.AreEqual("other test value", settings2.GetValue("child 2\\test"));
+        }
+
+        [TestMethod]
+        public void TestGetValueReplacing()
+        {
+            const string file = "test=test value\ntest=other test value";
+            var settings2 = new IniFileReaderWritter(new TestIniFile(file));
+            settings2.LoadSettings();
             
-            Assert.IsFalse(IsHeldOpen(path));
-            Assert.IsNotNull(sut);
-        }
-        
-        [TestMethod]
-        public void TestTargetFileIsNotHeldOpenAfterLoadSettings()
-        {
-            string path = Path.GetTempFileName();
-            var sut = new IniFileReaderWritter(path);
-
-            sut.LoadSettings();
-            
-            Assert.IsFalse(IsHeldOpen(path));
-            Assert.IsNotNull(sut);
-        }
-        
-        [TestMethod]
-        public void TestTargetFileIsNotHeldOpenAfterSaveSettings()
-        {
-            string path = Path.GetTempFileName();
-            var sut = new IniFileReaderWritter(path);
-
-            sut.SaveSettings();
-            
-            Assert.IsFalse(IsHeldOpen(path));
-            Assert.IsNotNull(sut);
+            Assert.AreEqual("other test value", settings2.GetValue("test"));
         }
 
-        private static bool IsHeldOpen(string path)
+        internal class TestIniFile : IIniFileInterface
         {
-            try
+            public string File { get; set; }
+
+            public TestIniFile(string file)
             {
-                var file = File.OpenWrite(path);
-                file.Close();
-                return false;
+                File = file;
             }
-            catch (Exception)
+
+            public TestIniFile()
             {
-                return true;
+                File = "";
+            }
+
+            public void Save(string data)
+            {
+                File = data;
+            }
+
+            public string Load()
+            {
+                return File;
             }
         }
     }
