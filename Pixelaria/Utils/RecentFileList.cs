@@ -22,7 +22,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Utils
