@@ -20,7 +20,9 @@
     base directory of this project.
 */
 
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Utils
@@ -36,9 +38,19 @@ namespace Pixelaria.Utils
         private readonly string[] _fileList;
 
         /// <summary>
+        /// Gets or sets the <see cref="Settings"/> for the .ini file where files will be saved on.
+        /// </summary>
+        public Settings Settings { get; set; } = Settings.GetSettings();
+
+        /// <summary>
         /// Returns the list of files currently in this RecentFileList object
         /// </summary>
         public int FileCount => _fileList.Length;
+
+        /// <summary>
+        /// Gets the list of files
+        /// </summary>
+        public IReadOnlyList<string> FileList => _fileList;
 
         /// <summary>
         /// Returns the file path at the given index
@@ -47,7 +59,7 @@ namespace Pixelaria.Utils
         /// <returns>The file path at the given index</returns>
         [CanBeNull]
         public string this[int index] => _fileList[index];
-
+        
         /// <summary>
         /// Initializes a new instance of the RecentFileList class
         /// </summary>
@@ -69,14 +81,33 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
+        /// Initializes a new instance of the RecentFileList class
+        /// </summary>
+        /// <param name="settings"><see cref="Settings"/> for the .ini file where files will be saved on.</param>
+        /// <param name="fileCount">The number of values to store at the list</param>
+        public RecentFileList(Settings settings, int fileCount)
+        {
+            _fileList = new string[fileCount];
+
+            // Load the values from the settings file
+            Settings = settings;
+
+            for (int i = 0; i < fileCount; i++)
+            {
+                // Assert first to make sure the value exists
+                settings.SetDefaultIfMissing("Recent Files\\File" + i, EnsureValueType.String, "");
+
+                _fileList[i] = settings.GetValue("Recent Files", $"File{i}");
+            }
+        }
+        
+        /// <summary>
         /// Stores the given file to the recent file list, and automatically
         /// saves the list down to the settings file
         /// </summary>
         /// <param name="file">The file to store on this list</param>
         public void StoreFile([NotNull] string file)
         {
-            var settings = Settings.GetSettings();
-
             string fullPath = Path.GetFullPath(file);
 
             // Don't do anything if the file is already at the top of the file list
@@ -90,7 +121,7 @@ namespace Pixelaria.Utils
             {
                 if (fullPath == _fileList[i] || i == _fileList.Length - 1)
                 {
-                    index = (i == _fileList.Length - 1 ? i : i - 1);
+                    index = i == _fileList.Length - 1 ? i : i - 1;
                     break;
                 }
             }
@@ -103,12 +134,12 @@ namespace Pixelaria.Utils
 
                 _fileList[i + 1] = _fileList[i];
 
-                settings.SetValue("Recent Files\\File" + (i + 1), _fileList[i + 1]);
+                Settings.SetValue("Recent Files\\File" + (i + 1), _fileList[i + 1]);
             }
 
             _fileList[0] = fullPath;
 
-            settings.SetValue("Recent Files\\File" + 0, fullPath);
+            Settings.SetValue("Recent Files\\File" + 0, fullPath);
         }
 
         /// <summary>
@@ -117,12 +148,10 @@ namespace Pixelaria.Utils
         /// <param name="index">The index of the item to remove</param>
         public void RemoveFromList(int index)
         {
-            var settings = Settings.GetSettings();
-
             if (index == _fileList.Length - 1)
             {
                 _fileList[index] = "";
-                settings.SetValue("Recent Files\\File" + index, "");
+                Settings.SetValue("Recent Files\\File" + index, "");
                 return;
             }
 
@@ -131,11 +160,11 @@ namespace Pixelaria.Utils
             {
                 _fileList[i] = _fileList[i + 1];
 
-                settings.SetValue("Recent Files\\File" + i, _fileList[i]);
+                Settings.SetValue("Recent Files\\File" + i, _fileList[i]);
             }
 
             _fileList[_fileList.Length - 1] = "";
-            settings.SetValue("Recent Files\\File" + (_fileList.Length - 1), "");
+            Settings.SetValue("Recent Files\\File" + (_fileList.Length - 1), "");
         }
     }
 }

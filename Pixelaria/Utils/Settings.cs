@@ -131,11 +131,11 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Sets the given value on the values list
         /// </summary>
-        /// <param name="valueName">Thev value name to sabe</param>
+        /// <param name="valuePath">Thev value name to sabe</param>
         /// <param name="value">The value to save</param>
-        public void SetValue([NotNull] string valueName, string value)
+        public void SetValue([NotNull] string valuePath, string value)
         {
-            _iniFileFile.SetValue(valueName, value);
+            _iniFileFile.SetValue(valuePath, value);
             _iniFileFile.SaveSettings();
         }
 
