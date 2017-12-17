@@ -30,6 +30,8 @@ using PixCore.Geometry;
 
 namespace PixUI.Text
 {
+    // TODO: Consider removing redundant IAttributedText and use AttributedText class instead.
+
     public interface IAttributedText
     {
         /// <summary>
