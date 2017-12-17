@@ -24,6 +24,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Rendering;
 using PixUI.Text;
 using PixUI.Utils;
@@ -175,7 +176,7 @@ namespace PixUI.Controls
                         foreach (var metric in metrics)
                         {
                             var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
-                            context.RenderTarget.FillRectangle(aabb.Inflated(attr.Inflation), brush);
+                            context.RenderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectangleF(), brush);
                         }
                     }
                 }

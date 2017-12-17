@@ -30,7 +30,7 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 
 using PixCore.Colors;
-
+using PixCore.Geometry;
 using PixUI;
 using PixUI.Rendering;
 using PixUI.Controls;
@@ -311,7 +311,7 @@ namespace Pixelaria.Views.ExportPipeline
                             mode = BitmapInterpolationMode.NearestNeighbor;
                         }
 
-                        state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds, 1f, mode);
+                        state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds.ToRawRectangleF(), 1f, mode);
                     }
                 }
 
@@ -331,7 +331,7 @@ namespace Pixelaria.Views.ExportPipeline
                     using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, _nodeTitlesTextFormat, area.Width, area.Height))
                     using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
                     {
-                        state.D2DRenderTarget.DrawTextLayout(area.Minimum, textLayout, brush, DrawTextOptions.EnableColorFont);
+                        state.D2DRenderTarget.DrawTextLayout(area.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
                     }
                 }
 
@@ -393,7 +393,7 @@ namespace Pixelaria.Views.ExportPipeline
                 using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
                 {
-                    var ellipse = new Ellipse(rectangle.Center, rectangle.Width / 2, rectangle.Width / 2);
+                    var ellipse = new Ellipse(rectangle.Center.ToRawVector2(), rectangle.Width / 2, rectangle.Width / 2);
 
                     state.D2DRenderTarget.FillEllipse(ellipse, brush);
                     state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
@@ -432,21 +432,21 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         var rec = recInput.Rectangle;
 
-                        sink.BeginFigure(rec.Minimum, FigureBegin.Filled);
-                        sink.AddLine(new Vector(rec.Right, rec.Top));
-                        sink.AddLine(new Vector(rec.Right, rec.Bottom));
-                        sink.AddLine(new Vector(rec.Left, rec.Bottom));
+                        sink.BeginFigure(rec.Minimum.ToRawVector2(), FigureBegin.Filled);
+                        sink.AddLine(new Vector(rec.Right, rec.Top).ToRawVector2());
+                        sink.AddLine(new Vector(rec.Right, rec.Bottom).ToRawVector2());
+                        sink.AddLine(new Vector(rec.Left, rec.Bottom).ToRawVector2());
                         sink.EndFigure(FigureEnd.Closed);
                     }
                     else if (input is BezierPathView.BezierPathInput bezInput)
                     {
-                        sink.BeginFigure(bezInput.Start, FigureBegin.Filled);
+                        sink.BeginFigure(bezInput.Start.ToRawVector2(), FigureBegin.Filled);
 
                         sink.AddBezier(new BezierSegment
                         {
-                            Point1 = bezInput.ControlPoint1,
-                            Point2 = bezInput.ControlPoint2,
-                            Point3 = bezInput.End
+                            Point1 = bezInput.ControlPoint1.ToRawVector2(),
+                            Point2 = bezInput.ControlPoint2.ToRawVector2(),
+                            Point3 = bezInput.End.ToRawVector2()
                         });
 
                         sink.EndFigure(FigureEnd.Open);
@@ -571,7 +571,7 @@ namespace Pixelaria.Views.ExportPipeline
                     }
                     else
                     {
-                        renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum, textLayout, brush);
+                        renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum.ToRawVector2(), textLayout, brush);
                     }
                 }
             });
@@ -618,7 +618,7 @@ namespace Pixelaria.Views.ExportPipeline
                             var start = new Vector(x, reg.Top) * transform;
                             var end = new Vector(x, reg.Bottom) * transform;
 
-                            renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
+                            renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                         }
 
                         for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
@@ -626,7 +626,7 @@ namespace Pixelaria.Views.ExportPipeline
                             var start = new Vector(reg.Left, y) * transform;
                             var end = new Vector(reg.Right, y) * transform;
 
-                            renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
+                            renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                         }
                     }
                 }
@@ -639,7 +639,7 @@ namespace Pixelaria.Views.ExportPipeline
                         var start = new Vector(x, reg.Top) * transform;
                         var end = new Vector(x, reg.Bottom) * transform;
 
-                        renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
+                        renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                     }
 
                     for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
@@ -647,7 +647,7 @@ namespace Pixelaria.Views.ExportPipeline
                         var start = new Vector(reg.Left, y) * transform;
                         var end = new Vector(reg.Right, y) * transform;
 
-                        renderingState.D2DRenderTarget.DrawLine(start, end, gridPen);
+                        renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                     }
                 }
             });

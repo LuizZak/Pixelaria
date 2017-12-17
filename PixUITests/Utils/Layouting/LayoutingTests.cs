@@ -21,7 +21,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixUI.Utils;
+using PixCore.Geometry;
 using PixUI.Utils.Layouting;
 
 namespace PixUITests.Utils.Layouting

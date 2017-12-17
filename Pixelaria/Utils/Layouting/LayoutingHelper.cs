@@ -22,7 +22,7 @@
 
 using System;
 using JetBrains.Annotations;
-using PixUI.Utils;
+using PixCore.Geometry;
 
 namespace Pixelaria.Utils.Layouting
 {

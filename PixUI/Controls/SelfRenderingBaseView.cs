@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixUI.Rendering;
+using PixUI.Utils;
 using SharpDX.Direct2D1;
 
 namespace PixUI.Controls
@@ -86,7 +87,7 @@ namespace PixUI.Controls
             {
                 if (Math.Abs(CornerRadius) < float.Epsilon)
                 {
-                    context.RenderTarget.FillRectangle(Bounds, brush);
+                    context.RenderTarget.FillRectangle(Bounds.ToRawRectangleF(), brush);
                 }
                 else
                 {
@@ -94,7 +95,7 @@ namespace PixUI.Controls
                     {
                         RadiusX = CornerRadius,
                         RadiusY = CornerRadius,
-                        Rect = Bounds
+                        Rect = Bounds.ToRawRectangleF()
                     };
 
                     context.RenderTarget.FillRoundedRectangle(roundedRect, brush);
@@ -106,7 +107,7 @@ namespace PixUI.Controls
             {
                 if (Math.Abs(CornerRadius) < float.Epsilon)
                 {
-                    context.RenderTarget.DrawRectangle(Bounds, brush, StrokeWidth);
+                    context.RenderTarget.DrawRectangle(Bounds.ToRawRectangleF(), brush, StrokeWidth);
                 }
                 else
                 {
@@ -114,7 +115,7 @@ namespace PixUI.Controls
                     {
                         RadiusX = CornerRadius,
                         RadiusY = CornerRadius,
-                        Rect = Bounds
+                        Rect = Bounds.ToRawRectangleF()
                     };
 
                     context.RenderTarget.DrawRoundedRectangle(roundedRect, brush, StrokeWidth);

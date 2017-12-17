@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Controls;
 using PixUI.Text;
 using PixUI.Utils;

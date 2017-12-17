@@ -24,7 +24,7 @@ using System;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
-
+using PixCore.Geometry;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
@@ -137,7 +137,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
             {
                 var clip = view.Bounds;
-                context.RenderTarget.PushAxisAlignedClip(clip, AntialiasMode.Aliased);
+                context.RenderTarget.PushAxisAlignedClip(clip.ToRawRectangleF(), AntialiasMode.Aliased);
             }
         }
 

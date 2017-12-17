@@ -21,6 +21,7 @@
 */
 
 using System;
+using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
 
 using PixUI;

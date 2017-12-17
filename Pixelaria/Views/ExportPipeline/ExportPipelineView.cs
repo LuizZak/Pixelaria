@@ -29,7 +29,7 @@ using System.Reactive.Disposables;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
-
+using PixCore.Geometry;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -708,19 +708,19 @@ namespace Pixelaria.Views.ExportPipeline
                 // Draw image, or opaque background
                 if (bitmap != null)
                 {
-                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds, 1, BitmapInterpolationMode.Linear);
+                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds.ToRawRectangleF(), 1, BitmapInterpolationMode.Linear);
                 }
                 else
                 {
                     using (var brush = new SolidColorBrush(state.D2DRenderTarget, System.Drawing.Color.DimGray.ToColor4()))
                     {
-                        state.D2DRenderTarget.FillRectangle(bounds, brush);
+                        state.D2DRenderTarget.FillRectangle(bounds.ToRawRectangleF(), brush);
                     }
                 }
 
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, System.Drawing.Color.Gray.ToColor4()))
                 {
-                    state.D2DRenderTarget.DrawRectangle(bounds, brush);
+                    state.D2DRenderTarget.DrawRectangle(bounds.ToRawRectangleF(), brush);
                 }
 
                 y += size.Y + 5;

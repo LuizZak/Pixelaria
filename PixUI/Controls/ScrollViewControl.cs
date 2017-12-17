@@ -22,6 +22,7 @@
 
 using System;
 using System.Windows.Forms;
+using PixCore.Geometry;
 using PixUI.Utils;
 
 namespace PixUI.Controls

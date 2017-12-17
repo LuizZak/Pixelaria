@@ -378,11 +378,6 @@ namespace Pixelaria.Utils
         /// The values stored in the .ini file
         /// </summary>
         private readonly Dictionary<string, string> _values;
-
-        /// <summary>
-        /// The filepath to the .ini file
-        /// </summary>
-        //private readonly string _filePath;
         
         /// <summary>
         /// Specifies a node that contains settings and subnodes

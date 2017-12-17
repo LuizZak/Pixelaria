@@ -125,6 +125,10 @@
     <Compile Include="Tests\Utils\RecentFileListTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PixCore\PixCore.csproj">
+      <Project>{DB49EDE1-059E-4368-B421-8CFD5954CFEC}</Project>
+      <Name>PixCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Pixelaria\Pixelaria.csproj">
       <Project>{9dbee059-e16e-4ee4-8df0-6ecd2fe2eac2}</Project>
       <Name>Pixelaria</Name>

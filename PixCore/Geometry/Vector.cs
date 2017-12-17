@@ -24,12 +24,10 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using JetBrains.Annotations;
-using SharpDX;
-using SharpDX.Mathematics.Interop;
 using Matrix = System.Drawing.Drawing2D.Matrix;
 using Point = System.Drawing.Point;
 
-namespace PixUI.Utils
+namespace PixCore.Geometry
 {
     /// <summary>
     /// Represents a 2D vector with X and Y components.
@@ -335,16 +333,6 @@ namespace PixUI.Utils
             return new Vector(vec.X, vec.Y);
         }
 
-        public static implicit operator RawVector2(Vector vec)
-        {
-            return new RawVector2(vec.X, vec.Y);
-        }
-
-        public static implicit operator Vector2(Vector vec)
-        {
-            return new Vector2(vec.X, vec.Y);
-        }
-
         /*
          * TODO: This one seems like a bit of a stretch. Maybe it's ok?
          * 
@@ -409,7 +397,18 @@ namespace PixUI.Utils
             }
             return result;
         }
-
+        
+        /// <summary>
+        /// Transforms a single point by multiplying it by the matrix's value
+        /// </summary>
+        [Pure]
+        public static Vector Transform([NotNull] this Matrix matrix, Vector point)
+        {
+            var pts = new[] { (PointF)point };
+            matrix.TransformPoints(pts);
+            return pts[0];
+        }
+        
         /// <summary>
         /// Gets the minimum area capable of containing a set of points
         /// </summary>

@@ -29,6 +29,7 @@ using System.Reactive.Subjects;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Utils;
 using SharpDX.DirectWrite;
 

@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using PixCore.Geometry;
 using PixUI.Text;
 using PixUI.Utils;
 using PixUI.Utils.Layouting;
@@ -238,7 +239,7 @@ namespace PixUI.Controls
             var bitmapBounds = BoundsForImage(image);
 
             var bitmap = context.Renderer.ImageResources.BitmapForResource(image);
-            context.RenderTarget.DrawBitmap(bitmap, bitmapBounds, 1, BitmapInterpolationMode.Linear);
+            context.RenderTarget.DrawBitmap(bitmap, bitmapBounds.ToRawRectangleF(), 1, BitmapInterpolationMode.Linear);
         }
 
         private AABB BoundsForText()

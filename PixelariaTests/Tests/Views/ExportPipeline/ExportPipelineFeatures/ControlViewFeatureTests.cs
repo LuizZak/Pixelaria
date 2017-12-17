@@ -24,9 +24,8 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using PixCore.Geometry;
 using PixUI.Controls;
-using PixUI.Utils;
 
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;

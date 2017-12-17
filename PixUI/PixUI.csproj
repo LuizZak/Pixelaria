@@ -120,12 +120,11 @@
     <Compile Include="Text\TextRange.cs" />
     <Compile Include="Rendering\TextColorRenderer.cs" />
     <Compile Include="Undo\UndoSystem.cs" />
-    <Compile Include="Utils\AABB.cs" />
     <Compile Include="Utils\ControlViewRxUtils.cs" />
     <Compile Include="Utils\DrawingUtilities.cs" />
+    <Compile Include="Utils\GeomExtensions.cs" />
     <Compile Include="Utils\Layouting\LayoutingHelper.cs" />
     <Compile Include="Utils\Utilities.cs" />
-    <Compile Include="Utils\Vector.cs" />
     <Compile Include="Visitor\BaseViewTraverser.cs" />
     <Compile Include="Visitor\BaseViewVisitor.cs" />
     <Compile Include="Visitor\IBaseViewVisitor.cs" />

@@ -22,8 +22,8 @@
 
 using System.Drawing.Drawing2D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Geometry;
 using PixUI;
-using PixUI.Utils;
 
 namespace PixUITests
 {

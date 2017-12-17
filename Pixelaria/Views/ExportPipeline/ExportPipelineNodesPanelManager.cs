@@ -28,6 +28,7 @@ using System.Reactive.Disposables;
 
 using JetBrains.Annotations;
 using PixCore.Colors;
+using PixCore.Geometry;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;

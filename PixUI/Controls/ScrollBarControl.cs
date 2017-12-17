@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Colors;
+using PixCore.Geometry;
 using PixUI.Utils;
 
 namespace PixUI.Controls

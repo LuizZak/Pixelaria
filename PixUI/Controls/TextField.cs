@@ -27,6 +27,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Rendering;
 using PixUI.Text;
 using PixUI.Utils;
@@ -400,7 +401,7 @@ namespace PixUI.Controls
                             var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
                             aabb = _label.ConvertTo(aabb, this);
 
-                            context.RenderTarget.FillRectangle(aabb, brush);
+                            context.RenderTarget.FillRectangle(aabb.ToRawRectangleF(), brush);
                         }
                     }
                 });
@@ -451,7 +452,7 @@ namespace PixUI.Controls
 
             using (var brush = new SolidColorBrush(context.RenderTarget, color))
             {
-                context.RenderTarget.FillRectangle(caretLocation, brush);
+                context.RenderTarget.FillRectangle(caretLocation.ToRawRectangleF(), brush);
             }
         }
 

@@ -23,8 +23,7 @@
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-
-using PixUI.Utils;
+using PixCore.Geometry;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
 

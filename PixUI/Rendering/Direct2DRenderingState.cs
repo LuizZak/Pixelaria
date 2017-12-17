@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -61,7 +62,7 @@ namespace PixUI.Rendering
 
         public void WithTemporaryClipping(AABB clipping, [NotNull, InstantHandle] Action execute)
         {
-            D2DRenderTarget.PushAxisAlignedClip(clipping, AntialiasMode.Aliased);
+            D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectangleF(), AntialiasMode.Aliased);
 
             execute();
 

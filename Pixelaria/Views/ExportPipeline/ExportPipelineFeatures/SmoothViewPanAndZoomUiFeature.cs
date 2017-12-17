@@ -24,7 +24,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-
+using PixCore.Geometry;
 using PixUI.Utils;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures

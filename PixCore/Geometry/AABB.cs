@@ -26,9 +26,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
-using SharpDX.Mathematics.Interop;
 
-namespace PixUI.Utils
+namespace PixCore.Geometry
 {
     /// <summary>
     /// An axis-aligned bounding box.
@@ -445,12 +444,7 @@ namespace PixUI.Utils
         {
             return Rectangle.Round((RectangleF) v);
         }
-
-        public static implicit operator RawRectangleF(AABB bounds)
-        {
-            return new RawRectangleF(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom);
-        }
-
+        
         /// <summary>
         /// State of an AABB instance.
         /// </summary>

@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using PixCore.Geometry;
 using PixUI.Utils;
 
 namespace PixUI.Controls.ContextMenu
