@@ -29,11 +29,11 @@ using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
-using Pixelaria.Data.Undo;
 using PixCore.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.ModelViews;
+using PixUI.Undo;
 
 namespace Pixelaria.Views.Controls
 {

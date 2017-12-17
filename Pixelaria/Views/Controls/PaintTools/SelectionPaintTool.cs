@@ -29,10 +29,10 @@ using System.IO;
 using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
-using Pixelaria.Data.Undo;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
+using PixUI.Undo;
 
 namespace Pixelaria.Views.Controls.PaintTools
 {
@@ -206,7 +206,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this Paint Operation
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize([NotNull] PaintingOperationsPictureBox targetPictureBox)
+        public override void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             // Initialize the operation cursor
             var cursorMemoryStream = new MemoryStream(Properties.Resources.sel_cursor);
@@ -494,7 +494,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintOperation that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseMove([NotNull] MouseEventArgs e)
+        public override void MouseMove(MouseEventArgs e)
         {
             base.MouseMove(e);
 

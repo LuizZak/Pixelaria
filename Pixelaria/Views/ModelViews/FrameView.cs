@@ -34,7 +34,6 @@ using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
-using Pixelaria.Data.Undo;
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
@@ -46,6 +45,7 @@ using Pixelaria.Views.ModelViews.Decorators;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using PixUI.Undo;
 
 namespace Pixelaria.Views.ModelViews
 {

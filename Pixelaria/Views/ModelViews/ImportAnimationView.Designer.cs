@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImportAnimationView));
-            Pixelaria.Data.Undo.UndoSystem undoSystem1 = new Pixelaria.Data.Undo.UndoSystem();
+            PixUI.Undo.UndoSystem undoSystem1 = new PixUI.Undo.UndoSystem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();

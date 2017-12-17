@@ -20,12 +20,11 @@
     base directory of this project.
 */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Data.Undo;
+using PixUI.Undo;
 using Rhino.Mocks;
 
-namespace PixelariaTests.Tests.Data.Undo
+namespace PixUITests.Undo
 {
     [TestClass]
     public class UndoSystemTests

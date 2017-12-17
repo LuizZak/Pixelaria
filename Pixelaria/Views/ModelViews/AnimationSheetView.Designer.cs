@@ -17,7 +17,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationSheetView));
-            Pixelaria.Data.Undo.UndoSystem undoSystem1 = new Pixelaria.Data.Undo.UndoSystem();
+            PixUI.Undo.UndoSystem undoSystem1 = new PixUI.Undo.UndoSystem();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();

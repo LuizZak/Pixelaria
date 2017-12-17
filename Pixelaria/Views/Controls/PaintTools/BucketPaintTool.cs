@@ -28,9 +28,9 @@ using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using PixCore.Colors;
-using Pixelaria.Data.Undo;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
+using PixUI.Undo;
 
 namespace Pixelaria.Views.Controls.PaintTools
 {
