@@ -63,6 +63,7 @@
     <Compile Include="Controls\ColorControls\ColorSwatchControlTests.cs" />
     <Compile Include="Imaging\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Undo\UndoSystemTests.cs" />
     <Compile Include="Unsafe\UnsafeNativeMethodsTests.cs" />
   </ItemGroup>
   <ItemGroup>

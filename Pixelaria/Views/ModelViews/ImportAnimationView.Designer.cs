@@ -1,4 +1,6 @@
-﻿namespace Pixelaria.Views.ModelViews
+﻿using PixCore.Undo;
+
+namespace Pixelaria.Views.ModelViews
 {
     partial class ImportAnimationView
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImportAnimationView));
-            PixUI.Undo.UndoSystem undoSystem1 = new PixUI.Undo.UndoSystem();
+            UndoSystem undoSystem1 = new UndoSystem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();

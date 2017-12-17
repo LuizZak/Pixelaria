@@ -89,6 +89,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Undo\UndoSystem.cs" />
     <Compile Include="Unsafe\UnsafeNativeMethods.cs" />
   </ItemGroup>
   <ItemGroup>

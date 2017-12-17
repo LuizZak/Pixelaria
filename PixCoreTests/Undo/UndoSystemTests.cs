@@ -21,10 +21,10 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixUI.Undo;
+using PixCore.Undo;
 using Rhino.Mocks;
 
-namespace PixUITests.Undo
+namespace PixCoreTests.Undo
 {
     [TestClass]
     public class UndoSystemTests

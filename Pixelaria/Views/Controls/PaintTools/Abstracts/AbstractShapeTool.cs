@@ -26,7 +26,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using PixUI.Undo;
+using PixCore.Undo;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
 {

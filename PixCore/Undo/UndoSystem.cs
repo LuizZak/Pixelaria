@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 
-namespace PixUI.Undo
+namespace PixCore.Undo
 {
     /// <summary>
     /// Base interface for performing undo/redo in undo systems.

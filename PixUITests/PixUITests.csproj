@@ -64,7 +64,6 @@
     <Compile Include="Text\TextEngineTests.cs" />
     <Compile Include="Text\TextRangeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Undo\UndoSystemTests.cs" />
     <Compile Include="Utils\Layouting\LayoutingTests.cs" />
   </ItemGroup>
   <ItemGroup>

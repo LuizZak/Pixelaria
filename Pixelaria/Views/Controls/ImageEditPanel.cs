@@ -30,10 +30,10 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using PixCore.Controls.ColorControls;
+using PixCore.Undo;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.ModelViews;
-using PixUI.Undo;
 
 namespace Pixelaria.Views.Controls
 {

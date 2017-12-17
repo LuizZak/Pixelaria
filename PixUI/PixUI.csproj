@@ -119,7 +119,6 @@
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
     <Compile Include="Text\TextRange.cs" />
     <Compile Include="Rendering\TextColorRenderer.cs" />
-    <Compile Include="Undo\UndoSystem.cs" />
     <Compile Include="Utils\ControlViewRxUtils.cs" />
     <Compile Include="Utils\DrawingUtilities.cs" />
     <Compile Include="Utils\GeomExtensions.cs" />

@@ -23,8 +23,8 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Undo;
 using PixUI.Controls;
-using PixUI.Undo;
 
 namespace PixUI.Text
 {

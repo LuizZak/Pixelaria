@@ -1,4 +1,6 @@
-﻿namespace Pixelaria.Views.ModelViews
+﻿using PixCore.Undo;
+
+namespace Pixelaria.Views.ModelViews
 {
     partial class AnimationSheetView
     {
@@ -17,7 +19,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationSheetView));
-            PixUI.Undo.UndoSystem undoSystem1 = new PixUI.Undo.UndoSystem();
+            UndoSystem undoSystem1 = new UndoSystem();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();

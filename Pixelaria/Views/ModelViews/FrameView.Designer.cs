@@ -1,5 +1,6 @@
 ﻿using Pixelaria.Views.Controls;
 using PixCore.Controls.ColorControls;
+using PixCore.Undo;
 using Pixelaria.Views.Controls.LayerControls;
 
 namespace Pixelaria.Views.ModelViews
@@ -22,7 +23,7 @@ namespace Pixelaria.Views.ModelViews
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
             Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
-            PixUI.Undo.UndoSystem undoSystem1 = new PixUI.Undo.UndoSystem();
+            UndoSystem undoSystem1 = new UndoSystem();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();

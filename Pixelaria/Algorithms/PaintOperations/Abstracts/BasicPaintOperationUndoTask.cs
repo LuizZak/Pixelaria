@@ -21,7 +21,7 @@
 */
 
 using System.Drawing;
-using PixUI.Undo;
+using PixCore.Undo;
 
 namespace Pixelaria.Algorithms.PaintOperations.Abstracts
 {

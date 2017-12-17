@@ -31,6 +31,7 @@ using System.Reactive;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Undo;
 using Pixelaria.Algorithms.FrameOperations;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.DataControllers;
@@ -43,7 +44,6 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
-using PixUI.Undo;
 
 namespace Pixelaria.Views.ModelViews
 {

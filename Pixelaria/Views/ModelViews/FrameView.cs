@@ -38,6 +38,7 @@ using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
 using PixCore.Controls.ColorControls;
+using PixCore.Undo;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
@@ -45,7 +46,6 @@ using Pixelaria.Views.ModelViews.Decorators;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
-using PixUI.Undo;
 
 namespace Pixelaria.Views.ModelViews
 {
