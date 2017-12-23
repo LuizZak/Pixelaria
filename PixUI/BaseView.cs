@@ -36,7 +36,7 @@ namespace PixUI
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
-    public class BaseView : IEquatable<BaseView>
+    public class BaseView : IEquatable<BaseView>, ISpatialReference
     {
         private Vector _size;
 
@@ -490,7 +490,7 @@ namespace PixUI
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
         /// </summary>
-        public Vector ConvertFrom(Vector point, [CanBeNull] BaseView from)
+        public Vector ConvertFrom(Vector point, ISpatialReference from)
         {
             // Convert point to global, if it's currently local to from
             var global = point;
@@ -507,7 +507,7 @@ namespace PixUI
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
         /// </summary>
-        public Vector ConvertTo(Vector point, [CanBeNull] BaseView to)
+        public Vector ConvertTo(Vector point, ISpatialReference to)
         {
             if (to == null)
                 return point * GetAbsoluteTransform();
@@ -521,7 +521,7 @@ namespace PixUI
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
         /// </summary>
-        public AABB ConvertFrom(AABB aabb, [CanBeNull] BaseView from)
+        public AABB ConvertFrom(AABB aabb, ISpatialReference from)
         {
             // Convert point to global, if it's currently local to from
             var global = aabb;
@@ -538,7 +538,7 @@ namespace PixUI
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
         /// </summary>
-        public AABB ConvertTo(AABB aabb, [CanBeNull] BaseView to)
+        public AABB ConvertTo(AABB aabb, ISpatialReference to)
         {
             if (to == null)
                 return aabb.TransformedBounds(GetAbsoluteTransform());
@@ -582,11 +582,56 @@ namespace PixUI
 
             return bounds;
         }
-        
+
+        /// <summary>
+        /// Method called whenever the <see cref="Size"/> property of this view is updated.
+        /// </summary>
         protected virtual void OnResize()
         {
             
         }
+
+        #region Redraw Region Management
+
+        /// <summary>
+        /// Invalidates the entirety of this view's drawing region on its parent.
+        /// 
+        /// The invalidation is propagated through the parent view chain until the root
+        /// view, which may handle it in ways such as invalidating a window screen region.
+        /// </summary>
+        public virtual void Invalidate()
+        {
+            Invalidate(Bounds);
+        }
+
+        /// <summary>
+        /// Invalidates a given rectangle on this view.
+        /// 
+        /// The invalidation is propagated through the parent view chain until the root
+        /// view, which may handle it in ways such as invalidating a window screen region.
+        /// </summary>
+        protected virtual void Invalidate(AABB rectangle)
+        {
+            Invalidate(new Region((RectangleF)rectangle), this);
+        }
+
+        /// <summary>
+        /// Invalidates a given region on this view.
+        /// 
+        /// The invalidation is propagated through the parent view chain until the root
+        /// view, which may handle it in ways such as invalidating a window screen region.
+        /// </summary>
+        /// <param name="region">Region that was invalidated</param>
+        /// <param name="reference">
+        /// A spatial reference location  that specifies in which space the <see cref="region"/> parameter is situated in.
+        /// Usually the <see cref="GetAbsoluteTransform()"/> of the view that was invalidated.
+        /// </param>
+        protected virtual void Invalidate(Region region, ISpatialReference reference)
+        {
+            Parent?.Invalidate(region, reference);
+        }
+
+        #endregion
 
         public bool Equals(BaseView other)
         {

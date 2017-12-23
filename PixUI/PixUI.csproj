@@ -90,6 +90,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ISpatialReference.cs" />
     <Compile Include="Text\AttributedText.cs" />
     <Compile Include="BaseView.cs" />
     <Compile Include="BezierPathView.cs" />

@@ -52,15 +52,15 @@ namespace PixCore.Controls.ColorControls
         {
             this.label1 = new System.Windows.Forms.Label();
             this.pb_palette = new System.Windows.Forms.PictureBox();
-            this.cs_lightness = new ColorSlider();
-            this.cs_saturation = new ColorSlider();
-            this.cs_hue = new ColorSlider();
-            this.cs_blue = new ColorSlider();
-            this.cs_green = new ColorSlider();
-            this.cs_red = new ColorSlider();
-            this.cs_alpha = new ColorSlider();
-            this.pnl_secondColor = new ColorPanel();
-            this.pnl_firstColor = new ColorPanel();
+            this.cs_lightness = new PixCore.Controls.ColorControls.ColorSlider();
+            this.cs_saturation = new PixCore.Controls.ColorControls.ColorSlider();
+            this.cs_hue = new PixCore.Controls.ColorControls.ColorSlider();
+            this.cs_blue = new PixCore.Controls.ColorControls.ColorSlider();
+            this.cs_green = new PixCore.Controls.ColorControls.ColorSlider();
+            this.cs_red = new PixCore.Controls.ColorControls.ColorSlider();
+            this.cs_alpha = new PixCore.Controls.ColorControls.ColorSlider();
+            this.pnl_secondColor = new PixCore.Controls.ColorControls.ColorPanel();
+            this.pnl_firstColor = new PixCore.Controls.ColorControls.ColorPanel();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             ((System.ComponentModel.ISupportInitialize)(this.pb_palette)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -76,7 +76,7 @@ namespace PixCore.Controls.ColorControls
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 13);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Color Pìcker";
+            this.label1.Text = "Color Picker";
             // 
             // pb_palette
             // 
@@ -95,11 +95,14 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_lightness
             // 
+            this.cs_lightness.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_lightness.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_lightness.ColorComponent = ColorSliderComponent.Lightness;
+            this.cs_lightness.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Lightness;
             this.cs_lightness.CurrentValue = 0F;
             this.cs_lightness.CustomColorTitle = "Custom";
+            this.cs_lightness.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_lightness.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_lightness.Location = new System.Drawing.Point(4, 502);
             this.cs_lightness.Name = "cs_lightness";
             this.cs_lightness.Size = new System.Drawing.Size(161, 38);
@@ -107,11 +110,14 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_saturation
             // 
+            this.cs_saturation.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_saturation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_saturation.ColorComponent = ColorSliderComponent.Saturation;
+            this.cs_saturation.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Saturation;
             this.cs_saturation.CurrentValue = 0F;
             this.cs_saturation.CustomColorTitle = "Custom";
+            this.cs_saturation.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_saturation.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_saturation.Location = new System.Drawing.Point(4, 458);
             this.cs_saturation.Name = "cs_saturation";
             this.cs_saturation.Size = new System.Drawing.Size(161, 38);
@@ -119,11 +125,14 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_hue
             // 
+            this.cs_hue.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_hue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_hue.ColorComponent = ColorSliderComponent.Hue;
+            this.cs_hue.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Hue;
             this.cs_hue.CurrentValue = 0F;
             this.cs_hue.CustomColorTitle = "Custom";
+            this.cs_hue.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_hue.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_hue.Location = new System.Drawing.Point(4, 414);
             this.cs_hue.Name = "cs_hue";
             this.cs_hue.Size = new System.Drawing.Size(161, 38);
@@ -131,11 +140,14 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_blue
             // 
+            this.cs_blue.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_blue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_blue.ColorComponent = ColorSliderComponent.Blue;
+            this.cs_blue.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Blue;
             this.cs_blue.CurrentValue = 0F;
             this.cs_blue.CustomColorTitle = "Custom";
+            this.cs_blue.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_blue.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_blue.Location = new System.Drawing.Point(4, 357);
             this.cs_blue.Name = "cs_blue";
             this.cs_blue.Size = new System.Drawing.Size(161, 38);
@@ -143,11 +155,14 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_green
             // 
+            this.cs_green.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_green.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_green.ColorComponent = ColorSliderComponent.Green;
+            this.cs_green.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Green;
             this.cs_green.CurrentValue = 0F;
             this.cs_green.CustomColorTitle = "Custom";
+            this.cs_green.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_green.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_green.Location = new System.Drawing.Point(4, 313);
             this.cs_green.Name = "cs_green";
             this.cs_green.Size = new System.Drawing.Size(161, 38);
@@ -155,11 +170,14 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_red
             // 
+            this.cs_red.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_red.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_red.ColorComponent = ColorSliderComponent.Red;
+            this.cs_red.ColorComponent = PixCore.Controls.ColorControls.ColorSliderComponent.Red;
             this.cs_red.CurrentValue = 0F;
             this.cs_red.CustomColorTitle = "Custom";
+            this.cs_red.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_red.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_red.Location = new System.Drawing.Point(5, 269);
             this.cs_red.Name = "cs_red";
             this.cs_red.Size = new System.Drawing.Size(161, 38);
@@ -167,10 +185,13 @@ namespace PixCore.Controls.ColorControls
             // 
             // cs_alpha
             // 
+            this.cs_alpha.ActiveColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_alpha.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_alpha.CurrentValue = 1F;
             this.cs_alpha.CustomColorTitle = "Custom";
+            this.cs_alpha.CustomEndColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_alpha.CustomStartColor = new PixCore.Colors.AhslColor(1F, 0F, 0F, 0F);
             this.cs_alpha.Location = new System.Drawing.Point(4, 225);
             this.cs_alpha.Name = "cs_alpha";
             this.cs_alpha.Size = new System.Drawing.Size(161, 38);

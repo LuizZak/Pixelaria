@@ -26,7 +26,6 @@ using System.Drawing;
 using System.Linq;
 using PixCore.Geometry;
 using PixUI;
-using PixUI.Utils;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;

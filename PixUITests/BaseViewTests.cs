@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
@@ -130,6 +131,30 @@ namespace PixUITests
             grandparent.AddChild(parent);
 
             Assert.IsTrue(sut.IsDescendentOf(grandparent));
+        }
+
+        [TestMethod]
+        public void TestInvalidate()
+        {
+            var root = new TestInvalidateBaseView {Location = new Vector(5, 5)};
+            var child = new BaseView {Size = new Vector(100, 100)};
+            root.AddChild(child);
+
+            child.Invalidate();
+
+            Assert.AreEqual(child, root.InvalidateReference);
+        }
+
+        internal class TestInvalidateBaseView : BaseView
+        {
+            public Region InvalidateRegion { get; set; }
+            public ISpatialReference InvalidateReference { get; set; }
+
+            protected override void Invalidate(Region region, ISpatialReference reference)
+            {
+                InvalidateRegion = region;
+                InvalidateReference = reference;
+            }
         }
     }
 }

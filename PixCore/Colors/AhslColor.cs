@@ -598,7 +598,9 @@ namespace PixCore.Colors
 
             if (_service == null || !(value is AhslColor color))
                 return value;
-            
+
+            Application.EnableVisualStyles();
+
             using (var colorPicker = new ColorPickerDialog {SelectedColor = color})
             {
                 if (_service.ShowDialog(colorPicker) == DialogResult.OK)
