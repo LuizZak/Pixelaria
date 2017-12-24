@@ -27,7 +27,7 @@ using PixUI.Controls;
 namespace PixUITests.Controls
 {
     [TestClass]
-    public class TestControlView
+    public class ControlViewTests
     {
         [TestInitialize]
         public void Setup()

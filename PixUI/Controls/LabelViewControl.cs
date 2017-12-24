@@ -106,6 +106,7 @@ namespace PixUI.Controls
             {
                 _horizontalTextAlignment = value;
                 ResetTextFormat();
+                Invalidate();
             }
         }
 
@@ -116,6 +117,7 @@ namespace PixUI.Controls
             {
                 _verticalTextAlignment = value;
                 ResetTextFormat();
+                Invalidate();
             }
         }
 
@@ -126,15 +128,22 @@ namespace PixUI.Controls
             {
                 _textWordWrap = value;
                 ResetTextFormat();
+                Invalidate();
             }
         }
 
-        public LabelViewControl()
+        public LabelViewControl() : this("")
+        {
+        }
+
+        public LabelViewControl([NotNull] string text)
         {
             _labelView = new LabelView();
             InteractionEnabled = false;
+
+            Text = text;
         }
-        
+
         protected override void Dispose(bool disposing)
         {
             _textFormat?.Dispose();

@@ -44,6 +44,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private bool _isDrawingSelection;
         private Vector _mouseDown;
         private bool _skipMouseUp;
+
+        /// <summary>
+        /// When a selection area started being drawn, this list stores the selected views when the
+        /// selection was first drawn. Used to avoid de-selecting previously selected views as the 
+        /// rectangle in and out of those views.
+        /// </summary>
+        private HashSet<PipelineNodeView> _previousSelected = new HashSet<PipelineNodeView>();
+
         private HashSet<PipelineNodeView> _underSelectionArea = new HashSet<PipelineNodeView>();
 
         // For drawing the selection outline with
@@ -147,6 +155,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                     _pathView.ClearPath();
                     contentsView.AddChild(_pathView);
+
+                    _previousSelected.Clear();
+                    foreach (var nodeView in container.SelectionModel.NodeViews())
+                    {
+                        _previousSelected.Add(nodeView);
+                    }
                 }
             }
         }
@@ -174,11 +188,13 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 var removed =
                     _underSelectionArea
-                        .Except(viewsInArea);
+                        .Except(viewsInArea)
+                        .Except(_previousSelected);
 
                 var newViews =
                     viewsInArea
-                        .Except(_underSelectionArea);
+                        .Except(_underSelectionArea)
+                        .Except(_previousSelected);
 
                 _underSelectionArea = new HashSet<PipelineNodeView>(viewsInArea);
 
@@ -260,6 +276,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
             }
 
+            _previousSelected.Clear();
             _isDrawingSelection = false;
         }
 
@@ -267,7 +284,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnKeyDown(e);
 
-            if (!OtherFeatureHasExclusiveControl())
+            if (!_isDrawingSelection && !OtherFeatureHasExclusiveControl())
             {
                 ExecuteWithTemporaryExclusiveControl(() =>
                 {

@@ -411,7 +411,7 @@ namespace Pixelaria.Views.ExportPipeline
             var current = CurrentExclusiveControlFeature();
             if (current != null)
             {
-                return current == feature;
+                return ReferenceEquals(current, feature);
             }
 
             _exclusiveControl = feature;

@@ -55,11 +55,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\LabelViewControlTests.cs" />
+    <Compile Include="TestInvalidateBaseView.cs" />
     <Compile Include="Text\AttributedTextTests.cs" />
     <Compile Include="BaseViewTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuControlTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuItemTests.cs" />
-    <Compile Include="Controls\TestControlView.cs" />
+    <Compile Include="Controls\ControlViewTests.cs" />
     <Compile Include="Controls\TextFieldTests.cs" />
     <Compile Include="Text\StringTextualBufferTests.cs" />
     <Compile Include="Text\TextEngineTests.cs" />
