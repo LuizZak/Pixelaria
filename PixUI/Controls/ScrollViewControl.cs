@@ -23,7 +23,6 @@
 using System;
 using System.Windows.Forms;
 using PixCore.Geometry;
-using PixUI.Utils;
 
 namespace PixUI.Controls
 {
@@ -197,7 +196,10 @@ namespace PixUI.Controls
                 _contentOffset = _targetContentOffset;
             }
 
-            ContainerView.Location = _contentOffset;
+            if (ContainerView.Location != _contentOffset)
+            {
+                ContainerView.Location = _contentOffset;
+            }
             
             HorizontalBar.Scroll = -_contentOffset.X;
             VerticalBar.Scroll = -_contentOffset.Y;

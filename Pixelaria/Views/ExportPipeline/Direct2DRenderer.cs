@@ -49,7 +49,6 @@ using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
-using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
 using CombineMode = SharpDX.Direct2D1.CombineMode;
@@ -92,7 +91,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Control-space clip rectangle for current draw operation.
         /// </summary>
-        private Rectangle ClipRectangle { get; set; }
+        public IClippingRegion ClippingRegion { get; set; }
         
         /// <summary>
         /// Gets or sets the background color that this <see cref="Direct2DRenderer"/> uses to clear the display area
@@ -159,7 +158,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         #region View Rendering
 
-        public void Render([NotNull] Direct2DRenderingState state)
+        public void Render([NotNull] Direct2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
             _lastRenderingState = state;
 
@@ -169,7 +168,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             var decorators = RenderingDecorators;
 
-            ClipRectangle = new Rectangle(Point.Empty, _control.Size);
+            ClippingRegion = clipping;
 
             // Draw background across visible region
             RenderBackground(state);
@@ -212,7 +211,7 @@ namespace Pixelaria.Views.ExportPipeline
                     
                 var visibleArea = nodeView.GetFullBounds().Corners.Transform(nodeView.GetAbsoluteTransform()).Area();
                     
-                if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
+                if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
                     
                 // Create rendering states for decorators
@@ -367,7 +366,7 @@ namespace Pixelaria.Views.ExportPipeline
                     link.GetFullBounds().Corners
                         .Transform(link.GetAbsoluteTransform()).Area();
 
-                if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
+                if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
 
                 var linkState = new PipelineStepViewLinkState
@@ -412,7 +411,7 @@ namespace Pixelaria.Views.ExportPipeline
                     
                 var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
 
-                if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
+                if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
                     
                 var state = new BezierPathViewState
@@ -488,7 +487,7 @@ namespace Pixelaria.Views.ExportPipeline
                         .GetFullBounds().Corners
                         .Transform(labelView.GetAbsoluteTransform()).Area();
 
-                if (!ClipRectangle.IntersectsWith((Rectangle)visibleArea))
+                if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
 
                 var state = new LabelViewState
@@ -709,11 +708,15 @@ namespace Pixelaria.Views.ExportPipeline
         public void AddDecorator(IRenderingDecorator decorator)
         {
             RenderingDecorators.Add(decorator);
+
+            decorator.Added(this);
         }
 
         public void RemoveDecorator(IRenderingDecorator decorator)
         {
             RenderingDecorators.Remove(decorator);
+
+            decorator.Removed(this);
         }
 
         #endregion
@@ -762,7 +765,7 @@ namespace Pixelaria.Views.ExportPipeline
         }
 
         #endregion
-
+        
         #region Static helpers
 
         public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
@@ -939,7 +942,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
     }
-
+    
     /// <summary>
     /// For rendering colored texts on a D2DRenderer
     /// </summary>
@@ -977,6 +980,10 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal interface IRenderingDecorator
     {
+        void Added([NotNull] IExportPipelineDirect2DRenderer renderer);
+
+        void Removed([NotNull] IExportPipelineDirect2DRenderer renderer);
+
         void DecoratePipelineStep([NotNull] PipelineNodeView nodeView, ref PipelineStepViewState state);
 
         void DecoratePipelineStepInput([NotNull] PipelineNodeView nodeView, [NotNull] PipelineNodeLinkView link,
@@ -1024,6 +1031,16 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal abstract class AbstractRenderingDecorator : IRenderingDecorator
     {
+        public virtual void Added(IExportPipelineDirect2DRenderer renderer)
+        {
+
+        }
+
+        public virtual void Removed(IExportPipelineDirect2DRenderer renderer)
+        {
+
+        }
+
         public virtual void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
         {
 

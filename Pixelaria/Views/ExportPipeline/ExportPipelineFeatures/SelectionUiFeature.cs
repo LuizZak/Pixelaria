@@ -29,8 +29,6 @@ using System.Windows.Forms;
 using PixCore.Colors;
 
 using PixUI;
-using PixUI.Rendering;
-using PixUI.Utils;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
@@ -135,7 +133,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             _mouseDown = e.Location;
 
             var closestView = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
-            var isInSelection = container.SelectionModel.Contains(closestView);
+            bool isInSelection = container.SelectionModel.Contains(closestView);
 
             if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift) && !isInSelection)
                 Control.PipelineContainer.ClearSelection();
@@ -299,6 +297,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (Equals(_hovering?.View, view))
                 return;
 
+            _hovering?.View.Invalidate();
+            view?.Invalidate();
+
             if (view == null)
                 _hovering = null;
             else
@@ -306,6 +307,16 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         }
 
         #region IRenderingDecorator
+
+        public void Added(IExportPipelineDirect2DRenderer renderer)
+        {
+            
+        }
+
+        public void Removed(IExportPipelineDirect2DRenderer renderer)
+        {
+            
+        }
 
         public void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
         {

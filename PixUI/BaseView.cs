@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -32,13 +33,21 @@ using PixUI.Utils;
 namespace PixUI
 {
     /// <summary>
-    /// A simple base view for creating UI elements with.
+    /// A base view is a small contained class for constructing element hierarchies with support
+    /// for fast querying of location and transformation.
+    /// 
+    /// Base views feature support for nesting, parent traversal, and location/size specification.
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
     public class BaseView : IEquatable<BaseView>, ISpatialReference
     {
         private Vector _size;
+        private Vector _location;
+        private Color _strokeColor = Color.Black;
+        private int _strokeWidth = 1;
+        private Vector _scale = Vector.Unit;
+        private float _rotation;
 
         /// <summary>
         /// Gets the parent view, if any, of this base view.
@@ -75,7 +84,7 @@ namespace PixUI
         protected List<BaseView> children { get; } = new List<BaseView>();
 
         /// <summary>
-        /// Gets or sets the center point of this view's AABB when projected
+        /// Gets or sets the center point of this view's <see cref="AABB"/> when projected
         /// on the parent view.
         /// 
         /// If Parent == null, returns the AABB's center property on get, and
@@ -107,7 +116,16 @@ namespace PixUI
         /// <summary>
         /// Top-left location of view, in pixels
         /// </summary>
-        public virtual Vector Location { get; set; }
+        public virtual Vector Location
+        {
+            get => _location;
+            set
+            {
+                InvalidateFullBounds();
+                _location = value;
+                InvalidateFullBounds();
+            }
+        }
 
         /// <summary>
         /// Size of view, in pixels
@@ -117,11 +135,16 @@ namespace PixUI
             get => _size;
             set
             {
+                Debug.Assert(!float.IsNaN(_size.X), "!float.IsNaN(_size.X)");
+                Debug.Assert(!float.IsNaN(_size.Y), "!float.IsNaN(_size.Y)");
+
                 if (_size == value)
                     return;
 
                 _size = value;
+                Invalidate();
                 OnResize();
+                Invalidate();
             }
         }
 
@@ -142,23 +165,57 @@ namespace PixUI
         /// <summary>
         /// Relative scale of this base view
         /// </summary>
-        public Vector Scale { get; set; } = Vector.Unit;
+        public Vector Scale
+        {
+            get => _scale;
+            set
+            {
+                InvalidateFullBounds();
+                _scale = value;
+                InvalidateFullBounds();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the rotation of this view, in degrees.
         /// Rotations are relative to the view's top-left corner.
         /// </summary>
-        public float Rotation { get; set; }
+        public float Rotation
+        {
+            get => _rotation;
+            set
+            {
+                InvalidateFullBounds();
+                _rotation = value;
+                InvalidateFullBounds();
+            }
+        }
 
         /// <summary>
         /// The stroke color of this bezier path
         /// </summary>
-        public virtual Color StrokeColor { get; set; } = Color.Black;
+        public virtual Color StrokeColor
+        {
+            get => _strokeColor;
+            set
+            {
+                _strokeColor = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// The width of the line for this bezier path view
         /// </summary>
-        public virtual int StrokeWidth { get; set; } = 1;
+        public virtual int StrokeWidth
+        {
+            get => _strokeWidth;
+            set
+            {
+                _strokeWidth = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Returns the local bounds of this view, with 0 x 0 mapping to its local top-left pixel
@@ -171,9 +228,9 @@ namespace PixUI
         /// If no parent is present, <see cref="Bounds"/> is returned instead.
         /// </summary>
         public virtual AABB FrameOnParent => Parent == null ? Bounds : ConvertTo(Bounds, Parent);
-        
+
         /// <summary>
-        /// Sets the <see cref="Location"/> and <see cref="Size"/> to a given AABB value.
+        /// Sets the <see cref="Location"/> and <see cref="Size"/> to a given <see cref="AABB"/> value.
         /// </summary>
         public void SetFrame(AABB aabb)
         {
@@ -200,6 +257,8 @@ namespace PixUI
 
             child.Parent = this;
             children.Add(child);
+
+            child.InvalidateFullBounds();
         }
 
         /// <summary>
@@ -208,19 +267,21 @@ namespace PixUI
         public virtual void InsertChild(int index, [NotNull] BaseView child)
         {
             // Check recursiveness
-            var cur = child;
+            var cur = this;
             while (cur != null)
             {
-                if (Equals(cur, this))
+                if (Equals(cur, child))
                     throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
 
-                cur = child.Parent;
+                cur = cur.Parent;
             }
 
             child.Parent?.RemoveChild(child);
 
             child.Parent = this;
             children.Insert(index, child);
+
+            child.InvalidateFullBounds();
         }
 
         /// <summary>
@@ -231,6 +292,8 @@ namespace PixUI
             if(!Equals(child.Parent, this))
                 throw new ArgumentException(@"Child BaseView passed in is not a direct child of this base view", nameof(child));
             
+            child.InvalidateFullBounds();
+
             child.Parent = null;
             children.Remove(child);
         }
@@ -238,7 +301,7 @@ namespace PixUI
         /// <summary>
         /// If this view has a parent, it removes itself as a child of that parent view.
         /// 
-        /// Same as calling <code>Parent?.RemoveChild(this)</code>
+        /// Same as calling <code><see cref="Parent"/>?.RemoveChild(this)</code>
         /// </summary>
         public void RemoveFromParent()
         {
@@ -405,7 +468,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Returns an enumerable of all views that cross the given AABB bounds.
+        /// Returns an enumerable of all views that cross the given <see cref="AABB"/> bounds.
         /// 
         /// The <see cref="inflatingArea"/> argument can be used to inflate the
         /// area of the views to perform less precise hit tests.
@@ -416,7 +479,7 @@ namespace PixUI
         /// </summary>
         /// <param name="aabb">AABB to test</param>
         /// <param name="inflatingArea">Used to inflate the area of the views to perform less precise hit tests.</param>
-        /// <returns>An enumerable where each view returned intersects the given AABB.</returns>
+        /// <returns>An enumerable where each view returned intersects the given <see cref="AABB"/>.</returns>
         [ItemNotNull]
         [NotNull]
         public IEnumerable<BaseView> ViewsUnder(AABB aabb, Vector inflatingArea)
@@ -450,7 +513,7 @@ namespace PixUI
         /// <summary>
         /// Returns true if the given vector point intersects this view's area.
         /// 
-        /// Children views' bounds do not affect the hit test- it happens only on this view's AABB area.
+        /// Children views' bounds do not affect the hit test- it happens only on this view's <see cref="AABB"/> area.
         /// </summary>
         /// <param name="point">Point to test</param>
         public virtual bool Contains(Vector point)
@@ -462,7 +525,7 @@ namespace PixUI
         /// Returns true if the given vector point intersects this view's area when
         /// inflated by a specified ammount.
         /// 
-        /// Children views' bounds do not affect the hit test- it happens only on this view's AABB area.
+        /// Children views' bounds do not affect the hit test- it happens only on this view's <see cref="AABB"/> area.
         /// </summary>
         /// <param name="point">Point to test</param>
         /// <param name="inflatingArea">Used to inflate the area of the view to perform less precise hit tests.</param>
@@ -472,10 +535,10 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Returns true if the given AABB intersects this view's area when
+        /// Returns true if the given <see cref="AABB"/> intersects this view's area when
         /// inflated by a specified ammount.
         /// 
-        /// Children views' bounds do not affect the hit test- it happens only on this view's AABB area.
+        /// Children views' bounds do not affect the hit test- it happens only on this view's <see cref="AABB"/> area.
         /// </summary>
         /// <param name="aabb">AABB to test</param>
         /// <param name="inflatingArea">Used to inflate the area of the view to perform less precise hit tests.</param>
@@ -485,7 +548,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts a point from a given BaseView's local coordinates to this
+        /// Converts a point from a given <see cref="BaseView"/>'s local coordinates to this
         /// base view's coordinates.
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
@@ -502,7 +565,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts a point from this BaseView's local coordinates to a given
+        /// Converts a point from this <see cref="BaseView"/>'s local coordinates to a given
         /// base view's coordinates.
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
@@ -516,7 +579,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts an AABB from a given BaseView's local coordinates to this
+        /// Converts an AABB from a given <see cref="BaseView"/>'s local coordinates to this
         /// base view's coordinates.
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
@@ -533,7 +596,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts an AABB from this BaseView's local coordinates to a given
+        /// Converts an AABB from this <see cref="BaseView"/>'s local coordinates to a given
         /// base view's coordinates.
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
@@ -554,16 +617,19 @@ namespace PixUI
         /// </summary>
         public Matrix GetAbsoluteTransform()
         {
-            var parT = Parent?.GetAbsoluteTransform() ?? new Matrix();
+            if (Parent == null)
+            {
+                return LocalTransform.Clone();
+            }
 
-            var total = parT.Clone();
+            var total = Parent.GetAbsoluteTransform().Clone();
             total.Multiply(LocalTransform);
 
             return total;
         }
-        
+
         /// <summary>
-        /// Gets the full bounds of this BaseView (in its local coordinates system),
+        /// Gets the full bounds of this <see cref="BaseView"/> (in its local coordinates system),
         /// counting the child bounds as well.
         /// </summary>
         public AABB GetFullBounds()
@@ -602,6 +668,18 @@ namespace PixUI
         public virtual void Invalidate()
         {
             Invalidate(Bounds);
+        }
+
+        /// <summary>
+        /// Invalidates the entirety of this view's drawing region on its parent, including
+        /// bounds of all of its hierarchy. See <see cref="GetFullBounds()"/>.
+        /// 
+        /// The invalidation is propagated through the parent view chain until the root
+        /// view, which may handle it in ways such as invalidating a window screen region.
+        /// </summary>
+        public virtual void InvalidateFullBounds()
+        {
+            Invalidate(GetFullBounds());
         }
 
         /// <summary>

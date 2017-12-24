@@ -27,27 +27,16 @@ using PixCore.Geometry;
 using PixUI.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using Device = SharpDX.Direct3D11.Device;
-using Factory = SharpDX.DXGI.Factory;
 
 namespace PixUI.Rendering
 {
-    public class Direct2DRenderingState
+    public sealed class Direct2DRenderingState : IDisposable
     {
         private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
-
-        public SwapChain SwapChain;
-        public Surface DxgiSurface { set; get; }
-        public RenderTarget D2DRenderTarget { set; get; }
-        public SharpDX.Direct2D1.Factory D2DFactory { set; get; }
-        public Texture2D BackBuffer { set; get; }
-        public RenderTargetView RenderTargetView { set; get; }
-
-        public Device Device;
-
-        public Factory Factory;
+        
+        public WindowRenderTarget D2DRenderTarget { set; get; }
+        public Factory D2DFactory { set; get; }
+        
         public SharpDX.DirectWrite.Factory DirectWriteFactory;
 
         /// <summary>
@@ -55,6 +44,11 @@ namespace PixUI.Rendering
         /// </summary>
         public TimeSpan FrameRenderDeltaTime { get; private set; }
         
+        public void Dispose()
+        {
+            D2DRenderTarget?.Dispose();
+        }
+
         public void SetFrameDeltaTime(TimeSpan frameDeltaTime)
         {
             FrameRenderDeltaTime = frameDeltaTime;

@@ -144,6 +144,15 @@ namespace PixUI.Controls
             Layout();
         }
 
+        public override void OnFixedFrame(FixedFrameEventArgs e)
+        {
+            base.OnFixedFrame(e);
+
+            // For caret blinking rendering
+            if(IsFirstResponder)
+                Invalidate();
+        }
+
         #region Mouse Handlers
         
         public override void OnMouseDown(MouseEventArgs e)
@@ -423,6 +432,19 @@ namespace PixUI.Controls
             if (Math.Abs(transparency) < float.Epsilon)
                 return;
 
+            var caretLocation = GetCaretBounds(context);
+
+            var color = CaretColor.ToColor4();
+            color.Alpha = transparency;
+
+            using (var brush = new SolidColorBrush(context.RenderTarget, color))
+            {
+                context.RenderTarget.FillRectangle(caretLocation.ToRawRectangleF(), brush);
+            }
+        }
+
+        private AABB GetCaretBounds([NotNull] ControlRenderingContext context)
+        {
             var caretLocation = AABB.FromRectangle(0, 0, 1, 10);
 
             string text = Text;
@@ -440,20 +462,12 @@ namespace PixUI.Controls
             var bounds = provider.LocationOfCharacter(_textEngine.Caret.Location, new AttributedText(text), attributes);
 
             caretLocation = _label.ConvertTo(caretLocation, this);
-            
+
             caretLocation = caretLocation.OffsetBy(bounds.Minimum);
             caretLocation = caretLocation.WithSize(new Vector(caretLocation.Size.X, bounds.Height));
 
             // Round caret location to avoid aliasing
-            caretLocation = caretLocation.OffsetTo(Vector.Round(caretLocation.Minimum));
-
-            var color = CaretColor.ToColor4();
-            color.Alpha = transparency;
-
-            using (var brush = new SolidColorBrush(context.RenderTarget, color))
-            {
-                context.RenderTarget.FillRectangle(caretLocation.ToRawRectangleF(), brush);
-            }
+            return caretLocation.OffsetTo(Vector.Round(caretLocation.Minimum));
         }
 
         public override bool CanHandle(IEventRequest eventRequest)
@@ -497,6 +511,8 @@ namespace PixUI.Controls
             var bounds = Bounds.Inset(ContentInset);
             _labelContainer.SetFrame(bounds);
             _label.Center = new Vector(_label.Center.X, _labelContainer.Height / 2);
+
+            Invalidate();
         }
 
         #region Copy/cut/paste + undo/redo

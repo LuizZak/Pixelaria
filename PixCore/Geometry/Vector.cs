@@ -313,6 +313,11 @@ namespace PixCore.Geometry
             return new PointF(vec.X, vec.Y);
         }
 
+        public static explicit operator Point(Vector vec)
+        {
+            return Point.Round(new PointF(vec.X, vec.Y));
+        }
+
         public static implicit operator Vector(Size size)
         {
             return new Vector(size.Width, size.Height);

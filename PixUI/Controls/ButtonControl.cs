@@ -114,7 +114,11 @@ namespace PixUI.Controls
         public HorizontalTextAlignment HorizontalTextAlignment
         {
             get => _label.HorizontalTextAlignment;
-            set => _label.HorizontalTextAlignment = value;
+            set
+            {
+                _label.HorizontalTextAlignment = value;
+                Invalidate();
+            }
         }
 
         /// <summary>
@@ -123,7 +127,11 @@ namespace PixUI.Controls
         public VerticalTextAlignment VerticalTextAlignment
         {
             get => _label.VerticalTextAlignment;
-            set => _label.VerticalTextAlignment = value;
+            set
+            {
+                _label.VerticalTextAlignment = value;
+                Invalidate();
+            }
         }
 
         /// <summary>
@@ -132,7 +140,11 @@ namespace PixUI.Controls
         public string Text
         {
             get => _label.Text;
-            set => _label.Text = value;
+            set
+            {
+                _label.Text = value;
+                Invalidate();
+            }
         }
 
         /// <summary>
@@ -146,7 +158,11 @@ namespace PixUI.Controls
         public Color TextColor
         {
             get => _label.ForeColor;
-            set => _label.ForeColor = value;
+            set
+            {
+                _label.ForeColor = value;
+                Invalidate();
+            }
         }
 
         /// <summary>
@@ -155,7 +171,11 @@ namespace PixUI.Controls
         public Font TextFont
         {
             get => _label.TextFont;
-            set => _label.TextFont = value;
+            set
+            {
+                _label.TextFont = value;
+                Invalidate();
+            }
         }
 
         /// <summary>
@@ -336,6 +356,7 @@ namespace PixUI.Controls
         private void Layout()
         {
             _label.SetFrame(BoundsForText());
+            Invalidate();
         }
         
         /// <summary>

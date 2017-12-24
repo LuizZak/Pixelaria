@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
@@ -42,7 +43,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
     /// 
     /// Also handles focus management for keyboard event receiving.
     /// </summary>
-    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>, IFirstResponderDelegate<IEventHandler>, IControlContainer
+    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate, IControlContainer
     {
         /// <summary>
         /// Gets the base view that all control views must be added to to enable user interaction
@@ -74,7 +75,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             BaseControl = new RootControlView(this)
             {
-                Size = control.Size
+                Size = control.Size,
+                InvalidateRegionDelegate = this
             };
         }
 
@@ -473,6 +475,21 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 EventType = eventType;
             }
         }
+
+        #region IInvalidateRegionDelegate
+
+        public void DidInvalidate(Region region, ISpatialReference reference)
+        {
+            var transform = reference.GetAbsoluteTransform();
+            using (var screenRegion = region.Clone())
+            {
+                screenRegion.Transform(transform);
+
+                Control.InvalidateRegion(screenRegion);
+            }
+        }
+
+        #endregion
 
         #region IFirstResponderDelegate<IEventHandler>
 

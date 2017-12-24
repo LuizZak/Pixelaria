@@ -24,9 +24,12 @@ using System;
 using System.Drawing;
 using Color = System.Drawing.Color;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Text;
 using SharpDX;
 using SharpDX.DirectWrite;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace PixUI.Rendering
 {
@@ -36,12 +39,12 @@ namespace PixUI.Rendering
     public interface IDirect2DRenderer : ILabelViewSizeProvider
     {
         /// <summary>
-        /// Gets or sets the background color that this Direct2DRenderer uses to clear the display area
+        /// Gets or sets the background color that this Direct2D renderer uses to clear the display area
         /// </summary>
         Color BackColor { get; set; }
 
         /// <summary>
-        /// Gets the imaage resources manager for this D2DRenderer
+        /// Gets the imaage resources manager for this Direct2D renderer
         /// </summary>
         ID2DImageResourceManager ImageResources { get; }
 
@@ -49,12 +52,55 @@ namespace PixUI.Rendering
         /// Text metrics provider for this Direct2D renderer
         /// </summary>
         ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
-        
+
+        /// <summary>
+        /// The clipping region for this Direct2D renderer
+        /// </summary>
+        IClippingRegion ClippingRegion { get; }
+
         /// <summary>
         /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.
         /// </summary>
         void WithPreparedTextLayout(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull, InstantHandle] Action<TextLayout, TextRendererBase> perform);
+    }
+
+    /// <summary>
+    /// Represents a common interface for an object that provides clipping region querying for a <see cref="IDirect2DRenderer"/>.
+    /// </summary>
+    public interface IClippingRegion
+    {
+        /// <summary>
+        /// Returns true if a section of <see cref="rectangle"/> is visible on the clipping region.
+        /// </summary>
+        bool IsVisibleInClippingRegion(Rectangle rectangle);
+
+        /// <summary>
+        /// Returns true if <see cref="point"/> is contained within the clipping region.
+        /// </summary>
+        bool IsVisibleInClippingRegion(Point point);
+
+        /// <summary>
+        /// Returns true if a section of <see cref="aabb"/> is visible on the clipping region.
+        /// </summary>
+        bool IsVisibleInClippingRegion(AABB aabb);
+
+        /// <summary>
+        /// Returns true if <see cref="point"/> is contained within the clipping region.
+        /// </summary>
+        bool IsVisibleInClippingRegion(Vector point);
+
+        /// <summary>
+        /// Returns true if a section of <see cref="aabb"/> is visible on the clipping region when transformed
+        /// on a given reference point to screen-space.
+        /// </summary>
+        bool IsVisibleInClippingRegion(AABB aabb, [NotNull] ISpatialReference reference);
+
+        /// <summary>
+        /// Returns true if <see cref="point"/> is contained within the clipping region when transformed on a
+        /// given reference point to screen-space.
+        /// </summary>
+        bool IsVisibleInClippingRegion(Vector point, [NotNull] ISpatialReference reference);
     }
 
     /// <summary>

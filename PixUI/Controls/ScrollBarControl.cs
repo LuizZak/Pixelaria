@@ -95,7 +95,11 @@ namespace PixUI.Controls
             get => _scroll;
             set
             {
-                _scroll = Math.Max(0, Math.Min(ContentSize - VisibleSize, value));
+                float scroll = Math.Max(0, Math.Min(ContentSize - VisibleSize, value));
+                if (Math.Abs(_scroll - scroll) < float.Epsilon)
+                    return;
+
+                _scroll = scroll;
 
                 UpdateScrollBarPosition();
             }
@@ -231,7 +235,7 @@ namespace PixUI.Controls
                     0));
 
                 float ratio = VisibleSize / ContentSize;
-                if (ratio >= 1)
+                if (Math.Abs(ContentSize) < float.Epsilon || ratio >= 1)
                 {
                     _scrollBarKnob.Location = barArea.Minimum;
                     _scrollBarKnob.Size = barArea.Size;
@@ -255,7 +259,7 @@ namespace PixUI.Controls
                 barArea = barArea.Inset(new InsetBounds(_decreaseScroll.Bounds.Width, 0, 0, _increaseScroll.Bounds.Width));
 
                 float ratio = VisibleSize / ContentSize;
-                if (ratio >= 1)
+                if (Math.Abs(ContentSize) < float.Epsilon || ratio >= 1)
                 {
                     _scrollBarKnob.Location = barArea.Minimum;
                     _scrollBarKnob.Size = barArea.Size;

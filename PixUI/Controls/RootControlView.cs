@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
@@ -27,17 +28,25 @@ using PixCore.Geometry;
 namespace PixUI.Controls
 {
     /// <summary>
-    /// A root control view that is used as the base hierarchy of <see cref="Pixelaria.Views.ExportPipeline.ExportPipelineFeatures.ControlViewFeature"/> instances.
+    /// A root control view that is used as the base hierarchy of control elements-aware objects.
     /// 
     /// Exposes methods for working with first responder status of controls.
     /// </summary>
     public class RootControlView : BaseView
     {
+        [CanBeNull]
+        public IInvalidateRegionDelegate InvalidateRegionDelegate { get; set; }
         private readonly IFirstResponderDelegate<IEventHandler> _firstResponderDelegate;
 
         public RootControlView(IFirstResponderDelegate<IEventHandler> firstResponderDelegate)
         {
             _firstResponderDelegate = firstResponderDelegate;
+        }
+
+        public RootControlView(IFirstResponderDelegate<IEventHandler> firstResponderDelegate, IInvalidateRegionDelegate invalidateRegionDelegate)
+        {
+            _firstResponderDelegate = firstResponderDelegate;
+            InvalidateRegionDelegate = invalidateRegionDelegate;
         }
 
         public bool SetFirstResponder([CanBeNull] IEventHandler handler, bool force = false)
@@ -55,7 +64,14 @@ namespace PixUI.Controls
         {
             return _firstResponderDelegate.IsFirstResponder(handler);
         }
-        
+
+        protected override void Invalidate(Region region, ISpatialReference reference)
+        {
+            base.Invalidate(region, reference);
+
+            InvalidateRegionDelegate?.DidInvalidate(region, reference);
+        }
+
         /// <summary>
         /// Returns the first control view under a given point on this root control view.
         /// 
@@ -77,6 +93,18 @@ namespace PixUI.Controls
 
             return null;
         }
+    }
+
+    /// <summary>
+    /// For objects that handle invalidation calls of a <see cref="RootControlView"/>.
+    /// </summary>
+    public interface IInvalidateRegionDelegate
+    {
+        /// <summary>
+        /// Called to notify a <see cref="RootControlView"/> has received an invalidate request
+        /// for a given region, on a given spatial reference (usually a <see cref="BaseView"/>).
+        /// </summary>
+        void DidInvalidate([NotNull] Region region, [NotNull] ISpatialReference reference);
     }
 
     /// <summary>

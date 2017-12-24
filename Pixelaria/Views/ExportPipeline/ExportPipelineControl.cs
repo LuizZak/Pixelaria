@@ -35,7 +35,17 @@ using PixUI.Rendering;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI.Controls;
+using PixUI.Utils;
+using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Windows;
+using Color = System.Drawing.Color;
+using FillMode = SharpDX.Direct2D1.FillMode;
+using Matrix = System.Drawing.Drawing2D.Matrix;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -52,6 +62,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
+
+        private readonly ClippingRegion _clippingRegion = new ClippingRegion(new Region());
 
         #region Intrinsic Features
 
@@ -130,9 +142,27 @@ namespace Pixelaria.Views.ExportPipeline
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Adds a given region of invalidation to be rendered on the next frame.
+        /// </summary>
+        public void InvalidateRegion([NotNull] Region region)
+        {
+            _clippingRegion.Region.Union(region);
+        }
+
+        /// <summary>
+        /// Invalidates the entire draw region of this control
+        /// </summary>
+        public void InvalidateAll()
+        {
+            _clippingRegion.SetRectangle(new Rectangle(Point.Empty, Size));
+        }
+
         public void SetPanAndZoom(Vector pan, Vector zoom)
         {
             _panAndZoom.SetTargetScale(zoom, pan);
+
+            _clippingRegion.SetRectangle(new Rectangle(Point.Empty, Size));
         }
 
         /// <summary>
@@ -155,11 +185,24 @@ namespace Pixelaria.Views.ExportPipeline
         {
             if(_d2DRenderer == null)
                 throw new InvalidOperationException("Direct2D renderer was not initialized");
+            
+            using (var g = CreateGraphics())
+            {
+                if (_clippingRegion.Region.IsEmpty(g))
+                    return;
+            }
 
-            _d2DRenderer.Render(state);
+            // Use clipping region
+            var clipState = _clippingRegion.PushDirect2DClipping(state);
+
+            _d2DRenderer.Render(state, _clippingRegion);
 
             foreach (var feature in _features)
                 feature.OnRender(state);
+
+            _clippingRegion.PopDirect2DClipping(state, clipState);
+
+            _clippingRegion.Region.MakeEmpty();
         }
         
         private void fixedTimer_Tick(object sender, EventArgs e)
@@ -661,9 +704,9 @@ namespace Pixelaria.Views.ExportPipeline
         /// 
         /// Also aids in position calculations for rendering
         /// </summary>
-        private class InternalPipelineContainer : IPipelineContainer
+        private class InternalPipelineContainer : IPipelineContainer, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate
         {
-            private readonly BaseView _root = new BaseView();
+            private readonly RootControlView _root;
             private readonly List<object> _selection = new List<object>();
             private readonly List<PipelineNodeView> _nodeViews = new List<PipelineNodeView>();
             private readonly List<PipelineNodeConnectionLineView> _connectionViews =
@@ -687,12 +730,15 @@ namespace Pixelaria.Views.ExportPipeline
             
             public InternalPipelineContainer(ExportPipelineControl control)
             {
+                _root = new RootControlView(this);
                 _sel = new _Selection(this);
 
                 _root.AddChild(ContentsView);
                 _root.AddChild(UiContainerView);
 
                 _control = control;
+
+                _root.InvalidateRegionDelegate = this;
             }
             
             public void RemoveAllViews()
@@ -842,7 +888,7 @@ namespace Pixelaria.Views.ExportPipeline
                 _selection.Clear();
             }
             
-            public void Deselect(BaseView view)
+            public void Deselect([CanBeNull] BaseView view)
             {
                 if (view is PipelineNodeView nodeView)
                 {
@@ -1227,6 +1273,32 @@ namespace Pixelaria.Views.ExportPipeline
                 action.Perform(this);
             }
 
+            public bool SetAsFirstResponder(IEventHandler firstResponder, bool force)
+            {
+                return false;
+            }
+
+            public void RemoveCurrentResponder()
+            {
+
+            }
+
+            public bool IsFirstResponder(IEventHandler handler)
+            {
+                return false;
+            }
+
+            public void DidInvalidate(Region region, ISpatialReference reference)
+            {
+                var transform = reference.GetAbsoluteTransform();
+                using (var screenRegion = region.Clone())
+                {
+                    screenRegion.Transform(transform);
+
+                    _control.InvalidateRegion(new Region(new Rectangle(Point.Empty, _control.Size)));
+                }
+            }
+
             // ReSharper disable once InconsistentNaming
             private class _Selection : ISelection
             {
@@ -1277,6 +1349,133 @@ namespace Pixelaria.Views.ExportPipeline
 
                     return false;
                 }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// A clipping region backed by a <see cref="System.Drawing.Region"/> instance.
+    /// </summary>
+    internal class ClippingRegion : IClippingRegion
+    {
+        [NotNull]
+        public Region Region { get; set; }
+
+        public ClippingRegion([NotNull] Region region)
+        {
+            Region = region;
+        }
+        
+        public bool IsVisibleInClippingRegion(Rectangle rectangle)
+        {
+            return Region.IsVisible(rectangle);
+        }
+
+        public bool IsVisibleInClippingRegion(Point point)
+        {
+            return Region.IsVisible(point);
+        }
+
+        public bool IsVisibleInClippingRegion(AABB aabb)
+        {
+            return Region.IsVisible((RectangleF)aabb);
+        }
+
+        public bool IsVisibleInClippingRegion(Vector point)
+        {
+            return Region.IsVisible(point);
+        }
+
+        public bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
+        {
+            var transformed = reference.ConvertTo(aabb, null);
+
+            return Region.IsVisible((RectangleF)transformed);
+        }
+
+        public bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
+        {
+            var transformed = reference.ConvertTo(point, null);
+
+            return Region.IsVisible(transformed);
+        }
+
+        public void AddRectangle(RectangleF rectangle)
+        {
+            Region.Union(rectangle);
+        }
+
+        public void SetRectangle(RectangleF rectangle)
+        {
+            Region.MakeEmpty();
+            Region = new Region(rectangle);
+        }
+
+        public IDirect2DClippingState PushDirect2DClipping([NotNull] Direct2DRenderingState state)
+        {
+            var aabbClips = Region.GetRegionScans(new Matrix()).Select(rect => (AABB)rect).ToArray();
+            
+            // Create geometry
+            var geom = new PathGeometry(state.D2DFactory);
+            var sink = geom.Open();
+            sink.SetFillMode(FillMode.Winding);
+            
+            // Take each rect from the AABB clips and add it to the geom sink
+            // Take advantage of the fact the geometry sink already combines arbitrary geometries properly
+            // to form an addition mask.
+            foreach (var rect in aabbClips)
+            {
+                sink.BeginFigure(rect.Minimum.ToRawVector2(), FigureBegin.Filled);
+
+                foreach (var corner in rect.Corners.Skip(1))
+                {
+                    sink.AddLine(corner.ToRawVector2());
+                }
+
+                sink.EndFigure(FigureEnd.Closed);
+            }
+
+            sink.Close();
+
+            var layerParams = new LayerParameters
+            {
+                ContentBounds = SharpDX.RectangleF.Infinite,
+                MaskAntialiasMode = AntialiasMode.Aliased,
+                Opacity = 1f,
+                GeometricMask = geom,
+                MaskTransform = Matrix3x2.Identity,
+                LayerOptions = LayerOptions.InitializeForCleartype
+            };
+            state.D2DRenderTarget.PushLayer(ref layerParams, new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size));
+
+            return new Direct2DClip(aabbClips, geom);
+        }
+
+        public void PopDirect2DClipping([NotNull] Direct2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
+        {
+            if (!(clipState is Direct2DClip))
+                return;
+
+            state.D2DRenderTarget.PopLayer();
+        }
+
+        /// <summary>
+        /// Stores context about a Direct2D clipping operation
+        /// </summary>
+        public interface IDirect2DClippingState
+        {
+            
+        }
+
+        private struct Direct2DClip : IDirect2DClippingState
+        {
+            public AABB[] Rectangles { get; }
+            public Geometry Geometry { get; }
+
+            public Direct2DClip(AABB[] rectangles, Geometry geometry)
+            {
+                Rectangles = rectangles;
+                Geometry = geometry;
             }
         }
     }

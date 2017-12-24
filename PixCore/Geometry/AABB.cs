@@ -54,6 +54,8 @@ namespace PixCore.Geometry
 
         public Vector Center => (Minimum + Maximum) / 2;
 
+        public bool IsEmpty => Minimum == Maximum;
+
         /// <summary>
         /// Returns the area of this AABB by multiplying its width by its height
         /// </summary>

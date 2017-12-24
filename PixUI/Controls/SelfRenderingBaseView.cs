@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Rendering;
 using PixUI.Utils;
 using SharpDX.Direct2D1;
@@ -34,35 +35,81 @@ namespace PixUI.Controls
     /// </summary>
     public class SelfRenderingBaseView : BaseView
     {
+        private Color _backColor = Color.FromKnownColor(KnownColor.Control);
+        private Color _foreColor = Color.Black;
+        private bool _clipToBounds = true;
+        private float _cornerRadius;
+        private bool _visible = true;
+
         /// <summary>
         /// This view's neutral background color
         /// </summary>
-        public Color BackColor { get; set; } = Color.FromKnownColor(KnownColor.Control);
+        public Color BackColor
+        {
+            get => _backColor;
+            set
+            {
+                _backColor = value;
+                InvalidateFullBounds();
+            }
+        }
 
         /// <summary>
         /// This view's foreground color
         /// </summary>
-        public Color ForeColor { get; set; } = Color.Black;
+        public Color ForeColor
+        {
+            get => _foreColor;
+            set
+            {
+                _foreColor = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Whether to clip the rendering of subviews to within this view's <see cref="BaseView.Bounds"/>
         /// 
         /// Defaults to true.
         /// </summary>
-        public bool ClipToBounds { get; set; } = true;
+        public bool ClipToBounds
+        {
+            get => _clipToBounds;
+            set
+            {
+                _clipToBounds = value;
+                InvalidateFullBounds();
+            }
+        }
 
         /// <summary>
         /// Corner radius for this control's corners
         /// (does not affect clipping region)
         /// </summary>
-        public float CornerRadius { get; set; } = 0;
+        public float CornerRadius
+        {
+            get => _cornerRadius;
+            set
+            {
+                _cornerRadius = value;
+                InvalidateFullBounds();
+            }
+        }
 
         /// <summary>
         /// Whether this view is visible (calling <see cref="Render"/> actually renders content).
         /// 
         /// Default is true.
         /// </summary>
-        public bool Visible { get; set; } = true;
+        public bool Visible
+        {
+            get => _visible;
+            set
+            {
+                _visible = value;
+                Invalidate();
+            }
+        }
 
         /// <summary>
         /// Base logic to render this view.
@@ -71,6 +118,9 @@ namespace PixUI.Controls
         public void Render([NotNull] ControlRenderingContext state)
         {
             if (!Visible)
+                return;
+
+            if (!state.ClippingRegion.IsVisibleInClippingRegion(Bounds, this))
                 return;
 
             RenderBackground(state);
@@ -147,6 +197,19 @@ namespace PixUI.Controls
 
             return true;
         }
+
+        protected override void Invalidate(Region region, ISpatialReference reference)
+        {
+            if (ClipToBounds)
+            {
+                if (Bounds.IsEmpty || Bounds.Validity == AABB.State.Invalid)
+                    region.MakeEmpty();
+                else
+                    region.Intersect((RectangleF) reference.ConvertFrom(Bounds, this));
+            }
+
+            base.Invalidate(region, reference);
+        }
     }
 
     /// <summary>
@@ -159,9 +222,18 @@ namespace PixUI.Controls
         public IDirect2DRenderer Renderer { get; }
 
         /// <summary>
+        /// Gets the current render target.
+        /// 
         /// Shortcut for <see cref="State"/>'s <see cref="Direct2DRenderingState.D2DRenderTarget"/>.
         /// </summary>
         public RenderTarget RenderTarget => State.D2DRenderTarget;
+
+        /// <summary>
+        /// Gets the current drawing clipping region.
+        /// 
+        /// Shortcut for <see cref="Renderer"/>'s <see cref="IDirect2DRenderer.ClippingRegion"/>.
+        /// </summary>
+        public IClippingRegion ClippingRegion => Renderer.ClippingRegion;
 
         public ControlRenderingContext(Direct2DRenderingState state, IDirect2DRenderer renderer)
         {

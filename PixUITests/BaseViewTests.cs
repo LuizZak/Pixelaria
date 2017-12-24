@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,7 +30,7 @@ using PixUI;
 namespace PixUITests
 {
     /// <summary>
-    /// Tests for BaseView class
+    /// Tests for <see cref="BaseView"/> class
     /// </summary>
     [TestClass]
     public class BaseViewTests
@@ -134,16 +135,230 @@ namespace PixUITests
         }
 
         [TestMethod]
-        public void TestInvalidate()
+        public void TestAddChildRecursiveHierarchyVerification()
         {
-            var root = new TestInvalidateBaseView {Location = new Vector(5, 5)};
-            var child = new BaseView {Size = new Vector(100, 100)};
+            var root = new BaseView();
+            var newParent = new BaseView();
+            var child = new BaseView();
+            var grandchild = new BaseView();
+            child.AddChild(grandchild);
             root.AddChild(child);
 
-            child.Invalidate();
-
-            Assert.AreEqual(child, root.InvalidateReference);
+            newParent.AddChild(child);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestAddChildRecursiveHierarchyVerificationFailure()
+        {
+            var root = new BaseView();
+            var child = new BaseView();
+            var grandchild = new BaseView();
+            child.AddChild(grandchild);
+            root.AddChild(child);
+
+            grandchild.AddChild(root);
+        }
+
+        [TestMethod]
+        public void TestInsertChildRecursiveHierarchyVerification()
+        {
+            var root = new BaseView();
+            var newParent = new BaseView();
+            var child = new BaseView();
+            var grandchild = new BaseView();
+            child.AddChild(grandchild);
+            root.AddChild(child);
+
+            newParent.InsertChild(0, child);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestInsertChildRecursiveHierarchyVerificationFailure()
+        {
+            var root = new BaseView();
+            var child = new BaseView();
+            var grandchild = new BaseView();
+            child.AddChild(grandchild);
+            root.AddChild(child);
+
+            grandchild.InsertChild(0, root);
+        }
+
+        [TestMethod]
+        public void TestInvalidate()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                root.AddChild(child);
+                root.InvalidateReference = null;
+                root.InvalidateRegion = null;
+
+                child.Invalidate();
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.Bounds).Equals(root.InvalidateRegion, g));
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        #region Invalidation Triggers
+
+        [TestMethod]
+        public void TestResizeInvalidatesView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
+                child.AddChild(grandchild);
+                root.AddChild(child);
+                root.InvalidateReference = null;
+                root.InvalidateRegion = null;
+
+                child.Size = new Vector(150, 150);
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.Bounds).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        [TestMethod]
+        public void TestRelocationInvalidatesView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
+                child.AddChild(grandchild);
+                root.AddChild(child);
+                root.InvalidateReference = null;
+                root.InvalidateRegion = null;
+
+                child.Location = new Vector(10, 10);
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.GetFullBounds()).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        [TestMethod]
+        public void TestAddChildInvalidatesView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView {Location = new Vector(5, 5), Size = new Vector(200, 200)};
+                child.AddChild(grandchild);
+
+                root.AddChild(child);
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.GetFullBounds()).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        [TestMethod]
+        public void TestAddChildInvalidatesPreviousParentView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var newParent = new BaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
+                child.AddChild(grandchild);
+                root.AddChild(child);
+                root.InvalidateReference = null;
+                root.InvalidateRegion = null;
+
+                newParent.AddChild(child);
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.GetFullBounds()).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        [TestMethod]
+        public void TestInsertChildInvalidatesView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
+                child.AddChild(grandchild);
+
+                root.InsertChild(0, child);
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.GetFullBounds()).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        [TestMethod]
+        public void TestInsertChildInvalidatesPreviousParentView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var newParent = new BaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
+                child.AddChild(grandchild);
+                root.AddChild(child);
+                root.InvalidateReference = null;
+                root.InvalidateRegion = null;
+
+                newParent.InsertChild(0, child);
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.GetFullBounds()).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        [TestMethod]
+        public void TestRemoveChildInvalidatesView()
+        {
+            using (var img = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(img))
+            {
+                var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+                var child = new BaseView { Size = new Vector(100, 100) };
+                var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
+                child.AddChild(grandchild);
+                root.AddChild(child);
+                root.InvalidateReference = null;
+                root.InvalidateRegion = null;
+
+                child.RemoveFromParent();
+
+                Assert.IsNotNull(root.InvalidateRegion);
+                Assert.IsTrue(new Region((RectangleF)child.GetFullBounds()).Equals(root.InvalidateRegion, g), "Expected regions did not match");
+                Assert.AreEqual(child, root.InvalidateReference);
+            }
+        }
+
+        #endregion
 
         internal class TestInvalidateBaseView : BaseView
         {

@@ -95,7 +95,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 var point = (Vector)e.Location;
 
-                contentsView.Location = _dragStart + point / contentsView.Scale;
+                SetLocation(_dragStart + point / contentsView.Scale);
+                Control.InvalidateAll();
             }
         }
 
@@ -132,6 +133,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             _panTarget = targetFocusPosition;
         }
 
+        private void SetLocation(Vector newLocation)
+        {
+            contentsView.Location = newLocation;
+            Control.InvalidateAll();
+        }
+
         private void SetZoom(Vector newZoom, Vector focusPosition, bool repositioning = true)
         {
             var priorPivot = contentsView.ConvertFrom(focusPosition, null);
@@ -144,6 +151,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 contentsView.Location += afterPivot - priorPivot;
             }
+
+            Control.InvalidateAll();
         }
     }
 }

@@ -71,6 +71,8 @@ namespace PixUI
         /// </summary>
         public void ClearPath()
         {
+            Invalidate();
+
             _containsPath?.Dispose();
             _containsPath = null;
 
@@ -103,6 +105,8 @@ namespace PixUI
             _inputsBounds = _inputsBounds.Union(new AABB(new []{pt1, pt2, pt3, pt4}));
 
             _inputs.Add(new BezierPathInput(pt1, pt2, pt3, pt4));
+
+            Invalidate();
         }
 
         /// <summary>
@@ -115,6 +119,8 @@ namespace PixUI
 
             _inputsBounds = _inputsBounds.Union(area);
             _inputs.Add(new RectanglePathInput(area));
+
+            Invalidate();
         }
 
         /// <summary>
