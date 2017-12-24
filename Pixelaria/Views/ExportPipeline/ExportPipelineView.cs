@@ -166,7 +166,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ExportPipelineControlOnResize(object sender, EventArgs eventArgs)
         {
-            ResetSwapChain();
+            AdjustResizing();
         }
 
         private void PanelManagerOnPipelineNodeSelected(object sender, [NotNull] ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e)
@@ -433,7 +433,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        private void ResetSwapChain()
+        private void AdjustResizing()
         {
             RenderingState.D2DRenderTarget?.Resize(new Size2(exportPipelineControl.Width, exportPipelineControl.Height));
         }

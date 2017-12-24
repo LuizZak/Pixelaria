@@ -1366,52 +1366,52 @@ namespace Pixelaria.Views.ExportPipeline
             Region = region;
         }
         
-        public bool IsVisibleInClippingRegion(Rectangle rectangle)
+        public virtual bool IsVisibleInClippingRegion(Rectangle rectangle)
         {
             return Region.IsVisible(rectangle);
         }
 
-        public bool IsVisibleInClippingRegion(Point point)
+        public virtual bool IsVisibleInClippingRegion(Point point)
         {
             return Region.IsVisible(point);
         }
 
-        public bool IsVisibleInClippingRegion(AABB aabb)
+        public virtual bool IsVisibleInClippingRegion(AABB aabb)
         {
             return Region.IsVisible((RectangleF)aabb);
         }
 
-        public bool IsVisibleInClippingRegion(Vector point)
+        public virtual bool IsVisibleInClippingRegion(Vector point)
         {
             return Region.IsVisible(point);
         }
 
-        public bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
+        public virtual bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
         {
             var transformed = reference.ConvertTo(aabb, null);
 
             return Region.IsVisible((RectangleF)transformed);
         }
 
-        public bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
+        public virtual bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
         {
             var transformed = reference.ConvertTo(point, null);
 
             return Region.IsVisible(transformed);
         }
 
-        public void AddRectangle(RectangleF rectangle)
+        public virtual void AddRectangle(RectangleF rectangle)
         {
             Region.Union(rectangle);
         }
 
-        public void SetRectangle(RectangleF rectangle)
+        public virtual void SetRectangle(RectangleF rectangle)
         {
             Region.MakeEmpty();
             Region = new Region(rectangle);
         }
 
-        public IDirect2DClippingState PushDirect2DClipping([NotNull] Direct2DRenderingState state)
+        public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] Direct2DRenderingState state)
         {
             var aabbClips = Region.GetRegionScans(new Matrix()).Select(rect => (AABB)rect).ToArray();
             
@@ -1451,7 +1451,7 @@ namespace Pixelaria.Views.ExportPipeline
             return new Direct2DClip(aabbClips, geom);
         }
 
-        public void PopDirect2DClipping([NotNull] Direct2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
+        public virtual void PopDirect2DClipping([NotNull] Direct2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
         {
             if (!(clipState is Direct2DClip))
                 return;
@@ -1467,7 +1467,7 @@ namespace Pixelaria.Views.ExportPipeline
             
         }
 
-        private struct Direct2DClip : IDirect2DClippingState
+        protected struct Direct2DClip : IDirect2DClippingState
         {
             public AABB[] Rectangles { get; }
             public Geometry Geometry { get; }
@@ -1477,6 +1477,66 @@ namespace Pixelaria.Views.ExportPipeline
                 Rectangles = rectangles;
                 Geometry = geometry;
             }
+        }
+    }
+
+    /// <summary>
+    /// A subclass of <see cref="ClippingRegion"/> that reports a full clipping region as available on the UI.
+    /// </summary>
+    internal class FullClippingRegion : ClippingRegion
+    {
+        public FullClippingRegion([NotNull] Region region) : base(region)
+        {
+        }
+
+        public override bool IsVisibleInClippingRegion(Rectangle rectangle)
+        {
+            return true;
+        }
+
+        public override bool IsVisibleInClippingRegion(Point point)
+        {
+            return true;
+        }
+
+        public override bool IsVisibleInClippingRegion(AABB aabb)
+        {
+            return true;
+        }
+
+        public override bool IsVisibleInClippingRegion(Vector point)
+        {
+            return true;
+        }
+
+        public override bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
+        {
+            return true;
+        }
+
+        public override bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
+        {
+            return true;
+        }
+
+        public override void AddRectangle(RectangleF rectangle)
+        {
+
+        }
+
+        public override void SetRectangle(RectangleF rectangle)
+        {
+
+        }
+
+        public override IDirect2DClippingState PushDirect2DClipping(Direct2DRenderingState state)
+        {
+            return null;
+        }
+
+        public override void PopDirect2DClipping(Direct2DRenderingState state, IDirect2DClippingState clipState)
+        {
+            
         }
     }
 
