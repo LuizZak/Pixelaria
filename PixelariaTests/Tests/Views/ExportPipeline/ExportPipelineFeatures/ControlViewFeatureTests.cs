@@ -47,7 +47,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
         public void TestIgnoreRenderingClipToBoundsOutOfView()
         {
             // Arrange
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var controlViewFeature = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ViewRenderingVisitor();
 
             var mockChild1 = MockRepository.GeneratePartialMock<ControlView>();
             var mockChild2 = MockRepository.GeneratePartialMock<ControlView>();
@@ -58,8 +59,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
             var clipStub = MockRepository.GenerateStub<IClippingRegion>();
             rendererStub.Stub(rend => rend.ClippingRegion).Return(clipStub);
             clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds, mockChild1)).Return(false);
-            sut.AddControl(mockChild1);
-            sut.AddControl(mockChild2);
+            controlViewFeature.AddControl(mockChild1);
+            controlViewFeature.AddControl(mockChild2);
             var context = new ControlRenderingContext(null, rendererStub);
             
             // Assert
@@ -70,7 +71,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
         public void TestDontIgnoreRenderingNonClippedToBoundsOutOfView()
         {
             // Arrange
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var controlViewFeature = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ViewRenderingVisitor();
 
             var mockChild1 = MockRepository.GeneratePartialMock<ControlView>();
             var mockChild2 = MockRepository.GeneratePartialMock<ControlView>();
@@ -81,8 +83,8 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
             var clipStub = MockRepository.GenerateStub<IClippingRegion>();
             rendererStub.Stub(rend => rend.ClippingRegion).Return(clipStub);
             clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds, mockChild1)).Return(false);
-            sut.AddControl(mockChild1);
-            sut.AddControl(mockChild2);
+            controlViewFeature.AddControl(mockChild1);
+            controlViewFeature.AddControl(mockChild2);
             var context = new ControlRenderingContext(null, rendererStub);
 
             // Assert
