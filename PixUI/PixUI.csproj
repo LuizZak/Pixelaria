@@ -118,7 +118,6 @@
     <Compile Include="LabelView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Direct2DHelpers.cs" />
-    <Compile Include="Rendering\Direct2DRenderingState.cs" />
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
     <Compile Include="Text\TextRange.cs" />
     <Compile Include="Rendering\TextColorRenderer.cs" />

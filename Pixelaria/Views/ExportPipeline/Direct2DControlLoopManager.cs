@@ -21,15 +21,20 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
+using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.Rendering;
+using PixUI.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DXGI;
 using SharpDX.Windows;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using Factory = SharpDX.Direct2D1.Factory;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -123,6 +128,64 @@ namespace Pixelaria.Views.ExportPipeline
         private void target_Resize(object sender, EventArgs e)
         {
             ResizeRenderTarget();
+        }
+        
+        /// <summary>
+        /// Implementation of <see cref="IDirect2DRenderingState"/> for <see cref="Direct2DControlLoopManager"/>
+        /// </summary>
+        private sealed class Direct2DRenderingState : IDirect2DRenderingState
+        {
+            private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
+
+            public WindowRenderTarget WindowRenderTarget { set; get; }
+
+            public RenderTarget D2DRenderTarget => WindowRenderTarget;
+            public Factory D2DFactory { set; get; }
+
+            public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
+
+            /// <summary>
+            /// Gets the time span since the last frame rendered
+            /// </summary>
+            public TimeSpan FrameRenderDeltaTime { get; private set; }
+
+            public void Dispose()
+            {
+                D2DRenderTarget?.Dispose();
+            }
+
+            public void SetFrameDeltaTime(TimeSpan frameDeltaTime)
+            {
+                FrameRenderDeltaTime = frameDeltaTime;
+            }
+
+            public void WithTemporaryClipping(AABB clipping, [InstantHandle] Action execute)
+            {
+                D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectangleF(), AntialiasMode.Aliased);
+
+                execute();
+
+                D2DRenderTarget.PopAxisAlignedClip();
+            }
+
+            public void PushingTransform([InstantHandle] Action execute)
+            {
+                var transform = D2DRenderTarget.Transform;
+                execute();
+                D2DRenderTarget.Transform = transform;
+            }
+
+            public void PushMatrix(Matrix3x2 matrix)
+            {
+                _matrixStack.Push(D2DRenderTarget.Transform);
+
+                D2DRenderTarget.Transform = D2DRenderTarget.Transform * matrix;
+            }
+
+            public void PopMatrix()
+            {
+                D2DRenderTarget.Transform = _matrixStack.Pop();
+            }
         }
     }
 }
