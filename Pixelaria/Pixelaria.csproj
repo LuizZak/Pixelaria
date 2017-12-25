@@ -216,6 +216,7 @@
     <Compile Include="ExportPipeline\IPipelineContainer.cs" />
     <Compile Include="ExportPipeline\Outputs\Abstract\AbstractPipelineOutput.cs" />
     <Compile Include="ExportPipeline\PipelineContainer.cs" />
+    <Compile Include="ExportPipeline\Steps\Abstract\AbstractPipelineStart.cs" />
     <Compile Include="ExportPipeline\Steps\Abstract\AbstractPipelineStep.cs" />
     <Compile Include="ExportPipeline\Inputs\Abstract\AbstractSinglePipelineInput.cs" />
     <Compile Include="ExportPipeline\Inputs\AnimationInput.cs" />
@@ -230,6 +231,7 @@
     <Compile Include="ExportPipeline\Inputs\SheetSettingsInput.cs" />
     <Compile Include="ExportPipeline\Outputs\StaticPipelineOutput.cs" />
     <Compile Include="ExportPipeline\Steps\AnimationJoinerStep.cs" />
+    <Compile Include="ExportPipeline\Steps\BitmapImportPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\BitmapPreviewPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SingleAnimationPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\AnimationsPipelineStep.cs" />

@@ -33,12 +33,11 @@ namespace Pixelaria.ExportPipeline.Steps
     /// <summary>
     /// A pipeline step that feeds a single animation down to consumers
     /// </summary>
-    public class SingleAnimationPipelineStep : AbstractPipelineStep
+    public class SingleAnimationPipelineStep : AbstractPipelineStart
     {
         public Animation Animation { get; }
 
         public override string Name => Animation.Name;
-        public override IReadOnlyList<IPipelineInput> Input { get; } = new IPipelineInput[0];
         public override IReadOnlyList<IPipelineOutput> Output { get; }
 
         public SingleAnimationPipelineStep(Animation animation)

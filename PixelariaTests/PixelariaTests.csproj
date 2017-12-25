@@ -112,6 +112,7 @@
     <Compile Include="Tests\ExportPipeline\Steps\FilterPipelineStepTests.cs" />
     <Compile Include="Tests\ExportPipeline\PipelineContainerTests.cs" />
     <Compile Include="Tests\ExportPipeline\DefaultPipelineConnectionDelegateTests.cs" />
+    <Compile Include="Tests\ExportPipeline\Steps\BitmapImportPipelineStepTests.cs" />
     <Compile Include="Tests\Filters\FilterPresetTests.cs" />
     <Compile Include="Tests\PaintOperations\PencilPaintOperationTests.cs" />
     <Compile Include="Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
