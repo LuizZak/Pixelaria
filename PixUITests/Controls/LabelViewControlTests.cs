@@ -20,11 +20,11 @@
     base directory of this project.
 */
 
-using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixUI.Controls;
+using PixUITests.TestUtils;
 
 namespace PixUITests.Controls
 {
@@ -37,6 +37,8 @@ namespace PixUITests.Controls
         public void TestInitialize()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+
+            BaseViewSnapshot.RecordMode = false;
         }
 
         [TestMethod]
@@ -65,6 +67,55 @@ namespace PixUITests.Controls
 
             root.AssertViewBoundsWhereInvalidated(sut);
         }
+
+        [TestMethod]
+        public void TestRendering()
+        {
+            var sut = new LabelViewControl("Abc");
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingLeadingHorizontalText()
+        {
+            var sut = new LabelViewControl("Abc")
+            {
+                AutoResize = false,
+                Size = new Vector(50, 50),
+                HorizontalTextAlignment = HorizontalTextAlignment.Leading
+            };
+            
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingCenterHorizontalText()
+        {
+            var sut = new LabelViewControl("Abc")
+            {
+                AutoResize = false,
+                Size = new Vector(50, 50),
+                HorizontalTextAlignment = HorizontalTextAlignment.Center
+            };
+            
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingTrailingHorizontalText()
+        {
+            var sut = new LabelViewControl("Abc")
+            {
+                AutoResize = false,
+                Size = new Vector(50, 50),
+                HorizontalTextAlignment = HorizontalTextAlignment.Trailing
+            };
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        public TestContext TestContext { get; set; }
 
         #endregion
     }
