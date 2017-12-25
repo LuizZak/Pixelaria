@@ -619,7 +619,7 @@ namespace PixUI
         {
             if (Parent == null)
             {
-                return LocalTransform.Clone();
+                return LocalTransform;
             }
 
             var total = Parent.GetAbsoluteTransform().Clone();
