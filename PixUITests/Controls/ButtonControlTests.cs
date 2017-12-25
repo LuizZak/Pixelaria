@@ -69,6 +69,21 @@ namespace PixUITests.Controls
             BaseViewSnapshot.Snapshot(button, TestContext);
         }
 
+        [TestMethod]
+        public void TestTightTextInsetsRendering()
+        {
+            var button = new ButtonControl
+            {
+                Text = "Button 1",
+                TextInset = new InsetBounds(15, 4, 4, 15),
+                Size = new Vector(60, 30),
+                HorizontalTextAlignment = HorizontalTextAlignment.Center,
+                VerticalTextAlignment = VerticalTextAlignment.Center
+            };
+
+            BaseViewSnapshot.Snapshot(button, TestContext);
+        }
+
         public TestContext TestContext { get; set; }
     }
 }
