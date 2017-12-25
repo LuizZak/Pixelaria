@@ -108,14 +108,14 @@ namespace PixUI.Rendering
     /// </summary>
     public interface ID2DImageResourceManager: ID2DImageResourceProvider
     {
-        void AddImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+        void AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
         void RemoveImageResource([NotNull] string resourceName);
         void RemoveImageResources();
 
         /// <summary>
         /// Shortcut for creating and assigning a bitmap to use in pipeline node view's icons and other image resources
         /// </summary>
-        ImageResource AddPipelineNodeImageResource([NotNull] Direct2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+        ImageResource AddPipelineNodeImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
     }
 
     /// <summary>

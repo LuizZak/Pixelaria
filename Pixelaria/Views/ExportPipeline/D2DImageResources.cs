@@ -46,7 +46,7 @@ namespace Pixelaria.Views.ExportPipeline
             _bitmapResources.Clear();
         }
 
-        public void AddImageResource(Direct2DRenderingState state, Bitmap bitmap, string resourceName)
+        public void AddImageResource(IDirect2DRenderingState state, Bitmap bitmap, string resourceName)
         {
             if (_bitmapResources.ContainsKey(resourceName))
                 throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        public ImageResource AddPipelineNodeImageResource(Direct2DRenderingState state,
+        public ImageResource AddPipelineNodeImageResource(IDirect2DRenderingState state,
             Bitmap bitmap, string resourceName)
         {
             var res = new ImageResource(resourceName, bitmap.Width, bitmap.Height);
