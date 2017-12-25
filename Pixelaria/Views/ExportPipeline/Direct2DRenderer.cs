@@ -617,6 +617,9 @@ namespace Pixelaria.Views.ExportPipeline
                             var start = new Vector(x, reg.Top) * transform;
                             var end = new Vector(x, reg.Bottom) * transform;
 
+                            if (!ClippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(1, 0)))
+                                continue;
+
                             renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                         }
 
@@ -624,6 +627,9 @@ namespace Pixelaria.Views.ExportPipeline
                         {
                             var start = new Vector(reg.Left, y) * transform;
                             var end = new Vector(reg.Right, y) * transform;
+
+                            if (!ClippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(0, 1)))
+                                continue;
 
                             renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                         }
@@ -638,6 +644,9 @@ namespace Pixelaria.Views.ExportPipeline
                         var start = new Vector(x, reg.Top) * transform;
                         var end = new Vector(x, reg.Bottom) * transform;
 
+                        if (!ClippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(1, 0)))
+                            continue;
+
                         renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                     }
 
@@ -645,6 +654,9 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         var start = new Vector(reg.Left, y) * transform;
                         var end = new Vector(reg.Right, y) * transform;
+
+                        if (!ClippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(0, 1)))
+                            continue;
 
                         renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                     }
