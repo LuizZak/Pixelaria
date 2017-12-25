@@ -86,7 +86,7 @@ namespace PixUITests.TestUtils
         /// </summary>
         public static bool SeparateDirectoriesPerNamespace = false;
 
-        public static void Snapshot([NotNull] SelfRenderingBaseView view, [NotNull] TestContext context)
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context)
         {
             if(view.Bounds.IsEmpty)
                 throw new ArgumentException(@"View parameter cannot have empty bounds", nameof(view));
@@ -158,7 +158,7 @@ namespace PixUITests.TestUtils
             }
         }
 
-        private static Bitmap SnapshotView(SelfRenderingBaseView view)
+        private static Bitmap SnapshotView(BaseView view)
         {
             // Create a temporary Direct3D rendering context and render the view on it
             using (var renderLoop = new Direct2DControlLoopManager(_renderTarget))
