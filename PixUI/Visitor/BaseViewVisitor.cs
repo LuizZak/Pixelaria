@@ -47,6 +47,11 @@ namespace PixUI.Visitor
             _onVisit(state, view);
         }
 
+        public bool ShouldVisitView(T state, BaseView view)
+        {
+            return true;
+        }
+
         public void OnVisitorExit(T state, BaseView view)
         {
 

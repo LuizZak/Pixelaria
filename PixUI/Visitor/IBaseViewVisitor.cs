@@ -40,6 +40,15 @@ namespace PixUI.Visitor
         void VisitView(T state, [NotNull] BaseView view);
 
         /// <summary>
+        /// Called to query whether a given view should be visited.
+        /// 
+        /// If return is false, <see cref="view"/> and all its subviews are ignored and no calls to 
+        /// <see cref="OnVisitorEnter"/>/<see cref="VisitView"/>/<see cref="OnVisitorExit"/> are made 
+        /// for the passed view.
+        /// </summary>
+        bool ShouldVisitView(T state, [NotNull] BaseView view);
+
+        /// <summary>
         /// Called when the last child of a view has been visited and traversal will 
         /// continue up the siblings/parent chain
         /// </summary>

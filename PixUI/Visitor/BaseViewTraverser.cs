@@ -41,11 +41,14 @@ namespace PixUI.Visitor
 
         public void Visit([NotNull] BaseView view)
         {
+            if (!_viewVisitor.ShouldVisitView(_state, view))
+                return;
+
             _viewVisitor.OnVisitorEnter(_state, view);
 
             _viewVisitor.VisitView(_state, view);
 
-            // Render children
+            // Visitr children
             foreach (var child in view.Children)
             {
                 Visit(child);

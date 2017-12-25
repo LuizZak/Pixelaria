@@ -58,6 +58,12 @@ namespace PixUI
         public BaseView Parent { get; private set; }
         
         /// <summary>
+        /// A customizable string for identifying this view during debug mode.
+        /// </summary>
+        [CanBeNull]
+        public string DebugName { get; set; }
+
+        /// <summary>
         /// Transformation matrix.
         /// 
         /// Used to alter rendering and hit testing.
@@ -228,6 +234,19 @@ namespace PixUI
         /// If no parent is present, <see cref="Bounds"/> is returned instead.
         /// </summary>
         public virtual AABB FrameOnParent => Parent == null ? Bounds : ConvertTo(Bounds, Parent);
+
+        public BaseView() : this(null)
+        {
+            
+        }
+
+        /// <summary>
+        /// Initializes this base view with a debug name string attached.
+        /// </summary>
+        public BaseView([CanBeNull] string debugName)
+        {
+            DebugName = debugName;
+        }
 
         /// <summary>
         /// Sets the <see cref="Location"/> and <see cref="Size"/> to a given <see cref="AABB"/> value.
@@ -725,6 +744,11 @@ namespace PixUI
         {
             // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
             return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return DebugName != null ? $"{DebugName} : {{{base.ToString()}}}" : base.ToString();
         }
     }
 }
