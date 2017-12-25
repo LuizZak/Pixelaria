@@ -65,7 +65,7 @@ namespace Pixelaria.Views.ExportPipeline
     internal class Direct2DRenderer : IDisposable, IExportPipelineDirect2DRenderer
     {
         [CanBeNull]
-        private Direct2DRenderingState _lastRenderingState;
+        private IDirect2DRenderingState _lastRenderingState;
 
         /// <summary>
         /// For relative position calculations
@@ -137,7 +137,7 @@ namespace Pixelaria.Views.ExportPipeline
             _imageResources.Dispose();
         }
 
-        public void Initialize([NotNull] Direct2DRenderingState state)
+        public void Initialize([NotNull] IDirect2DRenderingState state)
         {
             _lastRenderingState = state;
 
@@ -158,7 +158,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         #region View Rendering
 
-        public void Render([NotNull] Direct2DRenderingState state, [NotNull] IClippingRegion clipping)
+        public void Render([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
             _lastRenderingState = state;
 
@@ -177,7 +177,7 @@ namespace Pixelaria.Views.ExportPipeline
             RenderInView(_container.UiContainerView, state, decorators.ToArray());
         }
 
-        protected void RenderInView([NotNull] BaseView view, [NotNull] Direct2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
+        protected void RenderInView([NotNull] BaseView view, [NotNull] IDirect2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
         {
             // Render all remaining objects
             var labels = view.Children.OfType<LabelView>().ToArray();
@@ -203,7 +203,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] Direct2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IDirect2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             state.PushingTransform(() =>
             {
@@ -358,7 +358,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        private void RenderNodeLinkView([NotNull] Direct2DRenderingState state, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        private void RenderNodeLinkView([NotNull] IDirect2DRenderingState state, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             state.PushingTransform(() =>
             {
@@ -403,7 +403,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IDirect2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             renderingState.PushingTransform(() =>
             {
@@ -476,7 +476,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void RenderLabelView([NotNull] LabelView labelView, [NotNull] Direct2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderLabelView([NotNull] LabelView labelView, [NotNull] IDirect2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             renderingState.PushingTransform(() =>
             {
@@ -576,7 +576,7 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void RenderBackground([NotNull] Direct2DRenderingState renderingState)
+        public void RenderBackground([NotNull] IDirect2DRenderingState renderingState)
         {
             renderingState.D2DRenderTarget.Clear(BackColor.ToColor4());
 
@@ -913,7 +913,7 @@ namespace Pixelaria.Views.ExportPipeline
                     });
             }
 
-            private static T WithTemporaryTextFormat<T>([NotNull] Direct2DRenderingState renderState, [NotNull] IAttributedText text, TextAttributes textAttributes,
+            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextAttributes textAttributes,
                 [NotNull] Func<TextFormat, TextLayout, T> action)
             {
                 using (var textFormat = new TextFormat(renderState.DirectWriteFactory, textAttributes.Font, textAttributes.FontSize)

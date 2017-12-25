@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
@@ -166,7 +167,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ExportPipelineControlOnResize(object sender, EventArgs eventArgs)
         {
-            AdjustResizing();
+            ResizeRenderTarget();
         }
 
         private void PanelManagerOnPipelineNodeSelected(object sender, [NotNull] ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e)
@@ -397,7 +398,7 @@ namespace Pixelaria.Views.ExportPipeline
                 PresentOptions = PresentOptions.RetainContents
             };
 
-            RenderingState.D2DRenderTarget
+            RenderingState.WindowRenderTarget
                 = new WindowRenderTarget(RenderingState.D2DFactory,
                     new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)), properties)
                 {
@@ -419,26 +420,94 @@ namespace Pixelaria.Views.ExportPipeline
                         continue;
 
                     RenderingState.SetFrameDeltaTime(TimeSpan.FromTicks(_frameDeltaTimer.ElapsedTicks));
-                    _frameDeltaTimer.Stop();
-                    _frameDeltaTimer.Reset();
-                    _frameDeltaTimer.Start();
+                    _frameDeltaTimer.Restart();
                     
                     RenderingState.D2DRenderTarget.BeginDraw();
 
                     exportPipelineControl.RenderDirect2D(RenderingState);
-
-                    RenderingState.D2DRenderTarget.Flush();
+                    
                     RenderingState.D2DRenderTarget.EndDraw();
+
+                    Thread.Sleep(15);
                 }
             }
         }
 
-        private void AdjustResizing()
+        private void ResizeRenderTarget()
         {
-            RenderingState.D2DRenderTarget?.Resize(new Size2(exportPipelineControl.Width, exportPipelineControl.Height));
+            RenderingState.WindowRenderTarget?.Resize(new Size2(exportPipelineControl.Width, exportPipelineControl.Height));
         }
 
         #endregion
+    }
+
+    internal class Direct2DControlManager
+    {
+        private readonly Control _target;
+        private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
+        private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
+
+        /// <summary>
+        /// Gets the public interface for the rendering state of this Direct2D manager
+        /// </summary>
+        internal IDirect2DRenderingState RenderingState => _renderingState;
+
+        public Direct2DControlManager(Control target)
+        {
+            _target = target;
+        }
+
+        public void InitializeDirect2D()
+        {
+            _renderingState.D2DFactory = new SharpDX.Direct2D1.Factory();
+            _renderingState.DirectWriteFactory = new SharpDX.DirectWrite.Factory();
+
+            // Direct2D Render Target
+            var properties = new HwndRenderTargetProperties
+            {
+                Hwnd = _target.Handle,
+                PixelSize = new Size2(_target.Width, _target.Height),
+                PresentOptions = PresentOptions.RetainContents
+            };
+
+            _renderingState.WindowRenderTarget
+                = new WindowRenderTarget(RenderingState.D2DFactory,
+                    new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied)), properties)
+                {
+                    TextAntialiasMode = TextAntialiasMode.Cleartype,
+                    AntialiasMode = AntialiasMode.PerPrimitive
+                };
+        }
+
+        public void StartRenderLoop(Action<IDirect2DRenderingState> loop)
+        {
+            using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = true })
+            {
+                _frameDeltaTimer.Start();
+
+                while (renderLoop.NextFrame())
+                {
+                    if (_frameDeltaTimer.ElapsedMilliseconds <= 16)
+                        continue;
+
+                    _renderingState.SetFrameDeltaTime(TimeSpan.FromTicks(_frameDeltaTimer.ElapsedTicks));
+                    _frameDeltaTimer.Restart();
+
+                    RenderingState.D2DRenderTarget.BeginDraw();
+
+                    loop(RenderingState);
+                    
+                    RenderingState.D2DRenderTarget.EndDraw();
+
+                    Thread.Sleep(15);
+                }
+            }
+        }
+
+        private void ResizeRenderTarget()
+        {
+            _renderingState.WindowRenderTarget?.Resize(new Size2(_target.Width, _target.Height));
+        }
     }
 
     /// <summary>
@@ -567,7 +636,7 @@ namespace Pixelaria.Views.ExportPipeline
     internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature
     {
         [CanBeNull]
-        private Direct2DRenderingState _latestRenderState;
+        private IDirect2DRenderingState _latestRenderState;
 
         private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
         private readonly Dictionary<BitmapPreviewPipelineStep, Bitmap> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, Bitmap>();
@@ -632,7 +701,7 @@ namespace Pixelaria.Views.ExportPipeline
             _latestPreviews[step] = newBit;
         }
 
-        public override void OnRender(Direct2DRenderingState state)
+        public override void OnRender(IDirect2DRenderingState state)
         {
             base.OnRender(state);
 

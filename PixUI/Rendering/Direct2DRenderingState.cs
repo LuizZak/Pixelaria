@@ -30,14 +30,16 @@ using SharpDX.Direct2D1;
 
 namespace PixUI.Rendering
 {
-    public sealed class Direct2DRenderingState : IDisposable
+    public sealed class Direct2DRenderingState : IDirect2DRenderingState
     {
         private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
-        
-        public WindowRenderTarget D2DRenderTarget { set; get; }
+
+        public WindowRenderTarget WindowRenderTarget { set; get; }
+
+        public RenderTarget D2DRenderTarget => WindowRenderTarget;
         public Factory D2DFactory { set; get; }
         
-        public SharpDX.DirectWrite.Factory DirectWriteFactory;
+        public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
 
         /// <summary>
         /// Gets the time span since the last frame rendered
@@ -54,7 +56,7 @@ namespace PixUI.Rendering
             FrameRenderDeltaTime = frameDeltaTime;
         }
 
-        public void WithTemporaryClipping(AABB clipping, [NotNull, InstantHandle] Action execute)
+        public void WithTemporaryClipping(AABB clipping, [InstantHandle] Action execute)
         {
             D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectangleF(), AntialiasMode.Aliased);
 
@@ -63,7 +65,7 @@ namespace PixUI.Rendering
             D2DRenderTarget.PopAxisAlignedClip();
         }
 
-        public void PushingTransform([NotNull, InstantHandle] Action execute)
+        public void PushingTransform([InstantHandle] Action execute)
         {
             var transform = D2DRenderTarget.Transform;
             execute();

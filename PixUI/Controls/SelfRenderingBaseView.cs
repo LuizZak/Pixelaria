@@ -218,13 +218,13 @@ namespace PixUI.Controls
     /// </summary>
     public class ControlRenderingContext
     {
-        public Direct2DRenderingState State { get; }
+        public IDirect2DRenderingState State { get; }
         public IDirect2DRenderer Renderer { get; }
 
         /// <summary>
         /// Gets the current render target.
         /// 
-        /// Shortcut for <see cref="State"/>'s <see cref="Direct2DRenderingState.D2DRenderTarget"/>.
+        /// Shortcut for <see cref="State"/>'s <see cref="IDirect2DRenderingState.D2DRenderTarget"/>.
         /// </summary>
         public RenderTarget RenderTarget => State.D2DRenderTarget;
 
@@ -235,7 +235,7 @@ namespace PixUI.Controls
         /// </summary>
         public IClippingRegion ClippingRegion => Renderer.ClippingRegion;
 
-        public ControlRenderingContext(Direct2DRenderingState state, IDirect2DRenderer renderer)
+        public ControlRenderingContext(IDirect2DRenderingState state, IDirect2DRenderer renderer)
         {
             State = state;
             Renderer = renderer;

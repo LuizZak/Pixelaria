@@ -176,12 +176,12 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeDirect2DRenderer([NotNull] Direct2DRenderingState state)
+        public void InitializeDirect2DRenderer([NotNull] IDirect2DRenderingState state)
         {
             _d2DRenderer.Initialize(state);
         }
 
-        public void RenderDirect2D([NotNull] Direct2DRenderingState state)
+        public void RenderDirect2D([NotNull] IDirect2DRenderingState state)
         {
             if(_d2DRenderer == null)
                 throw new InvalidOperationException("Direct2D renderer was not initialized");
@@ -1411,7 +1411,7 @@ namespace Pixelaria.Views.ExportPipeline
             Region = new Region(rectangle);
         }
 
-        public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] Direct2DRenderingState state)
+        public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state)
         {
             var aabbClips = Region.GetRegionScans(new Matrix()).Select(rect => (AABB)rect).ToArray();
             
@@ -1451,12 +1451,14 @@ namespace Pixelaria.Views.ExportPipeline
             return new Direct2DClip(aabbClips, geom);
         }
 
-        public virtual void PopDirect2DClipping([NotNull] Direct2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
+        public virtual void PopDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
         {
-            if (!(clipState is Direct2DClip))
+            if (!(clipState is Direct2DClip d2DClip))
                 return;
 
             state.D2DRenderTarget.PopLayer();
+
+            d2DClip.Geometry.Dispose();
         }
 
         /// <summary>
@@ -1529,12 +1531,12 @@ namespace Pixelaria.Views.ExportPipeline
 
         }
 
-        public override IDirect2DClippingState PushDirect2DClipping(Direct2DRenderingState state)
+        public override IDirect2DClippingState PushDirect2DClipping(IDirect2DRenderingState state)
         {
             return null;
         }
 
-        public override void PopDirect2DClipping(Direct2DRenderingState state, IDirect2DClippingState clipState)
+        public override void PopDirect2DClipping(IDirect2DRenderingState state, IDirect2DClippingState clipState)
         {
             
         }
@@ -1601,7 +1603,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Called whenever a new Direct2D frame is being rendered.
         /// </summary>
-        public virtual void OnRender([NotNull] Direct2DRenderingState state) { }
+        public virtual void OnRender([NotNull] IDirect2DRenderingState state) { }
 
         #region Mouse Events
 

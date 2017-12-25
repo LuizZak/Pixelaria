@@ -120,7 +120,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             traverser.Visit(BaseControl);
         }
 
-        public override void OnRender(Direct2DRenderingState state)
+        public override void OnRender(IDirect2DRenderingState state)
         {
             base.OnRender(state);
 
