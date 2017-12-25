@@ -155,7 +155,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             if (view is SelfRenderingBaseView selfRendering)
             {
-                if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds))
+                if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds, selfRendering))
                     return false;
 
                 return selfRendering.Visible;

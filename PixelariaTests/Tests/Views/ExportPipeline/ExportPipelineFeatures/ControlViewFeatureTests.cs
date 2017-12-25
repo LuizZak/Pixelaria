@@ -57,7 +57,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
             var rendererStub = MockRepository.GenerateStub<IDirect2DRenderer>();
             var clipStub = MockRepository.GenerateStub<IClippingRegion>();
             rendererStub.Stub(rend => rend.ClippingRegion).Return(clipStub);
-            clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds)).Return(false);
+            clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds, mockChild1)).Return(false);
             sut.AddControl(mockChild1);
             sut.AddControl(mockChild2);
             var context = new ControlRenderingContext(null, rendererStub);
@@ -80,7 +80,7 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
             var rendererStub = MockRepository.GenerateStub<IDirect2DRenderer>();
             var clipStub = MockRepository.GenerateStub<IClippingRegion>();
             rendererStub.Stub(rend => rend.ClippingRegion).Return(clipStub);
-            clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds)).Return(false);
+            clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds, mockChild1)).Return(false);
             sut.AddControl(mockChild1);
             sut.AddControl(mockChild2);
             var context = new ControlRenderingContext(null, rendererStub);
