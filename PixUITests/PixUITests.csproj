@@ -82,6 +82,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ButtonControlTests.cs" />
     <Compile Include="TestUtils\BaseViewSnapshot.cs" />
     <Compile Include="Controls\LabelViewControlTests.cs" />
     <Compile Include="TestInvalidateBaseView.cs" />

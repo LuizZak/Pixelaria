@@ -36,6 +36,7 @@ using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
 using PixUI.Utils;
+using PixUI.Visitor;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
@@ -169,7 +170,19 @@ namespace PixUITests.TestUtils
 
                 renderLoop.RenderSingleFrame(state =>
                 {
-                    view.Render(new ControlRenderingContext(state, renderer));
+                    var visitor = new BaseViewVisitor<ControlRenderingContext>((ctx, baseView) =>
+                    {
+                        if (baseView is SelfRenderingBaseView selfRendering)
+                        {
+                            selfRendering.Render(ctx);
+                        }
+                    });
+
+
+                    var context = new ControlRenderingContext(state, renderer);
+                    var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
+
+                    traverser.Visit(view);
                 });
 
                 var wicBitmap = renderLoop.RenderingState.Bitmap;
