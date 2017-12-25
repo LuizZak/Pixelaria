@@ -184,7 +184,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderDirect2D([NotNull] IDirect2DRenderingState state)
         {
             if(_d2DRenderer == null)
-                throw new InvalidOperationException("Direct2D renderer was not initialized");
+                throw new InvalidOperationException($"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(RenderDirect2D)}.");
             
             using (var g = CreateGraphics())
             {
