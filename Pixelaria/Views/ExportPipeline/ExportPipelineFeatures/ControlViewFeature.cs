@@ -154,7 +154,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         public bool ShouldVisitView(ControlRenderingContext state, BaseView view)
         {
             if (view is SelfRenderingBaseView selfRendering)
+            {
+                if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds))
+                    return false;
+
                 return selfRendering.Visible;
+            }
 
             return true;
         }

@@ -29,6 +29,7 @@ using PixUI.Controls;
 
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+using PixUI.Rendering;
 using Rhino.Mocks;
 
 namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
@@ -40,6 +41,52 @@ namespace PixelariaTests.Tests.Views.ExportPipeline.ExportPipelineFeatures
         public void Setup()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+        }
+
+        [TestMethod]
+        public void TestIgnoreRenderingClipToBoundsOutOfView()
+        {
+            // Arrange
+            var sut = new ControlViewFeature(new ExportPipelineControl());
+
+            var mockChild1 = MockRepository.GeneratePartialMock<ControlView>();
+            var mockChild2 = MockRepository.GeneratePartialMock<ControlView>();
+            mockChild1.SetFrame(AABB.FromRectangle(10, 10, 50, 50));
+            mockChild2.SetFrame(AABB.FromRectangle(25, 25, 50, 50));
+            mockChild1.ClipToBounds = true;
+            var rendererStub = MockRepository.GenerateStub<IDirect2DRenderer>();
+            var clipStub = MockRepository.GenerateStub<IClippingRegion>();
+            rendererStub.Stub(rend => rend.ClippingRegion).Return(clipStub);
+            clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds)).Return(false);
+            sut.AddControl(mockChild1);
+            sut.AddControl(mockChild2);
+            var context = new ControlRenderingContext(null, rendererStub);
+            
+            // Assert
+            Assert.IsFalse(sut.ShouldVisitView(context, mockChild1));
+        }
+
+        [TestMethod]
+        public void TestDontIgnoreRenderingNonClippedToBoundsOutOfView()
+        {
+            // Arrange
+            var sut = new ControlViewFeature(new ExportPipelineControl());
+
+            var mockChild1 = MockRepository.GeneratePartialMock<ControlView>();
+            var mockChild2 = MockRepository.GeneratePartialMock<ControlView>();
+            mockChild1.SetFrame(AABB.FromRectangle(10, 10, 50, 50));
+            mockChild2.SetFrame(AABB.FromRectangle(25, 25, 50, 50));
+            mockChild1.ClipToBounds = false;
+            var rendererStub = MockRepository.GenerateStub<IDirect2DRenderer>();
+            var clipStub = MockRepository.GenerateStub<IClippingRegion>();
+            rendererStub.Stub(rend => rend.ClippingRegion).Return(clipStub);
+            clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds)).Return(false);
+            sut.AddControl(mockChild1);
+            sut.AddControl(mockChild2);
+            var context = new ControlRenderingContext(null, rendererStub);
+
+            // Assert
+            Assert.IsTrue(sut.ShouldVisitView(context, mockChild1));
         }
 
         #region Mouse Events

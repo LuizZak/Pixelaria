@@ -25,7 +25,7 @@ using PixUI;
 using PixUI.Visitor;
 using Rhino.Mocks;
 
-namespace PixelariaTests.Visitor
+namespace PixUITests.Visitor
 {
     [TestClass]
     public class BaseViewTraverserTests

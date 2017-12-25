@@ -124,7 +124,6 @@
     <Compile Include="Tests\Views\ExportPipeline\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Utils\RecentFileListTests.cs" />
-    <Compile Include="Visitor\BaseViewTraverserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj">
