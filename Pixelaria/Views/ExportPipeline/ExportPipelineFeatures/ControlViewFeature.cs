@@ -29,11 +29,7 @@ using PixCore.Geometry;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
-using PixUI.Utils;
 using PixUI.Visitor;
-
-using SharpDX;
-using SharpDX.Direct2D1;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -43,7 +39,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
     /// 
     /// Also handles focus management for keyboard event receiving.
     /// </summary>
-    internal class ControlViewFeature : ExportPipelineUiFeature, IBaseViewVisitor<ControlRenderingContext>, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate, IControlContainer
+    internal class ControlViewFeature : ExportPipelineUiFeature, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate, IControlContainer
     {
         /// <summary>
         /// Gets the base view that all control views must be added to to enable user interaction
@@ -127,53 +123,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             var context = new ControlRenderingContext(state, Control.D2DRenderer);
 
             // Create a renderer visitor for the root UI element we got
-            var traverser = new BaseViewTraverser<ControlRenderingContext>(context, this);
+            var visitor = new ViewRenderingVisitor();
+            var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
             traverser.Visit(BaseControl);
         }
-
-        public void OnVisitorEnter([NotNull] ControlRenderingContext context, BaseView view)
-        {
-            context.State.PushMatrix(new Matrix3x2(view.LocalTransform.Elements));
-
-            // Clip rendering area
-            if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
-            {
-                var clip = view.Bounds;
-                context.RenderTarget.PushAxisAlignedClip(clip.ToRawRectangleF(), AntialiasMode.Aliased);
-            }
-        }
-
-        public void VisitView([NotNull] ControlRenderingContext context, BaseView view)
-        {
-            if (view is SelfRenderingBaseView selfRendering && selfRendering.IsVisibleOnScreen())
-            {
-                selfRendering.Render(context);
-            }
-        }
-
-        public bool ShouldVisitView(ControlRenderingContext state, BaseView view)
-        {
-            if (view is SelfRenderingBaseView selfRendering)
-            {
-                if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds, selfRendering))
-                    return false;
-
-                return selfRendering.Visible;
-            }
-
-            return true;
-        }
-
-        public void OnVisitorExit([NotNull] ControlRenderingContext context, BaseView view)
-        {
-            if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
-            {
-                context.RenderTarget.PopAxisAlignedClip();
-            }
-
-            context.State.PopMatrix();
-        }
-
+        
         public override void OnResize(EventArgs e)
         {
             base.OnResize(e);

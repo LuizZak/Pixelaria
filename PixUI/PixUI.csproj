@@ -93,6 +93,7 @@
   <ItemGroup>
     <Compile Include="ISpatialReference.cs" />
     <Compile Include="Rendering\IDirect2DRenderingState.cs" />
+    <Compile Include="Rendering\ViewRenderingVisitor.cs" />
     <Compile Include="Text\AttributedText.cs" />
     <Compile Include="BaseView.cs" />
     <Compile Include="BezierPathView.cs" />

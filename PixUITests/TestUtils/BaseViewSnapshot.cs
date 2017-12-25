@@ -170,15 +170,8 @@ namespace PixUITests.TestUtils
 
                 renderLoop.RenderSingleFrame(state =>
                 {
-                    var visitor = new BaseViewVisitor<ControlRenderingContext>((ctx, baseView) =>
-                    {
-                        if (baseView is SelfRenderingBaseView selfRendering)
-                        {
-                            selfRendering.Render(ctx);
-                        }
-                    });
-
-
+                    var visitor = new ViewRenderingVisitor();
+                    
                     var context = new ControlRenderingContext(state, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 

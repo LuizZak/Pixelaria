@@ -20,12 +20,10 @@
     base directory of this project.
 */
 
-using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixUI.Controls;
-using PixUI.Text;
 using PixUITests.TestUtils;
 
 namespace PixUITests.Controls
@@ -48,6 +46,21 @@ namespace PixUITests.Controls
             {
                 Text = "Button 1",
                 TextInset = new InsetBounds(0, 0, 0, 0),
+                Size = new Vector(60, 30),
+                HorizontalTextAlignment = HorizontalTextAlignment.Center,
+                VerticalTextAlignment = VerticalTextAlignment.Center
+            };
+
+            BaseViewSnapshot.Snapshot(button, TestContext);
+        }
+
+        [TestMethod]
+        public void TestTextInsetsRendering()
+        {
+            var button = new ButtonControl
+            {
+                Text = "Button 1",
+                TextInset = new InsetBounds(2, 2, 2, 2),
                 Size = new Vector(60, 30),
                 HorizontalTextAlignment = HorizontalTextAlignment.Center,
                 VerticalTextAlignment = VerticalTextAlignment.Center

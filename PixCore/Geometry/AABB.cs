@@ -460,6 +460,8 @@ namespace PixCore.Geometry
     /// <summary>
     /// Specifies left-top-bottom-right regions to expand AABB and RectangleF's with.
     /// </summary>
+
+    [DebuggerDisplay("Left: {Left}, Top: {Top}, Bottom: {Bottom}, Right: {Right}")]
     public struct InsetBounds
     {
         public static readonly InsetBounds Empty = new InsetBounds(0, 0, 0, 0);
