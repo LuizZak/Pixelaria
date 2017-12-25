@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
@@ -45,6 +46,7 @@ using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using Bitmap = SharpDX.Direct2D1.Bitmap;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -109,7 +111,11 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager.StartRenderLoop(state =>
             {
+                var rects = exportPipelineControl.ClippingRegionRectangles;
+
                 exportPipelineControl.RenderDirect2D(_direct2DLoopManager.RenderingState);
+
+                return rects.Select(Rectangle.Round).ToArray();
             });
         }
 

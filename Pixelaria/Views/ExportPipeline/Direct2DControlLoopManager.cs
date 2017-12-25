@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
@@ -34,10 +35,13 @@ using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using SharpDX.Mathematics.Interop;
 using SharpDX.Windows;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Device = SharpDX.Direct3D11.Device;
 using Factory = SharpDX.Direct2D1.Factory;
+using Factory2 = SharpDX.DXGI.Factory2;
+using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Resource = SharpDX.Direct3D11.Resource;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -73,41 +77,63 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         public void InitializeDirect2D()
         {
-            // SwapChain description
-            var desc = new SwapChainDescription
+            var featureLevels = new[]
             {
-                BufferCount = 1,
-                ModeDescription =
-                    new ModeDescription(_target.Width, _target.Height,
-                        new Rational(60, 1), Format.R8G8B8A8_UNorm),
-                IsWindowed = true,
-                OutputHandle = _target.Handle,
-                SampleDescription = new SampleDescription(2, 0),
-                SwapEffect = SwapEffect.Discard,
-                Usage = Usage.RenderTargetOutput
+                FeatureLevel.Level_11_1,
+                FeatureLevel.Level_11_0
             };
+            const DeviceCreationFlags creationFlags = DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Debug;
 
-            // Create Device and SwapChain
-            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, new[] { SharpDX.Direct3D.FeatureLevel.Level_10_0 }, desc, out _renderingState.Device, out _renderingState.SwapChain);
+            var d3Device = new Device(DriverType.Hardware, creationFlags, featureLevels);
+            var d3Device1 = d3Device.QueryInterface<SharpDX.Direct3D11.Device1>();
 
-            _renderingState.D2DFactory = new Factory();
-            _renderingState.DirectWriteFactory = new SharpDX.DirectWrite.Factory();
+            var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
+            var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
+            
+            // This gives DXGI_ERROR_INVALID_CALL
+            var swapChainDescription = new SwapChainDescription1
+            {
+                Width = _target.Width,
+                Height = _target.Height,
+                Format = Format.B8G8R8A8_UNorm,
+                Stereo = false,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = Usage.BackBuffer | Usage.RenderTargetOutput,
+                BufferCount = 1,
+                Scaling = Scaling.Stretch,
+                SwapEffect = SwapEffect.Sequential,
+                Flags = SwapChainFlags.AllowModeSwitch
+            };
+            
+            var swapChain = new SwapChain1(dxgiFactory, d3Device1, _target.Handle, ref swapChainDescription);
 
             // Ignore all windows events
-            _renderingState.Factory = _renderingState.SwapChain.GetParent<SharpDX.DXGI.Factory>();
-            _renderingState.Factory.MakeWindowAssociation(_target.FindForm()?.Handle ?? _target.Handle, WindowAssociationFlags.IgnoreAll);
+            var factory = swapChain.GetParent<Factory2>();
+            factory.MakeWindowAssociation(_target.Handle, WindowAssociationFlags.IgnoreAll);
+
+            var d2DFactory = new Factory();
 
             // New RenderTargetView from the backbuffer
-            _renderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(_renderingState.SwapChain, 0);
+            var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
-            _renderingState.DxgiSurface = _renderingState.BackBuffer.QueryInterface<Surface>();
-            
+            var dxgiSurface = backBuffer.QueryInterface<Surface>();
+
             var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
-            _renderingState.D2DRenderTarget =
-                new RenderTarget(RenderingState.D2DFactory, _renderingState.DxgiSurface, settings)
+            var renderTarget =
+                new RenderTarget(d2DFactory, dxgiSurface, settings)
                 {
                     TextAntialiasMode = TextAntialiasMode.Cleartype
                 };
+            
+            var directWriteFactory = new SharpDX.DirectWrite.Factory();
+
+            _renderingState.D2DFactory = d2DFactory;
+            _renderingState.D2DRenderTarget = renderTarget;
+            _renderingState.SwapChain = swapChain;
+            _renderingState.Factory = factory;
+            _renderingState.DxgiSurface = dxgiSurface;
+            _renderingState.BackBuffer = backBuffer;
+            _renderingState.DirectWriteFactory = directWriteFactory;
         }
 
         /// <summary>
@@ -143,6 +169,49 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
+        /// <summary>
+        /// Starts the render loop using a given closure as the actual content rendering delegate.
+        /// 
+        /// The closure must return an array of Rectangle regions that specify the dirty regions updated during
+        /// the loop.
+        /// 
+        /// This method does not return after being called, and will continue processing Windows Form events
+        /// internally until the application is closed.
+        /// </summary>
+        public void StartRenderLoop(Func<IDirect2DRenderingState, System.Drawing.Rectangle[]> loop)
+        {
+            using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
+            {
+                _frameDeltaTimer.Start();
+
+                while (renderLoop.NextFrame())
+                {
+                    _renderingState.SetFrameDeltaTime(_frameDeltaTimer.Elapsed);
+                    _frameDeltaTimer.Restart();
+
+                    _renderingState.D2DRenderTarget.BeginDraw();
+
+                    var rects = loop(RenderingState).Select(r => (RawRectangle)new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
+
+                    _renderingState.D2DRenderTarget.EndDraw();
+
+                    var parameters = new PresentParameters
+                    {
+                        DirtyRectangles = rects,
+                        ScrollOffset = null,
+                        ScrollRectangle = null
+                    };
+
+                    // Sleep in case the screen is occluded so we don't waste cycles in this tight loop
+                    // (Present doesn't wait for the next refresh in case the window is occluded)
+                    if (_renderingState.SwapChain.Present(1, PresentFlags.None, parameters).Code == (int)DXGIStatus.Occluded)
+                    {
+                        Thread.Sleep(16);
+                    }
+                }
+            }
+        }
+
         private void ResizeRenderTarget()
         {
             _renderingState.D2DRenderTarget.Dispose();
@@ -170,8 +239,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
 
-            public SwapChain SwapChain;
-            public Device Device;
+            public SwapChain1 SwapChain;
             public SharpDX.DXGI.Factory Factory;
 
             public Surface DxgiSurface { set; get; }
@@ -189,11 +257,7 @@ namespace Pixelaria.Views.ExportPipeline
             public void Dispose()
             {
                 // Release all resources
-                //RenderTargetView?.Dispose();
                 BackBuffer?.Dispose();
-                Device?.ImmediateContext.ClearState();
-                Device?.ImmediateContext.Flush();
-                Device?.Dispose();
                 SwapChain?.Dispose();
                 Factory?.Dispose();
             }

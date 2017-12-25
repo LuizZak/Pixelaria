@@ -73,7 +73,12 @@ namespace Pixelaria.Views.ExportPipeline
         #endregion
 
         /// <summary>
-        /// Container for <see cref="PixUI.Controls.ControlView"/>-based controls
+        /// Gets a set of rectangles that represent the invalidated redraw regions of this pipeline control.
+        /// </summary>
+        public RectangleF[] ClippingRegionRectangles => _clippingRegion.RedrawRegionRectangles(Size);
+
+        /// <summary>
+        /// Container for <see cref="ControlView"/>-based controls
         /// </summary>
         public IControlContainer ControlContainer => _controlViewFeature;
 
@@ -1365,7 +1370,32 @@ namespace Pixelaria.Views.ExportPipeline
         {
             Region = region;
         }
-        
+
+        /// <summary>
+        /// Returns a series of <see cref="RectangleF"/> instances that approximate the redraw region
+        /// of this <see cref="ClippingRegion"/>, truncated to be within the given <see cref="Size"/>-d rectangle.
+        /// </summary>
+        public virtual RectangleF[] RedrawRegionRectangles(Size size)
+        {
+            var controlRect = new RectangleF(PointF.Empty, size);
+
+            var rects = Region.GetRegionScans(new Matrix());
+
+            var clipped =
+                rects
+                    .Where(r => r.IntersectsWith(controlRect))
+                    .Select(r =>
+                    {
+                        var rect = r;
+
+                        rect.Intersect(controlRect);
+
+                        return rect;
+                    });
+
+            return clipped.ToArray();
+        }
+
         public virtual bool IsVisibleInClippingRegion(Rectangle rectangle)
         {
             return Region.IsVisible(rectangle);
@@ -1413,8 +1443,10 @@ namespace Pixelaria.Views.ExportPipeline
 
         public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state)
         {
-            var aabbClips = Region.GetRegionScans(new Matrix()).Select(rect => (AABB)rect).ToArray();
-            
+            var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
+
+            var aabbClips = RedrawRegionRectangles(size).Select(rect => (AABB)rect).ToArray();
+
             // Create geometry
             var geom = new PathGeometry(state.D2DFactory);
             var sink = geom.Open();
@@ -1491,6 +1523,11 @@ namespace Pixelaria.Views.ExportPipeline
         {
         }
 
+        public override RectangleF[] RedrawRegionRectangles(Size size)
+        {
+            return new[] { new RectangleF(PointF.Empty, size) };
+        }
+
         public override bool IsVisibleInClippingRegion(Rectangle rectangle)
         {
             return true;
@@ -1530,7 +1567,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
 
         }
-
+        
         public override IDirect2DClippingState PushDirect2DClipping(IDirect2DRenderingState state)
         {
             return null;
