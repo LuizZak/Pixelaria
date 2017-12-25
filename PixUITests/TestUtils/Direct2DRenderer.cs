@@ -107,14 +107,14 @@ namespace PixUITests.TestUtils
             if (!disposing)
                 return;
 
-            _shadowBox.Dispose();
+            _shadowBox?.Dispose();
 
-            _nodeTitlesTextFormat.Dispose();
+            _nodeTitlesTextFormat?.Dispose();
 
-            _textColorRenderer.DefaultBrush.Dispose();
-            _textColorRenderer.Dispose();
+            _textColorRenderer?.DefaultBrush?.Dispose();
+            _textColorRenderer?.Dispose();
 
-            _imageResources.Dispose();
+            _imageResources?.Dispose();
         }
 
         public void Initialize([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)

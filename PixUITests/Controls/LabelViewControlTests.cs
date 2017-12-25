@@ -38,7 +38,7 @@ namespace PixUITests.Controls
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
 
-            BaseViewSnapshot.RecordMode = false;
+            //BaseViewSnapshot.RecordMode = true;
         }
 
         [TestMethod]
@@ -110,6 +110,45 @@ namespace PixUITests.Controls
                 AutoResize = false,
                 Size = new Vector(50, 50),
                 HorizontalTextAlignment = HorizontalTextAlignment.Trailing
+            };
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingNearVerticalText()
+        {
+            var sut = new LabelViewControl("Abc")
+            {
+                AutoResize = false,
+                Size = new Vector(50, 50),
+                VerticalTextAlignment = VerticalTextAlignment.Near
+            };
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingCenterVerticalText()
+        {
+            var sut = new LabelViewControl("Abc")
+            {
+                AutoResize = false,
+                Size = new Vector(50, 50),
+                VerticalTextAlignment = VerticalTextAlignment.Center
+            };
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingFarVerticalText()
+        {
+            var sut = new LabelViewControl("Abc")
+            {
+                AutoResize = false,
+                Size = new Vector(50, 50),
+                VerticalTextAlignment = VerticalTextAlignment.Far
             };
 
             BaseViewSnapshot.Snapshot(sut, TestContext);

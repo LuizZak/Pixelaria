@@ -27,7 +27,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
@@ -56,6 +55,10 @@ using Resource = SharpDX.Direct3D11.Resource;
 
 namespace PixUITests.TestUtils
 {
+    /// <summary>
+    /// Helper static class to perform bitmap-based rendering comparisons of <see cref="SelfRenderingBaseView"/> instances
+    /// (mostly <see cref="ControlView"/> subclasses) to assert visual and style consistency.
+    /// </summary>
     public static class BaseViewSnapshot
     {
         private static Control _renderTarget = new Panel {Size = new Size(100, 100)};
@@ -65,15 +68,21 @@ namespace PixUITests.TestUtils
         /// compared when not in record mode.
         /// 
         /// Calls to <see cref="Snapshot"/> always fail with an assertion during record mode.
+        /// 
+        /// Defaults to false.
         /// </summary>
-        public static bool RecordMode;
+        public static bool RecordMode = false;
 
         public static void Snapshot([NotNull] SelfRenderingBaseView view, [NotNull] TestContext context)
         {
             if(view.Bounds.IsEmpty)
                 throw new ArgumentException(@"View parameter cannot have empty bounds", nameof(view));
 
-            _renderTarget = new Panel {Size = new Size((int)view.Width, (int)view.Height)};
+            _renderTarget = new Panel
+            {
+                // Always round up to account for possible half-pixels
+                Size = new Size((int)Math.Ceiling(view.Width), (int)Math.Ceiling(view.Height)) 
+            };
 
             string targetPath = Path.Combine(TestResultsPath(), context.FullyQualifiedTestClassName);
 
@@ -136,7 +145,7 @@ namespace PixUITests.TestUtils
             }
         }
 
-        private static unsafe Bitmap SnapshotView(SelfRenderingBaseView view)
+        private static Bitmap SnapshotView(SelfRenderingBaseView view)
         {
             // Create a temporary Direct3D rendering context and render the view on it
             using (var renderLoop = new Direct2DControlLoopManager(_renderTarget))
@@ -159,21 +168,9 @@ namespace PixUITests.TestUtils
                 {
                     unchecked
                     {
-                        var wicPtr = (int*) wicBitmapLock.Data.DataPointer;
-                        var bitPtr = (int*) bitmapLock.Scan0;
-
-                        // Copy each color, inverting the first three pixel values (WIC is BGRA, target Bitmap expects ARGB)
-                        for (int i = 0; i < wicBitmap.Size.Width * wicBitmap.Size.Height; i++)
-                        {
-                            int bgra = wicPtr[i];
-
-                            var bytes = BitConverter.GetBytes(bgra);
-                            Array.Reverse(bytes);
-
-                            int argb = BitConverter.ToInt32(bytes, 0);
-
-                            bitPtr[i] = argb;
-                        }
+                        const int bytesPerPixel = 4; // ARGB
+                        ulong length = (ulong) (wicBitmap.Size.Width * wicBitmap.Size.Height * bytesPerPixel);
+                        FastBitmap.memcpy(bitmapLock.Scan0, wicBitmapLock.Data.DataPointer, length);
                     }
                 }
 
