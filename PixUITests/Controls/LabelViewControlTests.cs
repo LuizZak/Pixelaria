@@ -31,8 +31,6 @@ namespace PixUITests.Controls
     [TestClass]
     public class LabelViewControlTests
     {
-        #region Invalidation Triggers
-
         [TestInitialize]
         public void TestInitialize()
         {
@@ -40,6 +38,8 @@ namespace PixUITests.Controls
 
             //BaseViewSnapshot.RecordMode = true;
         }
+
+        #region Invalidation Triggers
 
         [TestMethod]
         public void TestInvalidateOnHorizontalTextAlignment()

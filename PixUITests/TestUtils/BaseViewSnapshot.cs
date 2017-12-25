@@ -106,7 +106,7 @@ namespace PixUITests.TestUtils
             string testFileName = context.TestName + ".png";
             string testFilePath = Path.Combine(targetPath, testFileName);
 
-            // Try to fetch file (if in record mode)
+            // Verify comparison file's existence (if not in record mode)
             if (!RecordMode)
             {
                 if(!File.Exists(testFilePath))

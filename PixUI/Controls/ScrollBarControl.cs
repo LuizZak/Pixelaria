@@ -308,7 +308,16 @@ namespace PixUI.Controls
 
         private void SetupScrollBarColors()
         {
-            CornerRadius = Size.X / 3;
+            switch (_orientation)
+            {
+                case ScrollBarOrientation.Vertical:
+                    CornerRadius = Size.X / 3;
+                    break;
+
+                case ScrollBarOrientation.Horizontal:
+                    CornerRadius = Size.Y / 3;
+                    break;
+            }
 
             var baseColor = ScrollBarStyle.ScrollBarBackgroundColor();
             var barColor = ScrollBarStyle.ScrollBarKnobNormalColor();
@@ -316,10 +325,14 @@ namespace PixUI.Controls
             UpdateButtonColor(_increaseScroll);
             UpdateButtonColor(_decreaseScroll);
             BackColor = baseColor;
+            StrokeColor = ScrollBarStyle.ScrollBarStrokeColor();
             _scrollBarKnob.BackColor = barColor;
+            _scrollBarKnob.StrokeColor = ScrollBarStyle.ScrollBarKnobStrokeColor();
 
             void UpdateButtonColor(ButtonControl button)
             {
+                button.TextColor = ScrollBarStyle.ScrollBarButtonTextColor();
+                button.StrokeColor = ScrollBarStyle.ScrollBarButtonsStrokeColor();
                 button.NormalColor = ScrollBarStyle.ScrollBarButtonNormalColor();
                 button.HighlightColor = ScrollBarStyle.ScrollBarButtonHighlightColor();
                 button.SelectedColor = ScrollBarStyle.ScrollBarButtonPressedColor();
@@ -342,9 +355,21 @@ namespace PixUI.Controls
     public interface IScrollBarControlStyle
     {
         /// <summary>
+        /// Stroke color for scroll bar.
+        /// 
+        /// Does not affect stroke of buttons, see <see cref="ScrollBarButtonsStrokeColor"/>
+        /// </summary>
+        Color ScrollBarStrokeColor();
+
+        /// <summary>
         /// Background color for scroll bar
         /// </summary>
         Color ScrollBarBackgroundColor();
+
+        /// <summary>
+        /// Stroke color for scroll bar's knob.
+        /// </summary>
+        Color ScrollBarKnobStrokeColor();
 
         /// <summary>
         /// Color for scrollbar knob when not pressed down and not
@@ -365,6 +390,11 @@ namespace PixUI.Controls
         Color ScrollBarKnobPressedColor();
 
         /// <summary>
+        /// Stroke color for scroll bar's buttons.
+        /// </summary>
+        Color ScrollBarButtonsStrokeColor();
+
+        /// <summary>
         /// Color for scrollbar increase/decrease button when not 
         /// pressed down and not hovered.
         /// </summary>
@@ -381,34 +411,91 @@ namespace PixUI.Controls
         /// pressed down and hovered.
         /// </summary>
         Color ScrollBarButtonPressedColor();
+
+        /// <summary>
+        /// Color for scrollbar's increase/decrease button's text label
+        /// </summary>
+        /// <returns></returns>
+        Color ScrollBarButtonTextColor();
     }
 
     public class DarkScrollBarControlStyle : IScrollBarControlStyle
     {
+        public Color ScrollBarStrokeColor() => Color.Transparent;
+        
+        public Color ScrollBarKnobStrokeColor() => Color.Transparent;
+
         public Color ScrollBarBackgroundColor() => Color.DimGray;
 
-        public Color ScrollBarKnobNormalColor() => Color.DarkGray;
+        public Color ScrollBarKnobNormalColor() => Color.Gray;
 
         public Color ScrollBarKnobHighlightColor()
         {
-            return ScrollBarKnobNormalColor().Faded(Color.White, 0.2f);
+            return ScrollBarKnobNormalColor().Faded(Color.White, 0.35f);
         }
 
         public Color ScrollBarKnobPressedColor()
         {
-            return ScrollBarKnobNormalColor().Faded(Color.Black, 0.2f);
+            return ScrollBarKnobNormalColor().Faded(Color.White, 0.6f);
         }
+        
+        public Color ScrollBarButtonsStrokeColor() => Color.Transparent;
 
         public Color ScrollBarButtonNormalColor() => Color.DimGray;
 
         public Color ScrollBarButtonHighlightColor()
         {
-            return ScrollBarButtonNormalColor().Faded(Color.White, 0.2f);
+            return ScrollBarKnobHighlightColor();
         }
 
         public Color ScrollBarButtonPressedColor()
         {
-            return ScrollBarButtonNormalColor().Faded(Color.Black, 0.2f);
+            return ScrollBarKnobPressedColor();
+        }
+
+        public Color ScrollBarButtonTextColor()
+        {
+            return Color.White;
+        }
+    }
+
+    public class LightScrollBarControlStyle : IScrollBarControlStyle
+    {
+        public Color ScrollBarStrokeColor() => Color.Transparent;
+
+        public Color ScrollBarKnobStrokeColor() => Color.Transparent;
+
+        public Color ScrollBarBackgroundColor() => Color.LightGray;
+
+        public Color ScrollBarKnobNormalColor() => Color.FromArgb(190, 190, 190);
+
+        public Color ScrollBarKnobHighlightColor()
+        {
+            return ScrollBarKnobNormalColor().Faded(Color.Black, 0.1f);
+        }
+
+        public Color ScrollBarKnobPressedColor()
+        {
+            return ScrollBarKnobNormalColor().Faded(Color.White, 0.1f);
+        }
+
+        public Color ScrollBarButtonsStrokeColor() => Color.Transparent;
+
+        public Color ScrollBarButtonNormalColor() => ScrollBarBackgroundColor();
+
+        public Color ScrollBarButtonHighlightColor()
+        {
+            return ScrollBarButtonNormalColor().Faded(Color.Black, 0.1f);
+        }
+
+        public Color ScrollBarButtonPressedColor()
+        {
+            return ScrollBarButtonNormalColor().Faded(Color.White, 0.1f);
+        }
+
+        public Color ScrollBarButtonTextColor()
+        {
+            return Color.Black;
         }
     }
 }
