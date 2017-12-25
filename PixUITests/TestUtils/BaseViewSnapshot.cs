@@ -73,6 +73,18 @@ namespace PixUITests.TestUtils
         /// </summary>
         public static bool RecordMode = false;
 
+        /// <summary>
+        /// If true, when generating output folders for test results, paths are created for each segment of the namespace
+        /// of the target test class, e.g. 'PixUI.Controls.LabelControlViewTests' becomes '...\PixUI\Controls\LabelControlViewtests\',
+        /// otherwise a single folder with the fully-qualified class name is used instead.
+        /// 
+        /// If this property is changed across test recordings, the tests must be re-recorded to account for the new directory paths
+        /// expected by the snapshot class.
+        /// 
+        /// Defaults to false.
+        /// </summary>
+        public static bool SeparateDirectoriesPerNamespace = false;
+
         public static void Snapshot([NotNull] SelfRenderingBaseView view, [NotNull] TestContext context)
         {
             if(view.Bounds.IsEmpty)
@@ -84,7 +96,7 @@ namespace PixUITests.TestUtils
                 Size = new Size((int)Math.Ceiling(view.Width), (int)Math.Ceiling(view.Height)) 
             };
 
-            string targetPath = Path.Combine(TestResultsPath(), context.FullyQualifiedTestClassName);
+            string targetPath = CombinedTestResultPath(TestResultsPath(), context);
 
             // Verify path exists
             if (!Directory.Exists(targetPath))
@@ -122,7 +134,7 @@ namespace PixUITests.TestUtils
                         return;
 
                     // Save to test results directory for further inspection
-                    string directoryName = Path.Combine(context.TestRunResultsDirectory, context.FullyQualifiedTestClassName);
+                    string directoryName = CombinedTestResultPath(context.TestRunResultsDirectory, context);
                     string baseFileName = Path.ChangeExtension(testFileName, null);
 
                     string savePathExpected = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-expected", ".png"));
@@ -176,6 +188,16 @@ namespace PixUITests.TestUtils
 
                 return bitmap;
             }
+        }
+
+        private static string CombinedTestResultPath([NotNull] string basePath, [NotNull] TestContext context)
+        {
+            if(!SeparateDirectoriesPerNamespace)
+                return Path.Combine(basePath, context.FullyQualifiedTestClassName);
+
+            var segments = context.FullyQualifiedTestClassName.Split('.');
+
+            return Path.Combine(new[] {basePath}.Concat(segments).ToArray());
         }
 
         private static string TestResultsPath()
