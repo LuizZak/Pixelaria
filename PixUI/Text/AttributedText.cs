@@ -473,6 +473,16 @@ namespace PixUI.Text
             return obj is ForegroundColorAttribute && Equals((ForegroundColorAttribute)obj);
         }
 
+        public static bool operator ==(ForegroundColorAttribute lhs, ForegroundColorAttribute rhs)
+        {
+            return lhs.ForeColor == rhs.ForeColor;
+        }
+
+        public static bool operator !=(ForegroundColorAttribute lhs, ForegroundColorAttribute rhs)
+        {
+            return lhs.ForeColor != rhs.ForeColor;
+        }
+
         public override int GetHashCode()
         {
             return ForeColor.GetHashCode();
@@ -512,6 +522,16 @@ namespace PixUI.Text
             return obj is BackgroundColorAttribute && Equals((BackgroundColorAttribute) obj);
         }
 
+        public static bool operator ==(BackgroundColorAttribute lhs, BackgroundColorAttribute rhs)
+        {
+            return lhs.BackColor == rhs.BackColor && lhs.Inflation == rhs.Inflation;
+        }
+
+        public static bool operator !=(BackgroundColorAttribute lhs, BackgroundColorAttribute rhs)
+        {
+            return lhs.BackColor != rhs.BackColor || lhs.Inflation != rhs.Inflation;
+        }
+
         public override int GetHashCode()
         {
             unchecked
@@ -545,7 +565,17 @@ namespace PixUI.Text
             if (ReferenceEquals(null, obj)) return false;
             return obj is TextFontAttribute && Equals((TextFontAttribute)obj);
         }
+        
+        public static bool operator ==(TextFontAttribute lhs, TextFontAttribute rhs)
+        {
+            return Equals(lhs.Font, rhs.Font);
+        }
 
+        public static bool operator !=(TextFontAttribute lhs, TextFontAttribute rhs)
+        {
+            return !Equals(lhs.Font, rhs.Font);
+        }
+        
         public override int GetHashCode()
         {
             return Font.GetHashCode();

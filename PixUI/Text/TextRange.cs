@@ -118,7 +118,17 @@ namespace PixUI.Text
             if (ReferenceEquals(null, obj)) return false;
             return obj is TextRange && Equals((TextRange)obj);
         }
+        
+        public static bool operator ==(TextRange lhs, TextRange rhs)
+        {
+            return lhs.Start == rhs.Start && lhs.Length == rhs.Length;
+        }
 
+        public static bool operator !=(TextRange lhs, TextRange rhs)
+        {
+            return lhs.Start != rhs.Start || lhs.Length != rhs.Length;
+        }
+        
         public override int GetHashCode()
         {
             unchecked

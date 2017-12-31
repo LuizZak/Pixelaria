@@ -55,11 +55,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private HashSet<PipelineNodeView> _underSelectionArea = new HashSet<PipelineNodeView>();
 
         // For drawing the selection outline with
-        private readonly BezierPathView _pathView = new BezierPathView
+        private readonly BezierPathView _pathView = BezierPathView.Create(pathView =>
         {
-            RenderOnTop = true,
-            FillColor = Color.Orange.ToAhsl().WithTransparency(0.1f).ToColor()
-        };
+            pathView.RenderOnTop = true;
+            pathView.FillColor = Color.Orange.ToAhsl().WithTransparency(0.1f).ToColor();
+        });
 
         public SelectionUiFeature([NotNull] ExportPipelineControl control) : base(control)
         {

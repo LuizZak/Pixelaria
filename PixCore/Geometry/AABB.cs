@@ -133,7 +133,7 @@ namespace PixCore.Geometry
             Minimum = Vector.Zero;
             Maximum = Vector.Zero;
 
-            var isSet = false;
+            bool isSet = false;
             foreach (var point in points)
             {
                 if (isSet)
@@ -390,6 +390,16 @@ namespace PixCore.Geometry
         {
             if (ReferenceEquals(null, obj)) return false;
             return obj is AABB && Equals((AABB) obj);
+        }
+
+        public static bool operator ==(AABB lhs, AABB rhs)
+        {
+            return lhs.Minimum == rhs.Minimum && lhs.Maximum == rhs.Maximum;
+        }
+
+        public static bool operator !=(AABB lhs, AABB rhs)
+        {
+            return lhs.Minimum != rhs.Minimum || lhs.Maximum != rhs.Maximum;
         }
 
         public override int GetHashCode()

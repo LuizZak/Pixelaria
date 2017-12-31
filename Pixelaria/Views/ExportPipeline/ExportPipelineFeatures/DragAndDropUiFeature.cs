@@ -345,11 +345,13 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 _linkConnectionLabels = new LabelView[linkViews.Length];
                 for (int i = 0; i < linkViews.Length; i++)
                 {
-                    var pathView = new BezierPathView();
+                    var pathView = BezierPathView.Create();
                     container.ContentsView.AddChild(pathView);
                     _linkDrawingPaths[i] = pathView;
 
-                    var connectionView = new BezierPathView { RenderOnTop = true };
+                    var connectionView = BezierPathView.Create();
+                    connectionView.RenderOnTop = true;
+
                     container.ContentsView.AddChild(connectionView);
                     _linkConnectingPaths[i] = connectionView;
 

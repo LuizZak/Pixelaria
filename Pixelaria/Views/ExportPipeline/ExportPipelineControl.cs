@@ -931,7 +931,7 @@ namespace Pixelaria.Views.ExportPipeline
                     (start, end) = (end, start);
                 }
 
-                var view = new PipelineNodeConnectionLineView(start, end, connection);
+                var view = PipelineNodeConnectionLineView.Create(start, end, connection);
                 _connectionViews.Add(view);
 
                 ContentsView.InsertChild(0, view);

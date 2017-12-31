@@ -20,12 +20,12 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixUI.Utils;
 
 namespace PixUI
 {
@@ -60,10 +60,36 @@ namespace PixUI
         /// </summary>
         public Color FillColor { get; set; } = Color.Transparent;
 
-        public BezierPathView()
+        /// <summary>
+        /// Factory method for creation of bezier path views.
+        /// </summary>
+        public static BezierPathView Create()
         {
-            StrokeColor = Color.Orange;
-            StrokeWidth = 2;
+            var pathView = new BezierPathView
+            {
+                StrokeColor = Color.Orange,
+                StrokeWidth = 2
+            };
+            
+            return pathView;
+        }
+
+        /// <summary>
+        /// Factory method for creation of bezier path views.
+        /// </summary>
+        /// <param name="creator">A creator block that is invoked passing in the created bezier path view for further configuration.</param>
+        public static BezierPathView Create([NotNull, InstantHandle] Action<BezierPathView> creator)
+        {
+            var pathView = Create();
+
+            creator(pathView);
+
+            return pathView;
+        }
+
+        protected BezierPathView()
+        {
+            
         }
 
         /// <summary>

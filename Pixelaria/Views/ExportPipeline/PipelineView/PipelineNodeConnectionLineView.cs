@@ -33,19 +33,24 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// </summary>
     internal class PipelineNodeConnectionLineView : BezierPathView
     {
-        public PipelineNodeLinkView Start { get; }
-        public PipelineNodeLinkView End { get; }
-        public IPipelineLinkConnection Connection { get; }
+        public PipelineNodeLinkView Start { get; private set; }
+        public PipelineNodeLinkView End { get; private set; }
+        public IPipelineLinkConnection Connection { get; private set; }
 
-        public PipelineNodeConnectionLineView(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineLinkConnection connection)
+        public static PipelineNodeConnectionLineView Create(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineLinkConnection connection)
         {
-            Start = start;
-            End = end;
-            Connection = connection;
+            var instance = new PipelineNodeConnectionLineView
+            {
+                Start = start,
+                End = end,
+                Connection = connection
+            };
+            
+            instance.UpdateBezier();
 
-            UpdateBezier();
+            return instance;
         }
-
+        
         /// <summary>
         /// Updates the bezier line for the connection
         /// </summary>

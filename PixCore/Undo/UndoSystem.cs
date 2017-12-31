@@ -588,6 +588,7 @@ namespace PixCore.Undo
     /// Usually this indicates that an undo task is calling code to undo work that itself is incorrectly trying to 
     /// register an undo task of its own to undo its work.
     /// </summary>
+    [Serializable]
     public class UndoSystemRecursivelyModifiedException : Exception
     {
         public UndoSystemRecursivelyModifiedException()

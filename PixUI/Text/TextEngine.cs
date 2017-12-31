@@ -951,7 +951,7 @@ namespace PixUI.Text
                     case CaretPosition.End:
                         return End;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        return Start;
                 }
             }
         }
@@ -997,6 +997,16 @@ namespace PixUI.Text
         {
             if (ReferenceEquals(null, obj)) return false;
             return obj is Caret && Equals((Caret) obj);
+        }
+
+        public static bool operator ==(Caret lhs, Caret rhs)
+        {
+            return lhs.TextRange == rhs.TextRange && lhs.Position == rhs.Position;
+        }
+
+        public static bool operator !=(Caret lhs, Caret rhs)
+        {
+            return lhs.TextRange != rhs.TextRange || lhs.Position != rhs.Position;
         }
 
         public override int GetHashCode()

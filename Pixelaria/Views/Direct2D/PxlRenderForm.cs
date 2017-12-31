@@ -299,7 +299,7 @@ namespace Pixelaria.Views.Direct2D
                     else
                     {
 
-                        Win32Native.GetClientRect(m.HWnd, out var rect);
+                        UnsafeNativeMethods.GetClientRect(m.HWnd, out var rect);
                         if (rect.Bottom - rect.Top == 0)
                         {
                             // Rapidly clicking the task bar to minimize and restore a window
@@ -394,9 +394,8 @@ namespace Pixelaria.Views.Direct2D
     /// <summary>
     /// Internal class to interact with Native Message
     /// </summary>
-    internal class Win32Native
+    internal class UnsafeNativeMethods
     {
-
         [DllImport("kernel32.dll", EntryPoint = "CreateFile", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern IntPtr Create(
             string fileName,
@@ -493,8 +492,7 @@ namespace Pixelaria.Views.Direct2D
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLong", CharSet = CharSet.Unicode)]
         private static extern IntPtr SetWindowLong32(IntPtr hwnd, WindowLongType index, IntPtr wndProc);
-
-
+        
         public static bool ShowWindow(IntPtr hWnd, bool windowVisible)
         {
             return ShowWindow(hWnd, windowVisible ? 1 : 0);
