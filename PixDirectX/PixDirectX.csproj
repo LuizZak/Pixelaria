@@ -67,6 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Rendering\IDirect2DRenderer.cs" />
+    <Compile Include="Rendering\ImageResource.cs" />
     <Compile Include="Utils\GeomExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Direct2DControlLoopManager.cs" />

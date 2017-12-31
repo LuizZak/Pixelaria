@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Geometry;
 using PixUI;
 
 namespace PixUITests

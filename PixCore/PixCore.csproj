@@ -87,6 +87,7 @@
     <Compile Include="Geometry\AABB.cs" />
     <Compile Include="Geometry\Algorithms\RectangleDissection.cs" />
     <Compile Include="Geometry\Algorithms\TotalRectanglesArea.cs" />
+    <Compile Include="Geometry\ISpatialReference.cs" />
     <Compile Include="Geometry\QuadTree.cs" />
     <Compile Include="Geometry\Vector.cs" />
     <Compile Include="Imaging\ImageUtilities.cs" />

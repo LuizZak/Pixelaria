@@ -22,16 +22,16 @@
 
 using System;
 using System.Drawing;
-using Color = System.Drawing.Color;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using SharpDX;
 using SharpDX.DirectWrite;
+using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace PixUI.Rendering
+namespace PixDirectX.Rendering
 {
     /// <summary>
     /// Public interface for the Export Pipeline's Direct2D renderer

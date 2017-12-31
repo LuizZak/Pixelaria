@@ -28,9 +28,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
+using PixDirectX.Rendering;
 using PixUI;
 using PixUI.Controls;
-using PixUI.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -51,7 +51,7 @@ namespace PixUITests.TestUtils
     /// <summary>
     /// Renders a pipeline export view
     /// </summary>
-    internal class Direct2DRenderer : IDisposable, IDirect2DRenderer
+    internal class Direct2DRenderer : IDisposable, IDirect2DRenderer, ILabelViewSizeProvider
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;

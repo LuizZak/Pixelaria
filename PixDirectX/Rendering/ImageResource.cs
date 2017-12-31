@@ -22,7 +22,7 @@
 
 using System.Drawing;
 
-namespace PixUI
+namespace PixDirectX.Rendering
 {
     /// <summary>
     /// Represents an image resource

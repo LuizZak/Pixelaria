@@ -131,6 +131,10 @@
       <Project>{DB49EDE1-059E-4368-B421-8CFD5954CFEC}</Project>
       <Name>PixCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
+      <Project>{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}</Project>
+      <Name>PixDirectX</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Pixelaria\Pixelaria.csproj">
       <Project>{9dbee059-e16e-4ee4-8df0-6ecd2fe2eac2}</Project>
       <Name>Pixelaria</Name>

@@ -25,6 +25,7 @@ using System.Windows.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
+using PixDirectX.Rendering;
 using PixUI.Controls;
 
 using Pixelaria.Views.ExportPipeline;

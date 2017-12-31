@@ -21,11 +21,13 @@
 */
 
 using JetBrains.Annotations;
+using PixDirectX.Rendering;
+using PixUI;
 using PixUI.Rendering;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    internal interface IExportPipelineDirect2DRenderer : IDirect2DRenderer
+    internal interface IExportPipelineDirect2DRenderer : IDirect2DRenderer, ILabelViewSizeProvider
     {
         void AddDecorator([NotNull] IRenderingDecorator decorator);
 

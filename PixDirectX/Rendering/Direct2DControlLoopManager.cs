@@ -48,7 +48,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Simple helper class to initialize and run a Direct2D loop on top of a specific Windows Forms control
     /// </summary>
-    internal sealed class Direct2DControlLoopManager : IDisposable
+    public sealed class Direct2DControlLoopManager : IDisposable
     {
         private readonly Control _target;
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
@@ -65,7 +65,7 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// Gets the public interface for the rendering state of this Direct2D manager
         /// </summary>
-        internal IDirect2DRenderingState RenderingState => _renderingState;
+        public IDirect2DRenderingState RenderingState => _renderingState;
 
         public Direct2DControlLoopManager(Control target)
         {

@@ -22,9 +22,8 @@
 
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
-using PixCore.Geometry;
 
-namespace PixUI
+namespace PixCore.Geometry
 {
     /// <summary>
     /// Represents an interface for an object that has its own local coordinates,

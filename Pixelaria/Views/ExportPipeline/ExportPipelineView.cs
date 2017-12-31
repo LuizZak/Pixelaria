@@ -31,11 +31,11 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using SharpDX.Direct2D1;
 using PixUI;
 using PixUI.Controls;
-using PixUI.Rendering;
 using PixUI.Utils;
 
 using Pixelaria.Controllers.DataControllers;

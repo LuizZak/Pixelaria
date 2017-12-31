@@ -32,6 +32,7 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
+using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using PixUI;
 using PixUI.Controls;

@@ -89,7 +89,12 @@ namespace PixCore.Geometry.Algorithms
                 }
             }
 
-            output = new List<RectangleF>(MergeRectangles(output));
+            // Ignore rectangles with 0-area since they don't influence the resulting area anyways
+            var merged =
+                MergeRectangles(output)
+                    .Where(r => r.Area() > 0);
+
+            output = new List<RectangleF>(merged);
 
             return output.ToArray();
         }

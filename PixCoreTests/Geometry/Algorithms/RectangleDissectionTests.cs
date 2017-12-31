@@ -104,6 +104,31 @@ namespace PixCoreTests.Geometry.Algorithms
         /// Tests horizontal intersection of rectangles with the following configuration:
         /// 
         /// <code>
+        /// |------|
+        /// +---|  |
+        /// |   |  |
+        /// +---|  |
+        /// |------|
+        /// </code>
+        /// </summary>
+        [TestMethod]
+        public void TestDissectHorizontalIntersectionAvoidEmpty()
+        {
+            var rect1 = new RectangleF(0, 25, 50, 25);
+            var rect2 = new RectangleF(0, 0, 50, 75);
+
+            var ret = RectangleDissection.Dissect(rect1, rect2);
+
+            Assert.AreEqual(1, ret.Length);
+
+            AssertRectanglesDoNotIntersect(ret);
+            AssertAreaEquals(3750, ret);
+        }
+
+        /// <summary>
+        /// Tests horizontal intersection of rectangles with the following configuration:
+        /// 
+        /// <code>
         ///        |------|
         ///    |---+---|  |
         ///    |   |   |  |
