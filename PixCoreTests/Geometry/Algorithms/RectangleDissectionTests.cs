@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry.Algorithms;
 
@@ -120,6 +121,103 @@ namespace PixCoreTests.Geometry.Algorithms
             
             AssertRectanglesDoNotIntersect(ret);
             AssertAreaEquals(4375, ret);
+        }
+
+        /// <summary>
+        /// Tests horizontal intersection of rectangles with the following configuration:
+        /// 
+        /// <code>
+        ///           |-------|
+        ///           |       |
+        ///        |--+-|     |
+        /// |------+--+-+-|   |
+        /// |      |--+-| |   |
+        /// |---------+---|   |
+        ///           |-------|
+        /// </code>
+        /// </summary>
+        [TestMethod]
+        public void TestDissectTripleIntersection()
+        {
+            var rect1 = new RectangleF(10, 0, 8, 20);
+            var rect2 = new RectangleF(7, 2, 5, 5);
+            var rect3 = new RectangleF(0, 12, 14, 4);
+
+            var ret = RectangleDissection.Dissect(rect1, rect2, rect3);
+
+            AssertRectanglesDoNotIntersect(ret);
+            AssertAreasMatch(new[] { rect1, rect2, rect3 }, ret);
+        }
+
+        [TestMethod]
+        public void TestMergeRectanglesSingleRectangle()
+        {
+            var rect = new RectangleF(5, 5, 60, 10);
+
+            var ret = RectangleDissection.MergeRectangles(rect);
+
+            Assert.AreEqual(rect, ret[0]);
+        }
+
+        [TestMethod]
+        public void TestMergeRectanglesHorizontalSequential()
+        {
+            var rect1 = new RectangleF(5, 5, 60, 10);
+            var rect2 = new RectangleF(65, 5, 60, 10);
+
+            var ret = RectangleDissection.MergeRectangles(rect1, rect2);
+
+            Assert.AreEqual(RectangleF.Union(rect1, rect2), ret[0]);
+        }
+
+        [TestMethod]
+        public void TestMergeRectanglesHorizontalSequentialNonMatching()
+        {
+            var rect1 = new RectangleF(5, 5, 60, 10);
+            var rect2 = new RectangleF(65, 5, 60, 11);
+
+            var ret = RectangleDissection.MergeRectangles(rect1, rect2);
+
+            Assert.AreNotEqual(RectangleF.Union(rect1, rect2), ret[0]);
+            Assert.AreNotEqual(RectangleF.Union(rect1, rect2), ret[0]);
+        }
+
+        [TestMethod]
+        public void TestMergeRectanglesVerticalSequential()
+        {
+            var rect1 = new RectangleF(5, 5, 10, 60);
+            var rect2 = new RectangleF(5, 65, 10, 60);
+
+            var ret = RectangleDissection.MergeRectangles(rect1, rect2);
+
+            Assert.AreEqual(RectangleF.Union(rect1, rect2), ret[0]);
+        }
+
+        [TestMethod]
+        public void TestMergeRectanglesTripleSequential()
+        {
+            var rect1 = new RectangleF(5, 5, 10, 10);
+            var rect2 = new RectangleF(5, 15, 10, 10);
+            var rect3 = new RectangleF(5, 25, 10, 10);
+
+            var expected = RectangleF.Union(RectangleF.Union(rect1, rect2), rect3);
+
+            var ret = RectangleDissection.MergeRectangles(rect1, rect2, rect3);
+
+            Assert.AreEqual(expected, ret[0]);
+        }
+
+        [TestMethod]
+        public void TestMergeRectanglesTripleSequentialNonIntersecting()
+        {
+            var rect1 = new RectangleF(5, 5, 10, 10);
+            var rect2 = new RectangleF(5, 15, 10, 10);
+            var rect3 = new RectangleF(5, 26, 10, 10);
+
+            var ret = RectangleDissection.MergeRectangles(rect1, rect2, rect3).OrderBy(r => r.Area()).ToArray();
+
+            Assert.AreEqual(rect3, ret[0]);
+            Assert.AreEqual(RectangleF.Union(rect1, rect2), ret[1]);
         }
 
         public static void AssertRectanglesDoNotIntersect(IReadOnlyList<RectangleF> rectangles)

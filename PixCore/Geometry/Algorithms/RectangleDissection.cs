@@ -89,7 +89,7 @@ namespace PixCore.Geometry.Algorithms
                 }
             }
 
-            output = MergeRectangles(output);
+            output = new List<RectangleF>(MergeRectangles(output));
 
             return output.ToArray();
         }
@@ -98,10 +98,19 @@ namespace PixCore.Geometry.Algorithms
         /// From a given list of rectangles, reutrns a new list where rectangles with shared edges
         /// (two shared vertices on either the top, left, right, or bottom sides are the same).
         /// </summary>
-        private static List<RectangleF> MergeRectangles([NotNull] IReadOnlyList<RectangleF> rects)
+        public static RectangleF[] MergeRectangles([NotNull] params RectangleF[] rects)
+        {
+            return MergeRectangles((IReadOnlyList<RectangleF>)rects);
+        }
+
+        /// <summary>
+        /// From a given list of rectangles, reutrns a new list where rectangles with shared edges
+        /// (two shared vertices on either the top, left, right, or bottom sides are the same).
+        /// </summary>
+        public static RectangleF[] MergeRectangles([NotNull] IReadOnlyList<RectangleF> rects)
         {
             if(rects.Count == 0)
-                return new List<RectangleF>();
+                return new RectangleF[0];
             
             var totalSize = rects.Aggregate(rects[0], RectangleF.Union);
 
@@ -153,7 +162,7 @@ namespace PixCore.Geometry.Algorithms
             var elements = new List<QuadTreeElement<RectangleF>>();
             quadTree.GetAllNodesR(ref elements);
 
-            return elements.Select(el => el.Value).ToList();
+            return elements.Select(el => el.Value).ToArray();
         }
         
         /// <summary>
