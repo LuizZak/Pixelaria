@@ -130,4 +130,7 @@
     <None Include="Resources\color_picker.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>
+  </PropertyGroup>
 </Project>

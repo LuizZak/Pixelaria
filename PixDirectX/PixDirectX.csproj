@@ -85,4 +85,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
