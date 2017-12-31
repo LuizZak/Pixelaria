@@ -29,7 +29,6 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
-using PixUI.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
@@ -44,7 +43,7 @@ using Factory2 = SharpDX.DXGI.Factory2;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Resource = SharpDX.Direct3D11.Resource;
 
-namespace Pixelaria.Views.ExportPipeline
+namespace PixDirectX.Rendering
 {
     /// <summary>
     /// Simple helper class to initialize and run a Direct2D loop on top of a specific Windows Forms control
@@ -189,7 +188,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void StartRenderLoop(Func<IDirect2DRenderingState, System.Drawing.Rectangle[]> loop)
         {
             bool isOccluded = false;
-
+            
             using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
             {
                 _frameDeltaTimer.Start();

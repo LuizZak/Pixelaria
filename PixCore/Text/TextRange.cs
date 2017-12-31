@@ -23,7 +23,7 @@
 using System;
 using System.Diagnostics;
 
-namespace PixUI.Text
+namespace PixCore.Text
 {
     /// <summary>
     /// Specifies a range on a text string

@@ -23,8 +23,8 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Text;
 using PixCore.Undo;
-using PixUI.Controls;
 
 namespace PixUI.Text
 {
@@ -32,7 +32,7 @@ namespace PixUI.Text
     /// A text + caret engine that handles manipulation of strings by insertion/removal of strings
     /// at locations that can be specified via a caret position.
     /// 
-    /// Base text input engine backing for <see cref="TextField"/>'s.
+    /// Base text input engine backing for <see cref="PixUI.Controls.TextField"/>'s.
     /// </summary>
     public class TextEngine : ITextEngine
     {

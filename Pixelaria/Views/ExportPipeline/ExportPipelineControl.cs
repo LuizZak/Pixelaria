@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Geometry.Algorithms;
+using PixDirectX.Utils;
 using PixUI;
 using PixUI.Rendering;
 
@@ -37,7 +38,6 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Controls;
-using PixUI.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Windows;
@@ -99,6 +99,11 @@ namespace Pixelaria.Views.ExportPipeline
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
         public IExportPipelineDirect2DRenderer D2DRenderer => _d2DRenderer;
+
+        /// <summary>
+        /// Gets the label view mwtrics provider initialized for this control
+        /// </summary>
+        public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider => _d2DRenderer.LabelViewTextMetricsProvider;
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control

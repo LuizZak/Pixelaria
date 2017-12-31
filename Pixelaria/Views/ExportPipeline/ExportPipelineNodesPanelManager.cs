@@ -29,10 +29,10 @@ using System.Reactive.Disposables;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
+using PixCore.Text;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
-using PixUI.Text;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;

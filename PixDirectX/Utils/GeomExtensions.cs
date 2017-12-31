@@ -23,7 +23,7 @@
 using PixCore.Geometry;
 using SharpDX.Mathematics.Interop;
 
-namespace PixUI.Utils
+namespace PixDirectX.Utils
 {
     /// <summary>
     /// Useful conversion methods from PixCore's to SharpDX's geometry types

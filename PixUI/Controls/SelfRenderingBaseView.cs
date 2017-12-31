@@ -24,8 +24,8 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixDirectX.Utils;
 using PixUI.Rendering;
-using PixUI.Utils;
 using SharpDX.Direct2D1;
 
 namespace PixUI.Controls
@@ -235,10 +235,16 @@ namespace PixUI.Controls
         /// </summary>
         public IClippingRegion ClippingRegion => Renderer.ClippingRegion;
 
-        public ControlRenderingContext(IDirect2DRenderingState state, IDirect2DRenderer renderer)
+        /// <summary>
+        /// Gets the text metrics provider.
+        /// </summary>
+        public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
+
+        public ControlRenderingContext(IDirect2DRenderingState state, IDirect2DRenderer renderer, ILabelViewTextMetricsProvider labelViewTextMetricsProvider)
         {
             State = state;
             Renderer = renderer;
+            LabelViewTextMetricsProvider = labelViewTextMetricsProvider;
         }
     }
 }

@@ -32,10 +32,10 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
+using PixDirectX.Utils;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
-using PixUI.Utils;
 using PixUI.Visitor;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -172,7 +172,7 @@ namespace PixUITests.TestUtils
                 {
                     var visitor = new ViewRenderingVisitor();
                     
-                    var context = new ControlRenderingContext(state, renderer);
+                    var context = new ControlRenderingContext(state, renderer, renderer.LabelViewTextMetricsProvider);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);

@@ -21,6 +21,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Text;
 using PixUI.Text;
 using Rhino.Mocks;
 

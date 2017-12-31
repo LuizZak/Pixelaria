@@ -897,6 +897,10 @@
       <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
       <Name>PixUI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
+      <Project>{c014734d-c99a-41a7-b2e1-33dcc66de2c9}</Project>
+      <Name>PixDirectX</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -28,7 +28,7 @@ using System.Text;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 
-namespace PixUI.Text
+namespace PixCore.Text
 {
     // TODO: Consider removing redundant IAttributedText and use AttributedText class instead.
 

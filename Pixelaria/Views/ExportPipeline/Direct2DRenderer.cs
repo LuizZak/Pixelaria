@@ -31,11 +31,11 @@ using JetBrains.Annotations;
 
 using PixCore.Colors;
 using PixCore.Geometry;
+using PixCore.Text;
+using PixDirectX.Utils;
 using PixUI;
 using PixUI.Rendering;
 using PixUI.Controls;
-using PixUI.Text;
-using PixUI.Utils;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;

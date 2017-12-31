@@ -25,7 +25,7 @@ using System.Drawing;
 using Color = System.Drawing.Color;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixUI.Text;
+using PixCore.Text;
 using SharpDX;
 using SharpDX.DirectWrite;
 using Point = System.Drawing.Point;
@@ -36,7 +36,7 @@ namespace PixUI.Rendering
     /// <summary>
     /// Public interface for the Export Pipeline's Direct2D renderer
     /// </summary>
-    public interface IDirect2DRenderer : ILabelViewSizeProvider
+    public interface IDirect2DRenderer
     {
         /// <summary>
         /// Gets or sets the background color that this Direct2D renderer uses to clear the display area
@@ -47,12 +47,7 @@ namespace PixUI.Rendering
         /// Gets the imaage resources manager for this Direct2D renderer
         /// </summary>
         ID2DImageResourceManager ImageResources { get; }
-
-        /// <summary>
-        /// Text metrics provider for this Direct2D renderer
-        /// </summary>
-        ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
-
+        
         /// <summary>
         /// The clipping region for this Direct2D renderer
         /// </summary>

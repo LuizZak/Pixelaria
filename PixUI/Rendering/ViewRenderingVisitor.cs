@@ -21,8 +21,8 @@
 */
 
 using JetBrains.Annotations;
+using PixDirectX.Utils;
 using PixUI.Controls;
-using PixUI.Utils;
 using PixUI.Visitor;
 using SharpDX;
 using SharpDX.Direct2D1;

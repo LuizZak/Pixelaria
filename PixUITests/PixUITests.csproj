@@ -90,7 +90,6 @@
     <Compile Include="TestInvalidateBaseView.cs" />
     <Compile Include="TestUtils\D2DImageResources.cs" />
     <Compile Include="TestUtils\Direct2DRenderer.cs" />
-    <Compile Include="Text\AttributedTextTests.cs" />
     <Compile Include="BaseViewTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuControlTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuItemTests.cs" />
@@ -98,7 +97,6 @@
     <Compile Include="Controls\TextFieldTests.cs" />
     <Compile Include="Text\StringTextualBufferTests.cs" />
     <Compile Include="Text\TextEngineTests.cs" />
-    <Compile Include="Text\TextRangeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Layouting\LayoutingTests.cs" />
     <Compile Include="Visitor\BaseViewTraverserTests.cs" />
@@ -116,6 +114,10 @@
     <ProjectReference Include="..\PixUI\PixUI.csproj">
       <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
       <Name>PixUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
+      <Project>{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}</Project>
+      <Name>PixDirectX</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

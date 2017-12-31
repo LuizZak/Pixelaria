@@ -28,9 +28,10 @@ using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixCore.Text;
+using PixDirectX.Utils;
 using PixUI.Rendering;
 using PixUI.Text;
-using PixUI.Utils;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using Color = System.Drawing.Color;
@@ -458,7 +459,7 @@ namespace PixUI.Controls
                 WordWrap = _label.TextWordWrap
             };
 
-            var provider = context.Renderer.LabelViewTextMetricsProvider;
+            var provider = context.LabelViewTextMetricsProvider;
             var bounds = provider.LocationOfCharacter(_textEngine.Caret.Location, new AttributedText(text), attributes);
 
             caretLocation = _label.ConvertTo(caretLocation, this);

@@ -1,21 +1,35 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixelaria", "Pixelaria\Pixelaria.csproj", "{9DBEE059-E16E-4EE4-8DF0-6ECD2FE2EAC2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9} = {C014734D-C99A-41A7-B2E1-33DCC66DE2C9}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D44BF346-80F2-4635-8CA8-DFAF080054E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelariaTests", "PixelariaTests\PixelariaTests.csproj", "{19E287FD-E33A-4E40-8A1F-D40E5EFDF2F1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9} = {C014734D-C99A-41A7-B2E1-33DCC66DE2C9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI", "PixUI\PixUI.csproj", "{C6EE4192-31BD-4C39-846E-01DDFE5F2497}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9} = {C014734D-C99A-41A7-B2E1-33DCC66DE2C9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixCore", "PixCore\PixCore.csproj", "{DB49EDE1-059E-4368-B421-8CFD5954CFEC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixCoreTests", "PixCoreTests\PixCoreTests.csproj", "{EF31BA66-AEE7-4657-8221-BB863C237952}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUITests", "PixUITests\PixUITests.csproj", "{066CDBE0-73A5-46F3-AF82-7372599A6C67}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9} = {C014734D-C99A-41A7-B2E1-33DCC66DE2C9}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixDirectX", "PixDirectX\PixDirectX.csproj", "{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +135,22 @@ Global
 		{066CDBE0-73A5-46F3-AF82-7372599A6C67}.Release|x64.Build.0 = Release|Any CPU
 		{066CDBE0-73A5-46F3-AF82-7372599A6C67}.Release|x86.ActiveCfg = Release|Any CPU
 		{066CDBE0-73A5-46F3-AF82-7372599A6C67}.Release|x86.Build.0 = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|x64.Build.0 = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Debug|x86.Build.0 = Debug|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|x64.ActiveCfg = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|x64.Build.0 = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|x86.ActiveCfg = Release|Any CPU
+		{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

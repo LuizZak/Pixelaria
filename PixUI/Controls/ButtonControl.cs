@@ -24,8 +24,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using PixCore.Geometry;
-using PixUI.Text;
-using PixUI.Utils;
+using PixCore.Text;
+using PixDirectX.Utils;
 using PixUI.Utils.Layouting;
 using SharpDX.Direct2D1;
 

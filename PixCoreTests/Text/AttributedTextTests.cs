@@ -21,9 +21,9 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixUI.Text;
+using PixCore.Text;
 
-namespace PixUITests.Text
+namespace PixCoreTests.Text
 {
     [TestClass]
     public class AttributedTextTests
@@ -149,7 +149,7 @@ namespace PixUITests.Text
 
             sut.SetText("abcdef");
 
-            sut.SetAttributes(new TextRange(3, 3), new ITextAttribute[] {new TestAttribute()});
+            sut.SetAttributes(new TextRange(3, 3), new TestAttribute());
             
             var segments = sut.GetTextSegments();
 
@@ -178,7 +178,7 @@ namespace PixUITests.Text
             // 0 1 2 3 4 5
             //   1
             //     1 2 3
-            sut.SetAttributes(new TextRange(1, 3), new ITextAttribute[] { new TestAttribute() });
+            sut.SetAttributes(new TextRange(1, 3), new TestAttribute());
 
             var segments = sut.GetTextSegments();
 

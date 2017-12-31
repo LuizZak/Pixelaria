@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using PixCore.Text;
+
 namespace PixUI.Text
 {
     /// <summary>
