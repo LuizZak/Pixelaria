@@ -64,7 +64,7 @@ namespace Pixelaria.Views.ExportPipeline
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
 
-        private readonly ClippingRegion _clippingRegion = new ClippingRegion(new Region());
+        private readonly ClippingRegion _clippingRegion = new ClippingRegion();
 
         #region Intrinsic Features
 
@@ -1364,11 +1364,9 @@ namespace Pixelaria.Views.ExportPipeline
     {
         private readonly List<RectangleF> _rectangles;
         
-        public ClippingRegion([NotNull] Region region)
+        public ClippingRegion()
         {
             _rectangles = new List<RectangleF>();
-
-            AddRegion(region);
         }
 
         /// <summary>
@@ -1562,10 +1560,6 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal class FullClippingRegion : ClippingRegion
     {
-        public FullClippingRegion([NotNull] Region region) : base(region)
-        {
-        }
-
         public override RectangleF[] RedrawRegionRectangles(Size size)
         {
             return new[] { new RectangleF(PointF.Empty, size) };
