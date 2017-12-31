@@ -65,7 +65,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (!OtherFeatureHasExclusiveControl() && e.Button == MouseButtons.Middle)
             {
                 // Detect we are not dragging
-                if (_dragging && DrawingUtilities.Distance(e.Location, _mouseDownPoint) > 5)
+                if (_dragging && e.Location.Distance(_mouseDownPoint) > 5)
                     return;
 
                 SetTargetScale(Vector.Unit, e.Location);

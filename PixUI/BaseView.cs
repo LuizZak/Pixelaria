@@ -727,7 +727,7 @@ namespace PixUI
         {
             Parent?.Invalidate(region, reference);
         }
-
+        
         #endregion
 
         public bool Equals(BaseView other)

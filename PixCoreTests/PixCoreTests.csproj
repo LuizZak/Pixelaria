@@ -63,6 +63,8 @@
     <Compile Include="Controls\ColorControls\ColorSliderTests.cs" />
     <Compile Include="Controls\ColorControls\ColorSwatchControlTests.cs" />
     <Compile Include="Geometry\AABBTests.cs" />
+    <Compile Include="Geometry\Algorithms\RectangleDissectionTests.cs" />
+    <Compile Include="Geometry\Algorithms\TotalRectanglesAreaTests.cs" />
     <Compile Include="Imaging\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Undo\UndoSystemTests.cs" />
@@ -78,6 +80,7 @@
       <Name>PixCore</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

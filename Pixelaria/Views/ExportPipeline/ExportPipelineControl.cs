@@ -29,6 +29,7 @@ using System.Windows.Forms;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixCore.Geometry.Algorithms;
 using PixUI;
 using PixUI.Rendering;
 
@@ -152,7 +153,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         public void InvalidateRegion([NotNull] Region region)
         {
-            _clippingRegion.Region.Union(region);
+            _clippingRegion.AddRegion(region);
         }
 
         /// <summary>
@@ -188,14 +189,12 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RenderDirect2D([NotNull] IDirect2DRenderingState state)
         {
-            if(_d2DRenderer == null)
-                throw new InvalidOperationException($"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(RenderDirect2D)}.");
-            
-            using (var g = CreateGraphics())
-            {
-                if (_clippingRegion.Region.IsEmpty(g))
-                    return;
-            }
+            if (_d2DRenderer == null)
+                throw new InvalidOperationException(
+                    $"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(RenderDirect2D)}.");
+
+            if (_clippingRegion.IsEmpty())
+                return;
 
             // Use clipping region
             var clipState = _clippingRegion.PushDirect2DClipping(state);
@@ -207,9 +206,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             _clippingRegion.PopDirect2DClipping(state, clipState);
 
-            _clippingRegion.Region.MakeEmpty();
+            _clippingRegion.Clear();
         }
-        
+
         private void fixedTimer_Tick(object sender, EventArgs e)
         {
             if (!Visible)
@@ -1133,7 +1132,7 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 var con = new List<(PipelineNodeLinkView from, PipelineNodeLinkView to)>();
 
-                foreach (var linkFrom in @from.OutputViews)
+                foreach (var linkFrom in from.OutputViews)
                 {
                     foreach (var linkTo in to.InputViews)
                     {
@@ -1363,12 +1362,13 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal class ClippingRegion : IClippingRegion
     {
-        [NotNull]
-        public Region Region { get; set; }
-
+        private readonly List<RectangleF> _rectangles;
+        
         public ClippingRegion([NotNull] Region region)
         {
-            Region = region;
+            _rectangles = new List<RectangleF>();
+
+            AddRegion(region);
         }
 
         /// <summary>
@@ -1379,7 +1379,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             var controlRect = new RectangleF(PointF.Empty, size);
 
-            var rects = Region.GetRegionScans(new Matrix());
+            var rects = _rectangles;
 
             var clipped =
                 rects
@@ -1387,58 +1387,101 @@ namespace Pixelaria.Views.ExportPipeline
                     .Select(r =>
                     {
                         var rect = r;
-
                         rect.Intersect(controlRect);
-
                         return rect;
                     });
 
             return clipped.ToArray();
         }
-
+        
         public virtual bool IsVisibleInClippingRegion(Rectangle rectangle)
         {
-            return Region.IsVisible(rectangle);
+            return _rectangles.Any(r => r.IntersectsWith(rectangle));
         }
 
         public virtual bool IsVisibleInClippingRegion(Point point)
         {
-            return Region.IsVisible(point);
+            return _rectangles.Any(r => r.Contains(point));
         }
 
         public virtual bool IsVisibleInClippingRegion(AABB aabb)
         {
-            return Region.IsVisible((RectangleF)aabb);
+            return _rectangles.Any(r => r.IntersectsWith((RectangleF)aabb));
         }
 
         public virtual bool IsVisibleInClippingRegion(Vector point)
         {
-            return Region.IsVisible(point);
+            return _rectangles.Any(r => r.Contains(point));
         }
 
         public virtual bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
         {
             var transformed = reference.ConvertTo(aabb, null);
-
-            return Region.IsVisible((RectangleF)transformed);
+            return _rectangles.Any(r => r.IntersectsWith((RectangleF)transformed));
         }
 
         public virtual bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
         {
             var transformed = reference.ConvertTo(point, null);
-
-            return Region.IsVisible(transformed);
+            return _rectangles.Any(r => r.Contains(transformed));
         }
 
-        public virtual void AddRectangle(RectangleF rectangle)
+        public void AddRectangle(RectangleF rectangle)
         {
-            Region.Union(rectangle);
+            if (IsEmpty())
+            {
+                _rectangles.Add(rectangle);
+                return;
+            }
+
+            // If there are any rectangles available, check if we're not contained within other rectangles
+            if (_rectangles.Any(rect => rect.Contains(rectangle)))
+            {
+                return;
+            }
+
+            // If no intersection is found, just add the rectangle right away
+            if (_rectangles.All(rect => !rect.IntersectsWith(rectangle)))
+            {
+                _rectangles.Add(rectangle);
+                return;
+            }
+
+            // For remaining rectangles, apply a rectangle dissection step so overlapping rectangles are broken
+            // into non-overlapping subsegments
+
+            _rectangles.Add(rectangle);
+
+            var ret = RectangleDissection.Dissect(_rectangles);
+
+            _rectangles.Clear();
+            _rectangles.AddRange(ret);
         }
 
-        public virtual void SetRectangle(RectangleF rectangle)
+        public void AddRegion([NotNull] Region region)
         {
-            Region.MakeEmpty();
-            Region = new Region(rectangle);
+            var scans = region.GetRegionScans(new Matrix());
+
+            foreach (var scan in scans)
+            {
+                AddRectangle(scan);
+            }
+        }
+
+        public void SetRectangle(RectangleF rectangle)
+        {
+            Clear();
+            AddRectangle(rectangle);
+        }
+
+        public void Clear()
+        {
+            _rectangles.Clear();
+        }
+
+        public virtual bool IsEmpty()
+        {
+            return _rectangles.Count == 0;
         }
 
         public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state)
@@ -1513,7 +1556,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
     }
-
+    
     /// <summary>
     /// A subclass of <see cref="ClippingRegion"/> that reports a full clipping region as available on the UI.
     /// </summary>
@@ -1557,20 +1600,10 @@ namespace Pixelaria.Views.ExportPipeline
         {
             return true;
         }
-
-        public override void AddRectangle(RectangleF rectangle)
-        {
-
-        }
-
-        public override void SetRectangle(RectangleF rectangle)
-        {
-
-        }
         
         public override IDirect2DClippingState PushDirect2DClipping(IDirect2DRenderingState state)
         {
-            return null;
+            return new Direct2DClip(new AABB[0], null);
         }
 
         public override void PopDirect2DClipping(IDirect2DRenderingState state, IDirect2DClippingState clipState)

@@ -529,15 +529,10 @@ namespace Pixelaria.Views.ModelViews
         private void RefreshTitleBar()
         {
             var asterisk = modified ? "*" : "";
-            if (_animation != null)
-            {
-                Text =
-                    $@"Frame Editor [{FrameLoaded.Index + 1}/{_animation.FrameCount}] - [{_animation.Name}]{asterisk}";
-            }
-            else
-            {
-                Text = $@"Frame Editor {asterisk}";
-            }
+
+            Text = _animation != null
+                ? $@"Frame Editor [{FrameLoaded.Index + 1}/{_animation.FrameCount}] - [{_animation.Name}]{asterisk}"
+                : $@"Frame Editor {asterisk}";
         }
 
         /// <summary>

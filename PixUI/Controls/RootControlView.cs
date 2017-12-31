@@ -86,7 +86,9 @@ namespace PixUI.Controls
 
             foreach (var controlView in views)
             {
-                var control = controlView.HitTestControl(point, enabledOnly);
+                var local = controlView.ConvertFrom(point, null);
+
+                var control = controlView.HitTestControl(local, enabledOnly);
                 if (control != null)
                     return control;
             }

@@ -25,7 +25,6 @@ using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
 
 using PixUI;
-using PixUI.Utils;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {

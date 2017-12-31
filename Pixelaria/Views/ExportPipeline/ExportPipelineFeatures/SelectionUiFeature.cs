@@ -50,7 +50,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         /// selection was first drawn. Used to avoid de-selecting previously selected views as the 
         /// rectangle in and out of those views.
         /// </summary>
-        private HashSet<PipelineNodeView> _previousSelected = new HashSet<PipelineNodeView>();
+        private readonly HashSet<PipelineNodeView> _previousSelected = new HashSet<PipelineNodeView>();
 
         private HashSet<PipelineNodeView> _underSelectionArea = new HashSet<PipelineNodeView>();
 

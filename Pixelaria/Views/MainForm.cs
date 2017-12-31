@@ -97,7 +97,7 @@ namespace Pixelaria.Views
             foreach (var control in Controls.OfType<MdiClient>())
             {
                 var method = control.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
-                method.Invoke(control, new object[] { ControlStyles.OptimizedDoubleBuffer, true });
+                method?.Invoke(control, new object[] { ControlStyles.OptimizedDoubleBuffer, true });
             }
 
             Menu = mm_menu;

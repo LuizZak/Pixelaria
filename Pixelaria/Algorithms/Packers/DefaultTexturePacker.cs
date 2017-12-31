@@ -310,21 +310,22 @@ namespace Pixelaria.Algorithms.Packers
         /// <param name="atlasWidth">An output atlas width uint</param>
         /// <param name="atlasHeight">At output atlas height uint</param>
         /// <param name="maxWidth">The maximum width the generated sheet can have</param>
+        /// <param name="cancellationToken">Cancelation token for operation. When canceled, eventually the method stops attempting to pack the texture rectangles.</param>
         /// <returns>An array of rectangles, where each index matches the original passed Rectangle array, and marks the final computed bounds of the rectangle frames calculated</returns>
-        private static Rectangle[] InternalPack(AnimationSheetExportSettings sheetExportSettings, [NotNull] Rectangle[] rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, CancellationToken cancellationToken)
+        private static Rectangle[] InternalPack(AnimationSheetExportSettings sheetExportSettings, [NotNull] IReadOnlyList<Rectangle> rectangles, ref uint atlasWidth, ref uint atlasHeight, int maxWidth, CancellationToken cancellationToken)
         {
             // Cache some fields as locals
             int x = sheetExportSettings.XPadding;
 
-            var boundsFinal = new Rectangle[rectangles.Length];
+            var boundsFinal = new Rectangle[rectangles.Count];
 
-            for (int i = 0; i < rectangles.Length; i++)
+            for (int i = 0; i < rectangles.Count; i++)
             {
                 if (cancellationToken.IsCancellationRequested)
                     return new Rectangle[0];
 
-                var width = rectangles[i].Width;
-                var height = rectangles[i].Height;
+                int width = rectangles[i].Width;
+                int height = rectangles[i].Height;
 
                 // X coordinate wrapping
                 if (x + width > maxWidth)
@@ -332,7 +333,7 @@ namespace Pixelaria.Algorithms.Packers
                     x = sheetExportSettings.XPadding;
                 }
 
-                var y = sheetExportSettings.YPadding;
+                int y = sheetExportSettings.YPadding;
 
                 // Do a little trickery to find the minimum Y for this frame
                 if (x - sheetExportSettings.XPadding < atlasWidth)

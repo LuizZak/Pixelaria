@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixUI;
 
@@ -83,7 +84,7 @@ namespace PixUITests
         /// <summary>
         /// Asserts a given view's <see cref="BaseView.Bounds"/> was invalidated on this <see cref="TestInvalidateBaseView"/>.
         /// </summary>
-        public static void AssertViewBoundsWhereInvalidated(this TestInvalidateBaseView invView, BaseView view)
+        public static void AssertViewBoundsWhereInvalidated([NotNull] this TestInvalidateBaseView invView, [NotNull] BaseView view)
         {
 
             using (var img = new Bitmap(1, 1))
@@ -101,7 +102,7 @@ namespace PixUITests
         /// <summary>
         /// Asserts a given view's <see cref="BaseView.GetFullBounds"/> was invalidated on this <see cref="TestInvalidateBaseView"/>.
         /// </summary>
-        public static void AssertViewFullBoundsWhereInvalidated(this TestInvalidateBaseView invView, BaseView view)
+        public static void AssertViewFullBoundsWhereInvalidated([NotNull] this TestInvalidateBaseView invView, [NotNull] BaseView view)
         {
 
             using (var img = new Bitmap(1, 1))

@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="Controls\ButtonControlTests.cs" />
     <Compile Include="Controls\ScrollBarControlTests.cs" />
+    <Compile Include="Controls\RootControlViewTests.cs" />
     <Compile Include="TestUtils\BaseViewSnapshot.cs" />
     <Compile Include="Controls\LabelViewControlTests.cs" />
     <Compile Include="TestInvalidateBaseView.cs" />

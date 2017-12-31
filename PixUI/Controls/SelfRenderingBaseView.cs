@@ -200,7 +200,7 @@ namespace PixUI.Controls
 
         protected override void Invalidate(Region region, ISpatialReference reference)
         {
-            if (ClipToBounds)
+            if (!ReferenceEquals(reference, this) && ClipToBounds)
             {
                 if (Bounds.IsEmpty || Bounds.Validity == AABB.State.Invalid)
                     region.MakeEmpty();

@@ -56,7 +56,9 @@ namespace Pixelaria.Views.ExportPipeline
         
         private ExportPipelineNodesPanelManager _panelManager;
         private BitmapPreviewPipelineWindowManager _previewManager;
-        
+
+        private PropertiesPanel _propertiesPanel;
+
         private Direct2DControlLoopManager _direct2DLoopManager;
 
         public ExportPipelineView()
@@ -82,6 +84,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 _disposeBag.Dispose();
                 _panelManager?.Dispose();
+                _propertiesPanel?.Dispose();
 
                 if (components != null)
                     components.Dispose();
@@ -115,13 +118,22 @@ namespace Pixelaria.Views.ExportPipeline
 
                 exportPipelineControl.RenderDirect2D(_direct2DLoopManager.RenderingState);
 
-                return rects.Select(Rectangle.Round).ToArray();
+                return rects.Select(rect =>
+                {
+                    int x = (int)Math.Floor(rect.X);
+                    int y = (int)Math.Floor(rect.Y);
+
+                    int width = (int)Math.Ceiling(rect.Width);
+                    int height = (int)Math.Ceiling(rect.Height);
+
+                    return new Rectangle(x, y, width, height);
+                }).ToArray();
             });
         }
 
         #region Form Configuration
 
-        public void ConfigureForm()
+        private void ConfigureForm()
         {
             //InitTest();
 
@@ -129,10 +141,11 @@ namespace Pixelaria.Views.ExportPipeline
 
             ConfigurePipelineControl();
             ConfigureNodesPanel();
+            ConfigurePropertiesPanel();
             ConfigurePreviewManager();
         }
 
-        public void ConfigurePipelineControl()
+        private void ConfigurePipelineControl()
         {
             LabelView.DefaultLabelViewSizeProvider = exportPipelineControl.D2DRenderer;
             var imageResources = exportPipelineControl.D2DRenderer.ImageResources;
@@ -155,7 +168,7 @@ namespace Pixelaria.Views.ExportPipeline
             AddImage(Resources.filter_stroke, "filter_stroke");
         }
 
-        public void ConfigureNodesPanel()
+        private void ConfigureNodesPanel()
         {
             _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl);
 
@@ -167,7 +180,12 @@ namespace Pixelaria.Views.ExportPipeline
             _panelManager.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
         }
 
-        public void ConfigurePreviewManager()
+        private void ConfigurePropertiesPanel()
+        {
+            _propertiesPanel = new PropertiesPanel(exportPipelineControl);
+        }
+
+        private void ConfigurePreviewManager()
         {
             var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl);
             exportPipelineControl.AddFeature(manager);
@@ -608,13 +626,13 @@ namespace Pixelaria.Views.ExportPipeline
                 }
                 else
                 {
-                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, System.Drawing.Color.DimGray.ToColor4()))
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.DimGray.ToColor4()))
                     {
                         state.D2DRenderTarget.FillRectangle(bounds.ToRawRectangleF(), brush);
                     }
                 }
 
-                using (var brush = new SolidColorBrush(state.D2DRenderTarget, System.Drawing.Color.Gray.ToColor4()))
+                using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.Gray.ToColor4()))
                 {
                     state.D2DRenderTarget.DrawRectangle(bounds.ToRawRectangleF(), brush);
                 }

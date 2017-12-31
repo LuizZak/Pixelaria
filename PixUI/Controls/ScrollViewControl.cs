@@ -95,7 +95,7 @@ namespace PixUI.Controls
 
                 HorizontalBar.ContentSize = _contentSize.X;
                 VerticalBar.ContentSize = _contentSize.Y;
-                ContainerView.Size = ContentSize;
+                ContainerView.Size = EffectiveContentSize();
             }
         }
         
@@ -104,7 +104,7 @@ namespace PixUI.Controls
         /// </summary>
         public BaseView ContainerView { get; } = new BaseView();
 
-        public override AABB ContentBounds => new AABB(_contentOffset, _contentOffset + ContentSize);
+        public override AABB ContentBounds => new AABB(_contentOffset, _contentOffset + EffectiveContentSize());
 
         /// <summary>
         /// Gets the visible content area of the <see cref="ContainerView"/> which is not occluded by
@@ -269,6 +269,19 @@ namespace PixUI.Controls
                 HorizontalBar.Location = horReg.Minimum;
                 HorizontalBar.Size = horReg.Size;
             }
+        }
+
+        /// <summary>
+        /// Gets the effective content size of this scroll view by replacing 0's in <see cref="ContentSize"/>
+        /// with the maximum effective size available based on the control's size and visible scroll bars.
+        /// </summary>
+        private Vector EffectiveContentSize()
+        {
+            var bounds = VisibleContentBounds;
+            float width = Math.Abs(ContentSize.X) < float.Epsilon ? bounds.Width : ContentSize.X;
+            float height = Math.Abs(ContentSize.Y) < float.Epsilon ? bounds.Height : ContentSize.Y;
+
+            return new Vector(width, height);
         }
 
         protected override void OnResize()

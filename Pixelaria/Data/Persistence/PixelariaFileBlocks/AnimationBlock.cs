@@ -34,7 +34,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
     public class AnimationBlock : FileBlock
     {
         /// <summary>
-        /// The animation loaded from stream after a call to <see cref="LoadContentFromStream"/>.
+        /// The animation loaded from stream after a call to LoadContentFromStream.
         /// 
         /// Null, until first Stream read attempt is made.
         /// </summary>

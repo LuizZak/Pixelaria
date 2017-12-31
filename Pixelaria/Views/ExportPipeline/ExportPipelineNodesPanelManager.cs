@@ -33,7 +33,6 @@ using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
 using PixUI.Text;
-using PixUI.Utils;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
@@ -88,7 +87,7 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 Location = new Vector(0, 50),
                 Size = new Vector(300, _control.Size.Height),
-                ContentSize = new Vector(300, 1800),
+                ContentSize = new Vector(0, 1800),
                 BackColor = Color.Transparent,
                 ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
             };
