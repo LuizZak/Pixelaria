@@ -56,6 +56,14 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
 
         /// <summary>
+        /// Event fired whenever the Direct2D state of this loop manager is invalidated (either due to context
+        /// switches, resolution changes or window state changes).
+        /// 
+        /// Use this event handler to invalidate data related to screen rendering for a fresh rendering state.
+        /// </summary>
+        public event EventHandler InvalidatedState;
+
+        /// <summary>
         /// Gets the public interface for the rendering state of this Direct2D manager
         /// </summary>
         internal IDirect2DRenderingState RenderingState => _renderingState;
@@ -180,6 +188,8 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         public void StartRenderLoop(Func<IDirect2DRenderingState, System.Drawing.Rectangle[]> loop)
         {
+            bool isOccluded = false;
+
             using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
             {
                 _frameDeltaTimer.Start();
@@ -202,10 +212,29 @@ namespace Pixelaria.Views.ExportPipeline
                         ScrollRectangle = null
                     };
 
+                    // Occluded state handling
+                    if (isOccluded)
+                    {
+                        // Test if we're still in occluded state
+                        if (_renderingState.SwapChain.Present(1, PresentFlags.Test) == (int)DXGIStatus.Occluded)
+                        {
+                            Thread.Sleep(16);
+                            continue;
+                        }
+
+                        isOccluded = false;
+
+                        InvalidatedState?.Invoke(this, EventArgs.Empty);
+
+                        // Reset parameters for next redraw (backbuffer is empty when coming back from idle)
+                        parameters = new PresentParameters();
+                    }
+
                     // Sleep in case the screen is occluded so we don't waste cycles in this tight loop
                     // (Present doesn't wait for the next refresh in case the window is occluded)
                     if (_renderingState.SwapChain.Present(1, PresentFlags.None, parameters).Code == (int)DXGIStatus.Occluded)
                     {
+                        isOccluded = true;
                         Thread.Sleep(16);
                     }
                 }
