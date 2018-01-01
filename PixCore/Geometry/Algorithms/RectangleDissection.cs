@@ -88,13 +88,8 @@ namespace PixCore.Geometry.Algorithms
                         output.Add(rect);
                 }
             }
-
-            // Ignore rectangles with 0-area since they don't influence the resulting area anyways
-            var merged =
-                MergeRectangles(output)
-                    .Where(r => r.Area() > 0);
-
-            output = new List<RectangleF>(merged);
+            
+            output = new List<RectangleF>(MergeRectangles(output));
 
             return output.ToArray();
         }
@@ -195,6 +190,10 @@ namespace PixCore.Geometry.Algorithms
         {
             return rects
                 .SelectMany(r => new[] {new HorizontalEdge(r.Left), new HorizontalEdge(r.Right)})
+                // Remove duplicated edges
+                .GroupBy(edge => edge.X)
+                .Select(edges => edges.First())
+                // Return ordered by X axis
                 .OrderBy(edge => edge.X).ToArray();
         }
 
@@ -202,6 +201,10 @@ namespace PixCore.Geometry.Algorithms
         {
             return rects
                 .SelectMany(r => new[] { new VerticalEdge(r.Top), new VerticalEdge(r.Bottom) })
+                // Remove duplicated edges
+                .GroupBy(edge => edge.Y)
+                .Select(edges => edges.First())
+                // Return ordered by Y axis
                 .OrderBy(edge => edge.Y).ToArray();
         }
 
