@@ -800,9 +800,7 @@ namespace Pixelaria.Views.Controls
 
                 // Whether to redraw:
                 bool redraw = Math.Abs(newValue - drag.Value) > float.Epsilon;
-
-                // Check for redrawing. Should only redraw when the new value is different from the last value in the knob:
-
+                
                 // Set the last X position of the knob. Used to set the redraw rectangle.
                 double lastX = drag.ScaledX;
 
@@ -824,15 +822,13 @@ namespace Pixelaria.Views.Controls
                         ChangeFrame(secondKnob.Value);
                     }
 
-                    // Calculate the redraw rectangle:
+                    // Invalidate redraw region:
                     double x = Math.Min(drag.ScaledX, lastX) - drag.KnobThickness;
                     double width = Math.Max(drag.ScaledX, lastX) - x + drag.KnobThickness * 2;
-
-                    // Set the redraw rectangle:
+                    
                     Invalidate(new Rectangle((int)x, 0, (int)width, timelineHeight + drag.KnobHeigth + 1 + (int)drag.DrawOffset.Y));
-
-                    // Show the tooltip:
-                    toolTip.Show("" + (drag.Value), this, (int)(drag.ScaledX), -25, 1000);
+                    
+                    toolTip.Show("" + drag.Value, this, (int)drag.ScaledX, -25, 1000);
 
                     RangeChanged?.Invoke(this, new RangeChangedEventArgs(GetRange()));
                 }
@@ -847,7 +843,7 @@ namespace Pixelaria.Views.Controls
                     // Get the distance between the mouse and the knobs:
                     double fx = Math.Abs(e.X - firstKnob.ScaledX - firstKnob.KnobThickness / 2.0f);
                     double sx = Math.Abs(e.X - secondKnob.ScaledX - secondKnob.KnobThickness / 2.0f);
-                    bool overY = (behaviorType == TimelineBehaviorType.RangeSelector || e.Y > timelineHeight + 2);
+                    bool overY = behaviorType == TimelineBehaviorType.RangeSelector || e.Y > timelineHeight + 2;
 
                     // I tried optimizing this bit as much as I could, and right now, it behaves pretty fast:
                     if (fx < sx)
@@ -862,8 +858,7 @@ namespace Pixelaria.Views.Controls
                             // Change the state of the knobs:
                             firstKnob.MouseOver = true;
                             secondKnob.MouseOver = false;
-
-                            // Set to redraw:
+                            
                             redrawKnobs = true;
 
                             // Set this knob to draw over the other knob:
@@ -881,11 +876,8 @@ namespace Pixelaria.Views.Controls
                             // Change the state of the knobs:
                             firstKnob.MouseOver = false;
                             secondKnob.MouseOver = false;
-
-                            // Set to redraw:
+                            
                             redrawKnobs = true;
-
-                            // Hide the tooltip:
                             toolTip.Hide(this);
                         }
                     }
@@ -902,8 +894,7 @@ namespace Pixelaria.Views.Controls
                             // Change the state of the knobs:
                             firstKnob.MouseOver = false;
                             secondKnob.MouseOver = true;
-
-                            // Set to redraw:
+                            
                             redrawKnobs = true;
 
                             // Set this knob to draw over the other knob:
@@ -911,8 +902,7 @@ namespace Pixelaria.Views.Controls
 
                             if (mouseOverCurrentRange)
                                 Invalidate();
-
-                            // Reset the mouse over timeline flag
+                            
                             mouseOverCurrentRange = false;
                         }
                         // If not, un-highlight it:
@@ -921,11 +911,8 @@ namespace Pixelaria.Views.Controls
                             // Change the state of the knobs:
                             firstKnob.MouseOver = false;
                             secondKnob.MouseOver = false;
-
-                            // Set to redraw:
+                            
                             redrawKnobs = true;
-
-                            // Hide the tooltip:
                             toolTip.Hide(this);
                         }
                     }

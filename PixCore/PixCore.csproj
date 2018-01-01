@@ -102,6 +102,7 @@
     </Compile>
     <Compile Include="Text\AttributedText.cs" />
     <Compile Include="Text\TextRange.cs" />
+    <Compile Include="Undo\GroupUndoTask.cs" />
     <Compile Include="Undo\UndoSystem.cs" />
     <Compile Include="Unsafe\UnsafeNativeMethods.cs" />
   </ItemGroup>

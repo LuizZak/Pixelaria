@@ -32,6 +32,14 @@ namespace PixCoreTests.Geometry.Algorithms
     public class RectangleDissectionTests
     {
         [TestMethod]
+        public void TestDissectEmptyList()
+        {
+            var ret = RectangleDissection.Dissect();
+
+            Assert.AreEqual(0, ret.Length);
+        }
+
+        [TestMethod]
         public void TestDissectSingleRectangle()
         {
             var rect1 = new RectangleF(10, 10, 50, 50);
@@ -172,6 +180,14 @@ namespace PixCoreTests.Geometry.Algorithms
 
             AssertRectanglesDoNotIntersect(ret);
             AssertAreasMatch(new[] { rect1, rect2, rect3 }, ret);
+        }
+
+        [TestMethod]
+        public void TestMergeEmptyRectangles()
+        {
+            var ret = RectangleDissection.MergeRectangles();
+
+            Assert.AreEqual(0, ret.Length);
         }
 
         [TestMethod]
