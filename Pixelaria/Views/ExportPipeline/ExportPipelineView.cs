@@ -36,7 +36,6 @@ using PixDirectX.Utils;
 using SharpDX.Direct2D1;
 using PixUI;
 using PixUI.Controls;
-using PixUI.Utils;
 
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
@@ -593,7 +592,7 @@ namespace Pixelaria.Views.ExportPipeline
             if(_latestPreviews.TryGetValue(step, out Bitmap old))
                 old.Dispose();
 
-            var newBit = Direct2DRenderer.CreateSharpDxBitmap(_latestRenderState.D2DRenderTarget, bitmap);
+            var newBit = BaseDirect2DRenderer.CreateSharpDxBitmap(_latestRenderState.D2DRenderTarget, bitmap);
 
             _latestPreviews[step] = newBit;
         }

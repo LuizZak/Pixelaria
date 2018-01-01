@@ -188,9 +188,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as FadeFilter;
-
-            return other != null && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon &&
+            return filter is FadeFilter other && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon &&
                    FadeColor == other.FadeColor && FadeAlpha == other.FadeAlpha && Version == other.Version;
         }
     }

@@ -161,7 +161,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             var titleArea = GetTitleArea();
 
             var rect = Bounds;
-            rect.Set(new Vector(rect.Left, titleArea.Height), rect.Maximum);
+            rect = new AABB(new Vector(rect.Left, titleArea.Height), rect.Maximum);
 
             return rect;
         }

@@ -135,9 +135,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as HueFilter;
-
-            return other != null && Hue == other.Hue && Relative == other.Relative && Version == other.Version;
+            return filter is HueFilter other && Hue == other.Hue && Relative == other.Relative && Version == other.Version;
         }
     }
 
@@ -282,9 +280,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as SaturationFilter;
-
-            return other != null && Saturation == other.Saturation && Relative == other.Relative &&
+            return filter is SaturationFilter other && Saturation == other.Saturation && Relative == other.Relative &&
                    KeepGrays == other.KeepGrays && Multiply == other.Multiply && Version == other.Version;
         }
     }
@@ -420,9 +416,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as LightnessFilter;
-
-            return other != null && Lightness == other.Lightness && Relative == other.Relative &&
+            return filter is LightnessFilter other && Lightness == other.Lightness && Relative == other.Relative &&
                    Multiply == other.Multiply && Version == other.Version;
         }
     }

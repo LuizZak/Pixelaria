@@ -33,17 +33,19 @@ namespace PixCore.Geometry
     /// Represents a 2D vector with X and Y components.
     /// </summary>
     [DebuggerDisplay("{X}, {Y}")]
-    public struct Vector : IEquatable<Vector>, IComparable<Vector>
+    public readonly struct Vector : IEquatable<Vector>, IComparable<Vector>
     {
+        private static Vector _zero = new Vector(0, 0);
+        private static Vector _unit = new Vector(1, 1);
         /// <summary>
         /// A Zero vector (0, 0)
         /// </summary>
-        public static readonly Vector Zero = new Vector(0, 0);
+        public static ref readonly Vector Zero => ref _zero;
 
         /// <summary>
         /// A Unit vector (1, 1)
         /// </summary>
-        public static readonly Vector Unit = new Vector(1, 1);
+        public static ref readonly Vector Unit => ref _unit;
 
         /// <summary>
         /// X coordinate
@@ -69,26 +71,26 @@ namespace PixCore.Geometry
             Y = py;
         }
 
-        public Vector(Point point)
+        public Vector(in Point point)
         {
             X = point.X;
             Y = point.Y;
         }
 
-        public Vector(PointF point)
+        public Vector(in PointF point)
         {
             X = point.X;
             Y = point.Y;
         }
 
         [Pure]
-        public float Dot(Vector v)
+        public float Dot(in Vector v)
         {
             return X * v.X + Y * v.Y;
         }
 
         [Pure]
-        public float Cross(Vector v)
+        public float Cross(in Vector v)
         {
             return X * v.Y - Y * v.X;
         }
@@ -106,12 +108,12 @@ namespace PixCore.Geometry
         }
 
         [Pure]
-        public float Distance(Vector v)
+        public float Distance(in Vector v)
         {
             return (this - v).Magnitude();
         }
         [Pure]
-        public float DistanceSquared(Vector v)
+        public float DistanceSquared(in Vector v)
         {
             return (this - v).Length();
         }
@@ -126,25 +128,16 @@ namespace PixCore.Geometry
             }
             return this * (1.0f / m);
         }
-
-        public void Normalize()
-        {
-            this = Normalized();
-        }
-
-        public void Negate()
-        {
-            this = -this;
-        }
-
+        
         /// <summary>
         /// Returns a copy of this Vector instance with the X and Y
         /// coordinates clamped to be within the min and max limits
         /// of a given AABB.
         /// </summary>
-        public Vector LimitedWithin(AABB aabb)
+        public Vector LimitedWithin(in AABB aabb)
         {
-            return Max(aabb.Minimum, Min(aabb.Maximum, this));
+            var min = Min(in aabb.Maximum, in this);
+            return Max(in aabb.Minimum, in min);
         }
         
         public override string ToString()
@@ -157,7 +150,7 @@ namespace PixCore.Geometry
         /// the two given vectors
         /// </summary>
         [Pure]
-        public static Vector Min(Vector lhs, Vector rhs)
+        public static Vector Min(in Vector lhs, in Vector rhs)
         {
             return new Vector(Math.Min(lhs.X, rhs.X), Math.Min(lhs.Y, rhs.Y));
         }
@@ -167,7 +160,7 @@ namespace PixCore.Geometry
         /// the two given vectors
         /// </summary>
         [Pure]
-        public static Vector Max(Vector lhs, Vector rhs)
+        public static Vector Max(in Vector lhs, in Vector rhs)
         {
             return new Vector(Math.Max(lhs.X, rhs.X), Math.Max(lhs.Y, rhs.Y));
         }
@@ -177,7 +170,7 @@ namespace PixCore.Geometry
         /// nearest integer number.
         /// </summary>
         [Pure]
-        public static Vector Floor(Vector vec)
+        public static Vector Floor(in Vector vec)
         {
             return new Vector((float)Math.Floor(vec.X), (float)Math.Floor(vec.Y));
         }
@@ -187,7 +180,7 @@ namespace PixCore.Geometry
         /// nearest integer number.
         /// </summary>
         [Pure]
-        public static Vector Round(Vector vec)
+        public static Vector Round(in Vector vec)
         {
             return new Vector((float)Math.Round(vec.X), (float)Math.Round(vec.Y));
         }
@@ -197,7 +190,7 @@ namespace PixCore.Geometry
         /// next largest integer number.
         /// </summary>
         [Pure]
-        public static Vector Ceiling(Vector vec)
+        public static Vector Ceiling(in Vector vec)
         {
             return new Vector((float)Math.Ceiling(vec.X), (float)Math.Ceiling(vec.Y));
         }
@@ -206,7 +199,7 @@ namespace PixCore.Geometry
         /// Returns a vector with absoluite x and y coordinates 
         /// </summary>
         [Pure]
-        public static Vector Abs(Vector vec)
+        public static Vector Abs(in Vector vec)
         {
             return new Vector(Math.Abs(vec.X), Math.Abs(vec.Y));
         }
@@ -218,7 +211,7 @@ namespace PixCore.Geometry
         /// <param name="start">Start of linear interpolation</param>
         /// <param name="end">End of linear interpolation</param>
         /// <param name="factor">A factor, usually between zero and one, that controls where the final interpolad point lands</param>
-        public static Vector Lerp(Vector start, Vector end, float factor)
+        public static Vector Lerp(in Vector start, in Vector end, float factor)
         {
             return start + (end - start) * factor;
         }

@@ -98,8 +98,7 @@ namespace Pixelaria.Utils
                     }
                     break;
                 case EnsureValueType.Int:
-                    int a;
-                    if (!int.TryParse(GetValue(path), out a))
+                    if (!int.TryParse(GetValue(path), out int _))
                     {
                         SetValue(path, defaultValue);
                         return false;

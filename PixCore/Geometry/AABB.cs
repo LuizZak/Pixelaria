@@ -29,19 +29,22 @@ using JetBrains.Annotations;
 
 namespace PixCore.Geometry
 {
+    /// <inheritdoc cref="IEquatable{T}" />
     /// <summary>
     /// An axis-aligned bounding box.
     /// </summary>
     [DebuggerDisplay("Minimum: {Minimum}, Maximum: {Maximum}")]
     // ReSharper disable once InconsistentNaming
-    public struct AABB : IEquatable<AABB>
+    public readonly struct AABB : IEquatable<AABB>
     {
+        private static AABB _empty = new AABB(Vector.Zero, Vector.Zero);
+
         /// <summary>
         /// Gets an AABB that has zero bounds area.
         /// 
         /// AABB has minimum and maximum == Vector.Zero, and is Valid.
         /// </summary>
-        public static readonly AABB Empty = new AABB(Vector.Zero, Vector.Zero);
+        public static ref readonly AABB Empty => ref _empty;
 
         public readonly Vector Minimum;
         public readonly Vector Maximum;
@@ -152,15 +155,7 @@ namespace PixCore.Geometry
 
             Validity = isSet ? State.Valid : State.Invalid;
         }
-
-        /// <summary>
-        /// Sets this aabb's minimum and maximum to the given values
-        /// </summary>
-        public void Set(Vector minimum, Vector maximum)
-        {
-            this = new AABB(minimum, maximum);
-        }
-
+        
         /// <summary>
         /// Returns an AABB that matches this AABB's top-left location with a new size
         /// </summary>
@@ -235,15 +230,7 @@ namespace PixCore.Geometry
         {
             return new AABB(Minimum - size / 2, Maximum + size / 2);
         }
-
-        /// <summary>
-        /// Inflates this AABB
-        /// </summary>
-        public void Inflate(Vector size)
-        {
-            this = Inflated(size);
-        }
-
+        
         /// <summary>
         /// Returns an AABB which is an inflated version of this AABB 
         /// (i.e. bounds are larger by (x, y), but center 
@@ -254,23 +241,7 @@ namespace PixCore.Geometry
         {
             return Inflated(new Vector(x, y));
         }
-
-        /// <summary>
-        /// Inflates this AABB
-        /// </summary>
-        public void Inflate(float x, float y)
-        {
-            this = Inflated(x, y);
-        }
-
-        /// <summary>
-        /// Expands this AABB to include a given point
-        /// </summary>
-        public void ExpandToInclude(Vector point)
-        {
-            this = ExpandedToInclude(point);
-        }
-
+        
         /// <summary>
         /// Returns an AABB which is the minimum AABB that can fit
         /// this AABB and the given point.
@@ -471,9 +442,10 @@ namespace PixCore.Geometry
     /// Specifies left-top-bottom-right regions to expand AABB and RectangleF's with.
     /// </summary>
     [DebuggerDisplay("Left: {Left}, Top: {Top}, Bottom: {Bottom}, Right: {Right}")]
-    public struct InsetBounds
+    public readonly struct InsetBounds
     {
-        public static readonly InsetBounds Empty = new InsetBounds(0, 0, 0, 0);
+        private static InsetBounds _empty = new InsetBounds(0, 0, 0, 0);
+        public static ref readonly InsetBounds Empty => ref _empty;
 
         public readonly float Left;
         public readonly float Top;

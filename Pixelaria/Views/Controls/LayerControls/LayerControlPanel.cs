@@ -531,8 +531,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnDuplicateLayerSelected(object sender, EventArgs eventArgs)
         {
             // Convert the sender
-            var control = sender as LayerControl;
-            if (control == null)
+            if (!(sender is LayerControl control))
                 return;
 
             // Duplicate and select the layer
@@ -544,8 +543,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnRemoveLayerSelected(object sender, EventArgs eventArgs)
         {
             // Convert the sender
-            var control = sender as LayerControl;
-            if (control == null)
+            if (!(sender is LayerControl control))
                 return;
 
             // Do not allow removing the only layer on the frame
@@ -560,8 +558,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerControlDragged(object sender, LayerControlDragEventArgs args)
         {
             // Get the index of the control being dragged
-            var control = sender as LayerControl;
-            if (control == null)
+            if (!(sender is LayerControl control))
                 return;
 
             _movingControls = true;
@@ -601,8 +598,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         private void OnLayerNameEdited(object sender, LayerRenameEventargs e)
         {
-            var control = sender as LayerControl;
-            if (control == null)
+            if (!(sender is LayerControl control))
                 return;
 
             _controller.SetLayerName(control.Layer.Index, e.NewName);
@@ -621,8 +617,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private void OnLayerImageReleased(object sender, MouseEventArgs mouseEventArgs)
         {
             // Get the index of the control being dragged
-            var control = sender as LayerControl;
-            if (control == null)
+            if (!(sender is LayerControl control))
                 return;
 
             // Open context menu

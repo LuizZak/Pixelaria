@@ -201,9 +201,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as OffsetFilter;
-
-            return other != null && Math.Abs(OffsetX - other.OffsetX) < float.Epsilon &&
+            return filter is OffsetFilter other && Math.Abs(OffsetX - other.OffsetX) < float.Epsilon &&
                    Math.Abs(OffsetY - other.OffsetY) < float.Epsilon && WrapHorizontal == other.WrapHorizontal &&
                    WrapVertical == other.WrapVertical && Version == other.Version;
         }

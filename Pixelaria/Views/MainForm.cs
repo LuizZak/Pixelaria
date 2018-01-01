@@ -171,7 +171,7 @@ namespace Pixelaria.Views
         public void UpdateTitleBar([NotNull] Bundle bundle)
         {
             const string version = "Pixelaria v1.17.7b";
-            var saveState = Controller.UnsavedChanges ? "*" : "";
+            string saveState = Controller.UnsavedChanges ? "*" : "";
 
             if (bundle.SaveFile != "")
             {
@@ -883,12 +883,12 @@ namespace Pixelaria.Views
                 {
                     case TreeViewNodeType.Animation:
                         // Get the currently selected Animation node
-                        Animation anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
+                        var anim = tv_bundleAnimations.SelectedNode.Tag as Animation;
                         ConfirmDeleteAnimation(anim);
                         break;
                     case TreeViewNodeType.AnimationSheet:
                         // Get the currently selected AnimationSheet node
-                        AnimationSheet sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
+                        var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
                         ConfirmDeleteAnimationSheet(sheet);
                         break;
                 }
@@ -1197,7 +1197,7 @@ namespace Pixelaria.Views
         private void mi_addAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
+            var sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
 
             if (sheet == null && tv_bundleAnimations.SelectedNode?.Tag is Animation)
             {
@@ -1213,7 +1213,7 @@ namespace Pixelaria.Views
         private void tsb_createAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
+            var sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
 
             if (sheet == null && tv_bundleAnimations.SelectedNode?.Tag is Animation)
             {
@@ -1237,7 +1237,7 @@ namespace Pixelaria.Views
         private void tsb_importAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            AnimationSheet sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
+            var sheet = tv_bundleAnimations.SelectedNode?.Tag as AnimationSheet;
 
             if (sheet == null && tv_bundleAnimations.SelectedNode?.Tag is Animation)
             {
@@ -1277,7 +1277,6 @@ namespace Pixelaria.Views
         private void cmb_deleteSheet_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-
             if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 ConfirmDeleteAnimationSheet(sheet);
@@ -1290,9 +1289,7 @@ namespace Pixelaria.Views
         private void tsm_sheetCreateAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
-
-            if (sheet != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 Controller.ShowCreateAnimation(sheet);
             }
@@ -1304,9 +1301,7 @@ namespace Pixelaria.Views
         private void tsm_sheetImportAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
-
-            if (sheet != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 Controller.ShowImportAnimation(sheet);
             }
@@ -1318,9 +1313,7 @@ namespace Pixelaria.Views
         private void tsm_duplicateSheet_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
-
-            if (sheet != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 Controller.ShowDuplicateAnimationSheet(sheet);
             }
@@ -1332,9 +1325,7 @@ namespace Pixelaria.Views
         private void tsm_exportSheetImage_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
-
-            if (sheet != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 Controller.ShowExportAnimationSheetImage(sheet);
             }
@@ -1346,9 +1337,7 @@ namespace Pixelaria.Views
         private void tsm_editSheetPropertiesClick(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-            var sheet = tv_bundleAnimations.SelectedNode.Tag as AnimationSheet;
-
-            if (sheet != null)
+            if (tv_bundleAnimations.SelectedNode.Tag is AnimationSheet sheet)
             {
                 OpenViewForAnimationSheet(sheet);
             }
@@ -1360,7 +1349,6 @@ namespace Pixelaria.Views
         private void cmb_deleteAnim_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-
             if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 ConfirmDeleteAnimation(anim);
@@ -1373,7 +1361,6 @@ namespace Pixelaria.Views
         private void cmb_duplicateAnimation_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-
             if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 Controller.ShowDuplicateAnimation(anim);
@@ -1386,7 +1373,6 @@ namespace Pixelaria.Views
         private void cmb_saveAnimationStrip_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-
             if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 Controller.ShowSaveAnimationStrip(new AnimationController(Controller.CurrentBundle, anim));
@@ -1399,7 +1385,6 @@ namespace Pixelaria.Views
         private void cmb_editAnimProperties_Click(object sender, EventArgs e)
         {
             // Get the currently selected AnimationSheet node
-
             if (tv_bundleAnimations.SelectedNode.Tag is Animation anim)
             {
                 OpenViewForAnimation(anim);
@@ -1427,7 +1412,7 @@ namespace Pixelaria.Views
         // 
         private void mi_about_Click(object sender, EventArgs e)
         {
-            MiscViews.AboutBox aboutBox = new MiscViews.AboutBox();
+            var aboutBox = new MiscViews.AboutBox();
 
             aboutBox.ShowDialog(this);
         }

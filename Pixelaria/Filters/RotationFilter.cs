@@ -148,9 +148,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as RotationFilter;
-
-            return other != null && Math.Abs(Rotation - other.Rotation) < float.Epsilon &&
+            return filter is RotationFilter other && Math.Abs(Rotation - other.Rotation) < float.Epsilon &&
                    RotateAroundCenter == other.RotateAroundCenter && PixelQuality == other.PixelQuality &&
                    Version == other.Version;
         }

@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void Dispose()
         {
-
+            _disposeBag.Dispose();
         }
         
         private void Setup()

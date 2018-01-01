@@ -235,9 +235,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as StrokeFilter;
-
-            return other != null && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius &&
+            return filter is StrokeFilter other && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius &&
                    KnockoutImage == other.KnockoutImage && Smooth == other.Smooth && Version == other.Version;
         }
     }

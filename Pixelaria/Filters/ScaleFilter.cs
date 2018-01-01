@@ -165,9 +165,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as ScaleFilter;
-
-            return other != null && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon &&
+            return filter is ScaleFilter other && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon &&
                    Math.Abs(ScaleY - other.ScaleY) < float.Epsilon && Centered == other.Centered &&
                    PixelQuality == other.PixelQuality && Version == other.Version;
         }

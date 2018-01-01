@@ -153,9 +153,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as TransparencyFilter;
-
-            return other != null && Math.Abs(Transparency - other.Transparency) < float.Epsilon && Version == other.Version;
+            return filter is TransparencyFilter other && Math.Abs(Transparency - other.Transparency) < float.Epsilon && Version == other.Version;
         }
     }
 }

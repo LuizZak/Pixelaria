@@ -274,7 +274,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (OtherFeatureHasExclusiveControl())
                 return;
 
-            if (_firstResponder == null)
+            var responder = _firstResponder;
+            if (responder == null)
                 return;
 
             var request = new KeyboardEventRequest(KeyboardEventType.KeyDown, handler =>
@@ -284,7 +285,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 handler.OnKeyDown(e);
             });
 
-            _firstResponder.HandleOrPass(request);
+            responder.HandleOrPass(request);
         }
 
         public override void OnKeyUp(KeyEventArgs e)
@@ -294,7 +295,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (OtherFeatureHasExclusiveControl())
                 return;
 
-            if (_firstResponder == null)
+            var responder = _firstResponder;
+            if (responder == null)
                 return;
 
             var request = new KeyboardEventRequest(KeyboardEventType.KeyUp, handler =>
@@ -304,7 +306,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 handler.OnKeyUp(e);
             });
 
-            _firstResponder.HandleOrPass(request);
+            responder.HandleOrPass(request);
         }
 
         public override void OnKeyPress(KeyPressEventArgs e)
@@ -314,7 +316,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (OtherFeatureHasExclusiveControl())
                 return;
 
-            if (_firstResponder == null)
+            var responder = _firstResponder;
+            if (responder == null)
                 return;
 
             var request = new KeyboardEventRequest(KeyboardEventType.KeyPress, handler =>
@@ -324,7 +327,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 handler.OnKeyPress(e);
             });
 
-            _firstResponder.HandleOrPass(request);
+            responder.HandleOrPass(request);
         }
 
         public override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
@@ -334,7 +337,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             if (OtherFeatureHasExclusiveControl())
                 return;
 
-            if (_firstResponder == null)
+            var responder = _firstResponder;
+            if (responder == null)
                 return;
 
             var request = new KeyboardEventRequest(KeyboardEventType.PreviewKeyDown, handler =>
@@ -344,7 +348,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 handler.OnPreviewKeyDown(e);
             });
 
-            _firstResponder.HandleOrPass(request);
+            responder.HandleOrPass(request);
         }
 
         #endregion
