@@ -29,6 +29,7 @@ using System.Security.Cryptography;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Imaging;
 using Pixelaria.Data;
 using Pixelaria.Utils;
 

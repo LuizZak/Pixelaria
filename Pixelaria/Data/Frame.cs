@@ -28,6 +28,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixCore.Imaging;
 using Pixelaria.Utils;
 
 namespace Pixelaria.Data
@@ -621,7 +622,7 @@ namespace Pixelaria.Data
                 if (Width == newWidth && Height == newHeight)
                     return;
 
-                var newTexture = (Bitmap)ImageUtilities.Resize(LayerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
+                var newTexture = (Bitmap)ImageResizing.Resize(LayerBitmap, newWidth, newHeight, scalingMethod, interpolationMode);
 
                 // Texture replacement
                 LayerBitmap.Dispose();

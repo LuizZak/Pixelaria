@@ -29,10 +29,10 @@ namespace PixCoreTests.Undo
     [TestClass]
     public class GroupUndoTaskTests
     {
-        private TestUndoTask task1;
-        private TestUndoTask task2;
-        private TestUndoTask task3;
-        private GroupUndoTask sut;
+        protected TestUndoTask task1;
+        protected TestUndoTask task2;
+        protected TestUndoTask task3;
+        protected GroupUndoTask sut;
 
         [TestInitialize]
         public void TestInitialize()
@@ -113,7 +113,17 @@ namespace PixCoreTests.Undo
             order.AssertLastCallIndex(3);
         }
 
-        internal class TestUndoTask : IUndoTask
+        [TestMethod]
+        public void TestCallsClearOnSubtasks()
+        {
+            sut.Clear();
+
+            Assert.IsTrue(task1.CalledClear);
+            Assert.IsTrue(task2.CalledClear);
+            Assert.IsTrue(task3.CalledClear);
+        }
+
+        protected class TestUndoTask : IUndoTask
         {
             public bool CalledClear { get; set; }
             public bool CalledUndo { get; set; }
@@ -122,12 +132,10 @@ namespace PixCoreTests.Undo
 
             public Action OnUndo;
             public Action OnRedo;
-            public Action OnClear;
 
             public void Clear()
             {
                 CalledClear = true;
-                OnClear?.Invoke();
             }
 
             public void Undo()

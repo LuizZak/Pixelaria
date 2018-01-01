@@ -117,7 +117,6 @@
     <Compile Include="Algorithms\PaintOperations\PencilPaintOperationTests.cs" />
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PixelHistoryTrackerTests.cs" />
     <Compile Include="Algorithms\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
-    <Compile Include="Utils\ImageUtilitiesTests.cs" />
     <Compile Include="Utils\SettingsTests.cs" />
     <Compile Include="Utils\IniFileReaderWritterTests.cs" />
     <Compile Include="Utils\UtilsTests.cs" />
@@ -151,7 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\Undo\" />
-    <Folder Include="PaintOperations\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

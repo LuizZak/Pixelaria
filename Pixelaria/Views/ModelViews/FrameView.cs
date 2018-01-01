@@ -621,7 +621,7 @@ namespace Pixelaria.Views.ModelViews
                 {
                     FrameSizeMatchingSettings settings = frs.GeneratedSettings;
 
-                    img = ImageUtilities.Resize(img, _viewFrameController.Width, _viewFrameController.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
+                    img = ImageResizing.Resize(img, _viewFrameController.Width, _viewFrameController.Height, settings.PerFrameScalingMethod, settings.InterpolationMode);
                 }
             }
 

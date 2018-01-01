@@ -236,23 +236,12 @@ namespace PixCore.Imaging
         /// Returns the memory usage of the given image, in bytes
         /// </summary>
         /// <returns>Total memory usage, in bytes</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static long MemoryUsageOfImage([NotNull] Image image)
         {
-            return image.Width * image.Height * BitsPerPixelForFormat(image.PixelFormat) / 8;
+            return image.Width * image.Height * Image.GetPixelFormatSize(image.PixelFormat) / 8;
         }
-
-        /// <summary>
-        /// Returns the total bits per pixel used by the given PixelFormat type
-        /// </summary>
-        /// <param name="pixelFormat">The PixelFormat to get the pixel usage from</param>
-        /// <returns>The total bits per pixel used by the given PixelFormat type</returns>
-        [System.Diagnostics.Contracts.Pure]
-        public static int BitsPerPixelForFormat(PixelFormat pixelFormat)
-        {
-            return Image.GetPixelFormatSize(pixelFormat);
-        }
-
+        
         /// <summary>
         /// Returns whether the two given images are identical to the pixel level.
         /// If the image dimensions are mis-matched, or any of the references is null, the method returns false.
@@ -260,7 +249,7 @@ namespace PixCore.Imaging
         /// <param name="image1">The first image to compare</param>
         /// <param name="image2">The second image to compare</param>
         /// <returns>True whether the two images are identical, false otherwise</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public static bool ImagesAreIdentical(Image image1, Image image2)
         {
             if (image1 == null || image2 == null)
@@ -303,7 +292,7 @@ namespace PixCore.Imaging
         /// <param name="b1">The first bitmap to compare</param>
         /// <param name="b2">The second bitmap to compare</param>
         /// <returns>Whether the two bitmaps are identical</returns>
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
         {
             var bd1 = b1.LockBits(new Rectangle(Point.Empty, b1.Size), ImageLockMode.ReadOnly, b1.PixelFormat);

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using PixCore.Imaging;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;

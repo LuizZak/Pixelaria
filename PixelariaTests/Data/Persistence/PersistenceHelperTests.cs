@@ -23,8 +23,8 @@
 using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Imaging;
 using Pixelaria.Data.Persistence;
-using Pixelaria.Utils;
 using PixelariaTests.Generators;
 
 namespace PixelariaTests.Data.Persistence

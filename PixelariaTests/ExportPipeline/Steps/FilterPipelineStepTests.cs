@@ -26,13 +26,13 @@ using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Imaging;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
-using Pixelaria.Utils;
 using PixelariaTests.Generators;
 
 namespace PixelariaTests.ExportPipeline.Steps

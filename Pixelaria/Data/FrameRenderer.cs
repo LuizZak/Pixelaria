@@ -23,8 +23,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using JetBrains.Annotations;
+using PixCore.Imaging;
 using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Utils;
 using Pixelaria.Views.Controls.LayerControls;
 
 namespace Pixelaria.Data

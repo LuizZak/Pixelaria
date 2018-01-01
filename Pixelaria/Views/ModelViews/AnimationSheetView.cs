@@ -32,6 +32,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Imaging;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 

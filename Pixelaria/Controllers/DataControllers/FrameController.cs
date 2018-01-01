@@ -27,9 +27,9 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixCore.Imaging;
 using Pixelaria.Algorithms.FrameOperations;
 using Pixelaria.Data;
-using Pixelaria.Utils;
 
 namespace Pixelaria.Controllers.DataControllers
 {
