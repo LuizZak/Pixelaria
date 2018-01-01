@@ -47,7 +47,7 @@ namespace PixCore.Geometry
         /// <param name="point2">The second point</param>
         /// <returns>The distance between the two points</returns>
         [Pure]
-        public static float Distance(this PointF point, PointF point2)
+        public static float Distance(in this PointF point, in PointF point2)
         {
             float dx = point.X - point2.X;
             float dy = point.Y - point2.Y;
@@ -62,7 +62,7 @@ namespace PixCore.Geometry
         /// <param name="point2">The second point</param>
         /// <returns>The distance between the two points</returns>
         [Pure]
-        public static float Distance(this Point point, Point point2)
+        public static float Distance(in this Point point, in Point point2)
         {
             float dx = point.X - point2.X;
             float dy = point.Y - point2.Y;
@@ -74,7 +74,7 @@ namespace PixCore.Geometry
         /// Returns the center-point of a rectangle
         /// </summary>
         [Pure]
-        public static Point Center(this Rectangle rectangle)
+        public static Point Center(in this Rectangle rectangle)
         {
             return new Point((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
         }
@@ -83,7 +83,7 @@ namespace PixCore.Geometry
         /// Returns the center-point of a rectangle
         /// </summary>
         [Pure]
-        public static PointF Center(this RectangleF rectangle)
+        public static PointF Center(in this RectangleF rectangle)
         {
             return new PointF((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
         }
