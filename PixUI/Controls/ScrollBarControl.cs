@@ -32,13 +32,13 @@ namespace PixUI.Controls
     /// <summary>
     /// A scroll bar control that allows scrolling 
     /// </summary>
-    public sealed class ScrollBarControl : ControlView
+    public class ScrollBarControl : ControlView
     {
         private Vector _dragStart = Vector.Zero;
         private float _scrollStart;
 
-        private readonly ButtonControl _decreaseScroll = new ButtonControl();
-        private readonly ButtonControl _increaseScroll = new ButtonControl();
+        private readonly ButtonControl _decreaseScroll = ButtonControl.Create();
+        private readonly ButtonControl _increaseScroll = ButtonControl.Create();
 
         private readonly ControlView _scrollBarKnob = new ControlView();
         private readonly ControlView _scrollBarArea = new ControlView();
@@ -129,7 +129,24 @@ namespace PixUI.Controls
             }
         }
 
-        public ScrollBarControl()
+        /// <summary>
+        /// Initializes a new instance of <see cref="ScrollBarControl"/>
+        /// </summary>
+        public static ScrollBarControl Create()
+        {
+            var instance = new ScrollBarControl();
+
+            instance.Initialize();
+
+            return instance;
+        }
+
+        protected ScrollBarControl()
+        {
+            
+        }
+
+        protected void Initialize()
         {
             AddChild(_decreaseScroll);
             AddChild(_increaseScroll);
@@ -147,7 +164,7 @@ namespace PixUI.Controls
             Layout();
 
             const float scrollSpeed = 25;
-            
+
             SetupRepeatFire(_increaseScroll, () =>
             {
                 Scroll += scrollSpeed;
@@ -159,7 +176,7 @@ namespace PixUI.Controls
                 Scroll -= scrollSpeed;
                 ScrollChanged?.Invoke(this, EventArgs.Empty);
             });
-            
+
             var mouseDrag = new DragMouseEventRecognizer();
             _scrollBarArea.AddMouseRecognizer(mouseDrag);
 

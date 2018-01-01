@@ -27,7 +27,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Controls.ColorControls;
-using PixUI.Utils;
+using PixCore.Geometry;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 

@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -116,9 +117,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Direct2DHelpers.cs" />
     <Compile Include="Utils\ControlViewRxUtils.cs" />
-    <Compile Include="Utils\DrawingUtilities.cs" />
     <Compile Include="Utils\Layouting\LayoutingHelper.cs" />
-    <Compile Include="Utils\Utilities.cs" />
     <Compile Include="Visitor\BaseViewTraverser.cs" />
     <Compile Include="Visitor\BaseViewVisitor.cs" />
     <Compile Include="Visitor\IBaseViewVisitor.cs" />

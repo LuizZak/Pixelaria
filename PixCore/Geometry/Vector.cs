@@ -361,7 +361,7 @@ namespace PixCore.Geometry
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is Vector && Equals((Vector)obj);
+            return obj is Vector vector && Equals(vector);
         }
         
         public override int GetHashCode()

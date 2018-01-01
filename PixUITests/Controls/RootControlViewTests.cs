@@ -23,17 +23,24 @@
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
+using PixUI;
 using PixUI.Controls;
+using Rhino.Mocks;
 
 namespace PixUITests.Controls
 {
     [TestClass]
     public class RootControlViewTests
     {
+        private IFirstResponderDelegate<IEventHandler> _stubFirstResponderDelegate;
+        private IInvalidateRegionDelegate _stubInvalidateRegionDelegate;
+
         [TestInitialize]
         public void TestInitialize()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+            _stubFirstResponderDelegate = MockRepository.GenerateStub<IFirstResponderDelegate<IEventHandler>>();
+            _stubInvalidateRegionDelegate = MockRepository.GenerateStub<IInvalidateRegionDelegate>();
         }
 
         [TestMethod]
@@ -46,6 +53,18 @@ namespace PixUITests.Controls
             var result = sut.HitTestControl(new Vector(310, 310));
 
             Assert.AreEqual(child, result);
+        }
+        
+        [TestMethod]
+        public void TestInvalidateDelegateIsCalled()
+        {
+            var child = new BaseView {Location = new Vector(10, 10), Size = new Vector(100, 100)};
+            var sut = new RootControlView(_stubFirstResponderDelegate, _stubInvalidateRegionDelegate);
+            sut.AddChild(child);
+
+            child.Invalidate();
+
+            _stubInvalidateRegionDelegate.AssertWasCalled(stub => stub.DidInvalidate(null, child), options => options.IgnoreArguments());
         }
     }
 }

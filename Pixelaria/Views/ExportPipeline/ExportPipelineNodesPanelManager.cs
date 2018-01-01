@@ -31,9 +31,7 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
-using PixUI;
 using PixUI.Controls;
-using PixUI.Rendering;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
@@ -82,16 +80,14 @@ namespace Pixelaria.Views.ExportPipeline
                 BackColor = Color.Black.WithTransparency(0.7f)
             };
 
-            _searchField = new TextField();
+            _searchField = TextField.Create();
 
-            _scrollViewControl = new ScrollViewControl
-            {
-                Location = new Vector(0, 50),
-                Size = new Vector(300, _control.Size.Height),
-                ContentSize = new Vector(0, 1800),
-                BackColor = Color.Transparent,
-                ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
-            };
+            _scrollViewControl = ScrollViewControl.Create();
+            _scrollViewControl.Location = new Vector(0, 50);
+            _scrollViewControl.Size = new Vector(300, _control.Size.Height);
+            _scrollViewControl.ContentSize = new Vector(0, 1800);
+            _scrollViewControl.BackColor = Color.Transparent;
+            _scrollViewControl.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
 
             _container.AddChild(_scrollViewControl);
             _container.AddChild(_searchField);
@@ -205,26 +201,24 @@ namespace Pixelaria.Views.ExportPipeline
         {
             var buttonSize = GetButtonSize();
 
-            var button = new ButtonControl
-            {
-                Size = buttonSize,
-                Text = spec.Name,
-                BackColor = Color.Black.WithTransparency(0.3f),
-                NormalColor = Color.Black.WithTransparency(0.3f),
-                HighlightColor = Color.Black.WithTransparency(0.3f).BlendedOver(Color.White),
-                SelectedColor = Color.Black.WithTransparency(0.3f),
-                StrokeWidth = 2,
-                CornerRadius = 3,
-                StrokeColor = Color.Gray.WithTransparency(0.8f),
-                TextColor = Color.White,
-                ClipToBounds = false,
-                HorizontalTextAlignment = HorizontalTextAlignment.Center,
-                TextInset = new InsetBounds(5, 5, 5, 5),
-                ImageInset = new InsetBounds(7, 0, 0, 0),
-                Image = IconForPipelineNodeType(spec.NodeType, _control.D2DRenderer.ImageResources),
-                TextFont = new Font(FontFamily.GenericSansSerif.Name, 12)
-            };
-            
+            var button = ButtonControl.Create();
+            button.Size = buttonSize;
+            button.Text = spec.Name;
+            button.BackColor = Color.Black.WithTransparency(0.3f);
+            button.NormalColor = Color.Black.WithTransparency(0.3f);
+            button.HighlightColor = Color.Black.WithTransparency(0.3f).BlendedOver(Color.White);
+            button.SelectedColor = Color.Black.WithTransparency(0.3f);
+            button.StrokeWidth = 2;
+            button.CornerRadius = 3;
+            button.StrokeColor = Color.Gray.WithTransparency(0.8f);
+            button.TextColor = Color.White;
+            button.ClipToBounds = false;
+            button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            button.TextInset = new InsetBounds(5, 5, 5, 5);
+            button.ImageInset = new InsetBounds(7, 0, 0, 0);
+            button.Image = IconForPipelineNodeType(spec.NodeType, _control.D2DRenderer.ImageResources);
+            button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
+
             button.Rx
                 .MouseClick
                 .Subscribe(_ =>

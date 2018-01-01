@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 

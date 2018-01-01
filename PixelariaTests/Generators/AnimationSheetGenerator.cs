@@ -80,7 +80,7 @@ namespace PixelariaTests.Generators
         /// <returns>An array of value permutations for the AnimationExportSettings struct to use in tests</returns>
         public static AnimationSheetExportSettings[] GetExportSettingsPermutations()
         {
-            List<AnimationSheetExportSettings> settingsList = new List<AnimationSheetExportSettings>
+            var settingsList = new List<AnimationSheetExportSettings>
             {
                 GenerateDefaultAnimationExportSettings(),
                 new AnimationSheetExportSettings

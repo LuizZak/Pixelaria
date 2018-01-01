@@ -226,7 +226,7 @@ namespace PixUI.Controls
         }
         
         /// <summary>
-        /// Fixed-step frame update. Time is dependent on <see cref="ExportPipelineUiFeature.OnFixedFrame"/> interval.
+        /// Fixed-step frame update.
         /// </summary>
         public virtual void OnFixedFrame([NotNull] FixedFrameEventArgs e) { }
 

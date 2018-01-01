@@ -271,7 +271,6 @@
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\ExportPipeline\D2DImageResources.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\DragAndDropUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineControl.cs">

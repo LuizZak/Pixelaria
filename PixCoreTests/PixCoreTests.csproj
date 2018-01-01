@@ -65,6 +65,7 @@
     <Compile Include="Geometry\AABBTests.cs" />
     <Compile Include="Geometry\Algorithms\RectangleDissectionTests.cs" />
     <Compile Include="Geometry\Algorithms\TotalRectanglesAreaTests.cs" />
+    <Compile Include="Geometry\DrawingUtilitiesTests.cs" />
     <Compile Include="Imaging\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Text\AttributedTextTests.cs" />

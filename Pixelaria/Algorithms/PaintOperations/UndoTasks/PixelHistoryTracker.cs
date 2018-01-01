@@ -202,6 +202,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             return null;
         }
 
+        /// <inheritdoc cref="IEquatable{T}" />
         /// <summary>
         /// Encapsulates an undo task on a single pixel
         /// </summary>
@@ -262,11 +263,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 }
             }
 
-            /// <summary>
-            /// Returns whether the given PixelUndo object is equal to this object
-            /// </summary>
-            /// <param name="other">The object to test equality against this object</param>
-            /// <returns>Whether the given PixelUndo object is equal to this object</returns>
+            /// <inheritdoc />
             public bool Equals(PixelUndo other)
             {
                 return PixelX == other.PixelX && PixelY == other.PixelY && PixelIndex == other.PixelIndex && NewColor == other.NewColor;
@@ -280,7 +277,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             public override bool Equals(object obj)
             {
                 if (ReferenceEquals(null, obj)) return false;
-                return obj is PixelUndo && Equals((PixelUndo)obj);
+                return obj is PixelUndo undo && Equals(undo);
             }
 
             /// <summary>

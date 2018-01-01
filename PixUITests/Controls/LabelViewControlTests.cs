@@ -45,7 +45,8 @@ namespace PixUITests.Controls
         public void TestInvalidateOnHorizontalTextAlignment()
         {
             var root = new TestInvalidateBaseView {Location = new Vector(5, 5)};
-            var sut = new LabelViewControl {Size = new Vector(100, 100)};
+            var sut = LabelViewControl.Create();
+            sut.Size = new Vector(100, 100);
             root.AddChild(sut);
             root.InvalidateReference = null;
             root.InvalidateRegion = null;
@@ -59,7 +60,8 @@ namespace PixUITests.Controls
         public void TestInvalidateOnVerticalTextAlignment()
         {
             var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
-            var sut = new LabelViewControl { Size = new Vector(100, 100) };
+            var sut = LabelViewControl.Create();
+            sut.Size = new Vector(100, 100);
             root.AddChild(sut);
             root._ResetInvalidation();
 
@@ -71,7 +73,7 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRendering()
         {
-            var sut = new LabelViewControl("Abc");
+            var sut = LabelViewControl.Create("Abc");
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
@@ -79,38 +81,32 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingLeadingHorizontalText()
         {
-            var sut = new LabelViewControl("Abc")
-            {
-                AutoResize = false,
-                Size = new Vector(50, 50),
-                HorizontalTextAlignment = HorizontalTextAlignment.Leading
-            };
-            
+            var sut = LabelViewControl.Create("Abc");
+            sut.AutoResize = false;
+            sut.Size = new Vector(50, 50);
+            sut.HorizontalTextAlignment = HorizontalTextAlignment.Leading;
+
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
 
         [TestMethod]
         public void TestRenderingCenterHorizontalText()
         {
-            var sut = new LabelViewControl("Abc")
-            {
-                AutoResize = false,
-                Size = new Vector(50, 50),
-                HorizontalTextAlignment = HorizontalTextAlignment.Center
-            };
-            
+            var sut = LabelViewControl.Create("Abc");
+            sut.AutoResize = false;
+            sut.Size = new Vector(50, 50);
+            sut.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
 
         [TestMethod]
         public void TestRenderingTrailingHorizontalText()
         {
-            var sut = new LabelViewControl("Abc")
-            {
-                AutoResize = false,
-                Size = new Vector(50, 50),
-                HorizontalTextAlignment = HorizontalTextAlignment.Trailing
-            };
+            var sut = LabelViewControl.Create("Abc");
+            sut.AutoResize = false;
+            sut.Size = new Vector(50, 50);
+            sut.HorizontalTextAlignment = HorizontalTextAlignment.Trailing;
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
@@ -118,12 +114,10 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingNearVerticalText()
         {
-            var sut = new LabelViewControl("Abc")
-            {
-                AutoResize = false,
-                Size = new Vector(50, 50),
-                VerticalTextAlignment = VerticalTextAlignment.Near
-            };
+            var sut = LabelViewControl.Create("Abc");
+            sut.AutoResize = false;
+            sut.Size = new Vector(50, 50);
+            sut.VerticalTextAlignment = VerticalTextAlignment.Near;
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
@@ -131,12 +125,10 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingCenterVerticalText()
         {
-            var sut = new LabelViewControl("Abc")
-            {
-                AutoResize = false,
-                Size = new Vector(50, 50),
-                VerticalTextAlignment = VerticalTextAlignment.Center
-            };
+            var sut = LabelViewControl.Create("Abc");
+            sut.AutoResize = false;
+            sut.Size = new Vector(50, 50);
+            sut.VerticalTextAlignment = VerticalTextAlignment.Center;
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
@@ -144,12 +136,10 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingFarVerticalText()
         {
-            var sut = new LabelViewControl("Abc")
-            {
-                AutoResize = false,
-                Size = new Vector(50, 50),
-                VerticalTextAlignment = VerticalTextAlignment.Far
-            };
+            var sut = LabelViewControl.Create("Abc");
+            sut.AutoResize = false;
+            sut.Size = new Vector(50, 50);
+            sut.VerticalTextAlignment = VerticalTextAlignment.Far;
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }

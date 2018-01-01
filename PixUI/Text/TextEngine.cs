@@ -590,11 +590,11 @@ namespace PixUI.Text
             // Overlap to keep caret within text bounds
             int total = TextBuffer.TextLength;
 
-            var clampedRange = new TextRange(0, total).Overlap(caret.TextRange);
-            if (clampedRange == null)
-                clampedRange = caret.Start < 0 ? new TextRange(0, 0) : new TextRange(total, 0);
+            var clampedRange =
+                new TextRange(0, total).Overlap(caret.TextRange) ??
+                (caret.Start < 0 ? new TextRange(0, 0) : new TextRange(total, 0));
 
-            Caret = new Caret(clampedRange.Value, caret.Position);
+            Caret = new Caret(clampedRange, caret.Position);
 
             CaretChanged?.Invoke(this, new TextEngineCaretChangedEventArgs(Caret, oldCaret));
         }
@@ -996,7 +996,7 @@ namespace PixUI.Text
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is Caret && Equals((Caret) obj);
+            return obj is Caret caret && Equals(caret);
         }
 
         public static bool operator ==(Caret lhs, Caret rhs)

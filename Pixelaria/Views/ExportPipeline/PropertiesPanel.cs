@@ -42,9 +42,7 @@ namespace Pixelaria.Views.ExportPipeline
         private ScrollViewControl _scrollViewControl;
 
         public delegate void PipelineNodeSelectedEventHandler(object sender, ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e);
-
-        public event ExportPipelineNodesPanelManager.PipelineNodeSelectedEventHandler PipelineNodeSelected;
-
+        
         public PropertiesPanel([NotNull] ExportPipelineControl control)
         {
             _control = control;
@@ -65,14 +63,12 @@ namespace Pixelaria.Views.ExportPipeline
                 BackColor = Color.Black.WithTransparency(0.7f)
             };
             
-            _scrollViewControl = new ScrollViewControl
-            {
-                Location = new Vector(0, 50),
-                Size = new Vector(300, _control.Size.Height),
-                ContentSize = new Vector(0, 1800),
-                BackColor = Color.Transparent,
-                ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical
-            };
+            _scrollViewControl = ScrollViewControl.Create();
+            _scrollViewControl.Location = new Vector(0, 50);
+            _scrollViewControl.Size = new Vector(300, _control.Size.Height);
+            _scrollViewControl.ContentSize = new Vector(0, 1800);
+            _scrollViewControl.BackColor = Color.Transparent;
+            _scrollViewControl.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
 
             _container.AddChild(_scrollViewControl);
             

@@ -449,7 +449,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 ystep = -1;
 
             // The point that represents each pixel to plot
-            Point p = new Point();
+            var p = new Point();
 
             // Iterate through and plot the line
             for (int x = x0; x <= x1; x++)
@@ -480,18 +480,13 @@ namespace Pixelaria.Algorithms.PaintOperations
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// The default color blender for the drawing operations
     /// </summary>
     public class DefaultColorBlender : IColorBlender
     {
-        /// <summary>
-        /// Returns a Color that represents the blend of the two provided background and foreground colors
-        /// </summary>
-        /// <param name="backColor">The background color to blend</param>
-        /// <param name="foreColor">The foreground color to blend</param>
-        /// <param name="compositingMode"></param>
-        /// <returns>The blend result of the two colors</returns>
+        /// <inheritdoc />
         public Color BlendColors(Color backColor, Color foreColor, CompositingMode compositingMode)
         {
             if (compositingMode == CompositingMode.SourceCopy)
@@ -503,6 +498,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Plug-in class for generating undo tasks for plotting-type paint operations
     /// </summary>
@@ -519,7 +515,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         private readonly string _description;
 
         /// <summary>
-        /// Whether to register the pixels manually, or await the call for OperationFinished to record the pixels modified
+        /// Whether to register the pixels manually, or await the call for <see cref="OperationFinished"/> to record the pixels modified
         /// </summary>
         private bool _registerPixels;
 
@@ -560,31 +556,20 @@ namespace Pixelaria.Algorithms.PaintOperations
             UndoTask = undoTask;
         }
 
-        /// <summary>
-        /// Method called to notify the plotting operation has started
-        /// </summary>
-        /// <param name="accumulateAlpha">Whether the plotting operation has alpha accumulation mode on</param>
+        /// <inheritdoc />
         public void OperationStarted(bool accumulateAlpha)
         {
             _registerPixels = accumulateAlpha;
         }
 
-        /// <summary>
-        /// Method called whenever the pencil operation has plotted a pixel on the underlying bitmap
-        /// </summary>
-        /// <param name="point">The position of the plot</param>
-        /// <param name="oldColor">The old color of the pixel, before the plot</param>
-        /// <param name="newColor">The new color of the pixel, after the plot</param>
+        /// <inheritdoc />
         public void PlottedPixel(Point point, int oldColor, int newColor)
         {
             if (_registerPixels)
                 UndoTask.PixelHistoryTracker.RegisterPixel(point.X, point.Y, oldColor, newColor, IgnoreDuplicatedPlots);
         }
 
-        /// <summary>
-        /// Method called to notify the plotting operation was finished
-        /// </summary>
-        /// <param name="pixelHistory">The pixel history tracker containing the information about the pixels that were modified during the operation</param>
+        /// <inheritdoc />
         public void OperationFinished(PixelHistoryTracker pixelHistory)
         {
             if (pixelHistory != null && !_registerPixels)

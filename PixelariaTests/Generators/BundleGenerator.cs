@@ -66,19 +66,19 @@ namespace PixelariaTests.Generators
                 }
 
                 // Add some repeated frames to a few animations
-                if (i % 2 == 0)
-                {
-                    var controller1 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[0]);
-                    var controller2 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[1]);
+                if (i % 2 != 0) 
+                    continue;
 
-                    controller1.CreateFrame();
-                    controller1.CreateFrame();
-                    controller1.CreateFrame();
+                var controller1 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[0]);
+                var controller2 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[1]);
 
-                    controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
-                    controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
-                    controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
-                }
+                controller1.CreateFrame();
+                controller1.CreateFrame();
+                controller1.CreateFrame();
+
+                controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
+                controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
+                controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
             }
 
             return bundle;

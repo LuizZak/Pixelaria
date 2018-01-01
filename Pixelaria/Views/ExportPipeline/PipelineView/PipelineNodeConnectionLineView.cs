@@ -39,13 +39,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
         public static PipelineNodeConnectionLineView Create(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineLinkConnection connection)
         {
-            var instance = new PipelineNodeConnectionLineView
-            {
-                Start = start,
-                End = end,
-                Connection = connection
-            };
-            
+            var instance = new PipelineNodeConnectionLineView();
+
+            instance.Initialize();
+
+            instance.Start = start;
+            instance.End = end;
+            instance.Connection = connection;
+
             instance.UpdateBezier();
 
             return instance;

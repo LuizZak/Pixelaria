@@ -23,7 +23,6 @@
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
 using PixUI;
-using PixUI.Rendering;
 
 namespace Pixelaria.Views.ExportPipeline
 {

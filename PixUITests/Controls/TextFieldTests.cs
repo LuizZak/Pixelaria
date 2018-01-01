@@ -38,7 +38,7 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestCanHandle()
         {
-            var sut = new TextField();
+            var sut = TextField.Create();
             
             Assert.IsTrue(sut.CanHandle(new KeyboardEventRequest(KeyboardEventType.KeyDown)));
             Assert.IsTrue(sut.CanHandle(new KeyboardEventRequest(KeyboardEventType.KeyPress)));

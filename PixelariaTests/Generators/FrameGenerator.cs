@@ -65,6 +65,7 @@ namespace PixelariaTests.Generators
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Test frame ID generator that generates sequential numbers
     /// </summary>

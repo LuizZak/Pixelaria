@@ -42,14 +42,12 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRendering()
         {
-            var button = new ButtonControl
-            {
-                Text = "Button 1",
-                TextInset = new InsetBounds(0, 0, 0, 0),
-                Size = new Vector(60, 30),
-                HorizontalTextAlignment = HorizontalTextAlignment.Center,
-                VerticalTextAlignment = VerticalTextAlignment.Center
-            };
+            var button = ButtonControl.Create();
+            button.Text = "Button 1";
+            button.TextInset = new InsetBounds(0, 0, 0, 0);
+            button.Size = new Vector(60, 30);
+            button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            button.VerticalTextAlignment = VerticalTextAlignment.Center;
 
             BaseViewSnapshot.Snapshot(button, TestContext);
         }
@@ -57,14 +55,12 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestTextInsetsRendering()
         {
-            var button = new ButtonControl
-            {
-                Text = "Button 1",
-                TextInset = new InsetBounds(2, 2, 2, 2),
-                Size = new Vector(60, 30),
-                HorizontalTextAlignment = HorizontalTextAlignment.Center,
-                VerticalTextAlignment = VerticalTextAlignment.Center
-            };
+            var button = ButtonControl.Create();
+            button.Text = "Button 1";
+            button.TextInset = new InsetBounds(2, 2, 2, 2);
+            button.Size = new Vector(60, 30);
+            button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            button.VerticalTextAlignment = VerticalTextAlignment.Center;
 
             BaseViewSnapshot.Snapshot(button, TestContext);
         }
@@ -72,14 +68,12 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestTightTextInsetsRendering()
         {
-            var button = new ButtonControl
-            {
-                Text = "Button 1",
-                TextInset = new InsetBounds(15, 4, 4, 15),
-                Size = new Vector(60, 30),
-                HorizontalTextAlignment = HorizontalTextAlignment.Center,
-                VerticalTextAlignment = VerticalTextAlignment.Center
-            };
+            var button = ButtonControl.Create();
+            button.Text = "Button 1";
+            button.TextInset = new InsetBounds(15, 4, 4, 15);
+            button.Size = new Vector(60, 30);
+            button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            button.VerticalTextAlignment = VerticalTextAlignment.Center;
 
             BaseViewSnapshot.Snapshot(button, TestContext);
         }

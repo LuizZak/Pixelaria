@@ -91,40 +91,39 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Controls\RootControlViewTests.cs" />
     <Compile Include="Generators\AnimationGenerator.cs" />
     <Compile Include="Generators\AnimationSheetGenerator.cs" />
     <Compile Include="Generators\BitmapGenerator.cs" />
     <Compile Include="Generators\BundleGenerator.cs" />
     <Compile Include="Generators\FrameGenerator.cs" />
-    <Compile Include="Tests\Algorithms\Packers\DefaultTexturePackerTests.cs" />
-    <Compile Include="Tests\Data\Exports\FrameBoundsMapTests.cs" />
-    <Compile Include="Tests\Data\AnimationSheetTests.cs" />
-    <Compile Include="Tests\Data\AnimationControllerTests.cs" />
-    <Compile Include="Tests\Data\BundleTests.cs" />
-    <Compile Include="Tests\Data\Exports\SheetExportTests.cs" />
-    <Compile Include="Tests\Data\Exports\TextureAtlasTests.cs" />
-    <Compile Include="Tests\Data\FrameTests.cs" />
-    <Compile Include="Tests\Data\Persistence\FileBlocksTests.cs" />
-    <Compile Include="Tests\Data\Persistence\PersistenceHelperTests.cs" />
-    <Compile Include="Tests\Data\Persistence\PersistenceTests.cs" />
-    <Compile Include="Tests\ExportPipeline\DefaultPipelineNodeSpecsProviderTests.cs" />
-    <Compile Include="Tests\ExportPipeline\Steps\FilterPipelineStepTests.cs" />
-    <Compile Include="Tests\ExportPipeline\PipelineContainerTests.cs" />
-    <Compile Include="Tests\ExportPipeline\DefaultPipelineConnectionDelegateTests.cs" />
-    <Compile Include="Tests\ExportPipeline\Steps\BitmapImportPipelineStepTests.cs" />
-    <Compile Include="Tests\Filters\FilterPresetTests.cs" />
-    <Compile Include="Tests\PaintOperations\PencilPaintOperationTests.cs" />
-    <Compile Include="Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
-    <Compile Include="Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
-    <Compile Include="Tests\Utils\ImageUtilitiesTests.cs" />
-    <Compile Include="Tests\Utils\SettingsTests.cs" />
-    <Compile Include="Tests\Utils\IniFileReaderWritterTests.cs" />
-    <Compile Include="Tests\Utils\UtilsTests.cs" />
-    <Compile Include="Tests\Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeatureTests.cs" />
-    <Compile Include="Tests\Views\ExportPipeline\PipelineView\GraphTests.cs" />
+    <Compile Include="Algorithms\Packers\DefaultTexturePackerTests.cs" />
+    <Compile Include="Data\Exports\FrameBoundsMapTests.cs" />
+    <Compile Include="Data\AnimationSheetTests.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationControllerTests.cs" />
+    <Compile Include="Data\BundleTests.cs" />
+    <Compile Include="Data\Exports\SheetExportTests.cs" />
+    <Compile Include="Data\Exports\TextureAtlasTests.cs" />
+    <Compile Include="Data\FrameTests.cs" />
+    <Compile Include="Data\Persistence\FileBlocksTests.cs" />
+    <Compile Include="Data\Persistence\PersistenceHelperTests.cs" />
+    <Compile Include="Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="ExportPipeline\DefaultPipelineNodeSpecsProviderTests.cs" />
+    <Compile Include="ExportPipeline\Steps\FilterPipelineStepTests.cs" />
+    <Compile Include="ExportPipeline\PipelineContainerTests.cs" />
+    <Compile Include="ExportPipeline\DefaultPipelineConnectionDelegateTests.cs" />
+    <Compile Include="ExportPipeline\Steps\BitmapImportPipelineStepTests.cs" />
+    <Compile Include="Filters\FilterPresetTests.cs" />
+    <Compile Include="Algorithms\PaintOperations\PencilPaintOperationTests.cs" />
+    <Compile Include="Algorithms\PaintOperations\UndoTasks\PixelHistoryTrackerTests.cs" />
+    <Compile Include="Algorithms\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
+    <Compile Include="Utils\ImageUtilitiesTests.cs" />
+    <Compile Include="Utils\SettingsTests.cs" />
+    <Compile Include="Utils\IniFileReaderWritterTests.cs" />
+    <Compile Include="Utils\UtilsTests.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeatureTests.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\Utils\RecentFileListTests.cs" />
+    <Compile Include="Utils\RecentFileListTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj">
@@ -150,7 +149,8 @@
     <None Include="PixelariaTests.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Tests\Data\Undo\" />
+    <Folder Include="Data\Undo\" />
+    <Folder Include="PaintOperations\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

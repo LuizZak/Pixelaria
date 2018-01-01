@@ -389,7 +389,7 @@ namespace PixCore.Geometry
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is AABB && Equals((AABB) obj);
+            return obj is AABB aabb && Equals(aabb);
         }
 
         public static bool operator ==(AABB lhs, AABB rhs)

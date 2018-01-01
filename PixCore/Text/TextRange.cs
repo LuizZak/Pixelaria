@@ -116,7 +116,7 @@ namespace PixCore.Text
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is TextRange && Equals((TextRange)obj);
+            return obj is TextRange range && Equals(range);
         }
         
         public static bool operator ==(TextRange lhs, TextRange rhs)

@@ -21,6 +21,7 @@
 */
 
 using System.Drawing;
+using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
 
 namespace Pixelaria.Algorithms.PaintOperations.Interfaces
@@ -68,6 +69,6 @@ namespace Pixelaria.Algorithms.PaintOperations.Interfaces
         /// Method called to notify the plotting operation was finished
         /// </summary>
         /// <param name="pixelHistory">The pixel history tracker containing the information about the pixels that were modified during the operation</param>
-        void OperationFinished(PixelHistoryTracker pixelHistory);
+        void OperationFinished([CanBeNull] PixelHistoryTracker pixelHistory);
     }
 }

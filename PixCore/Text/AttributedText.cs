@@ -396,7 +396,7 @@ namespace PixCore.Text
             public override bool Equals(object obj)
             {
                 if (ReferenceEquals(null, obj)) return false;
-                return obj is TextSegment && Equals((TextSegment)obj);
+                return obj is TextSegment segment && Equals(segment);
             }
 
             public override int GetHashCode()
@@ -470,7 +470,7 @@ namespace PixCore.Text
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is ForegroundColorAttribute && Equals((ForegroundColorAttribute)obj);
+            return obj is ForegroundColorAttribute attribute && Equals(attribute);
         }
 
         public static bool operator ==(ForegroundColorAttribute lhs, ForegroundColorAttribute rhs)
@@ -519,7 +519,7 @@ namespace PixCore.Text
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is BackgroundColorAttribute && Equals((BackgroundColorAttribute) obj);
+            return obj is BackgroundColorAttribute attribute && Equals(attribute);
         }
 
         public static bool operator ==(BackgroundColorAttribute lhs, BackgroundColorAttribute rhs)
@@ -563,7 +563,7 @@ namespace PixCore.Text
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is TextFontAttribute && Equals((TextFontAttribute)obj);
+            return obj is TextFontAttribute attribute && Equals(attribute);
         }
         
         public static bool operator ==(TextFontAttribute lhs, TextFontAttribute rhs)

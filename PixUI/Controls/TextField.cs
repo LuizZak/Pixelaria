@@ -29,8 +29,8 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
+using PixDirectX.Rendering;
 using PixDirectX.Utils;
-using PixUI.Rendering;
 using PixUI.Text;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
@@ -50,7 +50,7 @@ namespace PixUI.Controls
         private readonly CursorBlinker _blinker = new CursorBlinker();
 
         private readonly ControlView _labelContainer = new ControlView();
-        private readonly LabelViewControl _label = new LabelViewControl();
+        private readonly LabelViewControl _label = LabelViewControl.Create();
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
 
@@ -105,13 +105,29 @@ namespace PixUI.Controls
 
         public override bool CanBecomeFirstResponder => true;
 
-        public TextField()
+        /// <summary>
+        /// Creates a new instance of <see cref="TextField"/>
+        /// </summary>
+        public static TextField Create()
+        {
+            var textField = new TextField();
+
+            textField.Initialize();
+
+            return textField;
+        }
+
+        protected TextField()
         {
             var buffer = new LabelViewTextBuffer(_label);
 
             buffer.Changed += TextBufferOnChanged;
 
             _textEngine = new TextEngine(buffer);
+        }
+
+        protected void Initialize()
+        {
             _textEngine.CaretChanged += TextEngineOnCaretChanged;
 
             _labelContainer.InteractionEnabled = false;
@@ -121,7 +137,7 @@ namespace PixUI.Controls
             _labelContainer.StrokeColor = Color.Transparent;
 
             _label.TextFont = new Font(FontFamily.GenericSansSerif, 11);
-            
+
             _label.BackColor = Color.Transparent;
             _label.ForeColor = Color.Black;
             _label.StrokeColor = Color.Transparent;

@@ -134,14 +134,32 @@ namespace PixUI.Controls
         /// <summary>
         /// Gets the horizontal scroll bar for this scroll view
         /// </summary>
-        public ScrollBarControl HorizontalBar { get; } = new ScrollBarControl();
+        public ScrollBarControl HorizontalBar { get; } = ScrollBarControl.Create();
 
         /// <summary>
         /// Gets the vertical scroll bar for this scroll view
         /// </summary>
-        public ScrollBarControl VerticalBar { get; } = new ScrollBarControl();
+        public ScrollBarControl VerticalBar { get; } = ScrollBarControl.Create();
 
-        public ScrollViewControl()
+        /// <summary>
+        /// Creates a new instance of <see cref="ScrollViewControl"/>
+        /// </summary>
+        /// <returns></returns>
+        public static ScrollViewControl Create()
+        {
+            var control = new ScrollViewControl();
+
+            control.Initialize();
+
+            return control;
+        }
+
+        protected ScrollViewControl()
+        {
+            
+        }
+
+        protected void Initialize()
         {
             UpdateScrollBarPositions();
 
@@ -153,7 +171,7 @@ namespace PixUI.Controls
             VerticalBar.ScrollChanged += VerticalScrollChanged;
 
             HorizontalBar.Orientation = ScrollBarControl.ScrollBarOrientation.Horizontal;
-            
+
             HorizontalBar.VisibleSize = Bounds.Width;
             VerticalBar.VisibleSize = Bounds.Height;
 

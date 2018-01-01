@@ -25,8 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
-
-using PixUI.Utils;
+using PixCore.Geometry;
 
 using Pixelaria.Filters;
 
@@ -67,6 +66,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         public IFilterControl FilterControl { get; private set; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Gets or sets the background color for the control.
         /// </summary>

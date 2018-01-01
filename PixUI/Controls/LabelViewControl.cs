@@ -26,6 +26,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
+using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using PixUI.Rendering;
 using SharpDX.Direct2D1;
@@ -132,13 +133,26 @@ namespace PixUI.Controls
             }
         }
 
-        public LabelViewControl() : this("")
+        /// <summary>
+        /// Creates a new instance of <see cref="LabelViewControl"/>.
+        /// </summary>
+        /// <returns></returns>
+        public static LabelViewControl Create([NotNull] string text = "")
         {
-        }
+            var instance = new LabelViewControl();
 
-        public LabelViewControl([NotNull] string text)
+            instance.Initialize(text);
+
+            return instance;
+        }
+        
+        protected LabelViewControl()
         {
             _labelView = new LabelView();
+        }
+
+        protected void Initialize([NotNull] string text)
+        {
             InteractionEnabled = false;
 
             Text = text;

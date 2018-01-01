@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -43,18 +42,13 @@ using Pixelaria.Views.ExportPipeline.PipelineView;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
-using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
-using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
 using CombineMode = SharpDX.Direct2D1.CombineMode;
-using AlphaMode = SharpDX.Direct2D1.AlphaMode;
-using PixelFormat = SharpDX.Direct2D1.PixelFormat;
-
 using TextRange = SharpDX.DirectWrite.TextRange;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -62,7 +56,7 @@ namespace Pixelaria.Views.ExportPipeline
     /// <summary>
     /// Renders a pipeline export view
     /// </summary>
-    internal class Direct2DRenderer : IDisposable, IExportPipelineDirect2DRenderer
+    internal class Direct2DRenderer : BaseDirect2DRenderer, IExportPipelineDirect2DRenderer
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
@@ -72,7 +66,6 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         private readonly ExportPipelineControl.IPipelineContainer _container;
         private readonly Control _control;
-        private readonly TextColorRenderer _textColorRenderer = new TextColorRenderer();
         
         /// <summary>
         /// A small 32x32 box used to draw shadow boxes for labels.
@@ -86,63 +79,32 @@ namespace Pixelaria.Views.ExportPipeline
 
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
         
-        private readonly D2DImageResources _imageResources;
-        
-        /// <summary>
-        /// Control-space clip rectangle for current draw operation.
-        /// </summary>
-        public IClippingRegion ClippingRegion { get; set; }
-        
-        /// <summary>
-        /// Gets or sets the background color that this <see cref="Direct2DRenderer"/> uses to clear the display area
-        /// </summary>
-        public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
-
-        public ID2DImageResourceManager ImageResources => _imageResources;
-
         public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
 
         public Direct2DRenderer(ExportPipelineControl.IPipelineContainer container, Control control)
         {
             _container = container;
             _control = control;
-            _imageResources = new D2DImageResources();
             
             LabelViewTextMetricsProvider = new TextMetrics(this);
         }
-
-        ~Direct2DRenderer()
+        
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
+            if (disposing)
+            {
+                _shadowBox.Dispose();
+
+                _nodeTitlesTextFormat.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
-        public void Dispose()
+        public override void Initialize(IDirect2DRenderingState state)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
-
-            _shadowBox.Dispose();
-
-            _nodeTitlesTextFormat.Dispose();
-
-            _textColorRenderer.DefaultBrush.Dispose();
-            _textColorRenderer.Dispose();
-
-            _imageResources.Dispose();
-        }
-
-        public void Initialize([NotNull] IDirect2DRenderingState state)
-        {
-            _lastRenderingState = state;
-
-            _textColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
-
+            base.Initialize(state);
+            
             _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11)
             {
                 TextAlignment = TextAlignment.Leading,
@@ -163,8 +125,8 @@ namespace Pixelaria.Views.ExportPipeline
             _lastRenderingState = state;
 
             // Update text renderer's references
-            _textColorRenderer.DefaultBrush.Dispose();
-            _textColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
+            TextColorRenderer.DefaultBrush.Dispose();
+            TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
 
             var decorators = RenderingDecorators;
 
@@ -298,7 +260,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                     var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
 
-                    var bitmap = _imageResources.BitmapForResource(icon);
+                    var bitmap = ImageResources.BitmapForResource(icon);
                     if (bitmap != null)
                     {
                         var mode = BitmapInterpolationMode.Linear;
@@ -556,12 +518,12 @@ namespace Pixelaria.Views.ExportPipeline
                             }
                         }
 
-                        var prev = _textColorRenderer.DefaultBrush;
-                        _textColorRenderer.DefaultBrush = brush;
+                        var prev = TextColorRenderer.DefaultBrush;
+                        TextColorRenderer.DefaultBrush = brush;
 
-                        textLayout.Draw(_textColorRenderer, textBounds.Minimum.X, textBounds.Minimum.Y);
+                        textLayout.Draw(TextColorRenderer, textBounds.Minimum.X, textBounds.Minimum.Y);
 
-                        _textColorRenderer.DefaultBrush = prev;
+                        TextColorRenderer.DefaultBrush = prev;
                                 
                         foreach (var disposable in disposes)
                         {
@@ -663,56 +625,7 @@ namespace Pixelaria.Views.ExportPipeline
                 }
             });
         }
-
-        public void WithPreparedTextLayout(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
-        {
-            if (_lastRenderingState == null)
-                throw new InvalidOperationException("Direct2D renderer has no previous rendering state to base this call on.");
-
-            using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor))
-            {
-                var disposes = new List<IDisposable>();
-
-                foreach (var textSegment in text.GetTextSegments())
-                {
-                    if (textSegment.HasAttribute<ForegroundColorAttribute>())
-                    {
-                        var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
-
-                        var segmentBrush =
-                            new SolidColorBrush(_lastRenderingState.D2DRenderTarget,
-                                colorAttr.ForeColor.ToColor4());
-
-                        disposes.Add(segmentBrush);
-
-                        layout.SetDrawingEffect(segmentBrush,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-                    if (textSegment.HasAttribute<TextFontAttribute>())
-                    {
-                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                        layout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                        layout.SetFontSize(fontAttr.Font.Size,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-                }
-
-                var prev = _textColorRenderer.DefaultBrush;
-                _textColorRenderer.DefaultBrush = brush;
-
-                perform(layout, _textColorRenderer);
-
-                _textColorRenderer.DefaultBrush = prev;
-
-                foreach (var disposable in disposes)
-                {
-                    disposable.Dispose();
-                }
-            }
-        }
-
+        
         #endregion
 
         #region Decorators
@@ -779,44 +692,7 @@ namespace Pixelaria.Views.ExportPipeline
         #endregion
         
         #region Static helpers
-
-        public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
-        {
-            var bitmapProperties =
-                new BitmapProperties(new PixelFormat(Format.R8G8B8A8_UNorm, AlphaMode.Premultiplied));
-
-            var size = new Size2(bitmap.Width, bitmap.Height);
-
-            // Transform pixels from BGRA to RGBA
-            int stride = bitmap.Width * sizeof(int);
-            using (var tempStream = new DataStream(bitmap.Height * stride, true, true))
-            {
-                // Lock System.Drawing.Bitmap
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                    ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
-                var data = (byte*)bitmapData.Scan0;
-
-                // Convert all pixels 
-                for (int y = 0; y < bitmap.Height; y++)
-                {
-                    int offset = bitmapData.Stride * y;
-                    for (int x = 0; x < bitmap.Width; x++)
-                    {
-                        byte b = data[offset++];
-                        byte g = data[offset++];
-                        byte r = data[offset++];
-                        byte a = data[offset++];
-                        int rgba = r | (g << 8) | (b << 16) | (a << 24);
-                        tempStream.Write(rgba);
-                    }
-                }
-                bitmap.UnlockBits(bitmapData);
-                tempStream.Position = 0;
-
-                return new SharpDX.Direct2D1.Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
-            }
-        }
-
+        
         public static TextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
         {
             TextAlignment horizontalAlign;
@@ -956,38 +832,6 @@ namespace Pixelaria.Views.ExportPipeline
     }
     
     /// <summary>
-    /// For rendering colored texts on a D2DRenderer
-    /// </summary>
-    internal class TextColorRenderer : TextRendererBase
-    {
-        private RenderTarget _renderTarget;
-        public SolidColorBrush DefaultBrush { get; set; }
-
-        public void AssignResources(RenderTarget renderTarget, SolidColorBrush defaultBrush)
-        {
-            _renderTarget = renderTarget;
-            DefaultBrush = defaultBrush;
-        }
-
-        public override Result DrawGlyphRun(object clientDrawingContext, float baselineOriginX, float baselineOriginY, MeasuringMode measuringMode, GlyphRun glyphRun, GlyphRunDescription glyphRunDescription, ComObject clientDrawingEffect)
-        {
-            var sb = DefaultBrush;
-            if (clientDrawingEffect is SolidColorBrush brush)
-                sb = brush;
-
-            try
-            {
-                _renderTarget.DrawGlyphRun(new Vector2(baselineOriginX, baselineOriginY), glyphRun, sb, measuringMode);
-                return Result.Ok;
-            }
-            catch
-            {
-                return Result.Fail;
-            }
-        }
-    }
-    
-    /// <summary>
     /// Decorator that modifies rendering of objects in the export pipeline view.
     /// </summary>
     internal interface IRenderingDecorator
@@ -1078,19 +922,6 @@ namespace Pixelaria.Views.ExportPipeline
         public virtual void DecorateLabelView(LabelView pathView, ref LabelViewState state)
         {
 
-        }
-    }
-    
-    internal static class DirectXHelpers
-    {
-        public static Color4 ToColor4(this Color color)
-        {
-            float r = color.R / 255f;
-            float g = color.G / 255f;
-            float b = color.B / 255f;
-            float a = color.A / 255f;
-            
-            return new Color4(r, g, b, a);
         }
     }
 }

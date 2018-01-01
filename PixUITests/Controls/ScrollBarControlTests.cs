@@ -42,15 +42,13 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingHorizontalDarkStyle()
         {
-            var sut = new ScrollBarControl
-            {
-                Orientation = ScrollBarControl.ScrollBarOrientation.Horizontal,
-                Size = new Vector(300, 20),
-                ContentSize = 100,
-                VisibleSize = 33,
-                Scroll = 20,
-                ScrollBarStyle = new DarkScrollBarControlStyle()
-            };
+            var sut = ScrollBarControl.Create();
+            sut.Orientation = ScrollBarControl.ScrollBarOrientation.Horizontal;
+            sut.Size = new Vector(300, 20);
+            sut.ContentSize = 100;
+            sut.VisibleSize = 33;
+            sut.Scroll = 20;
+            sut.ScrollBarStyle = new DarkScrollBarControlStyle();
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
@@ -58,15 +56,13 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingHorizontalLightStyle()
         {
-            var sut = new ScrollBarControl
-            {
-                Orientation = ScrollBarControl.ScrollBarOrientation.Horizontal,
-                Size = new Vector(300, 20),
-                ContentSize = 100,
-                VisibleSize = 33,
-                Scroll = 20,
-                ScrollBarStyle = new LightScrollBarControlStyle()
-            };
+            var sut = ScrollBarControl.Create();
+            sut.Orientation = ScrollBarControl.ScrollBarOrientation.Horizontal;
+            sut.Size = new Vector(300, 20);
+            sut.ContentSize = 100;
+            sut.VisibleSize = 33;
+            sut.Scroll = 20;
+            sut.ScrollBarStyle = new LightScrollBarControlStyle();
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }

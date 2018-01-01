@@ -65,11 +65,8 @@ namespace PixUI
         /// </summary>
         public static BezierPathView Create()
         {
-            var pathView = new BezierPathView
-            {
-                StrokeColor = Color.Orange,
-                StrokeWidth = 2
-            };
+            var pathView = new BezierPathView();
+            pathView.Initialize();
             
             return pathView;
         }
@@ -90,6 +87,15 @@ namespace PixUI
         protected BezierPathView()
         {
             
+        }
+
+        /// <summary>
+        /// Post-construction common initialization point.
+        /// </summary>
+        protected void Initialize()
+        {
+            StrokeColor = Color.Orange;
+            StrokeWidth = 2;
         }
 
         /// <summary>

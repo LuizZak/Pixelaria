@@ -40,7 +40,7 @@ namespace PixUI.Controls
         /// <summary>
         /// The textual label for the button
         /// </summary>
-        private readonly LabelViewControl _label = new LabelViewControl();
+        private readonly LabelViewControl _label = LabelViewControl.Create();
         
         private ButtonState _state = ButtonState.Normal;
 
@@ -225,7 +225,24 @@ namespace PixUI.Controls
         /// </summary>
         public EventHandler Clicked;
 
-        public ButtonControl()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ButtonControl"/>.
+        /// </summary>
+        public static ButtonControl Create()
+        {
+            var control = new ButtonControl();
+
+            control.Initialize();
+
+            return control;
+        }
+
+        protected ButtonControl()
+        {
+            
+        }
+
+        protected void Initialize()
         {
             CornerRadius = 3;
 
@@ -237,7 +254,7 @@ namespace PixUI.Controls
             _label.TextWordWrap = TextWordWrap.ByWord;
             _label.StrokeColor = Color.Transparent;
             _label.AutoResize = false;
-            
+
             AddChild(_label);
 
             Layout();
