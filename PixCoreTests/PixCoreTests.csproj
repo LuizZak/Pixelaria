@@ -70,6 +70,9 @@
     <Compile Include="Imaging\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Text\AttributedTextTests.cs" />
+    <Compile Include="Text\Attributes\BackgroundColorAttributeTests.cs" />
+    <Compile Include="Text\Attributes\ForegroundColorAttributeTests.cs" />
+    <Compile Include="Text\Attributes\TextFontAttributeTests.cs" />
     <Compile Include="Text\TextRangeTests.cs" />
     <Compile Include="Undo\GroupUndoTaskTests.cs" />
     <Compile Include="Undo\UndoSystemTests.cs" />

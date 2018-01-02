@@ -28,7 +28,7 @@ using System.Drawing.Imaging;
 using JetBrains.Annotations;
 
 using PixCore.Text;
-
+using PixCore.Text.Attributes;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;

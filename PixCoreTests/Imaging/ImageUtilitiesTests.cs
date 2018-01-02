@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Imaging;
 
@@ -230,6 +231,18 @@ namespace PixCoreTests.Imaging
             // Test the resulting area rectangle
             var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(2, 2, 1, 1), bitmapArea, "The minimum image area has to clip around the opaque pixels");
+        }
+
+        [TestMethod]
+        public void TestMemoryUsageOfImage()
+        {
+            var img1 = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
+            var img2 = new Bitmap(16, 16, PixelFormat.Format32bppRgb);
+            var img3 = new Bitmap(16, 16, PixelFormat.Format8bppIndexed);
+
+            Assert.AreEqual(1024, ImageUtilities.MemoryUsageOfImage(img1));
+            Assert.AreEqual(1024, ImageUtilities.MemoryUsageOfImage(img2));
+            Assert.AreEqual(256, ImageUtilities.MemoryUsageOfImage(img3));
         }
 
         /// <summary>

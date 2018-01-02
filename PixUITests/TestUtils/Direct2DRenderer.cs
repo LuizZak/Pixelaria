@@ -28,6 +28,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
+using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixUI;
 using PixUI.Controls;

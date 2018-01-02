@@ -212,7 +212,7 @@ namespace PixCore.Imaging
                 {
                     FastBitmap.memcpy(pByte, scByte, (ulong)bytes.Length);
                 }
-
+                
                 using (var stream = new MemoryStream(bytes, false))
                 {
                     var hash = GetHashForStream(stream);

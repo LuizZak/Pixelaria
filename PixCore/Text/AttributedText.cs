@@ -22,11 +22,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using PixCore.Geometry;
 
 namespace PixCore.Text
 {
@@ -451,139 +449,5 @@ namespace PixCore.Text
         /// </summary>
         [CanBeNull]
         T GetAttribute<T>() where T : ITextAttribute;
-    }
-
-    public struct ForegroundColorAttribute : ITextAttribute, IEquatable<ForegroundColorAttribute>
-    {
-        public Color ForeColor { get; }
-
-        public ForegroundColorAttribute(Color foreColor)
-        {
-            ForeColor = foreColor;
-        }
-
-        public bool Equals(ForegroundColorAttribute other)
-        {
-            return ForeColor.Equals(other.ForeColor);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is ForegroundColorAttribute attribute && Equals(attribute);
-        }
-
-        public static bool operator ==(ForegroundColorAttribute lhs, ForegroundColorAttribute rhs)
-        {
-            return lhs.ForeColor == rhs.ForeColor;
-        }
-
-        public static bool operator !=(ForegroundColorAttribute lhs, ForegroundColorAttribute rhs)
-        {
-            return lhs.ForeColor != rhs.ForeColor;
-        }
-
-        public override int GetHashCode()
-        {
-            return ForeColor.GetHashCode();
-        }
-
-        public object Clone()
-        {
-            return new ForegroundColorAttribute(ForeColor);
-        }
-    }
-
-    public struct BackgroundColorAttribute : ITextAttribute, IEquatable<BackgroundColorAttribute>
-    {
-        public Color BackColor { get; }
-        public Vector Inflation { get; }
-
-        public BackgroundColorAttribute(Color backColor)
-        {
-            BackColor = backColor;
-            Inflation = Vector.Zero;
-        }
-
-        public BackgroundColorAttribute(Color backColor, Vector inflation)
-        {
-            BackColor = backColor;
-            Inflation = inflation;
-        }
-
-        public bool Equals(BackgroundColorAttribute other)
-        {
-            return BackColor.Equals(other.BackColor) && Inflation.Equals(other.Inflation);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is BackgroundColorAttribute attribute && Equals(attribute);
-        }
-
-        public static bool operator ==(BackgroundColorAttribute lhs, BackgroundColorAttribute rhs)
-        {
-            return lhs.BackColor == rhs.BackColor && lhs.Inflation == rhs.Inflation;
-        }
-
-        public static bool operator !=(BackgroundColorAttribute lhs, BackgroundColorAttribute rhs)
-        {
-            return lhs.BackColor != rhs.BackColor || lhs.Inflation != rhs.Inflation;
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (BackColor.GetHashCode() * 397) ^ Inflation.GetHashCode();
-            }
-        }
-
-        public object Clone()
-        {
-            return new BackgroundColorAttribute(BackColor, Inflation);
-        }
-    }
-
-    public struct TextFontAttribute : ITextAttribute, IEquatable<TextFontAttribute>
-    {
-        public Font Font { get; }
-
-        public TextFontAttribute(Font font)
-        {
-            Font = font;
-        }
-
-        public bool Equals(TextFontAttribute other)
-        {
-            return Font.Equals(other.Font);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is TextFontAttribute attribute && Equals(attribute);
-        }
-        
-        public static bool operator ==(TextFontAttribute lhs, TextFontAttribute rhs)
-        {
-            return Equals(lhs.Font, rhs.Font);
-        }
-
-        public static bool operator !=(TextFontAttribute lhs, TextFontAttribute rhs)
-        {
-            return !Equals(lhs.Font, rhs.Font);
-        }
-        
-        public override int GetHashCode()
-        {
-            return Font.GetHashCode();
-        }
-
-        public object Clone()
-        {
-            return new TextFontAttribute(Font);
-        }
     }
 }

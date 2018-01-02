@@ -101,6 +101,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Text\AttributedText.cs" />
+    <Compile Include="Text\Attributes\BackgroundColorAttribute.cs" />
+    <Compile Include="Text\Attributes\ForegroundColorAttribute.cs" />
+    <Compile Include="Text\Attributes\TextFontAttribute.cs" />
     <Compile Include="Text\TextRange.cs" />
     <Compile Include="Undo\GroupUndoTask.cs" />
     <Compile Include="Undo\UndoSystem.cs" />
