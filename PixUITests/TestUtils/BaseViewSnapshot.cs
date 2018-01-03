@@ -146,7 +146,7 @@ namespace PixUITests.TestUtils
 
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
-            using (var renderLoop = new Direct2DBitmapRenderManager(wicBitmap))
+            using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
             using (var renderer = new TestDirect2DRenderer())
             {
                 var last = LabelView.DefaultLabelViewSizeProvider;

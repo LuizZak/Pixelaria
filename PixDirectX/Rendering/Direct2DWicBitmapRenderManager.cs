@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
@@ -42,28 +41,22 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Renderer that renders to a backing WIC Bitmap.
     /// </summary>
-    public sealed class Direct2DBitmapRenderManager : IDirect2DRenderManager
+    public sealed class Direct2DWicBitmapRenderManager : IDirect2DRenderManager
     {
         private readonly Bitmap _target;
-        private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
-        
-        /// <summary>
-        /// Gets the public interface for the rendering state of this Direct2D manager
-        /// </summary>
         private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
+        
+        public IDirect2DRenderingState RenderingState => _renderingState;
 
-        public Direct2DBitmapRenderManager(Bitmap target)
+        public Direct2DWicBitmapRenderManager(Bitmap target)
         {
             _target = target;
         }
 
         public void Dispose()
         {
-            _frameDeltaTimer.Stop();
             _renderingState.Dispose();
         }
-
-        public IDirect2DRenderingState RenderingState => _renderingState;
 
         /// <inheritdoc />
         public void InitializeDirect2D()
@@ -99,8 +92,6 @@ namespace PixDirectX.Rendering
         /// <inheritdoc />
         public void RenderSingleFrame(Action<IDirect2DRenderingState> render)
         {
-            _frameDeltaTimer.Restart();
-
             _renderingState.D2DRenderTarget.BeginDraw();
 
             render(_renderingState);

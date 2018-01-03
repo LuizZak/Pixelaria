@@ -73,7 +73,7 @@
   <ItemGroup>
     <Compile Include="Rendering\D2DImageResources.cs" />
     <Compile Include="Rendering\BaseDirect2DRenderer.cs" />
-    <Compile Include="Rendering\Direct2DBitmapRenderManager.cs" />
+    <Compile Include="Rendering\Direct2DWicBitmapRenderManager.cs" />
     <Compile Include="Rendering\Direct2DConversionHelpers.cs" />
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
