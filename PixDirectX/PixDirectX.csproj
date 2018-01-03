@@ -73,12 +73,16 @@
   <ItemGroup>
     <Compile Include="Rendering\D2DImageResources.cs" />
     <Compile Include="Rendering\BaseDirect2DRenderer.cs" />
-    <Compile Include="Rendering\DirectXHelpers.cs" />
+    <Compile Include="Rendering\Direct2DBitmapRenderManager.cs" />
+    <Compile Include="Rendering\Direct2DConversionHelpers.cs" />
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
+    <Compile Include="Rendering\IDirect2DRenderManager.cs" />
     <Compile Include="Rendering\ImageResource.cs" />
+    <Compile Include="Rendering\ITextMetricsProvider.cs" />
+    <Compile Include="Rendering\TextAttributes.cs" />
     <Compile Include="Utils\GeomExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rendering\Direct2DControlLoopManager.cs" />
+    <Compile Include="Rendering\Direct2DRenderLoopManager.cs" />
     <Compile Include="Rendering\IDirect2DRenderingState.cs" />
     <Compile Include="Rendering\TextColorRenderer.cs" />
   </ItemGroup>

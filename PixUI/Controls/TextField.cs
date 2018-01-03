@@ -475,7 +475,7 @@ namespace PixUI.Controls
                 WordWrap = _label.TextWordWrap
             };
 
-            var provider = context.LabelViewTextMetricsProvider;
+            var provider = context.TextMetricsProvider;
             var bounds = provider.LocationOfCharacter(_textEngine.Caret.Location, new AttributedText(text), attributes);
 
             caretLocation = _label.ConvertTo(caretLocation, this);

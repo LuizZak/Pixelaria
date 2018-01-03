@@ -238,13 +238,13 @@ namespace PixUI.Controls
         /// <summary>
         /// Gets the text metrics provider.
         /// </summary>
-        public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
+        public ITextMetricsProvider TextMetricsProvider { get; }
 
-        public ControlRenderingContext(IDirect2DRenderingState state, IDirect2DRenderer renderer, ILabelViewTextMetricsProvider labelViewTextMetricsProvider)
+        public ControlRenderingContext(IDirect2DRenderingState state, IDirect2DRenderer renderer, ITextMetricsProvider textMetricsProvider)
         {
             State = state;
             Renderer = renderer;
-            LabelViewTextMetricsProvider = labelViewTextMetricsProvider;
+            TextMetricsProvider = textMetricsProvider;
         }
     }
 }

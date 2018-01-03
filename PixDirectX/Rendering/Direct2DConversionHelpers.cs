@@ -21,12 +21,16 @@
 */
 
 using System;
-using PixUI.Controls;
+using SharpDX;
 using SharpDX.DirectWrite;
+using Color = System.Drawing.Color;
 
-namespace PixUI.Rendering
+namespace PixDirectX.Rendering
 {
-    public static class Direct2DHelpers
+    /// <summary>
+    /// Small set of helper methods for conversions to Direct2D types
+    /// </summary>
+    public static class Direct2DConversionHelpers
     {
         public static TextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
         {
@@ -92,6 +96,16 @@ namespace PixUI.Rendering
             }
 
             return verticalAlign;
+        }
+
+        public static Color4 ToColor4(this Color color)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+            float a = color.A / 255f;
+            
+            return new Color4(r, g, b, a);
         }
     }
 }

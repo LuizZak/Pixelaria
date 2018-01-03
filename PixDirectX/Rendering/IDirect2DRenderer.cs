@@ -47,6 +47,11 @@ namespace PixDirectX.Rendering
         /// Gets the imaage resources manager for this Direct2D renderer
         /// </summary>
         ID2DImageResourceManager ImageResources { get; }
+
+        /// <summary>
+        /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IDirect2DRenderer"/>
+        /// </summary>
+        ITextMetricsProvider TextMetricsProvider { get; }
         
         /// <summary>
         /// The clipping region for this Direct2D renderer

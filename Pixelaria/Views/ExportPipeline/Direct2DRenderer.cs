@@ -35,7 +35,6 @@ using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using PixUI;
-using PixUI.Controls;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
@@ -59,9 +58,6 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal class Direct2DRenderer : BaseDirect2DRenderer, IExportPipelineDirect2DRenderer
     {
-        [CanBeNull]
-        private IDirect2DRenderingState _lastRenderingState;
-
         /// <summary>
         /// For relative position calculations
         /// </summary>
@@ -80,14 +76,10 @@ namespace Pixelaria.Views.ExportPipeline
 
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
         
-        public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider { get; }
-
         public Direct2DRenderer(ExportPipelineControl.IPipelineContainer container, Control control)
         {
             _container = container;
             _control = control;
-            
-            LabelViewTextMetricsProvider = new TextMetrics(this);
         }
         
         protected override void Dispose(bool disposing)
@@ -118,21 +110,15 @@ namespace Pixelaria.Views.ExportPipeline
                 _shadowBox = CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
             }
         }
-
+        
         #region View Rendering
 
-        public void Render([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        public override void Render(IDirect2DRenderingState state, IClippingRegion clipping)
         {
-            _lastRenderingState = state;
-
-            // Update text renderer's references
-            TextColorRenderer.DefaultBrush.Dispose();
-            TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
+            base.Render(state, clipping);
 
             var decorators = RenderingDecorators;
-
-            ClippingRegion = clipping;
-
+            
             // Draw background across visible region
             RenderBackground(state);
 
@@ -666,7 +652,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
         {
-            var renderState = _lastRenderingState;
+            var renderState = GetLatestValidRenderingState();
             if (renderState == null)
                 return SizeF.Empty;
 
@@ -691,145 +677,6 @@ namespace Pixelaria.Views.ExportPipeline
         }
 
         #endregion
-        
-        #region Static helpers
-        
-        public static TextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
-        {
-            TextAlignment horizontalAlign;
-
-            switch (alignment)
-            {
-                case HorizontalTextAlignment.Leading:
-                    horizontalAlign = TextAlignment.Leading;
-                    break;
-                case HorizontalTextAlignment.Center:
-                    horizontalAlign = TextAlignment.Center;
-                    break;
-                case HorizontalTextAlignment.Trailing:
-                    horizontalAlign = TextAlignment.Trailing;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return horizontalAlign;
-        }
-
-        public static ParagraphAlignment DirectWriteAlignmentFor(VerticalTextAlignment alignment)
-        {
-            ParagraphAlignment verticalAlign;
-
-            switch (alignment)
-            {
-                case VerticalTextAlignment.Near:
-                    verticalAlign = ParagraphAlignment.Near;
-                    break;
-                case VerticalTextAlignment.Center:
-                    verticalAlign = ParagraphAlignment.Center;
-                    break;
-                case VerticalTextAlignment.Far:
-                    verticalAlign = ParagraphAlignment.Far;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return verticalAlign;
-        }
-
-        public static WordWrapping DirectWriteWordWrapFor(TextWordWrap wordWrap)
-        {
-            WordWrapping verticalAlign;
-
-            switch (wordWrap)
-            {
-                case TextWordWrap.None:
-                    verticalAlign = WordWrapping.NoWrap;
-                    break;
-                case TextWordWrap.ByCharacter:
-                    verticalAlign = WordWrapping.Character;
-                    break;
-                case TextWordWrap.ByWord:
-                    verticalAlign = WordWrapping.Wrap;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return verticalAlign;
-        }
-
-        #endregion
-
-        private class TextMetrics : ILabelViewTextMetricsProvider
-        {
-            private readonly Direct2DRenderer _renderer;
-
-            public TextMetrics(Direct2DRenderer renderer)
-            {
-                _renderer = renderer;
-            }
-
-            public AABB LocationOfCharacter(int offset, IAttributedText text, TextAttributes textAttributes)
-            {
-                var renderState = _renderer._lastRenderingState;
-                if (renderState == null)
-                    return AABB.Empty;
-
-                return
-                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
-                    {
-                        var metric = layout.HitTestTextPosition(offset, false, out float _, out float _);
-
-                        return AABB.FromRectangle(metric.Left, float.IsInfinity(metric.Top) ? 0 : metric.Top, metric.Width, metric.Height);
-                    });
-            }
-
-            public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextAttributes textAttributes)
-            {
-                var renderState = _renderer._lastRenderingState;
-                if (renderState == null)
-                    return new AABB[0];
-
-                return
-                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
-                    {
-                        var metrics = layout.HitTestTextRange(offset, length, 0, 0);
-                        return metrics
-                            .Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height))
-                            .ToArray();
-                    });
-            }
-
-            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextAttributes textAttributes,
-                [NotNull] Func<TextFormat, TextLayout, T> action)
-            {
-                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, textAttributes.Font, textAttributes.FontSize)
-                {
-                    TextAlignment = DirectWriteAlignmentFor(textAttributes.HorizontalTextAlignment),
-                    ParagraphAlignment = DirectWriteAlignmentFor(textAttributes.VerticalTextAlignment),
-                    WordWrapping = DirectWriteWordWrapFor(textAttributes.WordWrap)
-                })
-                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textAttributes.AvailableWidth, textAttributes.AvailableHeight))
-                {
-                    foreach (var textSegment in text.GetTextSegments())
-                    {
-                        if (!textSegment.HasAttribute<TextFontAttribute>())
-                            continue;
-
-                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                        textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                        textLayout.SetFontSize(fontAttr.Font.Size,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-
-                    return action(textFormat, textLayout);
-                }
-            }
-        }
     }
     
     /// <summary>

@@ -51,7 +51,7 @@ namespace PixUITests.TestUtils
             if (_bitmapResources.ContainsKey(resourceName))
                 throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
 
-            _bitmapResources[resourceName] = Direct2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            _bitmapResources[resourceName] = TestDirect2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
         }
 
         public void RemoveImageResources()

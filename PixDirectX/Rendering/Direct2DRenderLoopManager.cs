@@ -48,7 +48,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Simple helper class to initialize and run a Direct2D loop on top of a specific Windows Forms control
     /// </summary>
-    public sealed class Direct2DControlLoopManager : IDisposable
+    public sealed class Direct2DRenderLoopManager : IDirect2DRenderManager
     {
         private readonly Control _target;
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
@@ -67,7 +67,7 @@ namespace PixDirectX.Rendering
         /// </summary>
         public IDirect2DRenderingState RenderingState => _renderingState;
 
-        public Direct2DControlLoopManager(Control target)
+        public Direct2DRenderLoopManager(Control target)
         {
             _target = target;
             _target.Resize += target_Resize;
@@ -97,7 +97,6 @@ namespace PixDirectX.Rendering
             var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
             var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
             
-            // This gives DXGI_ERROR_INVALID_CALL
             var swapChainDescription = new SwapChainDescription1
             {
                 Width = _target.Width,
@@ -149,7 +148,7 @@ namespace PixDirectX.Rendering
         /// This method does not return after being called, and will continue processing Windows Form events
         /// internally until the application is closed.
         /// </summary>
-        public void StartRenderLoop(Action<IDirect2DRenderingState> loop)
+        public void StartRenderLoop([NotNull, InstantHandle] Action<IDirect2DRenderingState> loop)
         {
             using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
             {
@@ -185,22 +184,27 @@ namespace PixDirectX.Rendering
         /// This method does not return after being called, and will continue processing Windows Form events
         /// internally until the application is closed.
         /// </summary>
-        public void StartRenderLoop(Func<IDirect2DRenderingState, System.Drawing.Rectangle[]> loop)
+        public void StartRenderLoop([NotNull, InstantHandle] Func<IDirect2DRenderingState, Direct2DRenderLoopResponse> loop)
         {
             bool isOccluded = false;
+            bool quitLoop = false;
             
             using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
             {
                 _frameDeltaTimer.Start();
 
-                while (renderLoop.NextFrame())
+                while (!quitLoop && renderLoop.NextFrame())
                 {
                     _renderingState.SetFrameDeltaTime(_frameDeltaTimer.Elapsed);
                     _frameDeltaTimer.Restart();
 
                     _renderingState.D2DRenderTarget.BeginDraw();
 
-                    var rects = loop(RenderingState).Select(r => (RawRectangle)new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
+                    var results = loop(RenderingState);
+                    var rects = results.RedrawRegions
+                        .Select(r => (RawRectangle) new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
+
+                    quitLoop = results.QuitRenderLoop;
 
                     _renderingState.D2DRenderTarget.EndDraw();
 
@@ -238,6 +242,18 @@ namespace PixDirectX.Rendering
                     }
                 }
             }
+        }
+        
+        /// <inheritdoc />
+        public void RenderSingleFrame(Action<IDirect2DRenderingState> render)
+        {
+            _frameDeltaTimer.Restart();
+
+            RenderingState.D2DRenderTarget.BeginDraw();
+
+            render(RenderingState);
+
+            RenderingState.D2DRenderTarget.EndDraw();
         }
 
         private void ResizeRenderTarget()
@@ -322,6 +338,39 @@ namespace PixDirectX.Rendering
             {
                 D2DRenderTarget.Transform = _matrixStack.Pop();
             }
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a response for the render loop method of <see cref="Direct2DRenderLoopManager.StartRenderLoop(Func{PixDirectX.Rendering.IDirect2DRenderingState,PixDirectX.Rendering.Direct2DRenderLoopResponse})"/>
+    /// </summary>
+    public struct Direct2DRenderLoopResponse
+    {
+        /// <summary>
+        /// Regions called rendering delegate has redrawn on a render loop call.
+        /// 
+        /// If set to a non-empty list, the caller <i>must</i> have drawn content on all pixels that where reported on all redraw regions.
+        /// </summary>
+        public IReadOnlyList<System.Drawing.Rectangle> RedrawRegions { get; }
+
+        /// <summary>
+        /// If set to true, <see cref="Direct2DRenderLoopManager"/> will stop its rendering loop and return control to the caller of
+        /// <see cref="Direct2DRenderLoopManager.StartRenderLoop(Func{PixDirectX.Rendering.IDirect2DRenderingState,PixDirectX.Rendering.Direct2DRenderLoopResponse})"/>.
+        /// 
+        /// Defaults to false.
+        /// </summary>
+        public bool QuitRenderLoop { get; }
+        
+        public Direct2DRenderLoopResponse(IReadOnlyList<System.Drawing.Rectangle> redrawRegions)
+        {
+            RedrawRegions = redrawRegions;
+            QuitRenderLoop = false;
+        }
+
+        public Direct2DRenderLoopResponse(IReadOnlyList<System.Drawing.Rectangle> redrawRegions, bool quitRenderLoop)
+        {
+            RedrawRegions = redrawRegions;
+            QuitRenderLoop = quitRenderLoop;
         }
     }
 }

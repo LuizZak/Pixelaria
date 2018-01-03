@@ -90,7 +90,7 @@
     <Compile Include="Controls\LabelViewControlTests.cs" />
     <Compile Include="TestInvalidateBaseView.cs" />
     <Compile Include="TestUtils\D2DImageResources.cs" />
-    <Compile Include="TestUtils\Direct2DRenderer.cs" />
+    <Compile Include="TestUtils\TestDirect2DRenderer.cs" />
     <Compile Include="BaseViewTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuControlTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuItemTests.cs" />

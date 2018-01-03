@@ -59,7 +59,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private PropertiesPanel _propertiesPanel;
 
-        private Direct2DControlLoopManager _direct2DLoopManager;
+        private Direct2DRenderLoopManager _direct2DLoopManager;
 
         public ExportPipelineView()
         {
@@ -105,7 +105,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (DesignMode)
                 return;
 
-            _direct2DLoopManager = new Direct2DControlLoopManager(exportPipelineControl);
+            _direct2DLoopManager = new Direct2DRenderLoopManager(exportPipelineControl);
 
             _direct2DLoopManager.InitializeDirect2D();
 
@@ -118,16 +118,19 @@ namespace Pixelaria.Views.ExportPipeline
 
                 exportPipelineControl.RenderDirect2D(_direct2DLoopManager.RenderingState);
 
-                return rects.Select(rect =>
-                {
-                    int x = (int)Math.Floor(rect.X);
-                    int y = (int)Math.Floor(rect.Y);
+                var redrawRects =
+                    rects.Select(rect =>
+                    {
+                        int x = (int) Math.Floor(rect.X);
+                        int y = (int) Math.Floor(rect.Y);
 
-                    int width = (int)Math.Ceiling(rect.Width);
-                    int height = (int)Math.Ceiling(rect.Height);
+                        int width = (int) Math.Ceiling(rect.Width);
+                        int height = (int) Math.Ceiling(rect.Height);
 
-                    return new Rectangle(x, y, width, height);
-                }).ToArray();
+                        return new Rectangle(x, y, width, height);
+                    }).ToArray();
+
+                return new Direct2DRenderLoopResponse(redrawRects);
             });
         }
 

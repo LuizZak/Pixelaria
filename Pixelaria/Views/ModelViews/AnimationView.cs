@@ -737,7 +737,6 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Reverse selected (or all) frames using a frame operation
-
             var operation = new FlipVerticalFrameOperation();
 
             // Create an undo task

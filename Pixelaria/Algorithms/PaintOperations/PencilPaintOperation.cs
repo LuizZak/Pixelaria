@@ -243,8 +243,8 @@ namespace Pixelaria.Algorithms.PaintOperations
             if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(pointX, pointY))
                 return;
 
-            Color oldColor = (useFastBitmap ? fastBitmap.GetPixel(pointX, pointY) : targetBitmap.GetPixel(pointX, pointY));
-            Color newColor = GetBlendedColor(oldColor);
+            var oldColor = useFastBitmap ? fastBitmap.GetPixel(pointX, pointY) : targetBitmap.GetPixel(pointX, pointY);
+            var newColor = GetBlendedColor(oldColor);
 
             uint oldColorArgb = unchecked((uint)oldColor.ToArgb());
             uint newColorArgb = unchecked((uint)newColor.ToArgb());

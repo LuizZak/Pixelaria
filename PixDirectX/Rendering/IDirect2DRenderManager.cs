@@ -20,24 +20,31 @@
     base directory of this project.
 */
 
-using SharpDX;
-using Color = System.Drawing.Color;
+using System;
+using JetBrains.Annotations;
 
 namespace PixDirectX.Rendering
 {
-    public static class DirectXHelpers
+    /// <summary>
+    /// Implemented by classes to initialize and execute Direct2D rendering operations.
+    /// </summary>
+    public interface IDirect2DRenderManager : IDisposable
     {
         /// <summary>
-        /// Converts a System.Drawing.Color construct into an equivalent SharpDX.Color4.
+        /// Gets the public interface for the rendering state of this Direct2D manager
         /// </summary>
-        public static Color4 ToColor4(this Color color)
-        {
-            float r = color.R / 255f;
-            float g = color.G / 255f;
-            float b = color.B / 255f;
-            float a = color.A / 255f;
-            
-            return new Color4(r, g, b, a);
-        }
+        IDirect2DRenderingState RenderingState { get; }
+        
+        /// <summary>
+        /// Initializes the Direct2D rendering state, but do not start the render loop yet.
+        /// </summary>
+        void InitializeDirect2D();
+
+        /// <summary>
+        /// Renders a single frame using a given closure as the actual content rendering delegate.
+        /// 
+        /// This method returns immediately after rendering the frame.
+        /// </summary>
+        void RenderSingleFrame([NotNull, InstantHandle] Action<IDirect2DRenderingState> render);
     }
 }

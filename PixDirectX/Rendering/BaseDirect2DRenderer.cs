@@ -24,9 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Imaging;
-
+using System.Linq;
 using JetBrains.Annotations;
-
+using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using SharpDX;
@@ -48,7 +48,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Base Direct2D renderer class that other packages may inherit from to provide custom rendering logic
     /// </summary>
-    public class BaseDirect2DRenderer : IDisposable, IDirect2DRenderer
+    public abstract class BaseDirect2DRenderer : IDisposable, IDirect2DRenderer, IDirect2DRenderingStateProvider
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
@@ -56,7 +56,9 @@ namespace PixDirectX.Rendering
         protected readonly TextColorRenderer TextColorRenderer = new TextColorRenderer();
         
         private readonly D2DImageResources _imageResources;
+        private readonly TextMetrics _textMetrics;
         
+        /// <inheritdoc />
         /// <summary>
         /// Control-space clip rectangle for current draw operation.
         /// </summary>
@@ -69,10 +71,14 @@ namespace PixDirectX.Rendering
         public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
 
         public ID2DImageResourceManager ImageResources => _imageResources;
+
+        /// <inheritdoc />
+        public ITextMetricsProvider TextMetricsProvider => _textMetrics;
         
-        public BaseDirect2DRenderer()
+        protected BaseDirect2DRenderer()
         {
             _imageResources = new D2DImageResources();
+            _textMetrics = new TextMetrics(this);
         }
 
         ~BaseDirect2DRenderer()
@@ -104,6 +110,37 @@ namespace PixDirectX.Rendering
             TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
         }
         
+        /// <summary>
+        /// Updates the rendering state and clipping region of this Direct2D renderer instance to the ones specified.
+        /// 
+        /// Must be called whenever devices/surfaces/etc. have been invalidated or the clipping region has been changed.
+        /// 
+        /// Automatically called every time <see cref="Render"/> is called before any rendering occurs.
+        /// </summary>
+        public void UpdateRenderingState([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        {
+            _lastRenderingState = state;
+            
+            // Update text renderer's references
+            TextColorRenderer.DefaultBrush.Dispose();
+            TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
+            
+            ClippingRegion = clipping;
+        }
+        
+        /// <summary>
+        /// Override point for subclasses to apply custom rendering logic to.
+        /// </summary>
+        public virtual void Render([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        {
+            UpdateRenderingState(state, clipping);
+        }
+
+        public IDirect2DRenderingState GetLatestValidRenderingState()
+        {
+            return _lastRenderingState;
+        }
+
         public void WithPreparedTextLayout(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
         {
             if (_lastRenderingState == null)
@@ -154,7 +191,7 @@ namespace PixDirectX.Rendering
         }
         
         #region Static helpers
-
+        
         public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
         {
             var bitmapProperties =
@@ -195,5 +232,88 @@ namespace PixDirectX.Rendering
         }
         
         #endregion
+        
+        private class TextMetrics : ITextMetricsProvider
+        {
+            private readonly IDirect2DRenderingStateProvider _renderer;
+
+            public TextMetrics(IDirect2DRenderingStateProvider renderer)
+            {
+                _renderer = renderer;
+            }
+
+            public AABB LocationOfCharacter(int offset, IAttributedText text, TextAttributes textAttributes)
+            {
+                var renderState = _renderer.GetLatestValidRenderingState();
+                if (renderState == null)
+                    return AABB.Empty;
+
+                return
+                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
+                    {
+                        var metric = layout.HitTestTextPosition(offset, false, out float _, out float _);
+
+                        return AABB.FromRectangle(metric.Left, float.IsInfinity(metric.Top) ? 0 : metric.Top, metric.Width, metric.Height);
+                    });
+            }
+
+            public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextAttributes textAttributes)
+            {
+                var renderState = _renderer.GetLatestValidRenderingState();
+                if (renderState == null)
+                    return new AABB[0];
+
+                return
+                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
+                    {
+                        var metrics = layout.HitTestTextRange(offset, length, 0, 0);
+                        return metrics
+                            .Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height))
+                            .ToArray();
+                    });
+            }
+
+            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextAttributes textAttributes,
+                [NotNull] Func<TextFormat, TextLayout, T> action)
+            {
+                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, textAttributes.Font, textAttributes.FontSize)
+                {
+                    TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textAttributes.HorizontalTextAlignment),
+                    ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textAttributes.VerticalTextAlignment),
+                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textAttributes.WordWrap)
+                })
+                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textAttributes.AvailableWidth, textAttributes.AvailableHeight))
+                {
+                    foreach (var textSegment in text.GetTextSegments())
+                    {
+                        if (!textSegment.HasAttribute<TextFontAttribute>())
+                            continue;
+
+                        var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+
+                        textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        textLayout.SetFontSize(fontAttr.Font.Size,
+                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    }
+
+                    return action(textFormat, textLayout);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Interface for objects capable of providing a Direct2D rendering state on request.
+    /// </summary>
+    public interface IDirect2DRenderingStateProvider
+    {
+        /// <summary>
+        /// Asks the object to return the latest available valid rendering state to the caller.
+        /// 
+        /// May return null in cases such as a rendering state not being available.
+        /// </summary>
+        [CanBeNull]
+        IDirect2DRenderingState GetLatestValidRenderingState();
     }
 }

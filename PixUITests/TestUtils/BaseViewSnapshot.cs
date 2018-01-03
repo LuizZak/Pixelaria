@@ -21,39 +21,23 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Rendering;
 using PixUI.Visitor;
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using SharpDX.WIC;
-using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Bitmap = System.Drawing.Bitmap;
-using Device = SharpDX.Direct3D11.Device;
-using Factory2 = SharpDX.DXGI.Factory2;
-using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Image = System.Drawing.Image;
-using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
-using Resource = SharpDX.Direct3D11.Resource;
 
 namespace PixUITests.TestUtils
 {
@@ -63,8 +47,6 @@ namespace PixUITests.TestUtils
     /// </summary>
     public static class BaseViewSnapshot
     {
-        private static Control _renderTarget = new Panel {Size = new Size(100, 100)};
-
         /// <summary>
         /// Whether tests are currently under record mode- under record mode, results are recorded on disk to be later
         /// compared when not in record mode.
@@ -91,13 +73,7 @@ namespace PixUITests.TestUtils
         {
             if(view.Bounds.IsEmpty)
                 throw new ArgumentException(@"View parameter cannot have empty bounds", nameof(view));
-
-            _renderTarget = new Panel
-            {
-                // Always round up to account for possible half-pixels
-                Size = new Size((int)Math.Ceiling(view.Width), (int)Math.Ceiling(view.Height)) 
-            };
-
+            
             string targetPath = CombinedTestResultPath(TestResultsPath(), context);
 
             // Verify path exists
@@ -159,12 +135,23 @@ namespace PixUITests.TestUtils
             }
         }
 
-        private static Bitmap SnapshotView(BaseView view)
+        private static Bitmap SnapshotView([NotNull] BaseView view)
         {
             // Create a temporary Direct3D rendering context and render the view on it
-            using (var renderLoop = new Direct2DControlLoopManager(_renderTarget))
-            using (var renderer = new Direct2DRenderer())
+            const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
+            var pixelFormat = SharpDX.WIC.PixelFormat.Format32bppPBGRA;
+
+            int width = (int) Math.Round(view.Width);
+            int height = (int)Math.Round(view.Height);
+
+            using (var imgFactory = new ImagingFactory())
+            using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
+            using (var renderLoop = new Direct2DBitmapRenderManager(wicBitmap))
+            using (var renderer = new TestDirect2DRenderer())
             {
+                var last = LabelView.DefaultLabelViewSizeProvider;
+                LabelView.DefaultLabelViewSizeProvider = renderer.SizeProvider;
+
                 renderLoop.InitializeDirect2D();
 
                 renderer.Initialize(renderLoop.RenderingState, new FullClipping());
@@ -172,16 +159,18 @@ namespace PixUITests.TestUtils
                 renderLoop.RenderSingleFrame(state =>
                 {
                     var visitor = new ViewRenderingVisitor();
-                    
-                    var context = new ControlRenderingContext(state, renderer, renderer.LabelViewTextMetricsProvider);
+
+                    var context = new ControlRenderingContext(state, renderer, renderer.TextMetricsProvider);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);
                 });
 
-                var wicBitmap = renderLoop.RenderingState.Bitmap;
-                var bitmap = new Bitmap(wicBitmap.Size.Width, wicBitmap.Size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                
+                LabelView.DefaultLabelViewSizeProvider = last;
+
+                var bitmap = new Bitmap(wicBitmap.Size.Width, wicBitmap.Size.Height,
+                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
                 using (var wicBitmapLock = wicBitmap.Lock(BitmapLockFlags.Read))
                 using (var bitmapLock = bitmap.FastLock())
                 {
@@ -218,189 +207,7 @@ namespace PixUITests.TestUtils
 
             return path;
         }
-
-        // TODO: Deal with duplication between this class and Pixelaria's Direct2DControlLoopManager.
-
-        /// <summary>
-        /// Simple helper class to initialize and run a Direct2D loop on top of a specific Windows Forms control
-        /// </summary>
-        internal sealed class Direct2DControlLoopManager : IDisposable
-        {
-            private readonly Control _target;
-            private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
-            
-            /// <summary>
-            /// Gets the public interface for the rendering state of this Direct2D manager
-            /// </summary>
-            public Direct2DRenderingState RenderingState = new Direct2DRenderingState();
-
-            public Direct2DControlLoopManager(Control target)
-            {
-                _target = target;
-            }
-
-            public void Dispose()
-            {
-                _frameDeltaTimer.Stop();
-                RenderingState.Dispose();
-            }
-
-            /// <summary>
-            /// Initializes the Direct2D rendering state, but do not start the render loop yet.
-            /// </summary>
-            public void InitializeDirect2D()
-            {
-                var featureLevels = new[]
-                {
-                    FeatureLevel.Level_11_1,
-                    FeatureLevel.Level_11_0
-                };
-                const DeviceCreationFlags creationFlags = DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Debug;
-
-                var d3Device = new Device(DriverType.Hardware, creationFlags, featureLevels);
-                var d3Device1 = d3Device.QueryInterface<SharpDX.Direct3D11.Device1>();
-
-                var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
-                var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
-
-                // This gives DXGI_ERROR_INVALID_CALL
-                var swapChainDescription = new SwapChainDescription1
-                {
-                    Width = _target.Width,
-                    Height = _target.Height,
-                    Format = Format.B8G8R8A8_UNorm,
-                    Stereo = false,
-                    SampleDescription = new SampleDescription(1, 0),
-                    Usage = Usage.BackBuffer | Usage.RenderTargetOutput,
-                    BufferCount = 1,
-                    Scaling = Scaling.Stretch,
-                    SwapEffect = SwapEffect.Sequential,
-                    Flags = SwapChainFlags.AllowModeSwitch | SwapChainFlags.GdiCompatible
-                };
-                
-                var swapChain = new SwapChain1(dxgiFactory, d3Device1, _target.Handle, ref swapChainDescription);
-
-                // Ignore all windows events
-                var factory = swapChain.GetParent<Factory2>();
-                factory.MakeWindowAssociation(_target.Handle, WindowAssociationFlags.IgnoreAll);
-
-                var d2DFactory = new SharpDX.Direct2D1.Factory();
-
-                // New RenderTargetView from the backbuffer
-                var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
-
-                var dxgiSurface = backBuffer.QueryInterface<Surface>();
-
-                var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
-
-                /*
-                var renderTarget =
-                    new RenderTarget(d2DFactory, dxgiSurface, settings)
-                    {
-                        TextAntialiasMode = TextAntialiasMode.Cleartype
-                    };
-                */
-
-                //var bitmapTarget = new BitmapRenderTarget(renderTarget, CompatibleRenderTargetOptions.GdiCompatible);
-
-                using (var imgFactory = new ImagingFactory())
-                {
-                    var bitmap = new SharpDX.WIC.Bitmap(imgFactory, _target.Width, _target.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, BitmapCreateCacheOption.CacheOnDemand);
-
-                    var bitmapTarget = new WicRenderTarget(d2DFactory, bitmap, settings);
-
-                    var directWriteFactory = new SharpDX.DirectWrite.Factory();
-
-                    RenderingState.Bitmap = bitmap;
-                    RenderingState.D2DFactory = d2DFactory;
-                    RenderingState.WicRenderTarget = bitmapTarget;
-                    RenderingState.SwapChain = swapChain;
-                    RenderingState.Factory = factory;
-                    RenderingState.DxgiSurface = dxgiSurface;
-                    RenderingState.BackBuffer = backBuffer;
-                    RenderingState.DirectWriteFactory = directWriteFactory;
-                }
-            }
-
-            /// <summary>
-            /// Starts the render loop using a given closure as the actual content rendering delegate.
-            /// 
-            /// This method does not return after being called, and will continue processing Windows Form events
-            /// internally until the application is closed.
-            /// </summary>
-            public void RenderSingleFrame([NotNull, InstantHandle] Action<IDirect2DRenderingState> render)
-            {
-                _frameDeltaTimer.Restart();
-
-                RenderingState.D2DRenderTarget.BeginDraw();
-
-                render(RenderingState);
-
-                RenderingState.D2DRenderTarget.EndDraw();
-            }
-            
-            internal class Direct2DRenderingState : IDirect2DRenderingState
-            {
-                private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
-
-                public SwapChain1 SwapChain;
-                public SharpDX.DXGI.Factory Factory;
-
-                public Surface DxgiSurface { set; get; }
-                public SharpDX.Direct2D1.Factory D2DFactory { set; get; }
-                public Texture2D BackBuffer { set; get; }
-
-                public SharpDX.WIC.Bitmap Bitmap { get; set; }
-
-                public WicRenderTarget WicRenderTarget { set; get; }
-                public RenderTarget D2DRenderTarget => WicRenderTarget;
-                public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
-
-                /// <summary>
-                /// Gets the time span since the last frame rendered
-                /// </summary>
-                public TimeSpan FrameRenderDeltaTime { get; set; }
-
-                public void Dispose()
-                {
-                    // Release all resources
-                    BackBuffer?.Dispose();
-                    SwapChain?.Dispose();
-                    Factory?.Dispose();
-                    Bitmap?.Dispose();
-                    WicRenderTarget?.Dispose();
-                }
-                
-                public void WithTemporaryClipping(AABB clipping, [InstantHandle] Action execute)
-                {
-                    D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectangleF(), AntialiasMode.Aliased);
-
-                    execute();
-
-                    D2DRenderTarget.PopAxisAlignedClip();
-                }
-
-                public void PushingTransform([InstantHandle] Action execute)
-                {
-                    var transform = D2DRenderTarget.Transform;
-                    execute();
-                    D2DRenderTarget.Transform = transform;
-                }
-
-                public void PushMatrix(Matrix3x2 matrix)
-                {
-                    _matrixStack.Push(D2DRenderTarget.Transform);
-
-                    D2DRenderTarget.Transform = D2DRenderTarget.Transform * matrix;
-                }
-
-                public void PopMatrix()
-                {
-                    D2DRenderTarget.Transform = _matrixStack.Pop();
-                }
-            }
-        }
-
+        
         private class FullClipping : IClippingRegion
         {
             public bool IsVisibleInClippingRegion(Rectangle rectangle)

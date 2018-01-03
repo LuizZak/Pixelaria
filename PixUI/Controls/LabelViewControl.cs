@@ -29,7 +29,6 @@ using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
-using PixUI.Rendering;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using Font = System.Drawing.Font;
@@ -223,11 +222,11 @@ namespace PixUI.Controls
                 return;
 
             var horizontalAlign =
-                Direct2DHelpers.DirectWriteAlignmentFor(HorizontalTextAlignment);
+                Direct2DConversionHelpers.DirectWriteAlignmentFor(HorizontalTextAlignment);
             var verticalAlign =
-                Direct2DHelpers.DirectWriteAlignmentFor(VerticalTextAlignment);
+                Direct2DConversionHelpers.DirectWriteAlignmentFor(VerticalTextAlignment);
             var wordWrap =
-                Direct2DHelpers.DirectWriteWordWrapFor(TextWordWrap);
+                Direct2DConversionHelpers.DirectWriteWordWrapFor(TextWordWrap);
 
             _textFormat =
                 new TextFormat(factory, _labelView.TextFont.Name, _labelView.TextFont.Size)
@@ -248,35 +247,5 @@ namespace PixUI.Controls
             _textLayout?.Dispose();
             _textLayout = null;
         }
-    }
-
-    /// <summary>
-    /// Text alignment of a <see cref="LabelViewControl"/>.
-    /// </summary>
-    public enum HorizontalTextAlignment
-    {
-        Leading,
-        Center,
-        Trailing
-    }
-
-    /// <summary>
-    /// Vertical text alignment of a <see cref="LabelViewControl"/>.
-    /// </summary>
-    public enum VerticalTextAlignment
-    {
-        Near,
-        Center,
-        Far
-    }
-    
-    /// <summary>
-    /// Text word wrap of a <see cref="LabelViewControl"/>.
-    /// </summary>
-    public enum TextWordWrap
-    {
-        None,
-        ByCharacter,
-        ByWord
     }
 }

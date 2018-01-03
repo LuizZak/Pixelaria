@@ -120,7 +120,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             base.OnRender(state);
 
-            var context = new ControlRenderingContext(state, Control.D2DRenderer, Control.LabelViewTextMetricsProvider);
+            var context = new ControlRenderingContext(state, Control.D2DRenderer, Control.TextMetricsProvider);
 
             // Create a renderer visitor for the root UI element we got
             var visitor = new ViewRenderingVisitor();

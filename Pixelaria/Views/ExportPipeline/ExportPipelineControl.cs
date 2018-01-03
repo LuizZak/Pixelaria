@@ -102,7 +102,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the label view mwtrics provider initialized for this control
         /// </summary>
-        public ILabelViewTextMetricsProvider LabelViewTextMetricsProvider => _d2DRenderer.LabelViewTextMetricsProvider;
+        public ITextMetricsProvider TextMetricsProvider => _d2DRenderer.TextMetricsProvider;
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control
