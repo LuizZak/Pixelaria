@@ -30,7 +30,6 @@ using JetBrains.Annotations;
 
 using PixCore.Colors;
 using PixCore.Geometry;
-using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
@@ -38,7 +37,7 @@ using PixUI;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-
+using PixUI.Rendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -46,7 +45,6 @@ using SharpDX.Mathematics.Interop;
 
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
-using Font = System.Drawing.Font;
 using RectangleF = System.Drawing.RectangleF;
 using CombineMode = SharpDX.Direct2D1.CombineMode;
 using TextRange = SharpDX.DirectWrite.TextRange;
@@ -58,12 +56,10 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal class Direct2DRenderer : BaseDirect2DRenderer, IExportPipelineDirect2DRenderer
     {
-        /// <summary>
-        /// For relative position calculations
-        /// </summary>
-        private readonly ExportPipelineControl.IPipelineContainer _container;
+        private readonly ExportPipelineControl.IPipelineContainer _container; // For relative position calculations
+        private readonly DefaultLabelViewSizeProvider _labelViewSizeProvider;
         private readonly Control _control;
-        
+
         /// <summary>
         /// A small 32x32 box used to draw shadow boxes for labels.
         /// </summary>
@@ -74,10 +70,13 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         private TextFormat _nodeTitlesTextFormat;
 
+        public ILabelViewSizeProvider LabelViewSizeProvider => _labelViewSizeProvider;
+
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
         
         public Direct2DRenderer(ExportPipelineControl.IPipelineContainer container, Control control)
         {
+            _labelViewSizeProvider = new DefaultLabelViewSizeProvider(this);
             _container = container;
             _control = control;
         }
@@ -126,7 +125,7 @@ namespace Pixelaria.Views.ExportPipeline
             RenderInView(_container.UiContainerView, state, decorators.ToArray());
         }
 
-        protected void RenderInView([NotNull] BaseView view, [NotNull] IDirect2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderInView([NotNull] BaseView view, [NotNull] IDirect2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
         {
             // Render all remaining objects
             var labels = view.Children.OfType<LabelView>().ToArray();
@@ -629,51 +628,6 @@ namespace Pixelaria.Views.ExportPipeline
             RenderingDecorators.Remove(decorator);
 
             decorator.Removed(this);
-        }
-
-        #endregion
-
-        #region LabelView Size Provider
-
-        public SizeF CalculateTextSize(LabelView labelView)
-        {
-            return CalculateTextSize(labelView.AttributedText, labelView.TextFont);
-        }
-
-        public SizeF CalculateTextSize(string text, Font font)
-        {
-            return CalculateTextSize(new AttributedText(text), font);
-        }
-
-        public SizeF CalculateTextSize(IAttributedText text, Font font)
-        {
-            return CalculateTextSize(text, font.Name, font.Size);
-        }
-
-        public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
-        {
-            var renderState = GetLatestValidRenderingState();
-            if (renderState == null)
-                return SizeF.Empty;
-
-            using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font, fontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center, WordWrapping = WordWrapping.WholeWord })
-            using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
-            {
-                foreach (var textSegment in text.GetTextSegments())
-                {
-                    if (!textSegment.HasAttribute<TextFontAttribute>())
-                        continue;
-
-                    var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                    textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                        new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    textLayout.SetFontSize(fontAttr.Font.Size,
-                        new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                }
-
-                return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
-            }
         }
 
         #endregion

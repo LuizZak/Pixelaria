@@ -15,7 +15,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Pixelaria.Views.ExportPipeline.PipelineView.PipelineNodeViewSizer pipelineNodeViewSizer1 = new Pixelaria.Views.ExportPipeline.PipelineView.PipelineNodeViewSizer();
+            Pixelaria.Views.ExportPipeline.PipelineView.DefaultPipelineNodeViewSizer defaultPipelineNodeViewSizer1 = new Pixelaria.Views.ExportPipeline.PipelineView.DefaultPipelineNodeViewSizer();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportPipelineView));
             this.exportPipelineControl = new Pixelaria.Views.ExportPipeline.ExportPipelineControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
@@ -30,7 +30,7 @@
             this.exportPipelineControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.exportPipelineControl.Location = new System.Drawing.Point(0, 25);
             this.exportPipelineControl.Name = "exportPipelineControl";
-            this.exportPipelineControl.PipelineNodeViewSizer = pipelineNodeViewSizer1;
+            this.exportPipelineControl.PipelineNodeViewSizer = defaultPipelineNodeViewSizer1;
             this.exportPipelineControl.Size = new System.Drawing.Size(1181, 686);
             this.exportPipelineControl.TabIndex = 0;
             // 

@@ -150,7 +150,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigurePipelineControl()
         {
-            LabelView.DefaultLabelViewSizeProvider = exportPipelineControl.D2DRenderer;
+            LabelView.DefaultLabelViewSizeProvider = exportPipelineControl.D2DRenderer.LabelViewSizeProvider;
             var imageResources = exportPipelineControl.D2DRenderer.ImageResources;
 
             void AddImage(System.Drawing.Bitmap bitmap, string name)

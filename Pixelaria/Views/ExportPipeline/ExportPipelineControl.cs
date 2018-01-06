@@ -112,7 +112,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets or sets the sizer to apply to pipeline node views.
         /// </summary>
-        public IPipelineNodeViewSizer PipelineNodeViewSizer { get; set; } = new PipelineNodeViewSizer();
+        public IPipelineNodeViewSizer PipelineNodeViewSizer { get; set; } = new DefaultPipelineNodeViewSizer();
         
         public ExportPipelineControl()
         {
@@ -1267,13 +1267,13 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 foreach (var view in _nodeViews)
                 {
-                    _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer);
+                    AutosizeNode(view);
                 }
             }
 
             public void AutosizeNode(PipelineNodeView view)
             {
-                _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer);
+                _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer.LabelViewSizeProvider);
             }
 
             public void PerformAction(IExportPipelineAction action)

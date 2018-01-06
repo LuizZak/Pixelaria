@@ -31,12 +31,17 @@ using Pixelaria.Utils.Layouting;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
-    internal class PipelineNodeViewSizer : IPipelineNodeViewSizer
+    internal class DefaultPipelineNodeViewSizer : IPipelineNodeViewSizer
     {
         private InsetBounds _bodyTextInset = new InsetBounds(7, 7, 7, 7);
 
         private const float LinkSize = 10;
         private const float LinkSeparation = 5;
+
+        /// <summary>
+        /// Vertical separation between the outputs and inputs link lists on a node
+        /// </summary>
+        private const float LinkOutputInputsSeparation = 5;
 
         /// <summary>
         /// Padding between links and top/bottom of content view
@@ -54,8 +59,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             const float minBodySize = 10;
 
             // Calculate link size
-            int maxLinkCount = Math.Max(nodeView.InputViews.Count, nodeView.OutputViews.Count);
-            float vertLinkSize = maxLinkCount * (LinkSize + LinkSeparation) + LinkPadding;
+            float vertLinkSize = MinHeightForLinks(nodeView);
             float horLinkSize = MinWidthForLinks(nodeView);
 
             nodeView.Size = new Vector(Math.Max(80, Math.Max(bodyTextSize.X + horLinkSize, nameSize.X + 8)),
@@ -101,22 +105,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         {
             var inputs = (nodeView.PipelineNode as IPipelineNodeWithInputs)?.Input ?? new IPipelineInput[0];
             var outputs = (nodeView.PipelineNode as IPipelineNodeWithOutputs)?.Output ?? new IPipelineOutput[0];
+            float vertSep = inputs.Count > 0 && outputs.Count > 0 ? LinkOutputInputsSeparation : 0;
+
+            int totalCount = inputs.Count + outputs.Count;
 
             var linkSize = new Vector(LinkSize);
 
             var contentArea = nodeView.GetContentArea();
 
-            var topLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Top);
+            // Inputs
+            var topLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Top + vertSep);
             var botLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Bottom);
-            var topRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Top);
-            var botRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Bottom);
-
-            var ins = LayoutingHelper.AlignedRectanglesAcrossEdge(inputs.Count, linkSize, topLeft, botLeft, LinkSize + LinkSeparation);
-            var outs = LayoutingHelper.AlignedRectanglesAcrossEdge(outputs.Count, linkSize, topRight, botRight, LinkSize + LinkSeparation);
-
+            var ins = LayoutingHelper.AlignedRectanglesAcrossEdge(totalCount, linkSize, topLeft, botLeft, LinkSize + LinkSeparation);
             for (int i = 0; i < inputs.Count; i++)
             {
-                var rect = ins[i];
+                var rect = ins[i + outputs.Count];
                 var link = nodeView.InputViews[i];
 
                 link.Location = rect.Minimum;
@@ -124,7 +127,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
                 link.LinkLabel.Location = new Vector(link.Size.X + 5, link.Size.Y / 2 - link.LinkLabel.Size.Y / 2);
             }
-
+            
+            // Outputs
+            var topRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Top);
+            var botRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Bottom - vertSep);
+            var outs = LayoutingHelper.AlignedRectanglesAcrossEdge(totalCount, linkSize, topRight, botRight, LinkSize + LinkSeparation);
             for (int i = 0; i < outputs.Count; i++)
             {
                 var rect = outs[i];
@@ -170,6 +177,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             return bodySize;
         }
+        
+        private static float MinHeightForLinks(PipelineNodeView nodeView)
+        {
+            int linkCount = nodeView.InputViews.Count + nodeView.OutputViews.Count;
+
+            float vertLinkSize = linkCount * (LinkSize + LinkSeparation) + LinkPadding;
+            
+            // Separator line
+            if (nodeView.InputViews.Count > 0 && nodeView.OutputViews.Count > 0)
+            {
+                vertLinkSize += LinkOutputInputsSeparation;
+            }
+            
+            return vertLinkSize;
+        }
 
         private static float MinWidthForLinks([NotNull] PipelineNodeView nodeView)
         {
@@ -179,7 +201,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             float outputWidth =
                 nodeView.OutputViews.Select(linkView => LinkSize + 13 + linkView.LinkLabel.Width).Concat(new float[] {0}).Max();
 
-            return inputWidth + outputWidth;
+            return Math.Max(inputWidth, outputWidth);
         }
     }
 }

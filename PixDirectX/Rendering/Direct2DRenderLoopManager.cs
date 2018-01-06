@@ -123,8 +123,9 @@ namespace PixDirectX.Rendering
             var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
             var dxgiSurface = backBuffer.QueryInterface<Surface>();
-
-            var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
+            
+            var pixelFormat = new PixelFormat(Format.Unknown, AlphaMode.Premultiplied);
+            var settings = new RenderTargetProperties(pixelFormat);
             var renderTarget =
                 new RenderTarget(d2DFactory, dxgiSurface, settings)
                 {

@@ -267,7 +267,7 @@
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\PipelineLinkContextMenuFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\IPipelineNodeViewSizer.cs" />
-    <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeViewSizer.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\DefaultPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PropertiesPanel.cs" />
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>

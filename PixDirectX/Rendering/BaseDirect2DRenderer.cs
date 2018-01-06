@@ -316,4 +316,23 @@ namespace PixDirectX.Rendering
         [CanBeNull]
         IDirect2DRenderingState GetLatestValidRenderingState();
     }
+
+    /// <summary>
+    /// Basic implementation of <see cref="IDirect2DRenderingStateProvider"/> that always returns the same
+    /// value specified at construction
+    /// </summary>
+    public class StaticDirect2DRenderingStateProvider : IDirect2DRenderingStateProvider
+    {
+        private readonly IDirect2DRenderingState _state;
+
+        public StaticDirect2DRenderingStateProvider(IDirect2DRenderingState state)
+        {
+            _state = state;
+        }
+
+        public IDirect2DRenderingState GetLatestValidRenderingState()
+        {
+            return _state;
+        }
+    }
 }

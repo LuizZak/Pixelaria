@@ -79,7 +79,10 @@ namespace PixDirectX.Rendering
             var pixelFormat = new PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied);
             var renderTargetProperties = new RenderTargetProperties(pixelFormat);
 
-            var bitmapTarget = new WicRenderTarget(d2DFactory, _target, renderTargetProperties);
+            var bitmapTarget = new WicRenderTarget(d2DFactory, _target, renderTargetProperties)
+            {
+                TextAntialiasMode = TextAntialiasMode.Cleartype
+            };
 
             var directWriteFactory = new SharpDX.DirectWrite.Factory();
 
