@@ -466,7 +466,7 @@ namespace PixUI.Controls
 
             string text = Text;
 
-            var attributes = new TextAttributes(_label.TextFont.Name, _label.TextFont.Size)
+            var attributes = new TextLayoutAttributes(_label.TextFont.Name, _label.TextFont.Size)
             {
                 HorizontalTextAlignment = _label.HorizontalTextAlignment,
                 VerticalTextAlignment = _label.VerticalTextAlignment,

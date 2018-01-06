@@ -242,14 +242,14 @@ namespace PixDirectX.Rendering
                 _renderer = renderer;
             }
 
-            public AABB LocationOfCharacter(int offset, IAttributedText text, TextAttributes textAttributes)
+            public AABB LocationOfCharacter(int offset, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
             {
                 var renderState = _renderer.GetLatestValidRenderingState();
                 if (renderState == null)
                     return AABB.Empty;
 
                 return
-                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
+                    WithTemporaryTextFormat(renderState, text, textLayoutAttributes, (format, layout) =>
                     {
                         var metric = layout.HitTestTextPosition(offset, false, out float _, out float _);
 
@@ -257,14 +257,14 @@ namespace PixDirectX.Rendering
                     });
             }
 
-            public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextAttributes textAttributes)
+            public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
             {
                 var renderState = _renderer.GetLatestValidRenderingState();
                 if (renderState == null)
                     return new AABB[0];
 
                 return
-                    WithTemporaryTextFormat(renderState, text, textAttributes, (format, layout) =>
+                    WithTemporaryTextFormat(renderState, text, textLayoutAttributes, (format, layout) =>
                     {
                         var metrics = layout.HitTestTextRange(offset, length, 0, 0);
                         return metrics
@@ -273,16 +273,16 @@ namespace PixDirectX.Rendering
                     });
             }
 
-            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextAttributes textAttributes,
+            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes,
                 [NotNull] Func<TextFormat, TextLayout, T> action)
             {
-                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, textAttributes.Font, textAttributes.FontSize)
+                using (var textFormat = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.Font, textLayoutAttributes.FontSize)
                 {
-                    TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textAttributes.HorizontalTextAlignment),
-                    ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textAttributes.VerticalTextAlignment),
-                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textAttributes.WordWrap)
+                    TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.HorizontalTextAlignment),
+                    ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.VerticalTextAlignment),
+                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.WordWrap)
                 })
-                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textAttributes.AvailableWidth, textAttributes.AvailableHeight))
+                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight))
                 {
                     foreach (var textSegment in text.GetTextSegments())
                     {

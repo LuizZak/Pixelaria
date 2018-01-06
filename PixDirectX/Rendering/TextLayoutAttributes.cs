@@ -27,7 +27,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Default struct for bundling text attributes to feed to calls to <see cref="ITextMetricsProvider"/>
     /// </summary>
-    public struct TextAttributes
+    public struct TextLayoutAttributes
     {
         [NotNull]
         public string Font { get; set; }
@@ -46,7 +46,7 @@ namespace PixDirectX.Rendering
         /// </summary>
         public float AvailableHeight { get; set; }
 
-        public TextAttributes([NotNull] string font, float fontSize,
+        public TextLayoutAttributes([NotNull] string font, float fontSize,
             HorizontalTextAlignment horizontal = HorizontalTextAlignment.Leading,
             VerticalTextAlignment vertical = VerticalTextAlignment.Near)
         {

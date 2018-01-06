@@ -112,6 +112,10 @@
       <Project>{DB49EDE1-059E-4368-B421-8CFD5954CFEC}</Project>
       <Name>PixCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj">
+      <Project>{eb5d6dea-6ae2-4545-a708-6f0f2b1f5c50}</Project>
+      <Name>PixSnapshot</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PixUI\PixUI.csproj">
       <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
       <Name>PixUI</Name>
