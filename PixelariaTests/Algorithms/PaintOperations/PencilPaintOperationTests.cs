@@ -39,11 +39,6 @@ namespace PixelariaTests.Algorithms.PaintOperations
     [TestClass]
     public class PencilPaintOperationTests
     {
-        /// <summary>
-        /// Specifies the name of the operation currently being tested
-        /// </summary>
-        public const string OperationName = "Pencil";
-
         public TestContext TestContext { get; set; }
 
         [TestInitialize]
