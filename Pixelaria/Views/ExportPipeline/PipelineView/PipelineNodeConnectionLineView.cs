@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
 
@@ -46,6 +47,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             instance.Start = start;
             instance.End = end;
             instance.Connection = connection;
+            instance.OuterStrokeWidth = 1;
+            instance.OuterStrokeColor = Color.Black;
 
             instance.UpdateBezier();
 

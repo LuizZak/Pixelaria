@@ -277,18 +277,18 @@ namespace Pixelaria.Views.ExportPipeline
                 var feature = _features[i];
                 feature.OnMouseDown(e);
 
-                if (feature.IsEventConsumed)
+                if (!feature.IsEventConsumed) 
+                    continue;
+
+                for (int j = 0; j < _features.Count; j++)
                 {
-                    for (int j = 0; j < _features.Count; j++)
-                    {
-                        if (i == j)
-                            continue;
+                    if (i == j)
+                        continue;
 
-                        _features[j].OtherFeatureConsumedMouseDown();
-                    }
-
-                    return;
+                    _features[j].OtherFeatureConsumedMouseDown();
                 }
+
+                return;
             }
         }
 
@@ -719,7 +719,7 @@ namespace Pixelaria.Views.ExportPipeline
             private readonly List<PipelineNodeView> _nodeViews = new List<PipelineNodeView>();
             private readonly List<PipelineNodeConnectionLineView> _connectionViews =
                 new List<PipelineNodeConnectionLineView>();
-            private readonly _Selection _sel;
+            private readonly InternalSelection _sel;
             private readonly ExportPipelineControl _control;
             
             public event PipelineNodeViewEventHandler NodeAdded;
@@ -739,7 +739,7 @@ namespace Pixelaria.Views.ExportPipeline
             public InternalPipelineContainer(ExportPipelineControl control)
             {
                 _root = new RootControlView(this);
-                _sel = new _Selection(this);
+                _sel = new InternalSelection(this);
 
                 _root.AddChild(ContentsView);
                 _root.AddChild(UiContainerView);
@@ -801,28 +801,33 @@ namespace Pixelaria.Views.ExportPipeline
 
             public void AttemptSelect(BaseView view)
             {
-                if (view is PipelineNodeView nodeView)
+                switch (view)
                 {
-                    SelectNode(nodeView.PipelineNode);
-                }
-                else if (view is PipelineNodeLinkView linkView)
-                {
-                    SelectLink(linkView.NodeLink);
-                }
-                else if (view is PipelineNodeConnectionLineView connectionView)
-                {
-                    SelectConnection(connectionView.Connection);
+                    case PipelineNodeView nodeView:
+                        SelectNode(nodeView.PipelineNode);
+                        break;
+                    case PipelineNodeLinkView linkView:
+                        SelectLink(linkView.NodeLink);
+                        break;
+                    case PipelineNodeConnectionLineView connectionView:
+                        SelectConnection(connectionView.Connection);
+                        break;
                 }
             }
 
             public bool IsSelectable(BaseView view)
             {
-                if (view is PipelineNodeView)
-                    return true;
-                if (view is PipelineNodeLinkView)
-                    return true;
-
-                return view is PipelineNodeConnectionLineView;
+                switch (view)
+                {
+                    case PipelineNodeView _:
+                        return true;
+                    case PipelineNodeLinkView _:
+                        return true;
+                    case PipelineNodeConnectionLineView _:
+                        return true;
+                    default:
+                        return false;
+                }
             }
 
             public void SelectNode(IPipelineNode node)
@@ -874,22 +879,28 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 foreach (object o in _selection.ToArray())
                 {
-                    if (o is IPipelineNode node)
+                    switch (o)
                     {
-                        var view = ViewForPipelineNode(node);
-                        Deselect(view);
-                    }
-                    else if (o is IPipelineNodeLink link)
-                    {
-                        // Invalidate view region
-                        var view = ViewForPipelineNodeLink(link);
-                        Deselect(view);
-                    }
-                    else if (o is IPipelineLinkConnection conn)
-                    {
-                        // Invalidate view region
-                        var view = ViewForPipelineConnection(conn);
-                        Deselect(view);
+                        case IPipelineNode node:
+                        {
+                            var view = ViewForPipelineNode(node);
+                            Deselect(view);
+                            break;
+                        }
+                        case IPipelineNodeLink link:
+                        {
+                            // Invalidate view region
+                            var view = ViewForPipelineNodeLink(link);
+                            Deselect(view);
+                            break;
+                        }
+                        case IPipelineLinkConnection conn:
+                        {
+                            // Invalidate view region
+                            var view = ViewForPipelineConnection(conn);
+                            Deselect(view);
+                            break;
+                        }
                     }
                 }
 
@@ -898,32 +909,32 @@ namespace Pixelaria.Views.ExportPipeline
             
             public void Deselect([CanBeNull] BaseView view)
             {
-                if (view is PipelineNodeView nodeView)
+                switch (view)
                 {
-                    if (!_selection.Contains(nodeView.PipelineNode))
-                        return;
+                    case PipelineNodeView nodeView:
+                        if (!_selection.Contains(nodeView.PipelineNode))
+                            return;
 
-                    _selection.Remove(nodeView.PipelineNode);
-                    view.StrokeWidth = 1;
-                    view.StrokeColor = Color.Black;
-                }
-                else if (view is PipelineNodeLinkView linkView)
-                {
-                    if (!_selection.Contains(linkView.NodeLink))
-                        return;
+                        _selection.Remove(nodeView.PipelineNode);
+                        view.StrokeWidth = 1;
+                        view.StrokeColor = Color.Black;
+                        break;
+                    case PipelineNodeLinkView linkView:
+                        if (!_selection.Contains(linkView.NodeLink))
+                            return;
 
-                    _selection.Remove(linkView.NodeLink);
-                    view.StrokeWidth = 1;
-                    view.StrokeColor = Color.Black;
-                }
-                else if (view is PipelineNodeConnectionLineView connView)
-                {
-                    if (!_selection.Contains(connView.Connection))
-                        return;
+                        _selection.Remove(linkView.NodeLink);
+                        view.StrokeWidth = 1;
+                        view.StrokeColor = Color.Black;
+                        break;
+                    case PipelineNodeConnectionLineView connView:
+                        if (!_selection.Contains(connView.Connection))
+                            return;
 
-                    _selection.Remove(connView.Connection);
-                    view.StrokeWidth = 2;
-                    view.StrokeColor = Color.Orange;
+                        _selection.Remove(connView.Connection);
+                        view.StrokeWidth = 2;
+                        view.StrokeColor = Color.Orange;
+                        break;
                 }
             }
 
@@ -1306,13 +1317,12 @@ namespace Pixelaria.Views.ExportPipeline
                     _control.InvalidateRegion(new Region(new Rectangle(Point.Empty, _control.Size)));
                 }
             }
-
-            // ReSharper disable once InconsistentNaming
-            private class _Selection : ISelection
+            
+            private class InternalSelection : ISelection
             {
                 private readonly InternalPipelineContainer _container;
 
-                public _Selection(InternalPipelineContainer container)
+                public InternalSelection(InternalPipelineContainer container)
                 {
                     _container = container;
                 }
@@ -1348,12 +1358,17 @@ namespace Pixelaria.Views.ExportPipeline
 
                 public bool Contains(BaseView view)
                 {
-                    if (view is PipelineNodeView node)
-                        return _container.Selection.Contains(node.PipelineNode);
-                    if (view is PipelineNodeLinkView link)
-                        return _container.Selection.Contains(link.NodeLink);
-                    if (view is PipelineNodeConnectionLineView con)
-                        return _container.Selection.Contains(con.Connection);
+                    switch (view)
+                    {
+                        case PipelineNodeView node:
+                            return _container.Selection.Contains(node.PipelineNode);
+
+                        case PipelineNodeLinkView link:
+                            return _container.Selection.Contains(link.NodeLink);
+
+                        case PipelineNodeConnectionLineView con:
+                            return _container.Selection.Contains(con.Connection);
+                    }
 
                     return false;
                 }

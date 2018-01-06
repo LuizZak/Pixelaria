@@ -37,7 +37,6 @@ namespace PixelariaTests.Data.Exports
         public void TestTextureAtlasFrameInsert()
         {
             var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
-
             var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
 
             foreach (var frame in anim.Frames)
@@ -55,7 +54,6 @@ namespace PixelariaTests.Data.Exports
         public void TestInsertDuplicatedFrames()
         {
             var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
-
             var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 5);
 
             foreach (var frame in anim.Frames)
@@ -74,7 +72,6 @@ namespace PixelariaTests.Data.Exports
         public void TestInsertAnimation()
         {
             var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
-
             var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
 
             atlas.InsertFramesFromAnimation(anim);
@@ -89,7 +86,6 @@ namespace PixelariaTests.Data.Exports
         public void TestInsertDuplicatedAnimation()
         {
             var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
-
             var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
 
             atlas.InsertFramesFromAnimation(anim);

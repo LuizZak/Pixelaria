@@ -34,6 +34,9 @@ namespace PixUI
     /// </summary>
     public class BezierPathView : BaseView
     {
+        private float _outerStrokeWidth;
+        private Color _outerStrokeColor = Color.Transparent;
+
         /// <summary>
         /// Cached path for Contains calls
         /// </summary>
@@ -43,6 +46,7 @@ namespace PixUI
         private AABB _inputsBounds = AABB.Empty;
 
         private readonly List<IPathInput> _inputs = new List<IPathInput>();
+        private Color _fillColor = Color.Transparent;
 
         public override AABB Bounds => _inputsBounds.Inflated(StrokeWidth, StrokeWidth);
         
@@ -58,8 +62,45 @@ namespace PixUI
         /// 
         /// Defaults to <see cref="Color.Transparent"/>
         /// </summary>
-        public Color FillColor { get; set; } = Color.Transparent;
+        public Color FillColor
+        {
+            get => _fillColor;
+            set
+            {
+                _fillColor = value;
+                Invalidate();
+            }
+        }
 
+        /// <summary>
+        /// The outer stroke color applied under the <see cref="BaseView.StrokeColor"/> of this view.
+        /// </summary>
+        public Color OuterStrokeColor
+        {
+            get => _outerStrokeColor;
+            set
+            {
+                _outerStrokeColor = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// The width of the outer stroke applied under this view's stroke color.
+        /// 
+        /// This width is added to the value of <see cref="BaseView.StrokeWidth"/> when rendering, so
+        /// values &gt; 0 will always draw an outer stroke on top of the existing stroke.
+        /// </summary>
+        public float OuterStrokeWidth
+        {
+            get => _outerStrokeWidth;
+            set
+            {
+                _outerStrokeWidth = value;
+                Invalidate();
+            }
+        }
+        
         /// <summary>
         /// Factory method for creation of bezier path views.
         /// </summary>

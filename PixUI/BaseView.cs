@@ -44,7 +44,7 @@ namespace PixUI
         private Vector _size;
         private Vector _location;
         private Color _strokeColor = Color.Black;
-        private int _strokeWidth = 1;
+        private float _strokeWidth = 1;
         private Vector _scale = Vector.Unit;
         private float _rotation;
 
@@ -212,7 +212,7 @@ namespace PixUI
         /// <summary>
         /// The width of the line for this bezier path view
         /// </summary>
-        public virtual int StrokeWidth
+        public virtual float StrokeWidth
         {
             get => _strokeWidth;
             set

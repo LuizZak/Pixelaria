@@ -366,7 +366,9 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     StrokeColor = bezierView.StrokeColor,
                     StrokeWidth = bezierView.StrokeWidth,
-                    FillColor = bezierView.FillColor
+                    FillColor = bezierView.FillColor,
+                    OuterStrokeColor = bezierView.OuterStrokeColor,
+                    OuterStrokeWidth = bezierView.OuterStrokeWidth
                 };
                         
                 var geom = new PathGeometry(renderingState.D2DRenderTarget.Factory);
@@ -413,12 +415,23 @@ namespace Pixelaria.Views.ExportPipeline
                         renderingState.D2DRenderTarget.FillGeometry(geom, brush);
                     }
                 }
-
-                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
+                
+                if(state.OuterStrokeWidth > 0 && state.OuterStrokeColor != Color.Transparent)
                 {
-                    renderingState.D2DRenderTarget.DrawGeometry(geom, brush, state.StrokeWidth);
+                    using (var brushOuterStroke = new SolidColorBrush(renderingState.D2DRenderTarget, state.OuterStrokeColor.ToColor4()))
+                    {
+                        renderingState.D2DRenderTarget.DrawGeometry(geom, brushOuterStroke, state.StrokeWidth + state.OuterStrokeWidth);
+                    }
                 }
-                    
+                
+                if(state.StrokeWidth > 0 && state.StrokeColor != Color.Transparent)
+                {
+                    using (var brushStroke = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
+                    {
+                        renderingState.D2DRenderTarget.DrawGeometry(geom, brushStroke, state.StrokeWidth);
+                    }
+                }
+
                 sink.Dispose();
                 geom.Dispose();
             });
@@ -657,7 +670,7 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal struct PipelineStepViewState
     {
-        public int StrokeWidth { get; set; }
+        public float StrokeWidth { get; set; }
         public Color FillColor { get; set; }
         public Color TitleFillColor { get; set; }
         public Color StrokeColor { get; set; }
@@ -667,21 +680,23 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal struct PipelineStepViewLinkState
     {
-        public int StrokeWidth { get; set; }
+        public float StrokeWidth { get; set; }
         public Color FillColor { get; set; }
         public Color StrokeColor { get; set; }
     }
 
     internal struct BezierPathViewState
     {
-        public int StrokeWidth { get; set; }
+        public float StrokeWidth { get; set; }
         public Color StrokeColor { get; set; }
         public Color FillColor { get; set; }
+        public float OuterStrokeWidth { get; set; }
+        public Color OuterStrokeColor { get; set; }
     }
 
     internal struct LabelViewState
     {
-        public int StrokeWidth { get; set; }
+        public float StrokeWidth { get; set; }
         public Color StrokeColor { get; set; }
         public Color TextColor { get; set; }
         public Color BackgroundColor { get; set; }
