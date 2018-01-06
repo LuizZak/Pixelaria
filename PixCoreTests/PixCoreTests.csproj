@@ -56,6 +56,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Colors\AhslColorsTests.cs" />
     <Compile Include="Colors\AhslColorTests.cs" />
     <Compile Include="Colors\ColorUtilsTests.cs" />
     <Compile Include="Controls\ColorControls\ColorPanelTests.cs" />

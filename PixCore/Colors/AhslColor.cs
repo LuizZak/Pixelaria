@@ -33,6 +33,7 @@ using PixCore.Controls.ColorControls;
 
 namespace PixCore.Colors
 {
+    /// <inheritdoc cref="IEquatable{T}"/>
     /// <summary>
     /// Represents an HSL color with an alpha channel
     /// </summary>
@@ -110,29 +111,30 @@ namespace PixCore.Colors
         /// </summary>
         public float FloatLightness { get; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Creates a new AHSL color
         /// </summary>
-        /// <param name="a">The Alpha component, ranging from 0-255</param>
-        /// <param name="h">The Hue component, ranging from 0-360</param>
-        /// <param name="s">The Saturation component, ranging from 0-100</param>
-        /// <param name="l">The Lightness component, ranging from 0-100</param>
-        public AhslColor(int a, int h, int s, int l)
-            : this(a / 255.0f, h / 360.0f, s / 100.0f, l / 100.0f) { }
+        /// <param name="alpha">The Alpha component, ranging from 0-255</param>
+        /// <param name="hue">The Hue component, ranging from 0-360</param>
+        /// <param name="saturation">The Saturation component, ranging from 0-100</param>
+        /// <param name="lightness">The Lightness component, ranging from 0-100</param>
+        public AhslColor(int alpha, int hue, int saturation, int lightness)
+            : this(alpha / 255.0f, hue / 360.0f, saturation / 100.0f, lightness / 100.0f) { }
 
         /// <summary>
         /// Creates a new AHSL color
         /// </summary>
-        /// <param name="a">The Alpha component, ranging from 0-1</param>
-        /// <param name="h">The Hue component, ranging from 0-1</param>
-        /// <param name="s">The Saturation component, ranging from 0-1</param>
-        /// <param name="l">The Lightness component, ranging from 0-1</param>
-        public AhslColor(float a, float h, float s, float l)
+        /// <param name="alpha">The Alpha component, ranging from 0-1</param>
+        /// <param name="hue">The Hue component, ranging from 0-1</param>
+        /// <param name="saturation">The Saturation component, ranging from 0-1</param>
+        /// <param name="lightness">The Lightness component, ranging from 0-1</param>
+        public AhslColor(float alpha, float hue, float saturation, float lightness)
         {
-            FloatAlpha = Math.Max(0, Math.Min(1, a));
-            FloatHue = Math.Max(0, Math.Min(1, h));
-            FloatSaturation = Math.Max(0, Math.Min(1, s));
-            FloatLightness = Math.Max(0, Math.Min(1, l));
+            FloatAlpha = Math.Max(0, Math.Min(1, alpha));
+            FloatHue = Math.Max(0, Math.Min(1, hue));
+            FloatSaturation = Math.Max(0, Math.Min(1, saturation));
+            FloatLightness = Math.Max(0, Math.Min(1, lightness));
         }
 
         /// <summary>
@@ -154,10 +156,10 @@ namespace PixCore.Colors
         /// <returns>Whether two AHSL color structures are the same</returns>
         public static bool operator==(AhslColor color1, AhslColor color2)
         {
-            return (Math.Abs(color1.FloatAlpha - color2.FloatAlpha) < Single.Epsilon &&
-                    Math.Abs(color1.FloatHue - color2.FloatHue) < Single.Epsilon &&
-                    Math.Abs(color1.FloatSaturation - color2.FloatSaturation) < Single.Epsilon &&
-                    Math.Abs(color1.FloatLightness - color2.FloatLightness) < Single.Epsilon);
+            return Math.Abs(color1.FloatAlpha - color2.FloatAlpha) < float.Epsilon &&
+                   Math.Abs(color1.FloatHue - color2.FloatHue) < float.Epsilon &&
+                   Math.Abs(color1.FloatSaturation - color2.FloatSaturation) < float.Epsilon &&
+                   Math.Abs(color1.FloatLightness - color2.FloatLightness) < float.Epsilon;
         }
 
         public static explicit operator AhslColor(Color source)
@@ -228,7 +230,7 @@ namespace PixCore.Colors
         {
             unchecked
             {
-                var hashCode = FloatAlpha.GetHashCode();
+                int hashCode = FloatAlpha.GetHashCode();
                 hashCode = (hashCode * 397) ^ FloatHue.GetHashCode();
                 hashCode = (hashCode * 397) ^ FloatSaturation.GetHashCode();
                 hashCode = (hashCode * 397) ^ FloatLightness.GetHashCode();
@@ -315,15 +317,15 @@ namespace PixCore.Colors
             float h;
             float s;
             
-            if (Math.Abs(d) < Single.Epsilon)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 h = 0;
             }
-            else if (Math.Abs(M - r) < Single.Epsilon)
+            else if (Math.Abs(M - r) < float.Epsilon)
             {
-                h = (((g - b) / d) % 6) * 60;
+                h = (g - b) / d % 6 * 60;
             }
-            else if (Math.Abs(M - g) < Single.Epsilon)
+            else if (Math.Abs(M - g) < float.Epsilon)
             {
                 h = ((b - r) / d + 2) * 60;
             }
@@ -337,9 +339,9 @@ namespace PixCore.Colors
                 h += 360;
             }
 
-            var l = (M + m) / 2;
+            float l = (M + m) / 2;
 
-            if (Math.Abs(d) < Single.Epsilon)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 s = 0;
             }
@@ -376,10 +378,10 @@ namespace PixCore.Colors
                 return (1 - v) * min + v * max;
             }
             
-            var a = Lerp(start.FloatAlpha, end.FloatAlpha, factor);
-            var r = Lerp(start.FloatRed, end.FloatRed, factor);
-            var g = Lerp(start.FloatGreen, end.FloatGreen, factor);
-            var b = Lerp(start.FloatBlue, end.FloatBlue, factor);
+            float a = Lerp(start.FloatAlpha, end.FloatAlpha, factor);
+            float r = Lerp(start.FloatRed, end.FloatRed, factor);
+            float g = Lerp(start.FloatGreen, end.FloatGreen, factor);
+            float b = Lerp(start.FloatBlue, end.FloatBlue, factor);
 
             return FromArgb(a, r, g, b);
         }
@@ -523,52 +525,7 @@ namespace PixCore.Colors
 
         #endregion
     }
-
-    #region Default Color Definitions
-
-    /// <summary>
-    /// Specifies default color definitions
-    /// </summary>
-    public static class AhslColors
-    {
-        /// <summary>
-        /// A: 1, H: 0, S: 1, L: 1
-        /// </summary>
-        public static AhslColor White = new AhslColor(1.0f, 0, 1, 1);
-
-        /// <summary>
-        /// A: 1, H: 0, S: 0, L: 0
-        /// </summary>
-        public static AhslColor Black = new AhslColor(1.0f, 0, 0, 0);
-
-        /// <summary>
-        /// A: 1, H: 0, S: 1, L: 0.5
-        /// </summary>
-        public static AhslColor Red = new AhslColor(1.0f, 0, 1, 0.5f);
-
-        /// <summary>
-        /// A: 1, H: 0.333, S: 1, L: 0.5
-        /// </summary>
-        public static AhslColor Green = AhslColor.FromArgb(1.0f, 0, 1, 0);
-
-        /// <summary>
-        /// A: 1, H: 0.666, S: 1, L: 0.5
-        /// </summary>
-        public static AhslColor Blue = AhslColor.FromArgb(1.0f, 0, 0, 1);
-
-        /// <summary>
-        /// A: 1, H: 0.166, S: 1, L: 0.5
-        /// </summary>
-        public static AhslColor Yellow = AhslColor.FromArgb(1.0f, 1, 1, 0);
-
-        /// <summary>
-        /// A: 1, H: 0.5, S: 1, L: 0.5
-        /// </summary>
-        public static AhslColor Cyan = new AhslColor(1.0f, 0.5f, 1, 1);
-    }
-
-    #endregion
-
+    
     #region UITypeEditor
     
     /// <summary>

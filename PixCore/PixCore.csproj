@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Colors\AhslColor.cs" />
+    <Compile Include="Colors\AhslColors.cs" />
     <Compile Include="Colors\ColorUtils.cs" />
     <Compile Include="Controls\ColorControls\ColorPanel.cs">
       <SubType>Component</SubType>
