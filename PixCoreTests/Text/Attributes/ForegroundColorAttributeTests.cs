@@ -45,5 +45,52 @@ namespace PixCoreTests.Text.Attributes
 
             Assert.AreEqual(original.ForeColor, clone.ForeColor);
         }
+
+        [TestMethod]
+        public void TestEquals()
+        {
+            var attributeSame1 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeSame2 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeDifferent = new ForegroundColorAttribute(Color.Red);
+
+            Assert.IsTrue(attributeSame1.Equals(attributeSame2));
+            Assert.IsFalse(attributeSame1.Equals(attributeDifferent));
+        }
+
+        [TestMethod]
+        public void TestEqualsObject()
+        {
+            var attributeSame1 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeSame2 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeDifferent = new ForegroundColorAttribute(Color.Red);
+
+            Assert.IsTrue(attributeSame1.Equals((object)attributeSame2));
+            Assert.IsFalse(attributeSame1.Equals((object)attributeDifferent));
+            Assert.IsFalse(attributeSame1.Equals(null));
+        }
+
+        [TestMethod]
+        public void TestEqualsOperator()
+        {
+            var attributeSame1 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeSame2 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeDifferent = new ForegroundColorAttribute(Color.Red);
+
+            Assert.IsTrue(attributeSame1 == attributeSame2);
+            Assert.IsFalse(attributeSame1 != attributeSame2);
+            Assert.IsFalse(attributeSame1 == attributeDifferent);
+            Assert.IsTrue(attributeSame1 != attributeDifferent);
+        }
+
+        [TestMethod]
+        public void TestGetHashCode()
+        {
+            var attributeSame1 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeSame2 = new ForegroundColorAttribute(Color.AliceBlue);
+            var attributeDifferent = new ForegroundColorAttribute(Color.Red);
+
+            Assert.AreEqual(attributeSame1.GetHashCode(), attributeSame2.GetHashCode());
+            Assert.AreNotEqual(attributeSame1.GetHashCode(), attributeDifferent.GetHashCode());
+        }
     }
 }

@@ -47,5 +47,60 @@ namespace PixCoreTests.Text.Attributes
 
             Assert.AreEqual(original.Font, clone.Font);
         }
+
+        [TestMethod]
+        public void TestEquals()
+        {
+            var font1 = new Font(FontFamily.GenericSerif, 12.0f);
+            var font2 = new Font(FontFamily.GenericSerif, 14.0f);
+            var attributeSame1 = new TextFontAttribute(font1);
+            var attributeSame2 = new TextFontAttribute(font1);
+            var attributeDifferent = new TextFontAttribute(font2);
+
+            Assert.IsTrue(attributeSame1.Equals(attributeSame2));
+            Assert.IsFalse(attributeSame1.Equals(attributeDifferent));
+        }
+
+        [TestMethod]
+        public void TestEqualsObject()
+        {
+            var font1 = new Font(FontFamily.GenericSerif, 12.0f);
+            var font2 = new Font(FontFamily.GenericSerif, 14.0f);
+            var attributeSame1 = new TextFontAttribute(font1);
+            var attributeSame2 = new TextFontAttribute(font1);
+            var attributeDifferent = new TextFontAttribute(font2);
+
+            Assert.IsTrue(attributeSame1.Equals((object)attributeSame2));
+            Assert.IsFalse(attributeSame1.Equals((object)attributeDifferent));
+            Assert.IsFalse(attributeSame1.Equals(null));
+        }
+
+        [TestMethod]
+        public void TestEqualsOperator()
+        {
+            var font1 = new Font(FontFamily.GenericSerif, 12.0f);
+            var font2 = new Font(FontFamily.GenericSerif, 14.0f);
+            var attributeSame1 = new TextFontAttribute(font1);
+            var attributeSame2 = new TextFontAttribute(font1);
+            var attributeDifferent = new TextFontAttribute(font2);
+
+            Assert.IsTrue(attributeSame1 == attributeSame2);
+            Assert.IsFalse(attributeSame1 != attributeSame2);
+            Assert.IsFalse(attributeSame1 == attributeDifferent);
+            Assert.IsTrue(attributeSame1 != attributeDifferent);
+        }
+
+        [TestMethod]
+        public void TestGetHashCode()
+        {
+            var font1 = new Font(FontFamily.GenericSerif, 12.0f);
+            var font2 = new Font(FontFamily.GenericSerif, 14.0f);
+            var attributeSame1 = new TextFontAttribute(font1);
+            var attributeSame2 = new TextFontAttribute(font1);
+            var attributeDifferent = new TextFontAttribute(font2);
+
+            Assert.AreEqual(attributeSame1.GetHashCode(), attributeSame2.GetHashCode());
+            Assert.AreNotEqual(attributeSame1.GetHashCode(), attributeDifferent.GetHashCode());
+        }
     }
 }

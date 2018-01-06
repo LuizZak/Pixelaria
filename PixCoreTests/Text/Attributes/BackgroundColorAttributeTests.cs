@@ -51,5 +51,61 @@ namespace PixCoreTests.Text.Attributes
             Assert.AreEqual(original.BackColor, clone.BackColor);
             Assert.AreEqual(original.Inflation, clone.Inflation);
         }
+
+        [TestMethod]
+        public void TestEquals()
+        {
+            var attributeSame1 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Zero);
+            var attributeSame2 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Zero);
+            var attributeDifferent1 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Unit);
+            var attributeDifferent2 = new BackgroundColorAttribute(Color.Red, Vector.Zero);
+
+            Assert.IsTrue(attributeSame1.Equals(attributeSame2));
+            Assert.IsFalse(attributeSame1.Equals(attributeDifferent1));
+            Assert.IsFalse(attributeSame1.Equals(attributeDifferent2));
+        }
+
+        [TestMethod]
+        public void TestEqualsObject()
+        {
+            var attributeSame1 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Zero);
+            var attributeSame2 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Zero);
+            var attributeDifferent1 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Unit);
+            var attributeDifferent2 = new BackgroundColorAttribute(Color.Red, Vector.Zero);
+
+            Assert.IsTrue(attributeSame1.Equals((object)attributeSame2));
+            Assert.IsFalse(attributeSame1.Equals((object)attributeDifferent1));
+            Assert.IsFalse(attributeSame1.Equals((object)attributeDifferent2));
+            Assert.IsFalse(attributeSame1.Equals(null));
+        }
+
+        [TestMethod]
+        public void TestEqualsOperator()
+        {
+            var attributeSame1 = new BackgroundColorAttribute(Color.AliceBlue);
+            var attributeSame2 = new BackgroundColorAttribute(Color.AliceBlue);
+            var attributeDifferent1 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Unit);
+            var attributeDifferent2 = new BackgroundColorAttribute(Color.Red, Vector.Zero);
+
+            Assert.IsTrue(attributeSame1 == attributeSame2);
+            Assert.IsFalse(attributeSame1 != attributeSame2);
+            Assert.IsFalse(attributeSame1 == attributeDifferent1);
+            Assert.IsTrue(attributeSame1 != attributeDifferent1);
+            Assert.IsFalse(attributeSame1 == attributeDifferent2);
+            Assert.IsTrue(attributeSame1 != attributeDifferent2);
+        }
+
+        [TestMethod]
+        public void TestGetHashCode()
+        {
+            var attributeSame1 = new BackgroundColorAttribute(Color.AliceBlue);
+            var attributeSame2 = new BackgroundColorAttribute(Color.AliceBlue);
+            var attributeDifferent1 = new BackgroundColorAttribute(Color.AliceBlue, Vector.Unit);
+            var attributeDifferent2 = new BackgroundColorAttribute(Color.Red, Vector.Zero);
+
+            Assert.AreEqual(attributeSame1.GetHashCode(), attributeSame2.GetHashCode());
+            Assert.AreNotEqual(attributeSame1.GetHashCode(), attributeDifferent1.GetHashCode());
+            Assert.AreNotEqual(attributeSame1.GetHashCode(), attributeDifferent2.GetHashCode());
+        }
     }
 }
