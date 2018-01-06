@@ -108,14 +108,15 @@ namespace PixDirectX.Rendering
     /// </summary>
     public interface ID2DImageResourceManager: ID2DImageResourceProvider
     {
-        void AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
-        void RemoveImageResource([NotNull] string resourceName);
-        void RemoveImageResources();
-
         /// <summary>
-        /// Shortcut for creating and assigning a bitmap to use in pipeline node view's icons and other image resources
+        /// Creates a new image from a givem System.Drawing.Bitmap instance, assigns it with a given resource name, and
+        /// then returns it to be used.
         /// </summary>
-        ImageResource AddPipelineNodeImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+        ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+
+        void RemoveImageResource([NotNull] string resourceName);
+
+        void RemoveAllImageResources();
     }
 
     /// <summary>
@@ -128,7 +129,7 @@ namespace PixDirectX.Rendering
         /// 
         /// Returns null, if no resource with the given name is found.
         /// </summary>
-        ImageResource? PipelineNodeImageResource([NotNull] string resourceName);
+        ImageResource? GetImageResource([NotNull] string resourceName);
 
         /// <summary>
         /// Gets a Direct2D bitmap object for a matching image resource from this provider.

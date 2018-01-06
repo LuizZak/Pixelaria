@@ -30,7 +30,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Helper class for dealing with Direct2D image resource loading
     /// </summary>
-    internal sealed class D2DImageResources : IDisposable, ID2DImageResourceManager
+    public sealed class D2DImageResources : IDisposable, ID2DImageResourceManager
     {
         private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
 
@@ -44,15 +44,19 @@ namespace PixDirectX.Rendering
             _bitmapResources.Clear();
         }
 
-        public void AddImageResource(IDirect2DRenderingState state, Bitmap bitmap, string resourceName)
+        public ImageResource AddImageResource(IDirect2DRenderingState state, Bitmap bitmap, string resourceName)
         {
+            var res = new ImageResource(resourceName, bitmap.Width, bitmap.Height);
+
             if (_bitmapResources.ContainsKey(resourceName))
                 throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
 
             _bitmapResources[resourceName] = BaseDirect2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+
+            return res;
         }
 
-        public void RemoveImageResources()
+        public void RemoveAllImageResources()
         {
             foreach (var value in _bitmapResources.Values)
             {
@@ -69,18 +73,8 @@ namespace PixDirectX.Rendering
                 _bitmapResources.Remove(resourceName);
             }
         }
-
-        public ImageResource AddPipelineNodeImageResource(IDirect2DRenderingState state,
-            Bitmap bitmap, string resourceName)
-        {
-            var res = new ImageResource(resourceName, bitmap.Width, bitmap.Height);
-
-            AddImageResource(state, bitmap, resourceName);
-
-            return res;
-        }
-
-        public ImageResource? PipelineNodeImageResource(string resourceName)
+        
+        public ImageResource? GetImageResource(string resourceName)
         {
             var res = BitmapForResource(resourceName);
             if (res != null)

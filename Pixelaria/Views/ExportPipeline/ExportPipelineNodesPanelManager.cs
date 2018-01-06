@@ -307,7 +307,7 @@ namespace Pixelaria.Views.ExportPipeline
                 iconName = "sheet_new";
             }
 
-            return iconName != null ? resourcesProvider.PipelineNodeImageResource(iconName) : null;
+            return iconName != null ? resourcesProvider.GetImageResource(iconName) : null;
         }
 
         /// <summary>

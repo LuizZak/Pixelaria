@@ -248,7 +248,7 @@ namespace Pixelaria.Views.ExportPipeline
             var animNodeView = new PipelineNodeView(new SingleAnimationPipelineStep(anim))
             {
                 Location = new Vector(0, 0),
-                Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("anim_icon")
+                Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("anim_icon")
             };
             var animJoinerNodeView = new PipelineNodeView(new AnimationJoinerStep())
             {
@@ -257,17 +257,17 @@ namespace Pixelaria.Views.ExportPipeline
             var sheetNodeView = new PipelineNodeView(new SpriteSheetGenerationPipelineStep())
             {
                 Location = new Vector(450, 30),
-                Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("sheet_new")
+                Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("sheet_new")
             };
             var fileExportView = new PipelineNodeView(new FileExportPipelineStep())
             {
                 Location = new Vector(550, 30),
-                Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("sheet_save_icon")
+                Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("sheet_save_icon")
             };
             var traspFilter = new PipelineNodeView(new TransparencyFilterPipelineStep())
             {
                 Location = new Vector(550, 30),
-                Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("filter_transparency_icon")
+                Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("filter_transparency_icon")
             };
 
             exportPipelineControl.PipelineContainer.AddNodeView(animNodeView);
@@ -369,7 +369,7 @@ namespace Pixelaria.Views.ExportPipeline
             var exportStep = new FileExportPipelineStep();
             exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(exportStep)
             {
-                Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("sheet_save_icon")
+                Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("sheet_save_icon")
             });
 
             // Anim steps for animations w/ no owners
@@ -378,7 +378,7 @@ namespace Pixelaria.Views.ExportPipeline
                 var node = new SingleAnimationPipelineStep(animation);
                 var step = new PipelineNodeView(node)
                 {
-                    Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("anim_icon")
+                    Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("anim_icon")
                 };
 
                 exportPipelineControl.PipelineContainer.AddNodeView(step);
@@ -392,11 +392,11 @@ namespace Pixelaria.Views.ExportPipeline
                     
                 exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(sheetStep)
                 {
-                    Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("sheet_new")
+                    Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("sheet_new")
                 });
                 exportPipelineControl.PipelineContainer.AddNodeView(new PipelineNodeView(animsStep)
                 {
-                    Icon = exportPipelineControl.D2DRenderer.ImageResources.PipelineNodeImageResource("anim_icon")
+                    Icon = exportPipelineControl.D2DRenderer.ImageResources.GetImageResource("anim_icon")
                 });
 
                 exportPipelineControl.PipelineContainer.AddConnection(animsStep, sheetStep);
