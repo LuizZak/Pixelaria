@@ -41,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastBitmapLib, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -132,6 +133,7 @@
     <Compile Include="Utils\SettingsTests.cs" />
     <Compile Include="Utils\IniFileReaderWritterTests.cs" />
     <Compile Include="Utils\UtilsTests.cs" />
+    <Compile Include="Views\Controls\PaintTools\PencilPaintToolTests.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewFeatureTests.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

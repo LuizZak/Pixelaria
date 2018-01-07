@@ -706,7 +706,7 @@ namespace Pixelaria.Views.Controls.LayerControls
     /// <summary>
     /// Represents the display status of a layer on a layer control
     /// </summary>
-    public struct LayerStatus
+    public readonly struct LayerStatus
     {
         /// <summary>
         /// Whether the layer is visible

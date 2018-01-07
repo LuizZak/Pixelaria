@@ -25,7 +25,7 @@ using System.Drawing;
 
 namespace PixCore.Text.Attributes
 {
-    public struct ForegroundColorAttribute : ITextAttribute, IEquatable<ForegroundColorAttribute>
+    public readonly struct ForegroundColorAttribute : ITextAttribute, IEquatable<ForegroundColorAttribute>
     {
         public Color ForeColor { get; }
 
@@ -62,7 +62,7 @@ namespace PixCore.Text.Attributes
 
         public object Clone()
         {
-            return new ForegroundColorAttribute(ForeColor);
+            return this;
         }
     }
 }

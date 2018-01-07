@@ -36,9 +36,6 @@ namespace PixUI
         [NotNull]
         public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
         
-        private AABB _bounds = AABB.Empty;
-        private AABB _textBounds = AABB.Empty;
-        
         [NotNull]
         private readonly AttributedText _attributedText = new AttributedText();
 
@@ -126,9 +123,7 @@ namespace PixUI
         /// Gets or sets if this label should be visible on screen.
         /// </summary>
         public bool Visible { get; set; } = true;
-
-        public override AABB Bounds => _bounds;
-
+        
         /// <summary>
         /// Returns the exact AABB from within this label view where the text will
         /// appear in when insetted by <see cref="TextInsetBounds"/>.
@@ -137,7 +132,7 @@ namespace PixUI
         {
             get
             {
-                var final = _bounds;
+                var final = Bounds;
                 final = _textInsetBounds.Inset(final);
                 return final;
             }
@@ -155,17 +150,15 @@ namespace PixUI
 
         private void CalculateBounds()
         {
-            _textBounds = new RectangleF(PointF.Empty, (SizeProvider ?? DefaultLabelViewSizeProvider).CalculateTextSize(this));
-            Size = _textBounds.Size;
-
-            Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right,
-                TextInsetBounds.Top + TextInsetBounds.Bottom);
-
-            _bounds = new AABB(Vector.Zero, Size);
+            var textBounds = new RectangleF(PointF.Empty, (SizeProvider ?? DefaultLabelViewSizeProvider).CalculateTextSize(this));
+            Size = textBounds.Size;
+            Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right, TextInsetBounds.Top + TextInsetBounds.Bottom);
         }
 
         private class DefaultSizer : ILabelViewSizeProvider
         {
+            private readonly Bitmap _dummy = new Bitmap(1, 1);
+
             public SizeF CalculateTextSize(LabelView label)
             {
                 return CalculateTextSize(new AttributedText(label.Text), label.TextFont);
@@ -190,8 +183,7 @@ namespace PixUI
 
             public SizeF CalculateTextSize(IAttributedText text, string fontName, float size)
             {
-                using (var dummy = new Bitmap(1, 1))
-                using (var graphics = Graphics.FromImage(dummy))
+                using (var graphics = Graphics.FromImage(_dummy))
                 using (var font = new Font(fontName, size))
                 {
                     return graphics.MeasureString(text.String, font);

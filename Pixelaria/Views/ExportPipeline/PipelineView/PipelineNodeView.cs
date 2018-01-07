@@ -31,7 +31,6 @@ using PixUI;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 
-
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
@@ -57,6 +56,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// identifier by key <see cref="PipelineMetadataKeys.PipelineStepBodyText"/>.
         /// </summary>
         public string BodyText => PipelineNode.GetMetadata()?.GetValue(PipelineMetadataKeys.PipelineStepBodyText) as string ?? "";
+
+        /// <summary>
+        /// Area where <see cref="Name"/> should be drawn onto on this node view.
+        /// </summary>
+        public AABB TitleTextArea { get; set; }
 
         /// <summary>
         /// Area where <see cref="BodyText"/> should be laid onto on this node view.
@@ -147,7 +151,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public AABB GetTitleArea()
         {
             var rect = Bounds;
-            return rect.WithSize(rect.Width, 25);
+            rect = rect.WithSize(rect.Width, 25);
+
+            if (Icon != null)
+            {
+                rect = rect.WithSize(rect.Width, Math.Max(rect.Height, Icon.Value.Height + 4));
+            }
+
+            return rect;
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace Pixelaria.Controllers.DataControllers
     /// <summary>
     /// Basic metadata for an animation
     /// </summary>
-    public struct AnimationMetadata
+    public readonly struct AnimationMetadata
     {
         /// <summary>
         /// Gets the display name for the animation

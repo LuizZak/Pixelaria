@@ -96,13 +96,21 @@ namespace PixCore.Geometry
         {
             get
             {
-                if (Validity != State.Valid)
-                    return new[] {Vector.Zero, Vector.Zero, Vector.Zero, Vector.Zero};
+                Vector[] corners;
 
-                return new[]
+                if (Validity != State.Valid)
                 {
-                    Minimum, new Vector(Maximum.X, Minimum.Y), Maximum, new Vector(Minimum.X, Maximum.Y)
-                };
+                    corners = new[] {Vector.Zero, Vector.Zero, Vector.Zero, Vector.Zero};
+                }
+                else
+                {
+                    corners = new[]
+                    {
+                        Minimum, new Vector(Maximum.X, Minimum.Y), Maximum, new Vector(Minimum.X, Maximum.Y)
+                    };
+                }
+
+                return corners;
             }
         }
 
@@ -112,7 +120,7 @@ namespace PixCore.Geometry
 
         }
 
-        public AABB(Vector minimum, Vector maximum)
+        public AABB(in Vector minimum, in Vector maximum)
         {
             Minimum = Vector.Min(minimum, maximum);
             Maximum = Vector.Max(minimum, maximum);
@@ -160,7 +168,7 @@ namespace PixCore.Geometry
         /// Returns an AABB that matches this AABB's top-left location with a new size
         /// </summary>
         [Pure]
-        public AABB WithSize(Vector size)
+        public AABB WithSize(in Vector size)
         {
             return new AABB(Minimum, Minimum + size);
         }
@@ -173,13 +181,33 @@ namespace PixCore.Geometry
         {
             return WithSize(new Vector(width, height));
         }
+        
+        /// <summary>
+        /// Returns an AABB that matches this AABB's top-left location with a new size 
+        /// added in to the existing size of this AABB as a sum operation.
+        /// </summary>
+        [Pure]
+        public AABB GrowingSizeBy(in Vector size)
+        {
+            return new AABB(Minimum, Maximum + size);
+        }
+
+        /// <summary>
+        /// Returns an AABB that matches this AABB's top-left location with a new size 
+        /// added in to the existing size of this AABB as a sum operation.
+        /// </summary>
+        [Pure]
+        public AABB GrowingSizeBy(float width, float height)
+        {
+            return GrowingSizeBy(new Vector(width, height));
+        }
 
         /// <summary>
         /// Returns a copy of this AABB with the minimum and maximum coordinates
         /// offset by a given ammount.
         /// </summary>
         [Pure]
-        public AABB OffsetBy(Vector vector)
+        public AABB OffsetBy(in Vector vector)
         {
             if (Validity == State.Invalid)
                 return this;
@@ -202,7 +230,7 @@ namespace PixCore.Geometry
         /// set to a given ammount.
         /// </summary>
         [Pure]
-        public AABB OffsetTo(Vector vector)
+        public AABB OffsetTo(in Vector vector)
         {
             if (Validity == State.Invalid)
                 return this;
@@ -226,7 +254,7 @@ namespace PixCore.Geometry
         /// remains the same)
         /// </summary>
         [Pure]
-        public AABB Inflated(Vector size)
+        public AABB Inflated(in Vector size)
         {
             return new AABB(Minimum - size / 2, Maximum + size / 2);
         }
@@ -247,7 +275,7 @@ namespace PixCore.Geometry
         /// this AABB and the given point.
         /// </summary>
         [Pure]
-        public AABB ExpandedToInclude(Vector point)
+        public AABB ExpandedToInclude(in Vector point)
         {
             if(Validity == State.Invalid)
                 return new AABB(point, point);
@@ -265,7 +293,7 @@ namespace PixCore.Geometry
         /// Does nothing, if this and the other AABB are both invalid.
         /// </summary>
         [Pure]
-        public AABB Union(AABB aabb)
+        public AABB Union(in AABB aabb)
         {
             return Union(this, aabb);
         }
@@ -278,7 +306,7 @@ namespace PixCore.Geometry
         /// 
         /// Does nothing, if both AABBs are invalid.
         /// </summary>
-        public static AABB Union(AABB left, AABB right)
+        public static AABB Union(in AABB left, in AABB right)
         {
             if (left.Validity == State.Invalid && right.Validity == State.Invalid)
                 return left;
@@ -297,7 +325,7 @@ namespace PixCore.Geometry
         /// 
         /// Always returns false, if this AABB is Invalid.
         /// </summary>
-        public bool Contains(Vector point)
+        public bool Contains(in Vector point)
         {
             if (Validity != State.Valid)
                 return false;
@@ -311,7 +339,7 @@ namespace PixCore.Geometry
         /// 
         /// Always returns false, if this (or the other) AABB is Invalid.
         /// </summary>
-        public bool Contains(AABB other)
+        public bool Contains(in AABB other)
         {
             if (Validity != State.Valid || other.Validity != State.Valid)
                 return false;
@@ -324,7 +352,7 @@ namespace PixCore.Geometry
         /// 
         /// Always returns false, if this (or the other) AABB is Invalid.
         /// </summary>
-        public bool Intersects(AABB other)
+        public bool Intersects(in AABB other)
         {
             if (Validity != State.Valid || other.Validity != State.Valid)
                 return false;
@@ -347,7 +375,7 @@ namespace PixCore.Geometry
         }
 
         [Pure]
-        public AABB Inset(InsetBounds inset)
+        public AABB Inset(in InsetBounds inset)
         {
             return inset.Inset(this);
         }
@@ -461,9 +489,15 @@ namespace PixCore.Geometry
         }
 
         [Pure]
-        public AABB Inset(AABB aabb)
+        public AABB Inset(in AABB aabb)
         {
             return aabb.OffsetBy(Left, Top).WithSize(aabb.Width - Left - Right, aabb.Height - Top - Bottom);
+        }
+
+        [Pure]
+        public InsetBounds Inverted()
+        {
+            return new InsetBounds(-Left, -Top, -Bottom, -Right);
         }
     }
 }

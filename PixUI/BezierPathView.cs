@@ -251,7 +251,7 @@ namespace PixUI
             
         }
 
-        public struct RectanglePathInput : IPathInput
+        public readonly struct RectanglePathInput : IPathInput
         {
             public AABB Rectangle { get; }
 
@@ -261,7 +261,7 @@ namespace PixUI
             }
         }
 
-        public struct BezierPathInput : IPathInput
+        public readonly struct BezierPathInput : IPathInput
         {
             public Vector Start { get; }
             public Vector ControlPoint1 { get; }

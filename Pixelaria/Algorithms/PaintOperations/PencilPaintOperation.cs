@@ -41,10 +41,21 @@ namespace Pixelaria.Algorithms.PaintOperations
     /// </summary>
     public class PencilPaintOperation : BasicContinuousPaintOperation, IDisposable, IPencilOperation, IColoredPaintOperation, ICompositingPaintOperation, ISizedPaintOperation
     {
+        private Color _color;
+        private uint _colorUint;
+
         /// <summary>
         /// Gets or sets the paint color attributed to this pencil operation
         /// </summary>
-        public Color Color { get; set; }
+        public Color Color
+        {
+            get => _color;
+            set
+            {
+                _color = value;
+                _colorUint = unchecked((uint)value.ToArgb());
+            }
+        }
 
         /// <summary>
         /// Gets or sets the compositing mode for this pencil operation
@@ -243,22 +254,28 @@ namespace Pixelaria.Algorithms.PaintOperations
             if (!AccumulateAlpha && pixelsDrawn.ContainsPixel(pointX, pointY))
                 return;
 
-            var oldColor = useFastBitmap ? fastBitmap.GetPixel(pointX, pointY) : targetBitmap.GetPixel(pointX, pointY);
-            var newColor = GetBlendedColor(oldColor);
-
-            uint oldColorArgb = unchecked((uint)oldColor.ToArgb());
-            uint newColorArgb = unchecked((uint)newColor.ToArgb());
-
-            // If the colors are virtually the same, quit early
-            if (oldColorArgb == newColorArgb)
-                return;
-
+            uint oldColorArgb;
+            uint newColorArgb;
+            
             if (useFastBitmap)
             {
+                oldColorArgb = fastBitmap.GetPixelUInt(pointX, pointY);
+                newColorArgb = GetBlendedColor(oldColorArgb);
+                
                 fastBitmap.SetPixel(pointX, pointY, newColorArgb);
             }
             else
             {
+                var oldColor = targetBitmap.GetPixel(pointX, pointY);
+                var newColor = GetBlendedColor(oldColor);
+                
+                oldColorArgb = unchecked((uint)oldColor.ToArgb());
+                newColorArgb = unchecked((uint)newColor.ToArgb());
+
+                // If the colors are virtually the same, quit early
+                if (oldColor.ToArgb() == newColor.ToArgb())
+                    return;
+
                 targetBitmap.SetPixel(pointX, pointY, newColor);
             }
 
@@ -336,6 +353,17 @@ namespace Pixelaria.Algorithms.PaintOperations
         protected Color GetBlendedColor(Color backColor)
         {
             return ColorBlender.BlendColors(backColor, Color, CompositingMode);
+        }
+        
+        /// <summary>
+        /// Returns a color that represents the given color blended with this pencil paint operation's blend information.
+        /// The resulting color depends on the Color and CompositingMode of this paint operation
+        /// </summary>
+        /// <param name="backColor">The color to blend</param>
+        /// <returns>A blended version of the specified color</returns>
+        protected uint GetBlendedColor(uint backColor)
+        {
+            return ColorBlender.BlendColors(backColor, _colorUint, CompositingMode);
         }
 
         /// <summary>
@@ -488,6 +516,17 @@ namespace Pixelaria.Algorithms.PaintOperations
     {
         /// <inheritdoc />
         public Color BlendColors(Color backColor, Color foreColor, CompositingMode compositingMode)
+        {
+            if (compositingMode == CompositingMode.SourceCopy)
+            {
+                return foreColor;
+            }
+
+            return ColorUtils.FlattenColor(backColor, foreColor);
+        }
+
+        /// <inheritdoc />
+        public uint BlendColors(uint backColor, uint foreColor, CompositingMode compositingMode)
         {
             if (compositingMode == CompositingMode.SourceCopy)
             {

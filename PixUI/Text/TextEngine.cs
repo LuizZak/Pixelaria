@@ -926,7 +926,7 @@ namespace PixUI.Text
     /// <summary>
     /// Caret position of a <see cref="TextEngine"/>.
     /// </summary>
-    public struct Caret : IEquatable<Caret>
+    public readonly struct Caret : IEquatable<Caret>
     {
         /// <summary>
         /// Range of text this caret covers on a text engine

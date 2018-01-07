@@ -230,7 +230,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// Metadata for a loaded frame, including the frame itself and other relevant information
         /// </summary>
-        public struct FrameInfo
+        public readonly struct FrameInfo
         {
             /// <summary>
             /// When read from a stream, contains the ID of the animation the frame from
@@ -269,7 +269,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// Basic read-time structure that encapsulates layers for a frame read from stream
         /// </summary>
-        public struct FrameLayer
+        public readonly struct FrameLayer
         {
             public string Name { get; }
             public byte[] ImageData { get; }

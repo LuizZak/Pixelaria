@@ -25,7 +25,7 @@ using System.Drawing;
 
 namespace PixCore.Text.Attributes
 {
-    public struct TextFontAttribute : ITextAttribute, IEquatable<TextFontAttribute>
+    public readonly struct TextFontAttribute : ITextAttribute, IEquatable<TextFontAttribute>
     {
         public Font Font { get; }
 
@@ -62,7 +62,7 @@ namespace PixCore.Text.Attributes
 
         public object Clone()
         {
-            return new TextFontAttribute(Font);
+            return this;
         }
     }
 }

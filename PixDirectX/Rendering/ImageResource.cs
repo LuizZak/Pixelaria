@@ -27,7 +27,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Represents an image resource
     /// </summary>
-    public struct ImageResource
+    public readonly struct ImageResource
     {
         public string ResourceName { get; }
         public int Width { get; }

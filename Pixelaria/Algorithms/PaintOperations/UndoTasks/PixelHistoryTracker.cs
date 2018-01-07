@@ -157,13 +157,10 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
                 if (!replaceExisting)
                     return;
 
-                var item = new PixelUndo(x, y, pixelIndex, oldColor, newColor);
+                uint pixelOldColor = _keepOriginalUndos ? _pixelDictionary[pixelIndex].OldColor : oldColor;
 
-                if (_keepOriginalUndos)
-                {
-                    item.OldColor = _pixelDictionary[pixelIndex].OldColor;
-                }
-
+                var item = new PixelUndo(x, y, pixelIndex, pixelOldColor, newColor);
+                
                 _pixelDictionary[pixelIndex] = item;
             }
             else
@@ -193,7 +190,6 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <returns>A PixelUndo struct containing the information of the pixel, or null, if none was found</returns>
         public PixelUndo? PixelUndoForPixel(int x, int y)
         {
-
             if (_pixelDictionary.TryGetValue(y * _width + x, out PixelUndo undo))
             {
                 return undo;
@@ -206,7 +202,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <summary>
         /// Encapsulates an undo task on a single pixel
         /// </summary>
-        public struct PixelUndo : IEquatable<PixelUndo>
+        public readonly struct PixelUndo : IEquatable<PixelUndo>
         {
             /// <summary>
             /// Pre-computed hashcode for this PixelUndo
@@ -231,7 +227,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             /// <summary>
             /// The old color for this pixel
             /// </summary>
-            public uint OldColor;
+            public readonly uint OldColor;
 
             /// <summary>
             /// The new (or current) color for this pixel
@@ -256,7 +252,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
 
                 unchecked
                 {
-                    var hashCode = PixelX;
+                    int hashCode = PixelX;
                     hashCode = (hashCode * 397) ^ PixelY;
                     hashCode = (hashCode * 397) ^ PixelIndex;
                     _hashCode = hashCode;
@@ -295,7 +291,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             /// <param name="left">A PixelUndo object</param>
             /// <param name="right">Another PixelUndo object</param>
             /// <returns>Whether two PixelUndo objects are equal</returns>
-            public static bool operator==(PixelUndo left, PixelUndo right)
+            public static bool operator==(in PixelUndo left, in PixelUndo right)
             {
                 return left.Equals(right);
             }
@@ -306,7 +302,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             /// <param name="left">A PixelUndo object</param>
             /// <param name="right">Another PixelUndo object</param>
             /// <returns>Whether two PixelUndo objects are not equal</returns>
-            public static bool operator!=(PixelUndo left, PixelUndo right)
+            public static bool operator!=(in PixelUndo left, in PixelUndo right)
             {
                 return !left.Equals(right);
             }

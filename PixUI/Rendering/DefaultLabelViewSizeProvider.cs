@@ -59,7 +59,7 @@ namespace PixUI.Rendering
             if (renderState == null)
                 return SizeF.Empty;
 
-            using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font, fontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center, WordWrapping = WordWrapping.WholeWord })
+            using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font, fontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
             using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())
@@ -74,7 +74,7 @@ namespace PixUI.Rendering
                     textLayout.SetFontSize(fontAttr.Font.Size,
                         new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
                 }
-
+                
                 return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
             }
         }

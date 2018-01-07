@@ -150,7 +150,7 @@ namespace PixCore.Geometry
         /// the two given vectors
         /// </summary>
         [Pure]
-        public static Vector Min(Vector lhs, Vector rhs)
+        public static Vector Min(in Vector lhs, in Vector rhs)
         {
             return new Vector(Math.Min(lhs.X, rhs.X), Math.Min(lhs.Y, rhs.Y));
         }
@@ -160,7 +160,7 @@ namespace PixCore.Geometry
         /// the two given vectors
         /// </summary>
         [Pure]
-        public static Vector Max(Vector lhs, Vector rhs)
+        public static Vector Max(in Vector lhs, in Vector rhs)
         {
             return new Vector(Math.Max(lhs.X, rhs.X), Math.Max(lhs.Y, rhs.Y));
         }
@@ -170,7 +170,7 @@ namespace PixCore.Geometry
         /// nearest integer number.
         /// </summary>
         [Pure]
-        public static Vector Floor(Vector vec)
+        public static Vector Floor(in Vector vec)
         {
             return new Vector((float)Math.Floor(vec.X), (float)Math.Floor(vec.Y));
         }
@@ -180,7 +180,7 @@ namespace PixCore.Geometry
         /// nearest integer number.
         /// </summary>
         [Pure]
-        public static Vector Round(Vector vec)
+        public static Vector Round(in Vector vec)
         {
             return new Vector((float)Math.Round(vec.X), (float)Math.Round(vec.Y));
         }
@@ -190,7 +190,7 @@ namespace PixCore.Geometry
         /// next largest integer number.
         /// </summary>
         [Pure]
-        public static Vector Ceiling(Vector vec)
+        public static Vector Ceiling(in Vector vec)
         {
             return new Vector((float)Math.Ceiling(vec.X), (float)Math.Ceiling(vec.Y));
         }
@@ -199,7 +199,7 @@ namespace PixCore.Geometry
         /// Returns a vector with absoluite x and y coordinates 
         /// </summary>
         [Pure]
-        public static Vector Abs(Vector vec)
+        public static Vector Abs(in Vector vec)
         {
             return new Vector(Math.Abs(vec.X), Math.Abs(vec.Y));
         }
@@ -211,7 +211,7 @@ namespace PixCore.Geometry
         /// <param name="start">Start of linear interpolation</param>
         /// <param name="end">End of linear interpolation</param>
         /// <param name="factor">A factor, usually between zero and one, that controls where the final interpolad point lands</param>
-        public static Vector Lerp(Vector start, Vector end, float factor)
+        public static Vector Lerp(in Vector start, in Vector end, float factor)
         {
             return start + (end - start) * factor;
         }
@@ -400,7 +400,7 @@ namespace PixCore.Geometry
         /// Transforms a single point by multiplying it by the matrix's value
         /// </summary>
         [Pure]
-        public static Vector Transform([NotNull] this Matrix matrix, Vector point)
+        public static Vector Transform([NotNull] this Matrix matrix, in Vector point)
         {
             var pts = new[] { (PointF)point };
             matrix.TransformPoints(pts);

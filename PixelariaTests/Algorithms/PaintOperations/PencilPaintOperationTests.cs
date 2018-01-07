@@ -44,7 +44,7 @@ namespace PixelariaTests.Algorithms.PaintOperations
         [TestInitialize]
         public void TestInitialize()
         {
-            BitmapSnapshot.RecordMode = false;
+            //BitmapSnapshot.RecordMode = true;
         }
 
         /// <summary>

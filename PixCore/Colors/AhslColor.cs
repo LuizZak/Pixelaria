@@ -39,7 +39,7 @@ namespace PixCore.Colors
     /// </summary>
     [Editor(typeof(AhslColorEditor), typeof(UITypeEditor))]
     [TypeConverter(typeof(AhslColorTypeConverter))]
-    public struct AhslColor : IEquatable<AhslColor>
+    public readonly struct AhslColor : IEquatable<AhslColor>
     {
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
@@ -368,7 +368,7 @@ namespace PixCore.Colors
         /// </param>
         /// <returns>An AHSL (alpha hue saturation and lightness) color</returns>
         [Pure]
-        public static AhslColor LinearInterpolate(AhslColor start, AhslColor end, float factor)
+        public static AhslColor LinearInterpolate(in AhslColor start, in AhslColor end, float factor)
         {
             // Clamp
             factor = Math.Max(0, Math.Min(1, factor));

@@ -74,6 +74,19 @@ namespace PixelariaTests.Views.ExportPipeline
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
+        
+        [TestMethod]
+        public void TestRenderPipelineNodeViewWithInputPushingWidth()
+        {
+            var node = new TestPipelineStep {Name = "Stroke"};
+            node.InputList = new List<IPipelineInput>
+            {
+                new GenericPipelineInput<int>(node, "Knockout Image")
+            };
+            var view = new PipelineNodeView(node);
+
+            PipelineViewSnapshot.Snapshot(view, TestContext);
+        }
 
         [TestMethod]
         public void TestRenderPipelineNodeViewWithOutput()
@@ -106,11 +119,63 @@ namespace PixelariaTests.Views.ExportPipeline
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
+
+        [TestMethod]
+        public void TestRenderPipelineNodeViewWithInputAndOutputAndTextBody()
+        {
+            var node = new TestPipelineStep();
+            node.InputList = new List<IPipelineInput>
+            {
+                new GenericPipelineInput<int>(node, "Input 1")
+            };
+            node.OutputList = new List<IPipelineOutput>
+            {
+                new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 1"),
+                new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 2")
+            };
+            node.Metadata.Metadata[PipelineMetadataKeys.PipelineStepBodyText] = "This node takes an\ninput integer and\noutputs two strings.";
+            var view = new PipelineNodeView(node);
+
+            PipelineViewSnapshot.Snapshot(view, TestContext);
+        }
+        
+        [TestMethod]
+        public void TestRenderPipelineNodeViewWithInputAndOutputAndTextBodyAndIcon()
+        {
+            // Arrange
+            var icon = new Bitmap(16, 16);
+            using (var fastBitmap = icon.FastLock())
+            {
+                fastBitmap.Clear(Color.White);
+            }
+
+            var node = new TestPipelineStep();
+            node.InputList = new List<IPipelineInput>
+            {
+                new GenericPipelineInput<int>(node, "Input 1")
+            };
+            node.OutputList = new List<IPipelineOutput>
+            {
+                new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 1"),
+                new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 2")
+            };
+            node.Metadata.Metadata[PipelineMetadataKeys.PipelineStepBodyText] = "This node takes an\ninput integer and\noutputs two strings.";
+
+            var view = new PipelineNodeView(node)
+            {
+                Icon = new ImageResource("icon", icon.Width, icon.Height)
+            };
+
+            var resources = new Dictionary<string, Bitmap> {{"icon", icon}};
+
+            // Act/Assert
+            PipelineViewSnapshot.Snapshot(new PipelineViewRenderContext(view, resources), TestContext);
+        }
         
         private class TestPipelineStep : IPipelineStep
         {
             public Guid Id { get; } = Guid.NewGuid();
-            public string Name => "Test Pipeline Step";
+            public string Name { get; set; } = "Test Pipeline Step";
 
             public IReadOnlyList<IPipelineInput> Input => InputList;
             public IReadOnlyList<IPipelineOutput> Output => OutputList;
@@ -118,9 +183,11 @@ namespace PixelariaTests.Views.ExportPipeline
             public List<IPipelineInput> InputList = new List<IPipelineInput>();
             public List<IPipelineOutput> OutputList = new List<IPipelineOutput>();
 
+            public readonly PipelineMetadata Metadata = new PipelineMetadata();
+
             public IPipelineMetadata GetMetadata()
             {
-                return PipelineMetadata.Empty;
+                return Metadata;
             }
         }
     }
@@ -130,7 +197,7 @@ namespace PixelariaTests.Views.ExportPipeline
     /// Helper static class to perform bitmap-based rendering comparisons of <see cref="T:Pixelaria.Views.ExportPipeline.PipelineView.PipelineNodeView" /> and related
     /// instances to assert visual and style consistency.
     /// </summary>
-    public class PipelineViewSnapshot : ISnapshotProvider<BaseView>
+    public class PipelineViewSnapshot : ISnapshotProvider<PipelineViewRenderContext>
     {
         private readonly ExportPipelineControl _control;
 
@@ -138,7 +205,7 @@ namespace PixelariaTests.Views.ExportPipeline
         /// Whether tests are currently under record mode- under record mode, results are recorded on disk to be later
         /// compared when not in record mode.
         /// 
-        /// Calls to <see cref="Snapshot"/> always fail with an assertion during record mode.
+        /// Calls to Snapshot() always fail with an assertion during record mode.
         /// 
         /// Defaults to false.
         /// </summary>
@@ -146,7 +213,12 @@ namespace PixelariaTests.Views.ExportPipeline
         
         public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context)
         {
-            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, BaseView>(view, context, RecordMode);
+            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(new PipelineViewRenderContext(view, null), context, RecordMode);
+        }
+        
+        public static void Snapshot(PipelineViewRenderContext ctx, [NotNull] TestContext context)
+        {
+            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(ctx, context, RecordMode);
         }
 
         public PipelineViewSnapshot()
@@ -154,11 +226,13 @@ namespace PixelariaTests.Views.ExportPipeline
             _control = new ExportPipelineControl();
         }
 
-        public Bitmap GenerateBitmap(BaseView view)
+        public Bitmap GenerateBitmap(PipelineViewRenderContext context)
         {
             // Create a temporary Direct3D rendering context and render the view on it
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
+
+            var view = context.BaseView;
 
             if (view is PipelineNodeView nodeView)
             {
@@ -168,8 +242,17 @@ namespace PixelariaTests.Views.ExportPipeline
 
                     renderManager.RenderSingleFrame(state =>
                     {
-                        var labelViewSizer = new DefaultLabelViewSizeProvider(new StaticDirect2DRenderingStateProvider(state));
+                        _control.InitializeDirect2DRenderer(state);
+                        if (context.ImageResources != null)
+                        {
+                            foreach (var pair in context.ImageResources)
+                            {
+                                _control.D2DRenderer.ImageResources.AddImageResource(state, pair.Value, pair.Key);
+                            }
+                        }
 
+                        var labelViewSizer = new DefaultLabelViewSizeProvider(new StaticDirect2DRenderingStateProvider(state));
+                        
                         var sizer = new DefaultPipelineNodeViewSizer();
                         sizer.AutoSize(nodeView, labelViewSizer);
                     });
@@ -179,29 +262,35 @@ namespace PixelariaTests.Views.ExportPipeline
             int width = (int) Math.Ceiling(view.Width);
             int height = (int) Math.Ceiling(view.Height);
 
+            if(width <= 0 || height <= 0)
+                Assert.Fail($@"Width and height of view must be > 0, received {{width: {width}, height: {height}}}");
+
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
-            using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
+            using (var renderManager = new Direct2DWicBitmapRenderManager(wicBitmap))
             using (var renderer = new Direct2DRenderer(_control.PipelineContainer, _control))
             {
-                var last = LabelView.DefaultLabelViewSizeProvider;
-                LabelView.DefaultLabelViewSizeProvider = renderer.LabelViewSizeProvider;
-
-                renderLoop.InitializeDirect2D();
-
-                renderLoop.RenderSingleFrame(state =>
+                renderManager.InitializeDirect2D();
+                
+                renderManager.RenderSingleFrame(state =>
                 {
-                    renderer.Initialize(renderLoop.RenderingState);
+                    renderer.Initialize(renderManager.RenderingState);
                     renderer.UpdateRenderingState(state, new FullClipping());
-
+                    
+                    if (context.ImageResources != null)
+                    {
+                        foreach (var pair in context.ImageResources)
+                        {
+                            renderer.ImageResources.AddImageResource(state, pair.Value, pair.Key);
+                        }
+                    }
+                    
                     var parentView = new BaseView();
                     parentView.AddChild(view);
 
                     renderer.RenderInView(parentView, state, new IRenderingDecorator[0]);
                 });
-
-                LabelView.DefaultLabelViewSizeProvider = last;
-
+                
                 return BitmapFromWicBitmap(wicBitmap);
             }
         }
@@ -256,6 +345,20 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 return true;
             }
+        }
+    }
+
+    public struct PipelineViewRenderContext
+    {
+        [NotNull]
+        public BaseView BaseView { get; }
+        [CanBeNull]
+        public IReadOnlyDictionary<string, Bitmap> ImageResources { get; }
+
+        public PipelineViewRenderContext([NotNull] BaseView baseView, IReadOnlyDictionary<string, Bitmap> imageResources)
+        {
+            ImageResources = imageResources;
+            BaseView = baseView;
         }
     }
 }

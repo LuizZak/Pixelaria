@@ -26,14 +26,20 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixUI;
 
-using Pixelaria.ExportPipeline;
 using Pixelaria.Utils.Layouting;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     internal class DefaultPipelineNodeViewSizer : IPipelineNodeViewSizer
     {
-        private InsetBounds _bodyTextInset = new InsetBounds(7, 7, 7, 7);
+        private InsetBounds _nodeTitleInset = new InsetBounds(4, 0, 0, 4);
+        private InsetBounds _bodyTextInset = new InsetBounds(7, 0, 0, 7);
+
+        /// <summary>
+        /// Padding between title view / link views / text body components
+        /// (This is not applied between links themselves, see <see cref="LinkSeparation"/>).
+        /// </summary>
+        private const float ContentPadding = 7;
 
         private const float LinkSize = 10;
         private const float LinkSeparation = 5;
@@ -41,167 +47,175 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// <summary>
         /// Vertical separation between the outputs and inputs link lists on a node
         /// </summary>
-        private const float LinkOutputInputsSeparation = 5;
-
-        /// <summary>
-        /// Padding between links and top/bottom of content view
-        /// </summary>
-        private const float LinkPadding = 20;
+        private const float LinkOutputInputsSeparation = 7;
         
         public void AutoSize(PipelineNodeView nodeView, ILabelViewSizeProvider sizeProvider)
         {
-            // Calculate proper label size for the links
-            ConfigureLinkViewLabels(nodeView, sizeProvider);
+            // Get minimum width first
+            const float minimumWidth = 80;
 
-            var nameSize = TitleSize(nodeView, sizeProvider);
-            var bodyTextSize = BodyTextSize(nodeView, sizeProvider);
+            ResizeLinkViewsIn(nodeView, sizeProvider);
 
-            const float minBodySize = 10;
+            var titleArea = AreaForTitle(nodeView, sizeProvider);
+            float widthForLinks = WidthForLinkViewsIn(nodeView, sizeProvider);
+            var bodySize = SizeForTextBody(nodeView, sizeProvider);
 
-            // Calculate link size
-            float vertLinkSize = MinHeightForLinks(nodeView);
-            float horLinkSize = MinWidthForLinks(nodeView);
+            float nodeViewWidth = Math.Max(minimumWidth, Math.Max(Math.Max(titleArea.Right, widthForLinks), bodySize.X));
 
-            nodeView.Size = new Vector(Math.Max(80, Math.Max(bodyTextSize.X + horLinkSize, nameSize.X + 8)),
-                Math.Max(minBodySize, nameSize.Y + Math.Max(bodyTextSize.Y, vertLinkSize)));
+            // Lay down items vertically
 
-            nodeView.BodyTextArea = GetBodyTextArea(nodeView);
-
-            PositionLinkViews(nodeView);
-        }
-
-        public AABB GetBodyTextArea([NotNull] PipelineNodeView nodeView)
-        {
-            if (nodeView.BodyText == null)
-                return AABB.Empty;
-
-            var content = nodeView.GetContentArea().Inset(_bodyTextInset);
-            if (nodeView.InputViews.Count > 0)
+            // Title
+            float nodeViewHeight = titleArea.Bottom;
+            nodeViewHeight += ContentPadding;
+            
+            // Links
+            nodeViewHeight = PositionLinkViews(nodeView, nodeViewHeight, ref nodeViewWidth);
+            nodeViewHeight += ContentPadding;
+            
+            // Body text
+            if(bodySize.Y > 0)
             {
-                content = content.Inset(new InsetBounds(LinkSize, 0, 0, 0));
-            }
-            if (nodeView.OutputViews.Count > 0)
-            {
-                content = content.Inset(new InsetBounds(0, 0, 0, LinkSize));
-            }
-
-            return content;
-        }
-
-        public static void ConfigureLinkViewLabels([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
-        {
-            foreach (var link in nodeView.InputViews)
-            {
-                link.LinkLabel.Size = sizeProvider.CalculateTextSize(link.LinkLabel);
-            }
-
-            foreach (var link in nodeView.OutputViews)
-            {
-                link.LinkLabel.Size = sizeProvider.CalculateTextSize(link.LinkLabel);
-            }
-        }
-
-        public static void PositionLinkViews([NotNull] PipelineNodeView nodeView)
-        {
-            var inputs = (nodeView.PipelineNode as IPipelineNodeWithInputs)?.Input ?? new IPipelineInput[0];
-            var outputs = (nodeView.PipelineNode as IPipelineNodeWithOutputs)?.Output ?? new IPipelineOutput[0];
-            float vertSep = inputs.Count > 0 && outputs.Count > 0 ? LinkOutputInputsSeparation : 0;
-
-            int totalCount = inputs.Count + outputs.Count;
-
-            var linkSize = new Vector(LinkSize);
-
-            var contentArea = nodeView.GetContentArea();
-
-            // Inputs
-            var topLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Top + vertSep);
-            var botLeft = new Vector(contentArea.Left + linkSize.X / 2 + 3, contentArea.Bottom);
-            var ins = LayoutingHelper.AlignedRectanglesAcrossEdge(totalCount, linkSize, topLeft, botLeft, LinkSize + LinkSeparation);
-            for (int i = 0; i < inputs.Count; i++)
-            {
-                var rect = ins[i + outputs.Count];
-                var link = nodeView.InputViews[i];
-
-                link.Location = rect.Minimum;
-                link.Size = rect.Size;
-
-                link.LinkLabel.Location = new Vector(link.Size.X + 5, link.Size.Y / 2 - link.LinkLabel.Size.Y / 2);
+                nodeView.BodyTextArea = AABB.FromRectangle(0, nodeViewHeight, nodeViewWidth, bodySize.Y).Inset(_bodyTextInset);
+                nodeViewHeight += nodeView.BodyTextArea.Height;
+                nodeViewHeight += ContentPadding;
             }
             
-            // Outputs
-            var topRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Top);
-            var botRight = new Vector(contentArea.Right - linkSize.X / 2 - 3, contentArea.Bottom - vertSep);
-            var outs = LayoutingHelper.AlignedRectanglesAcrossEdge(totalCount, linkSize, topRight, botRight, LinkSize + LinkSeparation);
-            for (int i = 0; i < outputs.Count; i++)
+            var size = new Vector(nodeViewWidth, nodeViewHeight);
+            nodeView.TitleTextArea = titleArea.Inset(_nodeTitleInset);
+            nodeView.Size = size;
+        }
+
+        private static void ResizeLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        {
+            // Pre-size links
+            var size = new Vector(LinkSize);
+            
+            foreach (var link in nodeView.OutputViews)
             {
-                var rect = outs[i];
-                var link = nodeView.OutputViews[i];
-
-                link.Location = rect.Minimum;
-                link.Size = rect.Size;
-
-                link.LinkLabel.Location = new Vector(-link.LinkLabel.Size.X - 5, link.Size.Y / 2 - link.LinkLabel.Size.Y / 2);
+                link.Size = size;
+                ConfigureNodeLinkLabel(link, LabelLocation.Left, sizeProvider);
+            }
+            
+            foreach (var link in nodeView.InputViews)
+            {
+                link.Size = size;
+                ConfigureNodeLinkLabel(link, LabelLocation.Right, sizeProvider);
             }
         }
-
-        private static Vector TitleSize([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        
+        private static float PositionLinkViews([NotNull] PipelineNodeView nodeView, float yPos, ref float width)
         {
-            // Calculate title size
-            var nameSize = sizeProvider.CalculateTextSize(nodeView.Name, nodeView.Font);
+            // Position vertically
+            float y = yPos;
+            
+            var inputs = nodeView.InputViews;
+            var outputs = nodeView.OutputViews;
+            
+            var size = new Vector(LinkSize);
+            
+            const float yStep = LinkSize + LinkSeparation;
 
-            if (nodeView.Icon == null)
-                return nameSize;
+            foreach (var link in outputs)
+            {
+                float x = width - size.X - LinkSeparation;
 
-            nameSize.Width += nodeView.Icon.Value.Width + 5;
-            nameSize.Height = Math.Max(nodeView.Icon.Value.Height + 5, nameSize.Height);
+                link.Location = new Vector(x, y);
+                y += yStep;
+            }
 
-            return nameSize;
+            if (outputs.Count > 0 && inputs.Count > 0)
+            {
+                y += LinkOutputInputsSeparation;
+            }
+
+            foreach (var link in inputs)
+            {
+                const float x = LinkSeparation;
+
+                link.Location = new Vector(x, y);
+                y += yStep;
+            }
+
+            // Subtract extra separation that hangs around
+            if (outputs.Count > 0 || inputs.Count > 0)
+            {
+                y -= LinkSeparation;
+            }
+
+            return y;
         }
 
-        private Vector BodyTextSize([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        private Vector SizeForTextBody([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
         {
             var bodySize = new Vector();
             string bodyText = nodeView.BodyText;
             if (!string.IsNullOrEmpty(bodyText))
             {
                 bodySize = sizeProvider.CalculateTextSize(bodyText, nodeView.Font) +
-                           new Vector(_bodyTextInset.Left + _bodyTextInset.Right,
-                               _bodyTextInset.Top + _bodyTextInset.Bottom);
-
-                if (nodeView.InputViews.Count > 0)
-                    bodySize += new Vector(LinkSize, 0);
-
-                if (nodeView.OutputViews.Count > 0)
-                    bodySize += new Vector(LinkSize, 0);
+                           new Vector(_bodyTextInset.Left + _bodyTextInset.Right, _bodyTextInset.Top + _bodyTextInset.Bottom);
             }
 
             return bodySize;
         }
         
-        private static float MinHeightForLinks(PipelineNodeView nodeView)
+        private AABB AreaForTitle([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
         {
-            int linkCount = nodeView.InputViews.Count + nodeView.OutputViews.Count;
+            // Calculate title size
+            var titleArea =
+                new AABB(Vector.Zero, sizeProvider.CalculateTextSize(nodeView.Name, nodeView.Font))
+                    .GrowingSizeBy(_nodeTitleInset.Left + _nodeTitleInset.Right, 0);
 
-            float vertLinkSize = linkCount * (LinkSize + LinkSeparation) + LinkPadding;
+            titleArea = titleArea.WithSize(titleArea.Width, Math.Max(25, titleArea.Height));
             
-            // Separator line
-            if (nodeView.InputViews.Count > 0 && nodeView.OutputViews.Count > 0)
-            {
-                vertLinkSize += LinkOutputInputsSeparation;
-            }
-            
-            return vertLinkSize;
+            if (nodeView.Icon == null)
+                return titleArea;
+
+            // Deal with icon
+            float horizontalDisplace = nodeView.Icon.Value.Width + 4;
+            float totalTitleHeight = Math.Max(nodeView.Icon.Value.Height + 4, titleArea.Height);
+
+            titleArea = titleArea.OffsetBy(horizontalDisplace, 0);
+            titleArea = LayoutingHelper.CenterWithinContainer(titleArea, AABB.FromRectangle(0, 0, titleArea.Width, totalTitleHeight), LayoutDirection.Vertical);
+
+            return titleArea;
         }
 
-        private static float MinWidthForLinks([NotNull] PipelineNodeView nodeView)
+        private static float WidthForLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
         {
-            float inputWidth =
-                nodeView.InputViews.Select(linkView => LinkSize + 13 + linkView.LinkLabel.Width).Concat(new float[] {0}).Max();
+            float width = 0;
+            foreach (var linkView in nodeView.InputViews.Concat(nodeView.OutputViews))
+            {
+                linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel);
 
-            float outputWidth =
-                nodeView.OutputViews.Select(linkView => LinkSize + 13 + linkView.LinkLabel.Width).Concat(new float[] {0}).Max();
+                float linkWidth = linkView.GetFullBounds().Width + LinkSeparation * 2;
 
-            return Math.Max(inputWidth, outputWidth);
+                if (width < linkWidth)
+                    width = linkWidth;
+            }
+
+            return width;
+        }
+        
+        private static void ConfigureNodeLinkLabel([NotNull] PipelineNodeLinkView linkView, LabelLocation location, [NotNull] ILabelViewSizeProvider sizeProvider)
+        {
+            linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel);
+
+            float labelY = linkView.Size.Y / 2 - linkView.LinkLabel.Size.Y / 2;
+
+            if (location == LabelLocation.Right)
+            {
+                linkView.LinkLabel.Location = new Vector(linkView.Size.X + 5, labelY);
+            }
+            else
+            {
+                linkView.LinkLabel.Location = new Vector(-linkView.LinkLabel.Size.X - 5, labelY);
+            }
+        }
+        
+        private enum LabelLocation
+        {
+            Left,
+            Right
         }
     }
 }

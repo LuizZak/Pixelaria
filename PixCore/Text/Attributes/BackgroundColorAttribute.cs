@@ -26,7 +26,7 @@ using PixCore.Geometry;
 
 namespace PixCore.Text.Attributes
 {
-    public struct BackgroundColorAttribute : ITextAttribute, IEquatable<BackgroundColorAttribute>
+    public readonly struct BackgroundColorAttribute : ITextAttribute, IEquatable<BackgroundColorAttribute>
     {
         public Color BackColor { get; }
         public Vector Inflation { get; }
@@ -74,7 +74,7 @@ namespace PixCore.Text.Attributes
 
         public object Clone()
         {
-            return new BackgroundColorAttribute(BackColor, Inflation);
+            return this;
         }
     }
 }

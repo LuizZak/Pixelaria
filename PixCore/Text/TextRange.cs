@@ -29,7 +29,7 @@ namespace PixCore.Text
     /// Specifies a range on a text string
     /// </summary>
     [DebuggerDisplay("{Start} , {Length}")]
-    public struct TextRange : IEquatable<TextRange>
+    public readonly struct TextRange : IEquatable<TextRange>
     {
         public TextRange(int start, int length) : this()
         {

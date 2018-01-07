@@ -38,5 +38,14 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <param name="compositingMode">The compositing mode to use when blending the colors</param>
         /// <returns>The blend result of the two colors</returns>
         Color BlendColors(Color backColor, Color foreColor, CompositingMode compositingMode);
+
+        /// <summary>
+        /// Returns a Color that represents the blend of the two provided background and foreground colors
+        /// </summary>
+        /// <param name="backColor">The background color to blend</param>
+        /// <param name="foreColor">The foreground color to blend</param>
+        /// <param name="compositingMode">The compositing mode to use when blending the colors</param>
+        /// <returns>The blend result of the two colors</returns>
+        uint BlendColors(uint backColor, uint foreColor, CompositingMode compositingMode);
     }
 }

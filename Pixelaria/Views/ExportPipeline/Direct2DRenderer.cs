@@ -231,17 +231,12 @@ namespace Pixelaria.Views.ExportPipeline
 
                     roundedRectArea.Dispose();
                 }
-
-                // Draw title icon/text
-                int titleX = 4;
-
+                
                 // Draw icon, if available
                 if (nodeView.Icon != null)
                 {
                     var icon = nodeView.Icon.Value;
-
-                    titleX += icon.Width + 5;
-
+                    
                     float imgY = titleArea.Height / 2 - (float)icon.Height / 2;
 
                     var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
@@ -263,10 +258,11 @@ namespace Pixelaria.Views.ExportPipeline
                 }
 
                 // Draw title text
-                using (var textLayout = new TextLayout(state.DirectWriteFactory, nodeView.Name, _nodeTitlesTextFormat, titleArea.Width, titleArea.Height))
+                using (var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                using (var textLayout = new TextLayout(state.DirectWriteFactory, nodeView.Name, textFormat, nodeView.TitleTextArea.Width, nodeView.TitleTextArea.Height))
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
                 {
-                    state.D2DRenderTarget.DrawTextLayout(new RawVector2(titleX, 0), textLayout, brush, DrawTextOptions.EnableColorFont);
+                    state.D2DRenderTarget.DrawTextLayout(nodeView.TitleTextArea.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
                 }
 
                 // Draw body text, if available
@@ -274,20 +270,21 @@ namespace Pixelaria.Views.ExportPipeline
                 if (bodyText != null)
                 {
                     var area = nodeView.GetBodyTextArea();
-
-                    using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, _nodeTitlesTextFormat, area.Width, area.Height))
+                    
+                    using (var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                    using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, textFormat, area.Width, area.Height))
                     using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
                     {
                         state.D2DRenderTarget.DrawTextLayout(area.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
                     }
                 }
-
+                
                 // Draw outline now
                 using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
                 {
                     state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
                 }
-                    
+                
                 // Draw in-going and out-going links
                 var inLinks = nodeView.InputViews;
                 var outLinks = nodeView.OutputViews;
@@ -336,7 +333,7 @@ namespace Pixelaria.Views.ExportPipeline
                 state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
 
                 var rectangle = link.Bounds;
-
+                
                 using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
                 {
@@ -481,7 +478,7 @@ namespace Pixelaria.Views.ExportPipeline
                     }
 
                 var textBounds = labelView.TextBounds;
-
+                
                 using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
                 using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
                 using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
