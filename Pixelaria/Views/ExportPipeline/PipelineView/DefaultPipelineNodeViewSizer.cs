@@ -75,6 +75,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             // Body text
             if(bodySize.Y > 0)
             {
+                nodeViewHeight += ContentPadding;
                 nodeView.BodyTextArea = AABB.FromRectangle(0, nodeViewHeight, nodeViewWidth, bodySize.Y).Inset(_bodyTextInset);
                 nodeViewHeight += nodeView.BodyTextArea.Height;
                 nodeViewHeight += ContentPadding;

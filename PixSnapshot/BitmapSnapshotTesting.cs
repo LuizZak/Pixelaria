@@ -101,7 +101,7 @@ namespace PixSnapshot
                         return; // Success!
 
                     // Save to test results directory for further inspection
-                    string directoryName = CombinedTestResultPath(context.TestRunResultsDirectory, context);
+                    string directoryName = CombinedTestResultPath(context.TestDir, context);
                     string baseFileName = Path.ChangeExtension(testFileName, null);
 
                     string savePathExpected = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-expected", ".png"));

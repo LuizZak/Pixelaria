@@ -265,21 +265,7 @@ namespace Pixelaria.Views.ExportPipeline
                     state.D2DRenderTarget.DrawTextLayout(nodeView.TitleTextArea.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
                 }
 
-                // Draw body text, if available
-                string bodyText = nodeView.BodyText;
-                if (bodyText != null)
-                {
-                    var area = nodeView.GetBodyTextArea();
-                    
-                    using (var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
-                    using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, textFormat, area.Width, area.Height))
-                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
-                    {
-                        state.D2DRenderTarget.DrawTextLayout(area.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
-                    }
-                }
-                
-                // Draw outline now
+                // Draw outline
                 using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
                 {
                     state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
@@ -288,6 +274,23 @@ namespace Pixelaria.Views.ExportPipeline
                 // Draw in-going and out-going links
                 var inLinks = nodeView.InputViews;
                 var outLinks = nodeView.OutputViews;
+                
+                // Draw outputs
+                foreach (var link in outLinks)
+                {
+                    RenderNodeLinkView(state, link, decorators);
+                }
+                
+                // Draw separation between input and output links
+                if (inLinks.Count > 0 && outLinks.Count > 0)
+                {
+                    float yLine = (float)Math.Round(outLinks.Select(o => o.FrameOnParent.Bottom + 6).Max());
+
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.Gray.WithTransparency(0.5f).ToColor4()))
+                    {
+                        state.D2DRenderTarget.DrawLine(new Vector(3, yLine).ToRawVector2(), new Vector(nodeView.Width - 6, yLine).ToRawVector2(), brush);
+                    }
+                }
 
                 // Draw inputs
                 foreach (var link in inLinks)
@@ -295,10 +298,29 @@ namespace Pixelaria.Views.ExportPipeline
                     RenderNodeLinkView(state, link, decorators);
                 }
 
-                // Draw outputs
-                foreach (var link in outLinks)
+                // Draw body text, if available
+                string bodyText = nodeView.BodyText;
+                if (!string.IsNullOrEmpty(bodyText))
                 {
-                    RenderNodeLinkView(state, link, decorators);
+                    // Draw separation between links and body text
+                    if (inLinks.Count > 0 || outLinks.Count > 0)
+                    {
+                        float yLine = (float)Math.Round(outLinks.Concat(inLinks).Select(o => o.FrameOnParent.Bottom + 6).Max());
+
+                        using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.WithTransparency(0.7f).ToColor4()))
+                        {
+                            state.D2DRenderTarget.DrawLine(new Vector(0, yLine).ToRawVector2(), new Vector(nodeView.Width, yLine).ToRawVector2(), brush);
+                        }
+                    }
+
+                    var area = nodeView.GetBodyTextArea();
+                    
+                    using (var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                    using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, textFormat, area.Width, area.Height))
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
+                    {
+                        state.D2DRenderTarget.DrawTextLayout(area.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
+                    }
                 }
             });
         }
