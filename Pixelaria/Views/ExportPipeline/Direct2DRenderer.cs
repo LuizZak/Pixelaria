@@ -125,26 +125,30 @@ namespace Pixelaria.Views.ExportPipeline
             RenderInView(_container.UiContainerView, state, decorators.ToArray());
         }
 
-        public void RenderInView([NotNull] BaseView view, [NotNull] IDirect2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderInView([NotNull] BaseView view, [NotNull] IDirect2DRenderingState state, [NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
+            var bezierRenderer = new BezierViewRenderer(this);
+
             // Render all remaining objects
             var labels = view.Children.OfType<LabelView>().ToArray();
             var beziers = view.Children.OfType<BezierPathView>().ToArray();
             var nodeViews = view.Children.OfType<PipelineNodeView>().ToArray();
             var beziersLow = beziers.Where(b => !b.RenderOnTop);
             var beziersOver = beziers.Where(b => b.RenderOnTop);
-            foreach (var bezier in beziersLow)
-            {
-                RenderBezierView(bezier, state, decorators);
-            }
+
+            // Under beziers
+            bezierRenderer.RenderBezierViews(beziersLow, ClippingRegion, decorators);
+
+            // Node views
             foreach (var stepView in nodeViews)
             {
                 RenderStepView(stepView, state, decorators);
             }
-            foreach (var bezier in beziersOver)
-            {
-                RenderBezierView(bezier, state, decorators);
-            }
+            
+            // Over beziers
+            bezierRenderer.RenderBezierViews(beziersOver, ClippingRegion, decorators);
+
+            // Label views
             foreach (var label in labels.Where(l => l.Visible))
             {
                 RenderLabelView(label, state, decorators);
@@ -663,6 +667,172 @@ namespace Pixelaria.Views.ExportPipeline
         }
 
         #endregion
+
+        private class BezierViewRenderer
+        {
+            private readonly IDirect2DRenderingStateProvider _stateProvider;
+            private IClippingRegion _clippingRegion;
+
+            public BezierViewRenderer(IDirect2DRenderingStateProvider stateProvider)
+            {
+                _stateProvider = stateProvider;
+            }
+
+            public void RenderBezierViews([NotNull] IEnumerable<BezierPathView> views, IClippingRegion clippingRegion, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+            {
+                var viewArray = views.ToArray();
+
+                _clippingRegion = clippingRegion;
+
+                // Render in steps
+                foreach (var view in viewArray)
+                {
+                    RenderBezierView(view, decorators, Step.Fill);
+                }
+
+                foreach (var view in viewArray)
+                {
+                    RenderBezierView(view, decorators, Step.OuterStroke);
+                }
+
+                foreach (var view in viewArray)
+                {
+                    RenderBezierView(view, decorators, Step.Stroke);
+                }
+            }
+
+            private void RenderBezierView([NotNull] BezierPathView bezierView, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators, Step step)
+            {
+                var renderingState = _stateProvider.GetLatestValidRenderingState();
+
+                renderingState?.PushingTransform(() =>
+                {
+                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(bezierView.GetAbsoluteTransform().Elements);
+
+                    var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
+
+                    if (!_clippingRegion.IsVisibleInClippingRegion(visibleArea))
+                        return;
+                    
+                    InnerRenderBezierView(bezierView, decorators, renderingState, step);
+                });
+            }
+
+            private void InnerRenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IEnumerable<IRenderingDecorator> decorators, [NotNull] IDirect2DRenderingState renderingState, Step step)
+            {
+                var state = new BezierPathViewState
+                {
+                    StrokeColor = bezierView.StrokeColor,
+                    StrokeWidth = bezierView.StrokeWidth,
+                    FillColor = bezierView.FillColor,
+                    OuterStrokeColor = bezierView.OuterStrokeColor,
+                    OuterStrokeWidth = bezierView.OuterStrokeWidth
+                };
+
+                var geom = new PathGeometry(renderingState.D2DRenderTarget.Factory);
+
+                var sink = geom.Open();
+
+                FillBezierFigureSink(bezierView, sink);
+
+                sink.Close();
+
+                // Decorate
+                foreach (var decorator in decorators)
+                {
+                    decorator.DecorateBezierPathView(bezierView, ref state);
+                }
+
+                switch (step)
+                {
+                    case Step.Fill:
+                        // Fill
+                        if (state.FillColor != Color.Transparent)
+                        {
+                            using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.FillColor.ToColor4()))
+                            {
+                                renderingState.D2DRenderTarget.FillGeometry(geom, brush);
+                            }
+                        }
+
+                        break;
+
+                    case Step.OuterStroke:
+                        
+                        // Outer stroke
+                        if (state.OuterStrokeWidth > 0 && state.OuterStrokeColor != Color.Transparent)
+                        {
+                            using (var brushOuterStroke =
+                                new SolidColorBrush(renderingState.D2DRenderTarget, state.OuterStrokeColor.ToColor4()))
+                            {
+                                renderingState.D2DRenderTarget.DrawGeometry(geom, brushOuterStroke,
+                                    state.StrokeWidth + state.OuterStrokeWidth);
+                            }
+                        }
+
+                        break;
+
+                    case Step.Stroke:
+                        
+                        // Inner stroke
+                        if (state.StrokeWidth > 0 && state.StrokeColor != Color.Transparent)
+                        {
+                            using (var brushStroke = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
+                            {
+                                renderingState.D2DRenderTarget.DrawGeometry(geom, brushStroke, state.StrokeWidth);
+                            }
+                        }
+
+                        break;
+                }
+                
+                sink.Dispose();
+                geom.Dispose();
+            }
+
+            private static void FillBezierFigureSink([NotNull] BezierPathView bezierView, [NotNull] GeometrySink sink)
+            {
+                foreach (var input in bezierView.GetPathInputs())
+                {
+                    switch (input)
+                    {
+                        // Rectangle
+                        case BezierPathView.RectanglePathInput recInput:
+                            var rec = recInput.Rectangle;
+
+                            sink.BeginFigure(rec.Minimum.ToRawVector2(), FigureBegin.Filled);
+
+                            sink.AddLine(new Vector(rec.Right, rec.Top).ToRawVector2());
+                            sink.AddLine(new Vector(rec.Right, rec.Bottom).ToRawVector2());
+                            sink.AddLine(new Vector(rec.Left, rec.Bottom).ToRawVector2());
+
+                            sink.EndFigure(FigureEnd.Closed);
+                            break;
+
+                        // Bezier line
+                        case BezierPathView.BezierPathInput bezInput:
+                            sink.BeginFigure(bezInput.Start.ToRawVector2(), FigureBegin.Filled);
+
+                            sink.AddBezier(new BezierSegment
+                            {
+                                Point1 = bezInput.ControlPoint1.ToRawVector2(),
+                                Point2 = bezInput.ControlPoint2.ToRawVector2(),
+                                Point3 = bezInput.End.ToRawVector2()
+                            });
+
+                            sink.EndFigure(FigureEnd.Open);
+                            break;
+                    }
+                }
+            }
+
+            private enum Step
+            {
+                Fill,
+                OuterStroke,
+                Stroke
+            }
+        }
     }
     
     /// <summary>
