@@ -37,6 +37,7 @@ using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixSnapshot;
 using PixUI;
 using PixUI.Rendering;
+using PixUI.Visitor;
 using SharpDX.WIC;
 using Bitmap = System.Drawing.Bitmap;
 
@@ -171,7 +172,39 @@ namespace PixelariaTests.Views.ExportPipeline
             // Act/Assert
             PipelineViewSnapshot.Snapshot(new PipelineViewRenderContext(view, resources), TestContext);
         }
-        
+
+        [TestMethod]
+        public void TestRenderPipelineNodeViewConnection()
+        {
+            // Arrange
+            var node = new TestPipelineStep();
+            node.InputList = new List<IPipelineInput>
+            {
+                new GenericPipelineInput<int>(node, "Input 1")
+            };
+            node.OutputList = new List<IPipelineOutput>
+            {
+                new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 1")
+            };
+
+            var view1 = new PipelineNodeView(node);
+            var view2 = new PipelineNodeView(node);
+            var conn = PipelineNodeConnectionLineView.Create(view1.OutputViews[0], view2.InputViews[0], new PipelineLinkConnection(node.Input[0], node.Output[0], connection => { }));
+
+            var parent = new BaseView();
+            parent.AddChild(view1);
+            parent.AddChild(view2);
+            parent.AddChild(conn);
+
+            view1.Location = new Vector(0, 0);
+            view2.Location = new Vector(150, 0);
+
+            parent.Size = new Size(250, 90);
+            
+            // Act/Assert
+            PipelineViewSnapshot.Snapshot(parent, TestContext);
+        }
+
         private class TestPipelineStep : IPipelineStep
         {
             public Guid Id { get; } = Guid.NewGuid();
@@ -232,33 +265,48 @@ namespace PixelariaTests.Views.ExportPipeline
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
+            // Auto-size views
             var view = context.BaseView;
-
-            if (view is PipelineNodeView nodeView)
+            
+            var visitor = new BaseViewVisitor<IDirect2DRenderingState>((state, baseView) =>
             {
-                using (var renderManager = new Direct2DRenderLoopManager(_control))
+                switch (baseView)
                 {
-                    renderManager.InitializeDirect2D();
+                    case PipelineNodeView nodeView:
+                        var labelViewSizer =
+                            new DefaultLabelViewSizeProvider(new StaticDirect2DRenderingStateProvider(state));
 
-                    renderManager.RenderSingleFrame(state =>
-                    {
-                        _control.InitializeDirect2DRenderer(state);
-                        if (context.ImageResources != null)
-                        {
-                            foreach (var pair in context.ImageResources)
-                            {
-                                _control.D2DRenderer.ImageResources.AddImageResource(state, pair.Value, pair.Key);
-                            }
-                        }
-
-                        var labelViewSizer = new DefaultLabelViewSizeProvider(new StaticDirect2DRenderingStateProvider(state));
-                        
                         var sizer = new DefaultPipelineNodeViewSizer();
                         sizer.AutoSize(nodeView, labelViewSizer);
-                    });
-                }
-            }
+                        break;
 
+                    case PipelineNodeConnectionLineView connectionView:
+                        connectionView.UpdateBezier();
+                        break;
+                }
+            });
+
+            using (var renderManager = new Direct2DRenderLoopManager(_control))
+            {
+                renderManager.InitializeDirect2D();
+
+                renderManager.RenderSingleFrame(state =>
+                {
+                    _control.InitializeDirect2DRenderer(state);
+                    if (context.ImageResources != null)
+                    {
+                        foreach (var pair in context.ImageResources)
+                        {
+                            _control.D2DRenderer.ImageResources.AddImageResource(state, pair.Value, pair.Key);
+                        }
+                    }
+
+                    var traverser = new BaseViewTraverser<IDirect2DRenderingState>(state, visitor);
+
+                    traverser.Visit(view);
+                });
+            }
+            
             int width = (int) Math.Ceiling(view.Width);
             int height = (int) Math.Ceiling(view.Height);
 
@@ -284,11 +332,18 @@ namespace PixelariaTests.Views.ExportPipeline
                             renderer.ImageResources.AddImageResource(state, pair.Value, pair.Key);
                         }
                     }
-                    
-                    var parentView = new BaseView();
-                    parentView.AddChild(view);
 
-                    renderer.RenderInView(parentView, state, new IRenderingDecorator[0]);
+                    if (view is PipelineNodeView)
+                    {
+                        var parentView = new BaseView();
+                        parentView.AddChild(view);
+
+                        renderer.RenderInView(parentView, state, new IRenderingDecorator[0]);
+                    }
+                    else
+                    {
+                        renderer.RenderInView(view, state, new IRenderingDecorator[0]);
+                    }
                 });
                 
                 return BitmapFromWicBitmap(wicBitmap);
