@@ -50,7 +50,7 @@ namespace PixelariaTests.Views.ExportPipeline
         [TestInitialize]
         public void TestInitialize()
         {
-            PipelineViewSnapshot.RecordMode = true;
+            //PipelineViewSnapshot.RecordMode = true;
         }
 
         [TestMethod]
