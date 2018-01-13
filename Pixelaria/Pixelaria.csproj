@@ -244,7 +244,6 @@
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />
-    <Compile Include="Utils\Layouting\LayoutingHelper.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
     <Compile Include="ExportPipeline\PipelineHelpers.cs" />

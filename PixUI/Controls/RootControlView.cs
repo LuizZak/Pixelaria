@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
@@ -65,7 +64,7 @@ namespace PixUI.Controls
             return _firstResponderDelegate.IsFirstResponder(handler);
         }
 
-        protected override void Invalidate(Region region, ISpatialReference reference)
+        protected override void Invalidate(RedrawRegion region, ISpatialReference reference)
         {
             base.Invalidate(region, reference);
 
@@ -106,7 +105,7 @@ namespace PixUI.Controls
         /// Called to notify a <see cref="RootControlView"/> has received an invalidate request
         /// for a given region, on a given spatial reference (usually a <see cref="BaseView"/>).
         /// </summary>
-        void DidInvalidate([NotNull] Region region, [NotNull] ISpatialReference reference);
+        void DidInvalidate([NotNull] RedrawRegion region, [NotNull] ISpatialReference reference);
     }
 
     /// <summary>

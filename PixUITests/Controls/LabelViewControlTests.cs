@@ -49,8 +49,7 @@ namespace PixUITests.Controls
             var sut = LabelViewControl.Create();
             sut.Size = new Vector(100, 100);
             root.AddChild(sut);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             sut.HorizontalTextAlignment = HorizontalTextAlignment.Leading;
 

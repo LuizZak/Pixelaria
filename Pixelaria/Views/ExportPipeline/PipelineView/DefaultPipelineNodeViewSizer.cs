@@ -25,8 +25,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixUI;
-
-using Pixelaria.Utils.Layouting;
+using PixUI.Utils.Layouting;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {

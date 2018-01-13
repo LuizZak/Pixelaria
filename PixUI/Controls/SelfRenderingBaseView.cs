@@ -198,14 +198,14 @@ namespace PixUI.Controls
             return true;
         }
 
-        protected override void Invalidate(Region region, ISpatialReference reference)
+        protected override void Invalidate(RedrawRegion region, ISpatialReference reference)
         {
             if (!ReferenceEquals(reference, this) && ClipToBounds)
             {
                 if (Bounds.IsEmpty || Bounds.Validity == AABB.State.Invalid)
-                    region.MakeEmpty();
+                    region.Clear();
                 else
-                    region.Intersect((RectangleF) reference.ConvertFrom(Bounds, this));
+                    region.ApplyClip(Bounds, this);
             }
 
             base.Invalidate(region, reference);

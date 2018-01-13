@@ -49,7 +49,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace PixCore.Geometry
@@ -79,12 +78,12 @@ namespace PixCore.Geometry
         /// <param name="span"></param>
         /// <param name="test"></param>
         /// <returns></returns>
-        private static int Partition(AABB span, AABB test)
+        private static int Partition(in AABB span, in AABB test)
         {
-            if (Q1(span).Contains(test)) return 1;
-            if (Q2(span).Contains(test)) return 2;
-            if (Q3(span).Contains(test)) return 3;
-            if (Q4(span).Contains(test)) return 4;
+            if (Q1(in span).Contains(in test)) return 1;
+            if (Q2(in span).Contains(in test)) return 2;
+            if (Q3(in span).Contains(in test)) return 3;
+            if (Q4(in span).Contains(in test)) return 4;
 
             return 0;
         }
@@ -168,7 +167,7 @@ namespace PixCore.Geometry
             }
         }
         
-        public bool OverlapsElement(AABB searchR)
+        public bool OverlapsElement(in AABB searchR)
         {
             var stack = new Stack<QuadTree<T>>();
             stack.Push(this);
@@ -177,14 +176,15 @@ namespace PixCore.Geometry
             {
                 var qt = stack.Pop();
 
-                if (!TestOverlap(searchR, qt.Span))
+                if (!TestOverlap(in searchR, in qt.Span))
                     continue;
 
-                if (qt.Nodes.Any(n => TestOverlap(searchR, n.Span)))
+                foreach (var n in qt.Nodes)
                 {
-                    return true;
+                    if (TestOverlap(in searchR, in n.Span))
+                        return true;
                 }
-
+                
                 if (!qt.IsPartitioned)
                     continue;
 
@@ -197,7 +197,7 @@ namespace PixCore.Geometry
             return false;
         }
 
-        public void QueryAabb(Func<QuadTreeElement<T>, bool> callback, AABB searchR)
+        public void QueryAabb(Func<QuadTreeElement<T>, bool> callback, in AABB searchR)
         {
             var stack = new Stack<QuadTree<T>>();
             stack.Push(this);
@@ -206,12 +206,12 @@ namespace PixCore.Geometry
             {
                 var qt = stack.Pop();
 
-                if (!TestOverlap(searchR, qt.Span))
+                if (!TestOverlap(in searchR, in qt.Span))
                     continue;
 
                 foreach (var n in qt.Nodes)
                 {
-                    if (TestOverlap(searchR, n.Span))
+                    if (TestOverlap(in searchR, in n.Span))
                     {
                         if (!callback(n))
                             return;
@@ -228,7 +228,7 @@ namespace PixCore.Geometry
             }
         }
 
-        public bool QueryAabbAny(Func<QuadTreeElement<T>, bool> callback, AABB searchR)
+        public bool QueryAabbAny(Func<QuadTreeElement<T>, bool> callback, in AABB searchR)
         {
             var stack = new Stack<QuadTree<T>>();
             stack.Push(this);
@@ -237,12 +237,12 @@ namespace PixCore.Geometry
             {
                 var qt = stack.Pop();
 
-                if (!TestOverlap(searchR, qt.Span))
+                if (!TestOverlap(in searchR, in qt.Span))
                     continue;
 
                 foreach (var n in qt.Nodes)
                 {
-                    if (TestOverlap(searchR, n.Span))
+                    if (TestOverlap(in searchR, in n.Span))
                     {
                         if (callback(n))
                             return true;
@@ -294,36 +294,39 @@ namespace PixCore.Geometry
             SubTrees = null;
         }
 
-        private static bool TestOverlap(AABB a, AABB b)
+        private static bool TestOverlap(in AABB a, in AABB b)
         {
-            var d1 = b.Minimum - a.Maximum;
-            var d2 = a.Minimum - b.Maximum;
+            float d1X = b.Minimum.X - a.Maximum.X;
+            float d1Y = b.Minimum.Y - a.Maximum.Y;
 
-            if (d1.X > 0.0f || d1.Y > 0.0f)
+            float d2X = a.Minimum.X - b.Maximum.X;
+            float d2Y = a.Minimum.Y - b.Maximum.Y;
+            
+            if (d1X > 0.0f || d1Y > 0.0f)
                 return false;
 
-            if (d2.X > 0.0f || d2.Y > 0.0f)
+            if (d2X > 0.0f || d2Y > 0.0f)
                 return false;
 
             return true;
         }
 
-        private static AABB Q1(AABB aabb)
+        private static AABB Q1(in AABB aabb)
         {
             return new AABB(aabb.Center, aabb.Maximum);
         }
 
-        private static AABB Q2(AABB aabb)
+        private static AABB Q2(in AABB aabb)
         {
             return new AABB(new Vector(aabb.Minimum.X, aabb.Center.Y), new Vector(aabb.Center.X, aabb.Maximum.Y));
         }
 
-        private static AABB Q3(AABB aabb)
+        private static AABB Q3(in AABB aabb)
         {
             return new AABB(aabb.Minimum, aabb.Center);
         }
 
-        private static AABB Q4(AABB aabb)
+        private static AABB Q4(in AABB aabb)
         {
             return new AABB(new Vector(aabb.Center.X, aabb.Minimum.Y), new Vector(aabb.Maximum.X, aabb.Center.Y));
         }

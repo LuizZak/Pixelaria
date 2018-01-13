@@ -206,7 +206,7 @@ namespace PixUI
             ClearPath();
             AddRectangle(area);
         }
-
+        
         public override bool Contains(Vector point, Vector inflatingArea)
         {
             if (!_inputsBounds.Inflated(inflatingArea).Contains(point))

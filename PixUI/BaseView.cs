@@ -28,6 +28,7 @@ using System.Drawing.Drawing2D;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixUI.Controls;
 
 namespace PixUI
 {
@@ -39,7 +40,7 @@ namespace PixUI
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
-    public class BaseView : IEquatable<BaseView>, ISpatialReference
+    public class BaseView : IEquatable<BaseView>, ISpatialReference, IRegionInvalidateable
     {
         private Vector _size;
         private Vector _location;
@@ -146,8 +147,8 @@ namespace PixUI
                 if (_size == value)
                     return;
 
-                _size = value;
                 Invalidate();
+                _size = value;
                 OnResize();
                 Invalidate();
             }
@@ -217,6 +218,7 @@ namespace PixUI
             get => _strokeWidth;
             set
             {
+                Invalidate();
                 _strokeWidth = value;
                 Invalidate();
             }
@@ -361,7 +363,7 @@ namespace PixUI
             float closestD = float.PositiveInfinity;
 
             // Search children first
-            for (var i = children.Count - 1; i >= 0; i--)
+            for (int i = children.Count - 1; i >= 0; i--)
             {
                 var baseView = children[i];
                 var ht = baseView.HitTestClosest(point * baseView.LocalTransform.Inverted(), inflatingArea);
@@ -678,6 +680,22 @@ namespace PixUI
         #region Redraw Region Management
 
         /// <summary>
+        /// Returns the total rectangle that is invalidated when calling <see cref="Invalidate"/>
+        /// </summary>
+        public virtual AABB BoundsForInvalidate()
+        {
+            return Bounds.Inflated(StrokeWidth, StrokeWidth);
+        }
+
+        /// <summary>
+        /// Returns the total rectangle that is invalidated when calling <see cref="InvalidateFullBounds"/>
+        /// </summary>
+        public virtual AABB BoundsForInvalidateFullBounds()
+        {
+            return GetFullBounds().Inflated(StrokeWidth, StrokeWidth);
+        }
+
+        /// <summary>
         /// Invalidates the entirety of this view's drawing region on its parent.
         /// 
         /// The invalidation is propagated through the parent view chain until the root
@@ -685,7 +703,7 @@ namespace PixUI
         /// </summary>
         public virtual void Invalidate()
         {
-            Invalidate(Bounds);
+            Invalidate(BoundsForInvalidate());
         }
 
         /// <summary>
@@ -697,9 +715,9 @@ namespace PixUI
         /// </summary>
         public virtual void InvalidateFullBounds()
         {
-            Invalidate(GetFullBounds());
+            Invalidate(BoundsForInvalidateFullBounds());
         }
-
+        
         /// <summary>
         /// Invalidates a given rectangle on this view.
         /// 
@@ -708,7 +726,7 @@ namespace PixUI
         /// </summary>
         protected virtual void Invalidate(AABB rectangle)
         {
-            Invalidate(new Region((RectangleF)rectangle), this);
+            Invalidate(new RedrawRegion(rectangle, this), this);
         }
 
         /// <summary>
@@ -722,7 +740,7 @@ namespace PixUI
         /// A spatial reference location  that specifies in which space the <see cref="region"/> parameter is situated in.
         /// Usually the <see cref="GetAbsoluteTransform()"/> of the view that was invalidated.
         /// </param>
-        protected virtual void Invalidate(Region region, ISpatialReference reference)
+        protected virtual void Invalidate(RedrawRegion region, ISpatialReference reference)
         {
             Parent?.Invalidate(region, reference);
         }

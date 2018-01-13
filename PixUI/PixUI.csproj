@@ -93,6 +93,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\RedrawRegion.cs" />
+    <Compile Include="IRegionInvalidateable.cs" />
     <Compile Include="Rendering\DefaultLabelViewSizeProvider.cs" />
     <Compile Include="Rendering\ViewRenderingVisitor.cs" />
     <Compile Include="BaseView.cs" />

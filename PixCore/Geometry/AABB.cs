@@ -38,13 +38,21 @@ namespace PixCore.Geometry
     public readonly struct AABB : IEquatable<AABB>
     {
         private static AABB _empty = new AABB(Vector.Zero, Vector.Zero);
+        private static AABB _invalid = new AABB(State.Invalid);
 
         /// <summary>
         /// Gets an AABB that has zero bounds area.
         /// 
-        /// AABB has minimum and maximum == Vector.Zero, and is Valid.
+        /// AABB has minimum and maximum == <see cref="Vector.Zero"/>, and has <see cref="Validity"/> == <see cref="State.Valid"/>.
         /// </summary>
         public static ref readonly AABB Empty => ref _empty;
+
+        /// <summary>
+        /// Gets an AABB that has zero bounds area and is invalid.
+        /// 
+        /// AABB has minimum and maximum == <see cref="Vector.Zero"/>, and has <see cref="Validity"/> == <see cref="State.Invalid"/>.
+        /// </summary>
+        public static ref readonly AABB Invalid => ref _invalid;
 
         public readonly Vector Minimum;
         public readonly Vector Maximum;
@@ -112,6 +120,14 @@ namespace PixCore.Geometry
 
                 return corners;
             }
+        }
+
+        private AABB(State validity)
+        {
+            Minimum = Vector.Zero;
+            Maximum = Vector.Zero;
+
+            Validity = validity;
         }
 
         public AABB(float left, float top, float bottom, float right)
@@ -320,6 +336,39 @@ namespace PixCore.Geometry
         }
 
         /// <summary>
+        /// Returns the intersection between this and another <see cref="AABB"/> instances.
+        /// 
+        /// The result is <see cref="State.Invalid"/>, in case the two <see cref="AABB"/>'s don't
+        /// intersect.
+        /// </summary>
+        public AABB Intersect(AABB other)
+        {
+            return Intersect(this, other);
+        }
+
+        /// <summary>
+        /// Returns an <see cref="AABB"/> that is the intersection between two aabb instances.
+        /// 
+        /// Return is <see cref="State.Invalid"/>, if they do not intersect.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static AABB Intersect(in AABB a, in AABB b)
+        {
+            float x1 = Math.Max(a.Left, b.Left);
+            float x2 = Math.Min(a.Right, b.Right);
+            float y1 = Math.Max(a.Top, b.Top);
+            float y2 = Math.Min(a.Bottom, b.Bottom);
+
+            if (x2 >= x1 && y2 >= y1) {
+                return new AABB(x1, y1, y2, x2);
+            }
+
+            return Invalid;
+        }
+
+        /// <summary>
         /// Returns whether a given point rests inside the boundaries
         /// of this AABB.
         /// 
@@ -410,6 +459,11 @@ namespace PixCore.Geometry
                 hashCode = (hashCode * 397) ^ (int) Validity;
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{{Left: {Left}, Top: {Top}, Right: {Right}, Bottom: {Bottom}}}";
         }
 
         /// <summary>

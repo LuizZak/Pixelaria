@@ -159,6 +159,14 @@ namespace Pixelaria.Views.ExportPipeline
         {
             _clippingRegion.AddRegion(region);
         }
+        
+        /// <summary>
+        /// Adds a given region of invalidation to be rendered on the next frame.
+        /// </summary>
+        public void InvalidateRegion([NotNull] RedrawRegion region)
+        {
+            _clippingRegion.AddRegion(region);
+        }
 
         /// <summary>
         /// Invalidates the entire draw region of this control
@@ -207,10 +215,20 @@ namespace Pixelaria.Views.ExportPipeline
 
             foreach (var feature in _features)
                 feature.OnRender(state);
-
+            
             _clippingRegion.PopDirect2DClipping(state, clipState);
 
             _clippingRegion.Clear();
+        }
+
+        /// <summary>
+        /// Invalidates the Direct2D renderer for this control.
+        /// 
+        /// The rendering context will be re-created on the next call to <see cref="RenderDirect2D"/>
+        /// </summary>
+        public void InvalidateDirect2D()
+        {
+
         }
 
         private void fixedTimer_Tick(object sender, EventArgs e)
@@ -1307,15 +1325,9 @@ namespace Pixelaria.Views.ExportPipeline
                 return false;
             }
 
-            public void DidInvalidate(Region region, ISpatialReference reference)
+            public void DidInvalidate(RedrawRegion region, ISpatialReference reference)
             {
-                var transform = reference.GetAbsoluteTransform();
-                using (var screenRegion = region.Clone())
-                {
-                    screenRegion.Transform(transform);
-
-                    _control.InvalidateRegion(new Region(new Rectangle(Point.Empty, _control.Size)));
-                }
+                _control.InvalidateRegion(region);
             }
             
             private class InternalSelection : ISelection
@@ -1382,6 +1394,7 @@ namespace Pixelaria.Views.ExportPipeline
     internal class ClippingRegion : IClippingRegion
     {
         private readonly List<RectangleF> _rectangles;
+        private bool _needsDissect;
         
         public ClippingRegion()
         {
@@ -1394,6 +1407,11 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         public virtual RectangleF[] RedrawRegionRectangles(Size size)
         {
+            if (_needsDissect)
+            {
+                Dissect();
+            }
+
             var controlRect = new RectangleF(PointF.Empty, size);
 
             var rects = _rectangles;
@@ -1408,7 +1426,7 @@ namespace Pixelaria.Views.ExportPipeline
                         return rect;
                     });
 
-            return clipped.ToArray();
+            return RectangleDissection.MergeRectangles(clipped.ToArray());
         }
         
         public virtual bool IsVisibleInClippingRegion(Rectangle rectangle)
@@ -1464,17 +1482,11 @@ namespace Pixelaria.Views.ExportPipeline
                 return;
             }
 
-            // For remaining rectangles, apply a rectangle dissection step so overlapping rectangles are broken
-            // into non-overlapping subsegments
-
+            _needsDissect = true;
+            
             _rectangles.Add(rectangle);
-
-            var ret = RectangleDissection.Dissect(_rectangles);
-
-            _rectangles.Clear();
-            _rectangles.AddRange(ret);
         }
-
+        
         public void AddRegion([NotNull] Region region)
         {
             var scans = region.GetRegionScans(new Matrix());
@@ -1482,6 +1494,16 @@ namespace Pixelaria.Views.ExportPipeline
             foreach (var scan in scans)
             {
                 AddRectangle(scan);
+            }
+        }
+        
+        public void AddRegion([NotNull] RedrawRegion region)
+        {
+            var scans = region.GetRectangles();
+
+            foreach (var scan in scans)
+            {
+                AddRectangle((RectangleF)scan.Inflated(5, 5));
             }
         }
 
@@ -1559,6 +1581,16 @@ namespace Pixelaria.Views.ExportPipeline
         public interface IDirect2DClippingState
         {
             
+        }
+
+        private void Dissect()
+        {
+            var ret = RectangleDissection.Dissect(_rectangles);
+
+            _rectangles.Clear();
+            _rectangles.AddRange(ret);
+
+            _needsDissect = false;
         }
 
         protected struct Direct2DClip : IDirect2DClippingState

@@ -196,10 +196,10 @@ namespace PixelariaTests.Views.ExportPipeline
             parent.AddChild(view2);
             parent.AddChild(conn);
 
-            view1.Location = new Vector(0, 0);
-            view2.Location = new Vector(150, 0);
+            view1.Location = new Vector(15, 15);
+            view2.Location = new Vector(165, 15);
 
-            parent.Size = new Size(250, 90);
+            parent.Size = new Size(270, 90);
             
             // Act/Assert
             PipelineViewSnapshot.Snapshot(parent, TestContext);

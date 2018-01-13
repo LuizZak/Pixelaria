@@ -21,12 +21,14 @@
 */
 
 using System.Collections.Generic;
-using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixUI;
+using PixUI.Controls;
 
 namespace PixUITests
 {
@@ -34,14 +36,14 @@ namespace PixUITests
     {
         private readonly List<InvalidationRequest> _invalidationRequests = new List<InvalidationRequest>();
 
-        public Region InvalidateRegion { get; set; }
-        public ISpatialReference InvalidateReference { get; set; }
+        public RedrawRegion InvalidateRegion { get; private set; }
+        public ISpatialReference InvalidateReference { get; private set; }
 
         public IReadOnlyList<InvalidationRequest> InvalidationRequests => _invalidationRequests;
 
-        protected override void Invalidate(Region region, ISpatialReference reference)
+        protected override void Invalidate([NotNull] RedrawRegion region, [NotNull] ISpatialReference reference)
         {
-            _invalidationRequests.Add(new InvalidationRequest(region, reference));
+            _invalidationRequests.Add(new InvalidationRequest(region, reference.GetAbsoluteTransform(), reference));
 
             InvalidateRegion = region;
             InvalidateReference = reference;
@@ -64,18 +66,15 @@ namespace PixUITests
         /// </summary>
         public class InvalidationRequest
         {
-            public Region InvalidateRegion { get; }
+            public RedrawRegion InvalidateRegion { get; }
+            public Matrix InvalidateMatrix { get; }
             public ISpatialReference InvalidateReference { get; }
 
-            public InvalidationRequest(Region invalidateRegion, ISpatialReference invalidateReference)
+            public InvalidationRequest([NotNull] RedrawRegion invalidateRegion, Matrix invalidateMatrix, ISpatialReference invalidateReference)
             {
                 InvalidateRegion = invalidateRegion.Clone();
+                InvalidateMatrix = invalidateMatrix;
                 InvalidateReference = invalidateReference;
-            }
-
-            ~InvalidationRequest()
-            {
-                InvalidateRegion.Dispose();
             }
         }
     }
@@ -87,16 +86,16 @@ namespace PixUITests
         /// </summary>
         public static void AssertViewBoundsWhereInvalidated([NotNull] this TestInvalidateBaseView invView, [NotNull] BaseView view)
         {
+            var bounds = view.BoundsForInvalidate();
 
-            using (var img = new Bitmap(1, 1))
-            using (var g = Graphics.FromImage(img))
+            if (!FindInvalidateRequest(invView, view, bounds))
             {
-                var testReg = new Region((RectangleF)view.Bounds);
+                var message = new StringBuilder();
 
-                if (!invView.InvalidationRequests.Any(r => r.InvalidateRegion.Equals(testReg, g) && Equals(r.InvalidateReference, view)))
-                {
-                    Assert.Fail($"View {view}'s bounds was not invalidated.");
-                }
+                message.AppendLine($"View {view}'s bounds where not invalidated.");
+                AddInvalidationInfoMessage(message, invView, bounds, view);
+
+                Assert.Fail(message.ToString());
             }
         }
 
@@ -105,16 +104,47 @@ namespace PixUITests
         /// </summary>
         public static void AssertViewFullBoundsWhereInvalidated([NotNull] this TestInvalidateBaseView invView, [NotNull] BaseView view)
         {
-
-            using (var img = new Bitmap(1, 1))
-            using (var g = Graphics.FromImage(img))
+            var bounds = view.BoundsForInvalidateFullBounds();
+            
+            if (!FindInvalidateRequest(invView, view, bounds))
             {
-                var testReg = new Region((RectangleF)view.GetFullBounds());
+                var message = new StringBuilder();
 
-                if (!invView.InvalidationRequests.Any(r => r.InvalidateRegion.Equals(testReg, g) && Equals(r.InvalidateReference, view)))
-                {
-                    Assert.Fail($"View {view}'s bounds was not invalidated.");
-                }
+                message.AppendLine($"View {view}'s total bounds where not invalidated.");
+                AddInvalidationInfoMessage(message, invView, bounds, view);
+
+                Assert.Fail(message.ToString());
+            }
+        }
+        
+        private static bool FindInvalidateRequest([NotNull] TestInvalidateBaseView invView, BaseView view, AABB bounds)
+        {
+            foreach (var r in invView.InvalidationRequests)
+            {
+                if (!Equals(r.InvalidateReference, view))
+                    continue;
+
+                if (r.InvalidateRegion.GetRectangles().Contains(bounds.TransformedBounds(r.InvalidateMatrix)))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static void AddInvalidationInfoMessage([NotNull] StringBuilder builder, [NotNull] TestInvalidateBaseView invView, AABB bounds, [NotNull] BaseView view)
+        {
+            builder.AppendLine($"Expected invalidation request: {bounds} for view {view}");
+            builder.AppendLine("Received invalidation requests:");
+
+            for (int i = 0; i < invView.InvalidationRequests.Count; i++)
+            {
+                var req = invView.InvalidationRequests[i];
+
+                string reqs = string.Join(", ", req.InvalidateRegion.GetRectangles().Select(r => r.ToString()));
+
+                builder.Append($"{i + 1}: Regions: (");
+                builder.Append(reqs);
+                builder.AppendLine($") View: {req.InvalidateReference}");
             }
         }
     }

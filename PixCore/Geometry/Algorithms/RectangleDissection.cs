@@ -151,7 +151,7 @@ namespace PixCore.Geometry.Algorithms
                     }
 
                     return true;
-                }, ((AABB)rect).Inflated(2, 2));
+                }, rect);
 
                 if (found != null)
                     quadTree.RemoveNode(found);

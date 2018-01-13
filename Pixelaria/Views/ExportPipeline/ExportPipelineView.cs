@@ -112,6 +112,11 @@ namespace Pixelaria.Views.ExportPipeline
             exportPipelineControl.InitializeDirect2DRenderer(_direct2DLoopManager.RenderingState);
             ConfigureForm();
 
+            _direct2DLoopManager.InvalidatedState += (sender, args) =>
+            {
+                exportPipelineControl.InvalidateDirect2D();
+            };
+
             _direct2DLoopManager.StartRenderLoop(state =>
             {
                 var rects = exportPipelineControl.ClippingRegionRectangles;

@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-
+using FastBitmapLib;
 using JetBrains.Annotations;
 
 using PixCore.Colors;
@@ -67,7 +67,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         /// <summary>
         /// For rendering title of pipeline nodes
-        /// </summary>
+        /// </summary>.+
         private TextFormat _nodeTitlesTextFormat;
 
         public ILabelViewSizeProvider LabelViewSizeProvider => _labelViewSizeProvider;
@@ -104,12 +104,32 @@ namespace Pixelaria.Views.ExportPipeline
             };
 
             // Create shadow box image
-            using (var bitmap = new Bitmap(32, 32))
+            using (var bitmap = new Bitmap(64, 64))
             {
+                FastBitmap.ClearBitmap(bitmap, Color.Black);
                 _shadowBox = CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
             }
         }
-        
+
+        protected override void RecreateState(IDirect2DRenderingState state)
+        {
+            base.RecreateState(state);
+
+            // Create shadow box image
+            using (var bitmap = new Bitmap(64, 64))
+            {
+                FastBitmap.ClearBitmap(bitmap, Color.Black);
+                _shadowBox = CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            }
+        }
+
+        public override void InvalidateState()
+        {
+            base.InvalidateState();
+
+            _shadowBox.Dispose();
+        }
+
         #region View Rendering
 
         public override void Render(IDirect2DRenderingState state, IClippingRegion clipping)
@@ -140,11 +160,12 @@ namespace Pixelaria.Views.ExportPipeline
             bezierRenderer.RenderBezierViews(beziersLow, ClippingRegion, decorators);
 
             // Node views
+
             foreach (var stepView in nodeViews)
             {
                 RenderStepView(stepView, state, decorators);
             }
-            
+
             // Over beziers
             bezierRenderer.RenderBezierViews(beziersOver, ClippingRegion, decorators);
 
@@ -155,7 +176,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IDirect2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        private void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IDirect2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             state.PushingTransform(() =>
             {
@@ -165,7 +186,7 @@ namespace Pixelaria.Views.ExportPipeline
                     
                 if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
-                    
+                
                 // Create rendering states for decorators
                 var stepViewState = new PipelineStepViewState
                 {
@@ -189,7 +210,7 @@ namespace Pixelaria.Views.ExportPipeline
                     RadiusY = 5,
                     Rect = new RawRectangleF(0, 0, bounds.Width, bounds.Height)
                 };
-
+                
                 // Draw body fill
                 using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
                 {
@@ -667,7 +688,7 @@ namespace Pixelaria.Views.ExportPipeline
         }
 
         #endregion
-
+        
         private class BezierViewRenderer
         {
             private readonly IDirect2DRenderingStateProvider _stateProvider;
@@ -718,7 +739,7 @@ namespace Pixelaria.Views.ExportPipeline
                 });
             }
 
-            private void InnerRenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IEnumerable<IRenderingDecorator> decorators, [NotNull] IDirect2DRenderingState renderingState, Step step)
+            private static void InnerRenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IEnumerable<IRenderingDecorator> decorators, [NotNull] IDirect2DRenderingState renderingState, Step step)
             {
                 var state = new BezierPathViewState
                 {

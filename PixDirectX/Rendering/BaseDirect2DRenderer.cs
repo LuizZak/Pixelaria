@@ -52,7 +52,9 @@ namespace PixDirectX.Rendering
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
-        
+
+        private bool _isRefreshingState;
+
         protected readonly TextColorRenderer TextColorRenderer = new TextColorRenderer();
         
         private readonly D2DImageResources _imageResources;
@@ -109,16 +111,42 @@ namespace PixDirectX.Rendering
 
             TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
         }
-        
+
+        /// <summary>
+        /// Invalidates this D2D renderer's state so it's re-created on the next call to <see cref="RecreateState"/>.
+        /// </summary>
+        public virtual void InvalidateState()
+        {
+            TextColorRenderer.DefaultBrush.Dispose();
+
+            _isRefreshingState = true;
+        }
+
+        /// <summary>
+        /// Called when the state has been invalidated and needs to be refreshed.
+        /// </summary>
+        protected virtual void RecreateState([NotNull] IDirect2DRenderingState state)
+        {
+            
+        }
+
         /// <summary>
         /// Updates the rendering state and clipping region of this Direct2D renderer instance to the ones specified.
         /// 
         /// Must be called whenever devices/surfaces/etc. have been invalidated or the clipping region has been changed.
         /// 
         /// Automatically called every time <see cref="Render"/> is called before any rendering occurs.
+        /// 
+        /// Calls <see cref="RecreateState"/> after calls to <see cref="InvalidateState"/> automatically.
         /// </summary>
         public void UpdateRenderingState([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
+            if (_isRefreshingState)
+            {
+                RecreateState(state);
+                _isRefreshingState = false;
+            }
+
             _lastRenderingState = state;
             
             // Update text renderer's references

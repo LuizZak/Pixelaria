@@ -449,15 +449,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         #region IInvalidateRegionDelegate
 
-        public void DidInvalidate(Region region, ISpatialReference reference)
+        public void DidInvalidate(RedrawRegion region, ISpatialReference reference)
         {
-            var transform = reference.GetAbsoluteTransform();
-            using (var screenRegion = region.Clone())
-            {
-                screenRegion.Transform(transform);
-
-                Control.InvalidateRegion(screenRegion);
-            }
+            Control.InvalidateRegion(region);
         }
 
         #endregion

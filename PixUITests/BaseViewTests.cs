@@ -191,8 +191,7 @@ namespace PixUITests
             var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
             var child = new BaseView { Size = new Vector(100, 100) };
             root.AddChild(child);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             child.Invalidate();
 
@@ -209,12 +208,11 @@ namespace PixUITests
             var grandchild = new BaseView { Location = new Vector(5, 5), Size = new Vector(200, 200) };
             child.AddChild(grandchild);
             root.AddChild(child);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             child.Size = new Vector(150, 150);
 
-            root.AssertViewBoundsWhereInvalidated(root);
+            root.AssertViewBoundsWhereInvalidated(child);
         }
 
         [TestMethod]
@@ -225,8 +223,7 @@ namespace PixUITests
             var grandchild = new BaseView {Location = new Vector(5, 5), Size = new Vector(200, 200)};
             child.AddChild(grandchild);
             root.AddChild(child);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             child.Location = new Vector(10, 10);
             
@@ -255,8 +252,7 @@ namespace PixUITests
             var grandchild = new BaseView {Location = new Vector(5, 5), Size = new Vector(200, 200)};
             child.AddChild(grandchild);
             root.AddChild(child);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             newParent.AddChild(child);
 
@@ -285,8 +281,7 @@ namespace PixUITests
             var grandchild = new BaseView {Location = new Vector(5, 5), Size = new Vector(200, 200)};
             child.AddChild(grandchild);
             root.AddChild(child);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             newParent.InsertChild(0, child);
 
@@ -301,8 +296,7 @@ namespace PixUITests
             var grandchild = new BaseView {Location = new Vector(5, 5), Size = new Vector(200, 200)};
             child.AddChild(grandchild);
             root.AddChild(child);
-            root.InvalidateReference = null;
-            root.InvalidateRegion = null;
+            root._ResetInvalidation();
 
             child.RemoveFromParent();
 
