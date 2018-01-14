@@ -42,7 +42,6 @@ using SharpDX.Direct2D1;
 using SharpDX.Windows;
 using Color = System.Drawing.Color;
 using FillMode = SharpDX.Direct2D1.FillMode;
-using Matrix = System.Drawing.Drawing2D.Matrix;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
@@ -150,14 +149,6 @@ namespace Pixelaria.Views.ExportPipeline
             }
 
             base.Dispose(disposing);
-        }
-
-        /// <summary>
-        /// Adds a given region of invalidation to be rendered on the next frame.
-        /// </summary>
-        public void InvalidateRegion([NotNull] Region region)
-        {
-            _clippingRegion.AddRegion(region);
         }
         
         /// <summary>
@@ -1389,7 +1380,7 @@ namespace Pixelaria.Views.ExportPipeline
     }
     
     /// <summary>
-    /// A clipping region backed by a <see cref="System.Drawing.Region"/> instance.
+    /// A clipping region backed by a list of individual <see cref="RectangleF"/> instances.
     /// </summary>
     internal class ClippingRegion : IClippingRegion
     {
@@ -1485,16 +1476,6 @@ namespace Pixelaria.Views.ExportPipeline
             _needsDissect = true;
             
             _rectangles.Add(rectangle);
-        }
-        
-        public void AddRegion([NotNull] Region region)
-        {
-            var scans = region.GetRegionScans(new Matrix());
-
-            foreach (var scan in scans)
-            {
-                AddRectangle(scan);
-            }
         }
         
         public void AddRegion([NotNull] RedrawRegion region)

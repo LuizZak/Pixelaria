@@ -117,7 +117,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _location = value;
-                UpdateMatrix();
+                RecreateLocalTransformMatrix();
                 InvalidateFullBounds();
             }
         }
@@ -138,7 +138,6 @@ namespace PixUI
 
                 Invalidate();
                 _size = value;
-                UpdateMatrix();
                 OnResize();
                 Invalidate();
             }
@@ -168,7 +167,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _scale = value;
-                UpdateMatrix();
+                RecreateLocalTransformMatrix();
                 InvalidateFullBounds();
             }
         }
@@ -184,7 +183,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _rotation = value;
-                UpdateMatrix();
+                RecreateLocalTransformMatrix();
                 InvalidateFullBounds();
             }
         }
@@ -239,13 +238,13 @@ namespace PixUI
         public BaseView([CanBeNull] string debugName)
         {
             DebugName = debugName;
-            UpdateMatrix();
+            RecreateLocalTransformMatrix();
         }
 
         /// <summary>
         /// Updates cache of local transformation matrix
         /// </summary>
-        private void UpdateMatrix()
+        private void RecreateLocalTransformMatrix()
         {
             _localTransform = Matrix2D.Rotation(_rotation) * Matrix2D.Translation(_location) * Matrix2D.Scaling(_scale);
         }
@@ -576,7 +575,7 @@ namespace PixUI
         /// </summary>
         public Vector ConvertFrom(Vector point, ISpatialReference from)
         {
-            // Convert point to global, if it's currently local to from
+            // Convert point to global, if it's currently local to 'from'
             var global = point;
             if (from != null)
                 global = from.GetAbsoluteTransform() * point;

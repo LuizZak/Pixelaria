@@ -149,7 +149,7 @@ namespace PixUI
             _containsPath?.Dispose();
             _containsPath = null;
 
-            _inputsBounds = AABB.Empty;
+            _inputsBounds = AABB.Invalid;
             _inputs.Clear();
         }
 
@@ -175,8 +175,7 @@ namespace PixUI
             _containsPath?.Dispose();
             _containsPath = null;
             
-            _inputsBounds = _inputsBounds.Union(new AABB(new []{pt1, pt2, pt3, pt4}));
-
+            AddInputBounds(new AABB(new[] {pt1, pt2, pt3, pt4}));
             _inputs.Add(new BezierPathInput(pt1, pt2, pt3, pt4));
 
             Invalidate();
@@ -190,7 +189,7 @@ namespace PixUI
             _containsPath?.Dispose();
             _containsPath = null;
 
-            _inputsBounds = _inputsBounds.Union(area);
+            AddInputBounds(area);
             _inputs.Add(new RectanglePathInput(area));
 
             Invalidate();
@@ -206,7 +205,12 @@ namespace PixUI
             ClearPath();
             AddRectangle(area);
         }
-        
+
+        private void AddInputBounds(AABB area)
+        {
+            _inputsBounds = _inputsBounds.Union(in area);
+        }
+
         public override bool Contains(Vector point, Vector inflatingArea)
         {
             if (!_inputsBounds.Inflated(inflatingArea).Contains(point))

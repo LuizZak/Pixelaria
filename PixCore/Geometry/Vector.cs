@@ -271,7 +271,7 @@ namespace PixCore.Geometry
         {
             return new Vector(vec1.X * vec2.X, vec1.Y * vec2.Y);
         }
-
+        
         public static Vector operator /(Vector vec1, Vector vec2)
         {
             return new Vector(vec1.X / vec2.X, vec1.Y / vec2.Y);

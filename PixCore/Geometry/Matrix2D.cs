@@ -69,7 +69,6 @@
 */
 
 using System;
-using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -78,7 +77,7 @@ using JetBrains.Annotations;
 namespace PixCore.Geometry
 {
     /// <summary>
-    /// Direct2D Matrix3x2. Supports implicit cast from <see cref="Matrix"/>.
+    /// Plain Matrix3x2.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public readonly struct Matrix2D
@@ -1092,16 +1091,6 @@ namespace PixCore.Geometry
             return Equals(ref matrix);
         }
 
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Matrix"/> to <see cref="Matrix2D"/>.
-        /// </summary>
-        /// <param name="matrix">The matrix.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Matrix2D([NotNull] Matrix matrix)
-        {
-            return new Matrix2D(matrix.Elements);
-        }
-        
         /// <summary>
         /// Checks if a and b are almost equals, taking into account the magnitude of floating point numbers. See Remarks.
         /// See remarks.
