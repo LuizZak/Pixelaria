@@ -247,7 +247,7 @@ namespace PixUI
         /// </summary>
         private void UpdateMatrix()
         {
-            _localTransform = Matrix2D.Rotation(Rotation) * Matrix2D.Translation(Location) * Matrix2D.Scaling(Scale);
+            _localTransform = Matrix2D.Rotation(_rotation) * Matrix2D.Translation(_location) * Matrix2D.Scaling(_scale);
         }
 
         /// <summary>
