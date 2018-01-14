@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Drawing.Drawing2D;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixUI;
@@ -44,14 +43,16 @@ namespace PixUITests
             root.AddChild(child);
             child.AddChild(grandchild);
 
+            root.Location = new Vector(1, 1);
             root.Scale = new Vector(0.5f, 0.5f);
             child.Scale = new Vector(0.5f, 0.5f);
+            child.Rotation = (float)Math.PI;
 
             var matrix = grandchild.GetAbsoluteTransform();
 
-            var actual = new Matrix();
-            actual.Scale(0.5f, 0.5f);
-            actual.Scale(0.5f, 0.5f);
+            var actual =
+                Matrix2D.Rotation((float)Math.PI) * Matrix2D.Translation(0, 0) * Matrix2D.Scaling(0.5f, 0.5f) *
+                Matrix2D.Rotation(0) * Matrix2D.Translation(1, 1) * Matrix2D.Scaling(0.5f, 0.5f);
 
             Assert.AreEqual(matrix, actual);
         }

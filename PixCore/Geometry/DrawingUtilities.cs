@@ -22,24 +22,12 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 
 namespace PixCore.Geometry
 {
     public static class DrawingUtilities
     {
-        /// <summary>
-        /// Returns an inverted copy of a matrix
-        /// </summary>
-        [Pure]
-        public static Matrix Inverted([NotNull] this Matrix matrix)
-        {
-            var clone = matrix.Clone();
-            clone.Invert();
-            return clone;
-        }
-        
         /// <summary>
         /// Returns the distance between two points objects
         /// </summary>

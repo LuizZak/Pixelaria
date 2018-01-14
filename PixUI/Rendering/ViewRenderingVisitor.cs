@@ -24,7 +24,6 @@ using JetBrains.Annotations;
 using PixDirectX.Utils;
 using PixUI.Controls;
 using PixUI.Visitor;
-using SharpDX;
 using SharpDX.Direct2D1;
 
 namespace PixUI.Rendering
@@ -36,7 +35,7 @@ namespace PixUI.Rendering
     {
         public void OnVisitorEnter([NotNull] ControlRenderingContext context, BaseView view)
         {
-            context.State.PushMatrix(new Matrix3x2(view.LocalTransform.Elements));
+            context.State.PushMatrix(view.LocalTransform.ToRawMatrix3X2());
 
             // Clip rendering area
             if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)

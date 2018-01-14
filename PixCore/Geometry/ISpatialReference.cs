@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 
 namespace PixCore.Geometry
@@ -66,6 +65,6 @@ namespace PixCore.Geometry
         /// <summary>
         /// Gets a matrix that represents the absolute transform of this reference point.
         /// </summary>
-        Matrix GetAbsoluteTransform();
+        Matrix2D GetAbsoluteTransform();
     }
 }

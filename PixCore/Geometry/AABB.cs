@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace PixCore.Geometry
@@ -34,6 +35,7 @@ namespace PixCore.Geometry
     /// An axis-aligned bounding box.
     /// </summary>
     [DebuggerDisplay("Minimum: {Minimum}, Maximum: {Maximum}")]
+    [StructLayout(LayoutKind.Sequential)]
     // ReSharper disable once InconsistentNaming
     public readonly struct AABB : IEquatable<AABB>
     {
@@ -412,17 +414,17 @@ namespace PixCore.Geometry
                    Minimum.Y <= other.Maximum.Y &&
                    Maximum.Y >= other.Minimum.Y;
         }
-
+        
         /// <summary>
         /// Applies the given Matrix on all corners of this AABB, returning
         /// a new minimaml AABB capable of containing the transformed points.
         /// </summary>
         [Pure]
-        public AABB TransformedBounds([NotNull] Matrix matrix)
+        public AABB TransformedBounds(Matrix2D matrix)
         {
             return Corners.Transform(matrix).Area();
         }
-
+        
         [Pure]
         public AABB Inset(in InsetBounds inset)
         {

@@ -21,7 +21,6 @@
 */
 
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -67,10 +66,10 @@ namespace PixUITests
         public class InvalidationRequest
         {
             public RedrawRegion InvalidateRegion { get; }
-            public Matrix InvalidateMatrix { get; }
+            public Matrix2D InvalidateMatrix { get; }
             public ISpatialReference InvalidateReference { get; }
 
-            public InvalidationRequest([NotNull] RedrawRegion invalidateRegion, Matrix invalidateMatrix, ISpatialReference invalidateReference)
+            public InvalidationRequest([NotNull] RedrawRegion invalidateRegion, Matrix2D invalidateMatrix, ISpatialReference invalidateReference)
             {
                 InvalidateRegion = invalidateRegion.Clone();
                 InvalidateMatrix = invalidateMatrix;

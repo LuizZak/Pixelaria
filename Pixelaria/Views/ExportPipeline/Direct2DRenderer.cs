@@ -377,7 +377,7 @@ namespace Pixelaria.Views.ExportPipeline
                         decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
                 }
 
-                state.D2DRenderTarget.Transform = new Matrix3x2(link.GetAbsoluteTransform().Elements);
+                state.D2DRenderTarget.Transform = link.GetAbsoluteTransform().ToRawMatrix3X2();
 
                 var rectangle = link.Bounds;
                 
@@ -399,7 +399,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             renderingState.PushingTransform(() =>
             {
-                renderingState.D2DRenderTarget.Transform = new Matrix3x2(bezierView.GetAbsoluteTransform().Elements);
+                renderingState.D2DRenderTarget.Transform = bezierView.GetAbsoluteTransform().ToRawMatrix3X2();
                     
                 var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
 
@@ -485,7 +485,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             renderingState.PushingTransform(() =>
             {
-                renderingState.D2DRenderTarget.Transform = new Matrix3x2(labelView.GetAbsoluteTransform().Elements);
+                renderingState.D2DRenderTarget.Transform = labelView.GetAbsoluteTransform().ToRawMatrix3X2();
                 
                 var visibleArea =
                     labelView
@@ -728,7 +728,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 renderingState?.PushingTransform(() =>
                 {
-                    renderingState.D2DRenderTarget.Transform = new Matrix3x2(bezierView.GetAbsoluteTransform().Elements);
+                    renderingState.D2DRenderTarget.Transform = bezierView.GetAbsoluteTransform().ToRawMatrix3X2();
 
                     var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
 

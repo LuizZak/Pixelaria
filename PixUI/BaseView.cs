@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
@@ -50,6 +49,14 @@ namespace PixUI
         private float _rotation;
 
         /// <summary>
+        /// Cached rendering information for this view.
+        /// 
+        /// To be used by a renderer when employing caching strategies to reduce re-rendering stresses.
+        /// </summary>
+        [CanBeNull]
+        public IRendererCacheInfo RenderingInfo { get; set; }
+
+        /// <summary>
         /// Gets the parent view, if any, of this base view.
         /// 
         /// Area is relative to this base view's Location, if present.
@@ -70,19 +77,7 @@ namespace PixUI
         /// 
         /// This value is inherited by child base views.
         /// </summary>
-        public Matrix LocalTransform
-        {
-            get
-            {
-                var matrix = new Matrix();
-
-                matrix.Scale(Scale.X, Scale.Y);
-                matrix.Translate(Location.X, Location.Y);
-                matrix.RotateAt(Rotation, PointF.Empty);
-
-                return matrix;
-            }
-        }
+        public Matrix2D LocalTransform => Matrix2D.Rotation(Rotation) * Matrix2D.Translation(Location) * Matrix2D.Scaling(Scale);
 
         /// <summary>
         /// Children of this base view
@@ -635,17 +630,17 @@ namespace PixUI
         /// Multiplying a point (0, 0) by this matrix results in a point that lands on
         /// the top-left corner of this base view's coordinate system.
         /// </summary>
-        public Matrix GetAbsoluteTransform()
+        public Matrix2D GetAbsoluteTransform()
         {
             if (Parent == null)
             {
                 return LocalTransform;
             }
 
-            var total = Parent.GetAbsoluteTransform().Clone();
-            total.Multiply(LocalTransform);
-
-            return total;
+            var total = Parent.GetAbsoluteTransform();
+            var local = LocalTransform;
+            
+            return Matrix2D.Multiply(in local, in total);
         }
 
         /// <summary>

@@ -33,17 +33,17 @@ namespace PixDirectX.Utils
         /// <summary>
         /// Converts a <see cref="RawVector2"/> to an equivalent <see cref="Vector"/> value.
         /// </summary>
-        public static Vector ToVector(this RawVector2 vec)
+        public static unsafe Vector ToVector(this RawVector2 vec)
         {
-            return new Vector(vec.X, vec.Y);
+            return *(Vector*)&vec;
         }
 
         /// <summary>
         /// Converts a <see cref="Vector"/> to an equivalent <see cref="RawVector2"/> value.
         /// </summary>
-        public static RawVector2 ToRawVector2(this Vector vec)
+        public static unsafe RawVector2 ToRawVector2(this Vector vec)
         {
-            return new RawVector2(vec.X, vec.Y);
+            return *(RawVector2*)&vec;
         }
 
         /// <summary>
@@ -61,6 +61,14 @@ namespace PixDirectX.Utils
         public static RawRectangleF ToRawRectangleF(this AABB rec)
         {
             return new RawRectangleF(rec.Left, rec.Top, rec.Right, rec.Bottom);
+        }
+        
+        /// <summary>
+        /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="RawMatrix3x2"/> value.
+        /// </summary>
+        public static unsafe RawMatrix3x2 ToRawMatrix3X2(this Matrix2D matrix)
+        {
+            return *(RawMatrix3x2*)&matrix;
         }
     }
 }

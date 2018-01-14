@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Drawing.Drawing2D;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
@@ -151,7 +150,7 @@ namespace PixUITests.Controls
 
         private class SpatialReference : ISpatialReference
         {
-            private AABB? _aabb;
+            private readonly AABB? _aabb;
 
             public SpatialReference(AABB? aabb = null)
             {
@@ -178,9 +177,9 @@ namespace PixUITests.Controls
                 return _aabb ?? aabb;
             }
 
-            public Matrix GetAbsoluteTransform()
+            public Matrix2D GetAbsoluteTransform()
             {
-                return new Matrix();
+                return new Matrix2D();
             }
         }
     }

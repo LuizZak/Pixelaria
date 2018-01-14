@@ -23,8 +23,8 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using Matrix = System.Drawing.Drawing2D.Matrix;
 using Point = System.Drawing.Point;
 
 namespace PixCore.Geometry
@@ -33,6 +33,7 @@ namespace PixCore.Geometry
     /// Represents a 2D vector with X and Y components.
     /// </summary>
     [DebuggerDisplay("{X}, {Y}")]
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public readonly struct Vector : IEquatable<Vector>, IComparable<Vector>
     {
         private static Vector _zero = new Vector(0, 0);
@@ -246,14 +247,14 @@ namespace PixCore.Geometry
             return !(lhs == rhs);
         }
         
-        public static Vector operator *([NotNull] Matrix m, Vector vec)
+        public static Vector operator *(Matrix2D m, Vector vec)
         {
-            return m.Transform(vec);
+            return Matrix2D.TransformPoint(m, in vec);
         }
 
-        public static Vector operator *(Vector vec, [NotNull] Matrix m)
+        public static Vector operator *(Vector vec, Matrix2D m)
         {
-            return m.Transform(vec);
+            return Matrix2D.TransformPoint(m, in vec);
         }
 
         public static Vector operator +(Vector vec1, Vector vec2)
@@ -372,7 +373,7 @@ namespace PixCore.Geometry
         /// Transforms a set of points by multiplying them by a given matrix.
         /// </summary>
         [Pure]
-        public static Vector[] Transform([NotNull] this Matrix matrix, [NotNull] Vector[] elements)
+        public static Vector[] Transform(this Matrix2D matrix, [NotNull] Vector[] elements)
         {
             var result = new Vector[elements.Length];
             for (int i = 0; i < elements.Length; i++)
@@ -386,7 +387,7 @@ namespace PixCore.Geometry
         /// Transforms a set of points by multiplying them by a given matrix.
         /// </summary>
         [Pure]
-        public static Vector[] Transform([NotNull] this Vector[] elements, [NotNull] Matrix matrix)
+        public static Vector[] Transform([NotNull] this Vector[] elements, Matrix2D matrix)
         {
             var result = new Vector[elements.Length];
             for (int i = 0; i < elements.Length; i++)
@@ -400,11 +401,9 @@ namespace PixCore.Geometry
         /// Transforms a single point by multiplying it by the matrix's value
         /// </summary>
         [Pure]
-        public static Vector Transform([NotNull] this Matrix matrix, in Vector point)
+        public static Vector Transform(this Matrix2D matrix, in Vector point)
         {
-            var pts = new[] { (PointF)point };
-            matrix.TransformPoints(pts);
-            return pts[0];
+            return Matrix2D.TransformPoint(matrix, in point);
         }
         
         /// <summary>
