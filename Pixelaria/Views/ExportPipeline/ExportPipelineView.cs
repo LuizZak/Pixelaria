@@ -354,7 +354,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             var ofd = new OpenFileDialog {Filter = @"Pixelaria files (*.pxl)|*.pxl"};
 
-            if (ofd.ShowDialog() != DialogResult.OK)
+            if (ofd.ShowDialog(this) != DialogResult.OK)
                 return;
             
             exportPipelineControl.PipelineContainer.RemoveAllViews();

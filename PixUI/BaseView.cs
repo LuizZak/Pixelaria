@@ -47,6 +47,7 @@ namespace PixUI
         private float _strokeWidth = 1;
         private Vector _scale = Vector.Unit;
         private float _rotation;
+        private Matrix2D _localTransform;
         
         /// <summary>
         /// Gets the parent view, if any, of this base view.
@@ -69,7 +70,7 @@ namespace PixUI
         /// 
         /// This value is inherited by child base views.
         /// </summary>
-        public Matrix2D LocalTransform => Matrix2D.Rotation(Rotation) * Matrix2D.Translation(Location) * Matrix2D.Scaling(Scale);
+        public ref readonly Matrix2D LocalTransform => ref _localTransform;
 
         /// <summary>
         /// Children of this base view
@@ -81,7 +82,7 @@ namespace PixUI
         /// on the parent view.
         /// 
         /// If Parent == null, returns the AABB's center property on get, and
-        /// set is ignored..
+        /// set is ignored.
         /// </summary>
         public Vector Center
         {
@@ -116,6 +117,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _location = value;
+                UpdateMatrix();
                 InvalidateFullBounds();
             }
         }
@@ -136,6 +138,7 @@ namespace PixUI
 
                 Invalidate();
                 _size = value;
+                UpdateMatrix();
                 OnResize();
                 Invalidate();
             }
@@ -165,6 +168,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _scale = value;
+                UpdateMatrix();
                 InvalidateFullBounds();
             }
         }
@@ -180,6 +184,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _rotation = value;
+                UpdateMatrix();
                 InvalidateFullBounds();
             }
         }
@@ -234,6 +239,15 @@ namespace PixUI
         public BaseView([CanBeNull] string debugName)
         {
             DebugName = debugName;
+            UpdateMatrix();
+        }
+
+        /// <summary>
+        /// Updates cache of local transformation matrix
+        /// </summary>
+        private void UpdateMatrix()
+        {
+            _localTransform = Matrix2D.Rotation(Rotation) * Matrix2D.Translation(Location) * Matrix2D.Scaling(Scale);
         }
 
         /// <summary>
