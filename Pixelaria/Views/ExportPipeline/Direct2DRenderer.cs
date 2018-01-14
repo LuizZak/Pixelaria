@@ -180,7 +180,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             state.PushingTransform(() =>
             {
-                state.D2DRenderTarget.Transform = new Matrix3x2(nodeView.GetAbsoluteTransform().Elements);
+                state.D2DRenderTarget.Transform = nodeView.GetAbsoluteTransform().ToRawMatrix3X2();
                     
                 var visibleArea = nodeView.GetFullBounds().Corners.Transform(nodeView.GetAbsoluteTransform()).Area();
                     

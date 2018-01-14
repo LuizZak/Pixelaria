@@ -47,15 +47,7 @@ namespace PixUI
         private float _strokeWidth = 1;
         private Vector _scale = Vector.Unit;
         private float _rotation;
-
-        /// <summary>
-        /// Cached rendering information for this view.
-        /// 
-        /// To be used by a renderer when employing caching strategies to reduce re-rendering stresses.
-        /// </summary>
-        [CanBeNull]
-        public IRendererCacheInfo RenderingInfo { get; set; }
-
+        
         /// <summary>
         /// Gets the parent view, if any, of this base view.
         /// 
