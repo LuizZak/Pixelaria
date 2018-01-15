@@ -217,10 +217,10 @@ namespace PixDirectX.Rendering
                     };
 
                     // Test if we're in occluded state
-                    if (_renderingState.SwapChain.Present(1, PresentFlags.Test) == (int)DXGIStatus.Occluded)
+                    if (_renderingState.SwapChain.Present(0, PresentFlags.Test) == (int)DXGIStatus.Occluded)
                     {
                         isOccluded = true;
-                        Thread.Sleep(16);
+                        Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
                         continue;
                     }
 
@@ -235,7 +235,8 @@ namespace PixDirectX.Rendering
                         parameters = new PresentParameters();
                     }
 
-                    _renderingState.SwapChain.Present(1, PresentFlags.None, parameters);
+                    _renderingState.SwapChain.Present(0, PresentFlags.None, parameters);
+                    Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
                 }
             }
         }
