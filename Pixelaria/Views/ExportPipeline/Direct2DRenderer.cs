@@ -38,7 +38,6 @@ using PixUI;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Rendering;
-using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
@@ -354,40 +353,39 @@ namespace Pixelaria.Views.ExportPipeline
         {
             state.PushingTransform(() =>
             {
-                var visibleArea =
-                    link.GetFullBounds().Corners
-                        .Transform(link.GetAbsoluteTransform()).Area();
+                var visibleArea = link.Bounds.TransformedBounds(link.GetAbsoluteTransform());
 
-                if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
-                    return;
-
-                var linkState = new PipelineStepViewLinkState
+                if (ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                 {
-                    FillColor = Color.White,
-                    StrokeColor = link.StrokeColor,
-                    StrokeWidth = link.StrokeWidth
-                };
+                    var linkState = new PipelineStepViewLinkState
+                    {
+                        FillColor = Color.White,
+                        StrokeColor = link.StrokeColor,
+                        StrokeWidth = link.StrokeWidth
+                    };
 
-                // Decorate
-                foreach (var decorator in decorators)
-                {
-                    if (link.NodeLink is IPipelineInput)
-                        decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
-                    else
-                        decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
-                }
+                    // Decorate
+                    foreach (var decorator in decorators)
+                    {
+                        if (link.NodeLink is IPipelineInput)
+                            decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
+                        else
+                            decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
+                    }
 
-                state.D2DRenderTarget.Transform = link.GetAbsoluteTransform().ToRawMatrix3X2();
+                    state.D2DRenderTarget.Transform = link.GetAbsoluteTransform().ToRawMatrix3X2();
 
-                var rectangle = link.Bounds;
-                
-                using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                {
-                    var ellipse = new Ellipse(rectangle.Center.ToRawVector2(), rectangle.Width / 2, rectangle.Width / 2);
+                    var rectangle = link.Bounds;
 
-                    state.D2DRenderTarget.FillEllipse(ellipse, brush);
-                    state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
+                    using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
+                    {
+                        var ellipse = new Ellipse(rectangle.Center.ToRawVector2(), rectangle.Width / 2,
+                            rectangle.Width / 2);
+
+                        state.D2DRenderTarget.FillEllipse(ellipse, brush);
+                        state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
+                    }
                 }
 
                 // Draw label view
@@ -401,7 +399,7 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 renderingState.D2DRenderTarget.Transform = bezierView.GetAbsoluteTransform().ToRawMatrix3X2();
                     
-                var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
+                var visibleArea = bezierView.Bounds.TransformedBounds(bezierView.GetAbsoluteTransform());
 
                 if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
