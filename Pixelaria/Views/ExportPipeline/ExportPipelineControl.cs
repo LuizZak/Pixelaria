@@ -1509,28 +1509,31 @@ namespace Pixelaria.Views.ExportPipeline
             var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
 
             var aabbClips = RedrawRegionRectangles(size).Select(rect => (AABB)rect).ToArray();
+            //var totalBounds = aabbClips.Aggregate(AABB.Invalid, AABB.Union);
 
             // Create geometry
             var geom = new PathGeometry(state.D2DFactory);
-            var sink = geom.Open();
-            sink.SetFillMode(FillMode.Winding);
-            
-            // Take each rect from the AABB clips and add it to the geom sink
-            // Take advantage of the fact the geometry sink already combines arbitrary geometries properly
-            // to form an addition mask.
-            foreach (var rect in aabbClips)
+            using(var sink = geom.Open())
             {
-                sink.BeginFigure(rect.Minimum.ToRawVector2(), FigureBegin.Filled);
+                sink.SetFillMode(FillMode.Winding);
 
-                foreach (var corner in rect.Corners.Skip(1))
+                // Take each rect from the AABB clips and add it to the geom sink
+                // Take advantage of the fact the geometry sink already combines arbitrary geometries properly
+                // to form an addition mask.
+                foreach (var rect in aabbClips)
                 {
-                    sink.AddLine(corner.ToRawVector2());
+                    sink.BeginFigure(rect.Minimum.ToRawVector2(), FigureBegin.Filled);
+
+                    foreach (var corner in rect.Corners.Skip(1))
+                    {
+                        sink.AddLine(corner.ToRawVector2());
+                    }
+
+                    sink.EndFigure(FigureEnd.Closed);
                 }
 
-                sink.EndFigure(FigureEnd.Closed);
+                sink.Close();
             }
-
-            sink.Close();
 
             var layerParams = new LayerParameters
             {
@@ -1539,11 +1542,13 @@ namespace Pixelaria.Views.ExportPipeline
                 Opacity = 1f,
                 GeometricMask = geom,
                 MaskTransform = Matrix3x2.Identity,
-                LayerOptions = LayerOptions.InitializeForCleartype
+                LayerOptions = LayerOptions.None
             };
-            state.D2DRenderTarget.PushLayer(ref layerParams, new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size));
 
-            return new Direct2DClip(aabbClips, geom);
+            var layer = new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size);
+            state.D2DRenderTarget.PushLayer(ref layerParams, layer);
+
+            return new Direct2DClip(aabbClips, geom, layer);
         }
 
         public virtual void PopDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
@@ -1553,7 +1558,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             state.D2DRenderTarget.PopLayer();
 
-            d2DClip.Geometry.Dispose();
+            d2DClip.Dispose();
         }
 
         /// <summary>
@@ -1574,15 +1579,23 @@ namespace Pixelaria.Views.ExportPipeline
             _needsDissect = false;
         }
 
-        protected struct Direct2DClip : IDirect2DClippingState
+        protected sealed class Direct2DClip : IDirect2DClippingState, IDisposable
         {
             public AABB[] Rectangles { get; }
             public Geometry Geometry { get; }
+            public Layer Layer { get; }
 
-            public Direct2DClip(AABB[] rectangles, Geometry geometry)
+            public Direct2DClip(AABB[] rectangles, Geometry geometry, Layer layer)
             {
                 Rectangles = rectangles;
                 Geometry = geometry;
+                Layer = layer;
+            }
+
+            public void Dispose()
+            {
+                Geometry?.Dispose();
+                Layer?.Dispose();
             }
         }
     }
@@ -1629,7 +1642,7 @@ namespace Pixelaria.Views.ExportPipeline
         
         public override IDirect2DClippingState PushDirect2DClipping(IDirect2DRenderingState state)
         {
-            return new Direct2DClip(new AABB[0], null);
+            return new Direct2DClip(new AABB[0], null, null);
         }
 
         public override void PopDirect2DClipping(IDirect2DRenderingState state, IDirect2DClippingState clipState)
