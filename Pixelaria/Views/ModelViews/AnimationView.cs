@@ -2404,11 +2404,16 @@ namespace Pixelaria.Views.ModelViews
             Add
         }
 
-        private class Reactive : IReactive
+        private sealed class Reactive : IReactive, IDisposable
         {
             public readonly Subject<Unit> OnChange = new Subject<Unit>();
 
             public IObservable<Unit> Change => OnChange;
+
+            public void Dispose()
+            {
+                OnChange?.Dispose();
+            }
         }
 
         /// <summary>

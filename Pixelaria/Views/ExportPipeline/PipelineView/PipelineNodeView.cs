@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
 using PixUI;
@@ -95,9 +96,39 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public ImageResource? Icon { get; set; }
 
-        public IPipelineNode PipelineNode { get; }
+        public IPipelineNode PipelineNode { get; private set; }
 
-        public PipelineNodeView(IPipelineNode pipelineNode)
+        /// <summary>
+        /// Creates a new pipeline node view for a given pipeline node instance
+        /// </summary>
+        public static PipelineNodeView Create(IPipelineNode pipelineNode)
+        {
+            var node = new PipelineNodeView();
+            node.Initialize(pipelineNode);
+
+            return node;
+        }
+        
+        /// <summary>
+        /// Creates a new pipeline node view for a given pipeline node instance, passing it to
+        /// a given initializer closure before returning.
+        /// </summary>
+        public static PipelineNodeView Create(IPipelineNode pipelineNode, [NotNull, InstantHandle] Action<PipelineNodeView> initializer)
+        {
+            var node = new PipelineNodeView();
+            node.Initialize(pipelineNode);
+
+            initializer(node);
+
+            return node;
+        }
+
+        protected PipelineNodeView()
+        {
+            
+        }
+
+        private void Initialize(IPipelineNode pipelineNode)
         {
             Font = new Font(FontFamily.GenericSansSerif, 11);
 

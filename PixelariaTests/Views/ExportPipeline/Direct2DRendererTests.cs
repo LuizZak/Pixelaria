@@ -58,7 +58,7 @@ namespace PixelariaTests.Views.ExportPipeline
         public void TestRenderEmptyPipelineNodeView()
         {
             var node = new TestPipelineStep();
-            var view = new PipelineNodeView(node);
+            var view = PipelineNodeView.Create(node);
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
@@ -71,7 +71,7 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 new GenericPipelineInput<int>(node, "Input 1")
             };
-            var view = new PipelineNodeView(node);
+            var view = PipelineNodeView.Create(node);
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
@@ -84,7 +84,7 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 new GenericPipelineInput<int>(node, "Knockout Image")
             };
-            var view = new PipelineNodeView(node);
+            var view = PipelineNodeView.Create(node);
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
@@ -98,7 +98,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 1"),
                 new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 2")
             };
-            var view = new PipelineNodeView(node);
+            var view = PipelineNodeView.Create(node);
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
@@ -116,7 +116,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 1"),
                 new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 2")
             };
-            var view = new PipelineNodeView(node);
+            var view = PipelineNodeView.Create(node);
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
@@ -135,7 +135,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 2")
             };
             node.Metadata.Metadata[PipelineMetadataKeys.PipelineStepBodyText] = "This node takes an\ninput integer and\noutputs two strings.";
-            var view = new PipelineNodeView(node);
+            var view = PipelineNodeView.Create(node);
 
             PipelineViewSnapshot.Snapshot(view, TestContext);
         }
@@ -162,10 +162,8 @@ namespace PixelariaTests.Views.ExportPipeline
             };
             node.Metadata.Metadata[PipelineMetadataKeys.PipelineStepBodyText] = "This node takes an\ninput integer and\noutputs two strings.";
 
-            var view = new PipelineNodeView(node)
-            {
-                Icon = new ImageResource("icon", icon.Width, icon.Height)
-            };
+            var view = PipelineNodeView.Create(node);
+            view.Icon = new ImageResource("icon", icon.Width, icon.Height);
 
             var resources = new Dictionary<string, Bitmap> {{"icon", icon}};
 
@@ -187,8 +185,8 @@ namespace PixelariaTests.Views.ExportPipeline
                 new GenericPipelineOutput<string>(node, new BehaviorSubject<string>("abc"), "Output 1")
             };
 
-            var view1 = new PipelineNodeView(node);
-            var view2 = new PipelineNodeView(node);
+            var view1 = PipelineNodeView.Create(node);
+            var view2 = PipelineNodeView.Create(node);
             var conn = PipelineNodeConnectionLineView.Create(view1.OutputViews[0], view2.InputViews[0], new PipelineLinkConnection(node.Input[0], node.Output[0], connection => { }));
 
             var parent = new BaseView();

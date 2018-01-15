@@ -434,18 +434,18 @@ namespace Pixelaria.Views.Direct2D
 
 
         [DllImport("user32.dll", EntryPoint = "PeekMessage")]
-        public static extern int PeekMessage(out NativeMessage lpMsg, IntPtr hWnd, int wMsgFilterMin,
+        public static extern IntPtr PeekMessage(out NativeMessage lpMsg, IntPtr hWnd, int wMsgFilterMin,
             int wMsgFilterMax, int wRemoveMsg);
 
         [DllImport("user32.dll", EntryPoint = "GetMessage")]
-        public static extern int GetMessage(out NativeMessage lpMsg, IntPtr hWnd, int wMsgFilterMin,
+        public static extern IntPtr GetMessage(out NativeMessage lpMsg, IntPtr hWnd, int wMsgFilterMin,
             int wMsgFilterMax);
 
         [DllImport("user32.dll", EntryPoint = "TranslateMessage")]
-        public static extern int TranslateMessage(ref NativeMessage lpMsg);
+        public static extern IntPtr TranslateMessage(ref NativeMessage lpMsg);
 
         [DllImport("user32.dll", EntryPoint = "DispatchMessage")]
-        public static extern int DispatchMessage(ref NativeMessage lpMsg);
+        public static extern IntPtr DispatchMessage(ref NativeMessage lpMsg);
 
         public enum WindowLongType
         {
@@ -495,11 +495,11 @@ namespace Pixelaria.Views.Direct2D
         
         public static bool ShowWindow(IntPtr hWnd, bool windowVisible)
         {
-            return ShowWindow(hWnd, windowVisible ? 1 : 0);
+            return ShowWindow(hWnd, windowVisible ? 1 : 0) != IntPtr.Zero;
         }
 
         [DllImport("user32.dll", EntryPoint = "ShowWindow", CharSet = CharSet.Unicode)]
-        private static extern bool ShowWindow(IntPtr hWnd, int mCmdShow);
+        private static extern IntPtr ShowWindow(IntPtr hWnd, int mCmdShow);
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", CharSet = CharSet.Unicode)]
         private static extern IntPtr SetWindowLongPtr64(IntPtr hwnd, WindowLongType index, IntPtr wndProc);
@@ -508,7 +508,7 @@ namespace Pixelaria.Views.Direct2D
         public static extern IntPtr CallWindowProc(IntPtr wndProc, IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "GetClientRect")]
-        public static extern bool GetClientRect(IntPtr hWnd, out RawRectangle lpRect);
+        public static extern IntPtr GetClientRect(IntPtr hWnd, out RawRectangle lpRect);
 
         [DllImport("kernel32.dll", EntryPoint = "GetModuleHandle", CharSet = CharSet.Unicode)]
         public static extern IntPtr GetModuleHandle(string lpModuleName);

@@ -398,13 +398,24 @@ namespace PixUI.Controls
         /// <summary>
         /// Just for organizing a ControlView's reactive publisher/signals
         /// </summary>
-        private class Reactive : IReactive
+        private sealed class Reactive : IReactive, IDisposable
         {
             public Dispatcher Dispatcher { get; }
 
             public Reactive(Dispatcher dispatcher)
             {
                 Dispatcher = dispatcher;
+            }
+            
+            public void Dispose()
+            {
+                MouseClickSubject.Dispose();
+                MouseDownSubject.Dispose();
+                MouseMoveSubject.Dispose();
+                MouseUpSubject.Dispose();
+                MouseWheelSubject.Dispose();
+                MouseEnterSubject.Dispose();
+                MouseLeaveSubject.Dispose();
             }
 
             public readonly Subject<MouseEventArgs> MouseClickSubject = new Subject<MouseEventArgs>();

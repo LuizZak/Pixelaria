@@ -233,6 +233,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (disposing)
             {
                 _animTimer.Dispose();
+                _frameRectSheet?.Dispose();
             }
 
             base.Dispose(disposing);

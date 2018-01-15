@@ -31,7 +31,7 @@ namespace PixUI
     /// <summary>
     /// A basic view that represents a text label
     /// </summary>
-    public sealed class LabelView : BaseView
+    public sealed class LabelView : BaseView, IDisposable
     {
         [NotNull]
         public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
@@ -142,6 +142,11 @@ namespace PixUI
         {
             _attributedText.Modified += AttributedTextModified;
         }
+        
+        public void Dispose()
+        {
+            _font.Dispose();
+        }
 
         private void AttributedTextModified(object sender, EventArgs eventArgs)
         {
@@ -155,9 +160,14 @@ namespace PixUI
             Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right, TextInsetBounds.Top + TextInsetBounds.Bottom);
         }
 
-        private class DefaultSizer : ILabelViewSizeProvider
+        private sealed class DefaultSizer : ILabelViewSizeProvider, IDisposable
         {
             private readonly Bitmap _dummy = new Bitmap(1, 1);
+            
+            public void Dispose()
+            {
+                _dummy.Dispose();
+            }
 
             public SizeF CalculateTextSize(LabelView label)
             {

@@ -224,7 +224,6 @@ namespace Pixelaria.Views.ExportPipeline
                         EndPoint = new RawVector2(0, bounds.Height)
                     },
                     stopCollection))
-
                 {
                     state.D2DRenderTarget.FillRoundedRectangle(roundedRect, gradientBrush);
                 }
@@ -238,12 +237,12 @@ namespace Pixelaria.Views.ExportPipeline
                     var titleRect = new RawRectangleF(0, 0, titleArea.Width, titleArea.Height);
                     using (var titleClip = new RectangleGeometry(state.D2DFactory, titleRect))
                     {
-                        var sink = titleAreaGeom.Open();
+                        using (var sink = titleAreaGeom.Open())
+                        {
+                            titleClip.Combine(roundedRectArea, CombineMode.Intersect, sink);
 
-                        titleClip.Combine(roundedRectArea, CombineMode.Intersect, sink);
-
-                        sink.Close();
-                        sink.Dispose();
+                            sink.Close();
+                        }
                     }
 
                     // Fill title BG
@@ -252,8 +251,6 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         state.D2DRenderTarget.FillGeometry(titleAreaGeom, solidColorBrush);
                     }
-
-                    roundedRectArea.Dispose();
                 }
                 
                 // Draw icon, if available
@@ -270,9 +267,8 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         var mode = BitmapInterpolationMode.Linear;
 
-                        // Draw with high quality only when zoomed out
-                        if (new AABB(Vector.Zero, Vector.Unit).TransformedBounds(_container.ContentsView.LocalTransform).Size >=
-                            Vector.Unit)
+                        // Draw with pixel quality when zoomed in so icon doesn't render all blurry
+                        if (_container.ContentsView.LocalTransform.ScaleVector >= Vector.Unit)
                         {
                             mode = BitmapInterpolationMode.NearestNeighbor;
                         }
