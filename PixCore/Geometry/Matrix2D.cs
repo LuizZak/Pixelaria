@@ -447,7 +447,7 @@ namespace PixCore.Geometry
         /// </summary>
         /// <param name="value">The matrix to be negated.</param>
         /// <returns>The negated matrix.</returns>
-        public static Matrix2D Negate(Matrix2D value)
+        public static Matrix2D Negate(in Matrix2D value)
         {
             Negate(in value, out var result);
             return result;
@@ -944,7 +944,7 @@ namespace PixCore.Geometry
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns><c>true</c> if <paramref name="left"/> has the same value as <paramref name="right"/>; otherwise, <c>false</c>.</returns>
-        [MethodImpl((MethodImplOptions)0x100)] // MethodImplOptions.AggressiveInlining
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Matrix2D left, Matrix2D right)
         {
             return left.Equals(ref right);
@@ -956,7 +956,7 @@ namespace PixCore.Geometry
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns><c>true</c> if <paramref name="left"/> has a different value than <paramref name="right"/>; otherwise, <c>false</c>.</returns>
-        [MethodImpl((MethodImplOptions)0x100)] // MethodImplOptions.AggressiveInlining
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Matrix2D left, Matrix2D right)
         {
             return !left.Equals(ref right);
@@ -1070,7 +1070,7 @@ namespace PixCore.Geometry
         /// <returns>
         /// <c>true</c> if the specified <see cref="Matrix2D"/> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
-        [MethodImpl((MethodImplOptions)0x100)] // MethodImplOptions.AggressiveInlining
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Matrix2D other)
         {
             return Equals(ref other);

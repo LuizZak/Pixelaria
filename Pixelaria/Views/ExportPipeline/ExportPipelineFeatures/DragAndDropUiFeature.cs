@@ -64,18 +64,6 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             }
         }
 
-        public override void OnMouseUp(MouseEventArgs e)
-        {
-            base.OnMouseUp(e);
-
-            _isMouseDown = false;
-
-            if (e.Button == MouseButtons.Left)
-            {
-                ConcludeDragging(e.Location);
-            }
-        }
-
         public override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -97,6 +85,18 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                         operation.Update(e.Location);
                     }
                 }
+            }
+        }
+        
+        public override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            _isMouseDown = false;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                ConcludeDragging(e.Location);
             }
         }
 

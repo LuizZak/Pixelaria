@@ -213,22 +213,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             }
             else if (e.Button == MouseButtons.None)
             {
-                // Check hovering a link view
-                var closest = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
-
-                if (closest != null)
-                {
-                    if (closest is PipelineNodeView stepView)
-                        SetHovering(stepView);
-                    else if (closest is PipelineNodeLinkView linkView)
-                        SetHovering(linkView);
-                    else if (closest is PipelineNodeConnectionLineView pathView)
-                        SetHovering(pathView);
-                }
-                else
-                {
-                    SetHovering(null);
-                }
+                UpdateHoveringState(e);
             }
         }
 
@@ -276,8 +261,29 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
             }
 
+            UpdateHoveringState(e);
             _previousSelected.Clear();
             _isDrawingSelection = false;
+        }
+        
+        private void UpdateHoveringState([NotNull] MouseEventArgs e)
+        {
+            var closest =
+                contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
+
+            if (closest != null)
+            {
+                if (closest is PipelineNodeView stepView)
+                    SetHovering(stepView);
+                else if (closest is PipelineNodeLinkView linkView)
+                    SetHovering(linkView);
+                else if (closest is PipelineNodeConnectionLineView pathView)
+                    SetHovering(pathView);
+            }
+            else
+            {
+                SetHovering(null);
+            }
         }
 
         public override void OnKeyDown(KeyEventArgs e)
@@ -313,14 +319,37 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             if (Equals(_hovering?.View, view))
                 return;
-
-            _hovering?.View.Invalidate();
-            view?.Invalidate();
+            
+            // Invalidate previous
+            if (_hovering?.View != null)
+            {
+                InvalidateTarget(_hovering?.View);
+            }
+            // Invalidate new
+            if (view != null)
+            {
+                InvalidateTarget(view);
+            }
 
             if (view == null)
                 _hovering = null;
             else
                 _hovering = new MouseHoverState { View = view };
+        }
+
+        private static void InvalidateTarget([NotNull] IRegionInvalidateable view)
+        {
+            switch (view)
+            {
+                // For link views, invalidate entire node view
+                case PipelineNodeLinkView linkView:
+                    linkView.NodeView.Invalidate();
+                    break;
+
+                default:
+                    view.Invalidate();
+                    break;
+            }
         }
 
         #region IRenderingDecorator
