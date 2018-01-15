@@ -216,16 +216,17 @@ namespace PixDirectX.Rendering
                         ScrollRectangle = null
                     };
 
+                    // Test if we're in occluded state
+                    if (_renderingState.SwapChain.Present(1, PresentFlags.Test) == (int)DXGIStatus.Occluded)
+                    {
+                        isOccluded = true;
+                        Thread.Sleep(16);
+                        continue;
+                    }
+
                     // Occluded state handling
                     if (isOccluded)
                     {
-                        // Test if we're still in occluded state
-                        if (_renderingState.SwapChain.Present(1, PresentFlags.Test) == (int)DXGIStatus.Occluded)
-                        {
-                            Thread.Sleep(16);
-                            continue;
-                        }
-
                         isOccluded = false;
 
                         InvalidatedState?.Invoke(this, EventArgs.Empty);
@@ -234,13 +235,7 @@ namespace PixDirectX.Rendering
                         parameters = new PresentParameters();
                     }
 
-                    // Sleep in case the screen is occluded so we don't waste cycles in this tight loop
-                    // (Present doesn't wait for the next refresh in case the window is occluded)
-                    if (_renderingState.SwapChain.Present(1, PresentFlags.None, parameters).Code == (int)DXGIStatus.Occluded)
-                    {
-                        isOccluded = true;
-                        Thread.Sleep(16);
-                    }
+                    _renderingState.SwapChain.Present(1, PresentFlags.None, parameters);
                 }
             }
         }
