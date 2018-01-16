@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -183,6 +184,44 @@ namespace PixCoreTests.Geometry.Algorithms
         }
 
         [TestMethod]
+        public void TestArbitraryRectangleDissectCases()
+        {
+            var random = new Random(0);
+
+            const int minX = 0;
+            const int minY = 0;
+            const int maxX = 50;
+            const int maxY = 50;
+
+            const int rectCount = 10;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var rects = new RectangleF[rectCount];
+
+                for (int j = 0; j < 10; j++)
+                {
+                    int left = random.Next(minX, maxX);
+                    int top = random.Next(minY, maxY);
+                    int right = random.Next(left, maxX);
+                    int bottom = random.Next(top, maxY);
+
+                    var rect = RectangleF.FromLTRB(left, top, right, bottom);
+
+                    rects[j] = rect;
+                }
+
+                var processed = RectangleDissection.Dissect(rects);
+
+                float areaExpected = TotalRectanglesArea.Calculate(rects);
+                float areaActual = TotalRectanglesArea.Calculate(processed);
+
+                Assert.IsTrue(Math.Abs(areaExpected - areaActual) < 0.001f, $"{areaExpected} != {areaActual}");
+                AssertRectanglesDoNotIntersect(processed);
+            }
+        }
+
+        [TestMethod]
         public void TestMergeEmptyRectangles()
         {
             var ret = RectangleDissection.MergeRectangles();
@@ -271,7 +310,13 @@ namespace PixCoreTests.Geometry.Algorithms
                 {
                     var r2 = rectangles[j];
 
-                    Assert.IsFalse(r1.IntersectsWith(r2), $"Found overlapping rectangles {r1} {r2}");
+                    bool intersects = r1.IntersectsWith(r2);
+
+                    if (intersects)
+                    {
+                        var area = RectangleF.Intersect(r1, r2);
+                        Assert.Fail($"Found overlapping rectangles {r1} {r2} intersecting at {area}");
+                    }
                 }
             }
         }
