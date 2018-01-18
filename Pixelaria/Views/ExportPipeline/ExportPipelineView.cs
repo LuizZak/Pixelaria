@@ -493,7 +493,7 @@ namespace Pixelaria.Views.ExportPipeline
                     continue;
 
                 var conTo = container.GetNodesGoingFrom(view).FirstOrDefault();
-                if (conTo == null)
+                if (conTo == null || !sorted.Any(n => Equals(n.Value, conTo)))
                     continue;
 
                 var connections = container.ConnectedLinkViewsBetween(view, conTo);
