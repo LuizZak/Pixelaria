@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
@@ -37,6 +38,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// A basic view for a single pipeline step
     /// </summary>
+    [DebuggerDisplay("Name: {" + nameof(Name) + "}")]
     internal class PipelineNodeView : BaseView, IEquatable<PipelineNodeView>
     {
         private readonly List<PipelineNodeLinkView> _inputs = new List<PipelineNodeLinkView>();
