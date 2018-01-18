@@ -1503,8 +1503,15 @@ namespace Pixelaria.Views.ExportPipeline
             var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
 
             var aabbClips = RedrawRegionRectangles(size).Select(rect => (AABB)rect).ToArray();
-            //var totalBounds = aabbClips.Aggregate(AABB.Invalid, AABB.Union);
 
+            // If we're only working with a single rectangular clip, use a plain axis-aligned clip
+            if (aabbClips.Length == 1)
+            {
+                state.D2DRenderTarget.PushAxisAlignedClip(aabbClips[0].ToRawRectangleF(), AntialiasMode.Aliased);
+
+                return new Direct2DAxisAlignedClippingState();
+            }
+            
             // Create geometry
             var geom = new PathGeometry(state.D2DFactory);
             using(var sink = geom.Open())
@@ -1542,17 +1549,23 @@ namespace Pixelaria.Views.ExportPipeline
             var layer = new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size);
             state.D2DRenderTarget.PushLayer(ref layerParams, layer);
 
-            return new Direct2DClip(aabbClips, geom, layer);
+            return new Direct2DGeometryClippingState(geom, layer);
         }
 
         public virtual void PopDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
         {
-            if (!(clipState is Direct2DClip d2DClip))
-                return;
+            switch (clipState)
+            {
+                case Direct2DAxisAlignedClippingState _:
+                    state.D2DRenderTarget.PopAxisAlignedClip();
 
-            state.D2DRenderTarget.PopLayer();
+                    break;
+                case Direct2DGeometryClippingState d2DClip:
+                    state.D2DRenderTarget.PopLayer();
 
-            d2DClip.Dispose();
+                    d2DClip.Dispose();
+                    break;
+            }
         }
 
         /// <summary>
@@ -1573,15 +1586,13 @@ namespace Pixelaria.Views.ExportPipeline
             _needsDissect = false;
         }
 
-        protected sealed class Direct2DClip : IDirect2DClippingState, IDisposable
+        private struct Direct2DGeometryClippingState : IDirect2DClippingState, IDisposable
         {
-            public AABB[] Rectangles { get; }
-            public Geometry Geometry { get; }
-            public Layer Layer { get; }
+            private Geometry Geometry { get; }
+            private Layer Layer { get; }
 
-            public Direct2DClip(AABB[] rectangles, Geometry geometry, Layer layer)
+            public Direct2DGeometryClippingState(Geometry geometry, Layer layer)
             {
-                Rectangles = rectangles;
                 Geometry = geometry;
                 Layer = layer;
             }
@@ -1591,6 +1602,11 @@ namespace Pixelaria.Views.ExportPipeline
                 Geometry?.Dispose();
                 Layer?.Dispose();
             }
+        }
+
+        private sealed class Direct2DAxisAlignedClippingState : IDirect2DClippingState
+        {
+
         }
     }
     
@@ -1636,12 +1652,17 @@ namespace Pixelaria.Views.ExportPipeline
         
         public override IDirect2DClippingState PushDirect2DClipping(IDirect2DRenderingState state)
         {
-            return new Direct2DClip(new AABB[0], null, null);
+            return new DummyD2DClippingState();
         }
 
         public override void PopDirect2DClipping(IDirect2DRenderingState state, IDirect2DClippingState clipState)
         {
             
+        }
+
+        private class DummyD2DClippingState : IDirect2DClippingState
+        {
+
         }
     }
 
