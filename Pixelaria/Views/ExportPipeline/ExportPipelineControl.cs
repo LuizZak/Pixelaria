@@ -640,6 +640,8 @@ namespace Pixelaria.Views.ExportPipeline
 
             /// <summary>
             /// Retrieves all combinations of link views between the two node views that are connected to one another.
+            /// 
+            /// Only return direct connections between the nodes.
             /// </summary>
             [NotNull]
             (PipelineNodeLinkView from, PipelineNodeLinkView to)[] ConnectedLinkViewsBetween(
@@ -1154,18 +1156,10 @@ namespace Pixelaria.Views.ExportPipeline
             /// </summary>
             public (PipelineNodeLinkView from, PipelineNodeLinkView to)[] ConnectedLinkViewsBetween(PipelineNodeView from, PipelineNodeView to)
             {
-                var con = new List<(PipelineNodeLinkView from, PipelineNodeLinkView to)>();
-
-                foreach (var linkFrom in from.OutputViews)
-                {
-                    foreach (var linkTo in to.InputViews)
-                    {
-                        if(AreConnected(linkFrom, linkTo))
-                            con.Add((linkFrom, linkTo));
-                    }
-                }
-
-                return con.ToArray();
+                return (from linkFrom in @from.OutputViews
+                    from linkTo in to.InputViews
+                    where AreConnected(linkFrom, linkTo)
+                    select (linkFrom, linkTo)).ToArray();
             }
 
             /// <summary>
