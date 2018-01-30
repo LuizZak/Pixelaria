@@ -33,11 +33,12 @@ namespace PixUI.Controls
     {
         private const float ScrollBarSize = 20;
         
-        private Vector _contentSize;
-        private Vector _contentOffset;
+        protected Vector contentSize;
+        protected Vector contentOffset;
 
-        private Vector _targetContentOffset;
+        protected Vector targetContentOffset;
         private VisibleScrollBars _scrollBarsMode;
+        private bool _scrollBarsAlwaysVisible;
 
         /// <summary>
         /// Gets or sets a value specifying the scroll bar visbiility mode of this scroll view control.
@@ -49,27 +50,22 @@ namespace PixUI.Controls
             {
                 _scrollBarsMode = value;
 
-                switch (value)
-                {
-                    case VisibleScrollBars.Both:
-                        HorizontalBar.Visible = true;
-                        VerticalBar.Visible = true;
-                        break;
-                    case VisibleScrollBars.Horizontal:
-                        HorizontalBar.Visible = true;
-                        VerticalBar.Visible = false;
-                        break;
-                    case VisibleScrollBars.Vertical:
-                        HorizontalBar.Visible = false;
-                        VerticalBar.Visible = true;
-                        break;
-                    case VisibleScrollBars.None:
-                        HorizontalBar.Visible = false;
-                        VerticalBar.Visible = false;
-                        break;
-                }
-
+                UpdateScrollBarVisibility();
                 UpdateScrollBarPositions();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the scroll bars should always be visible, even when the
+        /// content bounds don't exceed the size of the scroll view.
+        /// </summary>
+        public bool ScrollBarsAlwaysVisible
+        {
+            get => _scrollBarsAlwaysVisible;
+            set
+            {
+                _scrollBarsAlwaysVisible = value;
+                UpdateScrollBarVisibility();
             }
         }
 
@@ -87,15 +83,11 @@ namespace PixUI.Controls
         /// </summary>
         public Vector ContentSize
         {
-            get => _contentSize;
+            get => contentSize;
             set
             {
-                _contentSize = value;
-                LimitContentOffset();
-
-                HorizontalBar.ContentSize = _contentSize.X;
-                VerticalBar.ContentSize = _contentSize.Y;
-                ContainerView.Size = EffectiveContentSize();
+                contentSize = value;
+                Layout();
             }
         }
         
@@ -104,7 +96,7 @@ namespace PixUI.Controls
         /// </summary>
         public BaseView ContainerView { get; } = new BaseView();
 
-        public override AABB ContentBounds => new AABB(_contentOffset, _contentOffset + EffectiveContentSize());
+        public override AABB ContentBounds => new AABB(contentOffset, contentOffset + EffectiveContentSize());
 
         /// <summary>
         /// Gets the visible content area of the <see cref="ContainerView"/> which is not occluded by
@@ -118,11 +110,11 @@ namespace PixUI.Controls
             {
                 var final = Bounds;
 
-                if (ScrollBarsMode.HasFlag(VisibleScrollBars.Vertical))
+                if (ScrollBarsMode.HasFlag(VisibleScrollBars.Vertical) && VerticalBar.Visible)
                 {
                     final = final.Inset(new InsetBounds(0, 0, 0, ScrollBarSize));
                 }
-                if (ScrollBarsMode.HasFlag(VisibleScrollBars.Horizontal))
+                if (ScrollBarsMode.HasFlag(VisibleScrollBars.Horizontal) && HorizontalBar.Visible)
                 {
                     final = final.Inset(new InsetBounds(0, 0, ScrollBarSize, 0));
                 }
@@ -144,7 +136,6 @@ namespace PixUI.Controls
         /// <summary>
         /// Creates a new instance of <see cref="ScrollViewControl"/>
         /// </summary>
-        /// <returns></returns>
         public static ScrollViewControl Create()
         {
             var control = new ScrollViewControl();
@@ -159,9 +150,12 @@ namespace PixUI.Controls
             
         }
 
-        protected void Initialize()
+        protected virtual void Initialize()
         {
+            _scrollBarsAlwaysVisible = false;
+
             UpdateScrollBarPositions();
+            UpdateScrollBarVisibility();
 
             base.AddChild(ContainerView);
             base.AddChild(HorizontalBar);
@@ -180,47 +174,47 @@ namespace PixUI.Controls
 
         private void HorizontalScrollChanged(object sender, EventArgs eventArgs)
         {
-            _targetContentOffset = new Vector(-HorizontalBar.Scroll, _targetContentOffset.Y);
-            _contentOffset = new Vector(-HorizontalBar.Scroll, _contentOffset.Y);
+            targetContentOffset = new Vector(-HorizontalBar.Scroll, targetContentOffset.Y);
+            contentOffset = new Vector(-HorizontalBar.Scroll, contentOffset.Y);
         }
 
         private void VerticalScrollChanged(object sender, EventArgs eventArgs)
         {
-            _targetContentOffset = new Vector(_targetContentOffset.X, -VerticalBar.Scroll);
-            _contentOffset = new Vector(_contentOffset.X, -VerticalBar.Scroll);
+            targetContentOffset = new Vector(targetContentOffset.X, -VerticalBar.Scroll);
+            contentOffset = new Vector(contentOffset.X, -VerticalBar.Scroll);
         }
 
         public override void AddChild(BaseView view)
         {
-            throw new InvalidOperationException("Use ScrollViewControl.ContentView.AddChild() instead.");
+            ContainerView.AddChild(view);
         }
 
         public override void RemoveChild(BaseView child)
         {
-            throw new InvalidOperationException("Use ScrollViewControl.ContentView.RemoveChild() instead.");
+            ContainerView.RemoveChild(child);
         }
 
         public override void OnFixedFrame(FixedFrameEventArgs e)
         {
             base.OnFixedFrame(e);
 
-            if (_contentOffset.Distance(_targetContentOffset) > 0.1f)
+            if (contentOffset.Distance(targetContentOffset) > 0.1f)
             {
-                _contentOffset += (_targetContentOffset - _contentOffset) * 0.3f;
+                contentOffset += (targetContentOffset - contentOffset) * 0.3f;
                 UpdateScrollBarPositions();
             }
             else
             {
-                _contentOffset = _targetContentOffset;
+                contentOffset = targetContentOffset;
             }
 
-            if (ContainerView.Location != _contentOffset)
+            if (ContainerView.Location != contentOffset)
             {
-                ContainerView.Location = _contentOffset;
+                ContainerView.Location = contentOffset;
             }
             
-            HorizontalBar.Scroll = -_contentOffset.X;
-            VerticalBar.Scroll = -_contentOffset.Y;
+            HorizontalBar.Scroll = -contentOffset.X;
+            VerticalBar.Scroll = -contentOffset.Y;
         }
 
         public override bool CanHandle(IEventRequest eventRequest)
@@ -247,7 +241,7 @@ namespace PixUI.Controls
             if (offset == Vector.Zero)
                 return;
 
-            _targetContentOffset += offset;
+            targetContentOffset += offset;
 
             LimitContentOffset();
             UpdateScrollBarPositions();
@@ -257,9 +251,73 @@ namespace PixUI.Controls
         {
             // Limit content offset within a maximum visible bounds
             var contentOffsetClip = new AABB(-(ContentBounds.Size - Bounds.Size), Vector.Zero);
-            _targetContentOffset = _targetContentOffset.LimitedWithin(contentOffsetClip);
+
+            if (ContentBounds.Width <= Bounds.Width)
+            {
+                targetContentOffset = new Vector(0, targetContentOffset.Y);
+            }
+            if (ContentBounds.Height <= Bounds.Height)
+            {
+                targetContentOffset = new Vector(targetContentOffset.X, 0);
+            }
+
+            if (ContentBounds.Width > Bounds.Width || ContentBounds.Height > Bounds.Height)
+            {
+                targetContentOffset = targetContentOffset.LimitedWithin(contentOffsetClip);
+            }
         }
 
+        private void UpdateScrollBarVisibility()
+        {
+            if(_scrollBarsAlwaysVisible)
+            {
+                switch (_scrollBarsMode)
+                {
+                    case VisibleScrollBars.Both:
+                        HorizontalBar.Visible = true;
+                        VerticalBar.Visible = true;
+                        break;
+                    case VisibleScrollBars.Horizontal:
+                        HorizontalBar.Visible = true;
+                        VerticalBar.Visible = false;
+                        break;
+                    case VisibleScrollBars.Vertical:
+                        HorizontalBar.Visible = false;
+                        VerticalBar.Visible = true;
+                        break;
+                    case VisibleScrollBars.None:
+                        HorizontalBar.Visible = false;
+                        VerticalBar.Visible = false;
+                        break;
+                }
+                
+                return;
+            }
+
+            var horizontalBarVisible = ContentSize.X > Width - VerticalBar.Width;
+            var verticalBarVisible = ContentSize.Y > Height - HorizontalBar.Height;
+
+            switch (_scrollBarsMode)
+            {
+                case VisibleScrollBars.Both:
+                    HorizontalBar.Visible = horizontalBarVisible;
+                    VerticalBar.Visible = verticalBarVisible;
+                    break;
+                case VisibleScrollBars.Horizontal:
+                    HorizontalBar.Visible = horizontalBarVisible;
+                    VerticalBar.Visible = false;
+                    break;
+                case VisibleScrollBars.Vertical:
+                    HorizontalBar.Visible = false;
+                    VerticalBar.Visible = verticalBarVisible;
+                    break;
+                case VisibleScrollBars.None:
+                    HorizontalBar.Visible = false;
+                    VerticalBar.Visible = false;
+                    break;
+            }
+        }
+        
         private void UpdateScrollBarPositions()
         {
             if (ScrollBarsMode == VisibleScrollBars.Vertical || ScrollBarsMode == VisibleScrollBars.Both)
@@ -287,6 +345,18 @@ namespace PixUI.Controls
                 HorizontalBar.Location = horReg.Minimum;
                 HorizontalBar.Size = horReg.Size;
             }
+        }
+
+        public override void Layout()
+        {
+            base.Layout();
+
+            UpdateScrollBarVisibility();
+            LimitContentOffset();
+
+            HorizontalBar.ContentSize = contentSize.X;
+            VerticalBar.ContentSize = contentSize.Y;
+            ContainerView.Size = EffectiveContentSize();
         }
 
         /// <summary>

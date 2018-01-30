@@ -61,6 +61,7 @@ namespace PixUI.Controls
         private bool _selectingWordSpan;
         private int _wordSpanStartPosition;
         private bool _mouseDown;
+        private bool _editable;
 
         /// <summary>
         /// Gets or sets the color to use when drawing the background of selected
@@ -103,6 +104,22 @@ namespace PixUI.Controls
             set => _label.Text = value;
         }
 
+        /// <summary>
+        /// Gets or sets a value specifying whether the string contents of this <see cref="TextField"/> are editable.
+        /// </summary>
+        public bool Editable
+        {
+            get => _editable;
+            set
+            {
+                _editable = value;
+                if (IsFirstResponder)
+                {
+                    ResignFirstResponder();
+                }
+            }
+        }
+
         public override bool CanBecomeFirstResponder => true;
 
         /// <summary>
@@ -126,7 +143,7 @@ namespace PixUI.Controls
             _textEngine = new TextEngine(buffer);
         }
 
-        protected void Initialize()
+        protected virtual void Initialize()
         {
             _textEngine.CaretChanged += TextEngineOnCaretChanged;
 
@@ -176,6 +193,9 @@ namespace PixUI.Controls
         {
             base.OnMouseDown(e);
 
+            if (!Editable)
+                return;
+
             if (!BecomeFirstResponder())
                 return;
 
@@ -206,12 +226,18 @@ namespace PixUI.Controls
         {
             base.OnMouseEnter();
 
+            if (!Editable)
+                return;
+
             Cursor.Current = Cursors.IBeam;
         }
 
         public override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+
+            if (!Editable)
+                return;
 
             Cursor.Current = Cursors.IBeam;
 
@@ -523,8 +549,10 @@ namespace PixUI.Controls
             _label.Location = labelOffset;
         }
 
-        private void Layout()
+        public override void Layout()
         {
+            base.Layout();
+
             var bounds = Bounds.Inset(ContentInset);
             _labelContainer.SetFrame(bounds);
             _label.Center = new Vector(_label.Center.X, _labelContainer.Height / 2);
@@ -692,7 +720,6 @@ namespace PixUI.Controls
     }
 
     // Reactive bindings for TextField
-
     public partial class TextField
     {
         /// <summary>

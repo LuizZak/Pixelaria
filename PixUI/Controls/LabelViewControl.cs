@@ -151,7 +151,7 @@ namespace PixUI.Controls
             _labelView = new LabelView();
         }
 
-        protected void Initialize([NotNull] string text)
+        protected virtual void Initialize([NotNull] string text)
         {
             InteractionEnabled = false;
 

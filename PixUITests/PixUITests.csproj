@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\ButtonControlTests.cs" />
+    <Compile Include="Controls\PropertyGrid\PropertyGridControlTests.cs" />
     <Compile Include="Controls\RedrawRegionTests.cs" />
     <Compile Include="Controls\ScrollBarControlTests.cs" />
     <Compile Include="Controls\RootControlViewTests.cs" />

@@ -189,6 +189,13 @@ namespace PixUI.Controls
             DisposeBag.Dispose();
         }
 
+        protected override void OnResize()
+        {
+            base.OnResize();
+
+            Layout();
+        }
+
         /// <summary>
         /// Returns the first control view under a given point on this control view.
         /// 
@@ -325,6 +332,24 @@ namespace PixUI.Controls
             var closest = ClosestParentViewOfType<RootControlView>(this);
             closest?.RemoveAsFirstResponder(this);
         }
+
+        #region Layout
+
+        /// <summary>
+        /// Called by <see cref="ControlView"/> when it's size has changed to request re-layouting.
+        /// Can also be called by clients to force a re-layout of this control.
+        /// 
+        /// Avoid making any changes to <see cref="BaseView.Size"/> on this method as to not trigger an infinite
+        /// recursion.
+        /// 
+        /// Note: Always call base.Layout() when overriding this method.
+        /// </summary>
+        public virtual void Layout()
+        {
+
+        }
+
+        #endregion
 
         /// <summary>
         /// Adds a mouse event recognizer that is capable of handling mouse events

@@ -144,18 +144,44 @@ namespace PixUI
         }
 
         /// <summary>
-        /// This view's width size, not counting children bounds.
+        /// Gets or sets this view's X top-left location.
+        /// </summary>
+        public float X
+        {
+            get => Location.X;
+            set => Location = new Vector(value, Location.Y);
+        }
+
+        /// <summary>
+        /// Gets or sets this view's Y top-left location.
+        /// </summary>
+        public float Y
+        {
+            get => Location.Y;
+            set => Location = new Vector(Location.X, value);
+        }
+
+        /// <summary>
+        /// Gets or sets this view's width size, not counting children bounds.
         /// 
         /// Shortcut for <see cref="Size"/>'s <see cref="Vector.X"/>
         /// </summary>
-        public float Width => Size.X;
+        public float Width
+        {
+            get => Size.X;
+            set => Size = new Vector(value, Size.Y);
+        }
 
         /// <summary>
-        /// This view's local height size, not counting children bounds.
+        /// Gets or sets this view's local height size, not counting children bounds.
         /// 
         /// Shortcut for <see cref="Size"/>'s <see cref="Vector.Y"/>
         /// </summary>
-        public float Height => Size.Y;
+        public float Height
+        {
+            get => Size.Y;
+            set => Size = new Vector(Size.X, value);
+        }
 
         /// <summary>
         /// Relative scale of this base view

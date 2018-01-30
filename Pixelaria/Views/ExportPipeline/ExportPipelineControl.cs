@@ -696,6 +696,11 @@ namespace Pixelaria.Views.ExportPipeline
         public interface ISelection
         {
             /// <summary>
+            /// An event fired whenever the contents of this selection change.
+            /// </summary>
+            event EventHandler OnSelectionChanged;
+
+            /// <summary>
             /// Gets selected node views
             /// </summary>
             PipelineNodeView[] NodeViews();
@@ -859,6 +864,8 @@ namespace Pixelaria.Views.ExportPipeline
                     view.StrokeWidth = 3;
                     view.StrokeColor = Color.Orange;
                 }
+
+                _sel.FireOnSelectionChangedEvent();
             }
 
             public void SelectLink(IPipelineNodeLink link)
@@ -874,6 +881,8 @@ namespace Pixelaria.Views.ExportPipeline
                     view.StrokeWidth = 3;
                     view.StrokeColor = Color.Orange;
                 }
+
+                _sel.FireOnSelectionChangedEvent();
             }
 
             public void SelectConnection(IPipelineLinkConnection connection)
@@ -889,6 +898,8 @@ namespace Pixelaria.Views.ExportPipeline
                     view.StrokeWidth = 5;
                     view.StrokeColor = Color.OrangeRed;
                 }
+
+                _sel.FireOnSelectionChangedEvent();
             }
 
             public void ClearSelection()
@@ -921,6 +932,7 @@ namespace Pixelaria.Views.ExportPipeline
                 }
 
                 _selection.Clear();
+                _sel.FireOnSelectionChangedEvent();
             }
             
             public void Deselect([CanBeNull] BaseView view)
@@ -934,6 +946,7 @@ namespace Pixelaria.Views.ExportPipeline
                         _selection.Remove(nodeView.PipelineNode);
                         view.StrokeWidth = 1;
                         view.StrokeColor = Color.Black;
+                        _sel.FireOnSelectionChangedEvent();
                         break;
                     case PipelineNodeLinkView linkView:
                         if (!_selection.Contains(linkView.NodeLink))
@@ -942,6 +955,7 @@ namespace Pixelaria.Views.ExportPipeline
                         _selection.Remove(linkView.NodeLink);
                         view.StrokeWidth = 1;
                         view.StrokeColor = Color.Black;
+                        _sel.FireOnSelectionChangedEvent();
                         break;
                     case PipelineNodeConnectionLineView connView:
                         if (!_selection.Contains(connView.Connection))
@@ -950,6 +964,7 @@ namespace Pixelaria.Views.ExportPipeline
                         _selection.Remove(connView.Connection);
                         view.StrokeWidth = 2;
                         view.StrokeColor = Color.Orange;
+                        _sel.FireOnSelectionChangedEvent();
                         break;
                 }
             }
@@ -1330,6 +1345,8 @@ namespace Pixelaria.Views.ExportPipeline
             
             private class InternalSelection : ISelection
             {
+                public event EventHandler OnSelectionChanged;
+
                 private readonly InternalPipelineContainer _container;
 
                 public InternalSelection(InternalPipelineContainer container)
@@ -1381,6 +1398,11 @@ namespace Pixelaria.Views.ExportPipeline
                     }
 
                     return false;
+                }
+
+                public void FireOnSelectionChangedEvent()
+                {
+                    OnSelectionChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }

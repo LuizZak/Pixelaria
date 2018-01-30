@@ -30,6 +30,7 @@ using PixCore.Colors;
 using PixCore.Geometry;
 
 using PixUI.Controls;
+using PixUI.Controls.PropertyGrid;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -39,7 +40,7 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly ExportPipelineControl _control;
 
         private ControlView _container;
-        private ScrollViewControl _scrollViewControl;
+        private PropertyGridControl _propertiesGrid;
 
         public delegate void PipelineNodeSelectedEventHandler(object sender, ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e);
         
@@ -63,14 +64,13 @@ namespace Pixelaria.Views.ExportPipeline
                 BackColor = Color.Black.WithTransparency(0.7f)
             };
             
-            _scrollViewControl = ScrollViewControl.Create();
-            _scrollViewControl.Location = new Vector(0, 50);
-            _scrollViewControl.Size = new Vector(300, _control.Size.Height);
-            _scrollViewControl.ContentSize = new Vector(0, 1800);
-            _scrollViewControl.BackColor = Color.Transparent;
-            _scrollViewControl.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
+            _propertiesGrid = PropertyGridControl.Create();
+            _propertiesGrid.Location = new Vector(0, 50);
+            _propertiesGrid.Size = new Vector(300, _control.Size.Height);
+            _propertiesGrid.BackColor = Color.Transparent;
+            _propertiesGrid.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
 
-            _container.AddChild(_scrollViewControl);
+            _container.AddChild(_propertiesGrid);
             
             _control.ControlContainer.AddControl(_container);
 
@@ -79,7 +79,22 @@ namespace Pixelaria.Views.ExportPipeline
                 AdjustSize();
             };
 
+            _control.PipelineContainer.SelectionModel.OnSelectionChanged += SelectionModelOnOnSelectionChanged;
+
             AdjustSize();
+        }
+
+        private void SelectionModelOnOnSelectionChanged(object o, EventArgs eventArgs)
+        {
+            if (_control.PipelineContainer.Selection.Length != 1)
+            {
+                _propertiesGrid.SelectedObject = null;
+                return;
+            }
+
+            object obj = _control.PipelineContainer.Selection[0];
+
+            _propertiesGrid.SelectedObject = obj;
         }
 
         private void AdjustSize()
@@ -91,8 +106,8 @@ namespace Pixelaria.Views.ExportPipeline
             
             var scrollViewBounds = _container.Bounds;
 
-            _scrollViewControl.Location = scrollViewBounds.Minimum;
-            _scrollViewControl.Size = scrollViewBounds.Size;
+            _propertiesGrid.Location = scrollViewBounds.Minimum;
+            _propertiesGrid.Size = scrollViewBounds.Size;
         }
     }
 }
