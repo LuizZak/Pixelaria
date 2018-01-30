@@ -20,9 +20,11 @@
     base directory of this project.
 */
 
+using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixUI.Controls;
+using PixUI.Text;
 
 namespace PixUITests.Controls
 {
@@ -46,6 +48,44 @@ namespace PixUITests.Controls
             Assert.IsTrue(sut.CanHandle(new KeyboardEventRequest(KeyboardEventType.PreviewKeyDown)));
         }
 
+        [TestMethod]
+        public void TestKeyPressNotEditable()
+        {
+            var sut = TextField.Create();
+            sut.Editable = false;
+            var keyEv = new KeyPressEventArgs('a');
+
+            sut.OnKeyPress(keyEv);
+
+            Assert.AreEqual("", sut.Text);
+        }
+
+        [TestMethod]
+        public void TestKeyDownNotEditable()
+        {
+            var sut = TextField.Create();
+            sut.Editable = false;
+            sut.Text = "Abc";
+            var keyEv = new KeyEventArgs(Keys.Delete);
+
+            sut.OnKeyDown(keyEv);
+
+            Assert.AreEqual("Abc", sut.Text);
+        }
+
+        [TestMethod]
+        public void TestNavigateWithNotEditable()
+        {
+            var sut = TextField.Create();
+            sut.Editable = false;
+            sut.Text = "Abc";
+            var keyEv = new PreviewKeyDownEventArgs(Keys.Right);
+
+            sut.OnPreviewKeyDown(keyEv);
+
+            Assert.AreEqual(new Caret(1), sut.Caret);
+        }
+        
         private class KeyboardEventRequest : IKeyboardEventRequest
         {
             public KeyboardEventRequest(KeyboardEventType eventType)

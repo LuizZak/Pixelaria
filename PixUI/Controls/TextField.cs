@@ -105,6 +105,15 @@ namespace PixUI.Controls
         }
 
         /// <summary>
+        /// Gets or sets the caret position for this textfield.
+        /// </summary>
+        public Caret Caret
+        {
+            get => _textEngine.Caret;
+            set => _textEngine.SetCaret(value);
+        }
+
+        /// <summary>
         /// Gets or sets a value specifying whether the string contents of this <see cref="TextField"/> are editable.
         /// </summary>
         public bool Editable
@@ -194,10 +203,7 @@ namespace PixUI.Controls
         public override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
-            if (!Editable)
-                return;
-
+            
             if (!BecomeFirstResponder())
                 return;
 
@@ -227,20 +233,14 @@ namespace PixUI.Controls
         public override void OnMouseEnter()
         {
             base.OnMouseEnter();
-
-            if (!Editable)
-                return;
-
+            
             Cursor.Current = Cursors.IBeam;
         }
 
         public override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
-            if (!Editable)
-                return;
-
+            
             Cursor.Current = Cursors.IBeam;
 
             if (!_mouseDown)
@@ -284,6 +284,9 @@ namespace PixUI.Controls
 
         public void OnKeyPress(KeyPressEventArgs e)
         {
+            if (!Editable)
+                return;
+
             if (!AllowLineBreaks)
             {
                 if (e.KeyChar == '\n' || e.KeyChar == '\r')
@@ -298,6 +301,9 @@ namespace PixUI.Controls
 
         public void OnKeyDown(KeyEventArgs e)
         {
+            if (!Editable)
+                return;
+
             // Copy/cut/paste + undo/redo
             if (e.Modifiers == Keys.Control)
             {
