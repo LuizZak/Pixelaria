@@ -599,6 +599,11 @@ namespace Pixelaria.Views.ExportPipeline
             /// Returns all pipeline node view connections that are connected to the given node view's inputs and outputs
             /// </summary>
             IEnumerable<PipelineNodeConnectionLineView> GetConnections([NotNull] PipelineNodeView source);
+            
+            /// <summary>
+            /// Returns all pipeline node view connections that are connected to the given node link view's inputs and outputs
+            /// </summary>
+            IEnumerable<PipelineNodeConnectionLineView> GetConnections([NotNull] PipelineNodeLinkView source);
 
             /// <summary>
             /// Returns all pipeline node views that are connected to one of the given node view's output.
@@ -1045,6 +1050,14 @@ namespace Pixelaria.Views.ExportPipeline
             public IEnumerable<PipelineNodeConnectionLineView> GetConnections(PipelineNodeView source)
             {
                 return _connectionViews.Where(connection => connection.Start.NodeView.Equals(source) || connection.End.NodeView.Equals(source)).ToArray();
+            }
+            
+            /// <summary>
+            /// Returns all pipeline node views that are connected to one of the given node link view's output.
+            /// </summary>
+            public IEnumerable<PipelineNodeConnectionLineView> GetConnections(PipelineNodeLinkView source)
+            {
+                return _connectionViews.Where(connection => connection.Start.Equals(source) || connection.End.Equals(source)).ToArray();
             }
 
             /// <summary>
@@ -1825,7 +1838,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return;
 
             state.FillColor = Color.Transparent;
-            state.StrokeColor = Color.Gray;
+            state.StrokeColor = Color.DarkGray;
         }
 
         public override void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
@@ -1835,7 +1848,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return;
 
             state.FillColor = Color.Transparent;
-            state.StrokeColor = Color.Gray;
+            state.StrokeColor = Color.DarkGray;
         }
     }
 

@@ -20,12 +20,14 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -70,7 +72,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             menu.Items.Add(linkView.NodeLink.Name).Enabled = false;
             menu.Items.Add("-");
 
-            var connections = container.GetLinksConnectedTo(linkView).ToArray();
+            var decorator = new ConnectionHighlightDecorator();
+            Control.D2DRenderer.AddDecorator(decorator);
+            
+            menu.Closing += (sender, args) =>
+            {
+                Control.D2DRenderer.RemoveDecorator(decorator);
+            };
+            
+            var connections = container.GetConnections(linkView).ToArray();
 
             if (connections.Length > 0)
             {
@@ -78,11 +88,46 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 foreach (var connection in connections)
                 {
-                    string name = $"{connection.NodeView.Name} {connection.NodeLink.Name}";
-                    connectionsMenu.DropDownItems.Add(name);
+                    var link = connection.Start.Equals(linkView) ? connection.End : connection.Start;
+
+                    string name = $"{link.NodeView.Name} - {link.NodeLink.Name}";
+                    var item = connectionsMenu.DropDownItems.Add(name);
+
+                    item.MouseEnter += (sender, args) =>
+                    {
+                        decorator.LineView = connection;
+                        connection.Invalidate();
+                    };
+
+                    item.MouseLeave += (sender, args) =>
+                    {
+                        decorator.LineView = null;
+                        connection.Invalidate();
+                    };
+
+                    item.Click += (sender, args) =>
+                    {
+                        container.ClearSelection();
+                        container.SelectConnection(connection.Connection);
+                    };
                 }
 
                 menu.Items.Add(connectionsMenu);
+            }
+        }
+
+        private class ConnectionHighlightDecorator : AbstractRenderingDecorator
+        {
+            [CanBeNull]
+            public PipelineNodeConnectionLineView LineView { get; set; }
+
+            public override void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
+            {
+                if (!pathView.Equals(LineView))
+                    return;
+
+                state.OuterStrokeColor = Color.White;
+                state.OuterStrokeWidth = 3;
             }
         }
     }
