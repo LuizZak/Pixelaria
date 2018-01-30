@@ -145,6 +145,8 @@ namespace PixUI.Controls
 
         protected virtual void Initialize()
         {
+            Editable = true;
+
             _textEngine.CaretChanged += TextEngineOnCaretChanged;
 
             _labelContainer.InteractionEnabled = false;
