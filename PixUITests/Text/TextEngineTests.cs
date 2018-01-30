@@ -541,6 +541,34 @@ namespace PixUITests.Text
             Assert.AreEqual(new Caret(new TextRange(4, 0), CaretPosition.Start), sut.Caret);
         }
 
+        [TestMethod]
+        public void TestMoveLeftAtBeginningOfText()
+        {
+            // Tests moving a word to the left when at the beginning of the text stream
+
+            var buffer = new TextBuffer("Abc");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(0);
+
+            sut.MoveLeftWord();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 0), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestMoveRightAtEndOfText()
+        {
+            // Tests moving a word to the right when at the end of the text stream
+
+            var buffer = new TextBuffer("Abc");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(3);
+
+            sut.MoveRightWord();
+
+            Assert.AreEqual(new Caret(new TextRange(3, 0), CaretPosition.Start), sut.Caret);
+        }
+
         #endregion
 
         #region Selection Move Word
