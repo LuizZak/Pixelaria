@@ -1161,7 +1161,7 @@ namespace PixCore.Geometry
         /// </summary>
         /// <param name="a">The floating value.</param>
         /// <returns><c>true</c> if the specified value is close to zero (0.0f); otherwise, <c>false</c>.</returns>
-        public static bool IsZero(float a)
+        private static bool IsZero(float a)
         {
             const float zeroTolerance = 1e-6f;
 
