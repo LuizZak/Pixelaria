@@ -301,9 +301,6 @@ namespace PixUI.Controls
 
         public void OnKeyDown(KeyEventArgs e)
         {
-            if (!Editable)
-                return;
-
             // Copy/cut/paste + undo/redo
             if (e.Modifiers == Keys.Control)
             {
@@ -313,22 +310,29 @@ namespace PixUI.Controls
                         Copy();
                         break;
                     case Keys.X:
-                        Cut();
+                        if (Editable)
+                            Cut();
                         break;
                     case Keys.V:
-                        Paste();
+                        if (Editable)
+                            Paste();
                         break;
                     case Keys.Z:
-                        Undo();
+                        if (Editable)
+                            Undo();
                         break;
                     case Keys.Y:
-                        Redo();
+                        if (Editable)
+                            Redo();
+                        break;
+                    case Keys.A:
+                        SelectAll();
                         break;
                 }
             }
 
             // Ctrl+Shift+Z as alternative for Ctrl+Y (redo)
-            if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z)
+            if (Editable && e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z)
             {
                 Redo();
                 return;
@@ -360,26 +364,31 @@ namespace PixUI.Controls
             }
 
             // Delete/backspace
-            if (e.KeyCode == Keys.Back)
+            if (Editable)
             {
-                // When control is held down, erase previous word
-                if (e.Modifiers == Keys.Control)
+                if (e.KeyCode == Keys.Back)
                 {
-                    _textEngine.SelectLeftWord();
-                }
+                    // When control is held down, erase previous word
+                    if (e.Modifiers == Keys.Control)
+                    {
+                        _textEngine.SelectLeftWord();
+                    }
 
-                _textEngine.BackspaceText();
-            }
-            else if (e.KeyCode == Keys.Delete)
-            {
-                // When control is held down, erase next word
-                if (e.Modifiers == Keys.Control)
+                    _textEngine.BackspaceText();
+                }
+                else if (e.KeyCode == Keys.Delete)
                 {
-                    _textEngine.SelectRightWord();
-                }
+                    // When control is held down, erase next word
+                    if (e.Modifiers == Keys.Control)
+                    {
+                        _textEngine.SelectRightWord();
+                    }
 
-                _textEngine.DeleteText();
+                    _textEngine.DeleteText();
+                }
             }
+
+            HandleCaretMoveEvent(e.KeyCode, e.Modifiers);
         }
 
         public void OnKeyUp(KeyEventArgs e)
@@ -389,38 +398,43 @@ namespace PixUI.Controls
 
         public void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
+            HandleCaretMoveEvent(e.KeyCode, e.Modifiers);
+        }
+
+        private void HandleCaretMoveEvent(Keys keyCode, Keys modifiers)
+        {
             // Caret selection/movement
-            if (e.Modifiers.HasFlag(Keys.Shift))
+            if (modifiers.HasFlag(Keys.Shift))
             {
-                if (e.Modifiers.HasFlag(Keys.Control))
+                if (modifiers.HasFlag(Keys.Control))
                 {
-                    if (e.KeyCode == Keys.Left)
+                    if (keyCode == Keys.Left)
                         _textEngine.SelectLeftWord();
-                    else if (e.KeyCode == Keys.Right)
+                    else if (keyCode == Keys.Right)
                         _textEngine.SelectRightWord();
                 }
                 else
                 {
-                    if (e.KeyCode == Keys.Left)
+                    if (keyCode == Keys.Left)
                         _textEngine.SelectLeft();
-                    else if (e.KeyCode == Keys.Right)
+                    else if (keyCode == Keys.Right)
                         _textEngine.SelectRight();
                 }
             }
             else
             {
-                if (e.Modifiers.HasFlag(Keys.Control))
+                if (modifiers.HasFlag(Keys.Control))
                 {
-                    if (e.KeyCode == Keys.Left)
+                    if (keyCode == Keys.Left)
                         _textEngine.MoveLeftWord();
-                    else if (e.KeyCode == Keys.Right)
+                    else if (keyCode == Keys.Right)
                         _textEngine.MoveRightWord();
                 }
                 else
                 {
-                    if (e.KeyCode == Keys.Left)
+                    if (keyCode == Keys.Left)
                         _textEngine.MoveLeft();
-                    else if (e.KeyCode == Keys.Right)
+                    else if (keyCode == Keys.Right)
                         _textEngine.MoveRight();
                 }
             }
@@ -566,6 +580,14 @@ namespace PixUI.Controls
             _label.Center = new Vector(_label.Center.X, _labelContainer.Height / 2);
 
             Invalidate();
+        }
+
+        /// <summary>
+        /// Selects the entire text available on this text field
+        /// </summary>
+        public void SelectAll()
+        {
+            _textEngine.SelectAll();
         }
 
         #region Copy/cut/paste + undo/redo

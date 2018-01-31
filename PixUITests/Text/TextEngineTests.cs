@@ -463,6 +463,18 @@ namespace PixUITests.Text
             Assert.AreEqual(new Caret(new TextRange(0, 1), CaretPosition.Start), sut.Caret);
         }
 
+        [TestMethod]
+        public void TestSelectAll()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+
+            sut.SelectAll();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 3), CaretPosition.End), sut.Caret);
+        }
+
         #endregion
 
         #region Move Word

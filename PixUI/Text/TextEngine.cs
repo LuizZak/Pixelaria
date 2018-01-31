@@ -32,7 +32,7 @@ namespace PixUI.Text
     /// A text + caret engine that handles manipulation of strings by insertion/removal of strings
     /// at locations that can be specified via a caret position.
     /// 
-    /// Base text input engine backing for <see cref="PixUI.Controls.TextField"/>'s.
+    /// Base text input engine backing for <see cref="Controls.TextField"/>'s.
     /// </summary>
     public class TextEngine : ITextEngine
     {
@@ -321,6 +321,14 @@ namespace PixUI.Text
 
             int offset = OffsetForLeftWord();
             MoveCaretSelecting(offset);
+        }
+
+        /// <summary>
+        /// Selects the entire text buffer available.
+        /// </summary>
+        public void SelectAll()
+        {
+            SetCaret(new Caret(new TextRange(0, TextBuffer.TextLength), CaretPosition.End));
         }
 
         /// <summary>
