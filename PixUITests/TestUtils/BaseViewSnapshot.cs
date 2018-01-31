@@ -59,7 +59,7 @@ namespace PixUITests.TestUtils
         {
             BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(view, context, RecordMode);
         }
-
+        
         public Bitmap GenerateBitmap(BaseView view)
         {
             // Create a temporary Direct3D rendering context and render the view on it
@@ -70,10 +70,13 @@ namespace PixUITests.TestUtils
             int height = (int)Math.Round(view.Height);
 
             using (var imgFactory = new ImagingFactory())
+            using (var directWrite = new SharpDX.DirectWrite.Factory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
             using (var renderer = new TestDirect2DRenderer())
             {
+                ControlView.DirectWriteFactory = directWrite;
+
                 var last = LabelView.DefaultLabelViewSizeProvider;
                 LabelView.DefaultLabelViewSizeProvider = renderer.SizeProvider;
 

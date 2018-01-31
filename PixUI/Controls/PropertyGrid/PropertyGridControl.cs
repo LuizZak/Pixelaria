@@ -22,11 +22,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
 using JetBrains.Annotations;
+using PixCore.Colors;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
+using Color = System.Drawing.Color;
 
 namespace PixUI.Controls.PropertyGrid
 {
@@ -131,6 +134,7 @@ namespace PixUI.Controls.PropertyGrid
             private readonly LabelViewControl _label;
             private readonly TextField _textField;
             private readonly InspectableProperty _inspect;
+            private readonly TypeConverter _typeConverter;
 
             internal PropertyField([NotNull] InspectableProperty inspect)
             {
@@ -146,8 +150,107 @@ namespace PixUI.Controls.PropertyGrid
                 _textField = TextField.Create();
                 _textField.Text = inspect.GetValue()?.ToString() ?? "<null>";
                 _textField.Editable = inspect.CanSet;
+                _textField.BackColor = Color.Black.WithTransparency(0.3f);
+                _textField.ForeColor = Color.White;
+                _textField.CaretColor = Color.White;
+                _textField.SelectionBackColor = Color.SteelBlue;
+                _textField.AcceptsEnterKey = true;
+                _textField.EnterKey += TextFieldOnEnterKey;
+                _textField.ResignedFirstResponder += TextFieldOnResignedFirstResponder;
+
+                var converterAttr = _inspect.PropertyType.GetCustomAttribute<TypeConverterAttribute>();
+                if (converterAttr != null)
+                {
+                    string converterName = converterAttr.ConverterTypeName;
+
+                    var converterType = Type.GetType(converterName);
+                    if (converterType != null)
+                    {
+                        _typeConverter =
+                            converterType.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as TypeConverter;
+                    }
+                }
+                
+                if (_typeConverter != null && _typeConverter.CanConvertTo(typeof(string)))
+                {
+                    object value = _inspect.GetValue();
+                    if (value != null)
+                        _textField.Text = _typeConverter.ConvertToString(value) ?? "";
+                }
+                
+                ReloadValue();
 
                 Initialize();
+            }
+
+            private void TextFieldOnEnterKey(object sender, EventArgs eventArgs)
+            {
+                TrySetValueFromString(_textField.Text);
+
+                // Re-select as a visual feedback to the user the input was accepted
+                _textField.SelectAll();
+            }
+
+            private void TextFieldOnResignedFirstResponder(object sender, EventArgs eventArgs)
+            {
+                TrySetValueFromString(_textField.Text);
+            }
+            
+            private void TrySetValueFromString(string str)
+            {
+                if (_typeConverter != null)
+                {
+                    if (!_typeConverter.CanConvertFrom(typeof(string)))
+                        return;
+
+                    _inspect.SetValue(_typeConverter.ConvertFromString(str));
+                }
+                else if (_inspect.PropertyType == typeof(string))
+                {
+                    _inspect.SetValue(str);
+                }
+                else
+                {
+                    // When empty, fill with the default value of the type (in case it has one)
+                    if (string.IsNullOrEmpty(str) && _inspect.PropertyType.IsValueType)
+                    {
+                        _inspect.SetValue(Activator.CreateInstance(_inspect.PropertyType));
+                    }
+                    else
+                    {
+                        var typeCode = Type.GetTypeCode(_inspect.PropertyType);
+                    
+                        try
+                        {
+                            if (typeCode != TypeCode.Object)
+                            {
+                                object newValue = Convert.ChangeType(str, typeCode);
+                                if (newValue != null)
+                                    _inspect.SetValue(newValue);
+                            }
+                        }
+                        catch
+                        {
+                            // Empty
+                        }
+                    }
+                }
+
+                ReloadValue();
+            }
+
+            private void ReloadValue()
+            {
+                if (_typeConverter != null && _typeConverter.CanConvertTo(typeof(string)))
+                {
+                    object value = _inspect.GetValue();
+                    if (value != null)
+                        _textField.Text = _typeConverter.ConvertToString(value) ?? "";
+                }
+                else
+                {
+                    _textField.Text = _inspect.GetValue()?.ToString() ?? "<null>";
+                }
             }
 
             private void Initialize()

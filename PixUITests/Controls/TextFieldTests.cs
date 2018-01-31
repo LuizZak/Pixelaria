@@ -23,8 +23,10 @@
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Geometry;
 using PixUI.Controls;
 using PixUI.Text;
+using PixUITests.TestUtils;
 
 namespace PixUITests.Controls
 {
@@ -35,6 +37,7 @@ namespace PixUITests.Controls
         public void Setup()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+            //BaseViewSnapshot.RecordMode = true;
         }
 
         [TestMethod]
@@ -85,7 +88,48 @@ namespace PixUITests.Controls
 
             Assert.AreEqual(new Caret(1), sut.Caret);
         }
+
+        [TestMethod]
+        public void TestRenderingForegroundColor()
+        {
+            // TODO: The test fixture is breaking rendering of text during testing, figure it out and 
+            // replace the test snapshot later.
+
+            var sut = TextField.Create();
+            sut.Size = new Vector(50, 15);
+            sut.Text = "Lorem ipsum";
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestEnterKey()
+        {
+            bool raisedEnterKey = false;
+            var sut = TextField.Create();
+            sut.AcceptsEnterKey = true;
+            sut.EnterKey += (o, e) => { raisedEnterKey = true; };
+
+            sut.OnKeyDown(new KeyEventArgs(Keys.Enter));
+
+            Assert.IsTrue(raisedEnterKey);
+        }
+
+        [TestMethod]
+        public void TestEnterKeyNotRaisedWhenAcceptsEnterKeyIsFalse()
+        {
+            bool raisedEnterKey = false;
+            var sut = TextField.Create();
+            sut.AcceptsEnterKey = false;
+            sut.EnterKey += (o, e) => { raisedEnterKey = true; };
+
+            sut.OnKeyDown(new KeyEventArgs(Keys.Enter));
+
+            Assert.IsFalse(raisedEnterKey);
+        }
         
+        public TestContext TestContext { get; set; }
+
         private class KeyboardEventRequest : IKeyboardEventRequest
         {
             public KeyboardEventRequest(KeyboardEventType eventType)

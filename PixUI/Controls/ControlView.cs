@@ -85,6 +85,16 @@ namespace PixUI.Controls
         /// to put subscriptions' <see cref="IDisposable"/> returns into.
         /// </summary>
         protected readonly CompositeDisposable DisposeBag = new CompositeDisposable();
+        
+        /// <summary>
+        /// Event fired when this control view has successfully become the first responder
+        /// </summary>
+        public event EventHandler BecameFirstResponder;
+
+        /// <summary>
+        /// Event fired when this control view was resigned as a first responder
+        /// </summary>
+        public event EventHandler ResignedFirstResponder;
 
         /// <summary>
         /// Exposed reactive signal for this control
@@ -324,13 +334,26 @@ namespace PixUI.Controls
 
             var closest = ClosestParentViewOfType<RootControlView>(this);
 
-            return closest?.SetFirstResponder(this) ?? false;
+            if (closest?.SetFirstResponder(this) ?? false)
+            {
+                BecameFirstResponder?.Invoke(this, EventArgs.Empty);
+
+                return true;
+            }
+
+            return false;
         }
 
         public virtual void ResignFirstResponder()
         {
             var closest = ClosestParentViewOfType<RootControlView>(this);
-            closest?.RemoveAsFirstResponder(this);
+            if (closest == null)
+                return;
+
+            if (closest.RemoveAsFirstResponder(this))
+            {
+                ResignedFirstResponder?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         #region Layout

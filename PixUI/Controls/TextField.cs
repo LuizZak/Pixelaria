@@ -33,7 +33,6 @@ using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using PixUI.Text;
 using SharpDX.Direct2D1;
-using SharpDX.Mathematics.Interop;
 using Color = System.Drawing.Color;
 
 namespace PixUI.Controls
@@ -61,13 +60,35 @@ namespace PixUI.Controls
         private bool _selectingWordSpan;
         private int _wordSpanStartPosition;
         private bool _mouseDown;
+        private bool _mouseOver;
         private bool _editable;
+
+        public override Color ForeColor
+        {
+            get => base.ForeColor;
+            set
+            {
+                base.ForeColor = value;
+                _label.ForeColor = value;
+            }
+        }
+
+        /// <summary>
+        /// If true, when the enter key is pressed a <see cref="EnterKey"/> event is raised for this text field.
+        /// </summary>
+        public bool AcceptsEnterKey { get; set; }
 
         /// <summary>
         /// Gets or sets the color to use when drawing the background of selected
         /// regions of this text field.
         /// </summary>
         public Color SelectionBackColor { get; set; } = Color.LightBlue;
+
+        /// <summary>
+        /// Gets ot sets the color to stroke this textfield when it is highlighted
+        /// (either by a mouse-over or by being focused).
+        /// </summary>
+        public Color HighlightStrokeColor { get; set; } = Color.CornflowerBlue;
 
         /// <summary>
         /// Gets or sets the color to use when drawing the caret.
@@ -89,6 +110,7 @@ namespace PixUI.Controls
             {
                 _contentInset = value;
                 Layout();
+                Invalidate();
             }
         }
 
@@ -101,7 +123,11 @@ namespace PixUI.Controls
         public string Text
         {
             get => _label.Text;
-            set => _label.Text = value;
+            set
+            {
+                _label.Text = value;
+                _textEngine.UpdateCaretFromTextBuffer();
+            }
         }
 
         /// <summary>
@@ -128,6 +154,16 @@ namespace PixUI.Controls
                 }
             }
         }
+
+        /// <summary>
+        /// Event fired whenever the text contents of this text field are updated.
+        /// </summary>
+        public event TextFieldTextChangedEventHandler TextChanged;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event EventHandler EnterKey;
 
         public override bool CanBecomeFirstResponder => true;
 
@@ -180,15 +216,10 @@ namespace PixUI.Controls
         {
             _blinker.Restart();
             _textUpdated.OnNext(Text);
+
+            TextChanged?.Invoke(this, new TextFieldTextChangedEventArgs(Text));
         }
-
-        protected override void OnResize()
-        {
-            base.OnResize();
-
-            Layout();
-        }
-
+        
         public override void OnFixedFrame(FixedFrameEventArgs e)
         {
             base.OnFixedFrame(e);
@@ -233,6 +264,10 @@ namespace PixUI.Controls
         public override void OnMouseEnter()
         {
             base.OnMouseEnter();
+
+            _mouseOver = true;
+
+            Invalidate();
             
             Cursor.Current = Cursors.IBeam;
         }
@@ -275,6 +310,10 @@ namespace PixUI.Controls
         {
             base.OnMouseLeave();
 
+            _mouseOver = false;
+
+            Invalidate();
+
             Cursor.Current = Cursors.Default;
         }
 
@@ -301,6 +340,14 @@ namespace PixUI.Controls
 
         public void OnKeyDown(KeyEventArgs e)
         {
+            // Enter key
+            if (e.KeyCode == Keys.Enter && AcceptsEnterKey)
+            {
+                EnterKey?.Invoke(this, EventArgs.Empty);
+                e.Handled = true;
+                return;
+            }
+
             // Copy/cut/paste + undo/redo
             if (e.Modifiers == Keys.Control)
             {
@@ -308,33 +355,46 @@ namespace PixUI.Controls
                 {
                     case Keys.C:
                         Copy();
+                        e.Handled = true;
                         break;
                     case Keys.X:
                         if (Editable)
+                        {
                             Cut();
+                            e.Handled = true;
+                        }
                         break;
                     case Keys.V:
                         if (Editable)
+                        {
                             Paste();
+                            e.Handled = true;
+                        }
                         break;
                     case Keys.Z:
                         if (Editable)
+                        {
                             Undo();
+                            e.Handled = true;
+                        }
                         break;
                     case Keys.Y:
                         if (Editable)
                             Redo();
+                        e.Handled = true;
                         break;
                     case Keys.A:
                         SelectAll();
+                        e.Handled = true;
                         break;
                 }
             }
-
+            
             // Ctrl+Shift+Z as alternative for Ctrl+Y (redo)
             if (Editable && e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z)
             {
                 Redo();
+                e.Handled = true;
                 return;
             }
             
@@ -344,10 +404,12 @@ namespace PixUI.Controls
                 if (e.KeyCode == Keys.Home)
                 {
                     _textEngine.SelectToStart();
+                    e.Handled = true;
                 }
                 else if (e.KeyCode == Keys.End)
                 {
                     _textEngine.SelectToEnd();
+                    e.Handled = true;
                 }
             }
             else
@@ -356,10 +418,12 @@ namespace PixUI.Controls
                 if (e.KeyCode == Keys.Home)
                 {
                     _textEngine.MoveToStart();
+                    e.Handled = true;
                 }
                 else if (e.KeyCode == Keys.End)
                 {
                     _textEngine.MoveToEnd();
+                    e.Handled = true;
                 }
             }
 
@@ -375,6 +439,8 @@ namespace PixUI.Controls
                     }
 
                     _textEngine.BackspaceText();
+
+                    e.Handled = true;
                 }
                 else if (e.KeyCode == Keys.Delete)
                 {
@@ -385,10 +451,15 @@ namespace PixUI.Controls
                     }
 
                     _textEngine.DeleteText();
+
+                    e.Handled = true;
                 }
             }
 
-            HandleCaretMoveEvent(e.KeyCode, e.Modifiers);
+            if (HandleCaretMoveEvent(e.KeyCode, e.Modifiers))
+            {
+                e.Handled = true;
+            }
         }
 
         public void OnKeyUp(KeyEventArgs e)
@@ -401,7 +472,7 @@ namespace PixUI.Controls
             HandleCaretMoveEvent(e.KeyCode, e.Modifiers);
         }
 
-        private void HandleCaretMoveEvent(Keys keyCode, Keys modifiers)
+        private bool HandleCaretMoveEvent(Keys keyCode, Keys modifiers)
         {
             // Caret selection/movement
             if (modifiers.HasFlag(Keys.Shift))
@@ -409,16 +480,28 @@ namespace PixUI.Controls
                 if (modifiers.HasFlag(Keys.Control))
                 {
                     if (keyCode == Keys.Left)
+                    {
                         _textEngine.SelectLeftWord();
-                    else if (keyCode == Keys.Right)
+                        return true;
+                    }
+                    if (keyCode == Keys.Right)
+                    {
                         _textEngine.SelectRightWord();
+                        return true;
+                    }
                 }
                 else
                 {
                     if (keyCode == Keys.Left)
+                    {
                         _textEngine.SelectLeft();
-                    else if (keyCode == Keys.Right)
+                        return true;
+                    }
+                    if (keyCode == Keys.Right)
+                    {
                         _textEngine.SelectRight();
+                        return true;
+                    }
                 }
             }
             else
@@ -426,18 +509,32 @@ namespace PixUI.Controls
                 if (modifiers.HasFlag(Keys.Control))
                 {
                     if (keyCode == Keys.Left)
+                    {
                         _textEngine.MoveLeftWord();
-                    else if (keyCode == Keys.Right)
+                        return true;
+                    }
+                    if (keyCode == Keys.Right)
+                    {
                         _textEngine.MoveRightWord();
+                        return true;
+                    }
                 }
                 else
                 {
                     if (keyCode == Keys.Left)
+                    {
                         _textEngine.MoveLeft();
-                    else if (keyCode == Keys.Right)
+                        return true;
+                    }
+                    if (keyCode == Keys.Right)
+                    {
                         _textEngine.MoveRight();
+                        return true;
+                    }
                 }
             }
+
+            return false;
         }
 
         #endregion
@@ -454,10 +551,25 @@ namespace PixUI.Controls
 
             return isFirstResponder;
         }
-        
+
+        public override void ResignFirstResponder()
+        {
+            base.ResignFirstResponder();
+
+            Invalidate();
+        }
+
         public override void RenderBackground(ControlRenderingContext context)
         {
+            // Hack-ish way to preserve stroke color while applying the highlight stroke color:
+            var oldStroke = StrokeColor;
+            if ((_mouseOver || IsFirstResponder) && HighlightStrokeColor != Color.Transparent)
+                StrokeColor = HighlightStrokeColor;
+
             base.RenderBackground(context);
+
+            if (!StrokeColor.Equals(oldStroke))
+                StrokeColor = oldStroke;
             
             if (_textEngine.Caret.Length == 0)
                 return;
@@ -578,8 +690,6 @@ namespace PixUI.Controls
             var bounds = Bounds.Inset(ContentInset);
             _labelContainer.SetFrame(bounds);
             _label.Center = new Vector(_label.Center.X, _labelContainer.Height / 2);
-
-            Invalidate();
         }
 
         /// <summary>
@@ -632,7 +742,7 @@ namespace PixUI.Controls
 
             _label.WithTextLayout(layout =>
             {
-                var metrics = layout.HitTestPoint(converted.X, converted.Y, out RawBool isTrailing, out RawBool _);
+                var metrics = layout.HitTestPoint(converted.X, converted.Y, out var isTrailing, out var _);
                 offset = metrics.TextPosition + (isTrailing ? 1 : 0);
             });
 
@@ -651,7 +761,7 @@ namespace PixUI.Controls
 
             _label.WithTextLayout(layout =>
             {
-                layout.HitTestTextPosition(offset, false, out float x, out float y);
+                layout.HitTestTextPosition(offset, false, out var x, out var y);
                 position = new Vector(x, y);
             });
 
@@ -748,6 +858,24 @@ namespace PixUI.Controls
             }
         }
     }
+
+    /// <summary>
+    /// Event arguments for a <see cref="TextFieldTextChangedEventHandler"/> event.
+    /// </summary>
+    public class TextFieldTextChangedEventArgs : EventArgs
+    {
+        public string Text { get; }
+
+        public TextFieldTextChangedEventArgs(string text)
+        {
+            Text = text;
+        }
+    }
+
+    /// <summary>
+    /// Delegate for a <see cref="TextField.TextChanged"/> event.
+    /// </summary>
+    public delegate void TextFieldTextChangedEventHandler(object sender, TextFieldTextChangedEventArgs e);
 
     // Reactive bindings for TextField
     public partial class TextField

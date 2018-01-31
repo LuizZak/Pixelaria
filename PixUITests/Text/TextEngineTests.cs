@@ -827,6 +827,36 @@ namespace PixUITests.Text
 
         #endregion
 
+        #region Update Caret From TextBuffer
+
+        [TestMethod]
+        public void TestUpdateCaretFromTextBuffer()
+        {
+            var buffer = new TextBuffer("123456");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new Caret(new TextRange(6, 0), CaretPosition.End));
+            buffer.Text = "123";
+
+            sut.UpdateCaretFromTextBuffer();
+
+            Assert.AreEqual(new Caret(new TextRange(3, 0), CaretPosition.End), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestUpdateCaretFromTextBufferWhileStillInBounds()
+        {
+            var buffer = new TextBuffer("123456");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new Caret(new TextRange(1, 2), CaretPosition.End));
+            buffer.Text = "123";
+
+            sut.UpdateCaretFromTextBuffer();
+
+            Assert.AreEqual(new Caret(new TextRange(1, 2), CaretPosition.End), sut.Caret);
+        }
+
+        #endregion
+
         #region Insert Text
 
         [TestMethod]

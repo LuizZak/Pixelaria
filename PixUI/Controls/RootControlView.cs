@@ -53,10 +53,15 @@ namespace PixUI.Controls
             return _firstResponderDelegate.SetAsFirstResponder(handler, force);
         }
 
-        public void RemoveAsFirstResponder([NotNull] IEventHandler handler)
+        public bool RemoveAsFirstResponder([NotNull] IEventHandler handler)
         {
-            if(IsFirstResponder(handler))
+            if (IsFirstResponder(handler))
+            {
                 _firstResponderDelegate.RemoveCurrentResponder();
+                return true;
+            }
+
+            return false;
         }
 
         public bool IsFirstResponder([NotNull] IEventHandler handler)

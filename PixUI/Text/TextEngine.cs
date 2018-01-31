@@ -103,6 +103,17 @@ namespace PixUI.Text
             _undoSystem.RedoPerformed += (sender, args) => { _isPerformingUndoRedo = false; };
         }
 
+        /// <summary>
+        /// Requests that this text engine reload its caret after a change to a text buffer's contents or length
+        /// </summary>
+        public void UpdateCaretFromTextBuffer()
+        {
+            if (Caret.Start > TextBuffer.TextLength || Caret.End > TextBuffer.TextLength)
+            {
+                SetCaret(Caret);
+            }
+        }
+
         private void RegisterUndo([NotNull] IUndoTask task)
         {
             if (_isPerformingUndoRedo)

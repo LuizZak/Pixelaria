@@ -44,7 +44,7 @@ namespace PixUI.Controls
         /// <summary>
         /// This view's neutral background color
         /// </summary>
-        public Color BackColor
+        public virtual Color BackColor
         {
             get => _backColor;
             set
@@ -57,7 +57,7 @@ namespace PixUI.Controls
         /// <summary>
         /// This view's foreground color
         /// </summary>
-        public Color ForeColor
+        public virtual Color ForeColor
         {
             get => _foreColor;
             set
@@ -86,7 +86,7 @@ namespace PixUI.Controls
         /// Corner radius for this control's corners
         /// (does not affect clipping region)
         /// </summary>
-        public float CornerRadius
+        public virtual float CornerRadius
         {
             get => _cornerRadius;
             set

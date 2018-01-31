@@ -37,6 +37,8 @@ namespace Pixelaria.ExportPipeline.Steps
     {
         public override string Name { get; } = "Animation Joiner";
 
+        public int TestInteger { get; set; }
+
         public override IReadOnlyList<IPipelineInput> Input { get; }
         public override IReadOnlyList<IPipelineOutput> Output { get; }
 
