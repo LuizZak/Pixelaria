@@ -27,6 +27,7 @@ using PixCore.Geometry;
 using PixUI.Controls;
 using PixUI.Text;
 using PixUITests.TestUtils;
+using SharpDX.DirectWrite;
 
 namespace PixUITests.Controls
 {
@@ -37,6 +38,7 @@ namespace PixUITests.Controls
         public void Setup()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+            ControlView.DirectWriteFactory = new Factory();
             //BaseViewSnapshot.RecordMode = true;
         }
 

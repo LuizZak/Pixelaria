@@ -196,7 +196,7 @@ namespace PixUI.Controls.PropertyGrid
                 TrySetValueFromString(_textField.Text);
             }
             
-            // TODO: Consider moving this method to InspectableProperty
+            // TODO: Consider moving this method/responsibility to InspectableProperty
             private void TrySetValueFromString(string str)
             {
                 if (_typeConverter != null)
