@@ -53,7 +53,7 @@ namespace PixUI.Controls
         public static Dispatcher UiDispatcher { get; set; }
 
         private readonly Reactive _reactive;
-
+        private readonly StateManager _stateManager = new StateManager();
         private readonly List<MouseEventRecognizer> _recognizers = new List<MouseEventRecognizer>();
 
         /// <summary>
@@ -85,7 +85,9 @@ namespace PixUI.Controls
         /// to put subscriptions' <see cref="IDisposable"/> returns into.
         /// </summary>
         protected readonly CompositeDisposable DisposeBag = new CompositeDisposable();
-        
+
+        private bool _interactionEnabled = true;
+
         /// <summary>
         /// Event fired when this control view has successfully become the first responder
         /// </summary>
@@ -135,8 +137,55 @@ namespace PixUI.Controls
         /// 
         /// Defaults to true.
         /// </summary>
-        public bool InteractionEnabled { get; set; } = true;
-        
+        public bool InteractionEnabled
+        {
+            get => _interactionEnabled;
+            set
+            {
+                if (IsFirstResponder)
+                    ResignFirstResponder();
+                _interactionEnabled = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether this control is selected.
+        /// </summary>
+        public bool Selected
+        {
+            get => _stateManager.Selected;
+            set => _stateManager.SetSelected(value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this control's main interaction is enabled.
+        /// 
+        /// This is separate from <see cref="InteractionEnabled"/>, as this solely dictates the
+        /// control's response to input, instead of ignoring all input altogether.
+        /// </summary>
+        public bool Enabled
+        {
+            get => _stateManager.Enabled;
+            set => _stateManager.SetEnabled(value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether this control is highlighted.
+        /// 
+        /// The highlighted state indicates a possible actionable input is available for this control,
+        /// ]like pressint Enter on the keyboard or clicking with a mouse button.
+        /// </summary>
+        public bool Highlighted
+        {
+            get => _stateManager.Highlighted;
+            set => _stateManager.SetHighlighted(value);
+        }
+
+        /// <summary>
+        /// Current computed state for this control view.
+        /// </summary>
+        public ControlViewState CurrentState => _stateManager.State;
+
         /// <summary>
         /// Gets the content bounds of this control, which are the inner area of this control
         /// where content is effectively contained within. May be larger than this control's <see cref="BaseView.Bounds"/>.
@@ -173,6 +222,8 @@ namespace PixUI.Controls
                     .Subscribe(OnMouseDoubleClick);
 
             DisposeBag.Add(disposable);
+
+            _stateManager.OnStateChanged = OnChangedState;
         }
 
         ~ControlView()
@@ -204,6 +255,11 @@ namespace PixUI.Controls
             base.OnResize();
 
             Layout();
+        }
+
+        protected virtual void OnChangedState(ControlViewState newState)
+        {
+
         }
 
         /// <summary>
@@ -337,6 +393,7 @@ namespace PixUI.Controls
             if (closest?.SetFirstResponder(this) ?? false)
             {
                 BecameFirstResponder?.Invoke(this, EventArgs.Empty);
+                _stateManager.SetIsFirstResponder(true);
 
                 return true;
             }
@@ -353,6 +410,7 @@ namespace PixUI.Controls
             if (closest.RemoveAsFirstResponder(this))
             {
                 ResignedFirstResponder?.Invoke(this, EventArgs.Empty);
+                _stateManager.SetIsFirstResponder(false);
             }
         }
 
@@ -482,6 +540,92 @@ namespace PixUI.Controls
             public IObservable<Unit> MouseEnter => MouseEnterSubject;
             public IObservable<Unit> MouseLeave => MouseLeaveSubject;
         }
+
+        private class StateManager
+        {
+            public bool Enabled { get; private set; }
+            public bool Selected { get; private set; }
+            public bool Highlighted { get; private set; }
+            private bool IsFirstResponder { get; set; }
+
+            public ControlViewState State { get; private set; } = ControlViewState.Normal;
+
+            public Action<ControlViewState> OnStateChanged;
+
+            public void SetEnabled(bool enabled)
+            {
+                Enabled = enabled;
+                DeriveNewState();
+            }
+
+            public void SetSelected(bool selected)
+            {
+                Selected = selected;
+                DeriveNewState();
+            }
+
+            public void SetHighlighted(bool highlighted)
+            {
+                Highlighted = highlighted;
+                DeriveNewState();
+            }
+
+            public void SetIsFirstResponder(bool isFirstResponder)
+            {
+                IsFirstResponder = isFirstResponder;
+                DeriveNewState();
+            }
+
+            private void DeriveNewState()
+            {
+                if (!Enabled)
+                {
+                    SetState(ControlViewState.Disabled);
+                    return;
+                }
+                if (Selected)
+                {
+                    SetState(ControlViewState.Selected);
+                    return;
+                }
+                if (Highlighted)
+                {
+                    SetState(ControlViewState.Highlighted);
+                    return;
+                }
+                if (IsFirstResponder)
+                {
+                    SetState(ControlViewState.Focused);
+                    return;
+                }
+
+                SetState(ControlViewState.Normal);
+            }
+
+            private void SetState(ControlViewState state)
+            {
+                if (state == State)
+                    return;
+
+                State = state;
+
+                OnStateChanged?.Invoke(State);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// State for a control view.
+    /// 
+    /// Used mostly by controls in order to style them according to different states.
+    /// </summary>
+    public enum ControlViewState
+    {
+        Normal,
+        Highlighted,
+        Selected,
+        Disabled,
+        Focused
     }
 
     /// <summary>
