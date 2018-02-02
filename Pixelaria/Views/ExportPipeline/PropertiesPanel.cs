@@ -86,15 +86,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void SelectionModelOnOnSelectionChanged(object o, EventArgs eventArgs)
         {
-            if (_control.PipelineContainer.Selection.Length != 1)
-            {
-                _propertiesGrid.SelectedObject = null;
-                return;
-            }
-
-            object obj = _control.PipelineContainer.Selection[0];
-
-            _propertiesGrid.SelectedObject = obj;
+            _propertiesGrid.SelectedObjects = _control.PipelineContainer.Selection;
         }
 
         private void AdjustSize()

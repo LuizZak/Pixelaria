@@ -24,9 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using PixCore.Colors;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
 using Color = System.Drawing.Color;
@@ -38,8 +38,7 @@ namespace PixUI.Controls.PropertyGrid
     /// </summary>
     public class PropertyGridControl : ScrollViewControl
     {
-        [CanBeNull] 
-        private object _selectedObject;
+        private object[] _selectedObjects = new object[0];
 
         private readonly List<PropertyField> _propertyFields = new List<PropertyField>();
 
@@ -51,14 +50,39 @@ namespace PixUI.Controls.PropertyGrid
         [CanBeNull]
         public object SelectedObject
         {
-            get => _selectedObject;
+            get => _selectedObjects.FirstOrDefault();
             set
             {
-                _selectedObject = value;
+                if (value == null)
+                {
+                    _selectedObjects = new object[0];
+                }
+                else
+                {
+                    _selectedObjects = new []{ value };
+                }
+                
                 ReloadFields();
             }
         }
-        
+
+        /// <summary>
+        /// Gets or sets the array of selected objects currently being displayed.
+        /// 
+        /// The property grid displays all properties in common across the objects in the array.
+        /// 
+        /// Setting this value override any value that may be set at <see cref="SelectedObject"/>.
+        /// </summary>
+        public object[] SelectedObjects
+        {
+            get => _selectedObjects;
+            set
+            {
+                _selectedObjects = value;
+                ReloadFields();
+            }
+        }
+
         /// <summary>
         /// Creates a new instance of <see cref="PropertyGridControl"/>
         /// </summary>
@@ -74,10 +98,10 @@ namespace PixUI.Controls.PropertyGrid
         {
             Clear();
 
-            if (_selectedObject == null)
+            if (SelectedObject == null)
                 return;
 
-            LoadFields(_selectedObject);
+            LoadFields(SelectedObjects);
         }
 
         private void Clear()
@@ -93,9 +117,9 @@ namespace PixUI.Controls.PropertyGrid
             _propertyFields.Clear();
         }
 
-        private void LoadFields([NotNull] object source)
+        private void LoadFields([NotNull] object[] sources)
         {
-            _propertyInspector = new PropertyInspector(source);
+            _propertyInspector = new PropertyInspector(sources);
 
             var properties = _propertyInspector.GetProperties();
 
@@ -149,7 +173,7 @@ namespace PixUI.Controls.PropertyGrid
                 _label.VerticalTextAlignment = VerticalTextAlignment.Center;
 
                 _textField = TextField.Create();
-                _textField.Text = inspect.GetValue()?.ToString() ?? "<null>";
+                _textField.Text = "";
                 _textField.Editable = inspect.CanSet;
                 _textField.AcceptsEnterKey = true;
                 _textField.EnterKey += TextFieldOnEnterKey;
@@ -182,13 +206,6 @@ namespace PixUI.Controls.PropertyGrid
                         _typeConverter =
                             converterType.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as TypeConverter;
                     }
-                }
-                
-                if (_typeConverter != null && _typeConverter.CanConvertTo(typeof(string)))
-                {
-                    object value = _inspect.GetValue();
-                    if (value != null)
-                        _textField.Text = _typeConverter.ConvertToString(value) ?? "";
                 }
                 
                 ReloadValue();
@@ -261,15 +278,31 @@ namespace PixUI.Controls.PropertyGrid
 
             private void ReloadValue()
             {
+                HashSet<string> representations;
+
                 if (_typeConverter != null && _typeConverter.CanConvertTo(typeof(string)))
                 {
-                    object value = _inspect.GetValue();
-                    if (value != null)
-                        _textField.Text = _typeConverter.ConvertToString(value) ?? "";
+                    var values = _inspect.GetValues();
+
+                    // See if all values reduce to the same value representation.
+                    representations = new HashSet<string>(values.Select(_typeConverter.ConvertToString));
                 }
                 else
                 {
-                    _textField.Text = _inspect.GetValue()?.ToString() ?? "<null>";
+                    representations = new HashSet<string>(_inspect.GetValues().Select(v => v.ToString()));
+                }
+
+                if (representations.Count > 1)
+                {
+                    _textField.Text = "<multiple values>";
+                }
+                else if (representations.Count == 1)
+                {
+                    _textField.Text = representations.FirstOrDefault() ?? "";
+                }
+                else
+                {
+                    _textField.Text = "";
                 }
             }
 
@@ -300,14 +333,22 @@ namespace PixUI.Controls.PropertyGrid
         public class PropertyInspector
         {
             [NotNull]
-            private readonly object _target;
+            private readonly object[] _targets;
 
             /// <summary>
             /// Initializes this property inspector with a target object to inspect.
             /// </summary>
             public PropertyInspector([NotNull] object target)
             {
-                _target = target;
+                _targets = new[] {target};
+            }
+            
+            /// <summary>
+            /// Initializes this property inspector with multiple target objects to inspect.
+            /// </summary>
+            public PropertyInspector([NotNull] object[] targets)
+            {
+                _targets = targets;
             }
 
             /// <summary>
@@ -316,17 +357,41 @@ namespace PixUI.Controls.PropertyGrid
             public InspectableProperty[] GetProperties()
             {
                 var result = new List<InspectableProperty>();
-                var properties = _target.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-                foreach (var property in properties)
+                var allProperties =
+                    _targets.SelectMany(type =>
+                        type.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance));
+
+                var reducedProperties =
+                    allProperties.GroupBy(prop => (prop.PropertyType, prop.Name));
+
+                var propertyGroups =
+                    reducedProperties
+                        .Where(g => g.Count() == _targets.Length)
+                        .Select(g => g.ToArray());
+                
+                foreach (var properties in propertyGroups)
                 {
-                    if (property.GetIndexParameters().Length > 0)
-                        continue;
-                    // Cannot inspect set-only methods
-                    if (property.GetGetMethod(false) == null)
-                        continue;
+                    bool valid = true;
+                    foreach (var property in properties)
+                    {
+                        if (property.GetIndexParameters().Length > 0)
+                        {
+                            valid = false;
+                            break;
+                        }
+                        // Cannot inspect set-only methods
+                        if (property.GetGetMethod(false) == null)
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
 
-                    var prop = new InspectableProperty(_target, property);
+                    if (!valid)
+                        continue;
+                    
+                    var prop = new InspectableProperty(_targets, properties);
                     result.Add(prop);
                 }
 
@@ -339,8 +404,8 @@ namespace PixUI.Controls.PropertyGrid
         /// </summary>
         public class InspectableProperty
         {
-            internal readonly object Target;
-            internal readonly PropertyInfo Property;
+            internal readonly object[] Targets;
+            internal readonly PropertyInfo[] Properties;
 
             /// <summary>
             /// The name of this property
@@ -357,27 +422,27 @@ namespace PixUI.Controls.PropertyGrid
             /// </summary>
             public bool CanSet { get; }
 
-            internal InspectableProperty([NotNull] object target, [NotNull] PropertyInfo property)
+            internal InspectableProperty([NotNull] object[] targets, [NotNull] PropertyInfo[] properties)
             {
-                Property = property;
-                Target = target;
+                Properties = properties;
+                Targets = targets;
 
-                Name = property.Name;
-                PropertyType = property.PropertyType;
-                CanSet = property.CanWrite && property.GetSetMethod(false) != null;
+                Name = properties[0].Name;
+                PropertyType = properties[0].PropertyType;
+                CanSet = properties[0].CanWrite && properties[0].GetSetMethod(false) != null;
             }
 
             /// <summary>
-            /// Gets the value of this inspectable property.
+            /// Gets the values of this inspectable property across all associated target objects.
             /// </summary>
-            [CanBeNull]
-            public object GetValue()
+            [NotNull, ItemCanBeNull]
+            public object[] GetValues()
             {
-                return Property.GetValue(Target);
+                return Targets.Zip(Properties, (obj, prop) => (obj, prop)).Select(pair => pair.prop.GetValue(pair.obj)).ToArray();
             }
 
             /// <summary>
-            /// Sets the value of this inspectable property.
+            /// Sets the value of this inspectable property across all associated objects.
             /// 
             /// Throws an exception, if the value is not settable, or its type does not
             /// match <see cref="PropertyType"/>.
@@ -393,7 +458,10 @@ namespace PixUI.Controls.PropertyGrid
                 if (value != null && value.GetType() != PropertyType)
                     throw new ArgumentException($@"Expected value of type {PropertyType}, but received {value.GetType()} instead.", nameof(value));
 
-                Property.SetValue(Target, value);
+                foreach (var (obj, prop) in Targets.Zip(Properties, (obj, prop) => (obj, prop)))
+                {
+                    prop.SetValue(obj, value);
+                }
             }
         }
     }

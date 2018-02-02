@@ -71,8 +71,30 @@ namespace PixUITests.Controls.PropertyGrid
             var sut = new PropertyGridControl.PropertyInspector(target);
             var props = sut.GetProperties();
 
-            Assert.AreEqual(1, props[0].GetValue());
-            Assert.AreEqual(true, props[1].GetValue());
+            Assert.AreEqual(1, props[0].GetValues()[0]);
+            Assert.AreEqual(true, props[1].GetValues()[0]);
+        }
+
+        [TestMethod]
+        public void TestInspectablePropertyMultipleTargetsGetValue()
+        {
+            var target1 = new TestObject
+            {
+                Id = 1,
+                IsAlive = false
+            };
+            var target2 = new TestObject2
+            {
+                Id = 1.0f,
+                IsAlive = true
+            };
+            var sut = new PropertyGridControl.PropertyInspector(new object[] {target1, target2});
+            var props = sut.GetProperties();
+
+            Assert.AreEqual(1, props.Length);
+
+            Assert.AreEqual(false, props[0].GetValues()[0]);
+            Assert.AreEqual(true, props[0].GetValues()[1]);
         }
 
         internal class TestObject
@@ -81,6 +103,15 @@ namespace PixUITests.Controls.PropertyGrid
 
             public int Id { get; set; }
             public bool IsAlive { get; internal set; }
+            public object SetterOnly { internal get; set; }
+        }
+        
+        internal class TestObject2
+        {
+            public float Field;
+
+            public float Id { get; set; }
+            public bool IsAlive { get; set; }
             public object SetterOnly { internal get; set; }
         }
     }
