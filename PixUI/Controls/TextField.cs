@@ -272,12 +272,13 @@ namespace PixUI.Controls
         private void ApplyStyle(TextFieldVisualStyleParameters style)
         {
             Style = style;
-            Invalidate();
 
             ForeColor = style.TextColor;
             StrokeWidth = style.StrokeWidth;
             StrokeColor = style.StrokeColor;
             BackColor = style.BackgroundColor;
+            
+            Invalidate();
         }
 
         #endregion
@@ -931,7 +932,7 @@ namespace PixUI.Controls
 
         public static TextFieldVisualStyleParameters DefaultLightStyle()
         {
-            return new TextFieldVisualStyleParameters(Color.Black, Color.White, Color.Black, 1, Color.Black, Color.LightBlue);
+            return new TextFieldVisualStyleParameters(Color.Black, Color.FromKnownColor(KnownColor.Control), Color.Black, 1, Color.Black, Color.LightBlue);
         }
     }
 

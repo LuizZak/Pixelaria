@@ -89,6 +89,12 @@ namespace PixUI.Controls
         private bool _interactionEnabled = true;
 
         /// <summary>
+        /// If true, <see cref="Highlighted"/> is automatically toggled on and off whenever the user enters
+        /// and exits this control with the mouse.
+        /// </summary>
+        public bool MouseOverHighlight { get; set; } = true;
+
+        /// <summary>
         /// Event fired when this control view has successfully become the first responder
         /// </summary>
         public event EventHandler BecameFirstResponder;
@@ -304,15 +310,21 @@ namespace PixUI.Controls
         /// Fixed-step frame update.
         /// </summary>
         public virtual void OnFixedFrame([NotNull] FixedFrameEventArgs e) { }
+        
+        public virtual void OnMouseEnter()
+        {
+            _reactive.MouseEnterSubject.OnNext(Unit.Default);
+
+            if (MouseOverHighlight)
+                Highlighted = true;
+        }
 
         public virtual void OnMouseLeave()
         {
             _reactive.MouseLeaveSubject.OnNext(Unit.Default);
-        }
 
-        public virtual void OnMouseEnter()
-        {
-            _reactive.MouseEnterSubject.OnNext(Unit.Default);
+            if (MouseOverHighlight)
+                Highlighted = false;
         }
 
         public virtual void OnMouseClick(MouseEventArgs e)
@@ -585,6 +597,11 @@ namespace PixUI.Controls
                     SetState(ControlViewState.Disabled);
                     return;
                 }
+                if (IsFirstResponder)
+                {
+                    SetState(ControlViewState.Focused);
+                    return;
+                }
                 if (Selected)
                 {
                     SetState(ControlViewState.Selected);
@@ -595,12 +612,6 @@ namespace PixUI.Controls
                     SetState(ControlViewState.Highlighted);
                     return;
                 }
-                if (IsFirstResponder)
-                {
-                    SetState(ControlViewState.Focused);
-                    return;
-                }
-
                 SetState(ControlViewState.Normal);
             }
 

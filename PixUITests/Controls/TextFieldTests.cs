@@ -97,7 +97,7 @@ namespace PixUITests.Controls
             // TODO: The test fixture is breaking rendering of text during testing, figure it out and 
             // replace the test snapshot later.
 
-            var sut = TextField.Create();
+            var sut = TextField.Create(false);
             sut.Size = new Vector(50, 15);
             sut.Text = "Lorem ipsum";
 

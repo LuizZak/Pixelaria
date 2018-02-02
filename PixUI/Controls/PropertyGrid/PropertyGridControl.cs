@@ -139,12 +139,13 @@ namespace PixUI.Controls.PropertyGrid
             internal PropertyField([NotNull] InspectableProperty inspect)
             {
                 BackColor = Color.Transparent;
+                StrokeColor = Color.FromArgb(50, 50, 50);
 
                 _inspect = inspect;
                 _label = LabelViewControl.Create(inspect.Name);
                 _label.BackColor = Color.Transparent;
                 _label.ForeColor = Color.White;
-                _label.TextFont = new Font(FontFamily.GenericSansSerif, 14);
+                _label.TextFont = new Font(FontFamily.GenericSansSerif.Name, 11);
                 _label.VerticalTextAlignment = VerticalTextAlignment.Center;
 
                 _textField = TextField.Create();
@@ -161,8 +162,12 @@ namespace PixUI.Controls.PropertyGrid
                 var styleEditing = TextFieldVisualStyleParameters.DefaultDarkStyle();
                 styleEditing.StrokeColor = Color.CornflowerBlue;
                 styleEditing.StrokeWidth = 1.5f;
+
+                var styleHighlighted = TextFieldVisualStyleParameters.DefaultDarkStyle();
+                styleHighlighted.StrokeColor = Color.CornflowerBlue;
                 
                 _textField.SetStyleForState(stylePlain, ControlViewState.Normal);
+                _textField.SetStyleForState(styleHighlighted, ControlViewState.Highlighted);
                 _textField.SetStyleForState(styleEditing, ControlViewState.Focused);
 
                 // Load initial value
@@ -281,7 +286,7 @@ namespace PixUI.Controls.PropertyGrid
                 base.Layout();
 
                 var labelFrame = new AABB(0, 0, Height, Width / 2);
-                labelFrame = labelFrame.Inset(new InsetBounds(2, 2, 2, 2));
+                labelFrame = labelFrame.Inset(new InsetBounds(8, 2, 2, 8));
                 var textFieldFrame = new AABB(Width / 2, 0, Height, Width);
 
                 _label.SetFrame(labelFrame);
