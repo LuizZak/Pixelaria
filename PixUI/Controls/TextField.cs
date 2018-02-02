@@ -42,14 +42,12 @@ namespace PixUI.Controls
     /// </summary>
     public partial class TextField : ControlView, IKeyboardEventHandler
     {
-        private readonly Subject<string> _textUpdated = new Subject<string>();
-
         private readonly TextEngine _textEngine;
-
+        private readonly Subject<string> _textUpdated = new Subject<string>();
         private readonly CursorBlinker _blinker = new CursorBlinker();
-
         private readonly ControlView _labelContainer = new ControlView();
         private readonly LabelViewControl _label = LabelViewControl.Create();
+        private readonly StatedValueStore<TextFieldVisualStyleParameters> _statesStyles = new StatedValueStore<TextFieldVisualStyleParameters>();
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
 
@@ -60,7 +58,6 @@ namespace PixUI.Controls
         private bool _selectingWordSpan;
         private int _wordSpanStartPosition;
         private bool _mouseDown;
-        private bool _mouseOver;
         private bool _editable;
 
         public override Color ForeColor
@@ -77,23 +74,11 @@ namespace PixUI.Controls
         /// If true, when the enter key is pressed a <see cref="EnterKey"/> event is raised for this text field.
         /// </summary>
         public bool AcceptsEnterKey { get; set; }
-
+        
         /// <summary>
-        /// Gets or sets the color to use when drawing the background of selected
-        /// regions of this text field.
+        /// Gets the current active style for this textfield.
         /// </summary>
-        public Color SelectionBackColor { get; set; } = Color.LightBlue;
-
-        /// <summary>
-        /// Gets ot sets the color to stroke this textfield when it is highlighted
-        /// (either by a mouse-over or by being focused).
-        /// </summary>
-        public Color HighlightStrokeColor { get; set; } = Color.CornflowerBlue;
-
-        /// <summary>
-        /// Gets or sets the color to use when drawing the caret.
-        /// </summary>
-        public Color CaretColor { get; set; } = Color.Black;
+        public TextFieldVisualStyleParameters Style { get; private set; }
 
         /// <summary>
         /// Whether to allow line breaks when pressing the enter key.
@@ -170,11 +155,20 @@ namespace PixUI.Controls
         /// <summary>
         /// Creates a new instance of <see cref="TextField"/>
         /// </summary>
-        public static TextField Create()
+        public static TextField Create(bool darkStyle = true)
         {
             var textField = new TextField();
 
             textField.Initialize();
+
+            if (darkStyle)
+            {
+                textField.SetStyleForState(TextFieldVisualStyleParameters.DefaultDarkStyle(), ControlViewState.Normal);
+            }
+            else
+            {
+                textField.SetStyleForState(TextFieldVisualStyleParameters.DefaultLightStyle(), ControlViewState.Normal);
+            }
 
             return textField;
         }
@@ -191,7 +185,7 @@ namespace PixUI.Controls
         protected virtual void Initialize()
         {
             Editable = true;
-
+            
             _textEngine.CaretChanged += TextEngineOnCaretChanged;
 
             _labelContainer.InteractionEnabled = false;
@@ -219,7 +213,15 @@ namespace PixUI.Controls
 
             TextChanged?.Invoke(this, new TextFieldTextChangedEventArgs(Text));
         }
-        
+
+        protected override void OnChangedState(ControlViewState newState)
+        {
+            base.OnChangedState(newState);
+
+            var style = GetStyleForState(newState);
+            ApplyStyle(style);
+        }
+
         public override void OnFixedFrame(FixedFrameEventArgs e)
         {
             base.OnFixedFrame(e);
@@ -228,6 +230,57 @@ namespace PixUI.Controls
             if(IsFirstResponder)
                 Invalidate();
         }
+
+        #region Visual Style Settings
+
+        /// <summary>
+        /// Sets the visual style of this text field when it's under a given view state.
+        /// </summary>
+        public void SetStyleForState(TextFieldVisualStyleParameters visualStyle, ControlViewState state)
+        {
+            _statesStyles.SetValue(visualStyle, state);
+
+            if (CurrentState == state)
+            {
+                ApplyStyle(visualStyle);
+            }
+        }
+
+        /// <summary>
+        /// Removes the special style for a given control view state.
+        /// 
+        /// Note that <see cref="ControlViewState.Normal"/> styles are the default styles and cannot be removed.
+        /// </summary>
+        public void RemoveStyleForState(ControlViewState state)
+        {
+            if (state == ControlViewState.Normal)
+                return;
+
+            _statesStyles.RemoveValueForState(state);
+        }
+        
+        /// <summary>
+        /// Gets the visual style for a given state.
+        /// 
+        /// If no custom visual style is specified for the state, the normal state style is returned instead.
+        /// </summary>
+        public TextFieldVisualStyleParameters GetStyleForState(ControlViewState state)
+        {
+            return _statesStyles.GetValue(state);
+        }
+
+        private void ApplyStyle(TextFieldVisualStyleParameters style)
+        {
+            Style = style;
+            Invalidate();
+
+            ForeColor = style.TextColor;
+            StrokeWidth = style.StrokeWidth;
+            StrokeColor = style.StrokeColor;
+            BackColor = style.BackgroundColor;
+        }
+
+        #endregion
 
         #region Mouse Handlers
         
@@ -264,9 +317,7 @@ namespace PixUI.Controls
         public override void OnMouseEnter()
         {
             base.OnMouseEnter();
-
-            _mouseOver = true;
-
+            
             Invalidate();
             
             Cursor.Current = Cursors.IBeam;
@@ -309,9 +360,7 @@ namespace PixUI.Controls
         public override void OnMouseLeave()
         {
             base.OnMouseLeave();
-
-            _mouseOver = false;
-
+            
             Invalidate();
 
             Cursor.Current = Cursors.Default;
@@ -561,15 +610,7 @@ namespace PixUI.Controls
 
         public override void RenderBackground(ControlRenderingContext context)
         {
-            // Hack-ish way to preserve stroke color while applying the highlight stroke color:
-            var oldStroke = StrokeColor;
-            if ((_mouseOver || IsFirstResponder) && HighlightStrokeColor != Color.Transparent)
-                StrokeColor = HighlightStrokeColor;
-
             base.RenderBackground(context);
-
-            if (!StrokeColor.Equals(oldStroke))
-                StrokeColor = oldStroke;
             
             if (_textEngine.Caret.Length == 0)
                 return;
@@ -580,7 +621,7 @@ namespace PixUI.Controls
                 {
                     var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
 
-                    using (var brush = new SolidColorBrush(context.RenderTarget, SelectionBackColor.ToColor4()))
+                    using (var brush = new SolidColorBrush(context.RenderTarget, Style.SelectionColor.ToColor4()))
                     {
                         foreach (var metric in metrics)
                         {
@@ -611,7 +652,7 @@ namespace PixUI.Controls
 
             var caretLocation = GetCaretBounds(context);
 
-            var color = CaretColor.ToColor4();
+            var color = Style.CaretColor.ToColor4();
             color.Alpha = transparency;
 
             using (var brush = new SolidColorBrush(context.RenderTarget, color))
@@ -856,6 +897,41 @@ namespace PixUI.Controls
                 _label.Text = _label.Text.Remove(index, length).Insert(index, text);
                 Changed?.Invoke(this, EventArgs.Empty);
             }
+        }
+    }
+
+    /// <summary>
+    /// Specfiies the presentation style for a text field.
+    /// 
+    /// Used to specify separate visual styles depending on the first-responding state of the textfield.
+    /// </summary>
+    public struct TextFieldVisualStyleParameters
+    {
+        public Color TextColor { get; set; }
+        public Color BackgroundColor { get; set; }
+        public Color StrokeColor { get; set; }
+        public float StrokeWidth { get; set; }
+        public Color CaretColor { get; set; }
+        public Color SelectionColor { get; set; }
+
+        public TextFieldVisualStyleParameters(Color textColor, Color backgroundColor, Color strokeColor, float strokeWidth, Color caretColor, Color selectionColor)
+        {
+            TextColor = textColor;
+            StrokeColor = strokeColor;
+            StrokeWidth = strokeWidth;
+            BackgroundColor = backgroundColor;
+            CaretColor = caretColor;
+            SelectionColor = selectionColor;
+        }
+
+        public static TextFieldVisualStyleParameters DefaultDarkStyle()
+        {
+            return new TextFieldVisualStyleParameters(Color.White, Color.Black, Color.FromArgb(50, 50, 50), 1, Color.White, Color.SteelBlue);
+        }
+
+        public static TextFieldVisualStyleParameters DefaultLightStyle()
+        {
+            return new TextFieldVisualStyleParameters(Color.Black, Color.White, Color.Black, 1, Color.Black, Color.LightBlue);
         }
     }
 

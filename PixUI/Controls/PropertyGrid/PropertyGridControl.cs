@@ -150,14 +150,22 @@ namespace PixUI.Controls.PropertyGrid
                 _textField = TextField.Create();
                 _textField.Text = inspect.GetValue()?.ToString() ?? "<null>";
                 _textField.Editable = inspect.CanSet;
-                _textField.BackColor = Color.Black.WithTransparency(0.3f);
-                _textField.ForeColor = Color.White;
-                _textField.CaretColor = Color.White;
-                _textField.SelectionBackColor = Color.SteelBlue;
                 _textField.AcceptsEnterKey = true;
                 _textField.EnterKey += TextFieldOnEnterKey;
                 _textField.ResignedFirstResponder += TextFieldOnResignedFirstResponder;
+                
+                // Textfield style
+                var stylePlain = TextFieldVisualStyleParameters.DefaultDarkStyle();
+                stylePlain.TextColor = Color.LightGray;
 
+                var styleEditing = TextFieldVisualStyleParameters.DefaultDarkStyle();
+                styleEditing.StrokeColor = Color.CornflowerBlue;
+                styleEditing.StrokeWidth = 1.5f;
+                
+                _textField.SetStyleForState(stylePlain, ControlViewState.Normal);
+                _textField.SetStyleForState(styleEditing, ControlViewState.Focused);
+
+                // Load initial value
                 var converterAttr = _inspect.PropertyType.GetCustomAttribute<TypeConverterAttribute>();
                 if (converterAttr != null)
                 {
@@ -185,6 +193,9 @@ namespace PixUI.Controls.PropertyGrid
 
             private void TextFieldOnEnterKey(object sender, EventArgs eventArgs)
             {
+                if (!_inspect.CanSet)
+                    return;
+
                 TrySetValueFromString(_textField.Text);
 
                 // Re-select as a visual feedback to the user the input was accepted
@@ -193,6 +204,9 @@ namespace PixUI.Controls.PropertyGrid
 
             private void TextFieldOnResignedFirstResponder(object sender, EventArgs eventArgs)
             {
+                if (!_inspect.CanSet)
+                    return;
+
                 TrySetValueFromString(_textField.Text);
             }
             

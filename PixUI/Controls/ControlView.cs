@@ -51,7 +51,7 @@ namespace PixUI.Controls
         /// Must be set before initializing a <see cref="ControlView"/> instance.
         /// </summary>
         public static Dispatcher UiDispatcher { get; set; }
-
+        
         private readonly Reactive _reactive;
         private readonly StateManager _stateManager = new StateManager();
         private readonly List<MouseEventRecognizer> _recognizers = new List<MouseEventRecognizer>();
@@ -222,6 +222,8 @@ namespace PixUI.Controls
                     .Subscribe(OnMouseDoubleClick);
 
             DisposeBag.Add(disposable);
+
+            _stateManager.SetEnabled(true);
 
             _stateManager.OnStateChanged = OnChangedState;
         }
@@ -610,6 +612,39 @@ namespace PixUI.Controls
                 State = state;
 
                 OnStateChanged?.Invoke(State);
+            }
+        }
+
+        /// <summary>
+        /// A value store that can store different values depending on the state
+        /// of the control.
+        /// 
+        /// When requesting a value for a state that is not specified, the <see cref="ControlViewState.Normal"/>'s version
+        /// of the value is returned. If that state is not present, the default type for T is finally returned instead.
+        /// </summary>
+        protected class StatedValueStore<T>
+        {
+            private readonly Dictionary<ControlViewState, T> _statesMap = new Dictionary<ControlViewState, T>();
+
+            public T GetValue(ControlViewState state)
+            {
+                if (_statesMap.TryGetValue(state, out var value))
+                    return value;
+
+                if (_statesMap.TryGetValue(ControlViewState.Normal, out var normalValue))
+                    return normalValue;
+
+                return default;
+            }
+
+            public void SetValue(T value, ControlViewState state)
+            {
+                _statesMap[state] = value;
+            }
+
+            public void RemoveValueForState(ControlViewState state)
+            {
+                _statesMap.Remove(state);
             }
         }
     }
