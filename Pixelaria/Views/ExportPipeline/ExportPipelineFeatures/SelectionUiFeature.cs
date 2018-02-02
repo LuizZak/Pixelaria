@@ -142,13 +142,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             _mouseDown = e.Location;
 
             var closestView = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
-            bool isInSelection = container.SelectionModel.Contains(closestView);
             
-            /*
-            if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift) && !isInSelection)
-                Control.PipelineContainer.ClearSelection();
-            */
-
             // Selection
             if (System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift) || closestView == null)
             {
