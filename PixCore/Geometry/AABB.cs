@@ -535,6 +535,15 @@ namespace PixCore.Geometry
         public readonly float Bottom;
         public readonly float Right;
 
+        /// <summary>
+        /// Creates a new inset bounds instance with all sides of a specified inset length
+        /// </summary>
+        public InsetBounds(float insetLength)
+            : this(insetLength, insetLength, insetLength, insetLength)
+        {
+
+        }
+
         public InsetBounds(float left, float top, float bottom, float right)
         {
             Bottom = bottom;

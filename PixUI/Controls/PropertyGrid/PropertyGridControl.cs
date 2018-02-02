@@ -36,11 +36,13 @@ namespace PixUI.Controls.PropertyGrid
     /// <summary>
     /// A property grid-style control.
     /// </summary>
-    public class PropertyGridControl : ScrollViewControl
+    public class PropertyGridControl : ControlView
     {
         private object[] _selectedObjects = new object[0];
 
+        private readonly ScrollViewControl _scrollView = ScrollViewControl.Create();
         private readonly List<PropertyField> _propertyFields = new List<PropertyField>();
+        private readonly LabelViewControl _titleLabel = LabelViewControl.Create("Properties Panel - No selection");
 
         private PropertyInspector _propertyInspector;
 
@@ -86,7 +88,7 @@ namespace PixUI.Controls.PropertyGrid
         /// <summary>
         /// Creates a new instance of <see cref="PropertyGridControl"/>
         /// </summary>
-        public new static PropertyGridControl Create()
+        public static PropertyGridControl Create()
         {
             var grid = new PropertyGridControl();
             grid.Initialize();
@@ -94,12 +96,42 @@ namespace PixUI.Controls.PropertyGrid
             return grid;
         }
 
+        protected virtual void Initialize()
+        {
+            BackColor = Color.Transparent;
+            _scrollView.BackColor = Color.Transparent;
+            _scrollView.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
+
+            _titleLabel.ForeColor = Color.White;
+            _titleLabel.BackColor = Color.Transparent;
+            _titleLabel.VerticalTextAlignment = VerticalTextAlignment.Center;
+            _titleLabel.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
+            _titleLabel.StrokeColor = Color.Transparent;
+
+            AddChild(_titleLabel);
+            AddChild(_scrollView);
+        }
+
         private void ReloadFields()
         {
             Clear();
 
+            _titleLabel.Text = "Properties Panel";
+
             if (SelectedObject == null)
+            {
+                _titleLabel.Text += " - No selection";
                 return;
+            }
+
+            if (SelectedObjects.Length == 1)
+            {
+                _titleLabel.Text += $" - {SelectedObject?.GetType().Name}";
+            }
+            else
+            {
+                _titleLabel.Text += $" - {SelectedObjects.Length} objects";
+            }
 
             LoadFields(SelectedObjects);
         }
@@ -107,7 +139,7 @@ namespace PixUI.Controls.PropertyGrid
         private void Clear()
         {
             _propertyInspector = null;
-            contentOffset = Vector.Zero;
+            _scrollView.SetContentOffset(Vector.Zero);
 
             foreach (var field in _propertyFields)
             {
@@ -131,25 +163,28 @@ namespace PixUI.Controls.PropertyGrid
                 var field = new PropertyField(property)
                 {
                     Y = itemY,
-                    Size = new Vector(VisibleContentBounds.Width, itemHeight)
+                    Size = new Vector(_scrollView.VisibleContentBounds.Width, itemHeight)
                 };
                 _propertyFields.Add(field);
 
-                AddChild(field);
+                _scrollView.AddChild(field);
 
                 itemY += itemHeight;
             }
 
-            ContentSize = new Vector(0, itemY);
+            _scrollView.ContentSize = new Vector(0, itemY);
         }
 
         public override void Layout()
         {
             base.Layout();
 
+            _titleLabel.SetFrame(new AABB(0, 0, 30, Width).Inset(new InsetBounds(5, 5, 5, 5)));
+            _scrollView.SetFrame(Bounds.Inset(new InsetBounds(0, _titleLabel.Height, 0, 0)));
+
             foreach (var field in _propertyFields)
             {
-                field.Width = VisibleContentBounds.Width;
+                field.Width = _scrollView.VisibleContentBounds.Width;
             }
         }
 

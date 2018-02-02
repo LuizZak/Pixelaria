@@ -172,6 +172,18 @@ namespace PixUI.Controls
             ScrollBarsMode = VisibleScrollBars.Both;
         }
 
+        /// <summary>
+        /// Called by external clients to manually alter the content offset of this scroll view.
+        /// </summary>
+        public void SetContentOffset(Vector offset)
+        {
+            contentOffset = offset;
+            targetContentOffset = offset;
+            LimitTargetContentOffset();
+            LimitContentOffset();
+            UpdateScrollBarPositions();
+        }
+
         private void HorizontalScrollChanged(object sender, EventArgs eventArgs)
         {
             targetContentOffset = new Vector(-HorizontalBar.Scroll, targetContentOffset.Y);
@@ -243,28 +255,45 @@ namespace PixUI.Controls
 
             targetContentOffset += offset;
 
-            LimitContentOffset();
+            LimitTargetContentOffset();
             UpdateScrollBarPositions();
+        }
+        
+        private void LimitTargetContentOffset()
+        {
+            targetContentOffset = LimitOffsetVector(targetContentOffset);
         }
         
         private void LimitContentOffset()
         {
+            contentOffset = LimitOffsetVector(contentOffset);
+        }
+
+        /// <summary>
+        /// Limits an offset vector (like <see cref="contentOffset"/> or <see cref="targetContentOffset"/>) to always
+        /// be within the scrollable limits of this scroll view.
+        /// </summary>
+        private Vector LimitOffsetVector(Vector offset)
+        {
             // Limit content offset within a maximum visible bounds
             var contentOffsetClip = new AABB(-(ContentBounds.Size - Bounds.Size), Vector.Zero);
+            var outVector = offset;
 
             if (ContentBounds.Width <= Bounds.Width)
             {
-                targetContentOffset = new Vector(0, targetContentOffset.Y);
+                outVector = new Vector(0, outVector.Y);
             }
             if (ContentBounds.Height <= Bounds.Height)
             {
-                targetContentOffset = new Vector(targetContentOffset.X, 0);
+                outVector = new Vector(outVector.X, 0);
             }
 
             if (ContentBounds.Width > Bounds.Width || ContentBounds.Height > Bounds.Height)
             {
-                targetContentOffset = targetContentOffset.LimitedWithin(contentOffsetClip);
+                outVector = outVector.LimitedWithin(contentOffsetClip);
             }
+
+            return outVector;
         }
 
         private void UpdateScrollBarVisibility()
@@ -352,7 +381,7 @@ namespace PixUI.Controls
             base.Layout();
 
             UpdateScrollBarVisibility();
-            LimitContentOffset();
+            LimitTargetContentOffset();
 
             HorizontalBar.ContentSize = contentSize.X;
             VerticalBar.ContentSize = contentSize.Y;

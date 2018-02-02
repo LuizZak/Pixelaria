@@ -67,8 +67,6 @@ namespace Pixelaria.Views.ExportPipeline
             _propertiesGrid = PropertyGridControl.Create();
             _propertiesGrid.Location = new Vector(0, 50);
             _propertiesGrid.Size = new Vector(300, _control.Size.Height);
-            _propertiesGrid.BackColor = Color.Transparent;
-            _propertiesGrid.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
 
             _container.AddChild(_propertiesGrid);
             
