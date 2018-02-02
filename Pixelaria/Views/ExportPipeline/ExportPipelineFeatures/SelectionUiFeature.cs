@@ -42,6 +42,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private MouseHoverState? _hovering;
 
         private bool _isDrawingSelection;
+        private bool _detectedDrawingSelection;
         private Vector _mouseDown;
         private bool _skipMouseUp;
 
@@ -142,9 +143,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             var closestView = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5), container.IsSelectable);
             bool isInSelection = container.SelectionModel.Contains(closestView);
-
+            
+            /*
             if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift) && !isInSelection)
                 Control.PipelineContainer.ClearSelection();
+            */
 
             // Selection
             if (System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift) || closestView == null)
@@ -152,14 +155,20 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 if (RequestExclusiveControl())
                 {
                     _isDrawingSelection = true;
+                    _detectedDrawingSelection = false;
 
                     _pathView.ClearPath();
                     contentsView.AddChild(_pathView);
 
                     _previousSelected.Clear();
-                    foreach (var nodeView in container.SelectionModel.NodeViews())
+
+                    // Keep current selection if shift is held
+                    if(System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift))
                     {
-                        _previousSelected.Add(nodeView);
+                        foreach (var nodeView in container.SelectionModel.NodeViews())
+                        {
+                            _previousSelected.Add(nodeView);
+                        }
                     }
                 }
             }
@@ -179,6 +188,24 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 });
 
                 _pathView.SetAsRectangle(area);
+
+                if (!_detectedDrawingSelection)
+                {
+                    if (_mouseDown.Distance(e.Location) > 5)
+                    {
+                        _detectedDrawingSelection = true;
+
+                        // Erase selection if shift not held down
+                        if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift))
+                        {
+                            Control.PipelineContainer.ClearSelection();
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
 
                 // Highlight all views under the selected area
                 var viewsInArea =
@@ -232,6 +259,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 {
                     if (_mouseDown.Distance(e.Location) < 3)
                     {
+                        Control.PipelineContainer.ClearSelection();
+
                         var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5), container.IsSelectable);
                         if (view != null)
                             container.AttemptSelect(view);
@@ -255,6 +284,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 if (_mouseDown.Distance(e.Location) < 3)
                 {
+                    Control.PipelineContainer.ClearSelection();
+
                     var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5), container.IsSelectable);
                     if (view != null)
                         container.AttemptSelect(view);

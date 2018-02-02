@@ -109,6 +109,24 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             if (container.Selection.Length != 0)
             {
+                // If user is not holding Shift for multiple selection,
+                // drop all selected views if they start dragging something
+                // under the mouse.
+                var viewUnder = contentsView.ViewUnder(contentsView.ConvertFrom(mousePosition, null), new Vector(5), container.IsSelectable);
+                
+                // Dragging by clicking area with no nodes: Cancel drag.
+                if (viewUnder == null)
+                {
+                    return;
+                }
+                // Dragging by clicking a selected node while not holding shift: Erase selection
+                if (!container.SelectionModel.Contains(viewUnder) && !System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift))
+                {
+                    container.ClearSelection();
+                }
+                // Always re-select view before dragging, even if already selected (selection is idempotent)
+                container.AttemptSelect(viewUnder);
+
                 var nodes = container.SelectionModel.NodeViews();
                 var links = container.SelectionModel.NodeLinkViews();
 
