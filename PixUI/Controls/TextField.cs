@@ -47,6 +47,7 @@ namespace PixUI.Controls
         private readonly CursorBlinker _blinker = new CursorBlinker();
         private readonly ControlView _labelContainer = new ControlView();
         private readonly LabelViewControl _label = LabelViewControl.Create();
+        private readonly LabelViewControl _placeholderLabel = LabelViewControl.Create();
         private readonly StatedValueStore<TextFieldVisualStyleParameters> _statesStyles = new StatedValueStore<TextFieldVisualStyleParameters>();
 
         private InsetBounds _contentInset = new InsetBounds(8, 8, 8, 8);
@@ -112,6 +113,21 @@ namespace PixUI.Controls
             {
                 _label.Text = value;
                 _textEngine.UpdateCaretFromTextBuffer();
+                UpdatePlaceholderVisibility();
+            }
+        }
+
+        /// <summary>
+        /// An optional placeholder text which is printed when the textfield's contents are empty.
+        /// </summary>
+        [CanBeNull]
+        public string PlaceholderText
+        {
+            get => string.IsNullOrEmpty(_placeholderLabel.Text) ? null : _placeholderLabel.Text;
+            set
+            {
+                _placeholderLabel.Text = value ?? "";
+                Invalidate();
             }
         }
 
@@ -190,6 +206,7 @@ namespace PixUI.Controls
 
             _labelContainer.InteractionEnabled = false;
             _labelContainer.AddChild(_label);
+            _labelContainer.AddChild(_placeholderLabel);
 
             _labelContainer.BackColor = Color.Transparent;
             _labelContainer.StrokeColor = Color.Transparent;
@@ -197,9 +214,16 @@ namespace PixUI.Controls
             _label.TextFont = new Font(FontFamily.GenericSansSerif, 11);
 
             _label.BackColor = Color.Transparent;
-            _label.ForeColor = Color.Black;
+            _label.ForeColor = Style.TextColor;
             _label.StrokeColor = Color.Transparent;
             _label.VerticalTextAlignment = VerticalTextAlignment.Center;
+
+            _placeholderLabel.TextFont = new Font(FontFamily.GenericSansSerif, 11);
+
+            _placeholderLabel.BackColor = Color.Transparent;
+            _placeholderLabel.ForeColor = Style.PlaceholerTextColor;
+            _placeholderLabel.StrokeColor = Color.Transparent;
+            _placeholderLabel.VerticalTextAlignment = VerticalTextAlignment.Center;
 
             _blinker.BlinkInterval = TimeSpan.FromSeconds(1);
 
@@ -212,6 +236,8 @@ namespace PixUI.Controls
             _textUpdated.OnNext(Text);
 
             TextChanged?.Invoke(this, new TextFieldTextChangedEventArgs(Text));
+
+            UpdatePlaceholderVisibility();
         }
 
         protected override void OnChangedState(ControlViewState newState)
@@ -277,6 +303,9 @@ namespace PixUI.Controls
             StrokeWidth = style.StrokeWidth;
             StrokeColor = style.StrokeColor;
             BackColor = style.BackgroundColor;
+            
+            _label.ForeColor = Style.TextColor;
+            _placeholderLabel.ForeColor = Style.PlaceholerTextColor;
             
             Invalidate();
         }
@@ -704,6 +733,11 @@ namespace PixUI.Controls
             ScrollLabel();
         }
 
+        private void UpdatePlaceholderVisibility()
+        {
+            _placeholderLabel.Visible = string.IsNullOrEmpty(Text);
+        }
+
         /// <summary>
         /// Scrolls the label positioning so the current caret location is always visible
         /// </summary>
@@ -732,6 +766,8 @@ namespace PixUI.Controls
             var bounds = Bounds.Inset(ContentInset);
             _labelContainer.SetFrame(bounds);
             _label.Center = new Vector(_label.Center.X, _labelContainer.Height / 2);
+
+            _placeholderLabel.Location = _label.Location;
         }
 
         /// <summary>
@@ -909,15 +945,17 @@ namespace PixUI.Controls
     public struct TextFieldVisualStyleParameters
     {
         public Color TextColor { get; set; }
+        public Color PlaceholerTextColor { get; set; }
         public Color BackgroundColor { get; set; }
         public Color StrokeColor { get; set; }
         public float StrokeWidth { get; set; }
         public Color CaretColor { get; set; }
         public Color SelectionColor { get; set; }
 
-        public TextFieldVisualStyleParameters(Color textColor, Color backgroundColor, Color strokeColor, float strokeWidth, Color caretColor, Color selectionColor)
+        public TextFieldVisualStyleParameters(Color textColor, Color placeholerTextColor, Color backgroundColor, Color strokeColor, float strokeWidth, Color caretColor, Color selectionColor)
         {
             TextColor = textColor;
+            PlaceholerTextColor = placeholerTextColor;
             StrokeColor = strokeColor;
             StrokeWidth = strokeWidth;
             BackgroundColor = backgroundColor;
@@ -927,12 +965,12 @@ namespace PixUI.Controls
 
         public static TextFieldVisualStyleParameters DefaultDarkStyle()
         {
-            return new TextFieldVisualStyleParameters(Color.White, Color.Black, Color.FromArgb(50, 50, 50), 1, Color.White, Color.SteelBlue);
+            return new TextFieldVisualStyleParameters(Color.White, Color.DimGray, Color.Black, Color.FromArgb(50, 50, 50), 1, Color.White, Color.SteelBlue);
         }
 
         public static TextFieldVisualStyleParameters DefaultLightStyle()
         {
-            return new TextFieldVisualStyleParameters(Color.Black, Color.FromKnownColor(KnownColor.Control), Color.Black, 1, Color.Black, Color.LightBlue);
+            return new TextFieldVisualStyleParameters(Color.Black, Color.Gray, Color.FromKnownColor(KnownColor.Control), Color.Black, 1, Color.Black, Color.LightBlue);
         }
     }
 

@@ -82,6 +82,7 @@ namespace Pixelaria.Views.ExportPipeline
             };
 
             _searchField = TextField.Create();
+            _searchField.PlaceholderText = "Search node";
 
             _scrollViewControl = ScrollViewControl.Create();
             _scrollViewControl.Location = new Vector(0, 50);
