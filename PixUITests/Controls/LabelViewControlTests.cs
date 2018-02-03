@@ -75,6 +75,7 @@ namespace PixUITests.Controls
         {
             var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
             var sut = LabelViewControl.Create();
+            sut.AutoResize = false;
             sut.Text = "Abc";
             sut.Size = new Vector(100, 100);
             root.AddChild(sut);
