@@ -69,6 +69,21 @@ namespace PixUITests.Controls
 
             root.AssertViewBoundsWhereInvalidated(sut);
         }
+        
+        [TestMethod]
+        public void TestInvalidateOnSetText()
+        {
+            var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+            var sut = LabelViewControl.Create();
+            sut.Text = "Abc";
+            sut.Size = new Vector(100, 100);
+            root.AddChild(sut);
+            root._ResetInvalidation();
+
+            sut.Text = "Def";
+
+            root.AssertViewBoundsWhereInvalidated(sut);
+        }
 
         [TestMethod]
         public void TestRendering()
