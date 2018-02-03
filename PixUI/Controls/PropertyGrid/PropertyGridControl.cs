@@ -107,9 +107,12 @@ namespace PixUI.Controls.PropertyGrid
             _titleLabel.VerticalTextAlignment = VerticalTextAlignment.Center;
             _titleLabel.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
             _titleLabel.StrokeColor = Color.Transparent;
+            _titleLabel.AutoResize = false;
 
             AddChild(_titleLabel);
             AddChild(_scrollView);
+
+            Layout();
         }
 
         private void ReloadFields()

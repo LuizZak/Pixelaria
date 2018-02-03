@@ -87,10 +87,14 @@ namespace PixUI.Controls
             get => _labelView.Text;
             set
             {
+                if(AutoResize)
+                    Invalidate();
+
                 _labelView.Text = value;
 
                 CalculateBounds();
                 ResetTextFormat();
+                Invalidate();
             }
         }
 
