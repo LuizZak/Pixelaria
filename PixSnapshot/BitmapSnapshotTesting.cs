@@ -55,7 +55,7 @@ namespace PixSnapshot
         {
             var provider = new TProvider();
 
-            Snapshot(provider, source, context, recordMode);
+            Snapshot(provider, source, context, recordMode, suffix);
         }
 
         /// <summary>

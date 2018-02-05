@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -92,16 +93,6 @@ namespace PixUITests.Controls
         }
 
         [TestMethod]
-        public void TestRenderingForegroundColor()
-        {
-            var sut = TextField.Create(false);
-            sut.Size = new Vector(80, 28);
-            sut.Text = "Lorem ipsum";
-
-            BaseViewSnapshot.Snapshot(sut, TestContext);
-        }
-
-        [TestMethod]
         public void TestEnterKey()
         {
             bool raisedEnterKey = false;
@@ -127,6 +118,58 @@ namespace PixUITests.Controls
             Assert.IsFalse(raisedEnterKey);
         }
         
+        #region Snapshot rendering tests
+
+        [TestMethod]
+        public void TestRenderingForegroundColor()
+        {
+            var sut = TextField.Create(false);
+            sut.Size = new Vector(80, 28);
+            sut.Text = "Lorem ipsum";
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingNormalState()
+        {
+            var sut = TextFieldWithStyles();
+            
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingFocusedState()
+        {
+            var sut = TextFieldWithStyles();
+            sut.BecomeFirstResponder();
+            
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        private static TextField TextFieldWithStyles()
+        {
+            var root = new RootControlView(new MockFirstResponderDelegate());
+            var sut = TextField.Create(false);
+            sut.Size = new Vector(80, 28);
+            sut.Text = "Lorem ipsum";
+            root.AddChild(sut);
+
+            var normalStyle = new TextFieldVisualStyleParameters(
+                Color.DimGray, Color.White, Color.LightGray, Color.Transparent, 0, Color.Black, Color.Blue
+            );
+            var focusedStyle = new TextFieldVisualStyleParameters(
+                Color.Black, Color.White, Color.White, Color.LightBlue, 1, Color.Black, Color.Blue
+            );
+
+            sut.SetStyleForState(normalStyle, ControlViewState.Normal);
+            sut.SetStyleForState(focusedStyle, ControlViewState.Focused);
+
+            return sut;
+        }
+
+        #endregion
+
         public TestContext TestContext { get; set; }
 
         private class KeyboardEventRequest : IKeyboardEventRequest
@@ -142,6 +185,27 @@ namespace PixUITests.Controls
             }
 
             public KeyboardEventType EventType { get; }
+        }
+
+        private class MockFirstResponderDelegate : IFirstResponderDelegate<IEventHandler>
+        {
+            private IEventHandler _firstResponder;
+
+            public bool SetAsFirstResponder(IEventHandler firstResponder, bool force)
+            {
+                _firstResponder = firstResponder;
+                return true;
+            }
+
+            public void RemoveCurrentResponder()
+            {
+                
+            }
+
+            public bool IsFirstResponder(IEventHandler handler)
+            {
+                return ReferenceEquals(_firstResponder, handler);
+            }
         }
     }
 }
