@@ -98,7 +98,7 @@ namespace PixUITests.Controls
             // replace the test snapshot later.
 
             var sut = TextField.Create(false);
-            sut.Size = new Vector(50, 15);
+            sut.Size = new Vector(80, 28);
             sut.Text = "Lorem ipsum";
 
             BaseViewSnapshot.Snapshot(sut, TestContext);

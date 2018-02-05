@@ -114,6 +114,7 @@ namespace PixUI.Controls
                 _label.Text = value;
                 _textEngine.UpdateCaretFromTextBuffer();
                 UpdatePlaceholderVisibility();
+                Layout();
             }
         }
 
