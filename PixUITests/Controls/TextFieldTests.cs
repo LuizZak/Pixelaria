@@ -94,9 +94,6 @@ namespace PixUITests.Controls
         [TestMethod]
         public void TestRenderingForegroundColor()
         {
-            // TODO: The test fixture is breaking rendering of text during testing, figure it out and 
-            // replace the test snapshot later.
-
             var sut = TextField.Create(false);
             sut.Size = new Vector(80, 28);
             sut.Text = "Lorem ipsum";
