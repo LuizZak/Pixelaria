@@ -55,9 +55,9 @@ namespace PixUITests.TestUtils
         /// </summary>
         public static bool RecordMode = false;
         
-        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context)
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "")
         {
-            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(view, context, RecordMode);
+            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(view, context, RecordMode, suffix);
         }
         
         public Bitmap GenerateBitmap(BaseView view)

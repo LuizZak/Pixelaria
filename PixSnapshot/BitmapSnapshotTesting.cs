@@ -51,7 +51,7 @@ namespace PixSnapshot
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using an instantiable snapshot provider.
         /// </summary>
-        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] TestContext context, bool recordMode) where TProvider : ISnapshotProvider<TObject>, new()
+        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] TestContext context, bool recordMode, string suffix = "") where TProvider : ISnapshotProvider<TObject>, new()
         {
             var provider = new TProvider();
 
@@ -61,7 +61,7 @@ namespace PixSnapshot
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using a given instantiated snapshot provider.
         /// </summary>
-        public static void Snapshot<T>([NotNull] ISnapshotProvider<T> provider, [NotNull] T target, [NotNull] TestContext context, bool recordMode)
+        public static void Snapshot<T>([NotNull] ISnapshotProvider<T> provider, [NotNull] T target, [NotNull] TestContext context, bool recordMode, string suffix = "")
         {
             string targetPath = CombinedTestResultPath(TestResultsPath(), context);
 
@@ -69,7 +69,12 @@ namespace PixSnapshot
             if (!Directory.Exists(targetPath))
                 Directory.CreateDirectory(targetPath);
 
-            string testFileName = context.TestName + ".png";
+            string testFileName;
+            if (string.IsNullOrEmpty(suffix))
+                testFileName = $"{context.TestName}.png";
+            else
+                testFileName = $"{context.TestName}-{suffix}.png";
+
             string testFilePath = Path.Combine(targetPath, testFileName);
 
             // Verify comparison file's existence (if not in record mode)
