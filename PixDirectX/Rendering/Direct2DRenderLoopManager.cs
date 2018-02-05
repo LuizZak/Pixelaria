@@ -89,7 +89,10 @@ namespace PixDirectX.Rendering
                 FeatureLevel.Level_11_1,
                 FeatureLevel.Level_11_0
             };
-            const DeviceCreationFlags creationFlags = DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Debug;
+            var creationFlags = DeviceCreationFlags.BgraSupport;
+#if DEBUG
+            creationFlags |= DeviceCreationFlags.Debug;
+#endif
 
             var d3Device = new Device(DriverType.Hardware, creationFlags, featureLevels);
             var d3Device1 = d3Device.QueryInterface<SharpDX.Direct3D11.Device1>();
