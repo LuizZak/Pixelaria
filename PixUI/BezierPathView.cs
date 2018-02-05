@@ -168,7 +168,29 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Sets the bezier points of this bezier path view
+        /// Gets a compound path input for this bezier path view's inputs.
+        /// </summary>
+        public ICompletePathInput GetCompletePathInput()
+        {
+            return new CompletePathInput(_inputs, false);
+        }
+
+        /// <summary>
+        /// Adds a line to this bezier path view
+        /// </summary>
+        public void AddLine(Vector start, Vector end)
+        {
+            _containsPath?.Dispose();
+            _containsPath = null;
+            
+            AddInputBounds(new AABB(new[] {start, end}));
+            _inputs.Add(new LinePathInput(start, end));
+
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Adds a bezier curve on this bezier path view
         /// </summary>
         public void AddBezierPoints(Vector pt1, Vector pt2, Vector pt3, Vector pt4)
         {
@@ -180,7 +202,7 @@ namespace PixUI
 
             Invalidate();
         }
-
+        
         /// <summary>
         /// Adds a Rectangle to this bezier path view
         /// </summary>
@@ -230,20 +252,11 @@ namespace PixUI
         private GraphicsPath GetPath()
         {
             var path = new GraphicsPath();
+            var sink = new GraphicsPathInputSink(path);
 
-            // Re-create path
-            foreach (var input in _inputs)
-            {
-                if (input is RectanglePathInput rectangle)
-                {
-                    path.AddRectangle((Rectangle)rectangle.Rectangle);
-                }
-                else if (input is BezierPathInput bezier)
-                {
-                    path.AddBezier(bezier.Start, bezier.ControlPoint1, bezier.ControlPoint2, bezier.End);
-                }
-            }
-
+            var pathInput = GetCompletePathInput();
+            pathInput.ApplyOnSink(sink);
+            
             return path;
         }
 
@@ -252,10 +265,22 @@ namespace PixUI
         /// </summary>
         public interface IPathInput
         {
-            
+            /// <summary>
+            /// Requests that this path input apply itself onto a given path input sink.
+            /// </summary>
+            void ApplyOnSink([NotNull] IPathInputSink sink);
+        }
+        
+        /// <summary>
+        /// A compound path input that when applied to a path input sink deals with opening
+        /// and closing of the sink by itself.
+        /// </summary>
+        public interface ICompletePathInput : IPathInput
+        {
+
         }
 
-        public readonly struct RectanglePathInput : IPathInput
+        protected readonly struct RectanglePathInput : IPathInput
         {
             public AABB Rectangle { get; }
 
@@ -263,9 +288,16 @@ namespace PixUI
             {
                 Rectangle = rectangle;
             }
+
+            public void ApplyOnSink(IPathInputSink sink)
+            {
+                sink.BeginFigure(Rectangle.Minimum, true);
+                sink.AddRectangle(Rectangle);
+                sink.EndFigure(true);
+            }
         }
 
-        public readonly struct BezierPathInput : IPathInput
+        protected readonly struct BezierPathInput : IPathInput
         {
             public Vector Start { get; }
             public Vector ControlPoint1 { get; }
@@ -279,6 +311,139 @@ namespace PixUI
                 ControlPoint2 = controlPoint2;
                 End = end;
             }
+
+            public void ApplyOnSink(IPathInputSink sink)
+            {
+                sink.MoveTo(Start);
+                sink.BezierTo(ControlPoint1, ControlPoint2, End);
+            }
         }
+
+        protected readonly struct LinePathInput : IPathInput
+        {
+            public Vector Start { get; }
+            public Vector End { get; }
+            
+            public LinePathInput(Vector start, Vector end) : this()
+            {
+                Start = start;
+                End = end;
+            }
+
+            public void ApplyOnSink(IPathInputSink sink)
+            {
+                sink.MoveTo(Start);
+                sink.LineTo(End);
+            }
+        }
+
+        private class GraphicsPathInputSink: IPathInputSink
+        {
+            private readonly GraphicsPath _graphicsPath;
+            private Vector _point;
+
+            public GraphicsPathInputSink(GraphicsPath graphicsPath)
+            {
+                _graphicsPath = graphicsPath;
+            }
+
+            public void BeginFigure(Vector location, bool filled)
+            {
+                _graphicsPath.StartFigure();
+            }
+
+            public void MoveTo(Vector point)
+            {
+                _point = point;
+            }
+
+            public void LineTo(Vector point)
+            {
+                _graphicsPath.AddLine(_point, point);
+                _point = point;
+            }
+
+            public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
+            {
+                _graphicsPath.AddBezier(_point, anchor1, anchor2, endPoint);
+                _point = endPoint;
+            }
+
+            public void AddRectangle(AABB rectangle)
+            {
+                _graphicsPath.AddRectangle((Rectangle)rectangle);
+                _point = rectangle.Minimum;
+            }
+
+            public void EndFigure(bool closePath)
+            {
+                if (closePath)
+                    _graphicsPath.CloseFigure();
+            }
+        }
+
+        protected class CompletePathInput : ICompletePathInput
+        {
+            private readonly IReadOnlyList<IPathInput> _inputs;
+            private readonly bool _closed;
+
+            public CompletePathInput(IReadOnlyList<IPathInput> inputs, bool closed)
+            {
+                _inputs = inputs;
+                _closed = closed;
+            }
+
+            public void ApplyOnSink(IPathInputSink sink)
+            {
+                foreach (var input in _inputs)
+                {
+                    input.ApplyOnSink(sink);
+                }
+
+                sink.EndFigure(_closed);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Represents a sink that provides drawing operations that <see cref="BezierPathView.IPathInput"/>
+    /// instances can forward their drawing operations to.
+    /// </summary>
+    public interface IPathInputSink
+    {
+        /// <summary>
+        /// Begins a new figure on this sink, specifying whether to start a filled or closed figure.
+        /// </summary>
+        void BeginFigure(Vector location, bool filled);
+
+        /// <summary>
+        /// Moves the pen position to a given point without performing a drawing operation.
+        /// </summary>
+        void MoveTo(Vector point);
+
+        /// <summary>
+        /// Draws a line from the current pen position to the given point.
+        /// </summary>
+        /// <param name="point">Point to add the line to, starting from the current pen position.</param>
+        void LineTo(Vector point);
+
+        /// <summary>
+        /// Adds a cubic bezier path from the current pen position, through the two anchors, ending at a given point.
+        /// </summary>
+        void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint);
+
+        /// <summary>
+        /// Adds a rectangle to this path sink.
+        /// 
+        /// The operation doesn't continue from the current pen position, moving the pen to the origin before starting
+        /// the darwing operation.
+        /// </summary>
+        void AddRectangle(AABB rectangle);
+
+        /// <summary>
+        /// Closes the current figure on this path input, optionally specifying whether to close the current path such
+        /// that it loops back to the beginning.
+        /// </summary>
+        void EndFigure(bool closePath);
     }
 }

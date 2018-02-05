@@ -67,7 +67,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             AddBezierPoints(bezier.Start, bezier.ControlPoint1, bezier.ControlPoint2, bezier.End);
         }
 
-        public BezierPathInput PathInputForConnection()
+        protected BezierPathInput PathInputForConnection()
         {
             // Convert coordinates first
             var center1 = Start.ConvertTo(Start.Bounds.Center, this);

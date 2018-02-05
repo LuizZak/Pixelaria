@@ -163,7 +163,7 @@ namespace PixUI.Controls
         public event TextFieldTextChangedEventHandler TextChanged;
 
         /// <summary>
-        /// 
+        /// Event fired whenever the user presses down the Enter key while <see cref="AcceptsEnterKey"/> is true
         /// </summary>
         public event EventHandler EnterKey;
 

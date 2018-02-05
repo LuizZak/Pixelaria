@@ -412,34 +412,12 @@ namespace Pixelaria.Views.ExportPipeline
                 var geom = new PathGeometry(renderingState.D2DRenderTarget.Factory);
                         
                 var sink = geom.Open();
-                    
-                foreach (var input in bezierView.GetPathInputs())
-                {
-                    if (input is BezierPathView.RectanglePathInput recInput)
-                    {
-                        var rec = recInput.Rectangle;
 
-                        sink.BeginFigure(rec.Minimum.ToRawVector2(), FigureBegin.Filled);
-                        sink.AddLine(new Vector(rec.Right, rec.Top).ToRawVector2());
-                        sink.AddLine(new Vector(rec.Right, rec.Bottom).ToRawVector2());
-                        sink.AddLine(new Vector(rec.Left, rec.Bottom).ToRawVector2());
-                        sink.EndFigure(FigureEnd.Closed);
-                    }
-                    else if (input is BezierPathView.BezierPathInput bezInput)
-                    {
-                        sink.BeginFigure(bezInput.Start.ToRawVector2(), FigureBegin.Filled);
+                var d2DSinkWrapper = new D2DPathSink(sink, FigureBegin.Filled);
 
-                        sink.AddBezier(new BezierSegment
-                        {
-                            Point1 = bezInput.ControlPoint1.ToRawVector2(),
-                            Point2 = bezInput.ControlPoint2.ToRawVector2(),
-                            Point3 = bezInput.End.ToRawVector2()
-                        });
-
-                        sink.EndFigure(FigureEnd.Open);
-                    }
-                }
-
+                var path = bezierView.GetCompletePathInput();
+                path.ApplyOnSink(d2DSinkWrapper);
+                
                 sink.Close();
 
                 // Decorate
@@ -807,38 +785,14 @@ namespace Pixelaria.Views.ExportPipeline
 
             private static void FillBezierFigureSink([NotNull] BezierPathView bezierView, [NotNull] GeometrySink sink)
             {
+                var d2DSink = new D2DPathSink(sink, FigureBegin.Filled);
+
                 foreach (var input in bezierView.GetPathInputs())
                 {
-                    switch (input)
-                    {
-                        // Rectangle
-                        case BezierPathView.RectanglePathInput recInput:
-                            var rec = recInput.Rectangle;
-
-                            sink.BeginFigure(rec.Minimum.ToRawVector2(), FigureBegin.Filled);
-
-                            sink.AddLine(new Vector(rec.Right, rec.Top).ToRawVector2());
-                            sink.AddLine(new Vector(rec.Right, rec.Bottom).ToRawVector2());
-                            sink.AddLine(new Vector(rec.Left, rec.Bottom).ToRawVector2());
-
-                            sink.EndFigure(FigureEnd.Closed);
-                            break;
-
-                        // Bezier line
-                        case BezierPathView.BezierPathInput bezInput:
-                            sink.BeginFigure(bezInput.Start.ToRawVector2(), FigureBegin.Filled);
-
-                            sink.AddBezier(new BezierSegment
-                            {
-                                Point1 = bezInput.ControlPoint1.ToRawVector2(),
-                                Point2 = bezInput.ControlPoint2.ToRawVector2(),
-                                Point3 = bezInput.End.ToRawVector2()
-                            });
-
-                            sink.EndFigure(FigureEnd.Open);
-                            break;
-                    }
+                    input.ApplyOnSink(d2DSink);
                 }
+                
+                d2DSink.EndFigure(false);
             }
 
             private enum Step
@@ -846,6 +800,88 @@ namespace Pixelaria.Views.ExportPipeline
                 Fill,
                 OuterStroke,
                 Stroke
+            }
+        }
+
+        private class D2DPathSink : IPathInputSink
+        {
+            private readonly GeometrySink _geometrySink;
+            private bool _startOfFigure = true;
+            private Vector _startLocation;
+            private readonly FigureBegin _figureBegin;
+
+            public D2DPathSink(GeometrySink geometrySink, FigureBegin figureBegin)
+            {
+                _geometrySink = geometrySink;
+                _figureBegin = figureBegin;
+            }
+
+            public void BeginFigure(Vector location, bool filled)
+            {
+                _startOfFigure = false;
+                _geometrySink.BeginFigure(location.ToRawVector2(), filled ? FigureBegin.Filled : FigureBegin.Hollow);
+                _startLocation = location;
+            }
+
+            public void MoveTo(Vector point)
+            {
+                if (!_startOfFigure)
+                    _geometrySink.EndFigure(FigureEnd.Open);
+
+                _startLocation = point;
+                _startOfFigure = true;
+            }
+
+            public void LineTo(Vector point)
+            {
+                EnsureBeginFigure();
+
+                _geometrySink.AddLine(point.ToRawVector2());
+                _startLocation = point;
+            }
+
+            public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
+            {
+                EnsureBeginFigure();
+
+                _geometrySink.AddBezier(new BezierSegment
+                {
+                    Point1 = anchor1.ToRawVector2(),
+                    Point2 = anchor2.ToRawVector2(),
+                    Point3 = endPoint.ToRawVector2(),
+                });
+
+                _startLocation = endPoint;
+            }
+
+            public void AddRectangle(AABB rectangle)
+            {
+                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Top).ToRawVector2());
+                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Bottom).ToRawVector2());
+                _geometrySink.AddLine(new Vector(rectangle.Left, rectangle.Bottom).ToRawVector2());
+            }
+
+            public void EndFigure(bool closePath)
+            {
+                EndFigure(closePath ? FigureEnd.Closed : FigureEnd.Open);
+            }
+
+            private void EnsureBeginFigure()
+            {
+                if (!_startOfFigure) 
+                    return;
+
+                _geometrySink.BeginFigure(_startLocation.ToRawVector2(), _figureBegin);
+                _startOfFigure = false;
+            }
+            
+            private void EndFigure(FigureEnd end)
+            {
+                if (_startOfFigure)
+                    return;
+
+                _geometrySink.EndFigure(end);
+                _startOfFigure = true;
             }
         }
     }
