@@ -30,6 +30,7 @@ using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using PixUI.Controls;
 using PixUI.Rendering;
 using Rhino.Mocks;
+using SharpDX.DirectWrite;
 
 namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -39,6 +40,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         [TestInitialize]
         public void Setup()
         {
+            ControlView.DirectWriteFactory = new Factory();
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
         }
 

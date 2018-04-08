@@ -821,7 +821,7 @@ namespace PixUI.Controls
 
             _label.WithTextLayout(layout =>
             {
-                var metrics = layout.HitTestPoint(converted.X, converted.Y, out var isTrailing, out var _);
+                var metrics = layout.HitTestPoint(converted.X, converted.Y, out var isTrailing, out _);
                 offset = metrics.TextPosition + (isTrailing ? 1 : 0);
             });
 

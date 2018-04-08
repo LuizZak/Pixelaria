@@ -214,6 +214,8 @@ namespace PixUI.Controls
 
         public void WithTextLayout([NotNull, InstantHandle] Action<TextLayout> perform)
         {
+            Debug.Assert(DirectWriteFactory != null, "DirectWriteFactory != null");
+
             RefreshTextFormat(DirectWriteFactory);
 
             perform(_textLayout);
