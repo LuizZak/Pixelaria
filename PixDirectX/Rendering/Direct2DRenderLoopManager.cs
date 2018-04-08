@@ -119,9 +119,9 @@ namespace PixDirectX.Rendering
             // Ignore all windows events
             var factory = swapChain.GetParent<Factory2>();
             factory.MakeWindowAssociation(_target.Handle, WindowAssociationFlags.IgnoreAll);
-
+            
             var d2DFactory = new Factory();
-
+            
             // New RenderTargetView from the backbuffer
             var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
@@ -201,6 +201,11 @@ namespace PixDirectX.Rendering
                 {
                     _renderingState.SetFrameDeltaTime(_frameDeltaTimer.Elapsed);
                     _frameDeltaTimer.Restart();
+
+                    var baseScale = 
+                        new Vector(_renderingState.D2DFactory.DesktopDpi.Width, _renderingState.D2DFactory.DesktopDpi.Height) / new Vector(96.0f, 96.0f);
+                    
+                    _renderingState.D2DRenderTarget.Transform = Matrix3x2.Scaling(baseScale.X, baseScale.Y);
 
                     _renderingState.D2DRenderTarget.BeginDraw();
 
@@ -297,6 +302,8 @@ namespace PixDirectX.Rendering
             /// Gets the time span since the last frame rendered
             /// </summary>
             public TimeSpan FrameRenderDeltaTime { get; private set; }
+
+            public Vector DesktopDpiScaling { get; set; }
 
             public void Dispose()
             {

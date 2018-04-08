@@ -20,14 +20,16 @@
     base directory of this project.
 */
 
+using FastBitmapLib;
+using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using FastBitmapLib;
-using JetBrains.Annotations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Runtime.InteropServices;
 
 namespace PixSnapshot
 {
@@ -111,6 +113,7 @@ namespace PixSnapshot
 
                     string savePathExpected = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-expected", ".png"));
                     string savePathActual = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-actual", ".png"));
+                    string savePathDiff = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-diff", ".png"));
 
                     // Ensure path exists
                     if (!Directory.Exists(directoryName))
@@ -122,7 +125,14 @@ namespace PixSnapshot
                     image.Save(savePathActual, ImageFormat.Png);
                     expected.Save(savePathExpected, ImageFormat.Png);
 
+                    using (var diff = GenerateDiff(actLock, expLock))
+                    {
+                        diff.Save(savePathDiff, ImageFormat.Png);
+                    }
+
                     context.AddResultFile(savePathActual);
+                    context.AddResultFile(savePathExpected);
+                    context.AddResultFile(savePathDiff);
 
                     Assert.Fail($"Resulted image did not match expected image. Inspect results under directory {directoryName} for info about results");
                 }
@@ -149,6 +159,157 @@ namespace PixSnapshot
             path = Path.GetFullPath(Path.Combine(path, "..\\..\\Snapshot\\Files"));
 
             return path;
+        }
+
+        private static Bitmap GenerateDiff([NotNull] FastBitmap bitmap1, [NotNull] FastBitmap bitmap2)
+        {
+            PixelF ColorAt(FastBitmap bitmap, int x, int y)
+            {
+                if (x >= bitmap.Width || y >= bitmap.Height)
+                    return PixelF.White;
+
+                return new PixelF(bitmap.GetPixelUInt(x, y));
+            }
+
+            var result = new Bitmap(Math.Max(bitmap1.Width, bitmap2.Width), Math.Max(bitmap1.Height, bitmap2.Height));
+
+            using (var fastBitmap = result.FastLock())
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    for (int x = 0; x < result.Width; x++)
+                    {
+                        var baseColor = ColorAt(bitmap1, x, y);
+                        var topColor = ColorAt(bitmap2, x, y);
+
+                        // Basic idea:
+                        // 1. Draw base bitmap
+                        // 2. Compute a diff blend between the top bitmap and a fully white pixel
+                        // 3. Draw computed diff with 50% alpha over the base bitmap
+                        var finalPixel = baseColor;
+                        finalPixel = PixelF.White.ColorBlendOver(topColor, PixelF.BlendDifference).WithAlpha(0.5f).ColorBlendOver(finalPixel);
+                        
+                        fastBitmap.SetPixel(x, y, finalPixel.ToColor());
+                    }
+                }
+            }
+
+            return result;
+        }
+        
+        [DebuggerDisplay("A: {Alpha}, R: {Red}, G: {Green}, B: {Blue}")]
+        [StructLayout(LayoutKind.Sequential)]
+        private readonly struct PixelF
+        {
+            internal static readonly Func<float, float, float> BlendNormal = (p1, p2) => p2;
+            internal static readonly Func<float, float, float> BlendDifference = (p1, p2) => Math.Abs(p1 - p2);
+
+            internal static readonly PixelF White = new PixelF(1, 1, 1, 1);
+            internal static readonly PixelF Black = new PixelF(1, 0, 0, 0);
+
+            readonly float Alpha;
+            readonly float Red;
+            readonly float Green;
+            readonly float Blue;
+
+            public PixelF(uint color)
+                : this(((color >> 24) & 0xFF) / 255.0f, ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f, (color & 0xFF) / 255.0f)
+            {
+                
+            }
+
+            public PixelF(float alpha, float red, float green, float blue)
+            {
+                Alpha = Clamp(alpha);
+                Red = Clamp(red);
+                Green = Clamp(green);
+                Blue = Clamp(blue);
+            }
+
+            public static PixelF operator -(in PixelF value)
+            {
+                return new PixelF(-value.Alpha, -value.Red, -value.Green, -value.Blue);
+            }
+
+            public static PixelF operator +(in PixelF lhs, in PixelF rhs)
+            {
+                return new PixelF(lhs.Alpha + rhs.Alpha, lhs.Red + rhs.Red, lhs.Green + rhs.Green, lhs.Blue + rhs.Blue);
+            }
+
+            public static PixelF operator -(in PixelF lhs, in PixelF rhs)
+            {
+                return lhs + -rhs;
+            }
+
+            public static PixelF operator *(in PixelF lhs, in PixelF rhs)
+            {
+                return new PixelF(lhs.Alpha * rhs.Alpha, lhs.Red * rhs.Red, lhs.Green * rhs.Green, lhs.Blue * rhs.Blue);
+            }
+
+            public static PixelF operator /(in PixelF lhs, in PixelF rhs)
+            {
+                return new PixelF(lhs.Alpha / rhs.Alpha, lhs.Red / rhs.Red, lhs.Green / rhs.Green, lhs.Blue / rhs.Blue);
+            }
+            
+            public static PixelF operator *(in PixelF lhs, in float rhs)
+            {
+                return new PixelF(lhs.Alpha * rhs, lhs.Red * rhs, lhs.Green * rhs, lhs.Blue * rhs);
+            }
+
+            public static PixelF operator /(in PixelF lhs, in float rhs)
+            {
+                return new PixelF(lhs.Alpha / rhs, lhs.Red / rhs, lhs.Green / rhs, lhs.Blue / rhs);
+            }
+
+            [Pure]
+            public PixelF ColorBlendOver(in PixelF backdrop)
+            {
+                return ColorBlendOver(backdrop, BlendNormal);
+            }
+
+            [Pure]
+            public PixelF ColorBlendOver(in PixelF backdrop, [NotNull] Func<float, float, float> blend)
+            {
+                var source = this;
+
+                float sourceAlpha = source.Alpha;
+                float backdropAlpha = backdrop.Alpha;
+                float resultingAlpha = source.Alpha + backdrop.Alpha * (1 - source.Alpha);
+                
+                float ColorCompositingFormula(float @as, float ab, float ar, float cs, float cb) => 
+                    (1 - @as / ar) * cb + @as / ar * ((1 - ab) * cs + ab * blend(cb, cs));
+
+                float Composite(float cs, float cb) =>
+                    ColorCompositingFormula(sourceAlpha, backdropAlpha, resultingAlpha, cs, cb);
+
+                float alpha = resultingAlpha;
+                float red = Composite(source.Red, backdrop.Red);
+                float green = Composite(source.Green, backdrop.Green);
+                float blue = Composite(source.Blue, backdrop.Blue);
+
+                return new PixelF(alpha, red, green, blue);
+            }
+
+            [Pure]
+            public PixelF WithAlpha(float alpha)
+            {
+                return new PixelF(alpha, Red, Green, Blue);
+            }
+
+            public uint ToColor()
+            {
+                uint ialpha = (uint) (Clamp(Alpha) * 255);
+                uint ired = (uint) (Clamp(Red) * 255);
+                uint igreen = (uint) (Clamp(Green) * 255);
+                uint iblue = (uint) (Clamp(Blue) * 255);
+
+                return (ialpha << 24) | (ired << 16) | (igreen << 8) | iblue;
+            }
+
+            private static float Clamp(float component)
+            {
+                return Math.Max(0, Math.Min(1, component));
+            }
         }
     }
 

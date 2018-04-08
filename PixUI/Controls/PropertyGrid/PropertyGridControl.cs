@@ -201,7 +201,7 @@ namespace PixUI.Controls.PropertyGrid
             internal PropertyField([NotNull] InspectableProperty inspect)
             {
                 BackColor = Color.Transparent;
-                StrokeColor = Color.FromArgb(50, 50, 50);
+                StrokeColor = Color.FromArgb(255, 50, 50, 50);
 
                 _inspect = inspect;
                 _label = LabelViewControl.Create(inspect.Name);

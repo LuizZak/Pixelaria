@@ -38,8 +38,8 @@ namespace PixCore.Geometry
     // ReSharper disable once InconsistentNaming
     public readonly struct AABB : IEquatable<AABB>
     {
-        private static AABB _empty = new AABB(Vector.Zero, Vector.Zero);
-        private static AABB _invalid = new AABB(State.Invalid);
+        private static readonly AABB _empty = new AABB(Vector.Zero, Vector.Zero);
+        private static readonly AABB _invalid = new AABB(State.Invalid);
 
         /// <summary>
         /// Gets an AABB that has zero bounds area.
@@ -294,10 +294,9 @@ namespace PixCore.Geometry
         [Pure]
         public AABB ExpandedToInclude(in Vector point)
         {
-            if(Validity == State.Invalid)
-                return new AABB(point, point);
-
-            return new AABB(Vector.Min(point, Minimum), Vector.Max(point, Maximum));
+            return Validity == State.Invalid
+                ? new AABB(point, point)
+                : new AABB(Vector.Min(point, Minimum), Vector.Max(point, Maximum));
         }
 
         /// <summary>
@@ -325,15 +324,17 @@ namespace PixCore.Geometry
         /// </summary>
         public static AABB Union(in AABB left, in AABB right)
         {
-            if (left.Validity == State.Invalid && right.Validity == State.Invalid)
-                return left;
-
-            if (left.Validity == State.Invalid)
-                return right;
-            if (right.Validity == State.Invalid)
-                return left;
-
-            return new AABB(Vector.Min(left.Minimum, right.Minimum), Vector.Max(left.Maximum, right.Maximum));
+            switch (left.Validity)
+            {
+                case State.Invalid when right.Validity == State.Invalid:
+                    return left;
+                case State.Invalid:
+                    return right;
+                default:
+                    return right.Validity == State.Invalid
+                        ? left
+                        : new AABB(Vector.Min(left.Minimum, right.Minimum), Vector.Max(left.Maximum, right.Maximum));
+            }
         }
 
         /// <summary>
@@ -342,7 +343,7 @@ namespace PixCore.Geometry
         /// The result is <see cref="State.Invalid"/>, in case the two <see cref="AABB"/>'s don't
         /// intersect.
         /// </summary>
-        public AABB Intersect(AABB other)
+        public AABB Intersect(in AABB other)
         {
             return Intersect(this, other);
         }
@@ -441,12 +442,12 @@ namespace PixCore.Geometry
             return obj is AABB aabb && Equals(aabb);
         }
 
-        public static bool operator ==(AABB lhs, AABB rhs)
+        public static bool operator ==(in AABB lhs, in AABB rhs)
         {
             return lhs.Minimum == rhs.Minimum && lhs.Maximum == rhs.Maximum;
         }
 
-        public static bool operator !=(AABB lhs, AABB rhs)
+        public static bool operator !=(in AABB lhs, in AABB rhs)
         {
             return lhs.Minimum != rhs.Minimum || lhs.Maximum != rhs.Maximum;
         }
@@ -478,7 +479,7 @@ namespace PixCore.Geometry
         /// <summary>
         /// Returns an AABB that represents a given rectangle using x, y + width, height
         /// </summary>
-        public static AABB FromRectangle(Vector position, Vector size)
+        public static AABB FromRectangle(in Vector position, in Vector size)
         {
             return FromRectangle(position.X, position.Y, size.X, size.Y);
         }
@@ -486,7 +487,7 @@ namespace PixCore.Geometry
         /// <summary>
         /// Returns an AABB with the coordinate values rounded to the nearest integer.
         /// </summary>
-        public static AABB Rounded(AABB aabb)
+        public static AABB Rounded(in AABB aabb)
         {
             return new AABB(Vector.Round(aabb.Minimum), Vector.Round(aabb.Maximum));
         }
@@ -501,12 +502,12 @@ namespace PixCore.Geometry
             return new AABB(rect);
         }
 
-        public static explicit operator RectangleF(AABB aabb)
+        public static explicit operator RectangleF(in AABB aabb)
         {
             return new RectangleF(aabb.Left, aabb.Top, aabb.Width, aabb.Height);
         }
 
-        public static explicit operator Rectangle(AABB v)
+        public static explicit operator Rectangle(in AABB v)
         {
             return Rectangle.Round((RectangleF) v);
         }
@@ -527,7 +528,7 @@ namespace PixCore.Geometry
     [DebuggerDisplay("Left: {Left}, Top: {Top}, Bottom: {Bottom}, Right: {Right}")]
     public readonly struct InsetBounds
     {
-        private static InsetBounds _empty = new InsetBounds(0, 0, 0, 0);
+        private static readonly InsetBounds _empty = new InsetBounds(0, 0, 0, 0);
         public static ref readonly InsetBounds Empty => ref _empty;
 
         public readonly float Left;

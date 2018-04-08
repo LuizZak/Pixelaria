@@ -40,6 +40,7 @@ namespace PixUITests.Controls
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
             ControlView.DirectWriteFactory = new Factory();
+
             //BaseViewSnapshot.RecordMode = true;
         }
 

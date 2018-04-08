@@ -50,6 +50,11 @@ namespace PixDirectX.Rendering
         /// </summary>
         TimeSpan FrameRenderDeltaTime { get; }
 
+        /// <summary>
+        /// Gets the scaling factor for the currently active Desktop DPI (Dots-per-inch).
+        /// </summary>
+        Vector DesktopDpiScaling { get; }
+
         void PushingTransform([InstantHandle, NotNull] Action execute);
         void PushMatrix(Matrix3x2 matrix);
         void PopMatrix();

@@ -82,7 +82,7 @@ namespace PixCore.Geometry
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public readonly struct Matrix2D
     {
-        private static Matrix2D _identity = new Matrix2D(1, 0, 0, 1, 0, 0);
+        private static readonly Matrix2D _identity = new Matrix2D(1, 0, 0, 1, 0, 0);
 
         /// <summary>
         /// Gets the identity matrix.

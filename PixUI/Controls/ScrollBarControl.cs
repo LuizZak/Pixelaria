@@ -234,14 +234,7 @@ namespace PixUI.Controls
 
             DisposeBag.Add(disposable);
         }
-
-        protected override void OnResize()
-        {
-            base.OnResize();
-
-            Layout();
-        }
-
+        
         private void UpdateScrollBarPosition()
         {
             if (_orientation == ScrollBarOrientation.Vertical)
@@ -295,8 +288,10 @@ namespace PixUI.Controls
             }
         }
 
-        private void Layout()
+        public override void Layout()
         {
+            base.Layout();
+
             switch (_orientation)
             {
                 case ScrollBarOrientation.Vertical:

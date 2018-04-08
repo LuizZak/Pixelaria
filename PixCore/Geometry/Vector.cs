@@ -29,6 +29,7 @@ using Point = System.Drawing.Point;
 
 namespace PixCore.Geometry
 {
+    /// <inheritdoc cref="IEquatable{T}" />
     /// <summary>
     /// Represents a 2D vector with X and Y components.
     /// </summary>
@@ -36,8 +37,8 @@ namespace PixCore.Geometry
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public readonly struct Vector : IEquatable<Vector>, IComparable<Vector>
     {
-        private static Vector _zero = new Vector(0, 0);
-        private static Vector _unit = new Vector(1, 1);
+        private static readonly Vector _zero = new Vector(0, 0);
+        private static readonly Vector _unit = new Vector(1, 1);
         /// <summary>
         /// A Zero vector (0, 0)
         /// </summary>
@@ -217,97 +218,97 @@ namespace PixCore.Geometry
             return start + (end - start) * factor;
         }
 
-        public static bool operator <(Vector lhs, Vector rhs)
+        public static bool operator <(in Vector lhs, in Vector rhs)
         {
             return lhs.X < rhs.X && lhs.Y < rhs.Y;
         }
 
-        public static bool operator >(Vector lhs, Vector rhs)
+        public static bool operator >(in Vector lhs, in Vector rhs)
         {
             return lhs.X > rhs.X && lhs.Y > rhs.Y;
         }
 
-        public static bool operator >=(Vector lhs, Vector rhs)
+        public static bool operator >=(in Vector lhs, in Vector rhs)
         {
             return lhs.X >= rhs.X && lhs.Y >= rhs.Y;
         }
 
-        public static bool operator <=(Vector lhs, Vector rhs)
+        public static bool operator <=(in Vector lhs, in Vector rhs)
         {
             return lhs.X <= rhs.X && lhs.Y <= rhs.Y;
         }
 
-        public static bool operator ==(Vector lhs, Vector rhs)
+        public static bool operator ==(in Vector lhs, in Vector rhs)
         {
             return Math.Abs(lhs.X - rhs.X) < float.Epsilon && Math.Abs(lhs.Y - rhs.Y) < float.Epsilon;
         }
 
-        public static bool operator !=(Vector lhs, Vector rhs)
+        public static bool operator !=(in Vector lhs, in Vector rhs)
         {
             return !(lhs == rhs);
         }
         
-        public static Vector operator *(Matrix2D m, Vector vec)
+        public static Vector operator *(in Matrix2D m, in Vector vec)
         {
             return Matrix2D.TransformPoint(m, in vec);
         }
 
-        public static Vector operator *(Vector vec, Matrix2D m)
+        public static Vector operator *(in Vector vec, in Matrix2D m)
         {
             return Matrix2D.TransformPoint(m, in vec);
         }
 
-        public static Vector operator +(Vector vec1, Vector vec2)
+        public static Vector operator +(in Vector vec1, in Vector vec2)
         {
             return new Vector(vec1.X + vec2.X, vec1.Y + vec2.Y);
         }
 
-        public static Vector operator -(Vector vec1, Vector vec2)
+        public static Vector operator -(in Vector vec1, in Vector vec2)
         {
             return new Vector(vec1.X - vec2.X, vec1.Y - vec2.Y);
         }
 
-        public static Vector operator *(Vector vec1, Vector vec2)
+        public static Vector operator *(in Vector vec1, in Vector vec2)
         {
             return new Vector(vec1.X * vec2.X, vec1.Y * vec2.Y);
         }
         
-        public static Vector operator /(Vector vec1, Vector vec2)
+        public static Vector operator /(in Vector vec1, in Vector vec2)
         {
             return new Vector(vec1.X / vec2.X, vec1.Y / vec2.Y);
         }
 
-        public static Vector operator %(Vector vec1, Vector vec2)
+        public static Vector operator %(in Vector vec1, in Vector vec2)
         {
             return new Vector(vec1.X % vec2.X, vec1.Y % vec2.Y);
         }
 
-        public static Vector operator -(Vector vec)
+        public static Vector operator -(in Vector vec)
         {
             return new Vector(-vec.X, -vec.Y);
         }
 
-        public static Vector operator *(Vector vec, float factor)
+        public static Vector operator *(in Vector vec, float factor)
         {
             return new Vector(vec.X * factor, vec.Y * factor);
         }
 
-        public static Vector operator /(Vector vec, float factor)
+        public static Vector operator /(in Vector vec, float factor)
         {
             return new Vector(vec.X / factor, vec.Y / factor);
         }
 
-        public static Vector operator /(float factor, Vector vec)
+        public static Vector operator /(float factor, in Vector vec)
         {
             return new Vector(factor / vec.X, factor / vec.Y);
         }
 
-        public static implicit operator PointF(Vector vec)
+        public static implicit operator PointF(in Vector vec)
         {
             return new PointF(vec.X, vec.Y);
         }
 
-        public static explicit operator Point(Vector vec)
+        public static explicit operator Point(in Vector vec)
         {
             return Point.Round(new PointF(vec.X, vec.Y));
         }
@@ -373,7 +374,7 @@ namespace PixCore.Geometry
         /// Transforms a set of points by multiplying them by a given matrix.
         /// </summary>
         [Pure]
-        public static Vector[] Transform(this Matrix2D matrix, [NotNull] Vector[] elements)
+        public static Vector[] Transform(this in Matrix2D matrix, [NotNull] Vector[] elements)
         {
             var result = new Vector[elements.Length];
             for (int i = 0; i < elements.Length; i++)
@@ -387,7 +388,7 @@ namespace PixCore.Geometry
         /// Transforms a set of points by multiplying them by a given matrix.
         /// </summary>
         [Pure]
-        public static Vector[] Transform([NotNull] this Vector[] elements, Matrix2D matrix)
+        public static Vector[] Transform([NotNull] this Vector[] elements, in Matrix2D matrix)
         {
             var result = new Vector[elements.Length];
             for (int i = 0; i < elements.Length; i++)
@@ -401,7 +402,7 @@ namespace PixCore.Geometry
         /// Transforms a single point by multiplying it by the matrix's value
         /// </summary>
         [Pure]
-        public static Vector Transform(this Matrix2D matrix, in Vector point)
+        public static Vector Transform(this in Matrix2D matrix, in Vector point)
         {
             return Matrix2D.TransformPoint(matrix, in point);
         }

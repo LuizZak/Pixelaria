@@ -116,6 +116,8 @@ namespace PixDirectX.Rendering
                 
             public TimeSpan FrameRenderDeltaTime => TimeSpan.Zero;
 
+            public Vector DesktopDpiScaling { get; set; }
+
             public void Dispose()
             {
                 // Release all resources

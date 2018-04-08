@@ -260,13 +260,6 @@ namespace PixUI.Controls
             Layout();
         }
         
-        protected override void OnResize()
-        {
-            base.OnResize();
-
-            Layout();
-        }
-
         public override void RenderForeground(ControlRenderingContext context)
         {
             // Render image, if available
@@ -371,8 +364,10 @@ namespace PixUI.Controls
             }
         }
 
-        private void Layout()
+        public override void Layout()
         {
+            base.Layout();
+
             _label.SetFrame(BoundsForText());
             Invalidate();
         }
