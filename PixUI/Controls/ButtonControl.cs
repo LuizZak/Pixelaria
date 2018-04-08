@@ -270,7 +270,10 @@ namespace PixUI.Controls
             var bitmapBounds = BoundsForImage(image);
 
             var bitmap = context.Renderer.ImageResources.BitmapForResource(image);
-            context.RenderTarget.DrawBitmap(bitmap, bitmapBounds.ToRawRectangleF(), 1, BitmapInterpolationMode.Linear);
+            if (bitmap != null)
+            {
+                context.RenderTarget.DrawBitmap(bitmap, bitmapBounds.ToRawRectangleF(), 1, BitmapInterpolationMode.Linear);
+            }
         }
 
         private AABB BoundsForText()

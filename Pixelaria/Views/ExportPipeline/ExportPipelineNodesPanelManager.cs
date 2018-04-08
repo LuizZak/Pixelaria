@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
-
+using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
@@ -38,6 +38,7 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
+using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -47,7 +48,7 @@ namespace Pixelaria.Views.ExportPipeline
     internal sealed class ExportPipelineNodesPanelManager: IDisposable
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly ExportPipelineControl _control;
+        private readonly ID2DImageResourceProvider _imageResourceProvider;
 
         private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
         private List<ButtonControl> SpecButtons { get; } = new List<ButtonControl>();
@@ -61,32 +62,46 @@ namespace Pixelaria.Views.ExportPipeline
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
 
         public ExportPipelineNodesPanelManager([NotNull] ExportPipelineControl control)
+            : this(control.ControlContainer, control.D2DRenderer.ImageResources)
         {
-            _control = control;
+            
+        }
 
-            Setup();
+        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] ID2DImageResourceProvider imageResourceProvider)
+        {
+            _imageResourceProvider = imageResourceProvider;
+
+            Setup(container);
         }
         
         public void Dispose()
         {
             _disposeBag?.Dispose();
-            _control?.Dispose();
         }
 
-        private void Setup()
+        public void RegisterResizeEvent([NotNull] Control control)
         {
-            _container = new ControlView
+            control.SizeChanged += (sender, args) =>
             {
-                Size = new Vector(300, _control.Size.Height),
-                BackColor = Color.Black.WithTransparency(0.7f)
+                AdjustSize();
             };
+
+            AdjustSize();
+        }
+
+        private void Setup([NotNull] IControlContainer container)
+        {
+            container.AddControl(_container = new ControlView());
+
+            _container.Size = new Vector(300, _container.Parent?.Size.Y ?? 0);
+            _container.BackColor = Color.Black.WithTransparency(0.7f);
 
             _searchField = TextField.Create();
             _searchField.PlaceholderText = "Search node";
 
             _scrollViewControl = ScrollViewControl.Create();
             _scrollViewControl.Location = new Vector(0, 50);
-            _scrollViewControl.Size = new Vector(300, _control.Size.Height);
+            _scrollViewControl.Size = new Vector(300, _container.Parent?.Size.Y ?? 0);
             _scrollViewControl.ContentSize = new Vector(0, 1800);
             _scrollViewControl.BackColor = Color.Transparent;
             _scrollViewControl.ScrollBarsMode = ScrollViewControl.VisibleScrollBars.Vertical;
@@ -94,13 +109,6 @@ namespace Pixelaria.Views.ExportPipeline
             _container.AddChild(_scrollViewControl);
             _container.AddChild(_searchField);
             
-            _control.ControlContainer.AddControl(_container);
-
-            _control.SizeChanged += (sender, args) =>
-            {
-                AdjustSize();
-            };
-
             AdjustSize();
 
             SetupReactiveSearch();
@@ -141,7 +149,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void AdjustSize()
         {
-            _container.Size = new Vector(300, _control.Size.Height);
+            _container.Size = new Vector(300, _container.Parent?.Size.Y ?? 0);
 
             var textFieldBounds = new AABB(0, 0, 40, _container.Size.X);
 
@@ -218,7 +226,7 @@ namespace Pixelaria.Views.ExportPipeline
             button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
             button.TextInset = new InsetBounds(5, 5, 5, 5);
             button.ImageInset = new InsetBounds(7, 0, 0, 0);
-            button.Image = IconForPipelineNodeType(spec.NodeType, _control.D2DRenderer.ImageResources);
+            button.Image = IconForPipelineNodeType(spec.NodeType, _imageResourceProvider);
             button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
 
             button.Rx

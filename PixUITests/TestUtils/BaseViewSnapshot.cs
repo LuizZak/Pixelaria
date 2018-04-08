@@ -54,6 +54,9 @@ namespace PixUITests.TestUtils
         /// Defaults to false.
         /// </summary>
         public static bool RecordMode = false;
+
+        [CanBeNull]
+        public static Action<ID2DImageResourceManager, IDirect2DRenderingState> ImagesConfig;
         
         public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "")
         {
@@ -81,6 +84,9 @@ namespace PixUITests.TestUtils
                 LabelView.DefaultLabelViewSizeProvider = renderer.SizeProvider;
 
                 renderLoop.InitializeDirect2D();
+
+                ImagesConfig?.Invoke(renderer.ImageResources, renderLoop.RenderingState);
+                ImagesConfig = null; // Always erase after each snapshot to make sure we don't accidentally carry over resources across snapshot tests
 
                 renderer.Initialize(renderLoop.RenderingState, new FullClipping());
 

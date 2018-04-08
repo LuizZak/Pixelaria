@@ -139,6 +139,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\RecentFileListTests.cs" />
     <Compile Include="Views\ExportPipeline\Direct2DRendererTests.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManagerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj">
@@ -156,6 +157,10 @@
     <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj">
       <Project>{eb5d6dea-6ae2-4545-a708-6f0f2b1f5c50}</Project>
       <Name>PixSnapshot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PixUITests\PixUITests.csproj">
+      <Project>{066CDBE0-73A5-46F3-AF82-7372599A6C67}</Project>
+      <Name>PixUITests</Name>
     </ProjectReference>
     <ProjectReference Include="..\PixUI\PixUI.csproj">
       <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>

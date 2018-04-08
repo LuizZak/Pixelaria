@@ -155,30 +155,14 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigurePipelineControl()
         {
-            LabelView.DefaultLabelViewSizeProvider = exportPipelineControl.D2DRenderer.LabelViewSizeProvider;
-            var imageResources = exportPipelineControl.D2DRenderer.ImageResources;
-
-            void AddImage(System.Drawing.Bitmap bitmap, string name)
-            {
-                imageResources.AddImageResource(_direct2DLoopManager.RenderingState, bitmap, name);
-            }
-
-            AddImage(Resources.anim_icon, "anim_icon");
-            AddImage(Resources.sheet_new, "sheet_new");
-            AddImage(Resources.sheet_save_icon, "sheet_save_icon");
-            AddImage(Resources.filter_transparency_icon, "filter_transparency_icon");
-            AddImage(Resources.filter_hue, "filter_hue");
-            AddImage(Resources.filter_saturation, "filter_saturation");
-            AddImage(Resources.filter_lightness, "filter_lightness");
-            AddImage(Resources.filter_offset_icon, "filter_offset_icon");
-            AddImage(Resources.filter_scale_icon, "filter_scale_icon");
-            AddImage(Resources.filter_rotation_icon, "filter_rotation_icon");
-            AddImage(Resources.filter_stroke, "filter_stroke");
+            var configurer = new PipelineControlConfigurer();
+            configurer.Configure(exportPipelineControl, _direct2DLoopManager.RenderingState);
         }
 
         private void ConfigureNodesPanel()
         {
             _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl);
+            _panelManager.RegisterResizeEvent(exportPipelineControl);
 
             _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
 
@@ -407,6 +391,40 @@ namespace Pixelaria.Views.ExportPipeline
             exportPipelineControl.PipelineContainer.AutosizeNodes();
 
             exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
+        }
+    }
+
+    internal class PipelineControlConfigurer
+    {
+        public void Configure([NotNull] ExportPipelineControl control, [NotNull] IDirect2DRenderingState state)
+        {
+            ConfigureLabelSizeProvider(control);
+            RegisterIcons(control.D2DRenderer.ImageResources, state);
+        }
+
+        private static void ConfigureLabelSizeProvider([NotNull] ExportPipelineControl control)
+        {
+            LabelView.DefaultLabelViewSizeProvider = control.D2DRenderer.LabelViewSizeProvider;
+        }
+
+        public void RegisterIcons([NotNull] ID2DImageResourceManager manager, [NotNull] IDirect2DRenderingState state)
+        {
+            void AddImage(System.Drawing.Bitmap bitmap, string name)
+            {
+                manager.AddImageResource(state, bitmap, name);
+            }
+
+            AddImage(Resources.anim_icon, "anim_icon");
+            AddImage(Resources.sheet_new, "sheet_new");
+            AddImage(Resources.sheet_save_icon, "sheet_save_icon");
+            AddImage(Resources.filter_transparency_icon, "filter_transparency_icon");
+            AddImage(Resources.filter_hue, "filter_hue");
+            AddImage(Resources.filter_saturation, "filter_saturation");
+            AddImage(Resources.filter_lightness, "filter_lightness");
+            AddImage(Resources.filter_offset_icon, "filter_offset_icon");
+            AddImage(Resources.filter_scale_icon, "filter_scale_icon");
+            AddImage(Resources.filter_rotation_icon, "filter_rotation_icon");
+            AddImage(Resources.filter_stroke, "filter_stroke");
         }
     }
 
