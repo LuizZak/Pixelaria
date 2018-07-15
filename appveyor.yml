@@ -3,7 +3,7 @@ image: Visual Studio 2017
 build:
   verbosity: normal
 on_failure:
-  - ps: $root = Resolve-Path .\TestResults; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName to-publish }
+  - ps: 7zip a .\TestResults TestResults.zip | Push-AppveyorArtifact .\TestResults.zip
 artifacts:
   - path: TestResults.zip
     name: TestResults
