@@ -3,7 +3,7 @@ image: Visual Studio 2017
 build:
   verbosity: normal
 on_failure:
-  - ps: 7zip a .\TestResults TestResults.zip | Push-AppveyorArtifact .\TestResults.zip
+  - 7zip a .\TestResults TestResults.zip & appveyor PushArtifact .\TestResults.zip
 artifacts:
   - path: TestResults.zip
     name: TestResults
