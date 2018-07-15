@@ -23,6 +23,7 @@
     SOFTWARE.
 */
 
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -68,8 +69,13 @@ namespace PixSnapshot
 
         public string TestResultsSavePath()
         {
-            string path = Path.GetFullPath(Path.Combine(System.Reflection.Assembly.GetExecutingAssembly().Location, ".."));
-            
+            var location = new System.Uri(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
+
+            var directoryInfo = new FileInfo(location.LocalPath).Directory;
+            Debug.Assert(directoryInfo != null, nameof(directoryInfo) + " != null");
+
+            string path = directoryInfo.FullName;
+
             if(!path.EndsWith("bin\\Debug") && !path.EndsWith("bin\\Release"))
                 Assert.Fail($"Invalid/unrecognized test assembly path {path}: Path must end in either bin\\Debug or bin\\Release");
             
