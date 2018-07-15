@@ -28,7 +28,6 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using PixUI.Controls;
-using PixUITests.TestUtils;
 
 namespace PixelariaTests.Views.ExportPipeline
 {
