@@ -28,6 +28,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 using JetBrains.Annotations;
+using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Geometry.Algorithms;
 using PixDirectX.Rendering;
@@ -99,7 +100,7 @@ namespace Pixelaria.Views.ExportPipeline
         public IExportPipelineDirect2DRenderer D2DRenderer => _d2DRenderer;
 
         /// <summary>
-        /// Gets the label view mwtrics provider initialized for this control
+        /// Gets the label view metrics provider initialized for this control
         /// </summary>
         public ITextMetricsProvider TextMetricsProvider => _d2DRenderer.TextMetricsProvider;
 
@@ -1859,7 +1860,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (_container.GetLinksConnectedTo(link).Any())
                 return;
 
-            state.FillColor = Color.Transparent;
+            state.FillColor = Color.Black.WithTransparency(0.5f);
             state.StrokeColor = Color.DarkGray;
         }
 
@@ -1869,7 +1870,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (_container.GetLinksConnectedTo(link).Any())
                 return;
 
-            state.FillColor = Color.Transparent;
+            state.FillColor = Color.Black.WithTransparency(0.5f);
             state.StrokeColor = Color.DarkGray;
         }
     }
