@@ -151,11 +151,11 @@ namespace PixSnapshot
 
         private static string TestResultsPath()
         {
-            string path = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
+            string path = Path.GetFullPath(Path.Combine(System.Reflection.Assembly.GetExecutingAssembly().Location, ".."));
             
             if(!path.EndsWith("bin\\Debug") && !path.EndsWith("bin\\Release"))
                 Assert.Fail($"Invalid/unrecognized test assembly path {path}: Path must end in either bin\\Debug or bin\\Release");
-
+            
             path = Path.GetFullPath(Path.Combine(path, "..\\..\\Snapshot\\Files"));
 
             return path;
