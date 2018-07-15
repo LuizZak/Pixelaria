@@ -113,7 +113,7 @@ namespace PixDirectX.Rendering
             public WicRenderTarget WicRenderTarget { private get; set; }
             public RenderTarget D2DRenderTarget => WicRenderTarget;
             public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
-                
+
             public TimeSpan FrameRenderDeltaTime => TimeSpan.Zero;
 
             public Vector DesktopDpiScaling { get; set; }

@@ -122,7 +122,7 @@ namespace PixDirectX.Rendering
             
             var d2DFactory = new Factory();
             
-            // New RenderTargetView from the backbuffer
+            // New RenderTargetView from the back-buffer
             var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
             var dxgiSurface = backBuffer.QueryInterface<Surface>();

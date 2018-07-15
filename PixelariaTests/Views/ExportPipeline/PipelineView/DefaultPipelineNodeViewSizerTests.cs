@@ -149,6 +149,22 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             RunTest(nodeView, sut);
         }
+        
+        [TestMethod]
+        public void TestAutoSizeNodeWithInputAndOutput()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            gen.AddInput("Input 1");
+            gen.AddOutput("Output 1");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+            nodeView.Icon = new ImageResource("anim_icon", 16, 16);
+
+            RunTest(nodeView, sut);
+        }
 
         private void RunTest([NotNull] PipelineNodeView view, IPipelineNodeViewSizer sut, bool? recordMode = null)
         {

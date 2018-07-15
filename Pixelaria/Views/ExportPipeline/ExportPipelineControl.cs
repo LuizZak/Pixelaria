@@ -1578,7 +1578,7 @@ namespace Pixelaria.Views.ExportPipeline
                 Opacity = 1f,
                 GeometricMask = geom,
                 MaskTransform = Matrix3x2.Identity,
-                LayerOptions = LayerOptions.None
+                LayerOptions = LayerOptions.InitializeForCleartype
             };
 
             var layer = new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size);
