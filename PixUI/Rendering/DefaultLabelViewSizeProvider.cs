@@ -59,7 +59,11 @@ namespace PixUI.Rendering
             if (renderState == null)
                 return SizeF.Empty;
 
-            using (var textFormat = new TextFormat(renderState.DirectWriteFactory, font, fontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+            var format = new TextFormat(renderState.DirectWriteFactory, font, fontSize);
+            format.SetTextAlignment(TextAlignment.Leading);
+            format.SetParagraphAlignment(ParagraphAlignment.Center);
+
+            using (var textFormat = format)
             using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())

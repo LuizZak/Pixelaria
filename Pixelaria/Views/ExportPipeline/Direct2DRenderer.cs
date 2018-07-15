@@ -96,11 +96,9 @@ namespace Pixelaria.Views.ExportPipeline
         {
             base.Initialize(state);
             
-            _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11)
-            {
-                TextAlignment = TextAlignment.Leading,
-                ParagraphAlignment = ParagraphAlignment.Center
-            };
+            _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11);
+            _nodeTitlesTextFormat.SetTextAlignment(TextAlignment.Leading);
+            _nodeTitlesTextFormat.SetParagraphAlignment(ParagraphAlignment.Center);
 
             // Create shadow box image
             using (var bitmap = new Bitmap(64, 64))
@@ -278,7 +276,11 @@ namespace Pixelaria.Views.ExportPipeline
                 }
 
                 // Draw title text
-                using (var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                var format = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size);
+                format.SetTextAlignment(TextAlignment.Leading);
+                format.SetParagraphAlignment(ParagraphAlignment.Center);
+
+                using (var textFormat = format)
                 using (var textLayout = new TextLayout(state.DirectWriteFactory, nodeView.Name, textFormat, nodeView.TitleTextArea.Width, nodeView.TitleTextArea.Height))
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
                 {
@@ -334,8 +336,12 @@ namespace Pixelaria.Views.ExportPipeline
                     }
 
                     var area = nodeView.GetBodyTextArea();
-                    
-                    using (var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+
+                    var format1 = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size);
+                    format1.SetTextAlignment(TextAlignment.Leading);
+                    format1.SetParagraphAlignment(ParagraphAlignment.Center);
+
+                    using (var textFormat = format1)
                     using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, textFormat, area.Width, area.Height))
                     using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
                     {
@@ -498,8 +504,12 @@ namespace Pixelaria.Views.ExportPipeline
 
                 var textBounds = labelView.TextBounds;
                 
+                var format = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size);
+                format.SetTextAlignment(TextAlignment.Leading);
+                format.SetParagraphAlignment(ParagraphAlignment.Center);
+
                 using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
-                using (var textFormat = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center })
+                using (var textFormat = format)
                 using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
                 {
                     // Apply text attributes

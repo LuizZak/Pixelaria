@@ -34,6 +34,12 @@ namespace PixDirectX.Rendering
         private RenderTarget _renderTarget;
         public SolidColorBrush DefaultBrush { get; set; }
 
+        public TextColorRenderer()
+        {
+            // BUG fix for issue described at: https://github.com/sharpdx/SharpDX/issues/1019
+            CppObject.ToCallbackPtr<TextColorRenderer>(this);
+        }
+
         public void AssignResources(RenderTarget renderTarget, SolidColorBrush defaultBrush)
         {
             _renderTarget = renderTarget;

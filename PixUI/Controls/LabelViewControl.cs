@@ -235,12 +235,10 @@ namespace PixUI.Controls
                 Direct2DConversionHelpers.DirectWriteWordWrapFor(TextWordWrap);
 
             _textFormat =
-                new TextFormat(factory, _labelView.TextFont.Name, _labelView.TextFont.Size)
-                {
-                    TextAlignment = horizontalAlign,
-                    ParagraphAlignment = verticalAlign,
-                    WordWrapping = wordWrap
-                };
+                new TextFormat(factory, _labelView.TextFont.Name, _labelView.TextFont.Size);
+            _textFormat.SetTextAlignment(horizontalAlign);
+            _textFormat.SetParagraphAlignment(verticalAlign);
+            _textFormat.SetWordWrapping(wordWrap);
 
             _textLayout = new TextLayout(factory, Text, _textFormat, Bounds.Width, Bounds.Height);
         }
