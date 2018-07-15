@@ -202,10 +202,13 @@ namespace PixDirectX.Rendering
                     _renderingState.SetFrameDeltaTime(_frameDeltaTimer.Elapsed);
                     _frameDeltaTimer.Restart();
 
+                    /* TODO: Re-enable when desktop DPI-awareness is working again
+
                     var baseScale = 
                         new Vector(_renderingState.D2DFactory.DesktopDpi.Width, _renderingState.D2DFactory.DesktopDpi.Height) / new Vector(96.0f, 96.0f);
                     
                     _renderingState.D2DRenderTarget.Transform = Matrix3x2.Scaling(baseScale.X, baseScale.Y);
+                    */
 
                     _renderingState.D2DRenderTarget.BeginDraw();
 
