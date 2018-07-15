@@ -53,25 +53,25 @@ namespace PixSnapshot
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using an instantiable snapshot provider.
         /// </summary>
-        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] TestContext context, bool recordMode, string suffix = "") where TProvider : ISnapshotProvider<TObject>, new()
+        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] TestContext context, bool recordMode, string suffix = "", float tolerance = 0) where TProvider : ISnapshotProvider<TObject>, new()
         {
-            Snapshot<TProvider, TObject>(source, new MsTestAdapter(), new MsTestContextAdapter(context), recordMode, suffix);
+            Snapshot<TProvider, TObject>(source, new MsTestAdapter(), new MsTestContextAdapter(context), recordMode, suffix, tolerance);
         }
 
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using an instantiable snapshot provider.
         /// </summary>
-        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] IBitmapSnapshotTestAdapter testAdapter, [NotNull] ITestContext context, bool recordMode, string suffix = "") where TProvider : ISnapshotProvider<TObject>, new()
+        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] IBitmapSnapshotTestAdapter testAdapter, [NotNull] ITestContext context, bool recordMode, string suffix = "", float tolerance = 0) where TProvider : ISnapshotProvider<TObject>, new()
         {
             var provider = new TProvider();
 
-            Snapshot(provider, source, context, testAdapter, recordMode, suffix);
+            Snapshot(provider, source, context, testAdapter, recordMode, suffix, tolerance);
         }
 
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using a given instantiated snapshot provider.
         /// </summary>
-        public static void Snapshot<T>([NotNull] ISnapshotProvider<T> provider, [NotNull] T target, [NotNull] ITestContext context, [NotNull] IBitmapSnapshotTestAdapter testAdapter, bool recordMode, string suffix = "")
+        public static void Snapshot<T>([NotNull] ISnapshotProvider<T> provider, [NotNull] T target, [NotNull] ITestContext context, [NotNull] IBitmapSnapshotTestAdapter testAdapter, bool recordMode, string suffix = "", float tolerance = 0)
         {
             string targetPath = CombinedTestResultPath(testAdapter.TestResultsSavePath(), context);
 
@@ -109,7 +109,7 @@ namespace PixSnapshot
                 using (var expLock = expected.FastLock())
                 using (var actLock = image.FastLock())
                 {
-                    bool areEqual = expLock.Width == actLock.Width && expLock.DataArray.SequenceEqual(actLock.DataArray);
+                    bool areEqual = BitmapsMatch(expLock, actLock, tolerance);
                     
                     if (areEqual)
                         return; // Success!
@@ -186,7 +186,37 @@ namespace PixSnapshot
 
             return result;
         }
-        
+
+        private static bool BitmapsMatch([NotNull] FastBitmap bitmap1, [NotNull] FastBitmap bitmap2, float tolerance)
+        {
+            if (bitmap1.Width != bitmap2.Width || bitmap1.Height != bitmap2.Height)
+                return false;
+
+            float pixelCount = bitmap1.Width * bitmap1.Height;
+            float diffCount = 0;
+
+            for (int y = 0; y < bitmap1.Height; y++)
+            {
+                for (int x = 0; x < bitmap1.Width; x++)
+                {
+                    uint c1 = bitmap1.GetPixelUInt(x, y);
+                    uint c2 = bitmap2.GetPixelUInt(x, y);
+
+                    if (c1 == c2)
+                        continue;
+
+                    diffCount++;
+
+                    if (diffCount / pixelCount > tolerance)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         [DebuggerDisplay("A: {Alpha}, R: {Red}, G: {Green}, B: {Blue}")]
         [StructLayout(LayoutKind.Sequential)]
         private readonly struct PixelF : IEquatable<PixelF>

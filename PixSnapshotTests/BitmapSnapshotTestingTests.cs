@@ -72,6 +72,30 @@ namespace PixSnapshotTests
         }
         
         [TestMethod]
+        public void TestSnapshotSuccessWithTolerance()
+        {
+            var bitmapRef = new Bitmap(10, 10);
+            var bitmapAct = new Bitmap(10, 10); bitmapAct.SetPixel(0, 0, Color.Red);
+            var testContext = new MockTestContext();
+            var testAdapter = new MockTestAdapter
+            {
+                LoadReferenceImage_return = bitmapRef,
+                ReferenceImageExists_return = true
+            };
+            
+            BitmapSnapshotTesting.Snapshot<MockSnapshotProvider, Bitmap>(bitmapAct, testAdapter, testContext, false, tolerance: 0.02f);
+            
+            Assert.IsNull(testAdapter.AssertFailure_message);
+            Assert.IsNull(testAdapter.SaveBitmapFile_bitmap);
+            Assert.IsNull(testAdapter.SaveComparisonBitmapFiles_expected);
+            Assert.IsNull(testAdapter.SaveComparisonBitmapFiles_expectedPath);
+            Assert.IsNull(testAdapter.SaveComparisonBitmapFiles_actual);
+            Assert.IsNull(testAdapter.SaveComparisonBitmapFiles_actualPath);
+            Assert.IsNull(testAdapter.SaveComparisonBitmapFiles_diff);
+            Assert.IsNull(testAdapter.SaveComparisonBitmapFiles_diffPath);
+        }
+
+        [TestMethod]
         public void TestSnapshotFailureWhenNotEqual()
         {
             var bitmapRef = new Bitmap(16, 16);
@@ -89,6 +113,37 @@ namespace PixSnapshotTests
             };
             
             BitmapSnapshotTesting.Snapshot<MockSnapshotProvider, Bitmap>(bitmapAct, testAdapter, testContext, false);
+            
+            Assert.IsNotNull(testAdapter.AssertFailure_message);
+            Assert.AreEqual(bitmapRef, testAdapter.SaveComparisonBitmapFiles_expected);
+            Assert.AreEqual(@"C:\Test\Artifacts\Test.TestClass\TestName-expected.png", testAdapter.SaveComparisonBitmapFiles_expectedPath);
+            Assert.AreEqual(bitmapAct, testAdapter.SaveComparisonBitmapFiles_actual);
+            Assert.AreEqual(@"C:\Test\Artifacts\Test.TestClass\TestName-actual.png", testAdapter.SaveComparisonBitmapFiles_actualPath);
+            Assert.IsNotNull(testAdapter.SaveComparisonBitmapFiles_diff);
+            Assert.AreEqual(@"C:\Test\Artifacts\Test.TestClass\TestName-diff.png", testAdapter.SaveComparisonBitmapFiles_diffPath);
+            Assert.IsTrue(testContext.AddResultFile_fileNames.Contains(testAdapter.SaveComparisonBitmapFiles_expectedPath));
+            Assert.IsTrue(testContext.AddResultFile_fileNames.Contains(testAdapter.SaveComparisonBitmapFiles_actualPath));
+            Assert.IsTrue(testContext.AddResultFile_fileNames.Contains(testAdapter.SaveComparisonBitmapFiles_diffPath));
+        }
+
+        [TestMethod]
+        public void TestSnapshotFailureWhenNotEqualWithTolerance()
+        {
+            var bitmapRef = new Bitmap(10, 10);
+            var bitmapAct = new Bitmap(10, 10); bitmapAct.SetPixel(0, 0, Color.Red); bitmapAct.SetPixel(1, 0, Color.Red);
+            var testContext = new MockTestContext
+            {
+                TestRunDirectory = "C:\\Test\\Artifacts",
+                FullyQualifiedTestClassName = "Test.TestClass",
+                TestName = "TestName"
+            };
+            var testAdapter = new MockTestAdapter
+            {
+                LoadReferenceImage_return = bitmapRef,
+                ReferenceImageExists_return = true
+            };
+            
+            BitmapSnapshotTesting.Snapshot<MockSnapshotProvider, Bitmap>(bitmapAct, testAdapter, testContext, false, tolerance: 0.01f);
             
             Assert.IsNotNull(testAdapter.AssertFailure_message);
             Assert.AreEqual(bitmapRef, testAdapter.SaveComparisonBitmapFiles_expected);

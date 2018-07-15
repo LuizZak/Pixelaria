@@ -64,9 +64,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj">
       <Project>{eb5d6dea-6ae2-4545-a708-6f0f2b1f5c50}</Project>
       <Name>PixSnapshot</Name>
@@ -79,6 +76,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\diff-test-expected.png" />
   </ItemGroup>
   <ItemGroup>

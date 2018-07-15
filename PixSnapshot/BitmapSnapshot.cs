@@ -42,9 +42,9 @@ namespace PixSnapshot
         /// </summary>
         public static bool RecordMode = false;
         
-        public static void Snapshot([NotNull] Bitmap bitmap, [NotNull] TestContext context)
+        public static void Snapshot([NotNull] Bitmap bitmap, [NotNull] TestContext context, string suffix = "", float tolerance = 0)
         {
-            BitmapSnapshotTesting.Snapshot<BitmapSnapshot, Bitmap>(bitmap, context, RecordMode);
+            BitmapSnapshotTesting.Snapshot<BitmapSnapshot, Bitmap>(bitmap, context, RecordMode, suffix, tolerance);
         }
         
         public Bitmap GenerateBitmap(Bitmap context)
