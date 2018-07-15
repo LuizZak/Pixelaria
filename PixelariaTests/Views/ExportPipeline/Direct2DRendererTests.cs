@@ -242,14 +242,17 @@ namespace PixelariaTests.Views.ExportPipeline
         /// </summary>
         public static bool RecordMode;
         
-        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context)
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, bool? recordMode = null)
         {
-            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(new PipelineViewRenderContext(view, null), context, RecordMode);
+            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(
+                new PipelineViewRenderContext(view, null), 
+                context, 
+                recordMode ?? RecordMode);
         }
         
-        public static void Snapshot(PipelineViewRenderContext ctx, [NotNull] TestContext context)
+        public static void Snapshot(PipelineViewRenderContext ctx, [NotNull] TestContext context, bool? recordMode = null)
         {
-            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(ctx, context, RecordMode);
+            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(ctx, context, recordMode ?? RecordMode);
         }
 
         public PipelineViewSnapshot()

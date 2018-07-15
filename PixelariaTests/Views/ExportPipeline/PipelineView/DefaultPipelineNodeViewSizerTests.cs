@@ -60,18 +60,109 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             var nodeView = PipelineNodeView.Create(node);
 
+            RunTest(nodeView, sut);
+        }
+
+        [TestMethod]
+        public void TestAutoSizeEmptyNodeStretchesToFitTitle()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Long Pipeline Step name to test view stretching");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+
+            RunTest(nodeView, sut);
+        }
+        
+        [TestMethod]
+        public void TestAutoSizeEmptyNodeWithImage()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+            nodeView.Icon = new ImageResource("anim_icon", 16, 16);
+
+            RunTest(nodeView, sut);
+        }
+
+        [TestMethod]
+        public void TestAutoSizeNodeWithInput()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            gen.AddInput("Input 1");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+            nodeView.Icon = new ImageResource("anim_icon", 16, 16);
+
+            RunTest(nodeView, sut);
+        }
+
+        [TestMethod]
+        public void TestAutoSizeNodeWithInputStretchesToFitLabel()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            gen.AddInput("Input with large name to test view stretching");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+            nodeView.Icon = new ImageResource("anim_icon", 16, 16);
+
+            RunTest(nodeView, sut);
+        }
+
+        [TestMethod]
+        public void TestAutoSizeNodeWithOutput()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            gen.AddOutput("Output 1");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+            nodeView.Icon = new ImageResource("anim_icon", 16, 16);
+
+            RunTest(nodeView, sut);
+        }
+
+        [TestMethod]
+        public void TestAutoSizeNodeWithOutputStretchesToFitLabel()
+        {
+            var sut = new DefaultPipelineNodeViewSizer();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            gen.AddOutput("Output 1 with large name to test view stretching");
+            var node = gen.GetMock();
+
+            var nodeView = PipelineNodeView.Create(node);
+            nodeView.Icon = new ImageResource("anim_icon", 16, 16);
+
+            RunTest(nodeView, sut);
+        }
+
+        private void RunTest([NotNull] PipelineNodeView view, IPipelineNodeViewSizer sut, bool? recordMode = null)
+        {
             TestWithRenderingState(provider =>
             {
                 var sizeProvider = new DefaultLabelViewSizeProvider(provider);
 
-                sut.AutoSize(nodeView, sizeProvider);
+                sut.AutoSize(view, sizeProvider);
             });
 
-            BaseViewSnapshot.ImagesConfig = PipelineControlConfigurator.RegisterIcons;
-            PipelineViewSnapshot.Snapshot(nodeView, TestContext);
+            PipelineViewSnapshot.Snapshot(view, TestContext, recordMode);
         }
 
-        private void TestWithRenderingState(Action<IDirect2DRenderingStateProvider> testAction)
+        private static void TestWithRenderingState(Action<IDirect2DRenderingStateProvider> testAction)
         {
             using (var control = new ExportPipelineControl())
             using (var renderManager = new Direct2DRenderLoopManager(control))

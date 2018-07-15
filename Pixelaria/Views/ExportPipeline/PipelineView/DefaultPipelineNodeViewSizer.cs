@@ -31,8 +31,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     internal class DefaultPipelineNodeViewSizer : IPipelineNodeViewSizer
     {
-        private InsetBounds _nodeTitleInset = new InsetBounds(4, 0, 0, 4);
-        private InsetBounds _bodyTextInset = new InsetBounds(7, 0, 0, 7);
+        private readonly InsetBounds _nodeTitleInset = new InsetBounds(4, 0, 0, 4);
+        private readonly InsetBounds _bodyTextInset = new InsetBounds(7, 0, 0, 7);
 
         /// <summary>
         /// Padding between title view / link views / text body components
