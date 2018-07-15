@@ -55,12 +55,17 @@ namespace PixUITests.TestUtils
         /// </summary>
         public static bool RecordMode = false;
 
+        /// <summary>
+        /// The default tolerance to use when comparing resulting images.
+        /// </summary>
+        public static float Tolerance = 0.01f;
+
         [CanBeNull]
         public static Action<ID2DImageResourceManager, IDirect2DRenderingState> ImagesConfig;
         
-        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "")
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "", float? tolerance = null)
         {
-            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(view, context, RecordMode, suffix);
+            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(view, context, RecordMode, suffix, tolerance ?? Tolerance);
         }
         
         public Bitmap GenerateBitmap(BaseView view)

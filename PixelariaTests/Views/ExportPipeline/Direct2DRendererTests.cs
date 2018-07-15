@@ -242,17 +242,23 @@ namespace PixelariaTests.Views.ExportPipeline
         /// </summary>
         public static bool RecordMode;
         
-        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, bool? recordMode = null)
+        /// <summary>
+        /// The default tolerance to use when comparing resulting images.
+        /// </summary>
+        public static float Tolerance = 0.01f;
+
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, bool? recordMode = null, float? tolerance = null)
         {
             BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(
                 new PipelineViewRenderContext(view, null), 
                 context, 
-                recordMode ?? RecordMode);
+                recordMode ?? RecordMode,
+                tolerance: tolerance ?? Tolerance);
         }
         
-        public static void Snapshot(PipelineViewRenderContext ctx, [NotNull] TestContext context, bool? recordMode = null)
+        public static void Snapshot(PipelineViewRenderContext ctx, [NotNull] TestContext context, bool? recordMode = null, float? tolerance = null)
         {
-            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(ctx, context, recordMode ?? RecordMode);
+            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(ctx, context, recordMode ?? RecordMode, tolerance: tolerance ?? Tolerance);
         }
 
         public PipelineViewSnapshot()
