@@ -250,15 +250,21 @@ namespace PixelariaTests.Views.ExportPipeline
         public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, bool? recordMode = null, float? tolerance = null)
         {
             BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(
-                new PipelineViewRenderContext(view, null), 
-                context, 
+                new PipelineViewRenderContext(view, null),
+                new MsTestAdapter(typeof(PipelineViewSnapshot)),
+                new MsTestContextAdapter(context),
                 recordMode ?? RecordMode,
                 tolerance: tolerance ?? Tolerance);
         }
         
         public static void Snapshot(PipelineViewRenderContext ctx, [NotNull] TestContext context, bool? recordMode = null, float? tolerance = null)
         {
-            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(ctx, context, recordMode ?? RecordMode, tolerance: tolerance ?? Tolerance);
+            BitmapSnapshotTesting.Snapshot<PipelineViewSnapshot, PipelineViewRenderContext>(
+                ctx,
+                new MsTestAdapter(typeof(PipelineViewSnapshot)),
+                new MsTestContextAdapter(context),
+                recordMode ?? RecordMode,
+                tolerance: tolerance ?? Tolerance);
         }
 
         public PipelineViewSnapshot()

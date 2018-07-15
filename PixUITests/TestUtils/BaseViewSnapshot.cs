@@ -65,7 +65,13 @@ namespace PixUITests.TestUtils
         
         public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "", float? tolerance = null)
         {
-            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(view, context, RecordMode, suffix, tolerance ?? Tolerance);
+            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(
+                view,
+                new MsTestAdapter(typeof(BaseViewSnapshot)), 
+                new MsTestContextAdapter(context), 
+                RecordMode, 
+                suffix,
+                tolerance ?? Tolerance);
         }
         
         public Bitmap GenerateBitmap(BaseView view)

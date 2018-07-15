@@ -23,11 +23,12 @@
     SOFTWARE.
 */
 
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PixSnapshot
@@ -62,6 +63,23 @@ namespace PixSnapshot
     /// </summary>
     public class MsTestAdapter : IBitmapSnapshotTestAdapter
     {
+        private readonly string _basePath;
+
+        public MsTestAdapter()
+        {
+            
+        }
+
+        /// <summary>
+        /// Instantiates a new MSTest adapter instance with the base path for
+        /// the snapshot files configured to be relative to a given type's assembly
+        /// </summary>
+        /// <param name="assemblyType">A type from the assembly invoking this PixSnapshot assembly</param>
+        public MsTestAdapter(Type assemblyType)
+        {
+            _basePath = GetPath(assemblyType);
+        }
+
         public void AssertFailure(string message)
         {
             Assert.Fail(message);
@@ -69,12 +87,7 @@ namespace PixSnapshot
 
         public string TestResultsSavePath()
         {
-            var location = new System.Uri(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
-
-            var directoryInfo = new FileInfo(location.LocalPath).Directory;
-            Debug.Assert(directoryInfo != null, nameof(directoryInfo) + " != null");
-
-            string path = directoryInfo.FullName;
+            string path = _basePath ?? GetPath(null);
 
             if(!path.EndsWith("bin\\Debug") && !path.EndsWith("bin\\Release"))
                 Assert.Fail($"Invalid/unrecognized test assembly path {path}: Path must end in either bin\\Debug or bin\\Release");
@@ -82,6 +95,17 @@ namespace PixSnapshot
             path = Path.GetFullPath(Path.Combine(path, "..\\..\\Snapshot\\Files"));
 
             return path;
+        }
+
+        private static string GetPath([CanBeNull] Type type)
+        {
+            var assembly = type?.Assembly ?? System.Reflection.Assembly.GetExecutingAssembly();
+            var location = new Uri(assembly.GetName().CodeBase);
+
+            var directoryInfo = new FileInfo(location.LocalPath).Directory;
+            Debug.Assert(directoryInfo != null, nameof(directoryInfo) + " != null");
+
+            return directoryInfo.FullName;
         }
 
         public bool ReferenceImageExists(string filePath)
