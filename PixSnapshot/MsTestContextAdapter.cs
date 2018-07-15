@@ -80,12 +80,15 @@ namespace PixSnapshot
 
         public bool ReferenceImageExists(string filePath)
         {
-            return File.Exists(filePath);
+            return File.Exists(RootLongPath(filePath));
         }
 
         public Bitmap LoadReferenceImage(string filePath)
         {
-            return (Bitmap)Image.FromFile(filePath);
+            using (var fileStream = File.OpenRead(RootLongPath(filePath)))
+            {
+                return (Bitmap)Image.FromStream(fileStream);
+            }
         }
         
         public void SaveBitmapFile(Bitmap bitmap, string path)
@@ -99,10 +102,15 @@ namespace PixSnapshot
                 Directory.CreateDirectory(directoryName);
             }
 
-            using (var fileStream = File.OpenWrite(path))
+            using (var fileStream = File.OpenWrite(RootLongPath(path)))
             {
                 bitmap.Save(fileStream, ImageFormat.Png);
             }
+        }
+
+        private static string RootLongPath(string path)
+        {
+            return !Path.IsPathRooted(path) ? path : $@"\\?\{path}";
         }
 
         public void SaveComparisonBitmapFiles(Bitmap expected, string expectedPath, Bitmap actual, string actualPath, Bitmap diff, string diffPath)
