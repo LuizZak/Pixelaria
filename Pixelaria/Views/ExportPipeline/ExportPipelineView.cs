@@ -155,8 +155,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigurePipelineControl()
         {
-            var configurer = new PipelineControlConfigurer();
-            configurer.Configure(exportPipelineControl, _direct2DLoopManager.RenderingState);
+            PipelineControlConfigurator.Configure(exportPipelineControl, _direct2DLoopManager.RenderingState);
         }
 
         private void ConfigureNodesPanel()
@@ -339,17 +338,24 @@ namespace Pixelaria.Views.ExportPipeline
             if (ofd.ShowDialog(this) != DialogResult.OK)
                 return;
             
-            exportPipelineControl.PipelineContainer.RemoveAllViews();
-
+            var bundle = PixelariaSaverLoader.LoadBundleFromDisk(ofd.FileName);
+            Debug.Assert(bundle != null, "bundle != null");
+            
             exportPipelineControl.SetPanAndZoom(Vector.Zero, Vector.Unit);
 
             exportPipelineControl.PipelineContainer.ContentsView.Scale = Vector.Unit;
             exportPipelineControl.PipelineContainer.ContentsView.Location = Vector.Zero;
 
-            var bundle = PixelariaSaverLoader.LoadBundleFromDisk(ofd.FileName);
+            BundlePipelineLoader.Load(bundle, exportPipelineControl);
+        }
+    }
 
-            Debug.Assert(bundle != null, "bundle != null");
-
+    internal class BundlePipelineLoader
+    {
+        public static void Load([NotNull] Bundle bundle, [NotNull] ExportPipelineControl exportPipelineControl)
+        {
+            exportPipelineControl.PipelineContainer.RemoveAllViews();
+            
             exportPipelineControl.SuspendLayout();
 
             // Add export node from which all sheet steps will derive to
@@ -389,14 +395,15 @@ namespace Pixelaria.Views.ExportPipeline
             }
 
             exportPipelineControl.PipelineContainer.AutosizeNodes();
-
             exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
+
+            exportPipelineControl.ResumeLayout();
         }
     }
 
-    internal class PipelineControlConfigurer
+    internal class PipelineControlConfigurator
     {
-        public void Configure([NotNull] ExportPipelineControl control, [NotNull] IDirect2DRenderingState state)
+        public static void Configure([NotNull] ExportPipelineControl control, [NotNull] IDirect2DRenderingState state)
         {
             ConfigureLabelSizeProvider(control);
             RegisterIcons(control.D2DRenderer.ImageResources, state);
@@ -407,7 +414,7 @@ namespace Pixelaria.Views.ExportPipeline
             LabelView.DefaultLabelViewSizeProvider = control.D2DRenderer.LabelViewSizeProvider;
         }
 
-        public void RegisterIcons([NotNull] ID2DImageResourceManager manager, [NotNull] IDirect2DRenderingState state)
+        public static void RegisterIcons([NotNull] ID2DImageResourceManager manager, [NotNull] IDirect2DRenderingState state)
         {
             void AddImage(System.Drawing.Bitmap bitmap, string name)
             {

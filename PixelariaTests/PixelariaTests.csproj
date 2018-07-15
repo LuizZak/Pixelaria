@@ -140,6 +140,7 @@
     <Compile Include="Utils\RecentFileListTests.cs" />
     <Compile Include="Views\ExportPipeline\Direct2DRendererTests.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManagerTests.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineView\DefaultPipelineNodeViewSizerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj">

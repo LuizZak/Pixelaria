@@ -57,8 +57,7 @@ namespace PixelariaTests.Views.ExportPipeline
             _renderer = new Direct2DRenderLoopManager(_control);
             _renderer.InitializeDirect2D();
 
-            var configurer = new PipelineControlConfigurer();
-            configurer.Configure(_control, _renderer.RenderingState);
+            PipelineControlConfigurator.Configure(_control, _renderer.RenderingState);
 
             _sut = new ExportPipelineNodesPanelManager(_container, _control.D2DRenderer.ImageResources);
             _sut.RegisterResizeEvent(_control);
@@ -66,9 +65,7 @@ namespace PixelariaTests.Views.ExportPipeline
             var provider = new DefaultPipelineNodeSpecsProvider();
             _sut.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
 
-            BaseViewSnapshot.ImagesConfig = (manager, state) => {
-                configurer.RegisterIcons(manager, state);
-            };
+            BaseViewSnapshot.ImagesConfig = PipelineControlConfigurator.RegisterIcons;
         }
 
         [TestMethod]

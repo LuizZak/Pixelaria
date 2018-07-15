@@ -322,6 +322,8 @@ namespace PixelariaTests.Views.ExportPipeline
                 {
                     renderer.Initialize(renderManager.RenderingState);
                     renderer.UpdateRenderingState(state, new FullClipping());
+
+                    PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);
                     
                     if (context.ImageResources != null)
                     {

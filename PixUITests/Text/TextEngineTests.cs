@@ -1377,9 +1377,10 @@ namespace PixUITests.Text
         [TestMethod]
         public void TestPasteBreaksTextInsertUndoChain()
         {
-            var paste = new TestClipboard("test");
+            var paste = new TestClipboard("est");
             var buffer = new TextBuffer("");
             var sut = new TextEngine(buffer) { TextClipboard = paste };
+            sut.InsertText("t");
             sut.Paste();
             sut.InsertText("t");
 

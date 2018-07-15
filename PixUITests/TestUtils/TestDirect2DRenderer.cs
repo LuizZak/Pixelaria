@@ -30,7 +30,7 @@ namespace PixUITests.TestUtils
     /// <summary>
     /// Basic rendering shim for snapshot tests
     /// </summary>
-    internal class TestDirect2DRenderer : BaseDirect2DRenderer
+    public class TestDirect2DRenderer : BaseDirect2DRenderer
     {
         private DefaultLabelViewSizeProvider _sizeProvider;
         public ILabelViewSizeProvider SizeProvider => _sizeProvider;
