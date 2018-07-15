@@ -4,6 +4,4 @@ build:
   verbosity: normal
 on_failure:
   - 7z a TestResults.zip .\TestResults & appveyor PushArtifact .\TestResults.zip
-artifacts:
-  - path: TestResults.zip
-    name: TestResults
+  
