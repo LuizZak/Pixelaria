@@ -40,7 +40,7 @@ namespace PixSnapshot
     {
         /// <summary>
         /// If true, when generating output folders for test results, paths are created for each segment of the namespace
-        /// of the target test class, e.g. 'PixUI.Controls.LabelControlViewTests' becomes '...\PixUI\Controls\LabelControlViewtests\',
+        /// of the target test class, e.g. 'PixUI.Controls.LabelControlViewTests' becomes '...\PixUI\Controls\LabelControlViewTests\',
         /// otherwise a single folder with the fully-qualified class name is used instead.
         /// 
         /// If this property is changed across test recordings, the tests must be re-recorded to account for the new directory paths
@@ -49,56 +49,63 @@ namespace PixSnapshot
         /// Defaults to false.
         /// </summary>
         public static bool SeparateDirectoriesPerNamespace = false;
-
+        
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using an instantiable snapshot provider.
         /// </summary>
         public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] TestContext context, bool recordMode, string suffix = "") where TProvider : ISnapshotProvider<TObject>, new()
         {
+            Snapshot<TProvider, TObject>(source, new MsTestAdapter(), new MsTestContextAdapter(context), recordMode, suffix);
+        }
+
+        /// <summary>
+        /// Performs a snapshot text with a given test context/object pair, using an instantiable snapshot provider.
+        /// </summary>
+        public static void Snapshot<TProvider, TObject>([NotNull] TObject source, [NotNull] IBitmapSnapshotTestAdapter testAdapter, [NotNull] ITestContext context, bool recordMode, string suffix = "") where TProvider : ISnapshotProvider<TObject>, new()
+        {
             var provider = new TProvider();
 
-            Snapshot(provider, source, context, recordMode, suffix);
+            Snapshot(provider, source, context, testAdapter, recordMode, suffix);
         }
 
         /// <summary>
         /// Performs a snapshot text with a given test context/object pair, using a given instantiated snapshot provider.
         /// </summary>
-        public static void Snapshot<T>([NotNull] ISnapshotProvider<T> provider, [NotNull] T target, [NotNull] TestContext context, bool recordMode, string suffix = "")
+        public static void Snapshot<T>([NotNull] ISnapshotProvider<T> provider, [NotNull] T target, [NotNull] ITestContext context, [NotNull] IBitmapSnapshotTestAdapter testAdapter, bool recordMode, string suffix = "")
         {
-            string targetPath = CombinedTestResultPath(TestResultsPath(), context);
+            string targetPath = CombinedTestResultPath(testAdapter.TestResultsSavePath(), context);
 
-            // Verify path exists
-            if (!Directory.Exists(targetPath))
-                Directory.CreateDirectory(targetPath);
-
-            string testFileName;
-            if (string.IsNullOrEmpty(suffix))
-                testFileName = $"{context.TestName}.png";
-            else
-                testFileName = $"{context.TestName}-{suffix}.png";
+            string testFileName = string.IsNullOrEmpty(suffix)
+                ? $"{context.TestName}.png"
+                : $"{context.TestName}-{suffix}.png";
 
             string testFilePath = Path.Combine(targetPath, testFileName);
 
             // Verify comparison file's existence (if not in record mode)
             if (!recordMode)
             {
-                if(!File.Exists(testFilePath))
-                    Assert.Fail($"Could not find reference image file {testFilePath} to compare. Please re-run the test with {nameof(recordMode)} set to true to record a test result to compare later.");
+                if (!testAdapter.ReferenceImageExists(testFilePath))
+                {
+                    testAdapter.AssertFailure(
+                        $"Could not find reference image file {testFilePath} to compare. Please re-run the test with {nameof(recordMode)} set to true to record a test result to compare later.");
+
+                    return;
+                }
             }
             
             var image = provider.GenerateBitmap(target);
 
             if (recordMode)
             {
-                image.Save(testFilePath, ImageFormat.Png);
+                testAdapter.SaveBitmapFile(image, testFilePath);
 
-                Assert.Fail(
+                testAdapter.AssertFailure(
                     $"Saved image to path {testFilePath}. Re-run test mode with {nameof(recordMode)} set to false to start comparing with record test result.");
             }
             else
             {
                 // Load recorded image and compare
-                using (var expected = (Bitmap)Image.FromFile(testFilePath))
+                using (var expected = testAdapter.LoadReferenceImage(testFilePath))
                 using (var expLock = expected.FastLock())
                 using (var actLock = image.FastLock())
                 {
@@ -108,38 +115,29 @@ namespace PixSnapshot
                         return; // Success!
 
                     // Save to test results directory for further inspection
-                    string directoryName = CombinedTestResultPath(context.TestDir, context);
+                    string directoryName = CombinedTestResultPath(context.TestRunDirectory, context);
                     string baseFileName = Path.ChangeExtension(testFileName, null);
 
                     string savePathExpected = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-expected", ".png"));
                     string savePathActual = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-actual", ".png"));
                     string savePathDiff = Path.Combine(directoryName, Path.ChangeExtension(baseFileName + "-diff", ".png"));
 
-                    // Ensure path exists
-                    if (!Directory.Exists(directoryName))
-                    {
-                        Assert.IsNotNull(directoryName, "directoryName != null");
-                        Directory.CreateDirectory(directoryName);
-                    }
-
-                    image.Save(savePathActual, ImageFormat.Png);
-                    expected.Save(savePathExpected, ImageFormat.Png);
-
                     using (var diff = GenerateDiff(actLock, expLock))
                     {
-                        diff.Save(savePathDiff, ImageFormat.Png);
+                        testAdapter.SaveComparisonBitmapFiles(expected, savePathExpected, image, savePathActual, diff, savePathDiff);
                     }
 
                     context.AddResultFile(savePathActual);
                     context.AddResultFile(savePathExpected);
                     context.AddResultFile(savePathDiff);
-
-                    Assert.Fail($"Resulted image did not match expected image. Inspect results under directory {directoryName} for info about results");
+                    
+                    testAdapter.AssertFailure(
+                        $"Resulted image did not match expected image. Inspect results under directory {directoryName} for info about results");
                 }
             }
         }
         
-        private static string CombinedTestResultPath([NotNull] string basePath, [NotNull] TestContext context)
+        private static string CombinedTestResultPath([NotNull] string basePath, [NotNull] ITestContext context)
         {
             if(!SeparateDirectoriesPerNamespace)
                 return Path.Combine(basePath, context.FullyQualifiedTestClassName);
@@ -149,29 +147,17 @@ namespace PixSnapshot
             return Path.Combine(new[] {basePath}.Concat(segments).ToArray());
         }
 
-        private static string TestResultsPath()
-        {
-            string path = Path.GetFullPath(Path.Combine(System.Reflection.Assembly.GetExecutingAssembly().Location, ".."));
-            
-            if(!path.EndsWith("bin\\Debug") && !path.EndsWith("bin\\Release"))
-                Assert.Fail($"Invalid/unrecognized test assembly path {path}: Path must end in either bin\\Debug or bin\\Release");
-            
-            path = Path.GetFullPath(Path.Combine(path, "..\\..\\Snapshot\\Files"));
-
-            return path;
-        }
-
         private static Bitmap GenerateDiff([NotNull] FastBitmap bitmap1, [NotNull] FastBitmap bitmap2)
         {
             PixelF ColorAt(FastBitmap bitmap, int x, int y)
             {
                 if (x >= bitmap.Width || y >= bitmap.Height)
-                    return PixelF.White;
+                    return PixelF.WhiteColor;
 
                 return new PixelF(bitmap.GetPixelUInt(x, y));
             }
 
-            var result = new Bitmap(Math.Max(bitmap1.Width, bitmap2.Width), Math.Max(bitmap1.Height, bitmap2.Height));
+            var result = new Bitmap(Math.Max(bitmap1.Width, bitmap2.Width), Math.Max(bitmap1.Height, bitmap2.Height), PixelFormat.Format32bppArgb);
 
             using (var fastBitmap = result.FastLock())
             {
@@ -183,12 +169,16 @@ namespace PixSnapshot
                         var topColor = ColorAt(bitmap2, x, y);
 
                         // Basic idea:
-                        // 1. Draw base bitmap
-                        // 2. Compute a diff blend between the top bitmap and a fully white pixel
-                        // 3. Draw computed diff with 50% alpha over the base bitmap
+                        // 1. Draw base bitmap with 70% transparency
+                        // 2. For every pixel that differs across both bitmaps, draw a fully opaque red pixel
                         var finalPixel = baseColor;
-                        finalPixel = PixelF.White.ColorBlendOver(topColor, PixelF.BlendDifference).WithAlpha(0.5f).ColorBlendOver(finalPixel);
-                        
+                        finalPixel = PixelF.WhiteColor.WithAlpha(0.7f).ColorBlendOver(finalPixel);
+
+                        if (baseColor != topColor)
+                        {
+                            finalPixel = PixelF.RedColor;
+                        }
+
                         fastBitmap.SetPixel(x, y, finalPixel.ToColor());
                     }
                 }
@@ -199,18 +189,19 @@ namespace PixSnapshot
         
         [DebuggerDisplay("A: {Alpha}, R: {Red}, G: {Green}, B: {Blue}")]
         [StructLayout(LayoutKind.Sequential)]
-        private readonly struct PixelF
+        private readonly struct PixelF : IEquatable<PixelF>
         {
             internal static readonly Func<float, float, float> BlendNormal = (p1, p2) => p2;
             internal static readonly Func<float, float, float> BlendDifference = (p1, p2) => Math.Abs(p1 - p2);
 
-            internal static readonly PixelF White = new PixelF(1, 1, 1, 1);
-            internal static readonly PixelF Black = new PixelF(1, 0, 0, 0);
+            internal static readonly PixelF WhiteColor = new PixelF(1, 1, 1, 1);
+            internal static readonly PixelF RedColor = new PixelF(1, 1, 0, 0);
+            internal static readonly PixelF BlackColor = new PixelF(1, 0, 0, 0);
 
-            readonly float Alpha;
-            readonly float Red;
-            readonly float Green;
-            readonly float Blue;
+            private readonly float Alpha;
+            private readonly float Red;
+            private readonly float Green;
+            private readonly float Blue;
 
             public PixelF(uint color)
                 : this(((color >> 24) & 0xFF) / 255.0f, ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f, (color & 0xFF) / 255.0f)
@@ -309,6 +300,39 @@ namespace PixSnapshot
             private static float Clamp(float component)
             {
                 return Math.Max(0, Math.Min(1, component));
+            }
+
+            public bool Equals(PixelF other)
+            {
+                return Alpha.Equals(other.Alpha) && Red.Equals(other.Red) && Green.Equals(other.Green) && Blue.Equals(other.Blue);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                return obj is PixelF f && Equals(f);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hashCode = Alpha.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Red.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Green.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Blue.GetHashCode();
+                    return hashCode;
+                }
+            }
+
+            public static bool operator ==(PixelF left, PixelF right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(PixelF left, PixelF right)
+            {
+                return !left.Equals(right);
             }
         }
     }
