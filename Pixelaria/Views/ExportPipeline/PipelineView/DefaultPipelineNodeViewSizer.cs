@@ -44,6 +44,14 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         private const float LinkSeparation = 5;
 
         /// <summary>
+        /// The padding between the outer margins and the inner effective content area of the
+        /// pipeline view.
+        /// When input/outputs are placed, the label sits inside this margin, while the link
+        /// circle sits on top of it.
+        /// </summary>
+        private const float OuterMarginsPadding = 20;
+
+        /// <summary>
         /// Vertical separation between the outputs and inputs link lists on a node
         /// </summary>
         private const float LinkOutputInputsSeparation = 7;
@@ -68,7 +76,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             nodeViewHeight += ContentPadding;
             
             // Links
-            nodeViewHeight = PositionLinkViews(nodeView, nodeViewHeight, ref nodeViewWidth);
+            PositionLinkViews(nodeView, nodeViewHeight, ref nodeViewWidth, out nodeViewHeight);
             nodeViewHeight += ContentPadding;
             
             // Body text
@@ -83,6 +91,19 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             var size = new Vector(nodeViewWidth, nodeViewHeight);
             nodeView.TitleTextArea = titleArea.Inset(_nodeTitleInset);
             nodeView.Size = size;
+
+            nodeView.LinkViewLabelArea = new AABB(0, titleArea.Bottom, bodySize.Y > 0 ? nodeView.BodyTextArea.Top : nodeView.Height, nodeView.Width);
+
+            if (nodeView.InputViews.Count > 0)
+            {
+                nodeView.LinkViewLabelArea =
+                    nodeView.LinkViewLabelArea.Inset(new InsetBounds(OuterMarginsPadding, 0, 0, 0));
+            }
+            if (nodeView.OutputViews.Count > 0)
+            {
+                nodeView.LinkViewLabelArea =
+                    nodeView.LinkViewLabelArea.Inset(new InsetBounds(0, 0, 0, OuterMarginsPadding));
+            }
         }
 
         private static void ResizeLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
@@ -103,7 +124,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             }
         }
         
-        private static float PositionLinkViews([NotNull] PipelineNodeView nodeView, float yPos, ref float width)
+        private static void PositionLinkViews([NotNull] PipelineNodeView nodeView, float yPos, ref float width, out float height)
         {
             // Position vertically
             float y = yPos;
@@ -117,7 +138,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             foreach (var link in outputs)
             {
-                float x = width - size.X - LinkSeparation;
+                float x = width - size.X - (OuterMarginsPadding - LinkSize) / 2;
 
                 link.Location = new Vector(x, y);
                 y += yStep;
@@ -130,7 +151,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             foreach (var link in inputs)
             {
-                const float x = LinkSeparation;
+                const float x = (OuterMarginsPadding - LinkSize) / 2;
 
                 link.Location = new Vector(x, y);
                 y += yStep;
@@ -141,8 +162,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             {
                 y -= LinkSeparation;
             }
-
-            return y;
+            
+            height = y;
         }
 
         private Vector SizeForTextBody([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
@@ -187,10 +208,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             {
                 linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel);
 
-                float linkWidth = linkView.GetFullBounds().Width + LinkSeparation * 2;
+                float linkWidth = linkView.GetFullBounds().Width + (OuterMarginsPadding - LinkSize) / 2 + LinkSeparation * 2;
 
                 if (width < linkWidth)
                     width = linkWidth;
+            }
+
+            if (nodeView.InputViews.Count > 0 && nodeView.OutputViews.Count > 0)
+            {
+                width += OuterMarginsPadding;
             }
 
             return width;
@@ -204,11 +230,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             if (location == LabelLocation.Right)
             {
-                linkView.LinkLabel.Location = new Vector(linkView.Size.X + 5, labelY);
+                linkView.LinkLabel.Location = new Vector(linkView.Size.X + LinkSeparation * 2, labelY);
             }
             else
             {
-                linkView.LinkLabel.Location = new Vector(-linkView.LinkLabel.Size.X - 5, labelY);
+                linkView.LinkLabel.Location = new Vector(-linkView.LinkLabel.Size.X - LinkSeparation * 2, labelY);
             }
         }
         

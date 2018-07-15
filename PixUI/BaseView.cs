@@ -676,7 +676,7 @@ namespace PixUI
 
         /// <summary>
         /// Gets the full bounds of this <see cref="BaseView"/> (in its local coordinates system),
-        /// counting the child bounds as well.
+        /// counting children boundaries, as well.
         /// </summary>
         public AABB GetFullBounds()
         {

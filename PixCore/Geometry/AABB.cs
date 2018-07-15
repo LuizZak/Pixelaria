@@ -417,7 +417,7 @@ namespace PixCore.Geometry
         
         /// <summary>
         /// Applies the given Matrix on all corners of this AABB, returning
-        /// a new minimaml AABB capable of containing the transformed points.
+        /// a new minimal AABB capable of containing the transformed points.
         /// </summary>
         [Pure]
         public AABB TransformedBounds(Matrix2D matrix)
@@ -429,6 +429,16 @@ namespace PixCore.Geometry
         public AABB Inset(in InsetBounds inset)
         {
             return inset.Inset(this);
+        }
+
+        /// <summary>
+        /// Returns an AABB that matches the sides from this AABB, rounded
+        /// down to the nearest integers.
+        /// </summary>
+        [Pure]
+        public AABB Rounded()
+        {
+            return new AABB((float)Math.Round(Left), (float)Math.Round(Top), (float)Math.Round(Bottom), (float)Math.Round(Right));
         }
 
         public bool Equals(AABB other)

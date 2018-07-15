@@ -247,6 +247,8 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
                 renderManager.RenderSingleFrame(state =>
                 {
+                    state.D2DRenderTarget.Clear(null);
+
                     control.InitializeDirect2DRenderer(state);
 
                     var renderer = new TestDirect2DRenderer();

@@ -71,6 +71,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public AABB BodyTextArea { get; set; }
 
         /// <summary>
+        /// Area where the input and output node views will be placed in.
+        /// </summary>
+        public AABB LinkViewLabelArea { get; set; }
+
+        /// <summary>
         /// Gets this node view's underlying node name.
         /// </summary>
         public string Name => PipelineNode.Name;
