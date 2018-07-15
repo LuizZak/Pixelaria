@@ -2,5 +2,8 @@ version: 1.17.{build}
 image: Visual Studio 2017
 build:
   verbosity: normal
+after_test:
+  - ps: 7z a TestResults.zip TestResults
 artifacts:
-  - path: TestResults
+  - path: TestResults.zip
+    name: TestResults
