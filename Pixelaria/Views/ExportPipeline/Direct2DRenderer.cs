@@ -66,7 +66,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         /// <summary>
         /// For rendering title of pipeline nodes
-        /// </summary>.+
+        /// </summary>
         private TextFormat _nodeTitlesTextFormat;
 
         public ILabelViewSizeProvider LabelViewSizeProvider => _labelViewSizeProvider;
@@ -255,36 +255,25 @@ namespace Pixelaria.Views.ExportPipeline
                             EndPoint = new RawVector2(0, bounds.Height)
                         },
                         stopCollection))
-                    using (var linkAreaGeom = new PathGeometry(state.D2DFactory))
+                    using (var linkAreaGeom = new GeometryCombination(state.D2DFactory))
                     {
-                        using (var linkAreaClip = new RectangleGeometry(state.D2DFactory, linkLabelArea.ToRawRectangleF()))
-                        using (var sink = linkAreaGeom.Open())
-                        {
-                            roundedRectArea.Combine(linkAreaClip, CombineMode.Exclude, sink);
+                        linkAreaGeom.Combine(roundedRectArea, linkLabelArea.ToRawRectangleF(), CombineMode.Exclude);
 
-                            sink.Close();
-                        }
-
-                        state.D2DRenderTarget.FillGeometry(linkAreaGeom, gradientBrush);
+                        state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
                     }
 
                     // Title background (clipped)
-                    using (var titleAreaGeom = new PathGeometry(state.D2DFactory))
+                    using (var titleAreaGeom = new GeometryCombination(state.D2DFactory))
                     {
                         var titleRect = new RawRectangleF(0, 0, titleArea.Width, titleArea.Height);
-                        using (var titleClip = new RectangleGeometry(state.D2DFactory, titleRect))
-                        using (var sink = titleAreaGeom.Open())
-                        {
-                            titleClip.Combine(roundedRectArea, CombineMode.Intersect, sink);
-
-                            sink.Close();
-                        }
+                        
+                        titleAreaGeom.Combine(titleRect, roundedRectArea, CombineMode.Intersect);
 
                         // Fill title BG
                         using (var solidColorBrush =
                             new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
                         {
-                            state.D2DRenderTarget.FillGeometry(titleAreaGeom, solidColorBrush);
+                            state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
                         }
                     }
                 }
@@ -386,20 +375,14 @@ namespace Pixelaria.Views.ExportPipeline
                             EndPoint = new RawVector2(0, bounds.Height)
                         },
                         stopCollection))
-                    using (var textAreaGeom = new PathGeometry(state.D2DFactory))
+                    using (var textAreaGeom = new GeometryCombination(state.D2DFactory))
                     {
                         var areaOnView = new AABB(0, hasLinks ? yLine : titleArea.Bottom, nodeView.Height, nodeView.Width);
 
-                        using (var textArea = new RectangleGeometry(state.D2DFactory, areaOnView.ToRawRectangleF()))
-                        using (var sink = textAreaGeom.Open())
-                        {
-                            textArea.Combine(roundedRectArea, CombineMode.Intersect, sink);
-
-                            sink.Close();
-                        }
+                        textAreaGeom.Combine(areaOnView.ToRawRectangleF(), roundedRectArea, CombineMode.Intersect);
 
                         // Fill for link label area
-                        state.D2DRenderTarget.FillGeometry(textAreaGeom, gradientBrush);
+                        state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), gradientBrush);
                     }
 
                     var format1 = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size);
@@ -963,6 +946,80 @@ namespace Pixelaria.Views.ExportPipeline
 
                 _geometrySink.EndFigure(end);
                 _startOfFigure = true;
+            }
+        }
+
+        private sealed class GeometryCombination: IDisposable
+        {
+            private readonly PathGeometry _geometry;
+            private readonly SharpDX.Direct2D1.Factory _factory;
+
+            public GeometryCombination(SharpDX.Direct2D1.Factory factory)
+            {
+                _factory = factory;
+                _geometry = new PathGeometry(factory);
+            }
+
+            #region IDisposable
+
+            ~GeometryCombination()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool disposing)
+            {
+                _geometry?.Dispose();
+            }
+
+            #endregion
+
+            public Geometry GetGeometry()
+            {
+                return _geometry;
+            }
+
+            public void Combine([NotNull] Geometry geometry, CombineMode combineMode)
+            {
+                using (var sink = _geometry.Open())
+                {
+                    geometry.Combine(_geometry, combineMode, sink);
+
+                    sink.Close();
+                }
+            }
+
+            public void Combine([NotNull] Geometry geometry1, [NotNull] Geometry geometry2, CombineMode combineMode)
+            {
+                using (var sink = _geometry.Open())
+                {
+                    geometry1.Combine(geometry2, combineMode, sink);
+
+                    sink.Close();
+                }
+            }
+
+            public void Combine(RawRectangleF rectangle, [NotNull] Geometry geometry, CombineMode combineMode)
+            {
+                using (var rectGeometry = new RectangleGeometry(_factory, rectangle))
+                {
+                    Combine(rectGeometry, geometry, combineMode);
+                }
+            }
+
+            public void Combine([NotNull] Geometry geometry, RawRectangleF rectangle, CombineMode combineMode)
+            {
+                using (var rectGeometry = new RectangleGeometry(_factory, rectangle))
+                {
+                    Combine(geometry, rectGeometry, combineMode);
+                }
             }
         }
     }

@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
+using PixCore.Colors;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
 using PixUI;
@@ -141,6 +142,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             PipelineNode = pipelineNode;
             Color = DefaultColorForPipelineStep(pipelineNode);
+            StrokeColor = DefaultStrokeColorForPipelineStep(pipelineNode);
             
             ReloadLinkViews();
         }
@@ -245,7 +247,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         }
         
         /// <summary>
-        /// Gets the default color for the given implementation instance of IPipelineStep.
+        /// Gets the default color for the given implementation instance of <see cref="IPipelineNode"/>.
         /// </summary>
         public static Color DefaultColorForPipelineStep(IPipelineNode step)
         {
@@ -253,6 +255,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
                 return Color.Beige;
 
             return Color.White;
+        }
+
+        /// <summary>
+        /// Gets the default stroke color for the given implementation instance of <see cref="IPipelineNode"/>
+        /// </summary>
+        public static Color DefaultStrokeColorForPipelineStep(IPipelineNode step)
+        {
+            if (step is SpriteSheetGenerationPipelineStep)
+                return Color.Beige.Faded(Color.Black, 0.3f);
+
+            return Color.White.Faded(Color.Black, 0.3f);
         }
     }
 }
