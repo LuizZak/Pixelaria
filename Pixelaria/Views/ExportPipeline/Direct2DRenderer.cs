@@ -227,21 +227,15 @@ namespace Pixelaria.Views.ExportPipeline
                             EndPoint = new RawVector2(0, bounds.Height)
                         },
                         stopCollection))
-                    using (var linkAreaGeom = new PathGeometry(state.D2DFactory))
+                    using (var linkAreaGeom = new GeometryCombination(state.D2DFactory))
                     {
-                        using (var linkAreaClip = new RectangleGeometry(state.D2DFactory, linkLabelArea.ToRawRectangleF()))
-                        using (var sink = linkAreaGeom.Open())
-                        {
-                            linkAreaClip.Combine(roundedRectArea, CombineMode.Intersect, sink);
-
-                            sink.Close();
-                        }
+                        linkAreaGeom.Combine(linkLabelArea.ToRawRectangleF(), roundedRectArea, CombineMode.Intersect);
 
                         // Fill for link label area
-                        state.D2DRenderTarget.FillGeometry(linkAreaGeom, gradientBrush);
+                        state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
                     }
 
-                    // Fill for link circle areas (black borders)
+                    // Fill for link circle areas (black borders around colored body)
                     using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
                     {
                         new GradientStop {Color = Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f).ToColor4(), Position = 0},
@@ -397,7 +391,7 @@ namespace Pixelaria.Views.ExportPipeline
                     }
                 }
 
-                // Draw outline
+                // Draw body outline
                 using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
                 {
                     state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);

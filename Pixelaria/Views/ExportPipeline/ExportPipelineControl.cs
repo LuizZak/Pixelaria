@@ -946,9 +946,10 @@ namespace Pixelaria.Views.ExportPipeline
 
                         _selection.Remove(nodeView.PipelineNode);
                         view.StrokeWidth = 1;
-                        view.StrokeColor = Color.Black;
+                        view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(nodeView.PipelineNode);
                         _sel.FireOnSelectionChangedEvent();
                         break;
+
                     case PipelineNodeLinkView linkView:
                         if (!_selection.Contains(linkView.NodeLink))
                             return;
@@ -958,6 +959,7 @@ namespace Pixelaria.Views.ExportPipeline
                         view.StrokeColor = Color.Black;
                         _sel.FireOnSelectionChangedEvent();
                         break;
+
                     case PipelineNodeConnectionLineView connView:
                         if (!_selection.Contains(connView.Connection))
                             return;
