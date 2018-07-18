@@ -183,6 +183,8 @@ namespace Pixelaria.Views.ExportPipeline
                     
                 if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
+
+                var disposeBag = new DisposeBag();
                 
                 // Create rendering states for decorators
                 var stepViewState = new PipelineStepViewState
@@ -204,6 +206,7 @@ namespace Pixelaria.Views.ExportPipeline
                 var titleArea = nodeView.GetTitleArea();
                 var linkLabelArea = nodeView.LinkViewLabelArea;
 
+                // Create disposable objects
                 var roundedRect = new RoundedRectangle
                 {
                     RadiusX = 5,
@@ -211,64 +214,71 @@ namespace Pixelaria.Views.ExportPipeline
                     Rect = new RawRectangleF(0, 0, bounds.Width, bounds.Height)
                 };
 
-                using (var roundedRectArea = new RoundedRectangleGeometry(state.D2DFactory, roundedRect))
+                var roundedRectArea = new RoundedRectangleGeometry(state.D2DFactory, roundedRect);
+                var bodyFillStopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
                 {
-                    // Draw body fill
-                    using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
+                    new GradientStop {Color = stepViewState.FillColor.ToColor4(), Position = 0},
+                    new GradientStop {Color = stepViewState.FillColor.Faded(Color.Black, 0.1f).ToColor4(), Position = 1}
+                });
+                var bodyFillGradientBrush = new LinearGradientBrush(
+                    state.D2DRenderTarget,
+                    new LinearGradientBrushProperties
                     {
-                        new GradientStop {Color = stepViewState.FillColor.ToColor4(), Position = 0},
-                        new GradientStop {Color = stepViewState.FillColor.Faded(Color.Black, 0.1f).ToColor4(), Position = 1}
-                    }))
-                    using (var gradientBrush = new LinearGradientBrush(
-                        state.D2DRenderTarget,
-                        new LinearGradientBrushProperties
-                        {
-                            StartPoint = new RawVector2(0, 0),
-                            EndPoint = new RawVector2(0, bounds.Height)
-                        },
-                        stopCollection))
-                    using (var linkAreaGeom = new GeometryCombination(state.D2DFactory))
+                        StartPoint = new RawVector2(0, 0),
+                        EndPoint = new RawVector2(0, bounds.Height)
+                    },
+                    bodyFillStopCollection);
+
+                var textFormat = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size);
+                textFormat.SetTextAlignment(TextAlignment.Leading);
+                textFormat.SetParagraphAlignment(ParagraphAlignment.Center);
+
+                disposeBag.AddDisposable(roundedRectArea);
+                disposeBag.AddDisposable(bodyFillStopCollection);
+                disposeBag.AddDisposable(bodyFillGradientBrush);
+                disposeBag.AddDisposable(textFormat);
+
+                using (var linkAreaGeom = new GeometryCombination(state.D2DFactory))
+                {
+                    linkAreaGeom.Combine(linkLabelArea.ToRawRectangleF(), roundedRectArea, CombineMode.Intersect);
+
+                    // Fill for link label area
+                    state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), bodyFillGradientBrush);
+                }
+
+                // Fill for link circle areas (black borders around colored body)
+                using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
+                {
+                    new GradientStop {Color = Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f).ToColor4(), Position = 0},
+                    new GradientStop {Color = Color.Black.WithTransparency(0.5f).ToColor4(), Position = 0.3f},
+                }))
+                using (var gradientBrush = new LinearGradientBrush(
+                    state.D2DRenderTarget,
+                    new LinearGradientBrushProperties
                     {
-                        linkAreaGeom.Combine(linkLabelArea.ToRawRectangleF(), roundedRectArea, CombineMode.Intersect);
+                        StartPoint = new RawVector2(0, 0),
+                        EndPoint = new RawVector2(0, bounds.Height)
+                    },
+                    stopCollection))
+                using (var linkAreaGeom = new GeometryCombination(state.D2DFactory))
+                {
+                    linkAreaGeom.Combine(roundedRectArea, linkLabelArea.ToRawRectangleF(), CombineMode.Exclude);
 
-                        // Fill for link label area
-                        state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
-                    }
+                    state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
+                }
 
-                    // Fill for link circle areas (black borders around colored body)
-                    using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
+                // Title background (clipped)
+                using (var titleAreaGeom = new GeometryCombination(state.D2DFactory))
+                {
+                    var titleRect = new RawRectangleF(0, 0, titleArea.Width, titleArea.Height);
+                    
+                    titleAreaGeom.Combine(titleRect, roundedRectArea, CombineMode.Intersect);
+
+                    // Fill title BG
+                    using (var solidColorBrush =
+                        new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
                     {
-                        new GradientStop {Color = Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f).ToColor4(), Position = 0},
-                        new GradientStop {Color = Color.Black.WithTransparency(0.5f).ToColor4(), Position = 0.3f},
-                    }))
-                    using (var gradientBrush = new LinearGradientBrush(
-                        state.D2DRenderTarget,
-                        new LinearGradientBrushProperties
-                        {
-                            StartPoint = new RawVector2(0, 0),
-                            EndPoint = new RawVector2(0, bounds.Height)
-                        },
-                        stopCollection))
-                    using (var linkAreaGeom = new GeometryCombination(state.D2DFactory))
-                    {
-                        linkAreaGeom.Combine(roundedRectArea, linkLabelArea.ToRawRectangleF(), CombineMode.Exclude);
-
-                        state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
-                    }
-
-                    // Title background (clipped)
-                    using (var titleAreaGeom = new GeometryCombination(state.D2DFactory))
-                    {
-                        var titleRect = new RawRectangleF(0, 0, titleArea.Width, titleArea.Height);
-                        
-                        titleAreaGeom.Combine(titleRect, roundedRectArea, CombineMode.Intersect);
-
-                        // Fill title BG
-                        using (var solidColorBrush =
-                            new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
-                        {
-                            state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
-                        }
+                        state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
                     }
                 }
 
@@ -297,11 +307,6 @@ namespace Pixelaria.Views.ExportPipeline
                 }
 
                 // Draw title text
-                var format = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size);
-                format.SetTextAlignment(TextAlignment.Leading);
-                format.SetParagraphAlignment(ParagraphAlignment.Center);
-
-                using (var textFormat = format)
                 using (var textLayout = new TextLayout(state.DirectWriteFactory, nodeView.Name, textFormat, nodeView.TitleTextArea.Width, nodeView.TitleTextArea.Height))
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
                 {
@@ -355,35 +360,15 @@ namespace Pixelaria.Views.ExportPipeline
                     }
 
                     // Draw fill color
-                    using (var roundedRectArea = new RoundedRectangleGeometry(state.D2DFactory, roundedRect))
-                    using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
-                    {
-                        new GradientStop {Color = stepViewState.FillColor.ToColor4(), Position = 0},
-                        new GradientStop {Color = stepViewState.FillColor.Faded(Color.Black, 0.1f).ToColor4(), Position = 1}
-                    }))
-                    using (var gradientBrush = new LinearGradientBrush(
-                        state.D2DRenderTarget,
-                        new LinearGradientBrushProperties
-                        {
-                            StartPoint = new RawVector2(0, 0),
-                            EndPoint = new RawVector2(0, bounds.Height)
-                        },
-                        stopCollection))
                     using (var textAreaGeom = new GeometryCombination(state.D2DFactory))
                     {
                         var areaOnView = new AABB(0, hasLinks ? yLine : titleArea.Bottom, nodeView.Height, nodeView.Width);
 
                         textAreaGeom.Combine(areaOnView.ToRawRectangleF(), roundedRectArea, CombineMode.Intersect);
 
-                        // Fill for link label area
-                        state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), gradientBrush);
+                        state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), bodyFillGradientBrush);
                     }
 
-                    var format1 = new TextFormat(state.DirectWriteFactory, nodeView.Font.Name, nodeView.Font.Size);
-                    format1.SetTextAlignment(TextAlignment.Leading);
-                    format1.SetParagraphAlignment(ParagraphAlignment.Center);
-
-                    using (var textFormat = format1)
                     using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, textFormat, area.Width, area.Height))
                     using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
                     {
@@ -396,6 +381,8 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
                 }
+
+                disposeBag.Dispose();
             });
         }
 
@@ -1013,6 +1000,39 @@ namespace Pixelaria.Views.ExportPipeline
                 using (var rectGeometry = new RectangleGeometry(_factory, rectangle))
                 {
                     Combine(geometry, rectGeometry, combineMode);
+                }
+            }
+        }
+
+        private sealed class DisposeBag : IDisposable
+        {
+            private bool _isDisposed;
+            private readonly IList<IDisposable> _disposables = new List<IDisposable>();
+
+            public void Dispose()
+            {
+                CheckNotDisposed();
+
+                _isDisposed = true;
+
+                foreach (var disposable in _disposables)
+                {
+                    disposable.Dispose();
+                }
+            }
+
+            public void AddDisposable(IDisposable disposable)
+            {
+                CheckNotDisposed();
+
+                _disposables.Add(disposable);
+            }
+
+            private void CheckNotDisposed()
+            {
+                if (_isDisposed)
+                {
+                    throw new ObjectDisposedException(nameof(DisposeBag));
                 }
             }
         }

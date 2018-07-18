@@ -218,7 +218,7 @@ namespace Pixelaria.Views.ExportPipeline
             view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, exportPipelineControl.D2DRenderer.ImageResources);
 
             container.AddNodeView(view);
-            container.AutosizeNode(view);
+            container.AutoSizeNode(view);
             
             // Automatically adjust view to be on center of view port
             var center = exportPipelineControl.Bounds.Center();
@@ -262,7 +262,7 @@ namespace Pixelaria.Views.ExportPipeline
             exportPipelineControl.PipelineContainer.AddNodeView(fileExportView);
             exportPipelineControl.PipelineContainer.AddNodeView(traspFilter);
 
-            exportPipelineControl.PipelineContainer.AutosizeNodes();
+            exportPipelineControl.PipelineContainer.AutoSizeNodes();
 
             //TestThingsAndStuff();
         }
@@ -394,7 +394,7 @@ namespace Pixelaria.Views.ExportPipeline
                 exportPipelineControl.PipelineContainer.AddConnection(sheetStep, exportStep);
             }
 
-            exportPipelineControl.PipelineContainer.AutosizeNodes();
+            exportPipelineControl.PipelineContainer.AutoSizeNodes();
             exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
 
             exportPipelineControl.ResumeLayout();
@@ -462,7 +462,7 @@ namespace Pixelaria.Views.ExportPipeline
             var originalCenter =
                 nodeViews.Select(nv => nv.Center)
                     .Aggregate(Vector.Zero, (v1, v2) => v1 + v2) / nodeViews.Length;
-
+            
             // Deal with connections, now
             foreach (var node in nodes)
             {
@@ -603,7 +603,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             step.OnReceive = bitmap =>
             {
-                UpdatePreview(step, bitmap);
+                UpdatePreview(step, bitmap, control);
             };
 
             control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.Count - 1), null));
@@ -617,7 +617,7 @@ namespace Pixelaria.Views.ExportPipeline
             _latestPreviews.Remove(step);
         }
 
-        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap)
+        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap, [NotNull] ExportPipelineControl control)
         {
             if (_latestRenderState == null)
                 return;
@@ -628,6 +628,8 @@ namespace Pixelaria.Views.ExportPipeline
             var newBit = BaseDirect2DRenderer.CreateSharpDxBitmap(_latestRenderState.D2DRenderTarget, bitmap);
 
             _latestPreviews[step] = newBit;
+            
+            control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.IndexOf(step)), null));
         }
 
         public override void OnRender(IDirect2DRenderingState state)

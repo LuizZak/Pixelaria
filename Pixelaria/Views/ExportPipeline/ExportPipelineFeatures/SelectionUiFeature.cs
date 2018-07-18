@@ -229,7 +229,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 foreach (var view in removed)
                 {
                     view.StrokeWidth = 1;
-                    view.StrokeColor = Color.Black;
+                    view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(view.PipelineNode);
                 }
             }
             else if (e.Button == MouseButtons.None)
@@ -253,7 +253,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 {
                     if (_mouseDown.Distance(e.Location) < 3)
                     {
-                        Control.PipelineContainer.ClearSelection();
+                        if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift))
+                            Control.PipelineContainer.ClearSelection();
 
                         var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5), container.IsSelectable);
                         if (view != null)
@@ -278,7 +279,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 if (_mouseDown.Distance(e.Location) < 3)
                 {
-                    Control.PipelineContainer.ClearSelection();
+                    if (!System.Windows.Forms.Control.ModifierKeys.HasFlag(Keys.Shift))
+                        Control.PipelineContainer.ClearSelection();
 
                     var view = contentsView.ViewUnder(contentsView.ConvertFrom(e.Location, null), new Vector(5, 5), container.IsSelectable);
                     if (view != null)

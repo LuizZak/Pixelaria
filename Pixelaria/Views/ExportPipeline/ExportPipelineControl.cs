@@ -681,12 +681,12 @@ namespace Pixelaria.Views.ExportPipeline
             /// <summary>
             /// Performs automatic resizing of nodes
             /// </summary>
-            void AutosizeNodes();
+            void AutoSizeNodes();
 
             /// <summary>
             /// Performs automatic resizing of a single node view
             /// </summary>
-            void AutosizeNode([NotNull] PipelineNodeView view);
+            void AutoSizeNode([NotNull] PipelineNodeView view);
 
             void PerformAction([NotNull] IExportPipelineAction action);
         }
@@ -1062,25 +1062,19 @@ namespace Pixelaria.Views.ExportPipeline
                 _connectionViews.Remove(view);
             }
 
-            /// <summary>
-            /// Returns all pipeline node views that are connected to one of the given node view's output.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeConnectionLineView> GetConnections(PipelineNodeView source)
             {
                 return _connectionViews.Where(connection => connection.Start.NodeView.Equals(source) || connection.End.NodeView.Equals(source)).ToArray();
             }
             
-            /// <summary>
-            /// Returns all pipeline node views that are connected to one of the given node link view's output.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeConnectionLineView> GetConnections(PipelineNodeLinkView source)
             {
                 return _connectionViews.Where(connection => connection.Start.Equals(source) || connection.End.Equals(source)).ToArray();
             }
 
-            /// <summary>
-            /// Returns all pipeline node views that are connected to one of the given node view's output.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeView> GetNodesGoingFrom(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
@@ -1097,9 +1091,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return output.ToArray();
             }
 
-            /// <summary>
-            /// Returns all pipeline node views that are connected to one of the given node view's input.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeView> GetNodesGoingTo(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
@@ -1116,9 +1108,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return output.ToArray();
             }
             
-            /// <summary>
-            /// Returns all pipeline node link views that are connected to the given link views.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeLinkView> GetLinksConnectedTo(PipelineNodeLinkView source)
             {
                 return
@@ -1132,9 +1122,7 @@ namespace Pixelaria.Views.ExportPipeline
                     ).Where(v => v != null);
             }
 
-            /// <summary>
-            /// Returns a list of node views that are directly connected to a given source node view.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeView> DirectlyConnectedNodeViews(PipelineNodeView source)
             {
                 var output = new HashSet<PipelineNodeView>();
@@ -1153,11 +1141,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return output.ToArray();
             }
 
-            /// <summary>
-            /// Returns a list of all node views that are connected to a given node view, including the view itself.
-            /// 
-            /// Returns nodes listed from nearest to farthest from the source node.
-            /// </summary>
+            /// <inheritdoc />
             public IEnumerable<PipelineNodeView> NetworkForNodeView(PipelineNodeView source, IReadOnlyCollection<PipelineNodeView> except = null)
             {
                 var output = new List<PipelineNodeView>();
@@ -1182,9 +1166,7 @@ namespace Pixelaria.Views.ExportPipeline
                 return output;
             }
 
-            /// <summary>
-            /// Retrieves all combinations of link views between the two node views that are connected to one another.
-            /// </summary>
+            /// <inheritdoc />
             public (PipelineNodeLinkView from, PipelineNodeLinkView to)[] ConnectedLinkViewsBetween(PipelineNodeView from, PipelineNodeView to)
             {
                 return (from linkFrom in @from.OutputViews
@@ -1193,17 +1175,13 @@ namespace Pixelaria.Views.ExportPipeline
                     select (linkFrom, linkTo)).ToArray();
             }
 
-            /// <summary>
-            /// Retrieves the view that represents the given pipeline step within this container
-            /// </summary>
+            /// <inheritdoc />
             public PipelineNodeView ViewForPipelineNode(IPipelineNode node)
             {
                 return _nodeViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
             }
 
-            /// <summary>
-            /// Retrieves the view that represents the given pipeline step within this container
-            /// </summary>
+            /// <inheritdoc />
             public PipelineNodeLinkView ViewForPipelineNodeLink(IPipelineNodeLink node)
             {
                 if (node.Node == null)
@@ -1213,17 +1191,13 @@ namespace Pixelaria.Views.ExportPipeline
                     .FirstOrDefault(linkView => linkView.NodeLink == node);
             }
 
-            /// <summary>
-            /// Retrieves the view that represents the given pipeline connection
-            /// </summary>
+            /// <inheritdoc />
             public PipelineNodeConnectionLineView ViewForPipelineConnection(IPipelineLinkConnection connection)
             {
                 return _connectionViews.FirstOrDefault(view => view.Connection == connection);
             }
 
-            /// <summary>
-            /// Invalidates all connection line views connected to a given pipeline step
-            /// </summary>
+            /// <inheritdoc />
             public void UpdateConnectionViewsFor(PipelineNodeView nodeView)
             {
                 foreach (var view in _connectionViews)
@@ -1308,15 +1282,15 @@ namespace Pixelaria.Views.ExportPipeline
                 return null;
             }
             
-            public void AutosizeNodes()
+            public void AutoSizeNodes()
             {
                 foreach (var view in _nodeViews)
                 {
-                    AutosizeNode(view);
+                    AutoSizeNode(view);
                 }
             }
 
-            public void AutosizeNode(PipelineNodeView view)
+            public void AutoSizeNode(PipelineNodeView view)
             {
                 _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer.LabelViewSizeProvider);
             }
@@ -1724,7 +1698,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// On[...] (like OnMouseDown, OnMouseLeave, OnKeyDown, etc., except <see cref="OnRender"/>,
         /// <see cref="OnResize"/> and <see cref="OnFixedFrame"/>) this flag is reset to false on all pipeline UI 
         /// features, and after every feature's event handler call this flag is checked to 
-        /// stop calling the event handler on further events.
+        /// stop calling the event handler on further features.
         /// </summary>
         public bool IsEventConsumed { get; set; }
 

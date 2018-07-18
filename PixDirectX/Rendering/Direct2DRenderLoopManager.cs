@@ -242,7 +242,7 @@ namespace PixDirectX.Rendering
 
                         InvalidatedState?.Invoke(this, EventArgs.Empty);
 
-                        // Reset parameters for next redraw (backbuffer is empty when coming back from idle)
+                        // Reset parameters for next redraw (back-buffer is empty when coming back from idle)
                         parameters = new PresentParameters();
                     }
 
