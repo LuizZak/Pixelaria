@@ -801,7 +801,7 @@ namespace Pixelaria.Views.ExportPipeline
                 ContentsView.AddChild(nodeView);
                 _nodeViews.Add(nodeView);
 
-                NodeAdded?.Invoke(this, new PipelineNodeViewEventArgs(nodeView));
+                NodeAdded?.Invoke(this, new PipelineNodeViewEventArgs(_control, nodeView));
             }
 
             public void RemoveNodeView(PipelineNodeView nodeView)
@@ -818,7 +818,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 _nodeViews.Remove(nodeView);
 
-                NodeRemoved?.Invoke(this, new PipelineNodeViewEventArgs(nodeView));
+                NodeRemoved?.Invoke(this, new PipelineNodeViewEventArgs(_control, nodeView));
             }
 
             public void AttemptSelect(BaseView view)
@@ -1877,12 +1877,23 @@ namespace Pixelaria.Views.ExportPipeline
         }
     }
 
-    internal class PipelineNodeViewEventArgs: EventArgs
+    internal abstract class ExportPipelineControlEventArgs: EventArgs
+    {
+        [NotNull]
+        public ExportPipelineControl Control { get; }
+
+        protected ExportPipelineControlEventArgs([NotNull] ExportPipelineControl control)
+        {
+            Control = control;
+        }
+    }
+
+    internal class PipelineNodeViewEventArgs: ExportPipelineControlEventArgs
     {
         [NotNull]
         public PipelineNodeView Node { get; }
 
-        public PipelineNodeViewEventArgs([NotNull] PipelineNodeView node)
+        public PipelineNodeViewEventArgs([NotNull] ExportPipelineControl control, [NotNull] PipelineNodeView node) : base(control)
         {
             Node = node;
         }

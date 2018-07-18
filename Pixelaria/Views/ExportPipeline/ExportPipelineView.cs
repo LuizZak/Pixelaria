@@ -585,7 +585,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
                 return;
 
-            AddPreview(step);
+            AddPreview(step, e.Control);
         }
 
         private void PipelineContainerOnNodeRemoved(object sender, [NotNull] PipelineNodeViewEventArgs e)
@@ -593,10 +593,10 @@ namespace Pixelaria.Views.ExportPipeline
             if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
                 return;
 
-            RemovePreview(step);
+            RemovePreview(step, e.Control);
         }
 
-        private void AddPreview([NotNull] BitmapPreviewPipelineStep step)
+        private void AddPreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] ExportPipelineControl control)
         {
             _previewSteps.Add(step);
             _latestPreviews[step] = null;
@@ -605,10 +605,14 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 UpdatePreview(step, bitmap);
             };
+
+            control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.Count - 1), null));
         }
 
-        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step)
+        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] ExportPipelineControl control)
         {
+            control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.IndexOf(step)), null));
+
             _previewSteps.Remove(step);
             _latestPreviews.Remove(step);
         }
@@ -632,26 +636,19 @@ namespace Pixelaria.Views.ExportPipeline
 
             _latestRenderState = state;
 
-            float y = 0;
-
-            foreach (var step in _previewSteps)
+            for (int i = 0; i < _previewSteps.Count; i++)
             {
+                var step = _previewSteps[i];
+
+                var bounds = BoundsForPreview(i);
+
                 _latestPreviews.TryGetValue(step, out var bitmap);
-                
-                var size = new Vector(120, 90);
-                if(bitmap != null)
-                    size = new Vector(120, 120 * ((float)bitmap.PixelSize.Height / bitmap.PixelSize.Width));
-
-                var availableBounds = 
-                    AABB.FromRectangle(Vector.Zero, Control.Size)
-                    .Inset(new InsetBounds(5, 5, 5, 5));
-
-                var bounds = AABB.FromRectangle(availableBounds.Width - size.X, availableBounds.Height - y - size.Y, size.X, size.Y);
 
                 // Draw image, or opaque background
                 if (bitmap != null)
                 {
-                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds.ToRawRectangleF(), 1, BitmapInterpolationMode.Linear);
+                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds.ToRawRectangleF(), 1,
+                        BitmapInterpolationMode.Linear);
                 }
                 else
                 {
@@ -665,9 +662,28 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     state.D2DRenderTarget.DrawRectangle(bounds.ToRawRectangleF(), brush);
                 }
-
-                y += size.Y + 5;
             }
+        }
+
+        private AABB BoundsForPreview(int index)
+        {
+            var step = _previewSteps[index];
+
+            _latestPreviews.TryGetValue(step, out var bitmap);
+
+            var size = new Vector(120, 90);
+            if (bitmap != null)
+                size = new Vector(120 * ((float) bitmap.PixelSize.Width / bitmap.PixelSize.Height), 90);
+
+            var availableBounds = 
+                AABB.FromRectangle(Vector.Zero, Control.Size)
+                    .Inset(new InsetBounds(5, 5, 5, 5));
+            
+            float y = (size.Y + 5) * index;
+
+            var bounds = AABB.FromRectangle(availableBounds.Width - size.X, availableBounds.Height - y - size.Y, size.X, size.Y);
+
+            return bounds;
         }
     }
 }
