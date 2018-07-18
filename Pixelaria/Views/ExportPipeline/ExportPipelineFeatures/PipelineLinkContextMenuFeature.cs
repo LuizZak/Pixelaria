@@ -74,7 +74,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             var decorator = new ConnectionHighlightDecorator();
             Control.D2DRenderer.AddDecorator(decorator);
-            
+
+            menu.MouseEnter += (sender, args) =>
+            {
+                Control.InvalidateAll();
+            };
+
             menu.Closing += (sender, args) =>
             {
                 Control.D2DRenderer.RemoveDecorator(decorator);
