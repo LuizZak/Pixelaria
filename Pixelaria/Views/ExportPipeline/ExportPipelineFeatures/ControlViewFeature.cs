@@ -66,7 +66,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         [CanBeNull]
         private IKeyboardEventHandler _firstResponder;
 
-        public ControlViewFeature([NotNull] ExportPipelineControl control) : base(control)
+        public ControlViewFeature([NotNull] IExportPipelineControl control) : base(control)
         {
             BaseControl = new RootControlView(this)
             {
@@ -416,10 +416,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             public void Accept(IEventHandler handler)
             {
-                if (!(handler is THandler))
+                if (!(handler is THandler casted))
                     return;
-
-                var casted = (THandler)handler;
 
                 NotAccepted = false;
                 OnAccept(casted);

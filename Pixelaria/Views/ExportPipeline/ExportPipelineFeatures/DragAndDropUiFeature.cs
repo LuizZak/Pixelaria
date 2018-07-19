@@ -47,7 +47,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         private Vector _mouseDownPoint;
 
-        public DragAndDropUiFeature([NotNull] ExportPipelineControl control) : base(control)
+        public DragAndDropUiFeature([NotNull] IExportPipelineControl control) : base(control)
         {
 
         }

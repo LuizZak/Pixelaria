@@ -42,7 +42,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
     {
         private readonly LabelView _labelView;
 
-        public NodeLinkHoverLabelFeature([NotNull] ExportPipelineControl control) : base(control)
+        public NodeLinkHoverLabelFeature([NotNull] IExportPipelineControl control) : base(control)
         {
             _labelView = new LabelView
             {

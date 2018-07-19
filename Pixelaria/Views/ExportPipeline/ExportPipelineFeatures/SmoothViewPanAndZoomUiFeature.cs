@@ -39,7 +39,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private Vector _targetScale;
         private Vector _panTarget;
 
-        public SmoothViewPanAndZoomUiFeature([NotNull] ExportPipelineControl control)
+        public SmoothViewPanAndZoomUiFeature([NotNull] IExportPipelineControl control)
             : base(control)
         {
             _targetScale = contentsView.Scale;

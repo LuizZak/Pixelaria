@@ -403,13 +403,13 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal class PipelineControlConfigurator
     {
-        public static void Configure([NotNull] ExportPipelineControl control, [NotNull] IDirect2DRenderingState state)
+        public static void Configure([NotNull] IExportPipelineControl control, [NotNull] IDirect2DRenderingState state)
         {
             ConfigureLabelSizeProvider(control);
             RegisterIcons(control.D2DRenderer.ImageResources, state);
         }
 
-        private static void ConfigureLabelSizeProvider([NotNull] ExportPipelineControl control)
+        private static void ConfigureLabelSizeProvider([NotNull] IExportPipelineControl control)
         {
             LabelView.DefaultLabelViewSizeProvider = control.D2DRenderer.LabelViewSizeProvider;
         }
@@ -566,7 +566,7 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
         private readonly Dictionary<BitmapPreviewPipelineStep, Bitmap> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, Bitmap>();
 
-        public BitmapPreviewPipelineWindowManager([NotNull] ExportPipelineControl control) : base(control)
+        public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control) : base(control)
         {
             control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
@@ -596,7 +596,7 @@ namespace Pixelaria.Views.ExportPipeline
             RemovePreview(step, e.Control);
         }
 
-        private void AddPreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] ExportPipelineControl control)
+        private void AddPreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
         {
             _previewSteps.Add(step);
             _latestPreviews[step] = null;
@@ -609,7 +609,7 @@ namespace Pixelaria.Views.ExportPipeline
             control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.Count - 1), null));
         }
 
-        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] ExportPipelineControl control)
+        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
         {
             control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.IndexOf(step)), null));
 
@@ -617,7 +617,7 @@ namespace Pixelaria.Views.ExportPipeline
             _latestPreviews.Remove(step);
         }
 
-        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap, [NotNull] ExportPipelineControl control)
+        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap, [NotNull] IExportPipelineControl control)
         {
             if (_latestRenderState == null)
                 return;

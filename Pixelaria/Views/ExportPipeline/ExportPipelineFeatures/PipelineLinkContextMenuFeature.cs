@@ -36,7 +36,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
     /// </summary>
     internal class PipelineLinkContextMenuFeature : ExportPipelineUiFeature
     {
-        public PipelineLinkContextMenuFeature([NotNull] ExportPipelineControl control) : base(control)
+        public PipelineLinkContextMenuFeature([NotNull] IExportPipelineControl control) : base(control)
         {
 
         }

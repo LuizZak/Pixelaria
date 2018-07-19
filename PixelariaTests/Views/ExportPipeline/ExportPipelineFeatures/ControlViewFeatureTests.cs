@@ -141,7 +141,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         public void TestOnMouseUpOnlyAfterOnMouseDown()
         {
             // OnMouseUp should only fire on controls which have been pressed down
-            // with OnMouseDown beforehands
+            // with OnMouseDown beforehand
             var sut = new ControlViewFeature(new ExportPipelineControl());
 
             var ev = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
@@ -156,6 +156,61 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             sut.OnMouseUp(ev);
 
             control.AssertWasNotCalled(c => c.OnMouseUp(ev));
+        }
+        
+        [TestMethod]
+        public void TestOnMouseUpIsFiredWhenMouseIsNoLongerOverControlToo()
+        {
+            // Test that the mouse up event is also fired when the user presses
+            // down, leaves the view, and presses up outside of the view's bounds.
+
+            var sut = new ControlViewFeature(new ExportPipelineControl());
+
+            var evDown = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
+            var evMove = new MouseEventArgs(MouseButtons.Left, 0, -10, -10, 0);
+            var evUp = new MouseEventArgs(MouseButtons.Left, 0, -10, -10, 0);
+
+            var control = MockRepository.GeneratePartialMock<ControlView>();
+
+            control.Location = Vector.Zero;
+            control.Size = new Vector(200, 200);
+
+            control.Expect(c => c.OnMouseUp(evUp)).IgnoreArguments();
+
+            sut.AddControl(control);
+
+            sut.OnMouseDown(evDown);
+            sut.OnMouseMove(evMove);
+            sut.OnMouseUp(evUp);
+
+            control.VerifyAllExpectations();
+        }
+
+        [TestMethod]
+        public void TestOnMouseUpIsFiredWhenMouseIsNoLongerOverControlToo_WithNoMouseMove()
+        {
+            // Test that the mouse up event is also fired when the user presses
+            // down, and quickly releases outside of the view's bounds before the
+            // feature can detect a mouse move event.
+
+            var sut = new ControlViewFeature(new ExportPipelineControl());
+
+            var evDown = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
+            var evUp = new MouseEventArgs(MouseButtons.Left, 0, -10, -10, 0);
+
+            var control = MockRepository.GeneratePartialMock<ControlView>();
+
+            control.Location = Vector.Zero;
+            control.Size = new Vector(200, 200);
+
+            control.Expect(c => c.OnMouseUp(evUp)).IgnoreArguments();
+
+            sut.AddControl(control);
+
+            sut.OnMouseDown(evDown);
+            sut.OnMouseUp(evUp);
+
+            control.VerifyAllExpectations();
         }
 
         [TestMethod]

@@ -83,11 +83,6 @@ namespace Pixelaria.Views.ExportPipeline
         public IControlContainer ControlContainer => _controlViewFeature;
 
         /// <summary>
-        /// Delegate for <see cref="IPipelineContainer.NodeAdded"/>/<see cref="IPipelineContainer.NodeRemoved"/> events.
-        /// </summary>
-        public delegate void PipelineNodeViewEventHandler(object sender, [NotNull] PipelineNodeViewEventArgs e);
-
-        /// <summary>
         /// Latest registered location of the mouse on this control.
         /// 
         /// Is updated on every mouse event handler.
@@ -155,7 +150,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Adds a given region of invalidation to be rendered on the next frame.
         /// </summary>
-        public void InvalidateRegion([NotNull] RedrawRegion region)
+        public void InvalidateRegion(RedrawRegion region)
         {
             _clippingRegion.AddRegion(region);
         }
@@ -471,7 +466,7 @@ namespace Pixelaria.Views.ExportPipeline
             private readonly List<PipelineNodeConnectionLineView> _connectionViews =
                 new List<PipelineNodeConnectionLineView>();
             private readonly InternalSelection _sel;
-            private readonly ExportPipelineControl _control;
+            private readonly IExportPipelineControl _control;
             
             public event PipelineNodeViewEventHandler NodeAdded;
 
@@ -487,7 +482,7 @@ namespace Pixelaria.Views.ExportPipeline
             public PipelineNodeView[] NodeViews => _nodeViews.ToArray();
             public IPipelineNode[] Nodes => _nodeViews.Select(n => n.PipelineNode).ToArray();
             
-            public InternalPipelineContainer(ExportPipelineControl control)
+            public InternalPipelineContainer(IExportPipelineControl control)
             {
                 _root = new RootControlView(this);
                 _sel = new InternalSelection(this);
@@ -1113,7 +1108,12 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
     }
-    
+
+    /// <summary>
+    /// Delegate for <see cref="IPipelineContainer.NodeAdded"/>/<see cref="IPipelineContainer.NodeRemoved"/> events.
+    /// </summary>
+    internal delegate void PipelineNodeViewEventHandler(object sender, [NotNull] PipelineNodeViewEventArgs e);
+
     /// <summary>
     /// A clipping region backed by a list of individual <see cref="RectangleF"/> instances.
     /// </summary>
@@ -1583,9 +1583,9 @@ namespace Pixelaria.Views.ExportPipeline
     internal abstract class ExportPipelineControlEventArgs: EventArgs
     {
         [NotNull]
-        public ExportPipelineControl Control { get; }
+        public IExportPipelineControl Control { get; }
 
-        protected ExportPipelineControlEventArgs([NotNull] ExportPipelineControl control)
+        protected ExportPipelineControlEventArgs([NotNull] IExportPipelineControl control)
         {
             Control = control;
         }
@@ -1596,7 +1596,7 @@ namespace Pixelaria.Views.ExportPipeline
         [NotNull]
         public PipelineNodeView Node { get; }
 
-        public PipelineNodeViewEventArgs([NotNull] ExportPipelineControl control, [NotNull] PipelineNodeView node) : base(control)
+        public PipelineNodeViewEventArgs([NotNull] IExportPipelineControl control, [NotNull] PipelineNodeView node) : base(control)
         {
             Node = node;
         }

@@ -37,11 +37,6 @@ namespace Pixelaria.Views.ExportPipeline
     internal interface IExportPipelineControl
     {
         /// <summary>
-        /// Gets a set of rectangles that represent the invalidated redraw regions of this pipeline control.
-        /// </summary>
-        RectangleF[] ClippingRegionRectangles { get; }
-
-        /// <summary>
         /// Container for <see cref="ControlView"/>-based controls
         /// </summary>
         IControlContainer ControlContainer { get; }
@@ -170,12 +165,12 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Called when a node has been added to this container
         /// </summary>
-        event ExportPipelineControl.PipelineNodeViewEventHandler NodeAdded;
+        event PipelineNodeViewEventHandler NodeAdded;
 
         /// <summary>
         /// Called when a node has been removed from this container
         /// </summary>
-        event ExportPipelineControl.PipelineNodeViewEventHandler NodeRemoved;
+        event PipelineNodeViewEventHandler NodeRemoved;
 
         /// <summary>
         /// Removes all views on this pipeline container

@@ -62,7 +62,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             pathView.FillColor = Color.Orange.ToAhsl().WithTransparency(0.1f).ToColor();
         });
 
-        public SelectionUiFeature([NotNull] ExportPipelineControl control) : base(control)
+        public SelectionUiFeature([NotNull] IExportPipelineControl control) : base(control)
         {
             control.D2DRenderer.AddDecorator(this);
         }
