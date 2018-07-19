@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -47,7 +48,7 @@ namespace PixUI.Controls.PropertyGrid
         private PropertyInspector _propertyInspector;
 
         /// <summary>
-        /// Gets or sets the object to display the propreties of on this property grid
+        /// Gets or sets the object to display the properties of on this property grid
         /// </summary>
         [CanBeNull]
         public object SelectedObject
@@ -163,11 +164,9 @@ namespace PixUI.Controls.PropertyGrid
 
             foreach (var property in properties)
             {
-                var field = new PropertyField(property)
-                {
-                    Y = itemY,
-                    Size = new Vector(_scrollView.VisibleContentBounds.Width, itemHeight)
-                };
+                var field = PropertyField.Create(property);
+                field.Y = itemY;
+                field.Size = new Vector(_scrollView.VisibleContentBounds.Width, itemHeight);
                 _propertyFields.Add(field);
 
                 _scrollView.AddChild(field);
@@ -191,31 +190,35 @@ namespace PixUI.Controls.PropertyGrid
             }
         }
 
-        private sealed class PropertyField : ControlView
+        internal sealed class PropertyField : ControlView
         {
-            private readonly LabelViewControl _label;
-            private readonly TextField _textField;
-            private readonly InspectableProperty _inspect;
-            private readonly TypeConverter _typeConverter;
+            private readonly LabelViewControl _label = LabelViewControl.Create();
+            private readonly TextField _textField = TextField.Create();
+            private InspectableProperty _inspect;
+            private TypeConverter _typeConverter;
 
-            internal PropertyField([NotNull] InspectableProperty inspect)
+            public string Value => _textField.Text;
+
+            internal static PropertyField Create([NotNull] InspectableProperty inspect)
             {
-                BackColor = Color.Transparent;
-                StrokeColor = Color.FromArgb(255, 50, 50, 50);
+                var view = new PropertyField
+                {
+                    BackColor = Color.Transparent, 
+                    StrokeColor = Color.FromArgb(255, 50, 50, 50), 
+                    _inspect = inspect
+                };
 
-                _inspect = inspect;
-                _label = LabelViewControl.Create(inspect.Name);
-                _label.BackColor = Color.Transparent;
-                _label.ForeColor = Color.White;
-                _label.TextFont = new Font(FontFamily.GenericSansSerif.Name, 11);
-                _label.VerticalTextAlignment = VerticalTextAlignment.Center;
+                view._label.Text = inspect.Name;
+                view._label.BackColor = Color.Transparent;
+                view._label.ForeColor = Color.White;
+                view._label.TextFont = new Font(FontFamily.GenericSansSerif.Name, 11);
+                view._label.VerticalTextAlignment = VerticalTextAlignment.Center;
 
-                _textField = TextField.Create();
-                _textField.Text = "";
-                _textField.Editable = inspect.CanSet;
-                _textField.AcceptsEnterKey = true;
-                _textField.EnterKey += TextFieldOnEnterKey;
-                _textField.ResignedFirstResponder += TextFieldOnResignedFirstResponder;
+                view._textField.Text = "";
+                view._textField.Editable = inspect.CanSet;
+                view._textField.AcceptsEnterKey = true;
+                view._textField.EnterKey += view.TextFieldOnEnterKey;
+                view._textField.ResignedFirstResponder += view.TextFieldOnResignedFirstResponder;
                 
                 // Textfield style
                 var stylePlain = TextFieldVisualStyleParameters.DefaultDarkStyle();
@@ -228,12 +231,12 @@ namespace PixUI.Controls.PropertyGrid
                 var styleHighlighted = TextFieldVisualStyleParameters.DefaultDarkStyle();
                 styleHighlighted.StrokeColor = Color.CornflowerBlue;
                 
-                _textField.SetStyleForState(stylePlain, ControlViewState.Normal);
-                _textField.SetStyleForState(styleHighlighted, ControlViewState.Highlighted);
-                _textField.SetStyleForState(styleEditing, ControlViewState.Focused);
+                view._textField.SetStyleForState(stylePlain, ControlViewState.Normal);
+                view._textField.SetStyleForState(styleHighlighted, ControlViewState.Highlighted);
+                view._textField.SetStyleForState(styleEditing, ControlViewState.Focused);
 
                 // Load initial value
-                var converterAttr = _inspect.PropertyType.GetCustomAttribute<TypeConverterAttribute>();
+                var converterAttr = view._inspect.PropertyType.GetCustomAttribute<TypeConverterAttribute>();
                 if (converterAttr != null)
                 {
                     string converterName = converterAttr.ConverterTypeName;
@@ -241,14 +244,21 @@ namespace PixUI.Controls.PropertyGrid
                     var converterType = Type.GetType(converterName);
                     if (converterType != null)
                     {
-                        _typeConverter =
+                        view._typeConverter =
                             converterType.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as TypeConverter;
                     }
                 }
                 
-                ReloadValue();
+                view.ReloadValue();
 
-                Initialize();
+                view.Initialize();
+
+                return view;
+            }
+
+            private PropertyField()
+            {
+                
             }
 
             private void TextFieldOnEnterKey(object sender, EventArgs eventArgs)
@@ -318,7 +328,24 @@ namespace PixUI.Controls.PropertyGrid
             {
                 HashSet<string> representations;
 
-                if (_typeConverter != null && _typeConverter.CanConvertTo(typeof(string)))
+                if (typeof(ICollection).IsAssignableFrom(_inspect.PropertyType))
+                {
+                    var values = _inspect.GetValues();
+
+                    representations = new HashSet<string>(values.Select(o =>
+                    {
+                        if (!(o is ICollection list))
+                            return "<null>";
+
+                        if (list.Count == 1)
+                        {
+                            return "[1 value]";
+                        }
+
+                        return $"[{list.Count} values]";
+                    }));
+                }
+                else if (_typeConverter != null && _typeConverter.CanConvertTo(typeof(string)))
                 {
                     var values = _inspect.GetValues();
 
@@ -327,7 +354,7 @@ namespace PixUI.Controls.PropertyGrid
                 }
                 else
                 {
-                    representations = new HashSet<string>(_inspect.GetValues().Select(v => v.ToString()));
+                    representations = new HashSet<string>(_inspect.GetValues().Select(v => v?.ToString() ?? "<null>"));
                 }
 
                 if (representations.Count > 1)
@@ -413,12 +440,13 @@ namespace PixUI.Controls.PropertyGrid
                     bool valid = true;
                     foreach (var property in properties)
                     {
+                        // Cannot inspect subscriptions
                         if (property.GetIndexParameters().Length > 0)
                         {
                             valid = false;
                             break;
                         }
-                        // Cannot inspect set-only methods
+                        // Cannot inspect set-only properties
                         if (property.GetGetMethod(false) == null)
                         {
                             valid = false;
@@ -476,7 +504,7 @@ namespace PixUI.Controls.PropertyGrid
             [NotNull, ItemCanBeNull]
             public object[] GetValues()
             {
-                return Targets.Zip(Properties, (obj, prop) => (obj, prop)).Select(pair => pair.prop.GetValue(pair.obj)).ToArray();
+                return Targets.Zip(Properties, (obj, prop) => prop.GetValue(obj)).ToArray();
             }
 
             /// <summary>

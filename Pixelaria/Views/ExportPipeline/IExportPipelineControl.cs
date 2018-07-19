@@ -66,9 +66,9 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets or sets the sizer to apply to pipeline node views.
         /// </summary>
-        IPipelineNodeViewSizer PipelineNodeViewSizer { get; set; }
+        IPipelineNodeViewSizer PipelineNodeViewSizer { get; }
 
-        Size Size { get; set; }
+        Size Size { get; }
 
         /// <summary>
         /// Adds a given region of invalidation to be rendered on the next frame.

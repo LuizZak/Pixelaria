@@ -41,7 +41,7 @@ namespace PixUI.Controls
         private bool _scrollBarsAlwaysVisible;
 
         /// <summary>
-        /// Gets or sets a value specifying the scroll bar visbiility mode of this scroll view control.
+        /// Gets or sets a value specifying the scroll bar visibility mode of this scroll view control.
         /// </summary>
         public VisibleScrollBars ScrollBarsMode
         {
@@ -79,7 +79,7 @@ namespace PixUI.Controls
         public Vector Velocity { get; set; }
         
         /// <summary>
-        /// Total size of the larget inner contents of this scroll view
+        /// Total size of the largest inner contents of this scroll view
         /// </summary>
         public Vector ContentSize
         {

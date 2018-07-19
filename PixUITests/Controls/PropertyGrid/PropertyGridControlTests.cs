@@ -21,7 +21,9 @@
 */
 
 using System;
+using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixUI.Controls;
 using PixUI.Controls.PropertyGrid;
 
 namespace PixUITests.Controls.PropertyGrid
@@ -29,6 +31,12 @@ namespace PixUITests.Controls.PropertyGrid
     [TestClass]
     public class PropertyGridControlTests
     {
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
+        }
+
         [TestMethod]
         public void TestPropertyInspectorGetProperties()
         {
@@ -97,6 +105,19 @@ namespace PixUITests.Controls.PropertyGrid
             Assert.AreEqual(true, props[0].GetValues()[1]);
         }
 
+        [TestMethod]
+        public void TestPropertyFieldWithInspectablePropertyOfArrayOfTypes()
+        {
+            var target = new TestObject3
+            {
+                Property = new[] {typeof(int), typeof(string)}
+            };
+            var property = new PropertyGridControl.PropertyInspector(target).GetProperties()[0];
+            var sut = PropertyGridControl.PropertyField.Create(property);
+
+            Assert.AreEqual("[2 values]", sut.Value);
+        }
+
         internal class TestObject
         {
             public float Field;
@@ -113,6 +134,11 @@ namespace PixUITests.Controls.PropertyGrid
             public float Id { get; set; }
             public bool IsAlive { get; set; }
             public object SetterOnly { internal get; set; }
+        }
+
+        internal class TestObject3
+        {
+            public Type[] Property { get; set; }
         }
     }
 }
