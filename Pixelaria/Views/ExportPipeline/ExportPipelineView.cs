@@ -440,12 +440,12 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal interface IExportPipelineAction
     {
-        void Perform([NotNull] ExportPipelineControl.IPipelineContainer container);
+        void Perform([NotNull] IPipelineContainer container);
     }
 
     internal class SortSelectedViewsAction : IExportPipelineAction
     {
-        public void Perform(ExportPipelineControl.IPipelineContainer container)
+        public void Perform(IPipelineContainer container)
         {
             var selectedNodes = container.SelectionModel.NodeViews();
             var nodeViews = selectedNodes.Length > 0 ? selectedNodes : container.NodeViews;

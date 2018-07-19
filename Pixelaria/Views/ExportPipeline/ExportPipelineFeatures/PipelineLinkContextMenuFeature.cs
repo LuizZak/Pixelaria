@@ -47,12 +47,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             if (e.Button != MouseButtons.Right)
                 return;
-
+            
             ShowContextMenuForLinkUnder(e.Location);
         }
 
         public void ShowContextMenuForLinkUnder(Vector location)
         {
+            if (!(Control is Control control))
+                return;
+
             // Search input node under mouse
             var point = contentsView.ConvertFrom(location, null);
 
@@ -64,7 +67,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             ConfigureContextMenu(menu, linkView);
 
-            menu.Show(Control, Control.MousePoint);
+            menu.Show(control, Control.MousePoint);
         }
 
         public void ConfigureContextMenu([NotNull] ContextMenuStrip menu, [NotNull] PipelineNodeLinkView linkView)

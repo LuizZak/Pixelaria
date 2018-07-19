@@ -37,14 +37,14 @@ namespace Pixelaria.Views.ExportPipeline
     internal sealed class PropertiesPanel : IDisposable
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly ExportPipelineControl _control;
+        private readonly IExportPipelineControl _control;
 
         private ControlView _container;
         private PropertyGridControl _propertiesGrid;
 
         public delegate void PipelineNodeSelectedEventHandler(object sender, ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e);
         
-        public PropertiesPanel([NotNull] ExportPipelineControl control)
+        public PropertiesPanel([NotNull] IExportPipelineControl control)
         {
             _control = control;
 

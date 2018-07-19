@@ -130,7 +130,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 var nodes = container.SelectionModel.NodeViews();
                 var links = container.SelectionModel.NodeLinkViews();
 
-                // Dragging nodes takes precedense over dragging links
+                // Dragging nodes takes precedence over dragging links
                 if (nodes.Length > 0)
                 {
                     var operation = new NodeDragOperation(container, nodes, mousePosition);
@@ -237,7 +237,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             /// <summary>
             /// Container used to detect drop of link connections
             /// </summary>
-            private readonly ExportPipelineControl.IPipelineContainer _container;
+            private readonly IPipelineContainer _container;
 
             private readonly Vector[] _startPositions;
 
@@ -265,7 +265,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             /// </summary>
             private readonly Vector[] _targetOffsets;
 
-            public NodeDragOperation(ExportPipelineControl.IPipelineContainer container, [NotNull, ItemNotNull] PipelineNodeView[] targets, Vector dragStartMousePosition)
+            public NodeDragOperation(IPipelineContainer container, [NotNull, ItemNotNull] PipelineNodeView[] targets, Vector dragStartMousePosition)
             {
                 Targets = targets;
                 _container = container;
@@ -336,7 +336,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             /// <summary>
             /// Container used to detect drop of link connections
             /// </summary>
-            private readonly ExportPipelineControl.IPipelineContainer _container;
+            private readonly IPipelineContainer _container;
 
             [NotNull, ItemNotNull]
             private readonly BezierPathView[] _linkDrawingPaths;
@@ -353,7 +353,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             public IReadOnlyList<object> TargetObjects => LinkViews;
 
-            public LinkConnectionDragOperation([NotNull] ExportPipelineControl.IPipelineContainer container, [NotNull] PipelineNodeLinkView[] linkViews)
+            public LinkConnectionDragOperation([NotNull] IPipelineContainer container, [NotNull] PipelineNodeLinkView[] linkViews)
             {
                 LinkViews = linkViews;
                 _container = container;
@@ -492,15 +492,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     IPipelineOutput end;
 
                     // Figure out direction of connection
-                    if (linkView.NodeLink is IPipelineInput && target.NodeLink is IPipelineOutput)
+                    if (linkView.NodeLink is IPipelineInput input && target.NodeLink is IPipelineOutput output)
                     {
-                        start = (IPipelineInput)linkView.NodeLink;
-                        end = (IPipelineOutput)target.NodeLink;
+                        start = input;
+                        end = output;
                     }
-                    else if (linkView.NodeLink is IPipelineOutput && target.NodeLink is IPipelineInput)
+                    else if (linkView.NodeLink is IPipelineOutput pipelineOutput && target.NodeLink is IPipelineInput pipelineInput)
                     {
-                        start = (IPipelineInput)target.NodeLink;
-                        end = (IPipelineOutput)linkView.NodeLink;
+                        start = pipelineInput;
+                        end = pipelineOutput;
                     }
                     else
                     {

@@ -246,6 +246,7 @@
     <Compile Include="ExportPipeline\Steps\SinkPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
+    <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />
     <Compile Include="Utils\Logging.cs" />

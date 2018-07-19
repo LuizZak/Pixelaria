@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal class Direct2DRenderer : BaseDirect2DRenderer, IExportPipelineDirect2DRenderer
     {
-        private readonly ExportPipelineControl.IPipelineContainer _container; // For relative position calculations
+        private readonly IPipelineContainer _container; // For relative position calculations
         private readonly DefaultLabelViewSizeProvider _labelViewSizeProvider;
         private readonly Control _control;
 
@@ -73,7 +73,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
         
-        public Direct2DRenderer(ExportPipelineControl.IPipelineContainer container, Control control)
+        public Direct2DRenderer(IPipelineContainer container, Control control)
         {
             _labelViewSizeProvider = new DefaultLabelViewSizeProvider(this);
             _container = container;
