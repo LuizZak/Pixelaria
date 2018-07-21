@@ -30,6 +30,7 @@ using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
+using PixUI.Animation;
 using PixUI.Controls;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -67,6 +68,11 @@ namespace Pixelaria.Views.ExportPipeline
         /// Gets or sets the sizer to apply to pipeline node views.
         /// </summary>
         IPipelineNodeViewSizer PipelineNodeViewSizer { get; }
+
+        /// <summary>
+        /// Gets the animations manager that can be used to create animations.
+        /// </summary>
+        AnimationsManager AnimationsManager { get; }
 
         Size Size { get; }
 

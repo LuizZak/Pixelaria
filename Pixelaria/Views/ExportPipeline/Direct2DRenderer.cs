@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
 
@@ -57,7 +56,7 @@ namespace Pixelaria.Views.ExportPipeline
     {
         private readonly IPipelineContainer _container; // For relative position calculations
         private readonly DefaultLabelViewSizeProvider _labelViewSizeProvider;
-        private readonly Control _control;
+        private readonly IExportPipelineControl _control;
 
         /// <summary>
         /// A small 32x32 box used to draw shadow boxes for labels.
@@ -73,7 +72,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
         
-        public Direct2DRenderer(IPipelineContainer container, Control control)
+        public Direct2DRenderer(IPipelineContainer container, IExportPipelineControl control)
         {
             _labelViewSizeProvider = new DefaultLabelViewSizeProvider(this);
             _container = container;
@@ -281,6 +280,12 @@ namespace Pixelaria.Views.ExportPipeline
                         state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
                     }
                 }
+                
+                // Draw body outline
+                using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
+                {
+                    state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
+                }
 
                 // Draw icon, if available
                 if (nodeView.Icon != null)
@@ -374,12 +379,6 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         state.D2DRenderTarget.DrawTextLayout(area.Minimum.ToRawVector2(), textLayout, brush, DrawTextOptions.EnableColorFont);
                     }
-                }
-
-                // Draw body outline
-                using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
-                {
-                    state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
                 }
 
                 disposeBag.Dispose();

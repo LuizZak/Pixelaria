@@ -198,7 +198,7 @@ namespace PixCore.Geometry
         }
 
         /// <summary>
-        /// Returns a vector with absoluite x and y coordinates 
+        /// Returns a vector with absolute x and y coordinates 
         /// </summary>
         [Pure]
         public static Vector Abs(in Vector vec)
@@ -292,15 +292,30 @@ namespace PixCore.Geometry
         {
             return new Vector(vec.X * factor, vec.Y * factor);
         }
+        
+        public static Vector operator *(in Vector vec, double factor)
+        {
+            return new Vector((float)(vec.X * factor), (float)(vec.Y * factor));
+        }
 
         public static Vector operator /(in Vector vec, float factor)
         {
             return new Vector(vec.X / factor, vec.Y / factor);
         }
 
+        public static Vector operator /(in Vector vec, double factor)
+        {
+            return new Vector((float)(vec.X / factor), (float)(vec.Y / factor));
+        }
+
         public static Vector operator /(float factor, in Vector vec)
         {
             return new Vector(factor / vec.X, factor / vec.Y);
+        }
+        
+        public static Vector operator /(double factor, in Vector vec)
+        {
+            return new Vector((float)(factor / vec.X), (float)(factor / vec.Y));
         }
 
         public static implicit operator PointF(in Vector vec)

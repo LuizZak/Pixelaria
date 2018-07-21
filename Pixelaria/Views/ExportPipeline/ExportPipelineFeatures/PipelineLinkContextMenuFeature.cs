@@ -75,7 +75,10 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             menu.Items.Add(linkView.NodeLink.Name).Enabled = false;
             menu.Items.Add("-");
 
-            var decorator = new ConnectionHighlightDecorator();
+            var decorator = new ConnectionHighlightDecorator
+            {
+                NodeView = linkView.NodeView
+            };
             Control.D2DRenderer.AddDecorator(decorator);
 
             menu.MouseEnter += (sender, args) =>
@@ -105,12 +108,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     {
                         decorator.LineView = connection;
                         connection.Invalidate();
+                        Control.InvalidateAll();
                     };
 
                     item.MouseLeave += (sender, args) =>
                     {
                         decorator.LineView = null;
                         connection.Invalidate();
+                        Control.InvalidateAll();
                     };
 
                     item.Click += (sender, args) =>
@@ -122,12 +127,33 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 menu.Items.Add(connectionsMenu);
             }
+            else
+            {
+                var item = new ToolStripMenuItem("No connections");
+                item.Enabled = false;
+
+                menu.Items.Add(item);
+            }
         }
 
         private class ConnectionHighlightDecorator : AbstractRenderingDecorator
         {
             [CanBeNull]
             public PipelineNodeConnectionLineView LineView { get; set; }
+            [CanBeNull]
+            public PipelineNodeView NodeView { get; set; }
+
+            public override void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
+            {
+                if (LineView == null || Equals(nodeView, NodeView))
+                    return;
+
+                if (nodeView.GetLinkViews().Contains(LineView.Start) || nodeView.GetLinkViews().Contains(LineView.End))
+                {
+                    state.StrokeColor = Color.Orange;
+                    state.StrokeWidth = 3;
+                }
+            }
 
             public override void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
             {

@@ -37,6 +37,7 @@ using PixUI;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI.Animation;
 using PixUI.Controls;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -51,6 +52,8 @@ namespace Pixelaria.Views.ExportPipeline
 {
     internal class ExportPipelineControl: RenderControl, IExportPipelineControl
     {
+        public AnimationsManager AnimationsManager { get; } = new AnimationsManager();
+
         private readonly InternalPipelineContainer _container;
 
         // Timer used to tick the fixed step OnFixedFrame method on each control feature added
@@ -191,6 +194,9 @@ namespace Pixelaria.Views.ExportPipeline
             if (_d2DRenderer == null)
                 throw new InvalidOperationException(
                     $"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(RenderDirect2D)}.");
+
+            // Update animations
+            AnimationsManager.Update(state.FrameRenderDeltaTime);
 
             if (_clippingRegion.IsEmpty())
                 return;

@@ -96,6 +96,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation\AnimationsManager.cs" />
+    <Compile Include="Animation\ClosureAnimation.cs" />
+    <Compile Include="Animation\IAnimation.cs" />
     <Compile Include="Controls\PropertyGrid\PropertyGridControl.cs" />
     <Compile Include="Controls\RedrawRegion.cs" />
     <Compile Include="IRegionInvalidateable.cs" />

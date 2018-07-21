@@ -33,6 +33,7 @@ using PixUI;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI.Animation;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {

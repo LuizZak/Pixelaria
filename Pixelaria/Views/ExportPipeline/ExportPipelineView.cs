@@ -46,6 +46,7 @@ using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI.Animation;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -328,7 +329,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void tsb_sortSelected_Click(object sender, EventArgs e)
         {
-            exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
+            exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction(exportPipelineControl.AnimationsManager, true));
         }
 
         private void tab_open_Click(object sender, EventArgs e)
@@ -395,7 +396,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
 
             exportPipelineControl.PipelineContainer.AutoSizeNodes();
-            exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction());
+            exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction(exportPipelineControl.AnimationsManager, false));
 
             exportPipelineControl.ResumeLayout();
         }
@@ -445,6 +446,15 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal class SortSelectedViewsAction : IExportPipelineAction
     {
+        private readonly AnimationsManager _animationsManager;
+        private readonly bool _animated;
+
+        public SortSelectedViewsAction(AnimationsManager animationsManager, bool animated)
+        {
+            _animationsManager = animationsManager;
+            _animated = animated;
+        }
+
         public void Perform(IPipelineContainer container)
         {
             var selectedNodes = container.SelectionModel.NodeViews();
@@ -495,6 +505,16 @@ namespace Pixelaria.Views.ExportPipeline
 
             var sorted = root.TopologicalSorted().ToArray();
             
+            var originalPositions = new Dictionary<PipelineNodeView, Vector>();
+            foreach (var node in sorted)
+            {
+                var view = node.Value;
+                if (view == null)
+                    continue;
+
+                originalPositions[view] = view.Location;
+            }
+
             // Organize the sortings, now
             float x = 0;
             foreach (var node in sorted)
@@ -505,8 +525,6 @@ namespace Pixelaria.Views.ExportPipeline
 
                 view.Location = new Vector(x, 0);
                 x += view.GetFullBounds().Width + 40;
-
-                container.UpdateConnectionViewsFor(view);
             }
 
             // Organize Y coordinates
@@ -547,10 +565,41 @@ namespace Pixelaria.Views.ExportPipeline
                 }
             }
 
-            // Update link connections
-            foreach (var view in nodeViews)
+            if (_animated)
             {
-                container.UpdateConnectionViewsFor(view);
+                var positions = new Dictionary<PipelineNodeView, Vector>();
+                foreach (var view in originalPositions.Keys)
+                {
+                    positions[view] = view.Location;
+                    view.Location = originalPositions[view];
+                }
+
+                var animation = new ClosureAnimation(0.3, TimingFunctions.EaseInOut, t =>
+                {
+                    foreach (var pair in positions)
+                    {
+                        var view = pair.Key;
+                        var target = pair.Value;
+
+                        view.Location = Vector.Lerp(originalPositions[view], target, (float)t);
+                    }
+
+                    // Update link connections
+                    foreach (var view in nodeViews)
+                    {
+                        container.UpdateConnectionViewsFor(view);
+                    }
+                });
+
+                _animationsManager.AddAnimation(animation);
+            }
+            else
+            {
+                // Update link connections
+                foreach (var view in nodeViews)
+                {
+                    container.UpdateConnectionViewsFor(view);
+                }
             }
         }
     }
