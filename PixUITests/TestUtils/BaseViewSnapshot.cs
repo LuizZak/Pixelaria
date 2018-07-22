@@ -63,13 +63,13 @@ namespace PixUITests.TestUtils
         [CanBeNull]
         public static Action<ID2DImageResourceManager, IDirect2DRenderingState> ImagesConfig;
         
-        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "", float? tolerance = null)
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "", float? tolerance = null, bool? recordMode = null)
         {
             BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(
                 view,
                 new MsTestAdapter(typeof(BaseViewSnapshot)), 
                 new MsTestContextAdapter(context), 
-                RecordMode, 
+                recordMode ?? RecordMode, 
                 suffix,
                 tolerance ?? Tolerance);
         }

@@ -54,10 +54,7 @@ namespace PixUI.Controls
         [CanBeNull]
         private TextLayout _textLayout;
 
-        /// <summary>
-        /// The backing label view for this label view control
-        /// </summary>
-        private readonly LabelView _labelView;
+        private readonly LabelViewBacking _labelViewBacking;
 
         private HorizontalTextAlignment _horizontalTextAlignment = HorizontalTextAlignment.Leading;
         private VerticalTextAlignment _verticalTextAlignment = VerticalTextAlignment.Near;
@@ -72,11 +69,10 @@ namespace PixUI.Controls
         [NotNull]
         public Font TextFont
         {
-            get => _labelView.TextFont;
+            get => _labelViewBacking.TextFont;
             set
             {
-                _labelView.TextFont = value;
-                CalculateBounds();
+                _labelViewBacking.TextFont = value;
                 ResetTextFormat();
             }
         }
@@ -84,15 +80,14 @@ namespace PixUI.Controls
         [NotNull]
         public string Text
         {
-            get => _labelView.Text;
+            get => _labelViewBacking.Text;
             set
             {
                 if(AutoResize)
                     Invalidate();
 
-                _labelView.Text = value;
+                _labelViewBacking.Text = value;
 
-                CalculateBounds();
                 ResetTextFormat();
                 Invalidate();
             }
@@ -102,7 +97,7 @@ namespace PixUI.Controls
         /// Gets the attributed text for this label view control
         /// </summary>
         [NotNull]
-        public IAttributedText AttributedText => _labelView.AttributedText;
+        public IAttributedText AttributedText => _labelViewBacking.AttributedText;
 
         public HorizontalTextAlignment HorizontalTextAlignment
         {
@@ -152,12 +147,17 @@ namespace PixUI.Controls
         
         protected LabelViewControl()
         {
-            _labelView = new LabelView();
+            _labelViewBacking = new LabelViewBacking();
         }
 
         protected virtual void Initialize([NotNull] string text)
         {
             InteractionEnabled = false;
+            _labelViewBacking.BoundsInvalidated += (sender, args) =>
+            {
+                CalculateBounds();
+                Invalidate();
+            };
 
             Text = text;
         }
@@ -176,7 +176,7 @@ namespace PixUI.Controls
         private void CalculateBounds()
         {
             if (AutoResize)
-                Size = _labelView.Size;
+                Size = _labelViewBacking.CalculateSize(LabelView.DefaultLabelViewSizeProvider);
         }
         
         public override void RenderForeground(ControlRenderingContext context)
@@ -185,6 +185,7 @@ namespace PixUI.Controls
 
             Debug.Assert(_textLayout != null, "_textLayout != null");
 
+            // TODO: Export text rendering to a separate reusable component
             context.Renderer.WithPreparedTextLayout(ForeColor.ToColor4(), AttributedText, _textLayout, (layout, renderer) =>
             {
                 // Render background segments
@@ -235,7 +236,7 @@ namespace PixUI.Controls
                 Direct2DConversionHelpers.DirectWriteWordWrapFor(TextWordWrap);
 
             _textFormat =
-                new TextFormat(factory, _labelView.TextFont.Name, _labelView.TextFont.Size);
+                new TextFormat(factory, _labelViewBacking.TextFont.Name, _labelViewBacking.TextFont.Size);
             _textFormat.SetTextAlignment(horizontalAlign);
             _textFormat.SetParagraphAlignment(verticalAlign);
             _textFormat.SetWordWrapping(wordWrap);

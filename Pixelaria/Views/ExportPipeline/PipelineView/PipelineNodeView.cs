@@ -163,7 +163,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             for (int i = 0; i < inputs.Count; i++)
             {
-                var input = new PipelineNodeLinkView(inputs.ElementAt(i));
+                var input = PipelineNodeLinkView.Create(inputs.ElementAt(i));
 
                 _inputs.Add(input);
                 AddChild(input);
@@ -171,7 +171,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             for (int i = 0; i < outputs.Count; i++)
             {
-                var output = new PipelineNodeLinkView(outputs.ElementAt(i));
+                var output = PipelineNodeLinkView.Create(outputs.ElementAt(i));
 
                 _outputs.Add(output);
                 AddChild(output);

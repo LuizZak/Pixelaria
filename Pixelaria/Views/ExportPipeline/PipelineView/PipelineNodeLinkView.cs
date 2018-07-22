@@ -60,14 +60,34 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public LabelView LinkLabel { get; } = new LabelView();
 
-        public PipelineNodeLinkView([NotNull] IPipelineNodeLink nodeLink)
+        public static PipelineNodeLinkView Create([NotNull] IPipelineNodeLink nodeLink)
+        {
+            var view = new PipelineNodeLinkView(nodeLink);
+            view.Initialize();
+            return view;
+        }
+
+        private PipelineNodeLinkView([NotNull] IPipelineNodeLink nodeLink)
         {
             NodeLink = nodeLink;
-            LinkLabel.Text = nodeLink.Name;
+        }
+
+        private void Initialize()
+        {
             LinkLabel.StrokeWidth = 0;
             LinkLabel.TextColor = Color.Black;
 
+            UpdateDisplay();
+
             AddChild(LinkLabel);
+        }
+
+        /// <summary>
+        /// Updates the display for this link view based on the latest node link data.
+        /// </summary>
+        public void UpdateDisplay()
+        {
+            LinkLabel.Text = NodeLink.Name;
         }
     }
 }

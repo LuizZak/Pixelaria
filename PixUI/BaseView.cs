@@ -48,7 +48,9 @@ namespace PixUI
         private Vector _scale = Vector.Unit;
         private float _rotation;
         private Matrix2D _localTransform;
-        
+
+        private readonly InternalLayoutEvents _layoutEvents;
+
         /// <summary>
         /// Gets the parent view, if any, of this base view.
         /// 
@@ -139,6 +141,7 @@ namespace PixUI
                 Invalidate();
                 _size = value;
                 OnResize();
+                _layoutEvents.DidResize();
                 Invalidate();
             }
         }
@@ -252,6 +255,13 @@ namespace PixUI
         /// If no parent is present, <see cref="Bounds"/> is returned instead.
         /// </summary>
         public virtual AABB FrameOnParent => Parent == null ? Bounds : ConvertTo(Bounds, Parent);
+        
+        /// <summary>
+        /// Gets the layout events object which contains the events that are triggered when the layout
+        /// properties of this view change.
+        /// </summary>
+        [NotNull]
+        public ILayoutEvents LayoutEvents => _layoutEvents;
 
         public BaseView() : this(null)
         {
@@ -265,6 +275,8 @@ namespace PixUI
         {
             DebugName = debugName;
             RecreateLocalTransformMatrix();
+
+            _layoutEvents = new InternalLayoutEvents(this);
         }
 
         /// <summary>
@@ -569,7 +581,7 @@ namespace PixUI
 
         /// <summary>
         /// Returns true if the given vector point intersects this view's area when
-        /// inflated by a specified ammount.
+        /// inflated by a specified amount.
         /// 
         /// Children views' bounds do not affect the hit test- it happens only on this view's <see cref="AABB"/> area.
         /// </summary>
@@ -582,7 +594,7 @@ namespace PixUI
 
         /// <summary>
         /// Returns true if the given <see cref="AABB"/> intersects this view's area when
-        /// inflated by a specified ammount.
+        /// inflated by a specified amount.
         /// 
         /// Children views' bounds do not affect the hit test- it happens only on this view's <see cref="AABB"/> area.
         /// </summary>
@@ -793,5 +805,34 @@ namespace PixUI
         {
             return DebugName != null ? $"{DebugName} : {{{base.ToString()}}}" : base.ToString();
         }
+
+        /// <summary>
+        /// Used to centralize layout events triggered by changes to a view's display properties
+        /// such as size, location, rotation, etc.
+        /// </summary>
+        private class InternalLayoutEvents: ILayoutEvents
+        {
+            private readonly BaseView _baseView;
+            public event EventHandler OnResize;
+
+            public InternalLayoutEvents(BaseView baseView)
+            {
+                _baseView = baseView;
+            }
+
+            public void DidResize()
+            {
+                OnResize?.Invoke(_baseView, EventArgs.Empty);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Exposes layout events triggered by a <see cref="BaseView"/> when its display
+    /// properties change.
+    /// </summary>
+    public interface ILayoutEvents
+    {
+        event EventHandler OnResize;
     }
 }

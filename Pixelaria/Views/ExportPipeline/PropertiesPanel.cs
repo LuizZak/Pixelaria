@@ -22,13 +22,14 @@
 
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Reactive.Disposables;
 
 using JetBrains.Annotations;
 
 using PixCore.Colors;
 using PixCore.Geometry;
-
+using Pixelaria.ExportPipeline;
 using PixUI.Controls;
 using PixUI.Controls.PropertyGrid;
 
@@ -41,6 +42,16 @@ namespace Pixelaria.Views.ExportPipeline
 
         private ControlView _container;
         private PropertyGridControl _propertiesGrid;
+
+        public float PanelWidth
+        {
+            get => _container.Width;
+            set
+            {
+                _container.Width = value;
+                AdjustSize();
+            }
+        }
 
         public delegate void PipelineNodeSelectedEventHandler(object sender, ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e);
         
@@ -67,6 +78,7 @@ namespace Pixelaria.Views.ExportPipeline
             _propertiesGrid = PropertyGridControl.Create();
             _propertiesGrid.Location = new Vector(0, 50);
             _propertiesGrid.Size = new Vector(300, _control.Size.Height);
+            _propertiesGrid.InspectablePropertyChanged += PropertiesGridOnInspectablePropertyChanged;
 
             _container.AddChild(_propertiesGrid);
             
@@ -82,6 +94,35 @@ namespace Pixelaria.Views.ExportPipeline
             AdjustSize();
         }
 
+        private void PropertiesGridOnInspectablePropertyChanged([NotNull] object sender, [NotNull] InspectablePropertyChangedEventArgs e)
+        {
+            if (typeof(IPipelineNode).IsAssignableFrom(e.InspectableProperty.TargetType))
+            {
+                // Find all pipeline nodes affected by the change
+                foreach (var node in e.InspectableProperty.GetTargets().OfType<IPipelineNode>())
+                {
+                    var nodeView = _control.PipelineContainer.ViewForPipelineNode(node);
+                    if (nodeView == null)
+                        continue;
+
+                    _control.PipelineNodeViewSizer.AutoSize(nodeView, _control.D2DRenderer.LabelViewSizeProvider);
+                    
+                }
+            }
+            else if (typeof(IPipelineNodeLink).IsAssignableFrom(e.InspectableProperty.TargetType))
+            {
+                foreach (var nodeLink in e.InspectableProperty.GetTargets().OfType<IPipelineNodeLink>())
+                {
+                    var nodeLinkView = _control.PipelineContainer.ViewForPipelineNodeLink(nodeLink);
+                    if (nodeLinkView?.NodeView == null)
+                        continue;
+
+                    nodeLinkView.UpdateDisplay();
+                    _control.PipelineNodeViewSizer.AutoSize(nodeLinkView.NodeView, _control.D2DRenderer.LabelViewSizeProvider);
+                }
+            }
+        }
+
         private void SelectionModelOnOnSelectionChanged(object o, EventArgs eventArgs)
         {
             _propertiesGrid.SelectedObjects = _control.PipelineContainer.Selection;
@@ -89,7 +130,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void AdjustSize()
         {
-            const float containerWidth = 300;
+            float containerWidth = _container.Width;
             var containerRegion = AABB.FromRectangle(_control.Size.Width - containerWidth, 0, containerWidth, _control.Size.Height);
 
             _container.SetFrame(containerRegion);

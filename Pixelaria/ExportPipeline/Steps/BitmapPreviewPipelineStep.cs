@@ -37,8 +37,28 @@ namespace Pixelaria.ExportPipeline.Steps
     /// </summary>
     internal class BitmapPreviewPipelineStep: IPipelineStep
     {
+        private string _name = "Bitmap Preview";
+
+        /// <summary>
+        /// Event invoked when the name for this pipeline step is updated
+        /// </summary>
+        public event EventHandler Renamed;
+
         public Guid Id { get; } = Guid.NewGuid();
-        public string Name { get; set; } = "Bitmap Preview";
+
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (_name == value)
+                    return;
+
+                _name = value;
+                Renamed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         public IReadOnlyList<IPipelineInput> Input { get; }
         public IReadOnlyList<IPipelineOutput> Output { get; }
 

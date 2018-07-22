@@ -184,8 +184,8 @@ namespace Pixelaria.Views.ExportPipeline
                 if (!ClippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
 
-                var renderView = new NodeViewRenderer(nodeView, this, _container);
-                renderView.RenderView(state, decorators);
+                var renderView = new NodeViewRenderer(nodeView, state, this, _container);
+                renderView.RenderView(decorators);
             });
         }
 
@@ -846,6 +846,7 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly IPipelineContainer _container;
         [NotNull] private readonly PipelineNodeView _nodeView;
         private readonly Direct2DRenderer _direct2DRenderer;
+        private readonly IDirect2DRenderingState _state;
 
         private AABB TitleArea => _nodeView.GetTitleArea();
         private AABB BodyTextArea => _nodeView.GetBodyTextArea();
@@ -854,14 +855,15 @@ namespace Pixelaria.Views.ExportPipeline
         private IReadOnlyList<PipelineNodeLinkView> InLinks => _nodeView.InputViews;
         private IReadOnlyList<PipelineNodeLinkView> OutLinks => _nodeView.OutputViews;
 
-        public NodeViewRenderer([NotNull] PipelineNodeView nodeView, Direct2DRenderer direct2DRenderer, IPipelineContainer container)
+        public NodeViewRenderer([NotNull] PipelineNodeView nodeView, [NotNull] IDirect2DRenderingState state, Direct2DRenderer direct2DRenderer, IPipelineContainer container)
         {
             _nodeView = nodeView;
+            _state = state;
             _direct2DRenderer = direct2DRenderer;
             _container = container;
         }
 
-        public void RenderView([NotNull] IDirect2DRenderingState state, [NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderView([NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             var disposeBag = new Direct2DRenderer.DisposeBag();
 
@@ -888,14 +890,14 @@ namespace Pixelaria.Views.ExportPipeline
                 Rect = new RawRectangleF(0, 0, Bounds.Width, Bounds.Height)
             };
 
-            var roundedRectArea = new RoundedRectangleGeometry(state.D2DFactory, roundedRect);
-            var bodyFillStopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
+            var roundedRectArea = new RoundedRectangleGeometry(_state.D2DFactory, roundedRect);
+            var bodyFillStopCollection = new GradientStopCollection(_state.D2DRenderTarget, new[]
             {
                 new GradientStop {Color = stepViewState.FillColor.ToColor4(), Position = 0},
                 new GradientStop {Color = stepViewState.FillColor.Faded(Color.Black, 0.1f).ToColor4(), Position = 1}
             });
             var bodyFillGradientBrush = new LinearGradientBrush(
-                state.D2DRenderTarget,
+                _state.D2DRenderTarget,
                 new LinearGradientBrushProperties
                 {
                     StartPoint = new RawVector2(0, 0),
@@ -903,7 +905,7 @@ namespace Pixelaria.Views.ExportPipeline
                 },
                 bodyFillStopCollection);
 
-            var textFormat = new TextFormat(state.DirectWriteFactory, _nodeView.Font.Name, _nodeView.Font.Size);
+            var textFormat = new TextFormat(_state.DirectWriteFactory, _nodeView.Font.Name, _nodeView.Font.Size);
             textFormat.SetTextAlignment(TextAlignment.Leading);
             textFormat.SetParagraphAlignment(ParagraphAlignment.Center);
 
@@ -912,35 +914,35 @@ namespace Pixelaria.Views.ExportPipeline
             disposeBag.AddDisposable(bodyFillGradientBrush);
             disposeBag.AddDisposable(textFormat);
 
-            DrawConnectionLabelsBackground(state, roundedRectArea, bodyFillGradientBrush);
-            DrawConnectionsBackground(state, roundedRectArea);
-            DrawTitleBackground(state, roundedRectArea, stepViewState);
-            DrawBodyText(state, stepViewState, roundedRectArea, bodyFillGradientBrush, textFormat);
-            DrawBodyOutline(state, stepViewState, roundedRect);
-            DrawIcon(state, TitleArea);
-            DrawTitleText(state, textFormat, stepViewState);
-            DrawLinkViews(state, decorators);
+            DrawConnectionLabelsBackground(roundedRectArea, bodyFillGradientBrush);
+            DrawConnectionsBackground(roundedRectArea);
+            DrawTitleBackground(roundedRectArea, stepViewState);
+            DrawBodyText(stepViewState, roundedRectArea, bodyFillGradientBrush, textFormat);
+            DrawBodyOutline(stepViewState, roundedRect);
+            DrawIcon(TitleArea);
+            DrawTitleText(textFormat, stepViewState);
+            DrawLinkViews(decorators);
 
             disposeBag.Dispose();
         }
 
-        private void DrawConnectionLabelsBackground([NotNull] IDirect2DRenderingState state, [NotNull] Geometry bodyGeometry, Brush bodyFillGradientBrush)
+        private void DrawConnectionLabelsBackground([NotNull] Geometry bodyGeometry, Brush bodyFillGradientBrush)
         {
-            using (var linkAreaGeom = new Direct2DRenderer.GeometryCombination(state.D2DFactory))
+            using (var linkAreaGeom = new Direct2DRenderer.GeometryCombination(_state.D2DFactory))
             {
                 linkAreaGeom.Combine(LinkLabelArea.ToRawRectangleF(), bodyGeometry, CombineMode.Intersect);
 
                 // Fill for link label area
-                state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), bodyFillGradientBrush);
+                _state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), bodyFillGradientBrush);
             }
         }
 
-        private void DrawLinkViews(IDirect2DRenderingState state, IReadOnlyList<IRenderingDecorator> decorators)
+        private void DrawLinkViews(IReadOnlyList<IRenderingDecorator> decorators)
         {
             // Draw outputs
             foreach (var link in OutLinks)
             {
-                _direct2DRenderer.RenderNodeLinkView(state, link, decorators);
+                _direct2DRenderer.RenderNodeLinkView(_state, link, decorators);
             }
 
             // Draw separation between input and output links
@@ -948,9 +950,9 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 float yLine = (float) Math.Round(OutLinks.Select(o => o.FrameOnParent.Bottom + 6).Max());
 
-                using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.Gray.WithTransparency(0.5f).ToColor4()))
+                using (var brush = new SolidColorBrush(_state.D2DRenderTarget, Color.Gray.WithTransparency(0.5f).ToColor4()))
                 {
-                    state.D2DRenderTarget.DrawLine(new Vector(LinkLabelArea.Left + 6, yLine).ToRawVector2(),
+                    _state.D2DRenderTarget.DrawLine(new Vector(LinkLabelArea.Left + 6, yLine).ToRawVector2(),
                         new Vector(LinkLabelArea.Right - 6, yLine).ToRawVector2(), brush);
                 }
             }
@@ -958,21 +960,21 @@ namespace Pixelaria.Views.ExportPipeline
             // Draw inputs
             foreach (var link in InLinks)
             {
-                _direct2DRenderer.RenderNodeLinkView(state, link, decorators);
+                _direct2DRenderer.RenderNodeLinkView(_state, link, decorators);
             }
         }
 
-        private static void DrawBodyOutline([NotNull] IDirect2DRenderingState state, PipelineStepViewState stepViewState, RoundedRectangle roundedRect)
+        private void DrawBodyOutline(PipelineStepViewState stepViewState, RoundedRectangle roundedRect)
         {
-            using (var penBrush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
+            using (var penBrush = new SolidColorBrush(_state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
             {
-                state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
+                _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
             }
         }
 
-        private void DrawTitleBackground([NotNull] IDirect2DRenderingState state, [NotNull] Geometry bodyGeometry, PipelineStepViewState stepViewState)
+        private void DrawTitleBackground([NotNull] Geometry bodyGeometry, PipelineStepViewState stepViewState)
         {
-            using (var titleAreaGeom = new Direct2DRenderer.GeometryCombination(state.D2DFactory))
+            using (var titleAreaGeom = new Direct2DRenderer.GeometryCombination(_state.D2DFactory))
             {
                 var titleRect = new RawRectangleF(0, 0, TitleArea.Width, TitleArea.Height);
 
@@ -980,37 +982,37 @@ namespace Pixelaria.Views.ExportPipeline
 
                 // Fill title BG
                 using (var solidColorBrush =
-                    new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
+                    new SolidColorBrush(_state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
                 {
-                    state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
+                    _state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
                 }
             }
         }
 
-        private void DrawConnectionsBackground([NotNull] IDirect2DRenderingState state, [NotNull] Geometry bodyGeometry)
+        private void DrawConnectionsBackground([NotNull] Geometry bodyGeometry)
         {
-            using (var stopCollection = new GradientStopCollection(state.D2DRenderTarget, new[]
+            using (var stopCollection = new GradientStopCollection(_state.D2DRenderTarget, new[]
             {
                 new GradientStop {Color = Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f).ToColor4(), Position = 0},
                 new GradientStop {Color = Color.Black.WithTransparency(0.5f).ToColor4(), Position = 0.3f}
             }))
             using (var gradientBrush = new LinearGradientBrush(
-                state.D2DRenderTarget,
+                _state.D2DRenderTarget,
                 new LinearGradientBrushProperties
                 {
                     StartPoint = new RawVector2(0, 0),
                     EndPoint = new RawVector2(0, Bounds.Height)
                 },
                 stopCollection))
-            using (var linkAreaGeom = new Direct2DRenderer.GeometryCombination(state.D2DFactory))
+            using (var linkAreaGeom = new Direct2DRenderer.GeometryCombination(_state.D2DFactory))
             {
                 linkAreaGeom.Combine(bodyGeometry, LinkLabelArea.ToRawRectangleF(), CombineMode.Exclude);
 
-                state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
+                _state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
             }
         }
 
-        private void DrawBodyText(IDirect2DRenderingState state, PipelineStepViewState stepViewState, Geometry bodyGeometry, Brush bodyFillBrush, TextFormat textFormat)
+        private void DrawBodyText(PipelineStepViewState stepViewState, Geometry bodyGeometry, Brush bodyFillBrush, TextFormat textFormat)
         {
             string bodyText = _nodeView.BodyText;
             if (string.IsNullOrEmpty(bodyText)) 
@@ -1023,44 +1025,44 @@ namespace Pixelaria.Views.ExportPipeline
             if (hasLinks)
             {
                 yLine = (float) Math.Round(OutLinks.Concat(InLinks).Select(o => o.FrameOnParent.Bottom + 6).Max());
-                using (var brush = new SolidColorBrush(state.D2DRenderTarget,
+                using (var brush = new SolidColorBrush(_state.D2DRenderTarget,
                     stepViewState.StrokeColor.WithTransparency(0.7f).ToColor4()))
                 {
-                    state.D2DRenderTarget.DrawLine(new Vector(0, yLine).ToRawVector2(),
+                    _state.D2DRenderTarget.DrawLine(new Vector(0, yLine).ToRawVector2(),
                         new Vector(_nodeView.Width, yLine).ToRawVector2(), brush);
                 }
             }
 
             // Draw fill color
-            using (var textAreaGeom = new Direct2DRenderer.GeometryCombination(state.D2DFactory))
+            using (var textAreaGeom = new Direct2DRenderer.GeometryCombination(_state.D2DFactory))
             {
                 var areaOnView = new AABB(0, hasLinks ? yLine : TitleArea.Bottom, _nodeView.Height, _nodeView.Width);
 
                 textAreaGeom.Combine(areaOnView.ToRawRectangleF(), bodyGeometry, CombineMode.Intersect);
 
-                state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), bodyFillBrush);
+                _state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), bodyFillBrush);
             }
 
-            using (var textLayout = new TextLayout(state.DirectWriteFactory, bodyText, textFormat, BodyTextArea.Width, BodyTextArea.Height))
-            using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
+            using (var textLayout = new TextLayout(_state.DirectWriteFactory, bodyText, textFormat, BodyTextArea.Width, BodyTextArea.Height))
+            using (var brush = new SolidColorBrush(_state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
             {
-                state.D2DRenderTarget.DrawTextLayout(BodyTextArea.Minimum.ToRawVector2(), textLayout, brush,
+                _state.D2DRenderTarget.DrawTextLayout(BodyTextArea.Minimum.ToRawVector2(), textLayout, brush,
                     DrawTextOptions.EnableColorFont);
             }
         }
 
-        private void DrawTitleText([NotNull] IDirect2DRenderingState state, TextFormat textFormat, PipelineStepViewState stepViewState)
+        private void DrawTitleText(TextFormat textFormat, PipelineStepViewState stepViewState)
         {
-            using (var textLayout = new TextLayout(state.DirectWriteFactory, _nodeView.Name, textFormat,
+            using (var textLayout = new TextLayout(_state.DirectWriteFactory, _nodeView.Name, textFormat,
                 _nodeView.TitleTextArea.Width, _nodeView.TitleTextArea.Height))
-            using (var brush = new SolidColorBrush(state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
+            using (var brush = new SolidColorBrush(_state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
             {
-                state.D2DRenderTarget.DrawTextLayout(_nodeView.TitleTextArea.Minimum.ToRawVector2(), textLayout, brush,
+                _state.D2DRenderTarget.DrawTextLayout(_nodeView.TitleTextArea.Minimum.ToRawVector2(), textLayout, brush,
                     DrawTextOptions.EnableColorFont);
             }
         }
 
-        private void DrawIcon(IDirect2DRenderingState state, AABB titleArea)
+        private void DrawIcon(AABB titleArea)
         {
             if (_nodeView.Icon == null) 
                 return;
@@ -1082,7 +1084,7 @@ namespace Pixelaria.Views.ExportPipeline
                 mode = BitmapInterpolationMode.NearestNeighbor;
             }
 
-            state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds.ToRawRectangleF(), 1f, mode);
+            _state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds.ToRawRectangleF(), 1f, mode);
         }
     }
 

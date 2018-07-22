@@ -48,10 +48,29 @@ namespace PixUITests.Controls.PropertyGrid
             Assert.AreEqual(2, props.Length);
             Assert.AreEqual("Id", props[0].Name);
             Assert.AreEqual(typeof(int), props[0].PropertyType);
+            Assert.AreEqual(typeof(TestObject), props[0].TargetType);
             Assert.IsTrue(props[0].CanSet);
             Assert.AreEqual("IsAlive", props[1].Name);
             Assert.AreEqual(typeof(bool), props[1].PropertyType);
+            Assert.AreEqual(typeof(TestObject), props[1].TargetType);
             Assert.IsFalse(props[1].CanSet);
+        }
+
+        [TestMethod]
+        public void TestPropertyInspectorGetProperties_TargetType()
+        {
+            var target = new TestObjectSub();
+            var sut = new PropertyGridControl.PropertyInspector(target);
+
+            var props = sut.GetProperties();
+
+            Assert.AreEqual(3, props.Length);
+            Assert.AreEqual("Id_Sub", props[0].Name);
+            Assert.AreEqual(typeof(TestObjectSub), props[0].TargetType);
+            Assert.AreEqual("Id", props[1].Name);
+            Assert.AreEqual(typeof(TestObject), props[1].TargetType);
+            Assert.AreEqual("IsAlive", props[2].Name);
+            Assert.AreEqual(typeof(TestObject), props[2].TargetType);
         }
 
         [TestMethod]
@@ -112,10 +131,35 @@ namespace PixUITests.Controls.PropertyGrid
             {
                 Property = new[] {typeof(int), typeof(string)}
             };
+            var gridControl = PropertyGridControl.Create();
             var property = new PropertyGridControl.PropertyInspector(target).GetProperties()[0];
-            var sut = PropertyGridControl.PropertyField.Create(property);
+            var sut = PropertyGridControl.PropertyField.Create(gridControl, property);
 
             Assert.AreEqual("[2 values]", sut.Value);
+        }
+
+        [TestMethod]
+        public void TestInspectablePropertySingleTargetGetTargets()
+        {
+            var target1 = new TestObject();
+            var sut = new PropertyGridControl.PropertyInspector(new object[] {target1});
+            var props = sut.GetProperties();
+
+            Assert.AreEqual(props[0].GetTargets().Length, 1);
+            Assert.AreSame(props[0].GetTargets()[0], target1);
+        }
+
+        [TestMethod]
+        public void TestInspectablePropertyMultipleTargetsGetTargets()
+        {
+            var target1 = new TestObject();
+            var target2 = new TestObject2();
+            var sut = new PropertyGridControl.PropertyInspector(new object[] {target1, target2});
+            var props = sut.GetProperties();
+
+            Assert.AreEqual(props[0].GetTargets().Length, 2);
+            Assert.AreSame(props[0].GetTargets()[0], target1);
+            Assert.AreSame(props[0].GetTargets()[1], target2);
         }
 
         internal class TestObject
@@ -139,6 +183,11 @@ namespace PixUITests.Controls.PropertyGrid
         internal class TestObject3
         {
             public Type[] Property { get; set; }
+        }
+
+        internal class TestObjectSub : TestObject
+        {
+            public int Id_Sub { get; set; }
         }
     }
 }

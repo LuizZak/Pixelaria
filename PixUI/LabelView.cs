@@ -29,25 +29,41 @@ using PixCore.Text;
 namespace PixUI
 {
     /// <summary>
-    /// A basic view that represents a text label
+    /// A backing class for label views which stores display properties and keeps track of event
+    /// dispatching when these properties change.
     /// </summary>
-    public sealed class LabelView : BaseView, IDisposable
+    public sealed class LabelViewBacking : IDisposable
     {
         [NotNull]
-        public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
+        private Font _font = new Font(FontFamily.GenericSansSerif.Name, 10);
+        
+        private InsetBounds _textInsetBounds;
+        private Color _backgroundColor;
+
+        /// <summary>
+        /// Event triggered whenever the bound-related properties for this label view
+        /// backing are changed and require bounds recalculation/rendering.
+        /// </summary>
+        public event EventHandler BoundsInvalidated;
         
         [NotNull]
-        private readonly AttributedText _attributedText = new AttributedText();
-
-        [NotNull]
-        private Font _font = new Font(FontFamily.GenericSansSerif.Name, 10);
-
-        private InsetBounds _textInsetBounds;
+        public AttributedText AttributedText { get; } = new AttributedText();
 
         /// <summary>
         /// Gets or sets the background color that is drawn around the label.
         /// </summary>
-        public Color BackgroundColor { get; set; }
+        public Color BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                if (_backgroundColor.ToArgb() == value.ToArgb())
+                    return;
+
+                _backgroundColor = value;
+                BoundsInvalidated?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the string this label represents
@@ -55,10 +71,10 @@ namespace PixUI
         [NotNull]
         public string Text
         {
-            get => _attributedText.String;
+            get => AttributedText.String;
             set
             {
-                if (!_attributedText.HasAttributes && _attributedText.String == value)
+                if (!AttributedText.HasAttributes && AttributedText.String == value)
                     return;
 
                 AttributedText.SetText(value);
@@ -66,26 +82,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Gets the attributed text for this label view
-        /// </summary>
-        [NotNull]
-        public IAttributedText AttributedText => _attributedText;
-
-        /// <summary>
-        /// Gets or sets the text color of this label view
-        /// </summary>
-        public Color TextColor { get; set; } = Color.White;
-
-        /// <summary>
-        /// Gets or sets the size provider for this label view.
-        /// 
-        /// If null, label view defaults to using <see cref="DefaultLabelViewSizeProvider"/>
-        /// </summary>
-        [CanBeNull]
-        public ILabelViewSizeProvider SizeProvider { get; set; }
-
-        /// <summary>
-        /// Gets or sets the text font for the text of this label view
+        /// Gets or sets the text font for the text of this label view backing
         /// </summary>
         [NotNull]
         public Font TextFont
@@ -95,10 +92,15 @@ namespace PixUI
             {
                 _font = value;
 
-                CalculateBounds();
+                BoundsInvalidated?.Invoke(this, EventArgs.Empty);
             }
         }
-
+        
+        /// <summary>
+        /// Gets or sets the text color of this label view backing
+        /// </summary>
+        public Color TextColor { get; set; } = Color.White;
+        
         /// <summary>
         /// An AABB that expands the four corners of the text bounds from
         /// within this view.
@@ -115,8 +117,119 @@ namespace PixUI
                     return;
                 
                 _textInsetBounds = value;
-                CalculateBounds();
+                BoundsInvalidated?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the size provider for this label view backing.
+        /// </summary>
+        [CanBeNull]
+        public ILabelViewSizeProvider SizeProvider { get; set; }
+
+        public LabelViewBacking()
+        {
+            AttributedText.Modified += (sender, args) =>
+            {
+                BoundsInvalidated?.Invoke(this, args);
+            };
+        }
+        
+        /// <summary>
+        /// Calculates the size for this label view backing using a given size provider
+        /// </summary>
+        public Vector CalculateSize([NotNull] ILabelViewSizeProvider sizeProvider)
+        {
+            var textBounds = new RectangleF(PointF.Empty, sizeProvider.CalculateTextSize(AttributedText, TextFont));
+            Vector size = textBounds.Size;
+            size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right, TextInsetBounds.Top + TextInsetBounds.Bottom);
+
+            return size;
+        }
+
+        public void Dispose()
+        {
+            _font.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// A basic view that represents a text label
+    /// </summary>
+    public sealed class LabelView : BaseView, IDisposable
+    {
+        private readonly LabelViewBacking _labelViewBacking = new LabelViewBacking();
+
+        [NotNull]
+        public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
+
+        /// <summary>
+        /// Gets or sets the background color that is drawn around the label.
+        /// </summary>
+        public Color BackgroundColor
+        {
+            get => _labelViewBacking.BackgroundColor;
+            set => _labelViewBacking.BackgroundColor = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the string this label represents
+        /// </summary>
+        [NotNull]
+        public string Text
+        {
+            get => _labelViewBacking.Text;
+            set => _labelViewBacking.Text = value;
+        }
+
+        /// <summary>
+        /// Gets the attributed text for this label view
+        /// </summary>
+        [NotNull]
+        public IAttributedText AttributedText => _labelViewBacking.AttributedText;
+
+        /// <summary>
+        /// Gets or sets the text color of this label view
+        /// </summary>
+        public Color TextColor
+        {
+            get => _labelViewBacking.TextColor;
+            set => _labelViewBacking.TextColor = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the size provider for this label view.
+        /// 
+        /// If null, label view defaults to using <see cref="DefaultLabelViewSizeProvider"/>
+        /// </summary>
+        [CanBeNull]
+        public ILabelViewSizeProvider SizeProvider
+        {
+            get => _labelViewBacking.SizeProvider;
+            set => _labelViewBacking.SizeProvider = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the text font for the text of this label view
+        /// </summary>
+        [NotNull]
+        public Font TextFont
+        {
+            get => _labelViewBacking.TextFont;
+            set => _labelViewBacking.TextFont = value;
+        }
+
+        /// <summary>
+        /// An AABB that expands the four corners of the text bounds from
+        /// within this view.
+        /// 
+        /// The final text label has the size of its text string expanded by this
+        /// value.
+        /// </summary>
+        public InsetBounds TextInsetBounds
+        {
+            get => _labelViewBacking.TextInsetBounds;
+            set => _labelViewBacking.TextInsetBounds = value;
         }
 
         /// <summary>
@@ -126,26 +239,26 @@ namespace PixUI
         
         /// <summary>
         /// Returns the exact AABB from within this label view where the text will
-        /// appear in when insetted by <see cref="TextInsetBounds"/>.
+        /// appear in when inset by <see cref="TextInsetBounds"/>.
         /// </summary>
         public AABB TextBounds
         {
             get
             {
                 var final = Bounds;
-                final = _textInsetBounds.Inset(final);
+                final = TextInsetBounds.Inset(final);
                 return final;
             }
         }
 
         public LabelView()
         {
-            _attributedText.Modified += AttributedTextModified;
+            _labelViewBacking.AttributedText.Modified += AttributedTextModified;
         }
         
         public void Dispose()
         {
-            _font.Dispose();
+            _labelViewBacking.Dispose();
         }
 
         private void AttributedTextModified(object sender, EventArgs eventArgs)
@@ -155,9 +268,7 @@ namespace PixUI
 
         private void CalculateBounds()
         {
-            var textBounds = new RectangleF(PointF.Empty, (SizeProvider ?? DefaultLabelViewSizeProvider).CalculateTextSize(this));
-            Size = textBounds.Size;
-            Size += new Vector(TextInsetBounds.Left + TextInsetBounds.Right, TextInsetBounds.Top + TextInsetBounds.Bottom);
+            Size = _labelViewBacking.CalculateSize(SizeProvider ?? DefaultLabelViewSizeProvider);
         }
 
         private sealed class DefaultSizer : ILabelViewSizeProvider, IDisposable
@@ -171,12 +282,9 @@ namespace PixUI
 
             public SizeF CalculateTextSize(LabelView label)
             {
-                return CalculateTextSize(new AttributedText(label.Text), label.TextFont);
+                return CalculateTextSize(label.AttributedText, label.TextFont);
             }
 
-            /// <summary>
-            /// Calculates the text size for a given pair of string/font
-            /// </summary>
             public SizeF CalculateTextSize(string text, Font font)
             {
                 return CalculateTextSize(new AttributedText(text), font);
@@ -184,8 +292,7 @@ namespace PixUI
 
             public SizeF CalculateTextSize(IAttributedText text, Font font)
             {
-                using (var dummy = new Bitmap(1, 1))
-                using (var graphics = Graphics.FromImage(dummy))
+                using (var graphics = Graphics.FromImage(_dummy))
                 {
                     return graphics.MeasureString(text.String, font);
                 }

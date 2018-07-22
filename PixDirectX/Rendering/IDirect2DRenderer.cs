@@ -44,7 +44,7 @@ namespace PixDirectX.Rendering
         Color BackColor { get; set; }
 
         /// <summary>
-        /// Gets the imaage resources manager for this Direct2D renderer
+        /// Gets the image resources manager for this Direct2D renderer
         /// </summary>
         ID2DImageResourceManager ImageResources { get; }
 

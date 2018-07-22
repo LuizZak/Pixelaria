@@ -47,6 +47,15 @@ namespace PixUI.Controls.PropertyGrid
 
         private PropertyInspector _propertyInspector;
 
+        #region Events
+
+        /// <summary>
+        /// Event raised whenever the user updates a property on this properties grid control.
+        /// </summary>
+        public event InspectablePropertyChangedEventHandler InspectablePropertyChanged;
+
+        #endregion
+
         /// <summary>
         /// Gets or sets the object to display the properties of on this property grid
         /// </summary>
@@ -95,6 +104,11 @@ namespace PixUI.Controls.PropertyGrid
             grid.Initialize();
 
             return grid;
+        }
+
+        private PropertyGridControl()
+        {
+
         }
 
         protected virtual void Initialize()
@@ -164,7 +178,7 @@ namespace PixUI.Controls.PropertyGrid
 
             foreach (var property in properties)
             {
-                var field = PropertyField.Create(property);
+                var field = PropertyField.Create(this, property);
                 field.Y = itemY;
                 field.Size = new Vector(_scrollView.VisibleContentBounds.Width, itemHeight);
                 _propertyFields.Add(field);
@@ -196,16 +210,18 @@ namespace PixUI.Controls.PropertyGrid
             private readonly TextField _textField = TextField.Create();
             private InspectableProperty _inspect;
             private TypeConverter _typeConverter;
+            private PropertyGridControl _propertyGrid;
 
             public string Value => _textField.Text;
 
-            internal static PropertyField Create([NotNull] InspectableProperty inspect)
-            {
+            internal static PropertyField Create([NotNull] PropertyGridControl propertyGrid, [NotNull] InspectableProperty inspect)
+            { 
                 var view = new PropertyField
                 {
                     BackColor = Color.Transparent, 
                     StrokeColor = Color.FromArgb(255, 50, 50, 50), 
-                    _inspect = inspect
+                    _inspect = inspect,
+                    _propertyGrid = propertyGrid
                 };
 
                 view._label.Text = inspect.Name;
@@ -288,18 +304,23 @@ namespace PixUI.Controls.PropertyGrid
                     if (!_typeConverter.CanConvertFrom(typeof(string)))
                         return;
 
-                    _inspect.SetValue(_typeConverter.ConvertFromString(str));
+                    object value = _typeConverter.ConvertFromString(str);
+                    _inspect.SetValue(value);
+                    _propertyGrid.OnInspectablePropertyChanged(new InspectablePropertyChangedEventArgs(_inspect, value));
                 }
                 else if (_inspect.PropertyType == typeof(string))
                 {
                     _inspect.SetValue(str);
+                    _propertyGrid.OnInspectablePropertyChanged(new InspectablePropertyChangedEventArgs(_inspect, str));
                 }
                 else
                 {
                     // When empty, fill with the default value of the type (in case it has one)
                     if (string.IsNullOrEmpty(str) && _inspect.PropertyType.IsValueType)
                     {
-                        _inspect.SetValue(Activator.CreateInstance(_inspect.PropertyType));
+                        object value = Activator.CreateInstance(_inspect.PropertyType);
+                        _inspect.SetValue(value);
+                        _propertyGrid.OnInspectablePropertyChanged(new InspectablePropertyChangedEventArgs(_inspect, value));
                     }
                     else
                     {
@@ -311,7 +332,10 @@ namespace PixUI.Controls.PropertyGrid
                             {
                                 object newValue = Convert.ChangeType(str, typeCode);
                                 if (newValue != null)
+                                {
                                     _inspect.SetValue(newValue);
+                                    _propertyGrid.OnInspectablePropertyChanged(new InspectablePropertyChangedEventArgs(_inspect, newValue));
+                                }
                             }
                         }
                         catch
@@ -390,6 +414,11 @@ namespace PixUI.Controls.PropertyGrid
                 _label.SetFrame(labelFrame);
                 _textField.SetFrame(textFieldFrame);
             }
+        }
+
+        protected virtual void OnInspectablePropertyChanged(InspectablePropertyChangedEventArgs e)
+        {
+            InspectablePropertyChanged?.Invoke(this, e);
         }
 
         /// <summary>
@@ -479,6 +508,11 @@ namespace PixUI.Controls.PropertyGrid
             public string Name { get; }
 
             /// <summary>
+            /// Gets the declaring type for the property being inspected
+            /// </summary>
+            public Type TargetType { get; }
+
+            /// <summary>
             /// Gets the type for the property
             /// </summary>
             public Type PropertyType { get; }
@@ -488,14 +522,24 @@ namespace PixUI.Controls.PropertyGrid
             /// </summary>
             public bool CanSet { get; }
 
-            internal InspectableProperty([NotNull] object[] targets, [NotNull] PropertyInfo[] properties)
+            internal InspectableProperty([NotNull, ItemNotNull] object[] targets, [NotNull, ItemNotNull] PropertyInfo[] properties)
             {
                 Properties = properties;
                 Targets = targets;
 
                 Name = properties[0].Name;
+                TargetType = properties[0].DeclaringType;
                 PropertyType = properties[0].PropertyType;
                 CanSet = properties[0].CanWrite && properties[0].GetSetMethod(false) != null;
+            }
+
+            /// <summary>
+            /// Gets the targets for which this inspectable property is currently acting upon.
+            /// </summary>
+            [NotNull, ItemCanBeNull]
+            public object[] GetTargets()
+            {
+                return Targets;
             }
 
             /// <summary>
@@ -531,4 +575,26 @@ namespace PixUI.Controls.PropertyGrid
             }
         }
     }
+
+    /// <summary>
+    /// Event raised when the user updates an inspectable property on a properties grid control.
+    /// </summary>
+    public class InspectablePropertyChangedEventArgs : EventArgs
+    {
+        [NotNull]
+        public PropertyGridControl.InspectableProperty InspectableProperty { get; }
+        [CanBeNull]
+        public object NewValue { get; }
+
+        public InspectablePropertyChangedEventArgs([NotNull] PropertyGridControl.InspectableProperty inspectableProperty, [CanBeNull] object newValue)
+        {
+            InspectableProperty = inspectableProperty;
+            NewValue = newValue;
+        }
+    }
+
+    /// <summary>
+    /// Event handler for a <see cref="PropertyGridControl.InspectablePropertyChanged"/> event.
+    /// </summary>
+    public delegate void InspectablePropertyChangedEventHandler([NotNull] object sender, [NotNull] InspectablePropertyChangedEventArgs e);
 }

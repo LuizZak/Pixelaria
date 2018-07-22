@@ -20,9 +20,12 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
+using PixCore.Text;
+using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixUI.Controls;
 using PixUITests.TestUtils;
@@ -40,52 +43,8 @@ namespace PixUITests.Controls
             //BaseViewSnapshot.RecordMode = true;
         }
 
-        #region Invalidation Triggers
-
-        [TestMethod]
-        public void TestInvalidateOnHorizontalTextAlignment()
-        {
-            var root = new TestInvalidateBaseView {Location = new Vector(5, 5)};
-            var sut = LabelViewControl.Create();
-            sut.Size = new Vector(100, 100);
-            root.AddChild(sut);
-            root._ResetInvalidation();
-
-            sut.HorizontalTextAlignment = HorizontalTextAlignment.Leading;
-
-            root.AssertViewBoundsWhereInvalidated(sut);
-        }
-
-        [TestMethod]
-        public void TestInvalidateOnVerticalTextAlignment()
-        {
-            var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
-            var sut = LabelViewControl.Create();
-            sut.Size = new Vector(100, 100);
-            root.AddChild(sut);
-            root._ResetInvalidation();
-
-            sut.VerticalTextAlignment = VerticalTextAlignment.Near;
-
-            root.AssertViewBoundsWhereInvalidated(sut);
-        }
+        #region Rendering
         
-        [TestMethod]
-        public void TestInvalidateOnSetText()
-        {
-            var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
-            var sut = LabelViewControl.Create();
-            sut.AutoResize = false;
-            sut.Text = "Abc";
-            sut.Size = new Vector(100, 100);
-            root.AddChild(sut);
-            root._ResetInvalidation();
-
-            sut.Text = "Def";
-
-            root.AssertViewBoundsWhereInvalidated(sut);
-        }
-
         [TestMethod]
         public void TestRendering()
         {
@@ -160,7 +119,104 @@ namespace PixUITests.Controls
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
 
+        [TestMethod]
+        public void TestRenderingBackgroundColor()
+        {
+            var sut = LabelViewControl.Create("Abcd");
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(0, 1), new BackgroundColorAttribute(Color.Red));
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(1, 2), new BackgroundColorAttribute(Color.Green));
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(2, 3), new BackgroundColorAttribute(Color.Blue));
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingForegroundColor()
+        {
+            var sut = LabelViewControl.Create("Abcd");
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(0, 1), new ForegroundColorAttribute(Color.Red));
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(1, 2), new ForegroundColorAttribute(Color.Green));
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(2, 3), new ForegroundColorAttribute(Color.Blue));
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+        
+        [TestMethod]
+        public void TestRenderingFontAttribute()
+        {
+            var sut = LabelViewControl.Create("Abcd");
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(0, 1), new TextFontAttribute(new Font(FontFamily.GenericMonospace, 10)));
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(1, 2), new TextFontAttribute(new Font(FontFamily.GenericSerif, 11)));
+            sut.AttributedText.SetAttributes(TextRange.FromOffsets(2, 3), new TextFontAttribute(new Font(FontFamily.GenericSansSerif, 12)));
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
         public TestContext TestContext { get; set; }
+
+        #endregion
+
+        #region Invalidation Triggers
+
+        [TestMethod]
+        public void TestInvalidateOnHorizontalTextAlignment()
+        {
+            var root = new TestInvalidateBaseView {Location = new Vector(5, 5)};
+            var sut = LabelViewControl.Create();
+            sut.Size = new Vector(100, 100);
+            root.AddChild(sut);
+            root._ResetInvalidation();
+
+            sut.HorizontalTextAlignment = HorizontalTextAlignment.Leading;
+
+            root.AssertViewBoundsWhereInvalidated(sut);
+        }
+
+        [TestMethod]
+        public void TestInvalidateOnVerticalTextAlignment()
+        {
+            var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+            var sut = LabelViewControl.Create();
+            sut.Size = new Vector(100, 100);
+            root.AddChild(sut);
+            root._ResetInvalidation();
+
+            sut.VerticalTextAlignment = VerticalTextAlignment.Near;
+
+            root.AssertViewBoundsWhereInvalidated(sut);
+        }
+        
+        [TestMethod]
+        public void TestInvalidateOnSetText()
+        {
+            var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+            var sut = LabelViewControl.Create();
+            sut.AutoResize = false;
+            sut.Text = "Abc";
+            sut.Size = new Vector(100, 100);
+            root.AddChild(sut);
+            root._ResetInvalidation();
+
+            sut.Text = "Def";
+
+            root.AssertViewBoundsWhereInvalidated(sut);
+        }
+
+        [TestMethod]
+        public void TestInvalidateOnSetAttributedText()
+        {
+            var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
+            var sut = LabelViewControl.Create();
+            sut.AutoResize = false;
+            sut.Text = "Abc";
+            sut.Size = new Vector(100, 100);
+            root.AddChild(sut);
+            root._ResetInvalidation();
+
+            sut.AttributedText.SetText("Def");
+
+            root.AssertViewBoundsWhereInvalidated(sut);
+        }
 
         #endregion
     }

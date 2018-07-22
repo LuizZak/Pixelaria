@@ -536,7 +536,7 @@ namespace PixCore.Geometry
     /// Specifies left-top-bottom-right regions to expand AABB and RectangleF's with.
     /// </summary>
     [DebuggerDisplay("Left: {Left}, Top: {Top}, Bottom: {Bottom}, Right: {Right}")]
-    public readonly struct InsetBounds
+    public readonly struct InsetBounds : IEquatable<InsetBounds>
     {
         private static readonly InsetBounds _empty = new InsetBounds(0, 0, 0, 0);
         public static ref readonly InsetBounds Empty => ref _empty;
@@ -573,6 +573,39 @@ namespace PixCore.Geometry
         public InsetBounds Inverted()
         {
             return new InsetBounds(-Left, -Top, -Bottom, -Right);
+        }
+
+        public bool Equals(InsetBounds other)
+        {
+            return Left.Equals(other.Left) && Top.Equals(other.Top) && Bottom.Equals(other.Bottom) && Right.Equals(other.Right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is InsetBounds bounds) return Equals(bounds);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Left.GetHashCode();
+                hashCode = (hashCode * 397) ^ Top.GetHashCode();
+                hashCode = (hashCode * 397) ^ Bottom.GetHashCode();
+                hashCode = (hashCode * 397) ^ Right.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(in InsetBounds left, in InsetBounds right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(in InsetBounds left, in InsetBounds right)
+        {
+            return !left.Equals(right);
         }
     }
 }

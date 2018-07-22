@@ -47,7 +47,10 @@ using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
+using SharpDX.DirectWrite;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
+using Font = System.Drawing.Font;
+using FontFamily = System.Drawing.FontFamily;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -151,7 +154,7 @@ namespace Pixelaria.Views.ExportPipeline
             ConfigurePipelineControl();
             ConfigureNodesPanel();
             ConfigurePropertiesPanel();
-            ConfigurePreviewManager();
+            ConfigurePreviewManager(_propertiesPanel);
         }
 
         private void ConfigurePipelineControl()
@@ -177,9 +180,13 @@ namespace Pixelaria.Views.ExportPipeline
             _propertiesPanel = new PropertiesPanel(exportPipelineControl);
         }
 
-        private void ConfigurePreviewManager()
+        private void ConfigurePreviewManager([NotNull] PropertiesPanel propertiesPanel)
         {
-            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl);
+            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl)
+            {
+                ScreenInsetBounds = new InsetBounds(5, 5, 5, propertiesPanel.PanelWidth + 5)
+            };
+
             exportPipelineControl.AddFeature(manager);
 
             _previewManager = manager;
@@ -612,13 +619,37 @@ namespace Pixelaria.Views.ExportPipeline
         [CanBeNull]
         private IDirect2DRenderingState _latestRenderState;
 
+        private readonly Font _font = new Font(FontFamily.GenericSansSerif, 12);
+
         private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
         private readonly Dictionary<BitmapPreviewPipelineStep, Bitmap> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, Bitmap>();
+        private readonly List<PreviewBounds> _previewBounds = new List<PreviewBounds>();
+        private readonly InsetBounds _titleInset = new InsetBounds(5, 5, 5, 5);
+        private InsetBounds _screenInsetBounds = new InsetBounds(5, 5, 5, 5);
+
+        public InsetBounds ScreenInsetBounds
+        {
+            get => _screenInsetBounds;
+            set
+            {
+                if (_screenInsetBounds == value)
+                    return;
+
+                _screenInsetBounds = value;
+                ReloadBoundsCache();
+            }
+        }
 
         public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control) : base(control)
         {
             control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
+            control.SizeChanged += ControlOnSizeChanged;
+        }
+
+        private void ControlOnSizeChanged(object sender, EventArgs e)
+        {
+            ReloadBoundsCache();
         }
 
         ~BitmapPreviewPipelineWindowManager()
@@ -627,6 +658,8 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 bitmap?.Dispose();
             }
+
+            _font.Dispose();
         }
         
         private void PipelineContainerOnNodeAdded(object sender, [NotNull] PipelineNodeViewEventArgs e)
@@ -645,25 +678,39 @@ namespace Pixelaria.Views.ExportPipeline
             RemovePreview(step, e.Control);
         }
 
+        private void OnBitmapStepOnRenamed(object sender, EventArgs args)
+        {
+            ReloadBoundsCache();
+            Control.InvalidateAll();
+        }
+
         private void AddPreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
         {
             _previewSteps.Add(step);
             _latestPreviews[step] = null;
+
+            ReloadBoundsCache();
 
             step.OnReceive = bitmap =>
             {
                 UpdatePreview(step, bitmap, control);
             };
 
-            control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.Count - 1), null));
+            step.Renamed += OnBitmapStepOnRenamed;
+
+            control.InvalidateAll();
         }
 
         private void RemovePreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
         {
-            control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.IndexOf(step)), null));
+            control.InvalidateAll();
+
+            step.Renamed -= OnBitmapStepOnRenamed;
 
             _previewSteps.Remove(step);
             _latestPreviews.Remove(step);
+
+            ReloadBoundsCache();
         }
 
         private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap, [NotNull] IExportPipelineControl control)
@@ -678,7 +725,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             _latestPreviews[step] = newBit;
             
-            control.InvalidateRegion(new RedrawRegion(BoundsForPreview(_previewSteps.IndexOf(step)), null));
+            ReloadBoundsCache();
+
+            control.InvalidateAll();
         }
 
         public override void OnRender(IDirect2DRenderingState state)
@@ -698,43 +747,96 @@ namespace Pixelaria.Views.ExportPipeline
                 // Draw image, or opaque background
                 if (bitmap != null)
                 {
-                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds.ToRawRectangleF(), 1,
+                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds.ImageBounds.ToRawRectangleF(), 1,
                         BitmapInterpolationMode.Linear);
                 }
                 else
                 {
                     using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.DimGray.ToColor4()))
                     {
-                        state.D2DRenderTarget.FillRectangle(bounds.ToRawRectangleF(), brush);
+                        state.D2DRenderTarget.FillRectangle(bounds.ImageBounds.ToRawRectangleF(), brush);
                     }
                 }
 
                 using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.Gray.ToColor4()))
                 {
-                    state.D2DRenderTarget.DrawRectangle(bounds.ToRawRectangleF(), brush);
+                    state.D2DRenderTarget.DrawRectangle(bounds.ImageBounds.ToRawRectangleF(), brush);
+                }
+
+                // Draw title
+                using (var background = new SolidColorBrush(state.D2DRenderTarget, Color.Black.ToColor4()))
+                using (var foreground = new SolidColorBrush(state.D2DRenderTarget, Color.White.ToColor4()))
+                using (var textFormat = new TextFormat(state.DirectWriteFactory, _font.FontFamily.Name, _font.Size))
+                using (var trimming = new EllipsisTrimming(state.DirectWriteFactory, textFormat))
+                {
+                    textFormat.SetWordWrapping(WordWrapping.NoWrap);
+                    textFormat.SetTrimming(new Trimming { Granularity = TrimmingGranularity.Character }, trimming);
+
+                    state.D2DRenderTarget.FillRectangle(bounds.TitleBounds.ToRawRectangleF(), background);
+                    state.D2DRenderTarget.DrawText(step.Name, textFormat,
+                        bounds.TitleBounds.Inset(_titleInset).ToRawRectangleF(), foreground);
                 }
             }
         }
 
-        private AABB BoundsForPreview(int index)
+        private void ReloadBoundsCache()
         {
-            var step = _previewSteps[index];
-
-            _latestPreviews.TryGetValue(step, out var bitmap);
-
-            var size = new Vector(120, 90);
-            if (bitmap != null)
-                size = new Vector(120 * ((float) bitmap.PixelSize.Width / bitmap.PixelSize.Height), 90);
-
-            var availableBounds = 
-                AABB.FromRectangle(Vector.Zero, Control.Size)
-                    .Inset(new InsetBounds(5, 5, 5, 5));
+            _previewBounds.Clear();
             
-            float y = (size.Y + 5) * index;
+            float y = 0;
 
-            var bounds = AABB.FromRectangle(availableBounds.Width - size.X, availableBounds.Height - y - size.Y, size.X, size.Y);
+            foreach (var step in _previewSteps)
+            {
+                string name = step.Name;
 
-            return bounds;
+                var nameSize = Control.D2DRenderer.LabelViewSizeProvider.CalculateTextSize(name, _font);
+                nameSize.Width += _titleInset.Left + _titleInset.Right;
+                nameSize.Height += _titleInset.Top + _titleInset.Bottom;
+
+                _latestPreviews.TryGetValue(step, out var bitmap);
+
+                var size = new Vector(120, 90);
+                if (bitmap != null)
+                    size = new Vector(120 * ((float) bitmap.PixelSize.Width / bitmap.PixelSize.Height), 90);
+
+                var availableBounds = 
+                    AABB.FromRectangle(Vector.Zero, Control.Size)
+                        .Inset(ScreenInsetBounds);
+
+                var titleBounds = AABB.FromRectangle(availableBounds.Width - size.X,
+                    availableBounds.Height - y - size.Y - nameSize.Height, 
+                    size.X,
+                    nameSize.Height);
+
+                var bounds = AABB.FromRectangle(availableBounds.Width - size.X, 
+                    availableBounds.Height - y - size.Y,
+                    size.X,
+                    size.Y);
+
+                var previewBounds = new PreviewBounds(titleBounds, bounds);
+
+                y += size.Y + 5;
+
+                _previewBounds.Add(previewBounds);
+            }
+        }
+
+        private PreviewBounds BoundsForPreview(int index)
+        {
+            return _previewBounds[index];
+        }
+
+        private struct PreviewBounds
+        {
+            public AABB TotalBounds => TitleBounds.Union(ImageBounds);
+            public AABB TitleBounds { get; }
+            public AABB ImageBounds { get; }
+
+            public PreviewBounds(AABB titleBounds, AABB imageBounds)
+            {
+                TitleBounds = titleBounds;
+                ImageBounds = imageBounds;
+            }
         }
     }
 }
