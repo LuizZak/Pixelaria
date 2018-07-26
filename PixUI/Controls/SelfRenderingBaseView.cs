@@ -72,7 +72,7 @@ namespace PixUI.Controls
         /// 
         /// Defaults to true.
         /// </summary>
-        public bool ClipToBounds
+        public virtual bool ClipToBounds
         {
             get => _clipToBounds;
             set
@@ -101,7 +101,7 @@ namespace PixUI.Controls
         /// 
         /// Default is true.
         /// </summary>
-        public bool Visible
+        public virtual bool Visible
         {
             get => _visible;
             set

@@ -144,7 +144,7 @@ namespace Pixelaria.ExportPipeline
         
         /// <summary>
         /// Returns a one-off observable that fetches the latest value of the Connections
-        /// field everytime it is subscribed to.
+        /// field every time it is subscribed to.
         /// </summary>
         public static IObservable<IPipelineOutput> ConnectionsObservable(this IPipelineInput input)
         {

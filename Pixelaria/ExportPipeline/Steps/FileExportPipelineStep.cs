@@ -22,8 +22,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing.Design;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
@@ -43,6 +46,13 @@ namespace Pixelaria.ExportPipeline.Steps
         public string Name { get; } = "Export to File";
 
         public IReadOnlyList<IPipelineInput> Input { get; }
+
+        /// <summary>
+        /// Gets or sets the target file path for this file export pipeline step.
+        /// </summary>
+        [Editor(typeof(PathStringEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(TypeConverter))]
+        public string FilePath { get; set; }
 
         public FileExportPipelineStep()
         {
@@ -78,7 +88,14 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public IPipelineMetadata GetMetadata()
         {
-            return PipelineMetadata.Empty;
+            return new PipelineMetadata(new Dictionary<string, object>
+            {
+                {
+                    PipelineMetadataKeys.EditableProperties,
+                    new EditableTypePropertyProxy(this,
+                        GetType().GetProperty(nameof(FilePath)) ?? throw new InvalidOperationException())
+                }
+            });
         }
 
         public sealed class FileExportPipelineInput : IPipelineInput
@@ -114,6 +131,26 @@ namespace Pixelaria.ExportPipeline.Steps
             public IPipelineMetadata GetMetadata()
             {
                 return PipelineMetadata.Empty;
+            }
+        }
+
+        private class PathStringEditor : UITypeEditor
+        {
+            public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+            {
+                return UITypeEditorEditStyle.Modal;
+            }
+
+            public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+            {
+                using (var dlg = new OpenFileDialog())
+                {
+                    dlg.FileName = (string) value;
+                    if (dlg.ShowDialog(Application.OpenForms[0]) == DialogResult.OK)
+                        value = dlg.FileName;
+                }
+
+                return value;
             }
         }
     }

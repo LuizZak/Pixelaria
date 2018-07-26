@@ -54,7 +54,8 @@ namespace Pixelaria.ExportPipeline
                 PipelineNodeSpec.Of<FilterPipelineStep<SaturationFilter>>("Saturation Filter"),
                 PipelineNodeSpec.Of<FilterPipelineStep<LightnessFilter>>("Lightness Filter"),
                 PipelineNodeSpec.Of<FilterPipelineStep<StrokeFilter>>("Stroke Filter"),
-                PipelineNodeSpec.Of<FileExportPipelineStep>("File Export")
+                PipelineNodeSpec.Of<FileExportPipelineStep>("File Export"),
+                new PipelineNodeSpec("Bitmap Import", typeof(BitmapImportPipelineStep), () => new BitmapImportPipelineStep(new BitmapFileImportSource("")))
             };
 
             return specs.ToArray();

@@ -45,7 +45,7 @@ namespace Pixelaria.ExportPipeline
     }
 
     /// <summary>
-    /// Readable-writeable metadata builder
+    /// Readable-writable metadata builder
     /// </summary>
     public class PipelineMetadata : IPipelineMetadata
     {
@@ -114,5 +114,11 @@ namespace Pixelaria.ExportPipeline
         /// Used in UI controls.
         /// </summary>
         public static readonly string PipelineStepBodyText = "PipelineStepBodyText";
+
+        /// <summary>
+        /// Describes an array of <see cref="IEditableProperty"/> instances that describe
+        /// editable metadata of a pipeline node.
+        /// </summary>
+        public static readonly string EditableProperties = "EditableProperties";
     }
 }

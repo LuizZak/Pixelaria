@@ -25,9 +25,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Design;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using PixCore.Colors;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
 using Color = System.Drawing.Color;
@@ -65,15 +68,8 @@ namespace PixUI.Controls.PropertyGrid
             get => _selectedObjects.FirstOrDefault();
             set
             {
-                if (value == null)
-                {
-                    _selectedObjects = new object[0];
-                }
-                else
-                {
-                    _selectedObjects = new []{ value };
-                }
-                
+                _selectedObjects = value == null ? new object[0] : new[] {value};
+
                 ReloadFields();
             }
         }
@@ -203,11 +199,17 @@ namespace PixUI.Controls.PropertyGrid
                 field.Width = _scrollView.VisibleContentBounds.Width;
             }
         }
+        
+        protected virtual void OnInspectablePropertyChanged(InspectablePropertyChangedEventArgs e)
+        {
+            InspectablePropertyChanged?.Invoke(this, e);
+        }
 
         internal sealed class PropertyField : ControlView
         {
             private readonly LabelViewControl _label = LabelViewControl.Create();
             private readonly TextField _textField = TextField.Create();
+            private readonly ButtonControl _editButton = ButtonControl.Create();
             private InspectableProperty _inspect;
             private TypeConverter _typeConverter;
             private PropertyGridControl _propertyGrid;
@@ -224,33 +226,6 @@ namespace PixUI.Controls.PropertyGrid
                     _propertyGrid = propertyGrid
                 };
 
-                view._label.Text = inspect.Name;
-                view._label.BackColor = Color.Transparent;
-                view._label.ForeColor = Color.White;
-                view._label.TextFont = new Font(FontFamily.GenericSansSerif.Name, 11);
-                view._label.VerticalTextAlignment = VerticalTextAlignment.Center;
-
-                view._textField.Text = "";
-                view._textField.Editable = inspect.CanSet;
-                view._textField.AcceptsEnterKey = true;
-                view._textField.EnterKey += view.TextFieldOnEnterKey;
-                view._textField.ResignedFirstResponder += view.TextFieldOnResignedFirstResponder;
-                
-                // Textfield style
-                var stylePlain = TextFieldVisualStyleParameters.DefaultDarkStyle();
-                stylePlain.TextColor = Color.LightGray;
-
-                var styleEditing = TextFieldVisualStyleParameters.DefaultDarkStyle();
-                styleEditing.StrokeColor = Color.CornflowerBlue;
-                styleEditing.StrokeWidth = 1.5f;
-
-                var styleHighlighted = TextFieldVisualStyleParameters.DefaultDarkStyle();
-                styleHighlighted.StrokeColor = Color.CornflowerBlue;
-                
-                view._textField.SetStyleForState(stylePlain, ControlViewState.Normal);
-                view._textField.SetStyleForState(styleHighlighted, ControlViewState.Highlighted);
-                view._textField.SetStyleForState(styleEditing, ControlViewState.Focused);
-
                 // Load initial value
                 var converterAttr = view._inspect.PropertyType.GetCustomAttribute<TypeConverterAttribute>();
                 if (converterAttr != null)
@@ -265,8 +240,6 @@ namespace PixUI.Controls.PropertyGrid
                     }
                 }
                 
-                view.ReloadValue();
-
                 view.Initialize();
 
                 return view;
@@ -275,6 +248,57 @@ namespace PixUI.Controls.PropertyGrid
             private PropertyField()
             {
                 
+            }
+            
+            private void Initialize()
+            {
+                AddChild(_label);
+                AddChild(_textField);
+                AddChild(_editButton);
+                
+                _label.Text = _inspect.DisplayName;
+                _label.BackColor = Color.Transparent;
+                _label.ForeColor = Color.White;
+                _label.TextFont = new Font(FontFamily.GenericSansSerif.Name, 11);
+                _label.VerticalTextAlignment = VerticalTextAlignment.Center;
+
+                _textField.Text = "";
+                _textField.Editable = _inspect.CanSet;
+                _textField.AcceptsEnterKey = true;
+                _textField.EnterKey += TextFieldOnEnterKey;
+                _textField.ResignedFirstResponder += TextFieldOnResignedFirstResponder;
+
+                _editButton.Text = "...";
+                _editButton.NormalColor = Color.Black.WithTransparency(0.3f);
+                _editButton.HighlightColor = Color.White.WithTransparency(1).BlendedOver(Color.Black).WithTransparency(0.3f);
+                _editButton.StrokeColor = Color.White;
+                _editButton.TextColor = Color.White;
+                
+                // Textfield style
+                var stylePlain = TextFieldVisualStyleParameters.DefaultDarkStyle();
+                stylePlain.TextColor = Color.LightGray;
+
+                var styleEditing = TextFieldVisualStyleParameters.DefaultDarkStyle();
+                styleEditing.StrokeColor = Color.CornflowerBlue;
+                styleEditing.StrokeWidth = 1.5f;
+
+                var styleHighlighted = TextFieldVisualStyleParameters.DefaultDarkStyle();
+                styleHighlighted.StrokeColor = Color.CornflowerBlue;
+                
+                _textField.SetStyleForState(stylePlain, ControlViewState.Normal);
+                _textField.SetStyleForState(styleHighlighted, ControlViewState.Highlighted);
+                _textField.SetStyleForState(styleEditing, ControlViewState.Focused);
+
+                // Editing button misc configurations
+                _editButton.Visible = _inspect.HasTypeEditor();
+                _editButton.Clicked += (sender, args) =>
+                {
+                    _inspect.InvokeEditorUi();
+                    ReloadValue();
+                };
+
+                ReloadValue();
+                Layout();
             }
 
             private void TextFieldOnEnterKey(object sender, EventArgs eventArgs)
@@ -384,23 +408,24 @@ namespace PixUI.Controls.PropertyGrid
                 if (representations.Count > 1)
                 {
                     _textField.Text = "<multiple values>";
+
+                    _editButton.Visible = false;
+                    Layout();
                 }
                 else if (representations.Count == 1)
                 {
                     _textField.Text = representations.FirstOrDefault() ?? "";
+
+                    _editButton.Visible = _inspect.HasTypeEditor();
+                    Layout();
                 }
                 else
                 {
                     _textField.Text = "";
+
+                    _editButton.Visible = false;
+                    Layout();
                 }
-            }
-
-            private void Initialize()
-            {
-                AddChild(_label);
-                AddChild(_textField);
-
-                Layout();
             }
 
             public override void Layout()
@@ -411,14 +436,23 @@ namespace PixUI.Controls.PropertyGrid
                 labelFrame = labelFrame.Inset(new InsetBounds(8, 2, 2, 8));
                 var textFieldFrame = new AABB(Width / 2, 0, Height, Width);
 
+                var buttonArea = Bounds.Inset(new InsetBounds(4));
+                float buttonSize = buttonArea.Height;
+                var buttonFrame = 
+                    new AABB(buttonArea.Right - buttonSize,
+                        buttonArea.Top,
+                        buttonArea.Bottom,
+                        buttonArea.Right);
+
+                if (_editButton.Visible)
+                {
+                    textFieldFrame = textFieldFrame.Setting(right: buttonFrame.Left - 4);
+                }
+
                 _label.SetFrame(labelFrame);
                 _textField.SetFrame(textFieldFrame);
+                _editButton.SetFrame(buttonFrame);
             }
-        }
-
-        protected virtual void OnInspectablePropertyChanged(InspectablePropertyChangedEventArgs e)
-        {
-            InspectablePropertyChanged?.Invoke(this, e);
         }
 
         /// <summary>
@@ -495,7 +529,7 @@ namespace PixUI.Controls.PropertyGrid
         }
 
         /// <summary>
-        /// An inspectable property for a property grid
+        /// An inspectable property for a property grid.
         /// </summary>
         public class InspectableProperty
         {
@@ -506,6 +540,11 @@ namespace PixUI.Controls.PropertyGrid
             /// The name of this property
             /// </summary>
             public string Name { get; }
+
+            /// <summary>
+            /// Gets a pre-formatted display name based on the member name of the inspected property
+            /// </summary>
+            public string DisplayName { private set; get; }
 
             /// <summary>
             /// Gets the declaring type for the property being inspected
@@ -531,6 +570,14 @@ namespace PixUI.Controls.PropertyGrid
                 TargetType = properties[0].DeclaringType;
                 PropertyType = properties[0].PropertyType;
                 CanSet = properties[0].CanWrite && properties[0].GetSetMethod(false) != null;
+
+                ComputeDisplayName();
+            }
+
+            private void ComputeDisplayName()
+            {
+                string res = Regex.Replace(Name, "(.)([A-Z][a-z]+)", "$1 $2");
+                DisplayName = Regex.Replace(res, "([a-z0-9])([A-Z])", "$1 $2");
             }
 
             /// <summary>
@@ -571,6 +618,108 @@ namespace PixUI.Controls.PropertyGrid
                 foreach (var (obj, prop) in Targets.Zip(Properties, (obj, prop) => (obj, prop)))
                 {
                     prop.SetValue(obj, value);
+                }
+            }
+
+            /// <summary>
+            /// Gets the <see cref="System.Drawing.Design.UITypeEditor"/> for this inspectable property, either by inspecting
+            /// its defining attributes, or its type's defining attributes.
+            ///
+            /// Returns null in case no editor type is found, or if multiple distinct <see cref="PropertyInfo"/> from many different
+            /// types been provided during construction.
+            /// </summary>
+            [CanBeNull]
+            public Type TypeEditorType()
+            {
+                // Check if all properties point to the same property object
+                if (!CheckPropertiesAreSame())
+                    return null;
+
+                var property = Properties[0];
+
+                var attribute =
+                    property.GetCustomAttribute<EditorAttribute>() ??
+                    PropertyType.GetCustomAttribute<EditorAttribute>();
+
+                return attribute == null ? null : Type.GetType(attribute.EditorTypeName);
+            }
+
+            /// <summary>
+            /// Returns true iff the property being inspected has a compatible editor type associated.
+            /// </summary>
+            public bool HasTypeEditor()
+            {
+                var type = TypeEditorType();
+                if (type == null)
+                    return false;
+
+                var editor = (UITypeEditor)Activator.CreateInstance(type);
+
+                return editor.GetEditStyle() == UITypeEditorEditStyle.Modal;
+            }
+
+            /// <summary>
+            /// If this property has an editor type set (see <see cref="TypeEditorType"/>), invokes it to allow the user to change the
+            /// current value.
+            ///
+            /// Only modal editor style is currently supported; other editor styles will result in an <see cref="InvalidOperationException"/>
+            /// being raised.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">No editor type is available.</exception>
+            /// <exception cref="InvalidOperationException">Editor style is not <see cref="UITypeEditorEditStyle.Modal"/>.</exception>
+            public void InvokeEditorUi()
+            {
+                var typeEditor = TypeEditorType() ??
+                                 throw new InvalidOperationException(
+                                     $"Cannot invoke {nameof(InvokeEditorUi)} with no editor type available.");
+
+                var editor = (UITypeEditor)Activator.CreateInstance(typeEditor);
+
+                if (editor.GetEditStyle() != UITypeEditorEditStyle.Modal)
+                    throw new InvalidOperationException($"Only modal editor style is currently supported, but received {editor.GetEditStyle()}.");
+
+                var prop = TypeDescriptor.GetProperties(TargetType)[Properties[0].Name];
+
+                var context = new TypeDescriptionContext(Targets[0], prop);
+
+                var values = GetValues();
+
+                SetValue(editor.EditValue(context, values[0]));
+            }
+
+            private bool CheckPropertiesAreSame()
+            {
+                var first = Properties[0];
+;
+                return Properties.All(info => info.Equals(first));
+            }
+
+            private class TypeDescriptionContext : ITypeDescriptorContext
+            {
+                public IContainer Container => null;
+
+                public object Instance { get; }
+
+                public TypeDescriptionContext(object obj, PropertyDescriptor property)
+                {
+                    Instance = obj;
+                    PropertyDescriptor = property;
+                }
+
+                public void OnComponentChanged()
+                {
+                }
+
+                public bool OnComponentChanging()
+                {
+                    return true;
+                }
+
+                public PropertyDescriptor PropertyDescriptor { get; }
+
+                public object GetService(Type serviceType)
+                {
+                    return serviceType == typeof(ITypeDescriptorContext) ? this : null;
                 }
             }
         }

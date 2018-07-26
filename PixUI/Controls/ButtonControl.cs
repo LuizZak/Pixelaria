@@ -223,7 +223,7 @@ namespace PixUI.Controls
         /// <summary>
         /// OnClick event for button
         /// </summary>
-        public EventHandler Clicked;
+        public event EventHandler Clicked;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ButtonControl"/>.

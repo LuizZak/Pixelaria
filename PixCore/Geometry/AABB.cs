@@ -431,6 +431,17 @@ namespace PixCore.Geometry
             return inset.Inset(this);
         }
 
+        [Pure]
+        public AABB Setting(float? left = null, float? top = null, float? bottom = null, float? right = null)
+        {
+            float l = left ?? Left;
+            float t = top ?? Top;
+            float b = bottom ?? Bottom;
+            float r = right ?? Right;
+
+            return new AABB(l, t, b, r);
+        }
+
         /// <summary>
         /// Returns an AABB that matches the sides from this AABB, rounded
         /// down to the nearest integers.

@@ -219,6 +219,8 @@
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
     <Compile Include="ExportPipeline\DefaultPipelineConnectionDelegate.cs" />
     <Compile Include="ExportPipeline\DefaultPipelineNodeSpecsProvider.cs" />
+    <Compile Include="ExportPipeline\EditableTypePropertyProxy.cs" />
+    <Compile Include="ExportPipeline\IEditableProperty.cs" />
     <Compile Include="ExportPipeline\IPipelineContainer.cs" />
     <Compile Include="ExportPipeline\Outputs\Abstract\AbstractPipelineOutput.cs" />
     <Compile Include="ExportPipeline\PipelineContainer.cs" />

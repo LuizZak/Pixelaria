@@ -88,6 +88,16 @@ namespace PixUI.Controls
 
         private bool _interactionEnabled = true;
 
+        public override bool Visible
+        {
+            get => base.Visible;
+            set
+            {
+                base.Visible = value;
+                _reactive.IsVisibleSubject.OnNext(value);
+            }
+        }
+
         /// <summary>
         /// If true, <see cref="Highlighted"/> is automatically toggled on and off whenever the user enters
         /// and exits this control with the mouse.
@@ -513,6 +523,7 @@ namespace PixUI.Controls
             IObservable<MouseEventArgs> MouseWheel { get; }
             IObservable<Unit> MouseEnter { get; }
             IObservable<Unit> MouseLeave { get; }
+            IObservable<bool> IsVisible { get; }
         }
 
         /// <summary>
@@ -545,6 +556,7 @@ namespace PixUI.Controls
             public readonly Subject<MouseEventArgs> MouseWheelSubject = new Subject<MouseEventArgs>();
             public readonly Subject<Unit> MouseEnterSubject = new Subject<Unit>();
             public readonly Subject<Unit> MouseLeaveSubject = new Subject<Unit>();
+            public readonly Subject<bool> IsVisibleSubject = new Subject<bool>();
 
             public IObservable<MouseEventArgs> MouseClick => MouseClickSubject;
             public IObservable<MouseEventArgs> MouseDown => MouseDownSubject;
@@ -553,6 +565,7 @@ namespace PixUI.Controls
             public IObservable<MouseEventArgs> MouseWheel => MouseWheelSubject;
             public IObservable<Unit> MouseEnter => MouseEnterSubject;
             public IObservable<Unit> MouseLeave => MouseLeaveSubject;
+            public IObservable<bool> IsVisible => IsVisibleSubject;
         }
 
         private class StateManager
