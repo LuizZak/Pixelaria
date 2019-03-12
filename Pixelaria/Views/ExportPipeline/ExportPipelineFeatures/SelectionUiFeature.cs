@@ -65,7 +65,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public SelectionUiFeature([NotNull] IExportPipelineControl control) : base(control)
         {
-            control.D2DRenderer.AddDecorator(this);
+            control.RenderingDecoratorTarget.AddDecorator(this);
         }
 
         public override void OnMouseLeave(EventArgs e)

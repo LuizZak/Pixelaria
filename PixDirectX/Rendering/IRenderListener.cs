@@ -71,7 +71,7 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// The clipping region for drawing on
         /// </summary>
-        [CanBeNull]
+        [NotNull]
         IClippingRegion ClippingRegion { get; }
 
         /// <summary>

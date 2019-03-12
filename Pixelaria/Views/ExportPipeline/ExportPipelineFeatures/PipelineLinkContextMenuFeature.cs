@@ -79,7 +79,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 NodeView = linkView.NodeView
             };
-            Control.D2DRenderer.AddDecorator(decorator);
+            Control.RenderingDecoratorTarget.AddDecorator(decorator);
 
             menu.MouseEnter += (sender, args) =>
             {
@@ -88,7 +88,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             menu.Closing += (sender, args) =>
             {
-                Control.D2DRenderer.RemoveDecorator(decorator);
+                Control.RenderingDecoratorTarget.RemoveDecorator(decorator);
             };
             
             var connections = container.GetConnections(linkView).ToArray();

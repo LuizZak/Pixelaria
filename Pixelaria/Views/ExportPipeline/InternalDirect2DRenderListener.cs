@@ -45,13 +45,12 @@ namespace Pixelaria.Views.ExportPipeline
     /// <summary>
     /// Internal render listener for rendering pipeline steps
     /// </summary>
-    internal class InternalDirect2DRenderListener : IRenderListener
+    internal class InternalDirect2DRenderListener : IRenderListener, IRenderingDecoratorContainer
     {
         public int RenderOrder { get; } = RenderOrdering.PipelineView;
 
         private readonly IPipelineContainer _container; // For relative position calculations
         private readonly IExportPipelineControl _control;
-        protected IClippingRegion clippingRegion;
 
         /// <summary>
         /// A small 32x32 box used to draw shadow boxes for labels.
@@ -98,15 +97,8 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        public void InvalidateState()
-        {
-            _shadowBox.Dispose();
-        }
-
         public void Render(IRenderListenerParameters parameters)
         {
-            clippingRegion = parameters.ClippingRegion;
-
             var decorators = RenderingDecorators;
 
             // Draw background across visible region
@@ -120,6 +112,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RenderInView([NotNull] BaseView view, [NotNull] IRenderListenerParameters parameters, [NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
+            var clippingRegion = parameters.ClippingRegion;
             var bezierRenderer = new BezierViewRenderer(new StaticDirect2DRenderingStateProvider(parameters.State));
 
             // Render all remaining objects
@@ -152,6 +145,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             var state = parameters.State;
+            var clippingRegion = parameters.ClippingRegion;
 
             state.PushingTransform(() =>
             {
@@ -170,6 +164,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderNodeLinkView([NotNull] IRenderListenerParameters parameters, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             var state = parameters.State;
+            var clippingRegion = parameters.ClippingRegion;
 
             state.PushingTransform(() =>
             {
@@ -213,8 +208,11 @@ namespace Pixelaria.Views.ExportPipeline
             });
         }
 
-        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IDirect2DRenderingState renderingState, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
+            var renderingState = parameters.State;
+            var clippingRegion = parameters.ClippingRegion;
+
             renderingState.PushingTransform(() =>
             {
                 renderingState.D2DRenderTarget.Transform = bezierView.GetAbsoluteTransform().ToRawMatrix3X2();
@@ -280,6 +278,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderLabelView([NotNull] LabelView labelView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             var renderingState = parameters.State;
+            var clippingRegion = parameters.ClippingRegion;
 
             renderingState.PushingTransform(() =>
             {
@@ -389,7 +388,8 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderBackground([NotNull] IRenderListenerParameters parameters)
         {
             var renderingState = parameters.State;
-            
+            var clippingRegion = parameters.ClippingRegion;
+
             renderingState.PushingTransform(() =>
             {
                 var transform = _container.ContentsView.GetAbsoluteTransform();

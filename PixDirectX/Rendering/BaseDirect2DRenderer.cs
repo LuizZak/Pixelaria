@@ -100,7 +100,7 @@ namespace PixDirectX.Rendering
             if (!disposing)
                 return;
             
-            TextColorRenderer.DefaultBrush.Dispose();
+            TextColorRenderer.DefaultBrush?.Dispose();
             TextColorRenderer.Dispose();
 
             _imageResources.Dispose();
@@ -174,7 +174,7 @@ namespace PixDirectX.Rendering
             // Clean background
             state.D2DRenderTarget.Clear(BackColor.ToColor4());
 
-            InvokeRenderListeners(state, clipping);
+            InvokeRenderListeners(state);
         }
 
         public IDirect2DRenderingState GetLatestValidRenderingState()
@@ -233,9 +233,16 @@ namespace PixDirectX.Rendering
 
         #region IRenderListener invoking
 
-        protected void InvokeRenderListeners([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
-            var parameters = new RenderListenerParameters(ImageResources, clipping, state, TextColorRenderer);
+            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer);
+
+            return parameters;
+        }
+
+        protected void InvokeRenderListeners([NotNull] IDirect2DRenderingState state)
+        {
+            var parameters = CreateRenderListenerParameters(state);
 
             foreach (var listener in RenderListeners)
             {

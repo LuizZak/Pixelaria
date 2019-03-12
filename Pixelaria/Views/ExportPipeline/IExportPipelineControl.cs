@@ -50,6 +50,11 @@ namespace Pixelaria.Views.ExportPipeline
         Point MousePoint { get; }
 
         /// <summary>
+        /// Target for adding rendering decorators to
+        /// </summary>
+        IRenderingDecoratorContainer RenderingDecoratorTarget { get; }
+
+        /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
         IExportPipelineDirect2DRenderer D2DRenderer { get; }

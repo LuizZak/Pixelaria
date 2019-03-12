@@ -329,14 +329,19 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var renderManager = new Direct2DWicBitmapRenderManager(wicBitmap))
-            using (var renderer = new Direct2DRenderer(_control.PipelineContainer, _control))
+            using (var renderer = new Direct2DRenderer())
             {
                 renderManager.InitializeDirect2D();
+
+                var listener = new InternalDirect2DRenderListener(_control.PipelineContainer, _control);
+                renderer.AddRenderListener(listener);
                 
                 renderManager.RenderSingleFrame(state =>
                 {
                     renderer.Initialize(renderManager.RenderingState);
                     renderer.UpdateRenderingState(state, new FullClipping());
+
+                    var parameters = renderer.CreateRenderListenerParameters(state);
 
                     PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);
                     
@@ -353,11 +358,11 @@ namespace PixelariaTests.Views.ExportPipeline
                         var parentView = new BaseView();
                         parentView.AddChild(view);
 
-                        renderer.RenderInView(parentView, state, new IRenderingDecorator[0]);
+                        listener.RenderInView(parentView, parameters, new IRenderingDecorator[0]);
                     }
                     else
                     {
-                        renderer.RenderInView(view, state, new IRenderingDecorator[0]);
+                        listener.RenderInView(view, parameters, new IRenderingDecorator[0]);
                     }
                 });
                 

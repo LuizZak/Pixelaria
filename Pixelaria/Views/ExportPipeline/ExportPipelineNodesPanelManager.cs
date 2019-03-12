@@ -431,8 +431,10 @@ namespace Pixelaria.Views.ExportPipeline
                 var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, (int)view.Size.X, (int)view.Size.Y, pixelFormat, bitmapCreateCacheOption);
 
                 using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
-                using (var renderer = new Direct2DRenderer(container, _exportPipelineControl))
+                using (var renderer = new Direct2DRenderer())
                 {
+                    var listener = new InternalDirect2DRenderListener(container, _exportPipelineControl);
+
                     ControlView.DirectWriteFactory = directWrite;
 
                     var last = LabelView.DefaultLabelViewSizeProvider;
@@ -443,7 +445,9 @@ namespace Pixelaria.Views.ExportPipeline
                     renderLoop.InitializeDirect2D();
                     renderLoop.RenderSingleFrame(state =>
                     {
-                        renderer.RenderStepView(view, state, new IRenderingDecorator[0]);
+                        var parameters = renderer.CreateRenderListenerParameters(state);
+
+                        listener.RenderStepView(view, parameters, new IRenderingDecorator[0]);
                     });
 
                     LabelView.DefaultLabelViewSizeProvider = last;

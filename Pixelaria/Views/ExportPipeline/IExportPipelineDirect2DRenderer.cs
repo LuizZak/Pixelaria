@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using JetBrains.Annotations;
 using PixDirectX.Rendering;
 using PixUI;
 
@@ -32,9 +31,5 @@ namespace Pixelaria.Views.ExportPipeline
         /// Gets the label view size provider stored on this export pipeline Direct2D renderer
         /// </summary>
         ILabelViewSizeProvider LabelViewSizeProvider { get; }
-
-        void AddDecorator([NotNull] IRenderingDecorator decorator);
-
-        void RemoveDecorator([NotNull] IRenderingDecorator decorator);
     }
 }

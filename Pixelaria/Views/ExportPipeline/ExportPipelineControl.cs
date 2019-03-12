@@ -59,6 +59,7 @@ namespace Pixelaria.Views.ExportPipeline
         // Timer used to tick the fixed step OnFixedFrame method on each control feature added
         private readonly Timer _fixedTimer;
 
+        private readonly InternalDirect2DRenderListener _internalRenderer;
         private readonly Direct2DRenderer _d2DRenderer;
         
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
@@ -93,6 +94,11 @@ namespace Pixelaria.Views.ExportPipeline
         public Point MousePoint { get; private set; }
 
         /// <summary>
+        /// Target for adding rendering decorators to
+        /// </summary>
+        public IRenderingDecoratorContainer RenderingDecoratorTarget => _internalRenderer;
+
+        /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
         public IExportPipelineDirect2DRenderer D2DRenderer => _d2DRenderer;
@@ -120,7 +126,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             _container = new InternalPipelineContainer(this);
 
-            _d2DRenderer = new Direct2DRenderer(_container, this);
+            _internalRenderer = new InternalDirect2DRenderListener(_container, this);
+            _d2DRenderer = new Direct2DRenderer();
+            _d2DRenderer.AddRenderListener(_internalRenderer);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             
@@ -134,7 +142,7 @@ namespace Pixelaria.Views.ExportPipeline
             AddFeature(new PipelineLinkContextMenuFeature(this));
             AddFeature(_controlViewFeature);
 
-            _d2DRenderer.AddDecorator(new ConnectedLinksDecorator(_container));
+            _internalRenderer.AddDecorator(new ConnectedLinksDecorator(_container));
         }
 
         protected override void Dispose(bool disposing)
