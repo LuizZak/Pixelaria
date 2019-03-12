@@ -164,6 +164,8 @@ namespace PixUI.Controls
 
         protected override void Dispose(bool disposing)
         {
+            _labelViewBacking?.Dispose();
+
             _textFormat?.Dispose();
             _textFormat = null;
 
