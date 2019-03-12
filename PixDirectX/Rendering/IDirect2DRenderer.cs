@@ -59,6 +59,16 @@ namespace PixDirectX.Rendering
         IClippingRegion ClippingRegion { get; }
 
         /// <summary>
+        /// Adds a new render listener which will be invoked when rendering is being performed.
+        /// </summary>
+        void AddRenderListener(IRenderListener renderListener);
+
+        /// <summary>
+        /// Removes a render listener registered on this renderer.
+        /// </summary>
+        void RemoveRenderListener(IRenderListener renderListener);
+
+        /// <summary>
         /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.
         /// </summary>
@@ -109,7 +119,7 @@ namespace PixDirectX.Rendering
     public interface ID2DImageResourceManager: ID2DImageResourceProvider
     {
         /// <summary>
-        /// Creates a new image from a givem System.Drawing.Bitmap instance, assigns it with a given resource name, and
+        /// Creates a new image from a given System.Drawing.Bitmap instance, assigns it with a given resource name, and
         /// then returns it to be used.
         /// </summary>
         ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);

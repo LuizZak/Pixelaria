@@ -79,6 +79,7 @@
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
     <Compile Include="Rendering\ImageResource.cs" />
+    <Compile Include="Rendering\IRenderizable.cs" />
     <Compile Include="Rendering\ITextMetricsProvider.cs" />
     <Compile Include="Rendering\TextLayoutAttributes.cs" />
     <Compile Include="Utils\GeomExtensions.cs" />

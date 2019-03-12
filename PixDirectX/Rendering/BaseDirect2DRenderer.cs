@@ -56,6 +56,7 @@ namespace PixDirectX.Rendering
         private bool _isRefreshingState;
 
         protected readonly TextColorRenderer TextColorRenderer = new TextColorRenderer();
+        protected readonly List<IRenderListener> RenderListeners = new List<IRenderListener>();
         
         private readonly D2DImageResources _imageResources;
         private readonly TextMetrics _textMetrics;
@@ -157,11 +158,15 @@ namespace PixDirectX.Rendering
         }
         
         /// <summary>
-        /// Override point for subclasses to apply custom rendering logic to.
+        /// Renders all render listeners on this <see cref="BaseDirect2DRenderer"/> instance.
+        ///
+        /// If overriden, must be called to properly update the render state of the renderer.
         /// </summary>
         public virtual void Render([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
             UpdateRenderingState(state, clipping);
+
+            InvokeRenderListeners(state, clipping);
         }
 
         public IDirect2DRenderingState GetLatestValidRenderingState()
@@ -217,7 +222,50 @@ namespace PixDirectX.Rendering
                 }
             }
         }
+
+        #region IRenderListener invoking
+
+        protected void InvokeRenderListeners([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        {
+            foreach (var listener in RenderListeners)
+            {
+                listener.Render(state, clipping);
+            }
+        }
         
+        #endregion
+
+        #region IRenderListener handling
+
+        public void AddRenderListener(IRenderListener renderListener)
+        {
+            var inserted = false;
+
+            // Use the render listener's rendering order value to figure out the correct insertion position
+            for (int i = 0; i < RenderListeners.Count; i++)
+            {
+                var listener = RenderListeners[i];
+                if (listener.RenderOrder < renderListener.RenderOrder)
+                {
+                    RenderListeners.Insert(i, renderListener);
+                    inserted = true;
+                    break;
+                }
+            }
+
+            if (!inserted)
+            {
+                RenderListeners.Add(renderListener);
+            }
+        }
+
+        public void RemoveRenderListener(IRenderListener renderListener)
+        {
+            RenderListeners.Remove(renderListener);
+        }
+
+        #endregion
+
         #region Static helpers
         
         public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
