@@ -119,10 +119,16 @@ namespace PixDirectX.Rendering
     public interface ID2DImageResourceManager: ID2DImageResourceProvider
     {
         /// <summary>
-        /// Creates a new image from a given System.Drawing.Bitmap instance, assigns it with a given resource name, and
+        /// Creates a new image from a given <see cref="System.Drawing.Bitmap"/> instance, assigns it with a given resource name, and
         /// then returns it to be used.
         /// </summary>
         ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+
+        /// <summary>
+        /// Creates a new image from a given <see cref="SharpDX.WIC.Bitmap"/> instance, assigns it with a given resource name, and
+        /// then returns it to be used.
+        /// </summary>
+        ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] SharpDX.WIC.Bitmap bitmap, [NotNull] string resourceName);
 
         void RemoveImageResource([NotNull] string resourceName);
 

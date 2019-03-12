@@ -33,7 +33,7 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
-
+using SharpDX.WIC;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
@@ -328,9 +328,14 @@ namespace PixDirectX.Rendering
                 return new SharpDX.Direct2D1.Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
             }
         }
-        
+
+        public static SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] SharpDX.WIC.Bitmap bitmap)
+        {
+            return SharpDX.Direct2D1.Bitmap.FromWicBitmap(renderTarget, bitmap);
+        }
+
         #endregion
-        
+
         private class TextMetrics : ITextMetricsProvider
         {
             private readonly IDirect2DRenderingStateProvider _renderer;

@@ -56,6 +56,18 @@ namespace PixDirectX.Rendering
             return res;
         }
 
+        public ImageResource AddImageResource(IDirect2DRenderingState state, SharpDX.WIC.Bitmap bitmap, string resourceName)
+        {
+            var res = new ImageResource(resourceName, bitmap.Size.Width, bitmap.Size.Height);
+
+            if (_bitmapResources.ContainsKey(resourceName))
+                throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
+
+            _bitmapResources[resourceName] = BaseDirect2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+
+            return res;
+        }
+
         public void RemoveAllImageResources()
         {
             foreach (var value in _bitmapResources.Values)

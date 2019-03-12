@@ -405,7 +405,7 @@ namespace Pixelaria.Views.ExportPipeline
                 // Scale grid to increments of baseGridSize over zoom step.
                 var largeGridSize = Vector.Round(baseGridSize * scale);
                 var smallGridSize = largeGridSize / 10;
-
+                
                 var reg = new RectangleF(topLeft, new SizeF(_control.Size / _container.ContentsView.Scale));
 
                 float startX = gridOffset.X;
