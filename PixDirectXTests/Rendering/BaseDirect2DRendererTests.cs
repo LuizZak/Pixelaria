@@ -56,7 +56,12 @@ namespace PixDirectXTests.Rendering
             RenderOrder = renderOrder;
         }
 
-        public void Render(IDirect2DRenderingState state, IClippingRegion clipping)
+        public void RecreateState(IDirect2DRenderingState state)
+        {
+
+        }
+
+        public void Render(IRenderListenerParameters parameters)
         {
             
         }

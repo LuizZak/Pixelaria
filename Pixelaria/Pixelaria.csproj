@@ -250,6 +250,8 @@
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\InternalDirect2DRenderListener.cs" />
+    <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
@@ -276,6 +278,7 @@
     <Compile Include="Views\ExportPipeline\PipelineView\IPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\DefaultPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PropertiesPanel.cs" />
+    <Compile Include="Views\ExportPipeline\RenderOrdering.cs" />
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
     </Compile>

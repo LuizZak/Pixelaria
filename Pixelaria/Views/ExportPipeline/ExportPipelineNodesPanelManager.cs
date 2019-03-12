@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
@@ -39,6 +40,9 @@ using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI;
+using SharpDX.WIC;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -47,8 +51,11 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal sealed class ExportPipelineNodesPanelManager: IDisposable
     {
+        private readonly List<PipelineNodeButtonDragAndDropHandler> _buttonHandlers = new List<PipelineNodeButtonDragAndDropHandler>();
+
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
         private readonly ID2DImageResourceProvider _imageResourceProvider;
+        private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
 
         private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
         private List<ButtonControl> SpecButtons { get; } = new List<ButtonControl>();
@@ -62,20 +69,28 @@ namespace Pixelaria.Views.ExportPipeline
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
 
         public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control)
-            : this(control.ControlContainer, control.D2DRenderer.ImageResources)
+            : this(control.ControlContainer, control.D2DRenderer.ImageResources,
+                new PipelineNodeBitmapGenerator(control))
         {
             
         }
 
-        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] ID2DImageResourceProvider imageResourceProvider)
+        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] ID2DImageResourceProvider imageResourceProvider, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
         {
             _imageResourceProvider = imageResourceProvider;
+            _bitmapGenerator = bitmapGenerator;
 
             Setup(container);
         }
         
         public void Dispose()
         {
+            foreach (var handler in _buttonHandlers)
+            {
+                handler.Dispose();
+            }
+
+            _buttonHandlers.Clear();
             _disposeBag?.Dispose();
         }
 
@@ -178,6 +193,9 @@ namespace Pixelaria.Views.ExportPipeline
                 SpecButtons.Add(button);
 
                 _scrollViewControl.ContainerView.AddChild(button);
+
+                var handler = DragAndDropHandlerForButton(button);
+                _buttonHandlers.Add(handler);
             }
 
             // Adjust buttons
@@ -238,6 +256,11 @@ namespace Pixelaria.Views.ExportPipeline
                 }).AddToDisposable(_disposeBag);
 
             return button;
+        }
+
+        private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button)
+        {
+            return new PipelineNodeButtonDragAndDropHandler(button);
         }
 
         private Vector GetButtonSize()
@@ -332,6 +355,109 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 Node = node;
             }
+        }
+
+        private sealed class PipelineNodeButtonDragAndDropHandler: IDisposable
+        {
+            private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
+            private ButtonControl _buttonControl;
+
+            public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl)
+            {
+                _buttonControl = buttonControl;
+                Setup(buttonControl);
+            }
+
+            public void Dispose()
+            {
+                _disposeBag?.Dispose();
+            }
+
+            void Setup([NotNull] ButtonControl button)
+            {
+                var isMouseDown = button.Rx
+                    .IsMouseDown();
+                var isMouseOver = button.Rx
+                    .IsMouseOver();
+
+                // As the user moves the mouse while out of the control
+                isMouseDown
+                    .Zip(isMouseOver, (isDown, isOver) => isDown && !isOver)
+                    .Where(b => b)
+                    .SelectMany(button.Rx.MouseMove)
+                    .Subscribe(e =>
+                    {
+                        
+                    });
+
+                // As the user leaves the mouse from on top of the control
+                isMouseOver
+                    .DistinctUntilChanged()
+                    .Where(isOver => !isOver)
+                    .Subscribe(_ =>
+                    {
+
+                    });
+            }
+        }
+    }
+
+    class PipelineNodeBitmapGenerator : IPipelineNodeBitmapGenerator
+    {
+        readonly IExportPipelineControl _exportPipelineControl;
+
+        public PipelineNodeBitmapGenerator([NotNull] IExportPipelineControl exportPipelineControl)
+        {
+            this._exportPipelineControl = exportPipelineControl;
+        }
+
+        public SharpDX.WIC.Bitmap BitmapForPipelineNode(IPipelineNode node)
+        {
+            
+            var container = _exportPipelineControl.PipelineContainer;
+            const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
+            var pixelFormat = PixelFormat.Format32bppPBGRA;
+
+            var view = PipelineNodeView.Create(node);
+            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.D2DRenderer.ImageResources);
+
+            container.AddNodeView(view);
+            container.AutoSizeNode(view);
+
+            // Automatically adjust view to be on center of view port
+            using (var imgFactory = new ImagingFactory())
+            using (var directWrite = new SharpDX.DirectWrite.Factory())
+            {
+                var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, (int)view.Size.X, (int)view.Size.Y, pixelFormat, bitmapCreateCacheOption);
+
+                using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
+                using (var renderer = new Direct2DRenderer(container, _exportPipelineControl))
+                {
+                    ControlView.DirectWriteFactory = directWrite;
+
+                    var last = LabelView.DefaultLabelViewSizeProvider;
+                    LabelView.DefaultLabelViewSizeProvider = renderer.LabelViewSizeProvider;
+
+                    renderer.ClippingRegion = new FullClippingRegion();
+
+                    renderLoop.InitializeDirect2D();
+                    renderLoop.RenderSingleFrame(state =>
+                    {
+                        renderer.RenderStepView(view, state, new IRenderingDecorator[0]);
+                    });
+
+                    LabelView.DefaultLabelViewSizeProvider = last;
+
+                    return wicBitmap;
+                }
+            }
+        }
+
+        public SharpDX.WIC.Bitmap BitmapForPipelineNodeType<T>() where T : IPipelineNode, new()
+        {
+            var node = new T();
+
+            return BitmapForPipelineNode(node);
         }
     }
 }

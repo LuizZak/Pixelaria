@@ -110,6 +110,8 @@ namespace PixDirectX.Rendering
         {
             _lastRenderingState = state;
 
+            RecreateState(state);
+
             TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
         }
 
@@ -128,7 +130,10 @@ namespace PixDirectX.Rendering
         /// </summary>
         protected virtual void RecreateState([NotNull] IDirect2DRenderingState state)
         {
-            
+            foreach (var listener in RenderListeners)
+            {
+                listener.RecreateState(state);
+            }
         }
 
         /// <summary>
@@ -165,6 +170,9 @@ namespace PixDirectX.Rendering
         public virtual void Render([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
             UpdateRenderingState(state, clipping);
+
+            // Clean background
+            state.D2DRenderTarget.Clear(BackColor.ToColor4());
 
             InvokeRenderListeners(state, clipping);
         }
@@ -227,9 +235,11 @@ namespace PixDirectX.Rendering
 
         protected void InvokeRenderListeners([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
+            var parameters = new RenderListenerParameters(ImageResources, clipping, state, TextColorRenderer);
+
             foreach (var listener in RenderListeners)
             {
-                listener.Render(state, clipping);
+                listener.Render(parameters);
             }
         }
         
@@ -239,7 +249,7 @@ namespace PixDirectX.Rendering
 
         public void AddRenderListener(IRenderListener renderListener)
         {
-            var inserted = false;
+            bool inserted = false;
 
             // Use the render listener's rendering order value to figure out the correct insertion position
             for (int i = 0; i < RenderListeners.Count; i++)
@@ -256,6 +266,11 @@ namespace PixDirectX.Rendering
             if (!inserted)
             {
                 RenderListeners.Add(renderListener);
+            }
+
+            if (_lastRenderingState != null)
+            {
+                renderListener.RecreateState(_lastRenderingState);
             }
         }
 
@@ -375,6 +390,22 @@ namespace PixDirectX.Rendering
 
                     return action(textFormat, textLayout);
                 }
+            }
+        }
+
+        private struct RenderListenerParameters : IRenderListenerParameters
+        {
+            public ID2DImageResourceProvider ImageResources { get; }
+            public IClippingRegion ClippingRegion { get; }
+            public IDirect2DRenderingState State { get; }
+            public TextColorRenderer TextColorRenderer { get; }
+
+            public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources, IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state, [NotNull] TextColorRenderer textColorRenderer)
+            {
+                ImageResources = imageResources;
+                ClippingRegion = clippingRegion;
+                State = state;
+                TextColorRenderer = textColorRenderer;
             }
         }
     }

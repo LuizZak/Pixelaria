@@ -29,6 +29,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using FastBitmapLib;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
@@ -47,10 +48,15 @@ using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
+using PixUI.Rendering;
+using PixUI.Visitor;
 using SharpDX.DirectWrite;
+using SharpDX.WIC;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
+using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using Font = System.Drawing.Font;
 using FontFamily = System.Drawing.FontFamily;
+using PixelFormat = SharpDX.WIC.PixelFormat;
 
 namespace Pixelaria.Views.ExportPipeline
 {
