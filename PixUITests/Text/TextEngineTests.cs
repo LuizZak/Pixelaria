@@ -1462,7 +1462,7 @@ namespace PixUITests.Text
         #region Text Delete Undo Task
 
         [TestMethod]
-        public void TestTextDeteleUndo()
+        public void TestTextDeleteUndo()
         {
             const string text = "abc";
             var caret = new Caret(new TextRange(1, 3), CaretPosition.Start);

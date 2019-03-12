@@ -38,7 +38,7 @@ namespace Pixelaria.ExportPipeline
         /// 
         /// The resulting sequence produces the same events/elements as the original sequence.
         /// </summary>
-        public static IObservable<T> Debug<T>(this IObservable<T> obs, [CallerMemberName] string memberName = "",
+        public static IObservable<T> Debug<T>([NotNull] this IObservable<T> obs, [CallerMemberName] string memberName = "",
             [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             string fileName = Path.GetFileName(sourceFilePath);
@@ -61,9 +61,9 @@ namespace Pixelaria.ExportPipeline
         }
 
         /// <summary>
-        /// A version of "WithLatestFrom" with a more tradicional and predictable behavior.
+        /// A version of "WithLatestFrom" with a more traditional and predictable behavior.
         /// </summary>
-        public static IObservable<TResult> PxlWithLatestFrom<TLeft, TRight, TResult>(this IObservable<TLeft> source, IObservable<TRight> other, [NotNull] Func<TLeft, TRight, TResult> resultSelector)
+        public static IObservable<TResult> PxlWithLatestFrom<TLeft, TRight, TResult>([NotNull] this IObservable<TLeft> source, IObservable<TRight> other, [NotNull] Func<TLeft, TRight, TResult> resultSelector)
         {
             return
                 source.Publish(os =>

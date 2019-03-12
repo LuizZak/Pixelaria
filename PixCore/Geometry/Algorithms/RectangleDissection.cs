@@ -29,7 +29,7 @@ using JetBrains.Annotations;
 namespace PixCore.Geometry.Algorithms
 {
     /// <summary>
-    /// Class that deals with dissection of two rectilinear rectangles oriented with the same rotation
+    /// Class that deals with dissection of two or more rectangles oriented with the same rotation
     /// on a 2D plane into smaller rectangles that fill the exact same area without overlapping.
     /// </summary>
     public class RectangleDissection
@@ -95,7 +95,7 @@ namespace PixCore.Geometry.Algorithms
         }
         
         /// <summary>
-        /// From a given list of rectangles, reutrns a new list where rectangles with shared edges
+        /// From a given list of rectangles, returns a new list where rectangles with shared edges
         /// (two shared vertices on either the top, left, right, or bottom sides are the same).
         /// </summary>
         public static RectangleF[] MergeRectangles([NotNull] params RectangleF[] rects)
@@ -104,8 +104,9 @@ namespace PixCore.Geometry.Algorithms
         }
 
         /// <summary>
-        /// From a given list of rectangles, reutrns a new list where rectangles with shared edges
-        /// (two shared vertices on either the top, left, right, or bottom sides are the same).
+        /// From a given list of rectangles, returns a new list where rectangles with shared edges
+        /// (two shared vertices on either the top, left, right, or bottom sides are the same) are
+        /// joined such that they form a single rectangle with the same area as the original rectangles.
         /// </summary>
         public static RectangleF[] MergeRectangles([NotNull] IReadOnlyList<RectangleF> rects)
         {

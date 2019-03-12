@@ -61,13 +61,13 @@ namespace PixCore.Geometry
         public AABB Span;
         public QuadTree<T>[] SubTrees;
 
-        public QuadTree(AABB span, int maxbucket, int maxdepth)
+        public QuadTree(AABB span, int maxBucket, int maxDepth)
         {
             Span = span;
             Nodes = new List<QuadTreeElement<T>>();
 
-            MaxBucket = maxbucket;
-            MaxDepth = maxdepth;
+            MaxBucket = maxBucket;
+            MaxDepth = maxDepth;
         }
 
         public bool IsPartitioned => SubTrees != null;
@@ -211,19 +211,19 @@ namespace PixCore.Geometry
 
                 foreach (var n in qt.Nodes)
                 {
-                    if (TestOverlap(in searchR, in n.Span))
-                    {
-                        if (!callback(n))
-                            return;
-                    }
+                    if (!TestOverlap(in searchR, in n.Span)) 
+                        continue;
+
+                    if (!callback(n))
+                        return;
                 }
 
-                if (qt.IsPartitioned)
+                if (!qt.IsPartitioned) 
+                    continue;
+
+                foreach (var st in qt.SubTrees)
                 {
-                    foreach (var st in qt.SubTrees)
-                    {
-                        stack.Push(st);
-                    }
+                    stack.Push(st);
                 }
             }
         }
@@ -242,19 +242,19 @@ namespace PixCore.Geometry
 
                 foreach (var n in qt.Nodes)
                 {
-                    if (TestOverlap(in searchR, in n.Span))
-                    {
-                        if (callback(n))
-                            return true;
-                    }
+                    if (!TestOverlap(in searchR, in n.Span)) 
+                        continue;
+
+                    if (callback(n))
+                        return true;
                 }
 
-                if (qt.IsPartitioned)
+                if (!qt.IsPartitioned) 
+                    continue;
+
+                foreach (var st in qt.SubTrees)
                 {
-                    foreach (var st in qt.SubTrees)
-                    {
-                        stack.Push(st);
-                    }
+                    stack.Push(st);
                 }
             }
 

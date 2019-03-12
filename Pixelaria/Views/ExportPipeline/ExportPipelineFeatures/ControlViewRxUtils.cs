@@ -34,7 +34,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
     internal static class ControlViewRxUtils
     {
         /// <summary>
-        /// Returns a signal that alterns between true and false as the user presses/releases the mouse
+        /// Returns a signal that alternates between true and false as the user presses/releases the mouse
         /// on the control.
         /// 
         /// This observable only signals when the next <see cref="ControlView.IReactive.MouseDown"/> or
@@ -44,6 +44,21 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             var onDown = reactive.MouseDown.Select(_ => true);
             var onUp = reactive.MouseUp.Select(_ => false);
+
+            return onDown.Merge(onUp);
+        }
+
+        /// <summary>
+        /// Returns a signal that alternates between true and false as the user enter/exits the mouse
+        /// over the control.
+        /// 
+        /// This observable only signals when the next <see cref="ControlView.IReactive.MouseEnter"/> or
+        /// <see cref="ControlView.IReactive.MouseLeave"/> observables fire.
+        /// </summary>
+        public static IObservable<bool> IsMouseOver([NotNull] this ControlView.IReactive reactive)
+        {
+            var onDown = reactive.MouseEnter.Select(_ => true);
+            var onUp = reactive.MouseLeave.Select(_ => false);
 
             return onDown.Merge(onUp);
         }

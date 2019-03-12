@@ -173,7 +173,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        private void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IDirect2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IDirect2DRenderingState state, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             state.PushingTransform(() =>
             {

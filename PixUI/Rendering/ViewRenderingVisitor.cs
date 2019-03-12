@@ -55,15 +55,14 @@ namespace PixUI.Rendering
 
         public bool ShouldVisitView(ControlRenderingContext state, BaseView view)
         {
-            if (view is SelfRenderingBaseView selfRendering)
-            {
-                if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds, selfRendering))
-                    return false;
+            if (!(view is SelfRenderingBaseView selfRendering)) 
+                return true;
 
-                return selfRendering.Visible;
-            }
+            if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds, selfRendering))
+                return false;
 
-            return true;
+            return selfRendering.Visible;
+
         }
 
         public void OnVisitorExit([NotNull] ControlRenderingContext context, BaseView view)
