@@ -168,7 +168,7 @@ namespace PixSnapshot
                         var baseColor = ColorAt(bitmap1, x, y);
                         var topColor = ColorAt(bitmap2, x, y);
 
-                        // Basic idea:
+                        // Basic process:
                         // 1. Draw base bitmap with 70% transparency
                         // 2. For every pixel that differs across both bitmaps, draw a fully opaque red pixel
                         var finalPixel = baseColor;
