@@ -125,7 +125,7 @@ namespace PixUI.Controls
         public IEventHandler Next => ClosestParentViewOfType<ControlView>(this);
 
         /// <summary>
-        /// Default implementathi of this method returns false.
+        /// Default implementation of this method returns false.
         /// </summary>
         public bool IsFirstResponder => ClosestParentViewOfType<RootControlView>(this)?.IsFirstResponder(this) ?? false;
 

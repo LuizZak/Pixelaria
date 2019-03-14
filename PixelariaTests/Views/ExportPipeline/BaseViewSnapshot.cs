@@ -87,7 +87,8 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var imgFactory = new ImagingFactory())
             using (var directWrite = new SharpDX.DirectWrite.Factory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
-            using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
+            using (var factory = new SharpDX.Direct2D1.Factory())
+            using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
             using (var renderer = new TestDirect2DRenderer())
             {
                 ControlView.DirectWriteFactory = directWrite;
@@ -106,7 +107,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 {
                     var visitor = new ViewRenderingVisitor();
 
-                    var context = new ControlRenderingContext(state, renderer, renderer.TextMetricsProvider);
+                    var context = new ControlRenderingContext(state, renderer.ClippingRegion, renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);

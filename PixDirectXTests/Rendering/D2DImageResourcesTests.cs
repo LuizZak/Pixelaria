@@ -21,10 +21,10 @@
 */
 
 using System;
-using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
-
+using SharpDX.Direct2D1;
+using Bitmap = System.Drawing.Bitmap;
 using ImagingFactory = SharpDX.WIC.ImagingFactory;
 using BitmapCreateCacheOption = SharpDX.WIC.BitmapCreateCacheOption;
 using PixelFormat = SharpDX.WIC.PixelFormat;
@@ -37,6 +37,7 @@ namespace PixDirectXTests.Rendering
     {
         private WicBitmap _bitmap;
         private Direct2DWicBitmapRenderManager _renderer;
+        private Factory _factory;
 
         [TestMethod]
         public void TestAddImageResource()
@@ -170,10 +171,12 @@ namespace PixDirectXTests.Rendering
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
+            _factory = new Factory();
+
             using (var factory = new ImagingFactory())
             {
                 _bitmap = new WicBitmap(factory, 2, 2, pixelFormat, bitmapCreateCacheOption);
-                _renderer = new Direct2DWicBitmapRenderManager(_bitmap);
+                _renderer = new Direct2DWicBitmapRenderManager(_bitmap, _factory);
                 _renderer.InitializeDirect2D();
             }
         }
@@ -183,6 +186,7 @@ namespace PixDirectXTests.Rendering
         {
             _renderer.Dispose();
             _bitmap.Dispose();
+            _factory.Dispose();
         }
     }
 }

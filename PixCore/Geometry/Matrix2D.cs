@@ -741,7 +741,7 @@ namespace PixCore.Geometry
         /// <param name="matrix">The matrix to use as a transformation matrix.</param>
         /// <param name="point">The original vector to apply the transformation.</param>
         /// <returns>The result of the transformation for the input vector.</returns>
-        public static Vector TransformPoint(Matrix2D matrix, in Vector point)
+        public static Vector TransformPoint(in Matrix2D matrix, in Vector point)
         {
             float x = point.X * matrix.M11 + point.Y * matrix.M21 + matrix.M31;
             float y = point.X * matrix.M12 + point.Y * matrix.M22 + matrix.M32;
@@ -776,7 +776,7 @@ namespace PixCore.Geometry
         /// </summary>
         /// <param name="value">The matrix whose inverse is to be calculated.</param>
         /// <returns>the inverse of the specified matrix.</returns>
-        public static Matrix2D Invert(Matrix2D value)
+        public static Matrix2D Invert(in Matrix2D value)
         {
             Invert(in value, out var result);
             return result;

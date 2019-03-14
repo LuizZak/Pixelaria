@@ -115,6 +115,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastBitmapLib, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastBitmapLib.1.1.2\lib\net452\FastBitmapLib.dll</HintPath>
@@ -217,6 +220,7 @@
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
     <Compile Include="Data\Persistence\PixelariaFile.cs" />
+    <Compile Include="DxSupport\DxSupport.cs" />
     <Compile Include="ExportPipeline\DefaultPipelineConnectionDelegate.cs" />
     <Compile Include="ExportPipeline\DefaultPipelineNodeSpecsProvider.cs" />
     <Compile Include="ExportPipeline\EditableTypePropertyProxy.cs" />
@@ -248,6 +252,7 @@
     <Compile Include="ExportPipeline\Steps\SinkPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
+    <Compile Include="Views\ExportPipeline\ExportPipelineUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
     <Compile Include="Views\ExportPipeline\InternalDirect2DRenderListener.cs" />
@@ -698,6 +703,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Pixelaria.licenseheader" />
     <None Include="Properties\Settings.settings">

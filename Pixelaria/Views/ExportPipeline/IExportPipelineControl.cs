@@ -35,7 +35,7 @@ using PixUI.Controls;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    internal interface IExportPipelineControl
+    internal interface IExportPipelineControl: IInvalidatableControl
     {
         /// <summary>
         /// Container for <see cref="ControlView"/>-based controls
@@ -81,16 +81,6 @@ namespace Pixelaria.Views.ExportPipeline
 
         Size Size { get; }
 
-        /// <summary>
-        /// Adds a given region of invalidation to be rendered on the next frame.
-        /// </summary>
-        void InvalidateRegion([NotNull] RedrawRegion region);
-
-        /// <summary>
-        /// Invalidates the entire draw region of this control
-        /// </summary>
-        void InvalidateAll();
-
         void SetPanAndZoom(Vector pan, Vector zoom);
 
         /// <summary>
@@ -125,6 +115,22 @@ namespace Pixelaria.Views.ExportPipeline
         // the previous concrete ExportPipelineControl reference within PropertiesPanel; we can abstract
         // this away more nicely later, instead of just copy-pasting the Control event here.
         event EventHandler SizeChanged;
+    }
+
+    /// <summary>
+    /// Specifies a control that has an invalidatable region for localized redrawing.
+    /// </summary>
+    internal interface IInvalidatableControl
+    {
+        /// <summary>
+        /// Adds a given region of invalidation to be rendered on the next frame.
+        /// </summary>
+        void InvalidateRegion([NotNull] RedrawRegion region);
+
+        /// <summary>
+        /// Invalidates the entire draw region of this control
+        /// </summary>
+        void InvalidateAll();
     }
 
     /// <summary>

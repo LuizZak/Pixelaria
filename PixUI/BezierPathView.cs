@@ -436,7 +436,7 @@ namespace PixUI
         /// Adds a rectangle to this path sink.
         /// 
         /// The operation doesn't continue from the current pen position, moving the pen to the origin before starting
-        /// the darwing operation.
+        /// the drawing operation.
         /// </summary>
         void AddRectangle(AABB rectangle);
 

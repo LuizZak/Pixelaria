@@ -41,9 +41,9 @@ namespace PixDirectXTests.Rendering
             sut.AddRenderListener(firstListener1);
             sut.AddRenderListener(firstListener2);
 
-            Assert.AreEqual(sut.RenderListenersSpy.IndexOf(lastListener), 2);
-            Assert.AreEqual(sut.RenderListenersSpy.IndexOf(firstListener2), 1);
-            Assert.AreEqual(sut.RenderListenersSpy.IndexOf(firstListener1), 0);
+            Assert.AreEqual(sut.RenderListenersSpy.IndexOf(lastListener), 0);
+            Assert.AreEqual(sut.RenderListenersSpy.IndexOf(firstListener1), 1);
+            Assert.AreEqual(sut.RenderListenersSpy.IndexOf(firstListener2), 2);
         }
     }
 

@@ -31,16 +31,19 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
+using PixDirectX.Rendering;
 using PixUI;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixUI.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
     internal class NodeLinkHoverLabelFeature : ExportPipelineUiFeature
     {
         private readonly LabelView _labelView;
+        private readonly RenderListener _renderListener = new RenderListener();
 
         public NodeLinkHoverLabelFeature([NotNull] IExportPipelineControl control) : base(control)
         {
@@ -53,6 +56,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 Text = "",
                 TextInsetBounds = new InsetBounds(5, 5, 5, 5)
             };
+
+            Control.D2DRenderer.AddRenderListener(_renderListener);
         }
 
         public override void OnMouseLeave(EventArgs e)
@@ -82,7 +87,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         {
             if (OtherFeatureHasExclusiveControl())
             {
-                _labelView.RemoveFromParent();
+                _renderListener.View = null;
+                Control.InvalidateRegion(new RedrawRegion(_labelView.Bounds, _labelView));
             }
             else
             {
@@ -91,11 +97,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 var view = contentsView.ViewUnder(relativeLoc, new Vector(5));
                 if (view is PipelineNodeLinkView linkView)
                 {
+                    Control.InvalidateRegion(new RedrawRegion(_labelView.Bounds, _labelView));
                     DisplayLabelForLink(linkView);
+                    Control.InvalidateRegion(new RedrawRegion(_labelView.Bounds, _labelView));
                 }
                 else
                 {
-                    _labelView.RemoveFromParent();
+                    _renderListener.View = null;
+                    Control.InvalidateRegion(new RedrawRegion(_labelView.Bounds, _labelView));
                 }
             }
         }
@@ -177,7 +186,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 uiContainerView.ConvertFrom(linkView.Bounds.Center, linkView) +
                 new Vector(xOffset, -_labelView.Bounds.Height / 2);
 
-            uiContainerView.AddChild(_labelView);
+            _renderListener.View = _labelView;
         }
 
         private static string NameForType([NotNull] Type type)
@@ -193,6 +202,27 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private static Color ColorForType(Type type)
         {
             return Color.CornflowerBlue;
+        }
+
+        private class RenderListener : IRenderListener
+        {
+            public int RenderOrder { get; } = RenderOrdering.UserInterface;
+
+            [CanBeNull]
+            public LabelView View { get; set; }
+
+            public void RecreateState(IDirect2DRenderingState state)
+            {
+                
+            }
+
+            public void Render(IRenderListenerParameters parameters)
+            {
+                if (View == null)
+                    return;
+
+                InternalNodeViewRenderer.DrawLabelView(parameters, View, new IRenderingDecorator[0]);
+            }
         }
     }
 }

@@ -39,6 +39,8 @@ using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Brush = SharpDX.Direct2D1.Brush;
+using Color = System.Drawing.Color;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -156,233 +158,14 @@ namespace Pixelaria.Views.ExportPipeline
                 if (!clippingRegion.IsVisibleInClippingRegion(visibleArea))
                     return;
 
-                var renderView = new InternalNodeViewRenderer(nodeView, parameters, this, _container);
+                var renderView = new InternalNodeViewRenderer(nodeView, parameters, _container.ContentsView.LocalTransform.ScaleVector >= Vector.Unit);
                 renderView.RenderView(decorators);
             });
         }
-
-        public void RenderNodeLinkView([NotNull] IRenderListenerParameters parameters, [NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
-        {
-            var state = parameters.State;
-            var clippingRegion = parameters.ClippingRegion;
-
-            state.PushingTransform(() =>
-            {
-                var visibleArea = link.Bounds.TransformedBounds(link.GetAbsoluteTransform());
-
-                if (clippingRegion.IsVisibleInClippingRegion(visibleArea))
-                {
-                    var linkState = new PipelineStepViewLinkState
-                    {
-                        FillColor = Color.White,
-                        StrokeColor = link.StrokeColor,
-                        StrokeWidth = link.StrokeWidth
-                    };
-
-                    // Decorate
-                    foreach (var decorator in decorators)
-                    {
-                        if (link.NodeLink is IPipelineInput)
-                            decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
-                        else
-                            decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
-                    }
-
-                    state.D2DRenderTarget.Transform = link.GetAbsoluteTransform().ToRawMatrix3X2();
-
-                    var rectangle = link.Bounds;
-
-                    using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                    {
-                        var ellipse = new Ellipse(rectangle.Center.ToRawVector2(), rectangle.Width / 2,
-                            rectangle.Width / 2);
-
-                        state.D2DRenderTarget.FillEllipse(ellipse, brush);
-                        state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
-                    }
-                }
-
-                // Draw label view
-                RenderLabelView(link.LinkLabel, parameters, decorators);
-            });
-        }
-
-        public void RenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
-        {
-            var renderingState = parameters.State;
-            var clippingRegion = parameters.ClippingRegion;
-
-            renderingState.PushingTransform(() =>
-            {
-                renderingState.D2DRenderTarget.Transform = bezierView.GetAbsoluteTransform().ToRawMatrix3X2();
-
-                var visibleArea = bezierView.Bounds.TransformedBounds(bezierView.GetAbsoluteTransform());
-
-                if (!clippingRegion.IsVisibleInClippingRegion(visibleArea))
-                    return;
-
-                var state = new BezierPathViewState
-                {
-                    StrokeColor = bezierView.StrokeColor,
-                    StrokeWidth = bezierView.StrokeWidth,
-                    FillColor = bezierView.FillColor,
-                    OuterStrokeColor = bezierView.OuterStrokeColor,
-                    OuterStrokeWidth = bezierView.OuterStrokeWidth
-                };
-
-                var geom = new PathGeometry(renderingState.D2DRenderTarget.Factory);
-
-                var sink = geom.Open();
-
-                var d2DSinkWrapper = new D2DPathSink(sink, FigureBegin.Filled);
-
-                var path = bezierView.GetCompletePathInput();
-                path.ApplyOnSink(d2DSinkWrapper);
-
-                sink.Close();
-
-                // Decorate
-                foreach (var decorator in decorators)
-                    decorator.DecorateBezierPathView(bezierView, ref state);
-
-                if (state.FillColor != Color.Transparent)
-                {
-                    using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.FillColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.FillGeometry(geom, brush);
-                    }
-                }
-
-                if (state.OuterStrokeWidth > 0 && state.OuterStrokeColor != Color.Transparent)
-                {
-                    using (var brushOuterStroke = new SolidColorBrush(renderingState.D2DRenderTarget, state.OuterStrokeColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.DrawGeometry(geom, brushOuterStroke, state.StrokeWidth + state.OuterStrokeWidth);
-                    }
-                }
-
-                if (state.StrokeWidth > 0 && state.StrokeColor != Color.Transparent)
-                {
-                    using (var brushStroke = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.DrawGeometry(geom, brushStroke, state.StrokeWidth);
-                    }
-                }
-
-                sink.Dispose();
-                geom.Dispose();
-            });
-        }
-
+        
         public void RenderLabelView([NotNull] LabelView labelView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
-            var renderingState = parameters.State;
-            var clippingRegion = parameters.ClippingRegion;
-
-            renderingState.PushingTransform(() =>
-            {
-                renderingState.D2DRenderTarget.Transform = labelView.GetAbsoluteTransform().ToRawMatrix3X2();
-
-                var visibleArea =
-                    labelView
-                        .GetFullBounds().Corners
-                        .Transform(labelView.GetAbsoluteTransform()).Area();
-
-                if (!clippingRegion.IsVisibleInClippingRegion(visibleArea))
-                    return;
-
-                var state = new LabelViewState
-                {
-                    StrokeColor = labelView.StrokeColor,
-                    StrokeWidth = labelView.StrokeWidth,
-                    TextColor = labelView.TextColor,
-                    BackgroundColor = labelView.BackgroundColor
-                };
-
-                // Decorate
-                foreach (var decorator in decorators)
-                    decorator.DecorateLabelView(labelView, ref state);
-
-                var roundedRect = new RoundedRectangle
-                {
-                    RadiusX = 5,
-                    RadiusY = 5,
-                    Rect = new RawRectangleF(0, 0, labelView.Bounds.Width, labelView.Bounds.Height)
-                };
-
-                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.BackgroundColor.ToColor4()))
-                {
-                    renderingState.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
-                }
-
-                if (state.StrokeWidth > 0)
-                    using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.DrawRoundedRectangle(roundedRect, pen, state.StrokeWidth);
-                    }
-
-                var textBounds = labelView.TextBounds;
-
-                var format = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size);
-                format.SetTextAlignment(TextAlignment.Leading);
-                format.SetParagraphAlignment(ParagraphAlignment.Center);
-
-                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
-                using (var textFormat = format)
-                using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
-                {
-                    // Apply text attributes
-                    if (labelView.AttributedText.HasAttributes)
-                    {
-                        var disposes = new List<IDisposable>();
-
-                        foreach (var textSegment in labelView.AttributedText.GetTextSegments())
-                        {
-                            if (textSegment.HasAttribute<ForegroundColorAttribute>())
-                            {
-                                var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
-
-                                var segmentBrush =
-                                    new SolidColorBrush(renderingState.D2DRenderTarget,
-                                        colorAttr.ForeColor.ToColor4());
-
-                                disposes.Add(segmentBrush);
-
-                                textLayout.SetDrawingEffect(segmentBrush,
-                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                            }
-                            if (textSegment.HasAttribute<TextFontAttribute>())
-                            {
-                                var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                                textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                                textLayout.SetFontSize(fontAttr.Font.Size,
-                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                            }
-                        }
-
-                        var textRenderer = parameters.TextColorRenderer;
-
-                        var prev = textRenderer.DefaultBrush;
-                        textRenderer.DefaultBrush = brush;
-
-                        textLayout.Draw(textRenderer, textBounds.Minimum.X, textBounds.Minimum.Y);
-
-                        textRenderer.DefaultBrush = prev;
-
-                        foreach (var disposable in disposes)
-                        {
-                            disposable.Dispose();
-                        }
-                    }
-                    else
-                    {
-                        renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum.ToRawVector2(), textLayout, brush);
-                    }
-                }
-            });
+            InternalNodeViewRenderer.DrawLabelView(parameters, labelView, decorators);
         }
 
         public void RenderBackground([NotNull] IRenderListenerParameters parameters)
@@ -824,11 +607,10 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal class InternalNodeViewRenderer
     {
-        private readonly IPipelineContainer _container;
         [NotNull] private readonly PipelineNodeView _nodeView;
         private readonly IRenderListenerParameters _parameters;
         private readonly IDirect2DRenderingState _state;
-        private readonly InternalDirect2DRenderListener _internalRenderer;
+        private readonly bool _useNearestNeighborOnIcon;
 
         private AABB TitleArea => _nodeView.GetTitleArea();
         private AABB BodyTextArea => _nodeView.GetBodyTextArea();
@@ -837,17 +619,20 @@ namespace Pixelaria.Views.ExportPipeline
         private IReadOnlyList<PipelineNodeLinkView> InLinks => _nodeView.InputViews;
         private IReadOnlyList<PipelineNodeLinkView> OutLinks => _nodeView.OutputViews;
 
-        public InternalNodeViewRenderer([NotNull] PipelineNodeView nodeView, [NotNull] IRenderListenerParameters parameters, InternalDirect2DRenderListener internalRenderer, IPipelineContainer container)
+        public InternalNodeViewRenderer([NotNull] PipelineNodeView nodeView, [NotNull] IRenderListenerParameters parameters, bool useNearestNeighborOnIcon)
         {
             _nodeView = nodeView;
             _parameters = parameters;
             _state = _parameters.State;
-            _internalRenderer = internalRenderer;
-            _container = container;
+            _useNearestNeighborOnIcon = useNearestNeighborOnIcon;
         }
 
         public void RenderView([NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
+            _state.PushMatrix();
+
+            _state.Transform = _nodeView.GetAbsoluteTransform().ToRawMatrix3X2();
+
             var disposeBag = new InternalDirect2DRenderListener.DisposeBag();
 
             // Create rendering states for decorators
@@ -925,7 +710,7 @@ namespace Pixelaria.Views.ExportPipeline
             // Draw outputs
             foreach (var link in OutLinks)
             {
-                _internalRenderer.RenderNodeLinkView(_parameters, link, decorators);
+                DrawNodeLinkView(link, decorators);
             }
 
             // Draw separation between input and output links
@@ -943,7 +728,7 @@ namespace Pixelaria.Views.ExportPipeline
             // Draw inputs
             foreach (var link in InLinks)
             {
-                _internalRenderer.RenderNodeLinkView(_parameters, link, decorators);
+                DrawNodeLinkView(link, decorators);
             }
         }
 
@@ -1062,13 +847,169 @@ namespace Pixelaria.Views.ExportPipeline
             var mode = BitmapInterpolationMode.Linear;
 
             // Draw with pixel quality when zoomed in so icon doesn't render all blurry
-            if (_container.ContentsView.LocalTransform.ScaleVector >= Vector.Unit)
+            if (_useNearestNeighborOnIcon)
             {
                 mode = BitmapInterpolationMode.NearestNeighbor;
             }
 
             _state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds.ToRawRectangleF(), 1f, mode);
         }
-    }
 
+        private void DrawNodeLinkView([NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        {
+            var state = _parameters.State;
+            var clippingRegion = _parameters.ClippingRegion;
+
+            state.PushingTransform(() =>
+            {
+                var visibleArea = link.Bounds.TransformedBounds(link.GetAbsoluteTransform());
+
+                if (clippingRegion.IsVisibleInClippingRegion(visibleArea))
+                {
+                    var linkState = new PipelineStepViewLinkState
+                    {
+                        FillColor = Color.White,
+                        StrokeColor = link.StrokeColor,
+                        StrokeWidth = link.StrokeWidth
+                    };
+
+                    // Decorate
+                    foreach (var decorator in decorators)
+                    {
+                        if (link.NodeLink is IPipelineInput)
+                            decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
+                        else
+                            decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
+                    }
+
+                    state.Transform = link.GetAbsoluteTransform().ToRawMatrix3X2();
+
+                    var rectangle = link.Bounds;
+
+                    using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
+                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
+                    {
+                        var ellipse = new Ellipse(rectangle.Center.ToRawVector2(), rectangle.Width / 2,
+                            rectangle.Width / 2);
+
+                        state.D2DRenderTarget.FillEllipse(ellipse, brush);
+                        state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
+                    }
+                }
+
+                // Draw label view
+                DrawLabelView(_parameters, link.LinkLabel, decorators);
+            });
+        }
+
+        public static void DrawLabelView([NotNull] IRenderListenerParameters parameters, [NotNull] LabelView labelView, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
+        {
+            var renderingState = parameters.State;
+            var clippingRegion = parameters.ClippingRegion;
+
+            renderingState.PushingTransform(() =>
+            {
+                renderingState.D2DRenderTarget.Transform = labelView.GetAbsoluteTransform().ToRawMatrix3X2();
+
+                var visibleArea =
+                    labelView
+                        .GetFullBounds().Corners
+                        .Transform(labelView.GetAbsoluteTransform()).Area();
+
+                if (!clippingRegion.IsVisibleInClippingRegion(visibleArea))
+                    return;
+
+                var state = new LabelViewState
+                {
+                    StrokeColor = labelView.StrokeColor,
+                    StrokeWidth = labelView.StrokeWidth,
+                    TextColor = labelView.TextColor,
+                    BackgroundColor = labelView.BackgroundColor
+                };
+
+                // Decorate
+                foreach (var decorator in decorators)
+                    decorator.DecorateLabelView(labelView, ref state);
+
+                var roundedRect = new RoundedRectangle
+                {
+                    RadiusX = 5,
+                    RadiusY = 5,
+                    Rect = new RawRectangleF(0, 0, labelView.Bounds.Width, labelView.Bounds.Height)
+                };
+
+                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.BackgroundColor.ToColor4()))
+                {
+                    renderingState.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
+                }
+
+                if (state.StrokeWidth > 0)
+                    using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
+                    {
+                        renderingState.D2DRenderTarget.DrawRoundedRectangle(roundedRect, pen, state.StrokeWidth);
+                    }
+
+                var textBounds = labelView.TextBounds;
+
+                var format = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size);
+                format.SetTextAlignment(TextAlignment.Leading);
+                format.SetParagraphAlignment(ParagraphAlignment.Center);
+
+                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
+                using (var textFormat = format)
+                using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
+                {
+                    // Apply text attributes
+                    if (labelView.AttributedText.HasAttributes)
+                    {
+                        var disposes = new List<IDisposable>();
+
+                        foreach (var textSegment in labelView.AttributedText.GetTextSegments())
+                        {
+                            if (textSegment.HasAttribute<ForegroundColorAttribute>())
+                            {
+                                var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
+
+                                var segmentBrush =
+                                    new SolidColorBrush(renderingState.D2DRenderTarget,
+                                        colorAttr.ForeColor.ToColor4());
+
+                                disposes.Add(segmentBrush);
+
+                                textLayout.SetDrawingEffect(segmentBrush,
+                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                            }
+                            if (textSegment.HasAttribute<TextFontAttribute>())
+                            {
+                                var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+
+                                textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                                textLayout.SetFontSize(fontAttr.Font.Size,
+                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                            }
+                        }
+
+                        var textRenderer = parameters.TextColorRenderer;
+
+                        var prev = textRenderer.DefaultBrush;
+                        textRenderer.DefaultBrush = brush;
+
+                        textLayout.Draw(textRenderer, textBounds.Minimum.X, textBounds.Minimum.Y);
+
+                        textRenderer.DefaultBrush = prev;
+
+                        foreach (var disposable in disposes)
+                        {
+                            disposable.Dispose();
+                        }
+                    }
+                    else
+                    {
+                        renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum.ToRawVector2(), textLayout, brush);
+                    }
+                }
+            });
+        }
+    }
 }

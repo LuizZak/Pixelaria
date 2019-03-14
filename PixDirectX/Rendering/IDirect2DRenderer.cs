@@ -36,7 +36,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Public interface for the Export Pipeline's Direct2D renderer
     /// </summary>
-    public interface IDirect2DRenderer
+    public interface IDirect2DRenderer : ITextLayoutRenderer
     {
         /// <summary>
         /// Gets or sets the background color that this Direct2D renderer uses to clear the display area
@@ -67,7 +67,10 @@ namespace PixDirectX.Rendering
         /// Removes a render listener registered on this renderer.
         /// </summary>
         void RemoveRenderListener(IRenderListener renderListener);
+    }
 
+    public interface ITextLayoutRenderer
+    {
         /// <summary>
         /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.

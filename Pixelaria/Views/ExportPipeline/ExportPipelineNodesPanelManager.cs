@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -34,6 +35,7 @@ using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
+using Pixelaria.DXSupport;
 using PixUI.Controls;
 
 using Pixelaria.ExportPipeline;
@@ -58,6 +60,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
         private readonly IExportPipelineDirect2DRenderer _pipelineDirect2DRenderer;
+        [NotNull] 
+        private readonly IInvalidatableControl _invalidateTarget;
         private readonly ID2DImageResourceProvider _imageResourceProvider;
         private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
 
@@ -74,14 +78,16 @@ namespace Pixelaria.Views.ExportPipeline
 
         public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control)
             : this(control.ControlContainer, control.D2DRenderer,
+                control,
                 new PipelineNodeBitmapGenerator(control))
         {
             
         }
 
-        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IExportPipelineDirect2DRenderer pipelineDirect2DRenderer, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
+        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IExportPipelineDirect2DRenderer pipelineDirect2DRenderer, [NotNull] IInvalidatableControl invalidateTarget, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
         {
             _pipelineDirect2DRenderer = pipelineDirect2DRenderer;
+            _invalidateTarget = invalidateTarget;
             _imageResourceProvider = _pipelineDirect2DRenderer.ImageResources;
             _bitmapGenerator = bitmapGenerator;
 
@@ -202,6 +208,14 @@ namespace Pixelaria.Views.ExportPipeline
                 var handler = DragAndDropHandlerForButton(button, spec);
                 _buttonHandlers.Add(handler);
                 _disposeBag.Add(handler);
+
+                handler.MouseUp = mousePosition =>
+                {
+                    if (_container.Contains(mousePosition))
+                        return;
+
+                    PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), mousePosition));
+                };
             }
 
             // Adjust buttons
@@ -258,7 +272,7 @@ namespace Pixelaria.Views.ExportPipeline
                 .Subscribe(_ =>
                 {
                     var node = spec.CreateNode();
-                    PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(node));
+                    PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(node, null));
                 }).AddToDisposable(_disposeBag);
 
             return button;
@@ -266,7 +280,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button, [NotNull] PipelineNodeSpec nodeSpec)
         {
-            return new PipelineNodeButtonDragAndDropHandler(button, nodeSpec, _pipelineDirect2DRenderer, _bitmapGenerator);
+            return new PipelineNodeButtonDragAndDropHandler(button, nodeSpec, _invalidateTarget, _pipelineDirect2DRenderer);
         }
 
         private Vector GetButtonSize()
@@ -285,7 +299,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// 
         /// This image is used for representing the node's type visually in a small icon form.
         /// </summary>
-        public static ImageResource? IconForPipelineNode([NotNull] IPipelineNode node, ID2DImageResourceProvider resourcesProvider)
+        public static ImageResource? IconForPipelineNode([NotNull] IPipelineNode node, [NotNull] ID2DImageResourceProvider resourcesProvider)
         {
             return IconForPipelineNodeType(node.GetType(), resourcesProvider);
         }
@@ -295,7 +309,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// 
         /// This image is used for representing the node's type visually in a small icon form.
         /// </summary>
-        public static ImageResource? IconForPipelineNodeType(Type nodeType, ID2DImageResourceProvider resourcesProvider)
+        public static ImageResource? IconForPipelineNodeType(Type nodeType, [NotNull] ID2DImageResourceProvider resourcesProvider)
         {
             string iconName = null;
 
@@ -356,30 +370,37 @@ namespace Pixelaria.Views.ExportPipeline
         public class PipelineNodeSelectedEventArgs : EventArgs
         {
             public IPipelineNode Node { get; }
+            public Vector? ScreenPosition { get; }
 
-            public PipelineNodeSelectedEventArgs(IPipelineNode node)
+            public PipelineNodeSelectedEventArgs(IPipelineNode node, Vector? screenPosition)
             {
                 Node = node;
+                ScreenPosition = screenPosition;
             }
         }
 
         private sealed class PipelineNodeButtonDragAndDropHandler: IDisposable
         {
-            [NotNull] private readonly IExportPipelineDirect2DRenderer _pipelineDirect2DRenderer;
-            [NotNull] private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
+            [NotNull] 
+            private readonly IExportPipelineDirect2DRenderer _pipelineDirect2DRenderer;
+
+            [NotNull] 
+            private readonly IInvalidatableControl _invalidatableControl;
             private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
             private ButtonControl _buttonControl;
             private readonly PipelineNodeSpec _nodeSpec;
 
+            public Action<Vector> MouseUp { private get; set; }
+
             public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
                 [NotNull] PipelineNodeSpec nodeSpec,
-                [NotNull] IExportPipelineDirect2DRenderer pipelineDirect2DRenderer,
-                [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
+                [NotNull] IInvalidatableControl invalidatableControl,
+                [NotNull] IExportPipelineDirect2DRenderer pipelineDirect2DRenderer)
             {
                 _buttonControl = buttonControl;
                 _nodeSpec = nodeSpec;
+                _invalidatableControl = invalidatableControl;
                 _pipelineDirect2DRenderer = pipelineDirect2DRenderer;
-                _bitmapGenerator = bitmapGenerator;
 
                 Setup(buttonControl);
             }
@@ -391,14 +412,15 @@ namespace Pixelaria.Views.ExportPipeline
 
             void Setup([NotNull] ButtonControl button)
             {
+                void InvalidateScreen(PipelineNodeDragRenderListener dragListener)
+                {
+                    _invalidatableControl.InvalidateRegion(new RedrawRegion(dragListener.NodeScreenArea, null));
+                }
+
                 var renderListener =
-                    new PipelineNodeDragRenderListener(_nodeSpec, _pipelineDirect2DRenderer.ImageResources, _bitmapGenerator);
+                    new PipelineNodeDragRenderListener(_nodeSpec, _pipelineDirect2DRenderer.ImageResources);
 
                 _disposeBag.Add(renderListener);
-
-                bool isMouseOver = false;
-
-                button.Rx.IsMouseOver().Subscribe(b => isMouseOver = b);
 
                 // On press - register render listener
                 button.Rx
@@ -417,16 +439,25 @@ namespace Pixelaria.Views.ExportPipeline
                     .Where(b => !b)
                     .Subscribe(_ =>
                     {
+                        InvalidateScreen(renderListener);
+
                         _pipelineDirect2DRenderer.RemoveRenderListener(renderListener);
+                        MouseUp(renderListener.NodeScreenArea.Minimum);
                     }).AddToDisposable(_disposeBag);
 
                 // As the user moves the mouse while out of the control
                 button.Rx.MouseMove
-                    .Where(_ => !isMouseOver)
+                    .PxlWithLatestFrom(button.Rx.IsMouseDown(), (args, b) => (args, b))
+                    .Where(tuple => tuple.b)
+                    .Select(tuple => tuple.args)
                     .Subscribe(e =>
                     {
+                        InvalidateScreen(renderListener);
+
                         renderListener.MousePosition = button.ConvertTo(e.Location, null);
                         renderListener.Visible = true;
+
+                        InvalidateScreen(renderListener);
                     }).AddToDisposable(_disposeBag);
 
                 // As the user leaves the mouse from on top of the control
@@ -444,40 +475,37 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 public int RenderOrder { get; } = RenderOrdering.UserInterface + 10;
 
-                public bool Visible { get; set; } = true;
-                public Vector MousePosition { get; set; } = Vector.Zero;
-
-                [CanBeNull] 
-                private Bitmap _bitmap;
-                private readonly PipelineNodeSpec _nodeSpec;
-                private readonly ID2DImageResourceManager _imageResources;
-                private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
-
-                private readonly string _bitmapName;
-
-                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, ID2DImageResourceManager imageResources, IPipelineNodeBitmapGenerator bitmapGenerator)
+                public bool Visible { get; set; }
+                public Vector MousePosition
                 {
-                    _bitmapName = $"_dragAndDropBitmap${nodeSpec.Name}";
-                    _nodeSpec = nodeSpec;
-                    _imageResources = imageResources;
-                    _bitmapGenerator = bitmapGenerator;
+                    set => _nodeView.Location = Vector.Round(value - _nodeView.Size / 2);
+                }
+
+                /// <summary>
+                /// The area the node occupies in screen-space
+                /// </summary>
+                public AABB NodeScreenArea => _nodeView.Bounds.TransformedBounds(_nodeView.GetAbsoluteTransform());
+
+                private readonly PipelineNodeView _nodeView;
+
+                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] ID2DImageResourceProvider imageProvider)
+                {
+                    var node = nodeSpec.CreateNode();
+                    _nodeView = PipelineNodeView.Create(node);
+                    _nodeView.Icon = IconForPipelineNode(node, imageProvider);
+
+                    var nodeViewSizer = new DefaultPipelineNodeViewSizer();
+                    nodeViewSizer.AutoSize(_nodeView, LabelView.DefaultLabelViewSizeProvider);
                 }
 
                 public void Dispose()
                 {
-                    _bitmap?.Dispose();
+
                 }
 
                 public void RecreateState(IDirect2DRenderingState state)
                 {
-                    _bitmap?.Dispose();
-
-                    if(_imageResources.BitmapForResource(_bitmapName) == null)
-                    {
-                        var node = _nodeSpec.CreateNode();
-                        var bitmap = _bitmapGenerator.BitmapForPipelineNode(node);
-                        _imageResources.AddImageResource(state, bitmap, _bitmapName);
-                    }
+                    
                 }
 
                 public void Render(IRenderListenerParameters parameters)
@@ -489,20 +517,16 @@ namespace Pixelaria.Views.ExportPipeline
 
                     state.PushingTransform(() =>
                     {
-                        state.D2DRenderTarget.Transform = Matrix2D.Translation(MousePosition).ToRawMatrix3X2();
+                        var renderer = new InternalNodeViewRenderer(_nodeView, parameters, true);
 
-                        var image = _imageResources.BitmapForResource(_bitmapName);
-                        if (image != null)
-                        {
-                            state.D2DRenderTarget.DrawBitmap(image, 1, BitmapInterpolationMode.Linear);
-                        }
+                        renderer.RenderView(new IRenderingDecorator[0]);
                     });
                 }
             }
         }
     }
 
-    class PipelineNodeBitmapGenerator : IPipelineNodeBitmapGenerator
+    internal class PipelineNodeBitmapGenerator : IPipelineNodeBitmapGenerator
     {
         readonly IExportPipelineControl _exportPipelineControl;
 
@@ -522,13 +546,17 @@ namespace Pixelaria.Views.ExportPipeline
 
             container.AutoSizeNode(view);
 
+            var margins = new Vector(2, 2);
+            var bitmapOffset = margins;
+            var bitmapSize = view.Size + margins * 2;
+
             // Automatically adjust view to be on center of view port
             using (var imgFactory = new ImagingFactory())
             using (var directWrite = new SharpDX.DirectWrite.Factory())
             {
-                var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, (int)view.Size.X, (int)view.Size.Y, pixelFormat, bitmapCreateCacheOption);
+                var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
 
-                using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap))
+                using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, DxSupport.D2DFactory, DxSupport.D3DDevice))
                 using (var renderer = new Direct2DRenderer())
                 {
                     var listener = new InternalDirect2DRenderListener(container, _exportPipelineControl);
@@ -543,6 +571,7 @@ namespace Pixelaria.Views.ExportPipeline
                     renderLoop.InitializeDirect2D();
                     renderLoop.RenderSingleFrame(state =>
                     {
+                        state.Transform = Matrix2D.Translation(bitmapOffset).ToRawMatrix3X2();
                         var parameters = renderer.CreateRenderListenerParameters(state);
 
                         listener.RenderStepView(view, parameters, new IRenderingDecorator[0]);

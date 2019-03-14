@@ -29,7 +29,6 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Forms;
 using System.Windows.Threading;
-using FastBitmapLib;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
@@ -41,6 +40,7 @@ using PixUI.Controls;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
+using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
@@ -48,15 +48,11 @@ using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
-using PixUI.Rendering;
-using PixUI.Visitor;
 using SharpDX.DirectWrite;
-using SharpDX.WIC;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
 using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using Font = System.Drawing.Font;
 using FontFamily = System.Drawing.FontFamily;
-using PixelFormat = SharpDX.WIC.PixelFormat;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -115,7 +111,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (DesignMode)
                 return;
 
-            _direct2DLoopManager = new Direct2DRenderLoopManager(exportPipelineControl);
+            _direct2DLoopManager = new Direct2DRenderLoopManager(exportPipelineControl, DxSupport.D2DFactory, DxSupport.D3DDevice);
 
             _direct2DLoopManager.InitializeDirect2D();
 
@@ -203,10 +199,10 @@ namespace Pixelaria.Views.ExportPipeline
         private void PanelManagerOnPipelineNodeSelected(object sender, [NotNull] ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e)
         {
             exportPipelineControl.PipelineContainer.ClearSelection();
-            AddPipelineNode(e.Node);
+            AddPipelineNode(e.Node, e.ScreenPosition);
         }
 
-        public void AddPipelineNode([NotNull] IPipelineNode node)
+        public void AddPipelineNode([NotNull] IPipelineNode node, Vector? screenPosition)
         {
             var container = exportPipelineControl.PipelineContainer;
 
@@ -234,11 +230,18 @@ namespace Pixelaria.Views.ExportPipeline
             container.AddNodeView(view);
             container.AutoSizeNode(view);
             
-            // Automatically adjust view to be on center of view port
-            var center = exportPipelineControl.Bounds.Center();
-            var centerCont = container.ContentsView.ConvertFrom(center, null);
+            // Automatically adjust view to be on center of view port, if no location was informed
+            if (screenPosition == null)
+            {
+                var center = exportPipelineControl.Bounds.Center();
+                var centerCont = container.ContentsView.ConvertFrom(center, null);
 
-            view.Location = centerCont - view.Size / 2;
+                view.Location = centerCont - view.Size / 2;
+            }
+            else
+            {
+                view.Location = container.ContentsView.ConvertFrom(screenPosition.Value, null);
+            }
         }
 
         public void InitTest()
@@ -620,7 +623,7 @@ namespace Pixelaria.Views.ExportPipeline
     /// <summary>
     /// A 'picture-in-picture' style manager for bitmap preview pipeline steps.
     /// </summary>
-    internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature
+    internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature, IRenderListener
     {
         [CanBeNull]
         private IDirect2DRenderingState _latestRenderState;
@@ -646,11 +649,15 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
+        public int RenderOrder => RenderOrdering.UserInterface;
+
         public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control) : base(control)
         {
             control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
             control.SizeChanged += ControlOnSizeChanged;
+
+            control.D2DRenderer.AddRenderListener(this);
         }
 
         private void ControlOnSizeChanged(object sender, EventArgs e)
@@ -736,9 +743,14 @@ namespace Pixelaria.Views.ExportPipeline
             control.InvalidateAll();
         }
 
-        public override void OnRender(IDirect2DRenderingState state)
+        public void RecreateState(IDirect2DRenderingState state)
         {
-            base.OnRender(state);
+            _latestRenderState = state;
+        }
+
+        public void Render(IRenderListenerParameters parameters)
+        {
+            var state = parameters.State;
 
             _latestRenderState = state;
 

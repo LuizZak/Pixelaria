@@ -33,7 +33,6 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
-using SharpDX.WIC;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
@@ -235,7 +234,7 @@ namespace PixDirectX.Rendering
 
         public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
-            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer);
+            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer, this, TextMetricsProvider);
 
             return parameters;
         }
@@ -262,7 +261,7 @@ namespace PixDirectX.Rendering
             for (int i = 0; i < RenderListeners.Count; i++)
             {
                 var listener = RenderListeners[i];
-                if (listener.RenderOrder < renderListener.RenderOrder)
+                if (listener.RenderOrder > renderListener.RenderOrder)
                 {
                     RenderListeners.Insert(i, renderListener);
                     inserted = true;
@@ -289,7 +288,8 @@ namespace PixDirectX.Rendering
         #endregion
 
         #region Static helpers
-        
+
+        [MustUseReturnValue]
         public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
         {
             var bitmapProperties =
@@ -329,6 +329,7 @@ namespace PixDirectX.Rendering
             }
         }
 
+        [MustUseReturnValue]
         public static SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] SharpDX.WIC.Bitmap bitmap)
         {
             return SharpDX.Direct2D1.Bitmap.FromWicBitmap(renderTarget, bitmap);
@@ -411,13 +412,20 @@ namespace PixDirectX.Rendering
             public IClippingRegion ClippingRegion { get; }
             public IDirect2DRenderingState State { get; }
             public TextColorRenderer TextColorRenderer { get; }
+            public ITextLayoutRenderer TextLayoutRenderer { get; }
+            public ITextMetricsProvider TextMetricsProvider { get; }
 
-            public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources, IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state, [NotNull] TextColorRenderer textColorRenderer)
+            public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources,
+                [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
+                [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
+                [NotNull] ITextMetricsProvider textMetricsProvider)
             {
                 ImageResources = imageResources;
                 ClippingRegion = clippingRegion;
                 State = state;
                 TextColorRenderer = textColorRenderer;
+                TextLayoutRenderer = textLayoutRenderer;
+                TextMetricsProvider = textMetricsProvider;
             }
         }
     }

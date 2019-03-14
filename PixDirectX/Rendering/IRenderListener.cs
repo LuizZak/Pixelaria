@@ -85,5 +85,25 @@ namespace PixDirectX.Rendering
         /// </summary>
         [NotNull]
         TextColorRenderer TextColorRenderer { get; }
+
+        /// <summary>
+        /// Gets a text layout renderer
+        /// </summary>
+        [NotNull]
+        ITextLayoutRenderer TextLayoutRenderer { get; }
+
+        /// <summary>
+        /// Gets the text metrics provider
+        /// </summary>
+        [NotNull]
+        ITextMetricsProvider TextMetricsProvider { get; }
+    }
+
+    public static class RenderListenerExt
+    {
+        public static IDirect2DRenderingStateProvider ToStateProvider([NotNull] this IRenderListenerParameters parameters)
+        {
+            return new StaticDirect2DRenderingStateProvider(parameters.State);
+        }
     }
 }

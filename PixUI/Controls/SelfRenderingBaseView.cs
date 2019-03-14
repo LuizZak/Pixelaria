@@ -219,7 +219,11 @@ namespace PixUI.Controls
     public class ControlRenderingContext
     {
         public IDirect2DRenderingState State { get; }
-        public IDirect2DRenderer Renderer { get; }
+
+        /// <summary>
+        /// Gets the image resources provider to use when fetching image resources
+        /// </summary>
+        public ID2DImageResourceProvider ImageResources { get; }
 
         /// <summary>
         /// Gets the current render target.
@@ -230,21 +234,29 @@ namespace PixUI.Controls
 
         /// <summary>
         /// Gets the current drawing clipping region.
-        /// 
-        /// Shortcut for <see cref="Renderer"/>'s <see cref="IDirect2DRenderer.ClippingRegion"/>.
         /// </summary>
-        public IClippingRegion ClippingRegion => Renderer.ClippingRegion;
+        public IClippingRegion ClippingRegion { get; }
 
         /// <summary>
         /// Gets the text metrics provider.
         /// </summary>
         public ITextMetricsProvider TextMetricsProvider { get; }
 
-        public ControlRenderingContext(IDirect2DRenderingState state, IDirect2DRenderer renderer, ITextMetricsProvider textMetricsProvider)
+        /// <summary>
+        /// Gets a text layout renderer
+        /// </summary>
+        [NotNull]
+        public ITextLayoutRenderer TextLayoutRenderer { get; }
+
+        public ControlRenderingContext(IDirect2DRenderingState state, IClippingRegion clippingRegion,
+            ITextMetricsProvider textMetricsProvider, ID2DImageResourceProvider imageResources,
+            [NotNull] ITextLayoutRenderer textLayoutRenderer)
         {
             State = state;
-            Renderer = renderer;
+            ClippingRegion = clippingRegion;
             TextMetricsProvider = textMetricsProvider;
+            ImageResources = imageResources;
+            TextLayoutRenderer = textLayoutRenderer;
         }
     }
 }

@@ -241,7 +241,8 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         private static void TestWithRenderingState(Action<IDirect2DRenderingStateProvider> testAction)
         {
             using (var control = new ExportPipelineControl())
-            using (var renderManager = new Direct2DRenderLoopManager(control))
+            using (var factory = new SharpDX.Direct2D1.Factory())
+            using (var renderManager = new Direct2DRenderLoopManager(control, factory))
             {
                 renderManager.InitializeDirect2D();
 

@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
+using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
@@ -53,12 +54,12 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 Container = {Size = _control.Size}
             };
-            _renderer = new Direct2DRenderLoopManager(_control);
+            _renderer = new Direct2DRenderLoopManager(_control, DxSupport.D2DFactory);
             _renderer.InitializeDirect2D();
 
             PipelineControlConfigurator.Configure(_control, _renderer.RenderingState);
 
-            _sut = new ExportPipelineNodesPanelManager(_container, _control.D2DRenderer, new PipelineNodeBitmapGenerator(_control));
+            _sut = new ExportPipelineNodesPanelManager(_container, _control.D2DRenderer, new TestInvalidateTarget(),  new PipelineNodeBitmapGenerator(_control));
             _sut.RegisterResizeEvent(_control);
 
             var provider = new DefaultPipelineNodeSpecsProvider();
@@ -90,6 +91,17 @@ namespace PixelariaTests.Views.ExportPipeline
             public void RemoveControl(ControlView view)
             {
                 Container.RemoveChild(view);
+            }
+        }
+
+        internal class TestInvalidateTarget : IInvalidatableControl
+        {
+            public void InvalidateRegion(RedrawRegion region)
+            {
+            }
+
+            public void InvalidateAll()
+            {
             }
         }
     }

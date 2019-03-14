@@ -22,7 +22,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Linq;
+using Bitmap = System.Drawing.Bitmap;
 
 namespace PixDirectX.Rendering
 {
@@ -67,7 +68,7 @@ namespace PixDirectX.Rendering
 
             return res;
         }
-
+        
         public void RemoveAllImageResources()
         {
             foreach (var value in _bitmapResources.Values)
@@ -85,7 +86,14 @@ namespace PixDirectX.Rendering
                 _bitmapResources.Remove(resourceName);
             }
         }
-        
+
+        public IReadOnlyList<ImageResource> AllImageResources()
+        {
+            return _bitmapResources.Select(pair =>
+                    new ImageResource(pair.Key, pair.Value.PixelSize.Width, pair.Value.PixelSize.Height)
+                ).ToArray();
+        }
+
         public ImageResource? GetImageResource(string resourceName)
         {
             var res = BitmapForResource(resourceName);

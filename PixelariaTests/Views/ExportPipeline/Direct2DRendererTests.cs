@@ -299,7 +299,8 @@ namespace PixelariaTests.Views.ExportPipeline
                 }
             });
 
-            using (var renderManager = new Direct2DRenderLoopManager(_control))
+            using (var factory = new SharpDX.Direct2D1.Factory())
+            using (var renderManager = new Direct2DRenderLoopManager(_control, factory))
             {
                 renderManager.InitializeDirect2D();
 
@@ -328,7 +329,8 @@ namespace PixelariaTests.Views.ExportPipeline
 
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
-            using (var renderManager = new Direct2DWicBitmapRenderManager(wicBitmap))
+            using (var factory = new SharpDX.Direct2D1.Factory())
+            using (var renderManager = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
             using (var renderer = new Direct2DRenderer())
             {
                 renderManager.InitializeDirect2D();

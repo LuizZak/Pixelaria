@@ -22,6 +22,7 @@
 
 using System;
 using JetBrains.Annotations;
+using PixDirectX.Rendering;
 using Pixelaria.ExportPipeline;
 using SharpDX.WIC;
 

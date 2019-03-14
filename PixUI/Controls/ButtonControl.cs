@@ -269,7 +269,7 @@ namespace PixUI.Controls
             var image = Image.Value;
             var bitmapBounds = BoundsForImage(image);
 
-            var bitmap = context.Renderer.ImageResources.BitmapForResource(image);
+            var bitmap = context.ImageResources.BitmapForResource(image);
             if (bitmap != null)
             {
                 context.RenderTarget.DrawBitmap(bitmap, bitmapBounds.ToRawRectangleF(), 1, BitmapInterpolationMode.Linear);

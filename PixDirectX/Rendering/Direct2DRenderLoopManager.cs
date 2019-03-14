@@ -53,6 +53,8 @@ namespace PixDirectX.Rendering
         private readonly Control _target;
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
         private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
+        private readonly Factory _d2DFactory;
+        private readonly Device _d3DDevice;
 
         /// <summary>
         /// Event fired whenever the Direct2D state of this loop manager is invalidated (either due to context
@@ -67,8 +69,34 @@ namespace PixDirectX.Rendering
         /// </summary>
         public IDirect2DRenderingState RenderingState => _renderingState;
 
-        public Direct2DRenderLoopManager(Control target)
+        public Direct2DRenderLoopManager(Control target, Factory d2DFactory, Device d3DDevice)
         {
+            _d2DFactory = d2DFactory;
+            _d3DDevice = d3DDevice;
+
+            _target = target;
+            _target.Resize += target_Resize;
+        }
+
+        public Direct2DRenderLoopManager(Control target, Factory d2DFactory)
+        {
+            _d2DFactory = d2DFactory;
+
+            var featureLevels = new[]
+            {
+                FeatureLevel.Level_11_1,
+                FeatureLevel.Level_11_0,
+                FeatureLevel.Level_10_1,
+                FeatureLevel.Level_10_0,
+                FeatureLevel.Level_9_3
+            };
+            var creationFlags = DeviceCreationFlags.BgraSupport;
+#if DEBUG
+            creationFlags |= DeviceCreationFlags.Debug;
+#endif
+
+            _d3DDevice = new Device(DriverType.Hardware, creationFlags, featureLevels);
+
             _target = target;
             _target.Resize += target_Resize;
         }
@@ -84,19 +112,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void InitializeDirect2D()
         {
-            var featureLevels = new[]
-            {
-                FeatureLevel.Level_11_1,
-                FeatureLevel.Level_11_0
-            };
-            var creationFlags = DeviceCreationFlags.BgraSupport;
-#if DEBUG
-            creationFlags |= DeviceCreationFlags.Debug;
-#endif
-
-            var d3Device = new Device(DriverType.Hardware, creationFlags, featureLevels);
-            var d3Device1 = d3Device.QueryInterface<SharpDX.Direct3D11.Device1>();
-
+            var d3Device1 = _d3DDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
+            
             var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
             var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
             
@@ -120,30 +137,35 @@ namespace PixDirectX.Rendering
             var factory = swapChain.GetParent<Factory2>();
             factory.MakeWindowAssociation(_target.Handle, WindowAssociationFlags.IgnoreAll);
             
-            var d2DFactory = new Factory();
-            
             // New RenderTargetView from the back-buffer
             var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
             var dxgiSurface = backBuffer.QueryInterface<Surface>();
             
-            var pixelFormat = new PixelFormat(Format.Unknown, AlphaMode.Premultiplied);
-            var settings = new RenderTargetProperties(pixelFormat);
+            var pixelFormat = new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied);
+            var settings = new RenderTargetProperties(pixelFormat)
+            {
+                Type = RenderTargetType.Hardware, 
+                Usage = RenderTargetUsage.None
+            };
             var renderTarget =
-                new RenderTarget(d2DFactory, dxgiSurface, settings)
+                new RenderTarget(_d2DFactory, dxgiSurface, settings)
                 {
                     TextAntialiasMode = TextAntialiasMode.Cleartype
                 };
-            
+
             var directWriteFactory = new SharpDX.DirectWrite.Factory();
 
-            _renderingState.D2DFactory = d2DFactory;
+            var desktopScale =
+                new Vector(_d2DFactory.DesktopDpi.Width, _d2DFactory.DesktopDpi.Height) / new Vector(96.0f, 96.0f);
+            
+            _renderingState.D2DFactory = _d2DFactory;
             _renderingState.D2DRenderTarget = renderTarget;
             _renderingState.SwapChain = swapChain;
-            _renderingState.Factory = factory;
             _renderingState.DxgiSurface = dxgiSurface;
             _renderingState.BackBuffer = backBuffer;
             _renderingState.DirectWriteFactory = directWriteFactory;
+            _renderingState.DesktopDpiScaling = desktopScale;
         }
 
         /// <summary>
@@ -154,29 +176,12 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void StartRenderLoop([NotNull, InstantHandle] Action<IDirect2DRenderingState> loop)
         {
-            using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
+            StartRenderLoop(state =>
             {
-                _frameDeltaTimer.Start();
+                loop(state);
 
-                while (renderLoop.NextFrame())
-                {
-                    _renderingState.SetFrameDeltaTime(_frameDeltaTimer.Elapsed);
-                    _frameDeltaTimer.Restart();
-
-                    _renderingState.D2DRenderTarget.BeginDraw();
-
-                    loop(RenderingState);
-
-                    _renderingState.D2DRenderTarget.EndDraw();
-
-                    // Sleep in case the screen is occluded so we don't waste cycles in this tight loop
-                    // (Present doesn't wait for the next refresh in case the window is occluded)
-                    if (_renderingState.SwapChain.Present(1, PresentFlags.None).Code == (int)DXGIStatus.Occluded)
-                    {
-                        Thread.Sleep(16);
-                    }
-                }
-            }
+                return new Direct2DRenderLoopResponse(new System.Drawing.Rectangle[0], false);
+            });
         }
 
         /// <summary>
@@ -204,11 +209,11 @@ namespace PixDirectX.Rendering
 
                     /* TODO: Re-enable when desktop DPI-awareness is working again
 
-                    var baseScale = 
+                    var desktopScale = 
                         new Vector(_renderingState.D2DFactory.DesktopDpi.Width, _renderingState.D2DFactory.DesktopDpi.Height) / new Vector(96.0f, 96.0f);
                     
-                    _renderingState.D2DRenderTarget.Transform = Matrix3x2.Scaling(baseScale.X, baseScale.Y);
-                    */
+                    _renderingState.D2DRenderTarget.Transform = Matrix3x2.Scaling(desktopScale.X, desktopScale.Y);
+                    // */
 
                     _renderingState.D2DRenderTarget.BeginDraw();
 
@@ -276,7 +281,7 @@ namespace PixDirectX.Rendering
             _renderingState.DxgiSurface = _renderingState.BackBuffer.QueryInterface<Surface>();
             var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
             _renderingState.D2DRenderTarget =
-                new RenderTarget(RenderingState.D2DFactory, _renderingState.DxgiSurface, settings)
+                new RenderTarget(_d2DFactory, _renderingState.DxgiSurface, settings)
                 {
                     TextAntialiasMode = TextAntialiasMode.Cleartype
                 };
@@ -292,7 +297,6 @@ namespace PixDirectX.Rendering
             private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
 
             public SwapChain1 SwapChain;
-            public SharpDX.DXGI.Factory Factory;
 
             public Surface DxgiSurface { set; get; }
             public Factory D2DFactory { set; get; }
@@ -308,12 +312,18 @@ namespace PixDirectX.Rendering
 
             public Vector DesktopDpiScaling { get; set; }
 
+            public Matrix3x2 Transform
+            {
+                get => D2DRenderTarget.Transform;
+                set => D2DRenderTarget.Transform = value;
+            }
+
             public void Dispose()
             {
                 // Release all resources
                 BackBuffer?.Dispose();
                 SwapChain?.Dispose();
-                Factory?.Dispose();
+                DirectWriteFactory?.Dispose();
             }
 
             public void SetFrameDeltaTime(TimeSpan frameDeltaTime)
@@ -337,16 +347,21 @@ namespace PixDirectX.Rendering
                 D2DRenderTarget.Transform = transform;
             }
 
+            public void PushMatrix()
+            {
+                _matrixStack.Push(Transform);
+            }
+
             public void PushMatrix(Matrix3x2 matrix)
             {
-                _matrixStack.Push(D2DRenderTarget.Transform);
+                _matrixStack.Push(Transform);
 
-                D2DRenderTarget.Transform = D2DRenderTarget.Transform * matrix;
+                Transform = Transform * matrix;
             }
 
             public void PopMatrix()
             {
-                D2DRenderTarget.Transform = _matrixStack.Pop();
+                Transform = _matrixStack.Pop();
             }
         }
     }

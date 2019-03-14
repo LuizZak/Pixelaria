@@ -38,12 +38,14 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
     /// 
     /// Also handles focus management for keyboard event receiving.
     /// </summary>
-    internal class ControlViewFeature : ExportPipelineUiFeature, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate, IControlContainer
+    internal class ControlViewFeature : ExportPipelineUiFeature, IFirstResponderDelegate<IEventHandler>, IRenderListener, IInvalidateRegionDelegate, IControlContainer
     {
         /// <summary>
         /// Gets the base view that all control views must be added to to enable user interaction
         /// </summary>
         public RootControlView BaseControl { get; }
+
+        public int RenderOrder => RenderOrdering.UserInterface;
 
         /// <summary>
         /// When mouse is down on a control, this is the control that the mouse
@@ -73,6 +75,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 Size = control.Size,
                 InvalidateRegionDelegate = this
             };
+
+            control.D2DRenderer.AddRenderListener(this);
         }
 
         /// <summary>
@@ -115,23 +119,27 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             traverser.Visit(BaseControl);
         }
 
-        public override void OnRender(IDirect2DRenderingState state)
+        public void Render(IRenderListenerParameters parameters)
         {
-            base.OnRender(state);
-
-            var context = new ControlRenderingContext(state, Control.D2DRenderer, Control.TextMetricsProvider);
+            var context = new ControlRenderingContext(parameters.State, Control.D2DRenderer.ClippingRegion,
+                Control.TextMetricsProvider, Control.D2DRenderer.ImageResources, Control.D2DRenderer);
 
             // Create a renderer visitor for the root UI element we got
             var visitor = new ViewRenderingVisitor();
             var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
             traverser.Visit(BaseControl);
         }
-        
+
         public override void OnResize(EventArgs e)
         {
             base.OnResize(e);
 
             BaseControl.Size = Control.Size;
+        }
+
+        public void RecreateState(IDirect2DRenderingState state)
+        {
+            
         }
 
         public override void OtherFeatureConsumedMouseDown()

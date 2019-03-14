@@ -55,7 +55,13 @@ namespace PixDirectX.Rendering
         /// </summary>
         Vector DesktopDpiScaling { get; }
 
+        /// <summary>
+        /// Gets or sets the current transformation matrix
+        /// </summary>
+        Matrix3x2 Transform { get; set; }
+
         void PushingTransform([InstantHandle, NotNull] Action execute);
+        void PushMatrix();
         void PushMatrix(Matrix3x2 matrix);
         void PopMatrix();
         void WithTemporaryClipping(AABB clipping, [InstantHandle, NotNull] Action execute);
