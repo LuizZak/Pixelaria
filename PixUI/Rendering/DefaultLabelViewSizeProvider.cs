@@ -60,8 +60,8 @@ namespace PixUI.Rendering
                 return SizeF.Empty;
 
             var format = new TextFormat(renderState.DirectWriteFactory, font, fontSize);
-            format.SetTextAlignment(TextAlignment.Leading);
-            format.SetParagraphAlignment(ParagraphAlignment.Center);
+            format.TextAlignment = TextAlignment.Leading;
+            format.ParagraphAlignment = ParagraphAlignment.Center;
 
             using (var textFormat = format)
             using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))

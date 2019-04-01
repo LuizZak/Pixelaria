@@ -380,10 +380,16 @@ namespace PixDirectX.Rendering
             private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes,
                 [NotNull] Func<TextFormat, TextLayout, T> action)
             {
-                var format = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.Font, textLayoutAttributes.FontSize);
-                format.SetTextAlignment(Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.HorizontalTextAlignment));
-                format.SetParagraphAlignment(Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.VerticalTextAlignment));
-                format.SetWordWrapping(Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.WordWrap));
+                var format = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.Font,
+                    textLayoutAttributes.FontSize)
+                {
+                    TextAlignment =
+                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.HorizontalTextAlignment),
+                    ParagraphAlignment =
+                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.VerticalTextAlignment),
+                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.WordWrap)
+                };
+
 
                 using (var textFormat = format)
                 using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight))

@@ -289,7 +289,7 @@ namespace Pixelaria.Views.ExportPipeline
             var bundle = new Bundle("abc");
             var anim1 = new Animation("Anim 1", 48, 48);
             var controller = new AnimationController(bundle, anim1);
-
+            
             controller.CreateFrame();
             controller.CreateFrame();
             controller.CreateFrame();
@@ -787,7 +787,7 @@ namespace Pixelaria.Views.ExportPipeline
                 using (var textFormat = new TextFormat(state.DirectWriteFactory, _font.FontFamily.Name, _font.Size))
                 using (var trimming = new EllipsisTrimming(state.DirectWriteFactory, textFormat))
                 {
-                    textFormat.SetWordWrapping(WordWrapping.NoWrap);
+                    textFormat.WordWrapping = WordWrapping.NoWrap;
                     textFormat.SetTrimming(new Trimming { Granularity = TrimmingGranularity.Character }, trimming);
 
                     state.D2DRenderTarget.FillRectangle(bounds.TitleBounds.ToRawRectangleF(), background);

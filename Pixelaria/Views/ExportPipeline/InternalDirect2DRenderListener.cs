@@ -86,9 +86,11 @@ namespace Pixelaria.Views.ExportPipeline
         {
             _nodeTitlesTextFormat?.Dispose();
 
-            _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11);
-            _nodeTitlesTextFormat.SetTextAlignment(TextAlignment.Leading);
-            _nodeTitlesTextFormat.SetParagraphAlignment(ParagraphAlignment.Center);
+            _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11)
+            {
+                TextAlignment = TextAlignment.Leading, 
+                ParagraphAlignment = ParagraphAlignment.Center
+            };
 
             // Create shadow box image
             using (var bitmap = new Bitmap(64, 64))
@@ -673,9 +675,11 @@ namespace Pixelaria.Views.ExportPipeline
                 },
                 bodyFillStopCollection);
 
-            var textFormat = new TextFormat(_state.DirectWriteFactory, _nodeView.Font.Name, _nodeView.Font.Size);
-            textFormat.SetTextAlignment(TextAlignment.Leading);
-            textFormat.SetParagraphAlignment(ParagraphAlignment.Center);
+            var textFormat = new TextFormat(_state.DirectWriteFactory, _nodeView.Font.Name, _nodeView.Font.Size)
+            {
+                TextAlignment = TextAlignment.Leading, 
+                ParagraphAlignment = ParagraphAlignment.Center
+            };
 
             disposeBag.AddDisposable(roundedRectArea);
             disposeBag.AddDisposable(bodyFillStopCollection);
@@ -951,9 +955,11 @@ namespace Pixelaria.Views.ExportPipeline
 
                 var textBounds = labelView.TextBounds;
 
-                var format = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size);
-                format.SetTextAlignment(TextAlignment.Leading);
-                format.SetParagraphAlignment(ParagraphAlignment.Center);
+                var format = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size)
+                {
+                    TextAlignment = TextAlignment.Leading, 
+                    ParagraphAlignment = ParagraphAlignment.Center
+                };
 
                 using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
                 using (var textFormat = format)
