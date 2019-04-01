@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,17 +20,31 @@
     base directory of this project.
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 
-namespace PixCoreTests.Unsafe
+namespace PixPipelineGraph
 {
-    [TestClass]
-    public class UnsafeNativeMethodsTests
+    internal class InternalPipelineInput: InternalPipelineNodeLink, IPipelineInput
     {
-        [TestMethod]
-        public void TestMethod1()
+        internal readonly List<Type> dataTypes = new List<Type>();
+
+        /// <summary>
+        /// Gets the node that owns this pipeline input
+        /// </summary>
+        internal PipelineNode Node { get; }
+        internal PipelineInput Id { get; }
+
+        public IReadOnlyList<Type> DataTypes => dataTypes;
+
+        /// <inheritdoc />
+        internal InternalPipelineInput([NotNull] PipelineNode node, PipelineInput id, [NotNull] string name, [NotNull] IEnumerable<Type> dataTypes)
+            : base(node.Id, name)
         {
-            
+            Node = node;
+            Id = id;
+            this.dataTypes.AddRange(dataTypes);
         }
     }
 }

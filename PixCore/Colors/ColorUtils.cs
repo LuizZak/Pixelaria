@@ -70,8 +70,8 @@ namespace PixCore.Colors
         [Pure]
         public static Color Invert(this Color color)
         {
-            const int rgbmax = 255;
-            return Color.FromArgb(color.A, rgbmax - color.R, rgbmax - color.G, rgbmax - color.B);
+            const int rgbMax = 255;
+            return Color.FromArgb(color.A, rgbMax - color.R, rgbMax - color.G, rgbMax - color.B);
         }
 
         /// <summary>

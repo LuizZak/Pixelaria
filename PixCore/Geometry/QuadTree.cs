@@ -197,7 +197,7 @@ namespace PixCore.Geometry
             return false;
         }
 
-        public void QueryAabb(Func<QuadTreeElement<T>, bool> callback, in AABB searchR)
+        public void QueryAabb([NotNull, InstantHandle] Func<QuadTreeElement<T>, bool> callback, in AABB searchR)
         {
             var stack = new Stack<QuadTree<T>>();
             stack.Push(this);
@@ -228,7 +228,7 @@ namespace PixCore.Geometry
             }
         }
 
-        public bool QueryAabbAny(Func<QuadTreeElement<T>, bool> callback, in AABB searchR)
+        public bool QueryAabbAny([NotNull, InstantHandle] Func<QuadTreeElement<T>, bool> callback, in AABB searchR)
         {
             var stack = new Stack<QuadTree<T>>();
             stack.Push(this);

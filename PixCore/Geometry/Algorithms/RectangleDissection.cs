@@ -35,10 +35,10 @@ namespace PixCore.Geometry.Algorithms
     public class RectangleDissection
     {
         /// <summary>
-        /// Performs dissection of two rectangles, into an array of rectangles that occupy the same
-        /// area, and do not intersect.
+        /// Performs dissection of two or more rectangles into an array of rectangles that occupy
+        /// the same area, and do not intersect.
         /// 
-        /// If the two rectangles do not intersect, they are both returned instead.
+        /// If the rectangles do not intersect, the same input rectangles are returned instead.
         /// </summary>
         public static RectangleF[] Dissect([NotNull] params RectangleF[] rects)
         {
@@ -46,16 +46,18 @@ namespace PixCore.Geometry.Algorithms
         }
 
         /// <summary>
-        /// Performs dissection of two rectangles, into an array of rectangles that occupy the same
-        /// area, and do not intersect.
+        /// Performs dissection of two or more rectangles into an array of rectangles that occupy
+        /// the same area, and do not intersect.
         /// 
-        /// If the two rectangles do not intersect, they are both returned instead.
+        /// If the rectangles do not intersect, the same input rectangles are returned instead.
         /// </summary>
         public static RectangleF[] Dissect([NotNull] IEnumerable<RectangleF> rects)
         {
             var inputSet = PruneEnclosedRectangles(rects);
             if (inputSet.Count == 0)
                 return new RectangleF[0];
+            if (inputSet.Count == 1)
+                return inputSet.ToArray();
 
             var totalSize = inputSet.Aggregate(inputSet[0], RectangleF.Union);
 
@@ -110,9 +112,11 @@ namespace PixCore.Geometry.Algorithms
         /// </summary>
         public static RectangleF[] MergeRectangles([NotNull] IReadOnlyList<RectangleF> rects)
         {
-            if(rects.Count == 0)
+            if (rects.Count == 0)
                 return new RectangleF[0];
-            
+            if (rects.Count == 1)
+                return rects.ToArray();
+
             var totalSize = rects.Aggregate(rects[0], RectangleF.Union);
 
             var quadTree = new QuadTree<RectangleF>(totalSize, 10, 10);
@@ -189,27 +193,29 @@ namespace PixCore.Geometry.Algorithms
 
         private static HorizontalEdge[] SortedHorizontalEdges([NotNull] IEnumerable<RectangleF> rects)
         {
-            return rects
-                .SelectMany(r => new[] {new HorizontalEdge(r.Left), new HorizontalEdge(r.Right)})
-                // Remove duplicated edges
-                .GroupBy(edge => edge.X)
-                .Select(edges => edges.First())
-                // Return ordered by X axis
-                .OrderBy(edge => edge.X).ToArray();
+            var set = new HashSet<HorizontalEdge>();
+            foreach (var rect in rects)
+            {
+                set.Add(new HorizontalEdge(rect.Left));
+                set.Add(new HorizontalEdge(rect.Right));
+            }
+
+            return set.OrderBy(edge => edge.X).ToArray();
         }
 
         private static VerticalEdge[] SortedVerticalEdges([NotNull] IEnumerable<RectangleF> rects)
         {
-            return rects
-                .SelectMany(r => new[] { new VerticalEdge(r.Top), new VerticalEdge(r.Bottom) })
-                // Remove duplicated edges
-                .GroupBy(edge => edge.Y)
-                .Select(edges => edges.First())
-                // Return ordered by Y axis
-                .OrderBy(edge => edge.Y).ToArray();
+            var set = new HashSet<VerticalEdge>();
+            foreach (var rect in rects)
+            {
+                set.Add(new VerticalEdge(rect.Top));
+                set.Add(new VerticalEdge(rect.Bottom));
+            }
+
+            return set.OrderBy(edge => edge.Y).ToArray();
         }
 
-        private struct HorizontalEdge
+        private struct HorizontalEdge : IEquatable<HorizontalEdge>
         {
             public float X { get; }
 
@@ -217,15 +223,65 @@ namespace PixCore.Geometry.Algorithms
             {
                 X = x;
             }
+
+            public bool Equals(HorizontalEdge other)
+            {
+                return X.Equals(other.X);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is HorizontalEdge other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return X.GetHashCode();
+            }
+
+            public static bool operator ==(HorizontalEdge left, HorizontalEdge right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(HorizontalEdge left, HorizontalEdge right)
+            {
+                return !left.Equals(right);
+            }
         }
 
-        private struct VerticalEdge
+        private struct VerticalEdge : IEquatable<VerticalEdge>
         {
             public float Y { get; }
 
             public VerticalEdge(float y)
             {
                 Y = y;
+            }
+
+            public bool Equals(VerticalEdge other)
+            {
+                return Y.Equals(other.Y);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is VerticalEdge other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return Y.GetHashCode();
+            }
+
+            public static bool operator ==(VerticalEdge left, VerticalEdge right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(VerticalEdge left, VerticalEdge right)
+            {
+                return !left.Equals(right);
             }
         }
     }
