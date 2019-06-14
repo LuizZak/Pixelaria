@@ -38,6 +38,7 @@ using SharpDX.Mathematics.Interop;
 using SharpDX.Windows;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Device = SharpDX.Direct3D11.Device;
+using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Factory = SharpDX.Direct2D1.Factory;
 using Factory2 = SharpDX.DXGI.Factory2;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
@@ -113,10 +114,12 @@ namespace PixDirectX.Rendering
         public void InitializeDirect2D()
         {
             var d3Device1 = _d3DDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
-            
+
             var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
             var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
-            
+            var d2dDevice = new SharpDX.Direct2D1.Device(dxgiDevice);
+            var d2dContext = new DeviceContext(d2dDevice, DeviceContextOptions.None);
+
             var swapChainDescription = new SwapChainDescription1
             {
                 Width = _target.Width,
@@ -166,6 +169,7 @@ namespace PixDirectX.Rendering
             _renderingState.BackBuffer = backBuffer;
             _renderingState.DirectWriteFactory = directWriteFactory;
             _renderingState.DesktopDpiScaling = desktopScale;
+            _renderingState.DeviceContext = d2dContext;
         }
 
         /// <summary>
@@ -303,6 +307,7 @@ namespace PixDirectX.Rendering
             public Texture2D BackBuffer { set; get; }
 
             public RenderTarget D2DRenderTarget { set; get; }
+            public DeviceContext DeviceContext { get; set; }
             public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
 
             /// <summary>

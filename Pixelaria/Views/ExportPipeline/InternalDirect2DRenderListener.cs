@@ -632,7 +632,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderView([NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             _state.PushMatrix();
-
+            
             _state.Transform = _nodeView.GetAbsoluteTransform().ToRawMatrix3X2();
 
             var disposeBag = new InternalDirect2DRenderListener.DisposeBag();

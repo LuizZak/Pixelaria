@@ -32,6 +32,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Bitmap = SharpDX.WIC.Bitmap;
 using Device = SharpDX.Direct3D11.Device;
+using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Factory = SharpDX.Direct2D1.Factory;
 using Factory2 = SharpDX.DXGI.Factory2;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
@@ -91,6 +92,8 @@ namespace PixDirectX.Rendering
 
             var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
             var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
+            var d2dDevice = new SharpDX.Direct2D1.Device(dxgiDevice);
+            var d2dContext = new DeviceContext(d2dDevice, DeviceContextOptions.None);
 
             var pixelFormat = new PixelFormat(Format.B8G8R8A8_UNorm, SharpDX.Direct2D1.AlphaMode.Premultiplied);
             var renderTargetProperties = new RenderTargetProperties(pixelFormat)
@@ -110,6 +113,7 @@ namespace PixDirectX.Rendering
             _renderingState.WicRenderTarget = bitmapTarget;
             _renderingState.Factory = dxgiFactory;
             _renderingState.DirectWriteFactory = directWriteFactory;
+            _renderingState.DeviceContext = d2dContext;
         }
 
         /// <inheritdoc />
@@ -128,7 +132,8 @@ namespace PixDirectX.Rendering
             
             public SharpDX.DXGI.Factory Factory;
             
-            public SharpDX.Direct2D1.Factory D2DFactory { set; get; }
+            public Factory D2DFactory { set; get; }
+            public DeviceContext DeviceContext { get; set; }
             
             public WicRenderTarget WicRenderTarget { private get; set; }
             public RenderTarget D2DRenderTarget => WicRenderTarget;
@@ -176,7 +181,7 @@ namespace PixDirectX.Rendering
             {
                 _matrixStack.Push(Transform);
 
-                Transform = Transform * matrix;
+                Transform *= matrix;
             }
 
             public void PopMatrix()

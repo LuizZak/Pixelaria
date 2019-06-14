@@ -44,7 +44,12 @@ namespace PixDirectX.Rendering
         /// Gets the render target for this rendering state
         /// </summary>
         RenderTarget D2DRenderTarget { get; }
-        
+
+        /// <summary>
+        /// Gets the device context for this rendering state
+        /// </summary>
+        DeviceContext DeviceContext { get; }
+
         /// <summary>
         /// Gets the time span since the last frame rendered
         /// </summary>
