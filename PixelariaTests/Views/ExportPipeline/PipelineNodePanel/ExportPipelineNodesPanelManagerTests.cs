@@ -28,9 +28,11 @@ using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using PixUI.Controls;
+using ExportPipelineNodesPanelManager = Pixelaria.Views.ExportPipeline.PipelineNodePanel.ExportPipelineNodesPanelManager;
 
-namespace PixelariaTests.Views.ExportPipeline
+namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
 {
     [TestClass]
     public class ExportPipelineNodesPanelManagerTests

@@ -265,6 +265,7 @@
     <Compile Include="Views\ExportPipeline\InternalDirect2DRenderListener.cs" />
     <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
     <Compile Include="Views\ExportPipeline\IRenderingDecorator.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineNodePanel\PipelineNodeButtonDragAndDropHandler.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
@@ -287,7 +288,7 @@
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\ControlViewRxUtils.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\IControlContainer.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\PipelineLinkContextMenuFeature.cs" />
-    <Compile Include="Views\ExportPipeline\ExportPipelineNodesPanelManager.cs" />
+    <Compile Include="Views\ExportPipeline\PipelineNodePanel\ExportPipelineNodesPanelManager.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\IPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\DefaultPipelineNodeViewSizer.cs" />
     <Compile Include="Views\ExportPipeline\PropertiesPanel.cs" />
@@ -931,6 +932,7 @@
       <Name>PixDirectX</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>

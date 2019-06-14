@@ -30,6 +30,7 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
+using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using PixUI.Controls;
 using PixUI.Controls.PropertyGrid;
 

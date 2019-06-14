@@ -46,6 +46,7 @@ using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
+using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
 using SharpDX.DirectWrite;

@@ -22,11 +22,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
@@ -36,8 +34,6 @@ using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
-using PixUI.Controls;
-
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
@@ -45,16 +41,17 @@ using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
+using PixUI.Controls;
 using SharpDX.WIC;
 using Bitmap = SharpDX.WIC.Bitmap;
-using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
+using Color = System.Drawing.Color;
 
-namespace Pixelaria.Views.ExportPipeline
+namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 {
     /// <summary>
     /// Manages export pipeline node items available on the side panel of an export pipeline view
     /// </summary>
-    internal sealed class ExportPipelineNodesPanelManager: IDisposable
+    internal sealed partial class ExportPipelineNodesPanelManager: IDisposable
     {
         private readonly List<PipelineNodeButtonDragAndDropHandler> _buttonHandlers = new List<PipelineNodeButtonDragAndDropHandler>();
 
@@ -267,20 +264,13 @@ namespace Pixelaria.Views.ExportPipeline
             button.Image = IconForPipelineNodeType(spec.NodeType, _imageResourceProvider);
             button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
 
-            button.Rx
-                .MouseClick
-                .Subscribe(_ =>
-                {
-                    var node = spec.CreateNode();
-                    PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(node, null));
-                }).AddToDisposable(_disposeBag);
-
             return button;
         }
 
         private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button, [NotNull] PipelineNodeSpec nodeSpec)
         {
-            return new PipelineNodeButtonDragAndDropHandler(button, nodeSpec, _invalidateTarget, _pipelineDirect2DRenderer);
+            return new PipelineNodeButtonDragAndDropHandler(button, nodeSpec, _invalidateTarget,
+                _pipelineDirect2DRenderer, new PipelineNodeButtonDragAndDropHandlerDelegate(this));
         }
 
         private Vector GetButtonSize()
@@ -378,150 +368,30 @@ namespace Pixelaria.Views.ExportPipeline
                 ScreenPosition = screenPosition;
             }
         }
+    }
 
-        private sealed class PipelineNodeButtonDragAndDropHandler: IDisposable
+    /// <summary>
+    /// <see cref="PipelineNodeButtonDragAndDropHandler"/> extensions
+    /// </summary>
+    internal partial class ExportPipelineNodesPanelManager
+    {
+        private class PipelineNodeButtonDragAndDropHandlerDelegate : IPipelineNodeButtonDragAndDropHandlerDelegate
         {
-            [NotNull] 
-            private readonly IExportPipelineDirect2DRenderer _pipelineDirect2DRenderer;
+            private readonly ExportPipelineNodesPanelManager _nodesPanelManager;
 
-            [NotNull] 
-            private readonly IInvalidatableControl _invalidatableControl;
-            private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-            private ButtonControl _buttonControl;
-            private readonly PipelineNodeSpec _nodeSpec;
-
-            public Action<Vector> MouseUp { private get; set; }
-
-            public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
-                [NotNull] PipelineNodeSpec nodeSpec,
-                [NotNull] IInvalidatableControl invalidatableControl,
-                [NotNull] IExportPipelineDirect2DRenderer pipelineDirect2DRenderer)
+            public PipelineNodeButtonDragAndDropHandlerDelegate(ExportPipelineNodesPanelManager nodesPanelManager)
             {
-                _buttonControl = buttonControl;
-                _nodeSpec = nodeSpec;
-                _invalidatableControl = invalidatableControl;
-                _pipelineDirect2DRenderer = pipelineDirect2DRenderer;
-
-                Setup(buttonControl);
+                _nodesPanelManager = nodesPanelManager;
             }
 
-            public void Dispose()
+            public PipelineNodeDragAndDropAction ActionForDropPoint(PipelineNodeButtonDragAndDropHandler handler, Vector screenPoint)
             {
-                _disposeBag?.Dispose();
-            }
-
-            void Setup([NotNull] ButtonControl button)
-            {
-                void InvalidateScreen(PipelineNodeDragRenderListener dragListener)
+                if (_nodesPanelManager._container.Contains(_nodesPanelManager._container.ConvertFromScreen(screenPoint)))
                 {
-                    _invalidatableControl.InvalidateRegion(new RedrawRegion(dragListener.NodeScreenArea, null));
+                    return PipelineNodeDragAndDropAction.Delete;
                 }
 
-                var renderListener =
-                    new PipelineNodeDragRenderListener(_nodeSpec, _pipelineDirect2DRenderer.ImageResources);
-
-                _disposeBag.Add(renderListener);
-
-                // On press - register render listener
-                button.Rx
-                    .IsMouseDown()
-                    .DistinctUntilChanged()
-                    .Where(b => b)
-                    .Subscribe(_ =>
-                    {
-                        _pipelineDirect2DRenderer.AddRenderListener(renderListener);
-                    }).AddToDisposable(_disposeBag);
-
-                // On release - remove render listener
-                button.Rx
-                    .IsMouseDown()
-                    .DistinctUntilChanged()
-                    .Where(b => !b)
-                    .Subscribe(_ =>
-                    {
-                        InvalidateScreen(renderListener);
-
-                        _pipelineDirect2DRenderer.RemoveRenderListener(renderListener);
-                        MouseUp(renderListener.NodeScreenArea.Minimum);
-                    }).AddToDisposable(_disposeBag);
-
-                // As the user moves the mouse while out of the control
-                button.Rx.MouseMove
-                    .PxlWithLatestFrom(button.Rx.IsMouseDown(), (args, b) => (args, b))
-                    .Where(tuple => tuple.b)
-                    .Select(tuple => tuple.args)
-                    .Subscribe(e =>
-                    {
-                        InvalidateScreen(renderListener);
-
-                        renderListener.MousePosition = button.ConvertTo(e.Location, null);
-                        renderListener.Visible = true;
-
-                        InvalidateScreen(renderListener);
-                    }).AddToDisposable(_disposeBag);
-
-                // As the user leaves the mouse from on top of the control
-                button.Rx
-                    .IsMouseOver()
-                    .DistinctUntilChanged()
-                    .Where(isOver => !isOver)
-                    .Subscribe(_ =>
-                    {
-                        renderListener.Visible = false;
-                    }).AddToDisposable(_disposeBag);
-            }
-
-            private sealed class PipelineNodeDragRenderListener : IRenderListener, IDisposable
-            {
-                public int RenderOrder { get; } = RenderOrdering.UserInterface + 10;
-
-                public bool Visible { get; set; }
-                public Vector MousePosition
-                {
-                    set => _nodeView.Location = Vector.Round(value - _nodeView.Size / 2);
-                }
-
-                /// <summary>
-                /// The area the node occupies in screen-space
-                /// </summary>
-                public AABB NodeScreenArea => _nodeView.Bounds.TransformedBounds(_nodeView.GetAbsoluteTransform());
-
-                private readonly PipelineNodeView _nodeView;
-
-                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] ID2DImageResourceProvider imageProvider)
-                {
-                    var node = nodeSpec.CreateNode();
-                    _nodeView = PipelineNodeView.Create(node);
-                    _nodeView.Icon = IconForPipelineNode(node, imageProvider);
-
-                    var nodeViewSizer = new DefaultPipelineNodeViewSizer();
-                    nodeViewSizer.AutoSize(_nodeView, LabelView.DefaultLabelViewSizeProvider);
-                }
-
-                public void Dispose()
-                {
-
-                }
-
-                public void RecreateState(IDirect2DRenderingState state)
-                {
-                    
-                }
-
-                public void Render(IRenderListenerParameters parameters)
-                {
-                    if (!Visible)
-                        return;
-
-                    var state = parameters.State;
-
-                    state.PushingTransform(() =>
-                    {
-                        var renderer = new InternalNodeViewRenderer(_nodeView, parameters, true);
-
-                        renderer.RenderView(new IRenderingDecorator[0]);
-                    });
-                }
+                return PipelineNodeDragAndDropAction.Create;
             }
         }
     }
