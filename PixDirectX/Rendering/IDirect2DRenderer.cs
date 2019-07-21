@@ -73,7 +73,7 @@ namespace PixDirectX.Rendering
         /// Using a given attributed string, prepares the given <see cref="ITextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.
         /// </summary>
-        void WithPreparedTextLayout(Color textColor, [NotNull] IAttributedText text, [NotNull] ref ITextLayout layout, [NotNull, InstantHandle] Action<ITextLayout, ITextRenderer> perform);
+        void WithPreparedTextLayout(Color textColor, [NotNull] IAttributedText text, [CanBeNull] ref ITextLayout layout, TextLayoutAttributes attributes, [NotNull, InstantHandle] Action<ITextLayout, ITextRenderer> perform);
 
         /// <summary>
         /// Creates a new text layout using a given set of attributes.

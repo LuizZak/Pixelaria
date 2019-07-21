@@ -98,6 +98,72 @@ namespace PixDirectX.Rendering
             return verticalAlign;
         }
 
+        public static HorizontalTextAlignment HorizontalTextAlignmentFor(TextAlignment alignment)
+        {
+            HorizontalTextAlignment horizontalAlign;
+
+            switch (alignment)
+            {
+                case TextAlignment.Leading:
+                    horizontalAlign = HorizontalTextAlignment.Leading;
+                    break;
+                case TextAlignment.Center:
+                    horizontalAlign = HorizontalTextAlignment.Center;
+                    break;
+                case TextAlignment.Trailing:
+                    horizontalAlign = HorizontalTextAlignment.Trailing;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return horizontalAlign;
+        }
+
+        public static VerticalTextAlignment VerticalTextAlignmentFor(ParagraphAlignment alignment)
+        {
+            VerticalTextAlignment verticalAlign;
+
+            switch (alignment)
+            {
+                case ParagraphAlignment.Near:
+                    verticalAlign = VerticalTextAlignment.Near;
+                    break;
+                case ParagraphAlignment.Center:
+                    verticalAlign = VerticalTextAlignment.Center;
+                    break;
+                case ParagraphAlignment.Far:
+                    verticalAlign = VerticalTextAlignment.Far;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return verticalAlign;
+        }
+
+        public static TextWordWrap TextWordWrapFor(WordWrapping wordWrap)
+        {
+            TextWordWrap verticalAlign;
+
+            switch (wordWrap)
+            {
+                case WordWrapping.NoWrap:
+                    verticalAlign = TextWordWrap.None;
+                    break;
+                case WordWrapping.Character:
+                    verticalAlign = TextWordWrap.ByCharacter;
+                    break;
+                case WordWrapping.Wrap:
+                    verticalAlign = TextWordWrap.ByWord;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return verticalAlign;
+        }
+
         /// <summary>
         /// Converts a <see cref="Color"/> into a <see cref="Color4"/> structure for DirectX rendering.
         /// </summary>

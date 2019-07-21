@@ -17,6 +17,16 @@ namespace PixDirectX.Rendering
         /// </summary>
         Color StrokeColor { get; set; }
 
+        /// <summary>
+        /// Gets or sets the width of the stroke for Stroke- operations
+        /// </summary>
+        float StrokeWidth { get; set; }
+
+        /// <summary>
+        /// Gets or sets the topmost active transformation matrix.
+        /// </summary>
+        Matrix2D Transform { get; set; }
+
         #region Stroke
 
         /// <summary>
@@ -99,6 +109,11 @@ namespace PixDirectX.Rendering
         #endregion
 
         #region Transformation
+
+        /// <summary>
+        /// Pushes an Identity 2D transformation matrix on top of the currently active transform matrix.
+        /// </summary>
+        void PushTransform();
 
         /// <summary>
         /// Pushes a 2D transformation matrix on top of the currently active transform matrix.

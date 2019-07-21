@@ -99,6 +99,12 @@ namespace PixDirectX.Rendering
         ITextLayoutRenderer TextLayoutRenderer { get; }
 
         /// <summary>
+        /// Gets the text renderer
+        /// </summary>
+        [NotNull]
+        ITextRenderer TextRenderer { get; }
+
+        /// <summary>
         /// Gets the text metrics provider
         /// </summary>
         [NotNull]

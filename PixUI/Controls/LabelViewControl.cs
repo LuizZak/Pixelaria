@@ -175,7 +175,7 @@ namespace PixUI.Controls
             Debug.Assert(_textLayout != null, "_textLayout != null");
 
             // TODO: Export text rendering to a separate reusable component
-            context.TextLayoutRenderer.WithPreparedTextLayout(ForeColor, AttributedText, ref _textLayout, (layout, renderer) =>
+            context.TextLayoutRenderer.WithPreparedTextLayout(ForeColor, AttributedText, ref _textLayout, TextLayoutAttributes(), (layout, renderer) =>
             {
                 // Render background segments
                 var backSegments =

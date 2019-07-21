@@ -28,6 +28,7 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
+using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
@@ -41,6 +42,7 @@ using Bitmap = System.Drawing.Bitmap;
 using Brush = SharpDX.Direct2D1.Brush;
 using Color = System.Drawing.Color;
 using RectangleF = System.Drawing.RectangleF;
+using TextRange = SharpDX.DirectWrite.TextRange;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -614,6 +616,8 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly IDirect2DRenderingState _state;
         private readonly bool _useNearestNeighborOnIcon;
 
+        private IRenderer Renderer => _parameters.Renderer;
+
         private AABB TitleArea => _nodeView.GetTitleArea();
         private AABB BodyTextArea => _nodeView.GetBodyTextArea();
         private AABB Bounds => _nodeView.Bounds;
@@ -631,9 +635,9 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RenderView([NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
-            _state.PushMatrix();
-            
-            _state.Transform = _nodeView.GetAbsoluteTransform().ToRawMatrix3X2();
+            Renderer.PushTransform();
+
+            Renderer.Transform = _nodeView.GetAbsoluteTransform();
 
             var disposeBag = new InternalDirect2DRenderListener.DisposeBag();
 
@@ -722,11 +726,8 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 float yLine = (float)Math.Round(OutLinks.Select(o => o.FrameOnParent.Bottom + 6).Max());
 
-                using (var brush = new SolidColorBrush(_state.D2DRenderTarget, Color.Gray.WithTransparency(0.5f).ToColor4()))
-                {
-                    _state.D2DRenderTarget.DrawLine(new Vector(LinkLabelArea.Left + 6, yLine).ToRawVector2(),
-                        new Vector(LinkLabelArea.Right - 6, yLine).ToRawVector2(), brush);
-                }
+                Renderer.StrokeColor = Color.Gray.WithTransparency(0.5f);
+                Renderer.StrokeLine(new Vector(LinkLabelArea.Left + 6, yLine), new Vector(LinkLabelArea.Right - 6, yLine));
             }
 
             // Draw inputs
@@ -738,10 +739,10 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void DrawBodyOutline(PipelineStepViewState stepViewState, RoundedRectangle roundedRect)
         {
-            using (var penBrush = new SolidColorBrush(_state.D2DRenderTarget, stepViewState.StrokeColor.ToColor4()))
-            {
-                _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, penBrush, stepViewState.StrokeWidth);
-            }
+            Renderer.StrokeColor = stepViewState.StrokeColor;
+            Renderer.StrokeWidth = stepViewState.StrokeWidth;
+
+            Renderer.StrokeRoundedArea(roundedRect.Rect.ToAABB(), roundedRect.RadiusX, roundedRect.RadiusY);
         }
 
         private void DrawTitleBackground([NotNull] Geometry bodyGeometry, PipelineStepViewState stepViewState)
@@ -815,23 +816,44 @@ namespace Pixelaria.Views.ExportPipeline
                 _state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), bodyFillBrush);
             }
 
-            using (var textLayout = new TextLayout(_state.DirectWriteFactory, bodyText, textFormat, BodyTextArea.Width, BodyTextArea.Height))
-            using (var brush = new SolidColorBrush(_state.D2DRenderTarget, stepViewState.BodyFontColor.ToColor4()))
+            var attributes = new TextLayoutAttributes
             {
-                _state.D2DRenderTarget.DrawTextLayout(BodyTextArea.Minimum.ToRawVector2(), textLayout, brush,
-                    DrawTextOptions.EnableColorFont);
-            }
+                Font = textFormat.FontFamilyName,
+                FontSize = textFormat.FontSize,
+                HorizontalTextAlignment = Direct2DConversionHelpers.HorizontalTextAlignmentFor(textFormat.TextAlignment),
+                VerticalTextAlignment = Direct2DConversionHelpers.VerticalTextAlignmentFor(textFormat.ParagraphAlignment),
+                WordWrap = Direct2DConversionHelpers.TextWordWrapFor(textFormat.WordWrapping),
+                AvailableWidth = BodyTextArea.Width,
+                AvailableHeight = BodyTextArea.Height
+            };
+
+            ITextLayout layout = null;
+            _parameters.TextLayoutRenderer.WithPreparedTextLayout(stepViewState.BodyFontColor, (AttributedText)bodyText, ref layout, attributes,
+                (textLayout, renderer) =>
+                {
+                    renderer.Draw(textLayout, BodyTextArea.Minimum.X, BodyTextArea.Minimum.Y);
+                });
         }
 
-        private void DrawTitleText(TextFormat textFormat, PipelineStepViewState stepViewState)
+        private void DrawTitleText([NotNull] TextFormat textFormat, PipelineStepViewState stepViewState)
         {
-            using (var textLayout = new TextLayout(_state.DirectWriteFactory, _nodeView.Name, textFormat,
-                _nodeView.TitleTextArea.Width, _nodeView.TitleTextArea.Height))
-            using (var brush = new SolidColorBrush(_state.D2DRenderTarget, stepViewState.TitleFontColor.ToColor4()))
+            var attributes = new TextLayoutAttributes
             {
-                _state.D2DRenderTarget.DrawTextLayout(_nodeView.TitleTextArea.Minimum.ToRawVector2(), textLayout, brush,
-                    DrawTextOptions.EnableColorFont);
-            }
+                Font = textFormat.FontFamilyName,
+                FontSize = textFormat.FontSize,
+                HorizontalTextAlignment = Direct2DConversionHelpers.HorizontalTextAlignmentFor(textFormat.TextAlignment),
+                VerticalTextAlignment = Direct2DConversionHelpers.VerticalTextAlignmentFor(textFormat.ParagraphAlignment),
+                WordWrap = Direct2DConversionHelpers.TextWordWrapFor(textFormat.WordWrapping),
+                AvailableWidth = _nodeView.TitleTextArea.Width,
+                AvailableHeight = _nodeView.TitleTextArea.Height
+            };
+
+            ITextLayout layout = null;
+            _parameters.TextLayoutRenderer.WithPreparedTextLayout(stepViewState.TitleFontColor, (AttributedText) _nodeView.Name, ref layout, attributes,
+                (textLayout, renderer) =>
+                {
+                    renderer.Draw(textLayout, _nodeView.TitleTextArea.Minimum.X, _nodeView.TitleTextArea.Minimum.Y);
+                });
         }
 
         private void DrawIcon(AABB titleArea)
@@ -864,46 +886,43 @@ namespace Pixelaria.Views.ExportPipeline
             var state = _parameters.State;
             var clippingRegion = _parameters.ClippingRegion;
 
-            state.PushingTransform(() =>
+            Renderer.PushTransform();
+
+            var visibleArea = link.Bounds.TransformedBounds(link.GetAbsoluteTransform());
+
+            if (clippingRegion.IsVisibleInClippingRegion(visibleArea))
             {
-                var visibleArea = link.Bounds.TransformedBounds(link.GetAbsoluteTransform());
-
-                if (clippingRegion.IsVisibleInClippingRegion(visibleArea))
+                var linkState = new PipelineStepViewLinkState
                 {
-                    var linkState = new PipelineStepViewLinkState
-                    {
-                        FillColor = Color.White,
-                        StrokeColor = link.StrokeColor,
-                        StrokeWidth = link.StrokeWidth
-                    };
+                    FillColor = Color.White,
+                    StrokeColor = link.StrokeColor,
+                    StrokeWidth = link.StrokeWidth
+                };
 
-                    // Decorate
-                    foreach (var decorator in decorators)
-                    {
-                        if (link.NodeLink is IPipelineInput)
-                            decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
-                        else
-                            decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
-                    }
-
-                    state.Transform = link.GetAbsoluteTransform().ToRawMatrix3X2();
-
-                    var rectangle = link.Bounds;
-
-                    using (var pen = new SolidColorBrush(state.D2DRenderTarget, linkState.StrokeColor.ToColor4()))
-                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, linkState.FillColor.ToColor4()))
-                    {
-                        var ellipse = new Ellipse(rectangle.Center.ToRawVector2(), rectangle.Width / 2,
-                            rectangle.Width / 2);
-
-                        state.D2DRenderTarget.FillEllipse(ellipse, brush);
-                        state.D2DRenderTarget.DrawEllipse(ellipse, pen, linkState.StrokeWidth);
-                    }
+                // Decorate
+                foreach (var decorator in decorators)
+                {
+                    if (link.NodeLink is IPipelineInput)
+                        decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
+                    else
+                        decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
                 }
 
-                // Draw label view
-                DrawLabelView(_parameters, link.LinkLabel, decorators);
-            });
+                Renderer.Transform = link.GetAbsoluteTransform();
+
+                var rectangle = link.Bounds;
+
+                Renderer.StrokeColor = linkState.StrokeColor;
+                Renderer.FillColor = linkState.FillColor;
+
+                Renderer.FillEllipse(rectangle);
+                Renderer.StrokeEllipse(rectangle);
+            }
+
+            // Draw label view
+            DrawLabelView(_parameters, link.LinkLabel, decorators);
+
+            Renderer.PopTransform();
         }
 
         public static void DrawLabelView([NotNull] IRenderListenerParameters parameters, [NotNull] LabelView labelView, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)

@@ -20,7 +20,10 @@
     base directory of this project.
 */
 
+using System;
+using System.Runtime.InteropServices;
 using PixCore.Geometry;
+using SharpDX;
 using SharpDX.Mathematics.Interop;
 
 namespace PixDirectX.Utils
@@ -69,6 +72,22 @@ namespace PixDirectX.Utils
         public static unsafe RawMatrix3x2 ToRawMatrix3X2(this Matrix2D matrix)
         {
             return *(RawMatrix3x2*)&matrix;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="RawMatrix3x2"/> to an equivalent <see cref="Matrix2D"/> value.
+        /// </summary>
+        public static unsafe Matrix2D ToMatrix2D(this RawMatrix3x2 matrix)
+        {
+            return *(Matrix2D*)&matrix;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Matrix3x2"/> to an equivalent <see cref="Matrix2D"/> value.
+        /// </summary>
+        public static unsafe Matrix2D ToMatrix2D(this Matrix3x2 matrix)
+        {
+            return *(Matrix2D*)&matrix;
         }
     }
 }

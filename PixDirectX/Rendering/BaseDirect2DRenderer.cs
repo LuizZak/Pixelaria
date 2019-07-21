@@ -212,11 +212,10 @@ namespace PixDirectX.Rendering
             return new InnerTextLayout(textLayout, attributes);
         }
 
-        public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, Action<ITextLayout, ITextRenderer> perform)
+        public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, TextLayoutAttributes attributes, Action<ITextLayout, ITextRenderer> perform)
         {
             if (!(layout is InnerTextLayout))
             {
-                var attributes = layout.Attributes;
                 layout?.Dispose();
                 layout = CreateTextLayout(text, attributes);
             }
@@ -278,7 +277,7 @@ namespace PixDirectX.Rendering
         public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
             var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer,
-                this, TextMetricsProvider, new WrappedDirect2DRenderer(state, ImageResources));
+                this, TextMetricsProvider, new WrappedDirect2DRenderer(state, ImageResources), new InnerTextRenderer(TextColorRenderer));
 
             return parameters;
         }
@@ -542,6 +541,14 @@ namespace PixDirectX.Rendering
             }
         }
 
+        public float StrokeWidth { get; set; } = 1;
+
+        public Matrix2D Transform
+        {
+            get => _state.Transform.ToMatrix2D();
+            set => _state.Transform = value.ToRawMatrix3X2();
+        }
+
         public WrappedDirect2DRenderer([NotNull] IDirect2DRenderingState state, [NotNull] ID2DImageResourceProvider imageResource)
         {
             _state = state;
@@ -582,19 +589,19 @@ namespace PixDirectX.Rendering
 
         public void StrokeLine(Vector start, Vector end)
         {
-            _state.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), BrushForStroke());
+            _state.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), BrushForStroke(), StrokeWidth);
         }
 
         public void StrokeCircle(Vector center, float radius)
         {
-            StrokeEllipse(new AABB(center - new Vector(radius), center + new Vector(radius)));
+            StrokeEllipse(new AABB(center - new Vector(radius) * 2, center + new Vector(radius) * 2));
         }
 
         public void StrokeEllipse(AABB ellipseArea)
         {
-            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width, ellipseArea.Height);
+            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
 
-            _state.D2DRenderTarget.DrawEllipse(ellipse, _strokeBrush);
+            _state.D2DRenderTarget.DrawEllipse(ellipse, _strokeBrush, StrokeWidth);
         }
 
         public void StrokeRectangle(RectangleF rectangle)
@@ -604,7 +611,7 @@ namespace PixDirectX.Rendering
 
         public void StrokeArea(AABB area)
         {
-            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectangleF(), BrushForStroke());
+            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectangleF(), BrushForStroke(), StrokeWidth);
         }
 
         public void StrokeRoundedArea(AABB area, float radiusX, float radiusY)
@@ -616,7 +623,7 @@ namespace PixDirectX.Rendering
                 Rect = area.ToRawRectangleF()
             };
 
-            _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke());
+            _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke(), StrokeWidth);
         }
 
         #endregion
@@ -625,12 +632,12 @@ namespace PixDirectX.Rendering
 
         public void FillCircle(Vector center, float radius)
         {
-            FillEllipse(new AABB(center - new Vector(radius), center + new Vector(radius)));
+            FillEllipse(new AABB(center - new Vector(radius) * 2, center + new Vector(radius) * 2));
         }
 
         public void FillEllipse(AABB ellipseArea)
         {
-            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width, ellipseArea.Height);
+            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
 
             _state.D2DRenderTarget.FillEllipse(ellipse, BrushForFill());
         }
@@ -706,6 +713,14 @@ namespace PixDirectX.Rendering
         #region Transformation
 
         /// <summary>
+        /// Pushes an Identity transformation matrix on top of the currently active transform matrix.
+        /// </summary>
+        public void PushTransform()
+        {
+            _state.PushMatrix();
+        }
+
+        /// <summary>
         /// Pushes a 2D transformation matrix on top of the currently active transform matrix.
         /// </summary>
         public void PushTransform(Matrix2D matrix)
@@ -732,12 +747,13 @@ namespace PixDirectX.Rendering
         public IDirect2DRenderingState State { get; }
         public TextColorRenderer TextColorRenderer { get; }
         public ITextLayoutRenderer TextLayoutRenderer { get; }
+        public ITextRenderer TextRenderer { get; }
         public ITextMetricsProvider TextMetricsProvider { get; }
 
         public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources,
             [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
             [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
-            [NotNull] ITextMetricsProvider textMetricsProvider, [NotNull] IRenderer renderer)
+            [NotNull] ITextMetricsProvider textMetricsProvider, [NotNull] IRenderer renderer, [NotNull] ITextRenderer textRenderer)
         {
             ImageResources = imageResources;
             ClippingRegion = clippingRegion;
@@ -746,6 +762,7 @@ namespace PixDirectX.Rendering
             TextLayoutRenderer = textLayoutRenderer;
             TextMetricsProvider = textMetricsProvider;
             Renderer = renderer;
+            TextRenderer = textRenderer;
         }
     }
 

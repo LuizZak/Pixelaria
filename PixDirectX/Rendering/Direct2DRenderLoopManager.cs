@@ -347,9 +347,9 @@ namespace PixDirectX.Rendering
 
             public void PushingTransform([InstantHandle] Action execute)
             {
-                var transform = D2DRenderTarget.Transform;
+                var transform = Transform;
                 execute();
-                D2DRenderTarget.Transform = transform;
+                Transform = transform;
             }
 
             public void PushMatrix()
