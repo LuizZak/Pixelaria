@@ -25,7 +25,6 @@ using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using SharpDX.Direct2D1;
 
 namespace PixUI.Controls
@@ -132,44 +131,27 @@ namespace PixUI.Controls
         /// </summary>
         public virtual void RenderBackground([NotNull] ControlRenderingContext context)
         {
-            // Default background renderer
-            using (var brush = new SolidColorBrush(context.RenderTarget, BackColor.ToColor4()))
-            {
-                if (Math.Abs(CornerRadius) < float.Epsilon)
-                {
-                    context.RenderTarget.FillRectangle(Bounds.ToRawRectangleF(), brush);
-                }
-                else
-                {
-                    var roundedRect = new RoundedRectangle
-                    {
-                        RadiusX = CornerRadius,
-                        RadiusY = CornerRadius,
-                        Rect = Bounds.ToRawRectangleF()
-                    };
+            context.Renderer.StrokeColor = StrokeColor;
+            context.Renderer.FillColor = BackColor;
 
-                    context.RenderTarget.FillRoundedRectangle(roundedRect, brush);
-                }
+            // Default background renderer
+            if (Math.Abs(CornerRadius) < float.Epsilon)
+            {
+                context.Renderer.FillArea(Bounds);
+            }
+            else
+            {
+                context.Renderer.FillRoundedArea(Bounds, CornerRadius, CornerRadius);
             }
 
             // Stroke
-            using (var brush = new SolidColorBrush(context.RenderTarget, StrokeColor.ToColor4()))
+            if (Math.Abs(CornerRadius) < float.Epsilon)
             {
-                if (Math.Abs(CornerRadius) < float.Epsilon)
-                {
-                    context.RenderTarget.DrawRectangle(Bounds.ToRawRectangleF(), brush, StrokeWidth);
-                }
-                else
-                {
-                    var roundedRect = new RoundedRectangle
-                    {
-                        RadiusX = CornerRadius,
-                        RadiusY = CornerRadius,
-                        Rect = Bounds.ToRawRectangleF()
-                    };
-
-                    context.RenderTarget.DrawRoundedRectangle(roundedRect, brush, StrokeWidth);
-                }
+                context.Renderer.StrokeArea(Bounds);
+            }
+            else
+            {
+                context.Renderer.StrokeRoundedArea(Bounds, CornerRadius, CornerRadius);
             }
         }
 
@@ -218,6 +200,11 @@ namespace PixUI.Controls
     /// </summary>
     public class ControlRenderingContext
     {
+        /// <summary>
+        /// Gets the renderer configured for this control rendering context
+        /// </summary>
+        public IRenderer Renderer { get; }
+
         public IDirect2DRenderingState State { get; }
 
         /// <summary>
@@ -248,10 +235,11 @@ namespace PixUI.Controls
         [NotNull]
         public ITextLayoutRenderer TextLayoutRenderer { get; }
 
-        public ControlRenderingContext(IDirect2DRenderingState state, IClippingRegion clippingRegion,
-            ITextMetricsProvider textMetricsProvider, ID2DImageResourceProvider imageResources,
-            [NotNull] ITextLayoutRenderer textLayoutRenderer)
+        public ControlRenderingContext(IRenderer renderer, IDirect2DRenderingState state,
+            IClippingRegion clippingRegion, ITextMetricsProvider textMetricsProvider,
+            ID2DImageResourceProvider imageResources, [NotNull] ITextLayoutRenderer textLayoutRenderer)
         {
+            Renderer = renderer;
             State = state;
             ClippingRegion = clippingRegion;
             TextMetricsProvider = textMetricsProvider;

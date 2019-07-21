@@ -27,13 +27,18 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
+using PixDirectX.Utils;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
 using PixUI.Controls;
-using SharpDX;
+using SharpDX.Direct2D1;
+using SharpDX.WIC;
+using Bitmap = SharpDX.Direct2D1.Bitmap;
+using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
+using PixelFormat = SharpDX.WIC.PixelFormat;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 {
@@ -208,8 +213,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 public int RenderOrder { get; } = RenderOrdering.UserInterface + 10;
 
                 public bool Visible { get; set; }
-                public AhslColor TintColor { get; set; } = AhslColors.White;
-
+                
                 public Vector MousePosition
                 {
                     set => _nodeView.Location = Vector.Round(value - _nodeView.Size / 2);
@@ -226,7 +230,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 {
                     var node = nodeSpec.CreateNode();
                     _nodeView = PipelineNodeView.Create(node);
-                    _nodeView.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, imageProvider);
+                    _nodeView.Icon = IconForPipelineNode(node, imageProvider);
 
                     var nodeViewSizer = new DefaultPipelineNodeViewSizer();
                     nodeViewSizer.AutoSize(_nodeView, LabelView.DefaultLabelViewSizeProvider);
@@ -239,7 +243,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 public void RecreateState(IDirect2DRenderingState state)
                 {
-                    
+
                 }
 
                 public void Render(IRenderListenerParameters parameters)

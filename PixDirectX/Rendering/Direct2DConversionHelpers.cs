@@ -98,6 +98,9 @@ namespace PixDirectX.Rendering
             return verticalAlign;
         }
 
+        /// <summary>
+        /// Converts a <see cref="Color"/> into a <see cref="Color4"/> structure for DirectX rendering.
+        /// </summary>
         public static Color4 ToColor4(this Color color)
         {
             float r = color.R / 255f;

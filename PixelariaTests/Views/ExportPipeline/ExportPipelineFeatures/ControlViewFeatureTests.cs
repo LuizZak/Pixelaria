@@ -62,7 +62,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds, mockChild1)).Return(false);
             controlViewFeature.AddControl(mockChild1);
             controlViewFeature.AddControl(mockChild2);
-            var context = new ControlRenderingContext(null, clipStub, null, null, rendererStub);
+            var context = new ControlRenderingContext(null, null, clipStub, null, null, rendererStub);
             
             // Assert
             Assert.IsFalse(sut.ShouldVisitView(context, mockChild1));
@@ -86,8 +86,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             clipStub.Stub(c => c.IsVisibleInClippingRegion(mockChild1.Bounds, mockChild1)).Return(false);
             controlViewFeature.AddControl(mockChild1);
             controlViewFeature.AddControl(mockChild2);
-            var context = new ControlRenderingContext(null, clipStub, null, null, rendererStub);
-
+            var context = new ControlRenderingContext(null, null, clipStub, null, null, rendererStub);
             // Assert
             Assert.IsTrue(sut.ShouldVisitView(context, mockChild1));
         }

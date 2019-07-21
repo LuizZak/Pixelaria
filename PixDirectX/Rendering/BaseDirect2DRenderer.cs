@@ -23,12 +23,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Drawing.Imaging;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
+using PixDirectX.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -38,7 +40,7 @@ using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
-
+using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
 
 namespace PixDirectX.Rendering
@@ -411,28 +413,200 @@ namespace PixDirectX.Rendering
                 }
             }
         }
+    }
 
-        private struct RenderListenerParameters : IRenderListenerParameters
+    public sealed class WrappedDirect2DRenderer : IRenderer, IDisposable
+    {
+        private Brush _strokeBrush;
+        private Brush _fillBrush;
+        private Color _strokeColor;
+        private Color _fillColor;
+
+        private readonly IDirect2DRenderingState _state;
+        private readonly ID2DImageResourceProvider _imageResource;
+
+        public Color FillColor
         {
-            public ID2DImageResourceProvider ImageResources { get; }
-            public IClippingRegion ClippingRegion { get; }
-            public IDirect2DRenderingState State { get; }
-            public TextColorRenderer TextColorRenderer { get; }
-            public ITextLayoutRenderer TextLayoutRenderer { get; }
-            public ITextMetricsProvider TextMetricsProvider { get; }
-
-            public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources,
-                [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
-                [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
-                [NotNull] ITextMetricsProvider textMetricsProvider)
+            get => _fillColor;
+            set
             {
-                ImageResources = imageResources;
-                ClippingRegion = clippingRegion;
-                State = state;
-                TextColorRenderer = textColorRenderer;
-                TextLayoutRenderer = textLayoutRenderer;
-                TextMetricsProvider = textMetricsProvider;
+                _fillColor = value;
+                RecreateFillBrush();
             }
+        }
+
+        public Color StrokeColor
+        {
+            get => _strokeColor;
+            set
+            {
+                _strokeColor = value;
+                RecreateStrokeBrush();
+            }
+        }
+
+        public WrappedDirect2DRenderer([NotNull] IDirect2DRenderingState state, [NotNull] ID2DImageResourceProvider imageResource)
+        {
+            _state = state;
+            _imageResource = imageResource;
+            RecreateStrokeBrush();
+            RecreateFillBrush();
+        }
+
+        public void Dispose()
+        {
+            _strokeBrush?.Dispose();
+            _fillBrush?.Dispose();
+        }
+
+        private void RecreateStrokeBrush()
+        {
+            _strokeBrush?.Dispose();
+            _strokeBrush = new SolidColorBrush(_state.D2DRenderTarget, StrokeColor.ToColor4());
+        }
+
+        private void RecreateFillBrush()
+        {
+            _fillBrush?.Dispose();
+            _fillBrush = new SolidColorBrush(_state.D2DRenderTarget, FillColor.ToColor4());
+        }
+
+        private Brush BrushForStroke()
+        {
+            return _strokeBrush;
+        }
+
+        private Brush BrushForFill()
+        {
+            return _fillBrush;
+        }
+
+        #region Stroke
+
+        public void StrokeLine(Vector start, Vector end)
+        {
+            _state.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), BrushForStroke());
+        }
+
+        public void StrokeCircle(Vector center, float radius)
+        {
+            StrokeEllipse(new AABB(center - new Vector(radius), center + new Vector(radius)));
+        }
+
+        public void StrokeEllipse(AABB ellipseArea)
+        {
+            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width, ellipseArea.Height);
+
+            _state.D2DRenderTarget.DrawEllipse(ellipse, _strokeBrush);
+        }
+
+        public void StrokeRectangle(RectangleF rectangle)
+        {
+            StrokeArea(new AABB(rectangle));
+        }
+
+        public void StrokeArea(AABB area)
+        {
+            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectangleF(), BrushForStroke());
+        }
+
+        public void StrokeRoundedArea(AABB area, float radiusX, float radiusY)
+        {
+            var roundedRect = new RoundedRectangle
+            {
+                RadiusX = radiusX,
+                RadiusY = radiusY,
+                Rect = area.ToRawRectangleF()
+            };
+
+            _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke());
+        }
+
+        #endregion
+
+        #region Fill
+
+        public void FillCircle(Vector center, float radius)
+        {
+            FillEllipse(new AABB(center - new Vector(radius), center + new Vector(radius)));
+        }
+
+        public void FillEllipse(AABB ellipseArea)
+        {
+            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width, ellipseArea.Height);
+
+            _state.D2DRenderTarget.FillEllipse(ellipse, BrushForFill());
+        }
+
+        public void FillRectangle(RectangleF rectangle)
+        {
+            FillArea(new AABB(rectangle));
+        }
+
+        public void FillArea(AABB area)
+        {
+            _state.D2DRenderTarget.FillRectangle(area.ToRawRectangleF(), BrushForFill());
+        }
+        public void FillRoundedArea(AABB area, float radiusX, float radiusY)
+        {
+            var roundedRect = new RoundedRectangle
+            {
+                RadiusX = radiusX,
+                RadiusY = radiusY,
+                Rect = area.ToRawRectangleF()
+            };
+
+            _state.D2DRenderTarget.FillRoundedRectangle(roundedRect, BrushForFill());
+        }
+
+        #endregion
+
+        #region
+
+        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolation interpolation)
+        {
+            var bitmap = _imageResource.BitmapForResource(image);
+            Contract.Assert(bitmap != null, $"No bitmap found for image resource {image}. Make sure the bitmap is pre-loaded before using it.");
+
+            _state.D2DRenderTarget.DrawBitmap(bitmap, new AABB(region).ToRawRectangleF(), opacity, ToBitmapInterpolation(interpolation));
+        }
+
+        private static BitmapInterpolationMode ToBitmapInterpolation(ImageInterpolation imageInterpolation)
+        {
+            switch (imageInterpolation)
+            {
+                case ImageInterpolation.Linear:
+                    return BitmapInterpolationMode.Linear;
+                case ImageInterpolation.NearestNeighbor:
+                    return BitmapInterpolationMode.NearestNeighbor;
+                default:
+                    return BitmapInterpolationMode.Linear;
+            }
+        }
+
+        #endregion
+    }
+
+    public struct RenderListenerParameters : IRenderListenerParameters
+    {
+        public ID2DImageResourceProvider ImageResources { get; }
+        public IClippingRegion ClippingRegion { get; }
+        public IDirect2DRenderingState State { get; }
+        public TextColorRenderer TextColorRenderer { get; }
+        public ITextLayoutRenderer TextLayoutRenderer { get; }
+        public ITextMetricsProvider TextMetricsProvider { get; }
+
+        public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources,
+            [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
+            [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
+            [NotNull] ITextMetricsProvider textMetricsProvider)
+        {
+            ImageResources = imageResources;
+            ClippingRegion = clippingRegion;
+            State = state;
+            TextColorRenderer = textColorRenderer;
+            TextLayoutRenderer = textLayoutRenderer;
+            TextMetricsProvider = textMetricsProvider;
         }
     }
 

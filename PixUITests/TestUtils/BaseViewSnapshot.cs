@@ -67,9 +67,9 @@ namespace PixUITests.TestUtils
         {
             BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(
                 view,
-                new MsTestAdapter(typeof(BaseViewSnapshot)), 
-                new MsTestContextAdapter(context), 
-                recordMode ?? RecordMode, 
+                new MsTestAdapter(typeof(BaseViewSnapshot)),
+                new MsTestContextAdapter(context),
+                recordMode ?? RecordMode,
                 suffix,
                 tolerance ?? Tolerance);
         }
@@ -106,7 +106,9 @@ namespace PixUITests.TestUtils
                 {
                     var visitor = new ViewRenderingVisitor();
 
-                    var context = new ControlRenderingContext(state, renderer.ClippingRegion, renderer.TextMetricsProvider, renderer.ImageResources, renderer);
+                    var context = new ControlRenderingContext(
+                        new WrappedDirect2DRenderer(state, renderer.ImageResources), state, renderer.ClippingRegion,
+                        renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);
