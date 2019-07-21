@@ -31,9 +31,7 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using PixUI.Text;
-using SharpDX.Direct2D1;
 using Color = System.Drawing.Color;
 
 namespace PixUI.Controls
@@ -647,24 +645,18 @@ namespace PixUI.Controls
             // Draw selected region
             if (_textEngine.Caret.Length == 0)
                 return;
-            
-            _label.WithTextLayout(layout =>
+
+            var characterBounds =
+                context.TextMetricsProvider.LocationOfCharacters(_textEngine.Caret.Start, _textEngine.Caret.Length, _label.AttributedText, _label.TextLayoutAttributes());
+
+            context.Renderer.FillColor = Style.SelectionColor;
+
+            foreach (var bounds in characterBounds)
             {
-                context.State.WithTemporaryClipping(_labelContainer.FrameOnParent, () =>
-                {
-                    var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
+                var aabb = _label.ConvertTo(bounds, this);
 
-                    context.Renderer.FillColor = Style.SelectionColor;
-
-                    foreach (var metric in metrics)
-                    {
-                        var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
-                        aabb = _label.ConvertTo(aabb, this);
-
-                        context.Renderer.FillArea(aabb);
-                    }
-                });
-            });
+                context.Renderer.FillArea(aabb);
+            }
         }
 
         public override void RenderForeground(ControlRenderingContext context)

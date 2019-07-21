@@ -28,11 +28,8 @@ using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
-using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using Font = System.Drawing.Font;
-using Factory = SharpDX.DirectWrite.Factory;
 
 namespace PixUI.Controls
 {
@@ -221,6 +218,19 @@ namespace PixUI.Controls
             RefreshTextFormat(DirectWriteFactory);
 
             perform(_textLayout);
+        }
+
+        /// <summary>
+        /// Returns the text layout attributes for this label view control.
+        /// </summary>
+        public TextLayoutAttributes TextLayoutAttributes()
+        {
+            return new TextLayoutAttributes(TextFont.Name, TextFont.Size, HorizontalTextAlignment, VerticalTextAlignment)
+            {
+                AvailableWidth = Width,
+                AvailableHeight = Height,
+                WordWrap = TextWordWrap
+            };
         }
 
         private void RefreshTextFormat(Factory factory)

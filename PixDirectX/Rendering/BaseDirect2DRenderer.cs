@@ -561,7 +561,7 @@ namespace PixDirectX.Rendering
 
         #endregion
 
-        #region
+        #region Bitmap
 
         public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolation interpolation)
         {

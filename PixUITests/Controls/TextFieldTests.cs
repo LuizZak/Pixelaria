@@ -25,10 +25,12 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
+using PixCore.Text;
 using PixUI.Controls;
 using PixUI.Text;
 using PixUITests.TestUtils;
 using SharpDX.DirectWrite;
+using TextRange = PixCore.Text.TextRange;
 
 namespace PixUITests.Controls
 {
@@ -145,6 +147,17 @@ namespace PixUITests.Controls
             var sut = TextFieldWithStyles();
             sut.BecomeFirstResponder();
             
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        [TestMethod]
+        public void TestRenderingSelectionArea()
+        {
+            var sut = TextField.Create(false);
+            sut.Size = new Vector(80, 28);
+            sut.Text = "Lorem ipsum";
+            sut.Caret = new Caret(new TextRange(1, 3), CaretPosition.End);
+
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
 
