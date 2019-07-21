@@ -30,8 +30,8 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixDirectX.Rendering;
 using PixUI.Utils;
-using SharpDX.DirectWrite;
 
 namespace PixUI.Controls
 {
@@ -41,9 +41,9 @@ namespace PixUI.Controls
     public class ControlView : SelfRenderingBaseView, IMouseEventHandler, IDisposable
     {
         /// <summary>
-        /// A global direct write factory used by controls that deal with text.
+        /// A global text layout renderer.
         /// </summary>
-        public static Factory DirectWriteFactory { get; set; }
+        public static ITextLayoutRenderer TextLayoutRenderer { get; set; }
 
         /// <summary>
         /// Gets or sets the dispatcher for UI events.

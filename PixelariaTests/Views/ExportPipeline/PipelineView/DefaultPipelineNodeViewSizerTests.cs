@@ -46,7 +46,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             // PipelineViewSnapshot.RecordMode = true;
 
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
-            ControlView.DirectWriteFactory = new Factory();
+            ControlView.TextLayoutRenderer = new TestDirect2DRenderer();
         }
 
         [TestMethod]

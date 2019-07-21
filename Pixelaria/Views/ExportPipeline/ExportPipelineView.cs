@@ -150,9 +150,9 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigureForm()
         {
-            //InitTest();
+            // InitTest();
 
-            ControlView.DirectWriteFactory = _direct2DLoopManager.RenderingState.DirectWriteFactory;
+            ControlView.TextLayoutRenderer = new Direct2DRenderer();
 
             ConfigurePipelineControl();
             ConfigureNodesPanel();

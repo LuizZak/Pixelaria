@@ -26,9 +26,7 @@ using System.Windows.Forms;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using PixUI.Utils.Layouting;
-using SharpDX.Direct2D1;
 
 namespace PixUI.Controls
 {

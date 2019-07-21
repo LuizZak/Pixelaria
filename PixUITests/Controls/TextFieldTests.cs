@@ -25,11 +25,9 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
-using PixCore.Text;
 using PixUI.Controls;
 using PixUI.Text;
 using PixUITests.TestUtils;
-using SharpDX.DirectWrite;
 using TextRange = PixCore.Text.TextRange;
 
 namespace PixUITests.Controls
@@ -41,7 +39,7 @@ namespace PixUITests.Controls
         public void Setup()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
-            ControlView.DirectWriteFactory = new Factory();
+            ControlView.TextLayoutRenderer = new TestDirect2DRenderer();
 
             //BaseViewSnapshot.RecordMode = true;
         }

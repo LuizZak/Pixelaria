@@ -25,8 +25,6 @@ using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
-using SharpDX;
-using SharpDX.DirectWrite;
 using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
@@ -72,10 +70,70 @@ namespace PixDirectX.Rendering
     public interface ITextLayoutRenderer
     {
         /// <summary>
-        /// Using a given attributed string, prepares the given <see cref="TextLayout"/> and calls
+        /// Using a given attributed string, prepares the given <see cref="ITextLayout"/> and calls
         /// the closure to allow the caller to perform rendering operations with the prepared text layout.
         /// </summary>
-        void WithPreparedTextLayout(Color4 textColor, [NotNull] IAttributedText text, [NotNull] TextLayout layout, [NotNull, InstantHandle] Action<TextLayout, TextRendererBase> perform);
+        void WithPreparedTextLayout(Color textColor, [NotNull] IAttributedText text, [NotNull] ref ITextLayout layout, [NotNull, InstantHandle] Action<ITextLayout, ITextRenderer> perform);
+
+        /// <summary>
+        /// Creates a new text layout using a given set of attributes.
+        /// </summary>
+        ITextLayout CreateTextLayout([NotNull] IAttributedText text, TextLayoutAttributes attributes);
+    }
+
+    /// <summary>
+    /// A reference to a text layout that was created by an invocation to <see cref="ITextLayoutRenderer"/>.
+    /// </summary>
+    public interface ITextLayout: IDisposable
+    {
+        /// <summary>
+        /// Gets the text attributes for this text layout instance.
+        /// </summary>
+        TextLayoutAttributes Attributes { get; }
+
+        /// <summary>
+        /// Performs a hit test operation at a given location on this text layout, relative to the top-left location of the layout box.
+        /// </summary>
+        /// <param name="x">The pixel location X to hit-test, relative to the top-left location of the layout box.</param>
+        /// <param name="y">The pixel location Y to hit-test, relative to the top-left location of the layout box.</param>
+        /// <param name="isTrailingHit">An output flag that indicates whether the hit-test location is at the leading or the trailing side of the character. When the output <em>*isInside</em> value is set to <strong>false</strong>, this value is set according to the output <em>HitTestMetrics.TextPosition</em> value to represent the edge closest to the hit-test location.</param>
+        /// <param name="isInside">The output geometry fully enclosing the hit-test location. When the output <em>*isInside</em> value is set to <strong>false</strong>, this structure represents the geometry enclosing the edge closest to the hit-test location.</param>
+        /// <returns>A struct representing the result of the hit test.</returns>
+        HitTestMetrics HitTestPoint(float x, float y, out bool isTrailingHit, out bool isInside);
+
+        /// <summary>
+        /// The application calls this function to get the pixel location relative to the top-left of the layout box given the text position and the logical side of the position. This function is normally used as part of caret positioning of text where the caret is drawn at the location corresponding to the current text editing position. It may also be used as a way to programmatically obtain the geometry of a particular text position in UI automation.
+        /// </summary>
+        /// <param name="textPosition">The text position used to get the pixel location.</param>
+        /// <param name="isTrailingHit">A Boolean flag that indicates whether the pixel location is of the leading or the trailing side of the specified text position.</param>
+        /// <param name="x">When this method returns, contains the output pixel location X, relative to the top-left location of the layout box.</param>
+        /// <param name="y">When this method returns, contains the output pixel location Y, relative to the top-left location of the layout box.</param>
+        /// <returns>When this method returns, contains the output geometry fully enclosing the specified text position.</returns>
+        HitTestMetrics HitTestTextPosition(int textPosition, bool isTrailingHit, out float x, out float y);
+    }
+
+    /// <summary>
+    /// Metrics returned when hit testing an <see cref="ITextLayout"/> instance.
+    /// </summary>
+    public struct HitTestMetrics
+    {
+        public int TextPosition { get; }
+
+        public HitTestMetrics(int textPosition)
+        {
+            TextPosition = textPosition;
+        }
+    }
+
+    /// <summary>
+    /// An interface for a text renderer object.
+    /// </summary>
+    public interface ITextRenderer
+    {
+        /// <summary>
+        /// Draws a text layout at a given location on the current render target.
+        /// </summary>
+        void Draw(ITextLayout textLayout, float x, float y);
     }
 
     /// <summary>

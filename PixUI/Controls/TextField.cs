@@ -801,9 +801,6 @@ namespace PixUI.Controls
         /// </summary>
         private int OffsetUnder(Vector point)
         {
-            if (DirectWriteFactory == null)
-                return 0;
-
             int offset = 0;
             var converted = _label.ConvertFrom(point, this);
 
@@ -821,9 +818,6 @@ namespace PixUI.Controls
         /// </summary>
         private Vector LocationForOffset(int offset)
         {
-            if (DirectWriteFactory == null)
-                return Vector.Zero;
-            
             var position = Vector.Zero;
 
             _label.WithTextLayout(layout =>
@@ -927,7 +921,7 @@ namespace PixUI.Controls
     }
 
     /// <summary>
-    /// Specfiies the presentation style for a text field.
+    /// Specifies the presentation style for a text field.
     /// 
     /// Used to specify separate visual styles depending on the first-responding state of the textfield.
     /// </summary>

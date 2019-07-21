@@ -39,6 +39,7 @@ using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using Factory = SharpDX.DirectWrite.Factory;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
@@ -61,7 +62,10 @@ namespace PixDirectX.Rendering
         
         private readonly D2DImageResources _imageResources;
         private readonly TextMetrics _textMetrics;
-        
+
+        [CanBeNull]
+        protected virtual Factory directWriteFactory { get; } = new Factory();
+
         /// <inheritdoc />
         /// <summary>
         /// Control-space clip rectangle for current draw operation.
@@ -78,7 +82,7 @@ namespace PixDirectX.Rendering
 
         /// <inheritdoc />
         public ITextMetricsProvider TextMetricsProvider => _textMetrics;
-        
+
         protected BaseDirect2DRenderer()
         {
             _imageResources = new D2DImageResources();
@@ -183,12 +187,49 @@ namespace PixDirectX.Rendering
             return _lastRenderingState;
         }
 
-        public void WithPreparedTextLayout(Color4 textColor, IAttributedText text, TextLayout layout, Action<TextLayout, TextRendererBase> perform)
+        public ITextLayout CreateTextLayout(IAttributedText text, TextLayoutAttributes attributes)
         {
+            if (directWriteFactory == null)
+                throw new InvalidOperationException("Direct2D renderer has no previous rendering state to derive a DirectWrite factory from.");
+
+            var horizontalAlign =
+                Direct2DConversionHelpers.DirectWriteAlignmentFor(attributes.HorizontalTextAlignment);
+            var verticalAlign =
+                Direct2DConversionHelpers.DirectWriteAlignmentFor(attributes.VerticalTextAlignment);
+            var wordWrap =
+                Direct2DConversionHelpers.DirectWriteWordWrapFor(attributes.WordWrap);
+
+            var textFormat = new TextFormat(directWriteFactory, attributes.Font, attributes.FontSize)
+            {
+                TextAlignment = horizontalAlign,
+                ParagraphAlignment = verticalAlign,
+                WordWrapping = wordWrap
+            };
+
+            var textLayout = new TextLayout(directWriteFactory, text.String, textFormat,
+                attributes.AvailableWidth, attributes.AvailableHeight);
+
+            return new InnerTextLayout(textLayout, attributes);
+        }
+
+        public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, Action<ITextLayout, ITextRenderer> perform)
+        {
+            if (!(layout is InnerTextLayout))
+            {
+                var attributes = layout.Attributes;
+                layout?.Dispose();
+                layout = CreateTextLayout(text, attributes);
+            }
+
             if (_lastRenderingState == null)
                 throw new InvalidOperationException("Direct2D renderer has no previous rendering state to base this call on.");
 
-            using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor))
+            if (!(layout is InnerTextLayout innerLayout))
+            {
+                throw new InvalidOperationException($"Expected a text layout of type {typeof(InnerTextLayout)}");
+            }
+
+            using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor.ToColor4()))
             {
                 var disposes = new List<IDisposable>();
 
@@ -204,16 +245,16 @@ namespace PixDirectX.Rendering
 
                         disposes.Add(segmentBrush);
 
-                        layout.SetDrawingEffect(segmentBrush,
+                        innerLayout.TextLayout.SetDrawingEffect(segmentBrush,
                             new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
                     }
                     if (textSegment.HasAttribute<TextFontAttribute>())
                     {
                         var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
 
-                        layout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
+                        innerLayout.TextLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
                             new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                        layout.SetFontSize(fontAttr.Font.Size,
+                        innerLayout.TextLayout.SetFontSize(fontAttr.Font.Size,
                             new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
                     }
                 }
@@ -221,7 +262,7 @@ namespace PixDirectX.Rendering
                 var prev = TextColorRenderer.DefaultBrush;
                 TextColorRenderer.DefaultBrush = brush;
 
-                perform(layout, TextColorRenderer);
+                perform(layout, new InnerTextRenderer(TextColorRenderer));
 
                 TextColorRenderer.DefaultBrush = prev;
 
@@ -411,6 +452,61 @@ namespace PixDirectX.Rendering
 
                     return action(textFormat, textLayout);
                 }
+            }
+        }
+
+        private class InnerTextLayout : ITextLayout
+        {
+            public TextLayout TextLayout { get; }
+            public TextLayoutAttributes Attributes { get; }
+
+            public InnerTextLayout(TextLayout textLayout, TextLayoutAttributes attributes)
+            {
+                TextLayout = textLayout;
+                Attributes = attributes;
+            }
+
+            public void Dispose()
+            {
+                TextLayout?.Dispose();
+            }
+
+            public HitTestMetrics HitTestPoint(float x, float y, out bool isTrailingHit, out bool isInside)
+            {
+                var metrics = TextLayout.HitTestPoint(x, y, out var trailing, out var inside);
+                isTrailingHit = trailing;
+                isInside = inside;
+
+                return MetricsFromDirectWrite(metrics);
+            }
+
+            public HitTestMetrics HitTestTextPosition(int textPosition, bool isTrailingHit, out float x, out float y)
+            {
+                var metrics = TextLayout.HitTestTextPosition(textPosition, isTrailingHit, out x, out y);
+                return MetricsFromDirectWrite(metrics);
+            }
+
+            private static HitTestMetrics MetricsFromDirectWrite(SharpDX.DirectWrite.HitTestMetrics metrics)
+            {
+                return new HitTestMetrics(metrics.TextPosition);
+            }
+        }
+
+        private class InnerTextRenderer : ITextRenderer
+        {
+            public TextRendererBase TextRenderer { get; }
+
+            public InnerTextRenderer(TextRendererBase textRenderer)
+            {
+                TextRenderer = textRenderer;
+            }
+
+            public void Draw(ITextLayout textLayout, float x, float y)
+            {
+                if (!(textLayout is InnerTextLayout layout))
+                    return;
+
+                layout.TextLayout.Draw(TextRenderer, x, y);
             }
         }
     }

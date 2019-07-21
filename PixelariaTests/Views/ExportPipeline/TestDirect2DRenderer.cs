@@ -36,7 +36,7 @@ namespace PixelariaTests.Views.ExportPipeline
     {
         private DefaultLabelViewSizeProvider _sizeProvider;
         public ILabelViewSizeProvider SizeProvider => _sizeProvider;
-        
+
         public void Initialize([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
             base.Initialize(state);

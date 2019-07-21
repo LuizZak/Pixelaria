@@ -24,11 +24,9 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
-using SharpDX.DirectWrite;
 using Font = System.Drawing.Font;
 
 namespace PixUI.Controls
@@ -41,15 +39,10 @@ namespace PixUI.Controls
     public class LabelViewControl : ControlView
     {
         /// <summary>
-        /// Cached text format instance refreshed on redraw, and reset every time text settings change
-        /// </summary>
-        [CanBeNull]
-        private TextFormat _textFormat;
-        /// <summary>
         /// Cached text layout instance refreshed on redraw, and reset every time text settings change
         /// </summary>
         [CanBeNull]
-        private TextLayout _textLayout;
+        private ITextLayout _textLayout;
 
         private readonly LabelViewBacking _labelViewBacking;
 
@@ -163,9 +156,6 @@ namespace PixUI.Controls
         {
             _labelViewBacking?.Dispose();
 
-            _textFormat?.Dispose();
-            _textFormat = null;
-
             _textLayout?.Dispose();
             _textLayout = null;
 
@@ -180,12 +170,12 @@ namespace PixUI.Controls
         
         public override void RenderForeground(ControlRenderingContext context)
         {
-            RefreshTextFormat(context.State.DirectWriteFactory);
+            RefreshTextFormat();
 
             Debug.Assert(_textLayout != null, "_textLayout != null");
 
             // TODO: Export text rendering to a separate reusable component
-            context.TextLayoutRenderer.WithPreparedTextLayout(ForeColor.ToColor4(), AttributedText, _textLayout, (layout, renderer) =>
+            context.TextLayoutRenderer.WithPreparedTextLayout(ForeColor, AttributedText, ref _textLayout, (layout, renderer) =>
             {
                 // Render background segments
                 var backSegments =
@@ -206,15 +196,13 @@ namespace PixUI.Controls
                     }
                 }
 
-                layout.Draw(renderer, Bounds.Minimum.X, Bounds.Minimum.Y);
+                renderer.Draw(layout, Bounds.Minimum.X, Bounds.Minimum.Y);
             });
         }
 
-        public void WithTextLayout([NotNull, InstantHandle] Action<TextLayout> perform)
+        public void WithTextLayout([NotNull, InstantHandle] Action<ITextLayout> perform)
         {
-            Debug.Assert(DirectWriteFactory != null, "DirectWriteFactory != null");
-
-            RefreshTextFormat(DirectWriteFactory);
+            RefreshTextFormat();
 
             perform(_textLayout);
         }
@@ -232,34 +220,19 @@ namespace PixUI.Controls
             };
         }
 
-        private void RefreshTextFormat(Factory factory)
+        private void RefreshTextFormat()
         {
+            Debug.Assert(TextLayoutRenderer != null, "TextLayoutRenderer != null");
+
             // Render text
-            if (_textFormat != null && _textLayout != null)
+            if (_textLayout != null)
                 return;
 
-            var horizontalAlign =
-                Direct2DConversionHelpers.DirectWriteAlignmentFor(HorizontalTextAlignment);
-            var verticalAlign =
-                Direct2DConversionHelpers.DirectWriteAlignmentFor(VerticalTextAlignment);
-            var wordWrap =
-                Direct2DConversionHelpers.DirectWriteWordWrapFor(TextWordWrap);
-
-            _textFormat = new TextFormat(factory, _labelViewBacking.TextFont.Name, _labelViewBacking.TextFont.Size)
-            {
-                TextAlignment = horizontalAlign,
-                ParagraphAlignment = verticalAlign,
-                WordWrapping = wordWrap
-            };
-
-            _textLayout = new TextLayout(factory, Text, _textFormat, Bounds.Width, Bounds.Height);
+            _textLayout = TextLayoutRenderer.CreateTextLayout(AttributedText, TextLayoutAttributes());
         }
 
         private void ResetTextFormat()
         {
-            _textFormat?.Dispose();
-            _textFormat = null;
-
             _textLayout?.Dispose();
             _textLayout = null;
         }

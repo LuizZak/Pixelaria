@@ -85,13 +85,12 @@ namespace PixelariaTests.Views.ExportPipeline
             int height = (int)Math.Round(view.Height);
 
             using (var imgFactory = new ImagingFactory())
-            using (var directWrite = new SharpDX.DirectWrite.Factory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var factory = new SharpDX.Direct2D1.Factory())
             using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
             using (var renderer = new TestDirect2DRenderer())
             {
-                ControlView.DirectWriteFactory = directWrite;
+                ControlView.TextLayoutRenderer = renderer;
 
                 var last = LabelView.DefaultLabelViewSizeProvider;
                 LabelView.DefaultLabelViewSizeProvider = renderer.SizeProvider;

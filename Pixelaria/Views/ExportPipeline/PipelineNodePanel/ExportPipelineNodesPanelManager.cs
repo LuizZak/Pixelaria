@@ -422,16 +422,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
             // Automatically adjust view to be on center of view port
             using (var imgFactory = new ImagingFactory())
-            using (var directWrite = new SharpDX.DirectWrite.Factory())
             {
-                var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
+                var wicBitmap = new Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
 
                 using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, DxSupport.D2DFactory, DxSupport.D3DDevice))
                 using (var renderer = new Direct2DRenderer())
                 {
                     var listener = new InternalDirect2DRenderListener(container, _exportPipelineControl);
 
-                    ControlView.DirectWriteFactory = directWrite;
+                    ControlView.TextLayoutRenderer = renderer;
 
                     var last = LabelView.DefaultLabelViewSizeProvider;
                     LabelView.DefaultLabelViewSizeProvider = renderer.LabelViewSizeProvider;
