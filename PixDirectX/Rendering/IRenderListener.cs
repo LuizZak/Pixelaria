@@ -75,6 +75,12 @@ namespace PixDirectX.Rendering
         IClippingRegion ClippingRegion { get; }
 
         /// <summary>
+        /// The currently active renderer
+        /// </summary>
+        [NotNull]
+        IRenderer Renderer { get; }
+
+        /// <summary>
         /// The latest valid rendering state to use
         /// </summary>
         [NotNull]

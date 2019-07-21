@@ -277,7 +277,8 @@ namespace PixDirectX.Rendering
 
         public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
-            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer, this, TextMetricsProvider);
+            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer,
+                this, TextMetricsProvider, new WrappedDirect2DRenderer(state, ImageResources));
 
             return parameters;
         }
@@ -727,6 +728,7 @@ namespace PixDirectX.Rendering
     {
         public ID2DImageResourceProvider ImageResources { get; }
         public IClippingRegion ClippingRegion { get; }
+        public IRenderer Renderer { get; }
         public IDirect2DRenderingState State { get; }
         public TextColorRenderer TextColorRenderer { get; }
         public ITextLayoutRenderer TextLayoutRenderer { get; }
@@ -735,7 +737,7 @@ namespace PixDirectX.Rendering
         public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources,
             [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
             [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
-            [NotNull] ITextMetricsProvider textMetricsProvider)
+            [NotNull] ITextMetricsProvider textMetricsProvider, [NotNull] IRenderer renderer)
         {
             ImageResources = imageResources;
             ClippingRegion = clippingRegion;
@@ -743,6 +745,7 @@ namespace PixDirectX.Rendering
             TextColorRenderer = textColorRenderer;
             TextLayoutRenderer = textLayoutRenderer;
             TextMetricsProvider = textMetricsProvider;
+            Renderer = renderer;
         }
     }
 
