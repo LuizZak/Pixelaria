@@ -198,11 +198,10 @@ namespace PixUI.Controls
 
                     context.Renderer.FillColor = attr.BackColor;
 
-                    var metrics = layout.HitTestTextRange(segment.TextRange.Start, segment.TextRange.Length, 0, 0);
+                    var bounds = context.TextMetricsProvider.LocationOfCharacters(segment.TextRange.Start, segment.TextRange.Length, AttributedText, TextLayoutAttributes());
 
-                    foreach (var metric in metrics)
+                    foreach (var aabb in bounds)
                     {
-                        var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
                         context.Renderer.FillArea(aabb.Inflated(attr.Inflation));
                     }
                 }
