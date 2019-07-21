@@ -31,7 +31,6 @@ using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Controls;
 using PixUI.Rendering;
-using SharpDX.DirectWrite;
 
 namespace PixelariaTests.Views.ExportPipeline.PipelineView
 {

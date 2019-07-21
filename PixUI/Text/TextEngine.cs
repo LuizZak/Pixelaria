@@ -45,7 +45,7 @@ namespace PixUI.Text
         private TextInsertUndo _currentInputUndoRun;
 
         /// <summary>
-        /// When undoing/redoing work with <see cref="_undoSystem"/>, this flag is temporarely set to true so no
+        /// When undoing/redoing work with <see cref="_undoSystem"/>, this flag is temporarily set to true so no
         /// undo tasks are accidentally registered while another undo task performs changes to this text engine.
         /// </summary>
         private bool _isPerformingUndoRedo;
@@ -343,10 +343,10 @@ namespace PixUI.Text
         }
 
         /// <summary>
-        /// Moves the caret position to a given location, while mantaining a pivot 
+        /// Moves the caret position to a given location, while maintaining a pivot 
         /// over the other end of the selection.
         /// 
-        /// If the caret's position is towards the End of its range, this method mantains 
+        /// If the caret's position is towards the End of its range, this method maintains 
         /// its Start location the same, otherwise, it keeps the End location the same, instead.
         /// </summary>
         /// <param name="offset">New offset to move caret to, pinning the current selection position.</param>
