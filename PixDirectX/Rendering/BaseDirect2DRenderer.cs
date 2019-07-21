@@ -585,6 +585,46 @@ namespace PixDirectX.Rendering
         }
 
         #endregion
+
+        #region Clipping
+
+        /// <summary>
+        /// Pushes a clipping area where all further drawing operations will be constrained into.
+        /// </summary>
+        public void PushClippingArea(AABB area)
+        {
+            _state.D2DRenderTarget.PushAxisAlignedClip(area.ToRawRectangleF(), AntialiasMode.Aliased);
+        }
+
+        /// <summary>
+        /// Pops the most recently pushed clipping area.
+        /// </summary>
+        public void PopClippingArea()
+        {
+            _state.D2DRenderTarget.PopAxisAlignedClip();
+        }
+
+        #endregion
+
+        #region Transformation
+
+        /// <summary>
+        /// Pushes a 2D transformation matrix on top of the currently active transform matrix.
+        /// </summary>
+        public void PushTransform(Matrix2D matrix)
+        {
+            _state.PushMatrix(matrix.ToRawMatrix3X2());
+        }
+
+        /// <summary>
+        /// Pops the top-most active transformation matrix.
+        /// </summary>
+        public void PopTransform()
+        {
+            _state.PopMatrix();
+        }
+
+        #endregion
     }
 
     public struct RenderListenerParameters : IRenderListenerParameters

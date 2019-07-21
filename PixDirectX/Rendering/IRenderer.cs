@@ -83,6 +83,34 @@ namespace PixDirectX.Rendering
         void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolation interpolation);
 
         #endregion
+
+        #region Clipping
+
+        /// <summary>
+        /// Pushes a clipping area where all further drawing operations will be constrained into.
+        /// </summary>
+        void PushClippingArea(AABB area);
+
+        /// <summary>
+        /// Pops the most recently pushed clipping area.
+        /// </summary>
+        void PopClippingArea();
+
+        #endregion
+
+        #region Transformation
+
+        /// <summary>
+        /// Pushes a 2D transformation matrix on top of the currently active transform matrix.
+        /// </summary>
+        void PushTransform(Matrix2D matrix);
+
+        /// <summary>
+        /// Pops the top-most active transformation matrix.
+        /// </summary>
+        void PopTransform();
+
+        #endregion
     }
 
     /// <summary>

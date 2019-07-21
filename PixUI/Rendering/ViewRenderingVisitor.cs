@@ -35,13 +35,12 @@ namespace PixUI.Rendering
     {
         public void OnVisitorEnter([NotNull] ControlRenderingContext context, BaseView view)
         {
-            context.State.PushMatrix(view.LocalTransform.ToRawMatrix3X2());
+            context.Renderer.PushTransform(view.LocalTransform);
 
             // Clip rendering area
             if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
             {
-                var clip = view.Bounds;
-                context.RenderTarget.PushAxisAlignedClip(clip.ToRawRectangleF(), AntialiasMode.Aliased);
+                context.Renderer.PushClippingArea(view.Bounds);
             }
         }
 
@@ -69,10 +68,10 @@ namespace PixUI.Rendering
         {
             if (view is SelfRenderingBaseView selfRendering && selfRendering.ClipToBounds)
             {
-                context.RenderTarget.PopAxisAlignedClip();
+                context.Renderer.PopClippingArea();
             }
 
-            context.State.PopMatrix();
+            context.Renderer.PopTransform();
         }
     }
 }

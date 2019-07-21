@@ -361,7 +361,7 @@ namespace PixDirectX.Rendering
             {
                 _matrixStack.Push(Transform);
 
-                Transform = Transform * matrix;
+                Transform *= matrix;
             }
 
             public void PopMatrix()

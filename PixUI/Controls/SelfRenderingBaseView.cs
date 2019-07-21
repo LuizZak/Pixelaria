@@ -213,13 +213,6 @@ namespace PixUI.Controls
         public ID2DImageResourceProvider ImageResources { get; }
 
         /// <summary>
-        /// Gets the current render target.
-        /// 
-        /// Shortcut for <see cref="State"/>'s <see cref="IDirect2DRenderingState.D2DRenderTarget"/>.
-        /// </summary>
-        public RenderTarget RenderTarget => State.D2DRenderTarget;
-
-        /// <summary>
         /// Gets the current drawing clipping region.
         /// </summary>
         public IClippingRegion ClippingRegion { get; }
