@@ -199,15 +199,14 @@ namespace PixUI.Controls
                 {
                     var attr = segment.GetAttribute<BackgroundColorAttribute>();
 
-                    using (var brush = new SolidColorBrush(context.RenderTarget, attr.BackColor.ToColor4()))
-                    {
-                        var metrics = layout.HitTestTextRange(segment.TextRange.Start, segment.TextRange.Length, 0, 0);
+                    context.Renderer.FillColor = attr.BackColor;
 
-                        foreach (var metric in metrics)
-                        {
-                            var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
-                            context.RenderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectangleF(), brush);
-                        }
+                    var metrics = layout.HitTestTextRange(segment.TextRange.Start, segment.TextRange.Length, 0, 0);
+
+                    foreach (var metric in metrics)
+                    {
+                        var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
+                        context.Renderer.FillArea(aabb.Inflated(attr.Inflation));
                     }
                 }
 

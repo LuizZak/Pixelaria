@@ -503,7 +503,7 @@ namespace PixUI.Text
         /// <summary>
         /// Returns a text range that covers an entire word segment at a given text position.
         /// 
-        /// If the text under the position contains a word, the range from the begginning to the
+        /// If the text under the position contains a word, the range from the beginning to the
         /// end of the word is returned, otherwise, the boundaries for the nearest word are given.
         /// 
         /// If no word is under or near the position, the non-word (white space)

@@ -100,9 +100,9 @@ namespace PixUI
         /// Gets or sets the text color of this label view backing
         /// </summary>
         public Color TextColor { get; set; } = Color.White;
-        
+
         /// <summary>
-        /// An AABB that expands the four corners of the text bounds from
+        /// <see cref="InsetBounds"/> that expands the four corners of the text bounds from
         /// within this view.
         /// 
         /// The final text label has the size of its text string expanded by this

@@ -27,6 +27,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
@@ -643,6 +644,7 @@ namespace PixUI.Controls
         {
             base.RenderBackground(context);
             
+            // Draw selected region
             if (_textEngine.Caret.Length == 0)
                 return;
             
@@ -652,15 +654,14 @@ namespace PixUI.Controls
                 {
                     var metrics = layout.HitTestTextRange(_textEngine.Caret.Start, _textEngine.Caret.Length, 0, 0);
 
-                    using (var brush = new SolidColorBrush(context.RenderTarget, Style.SelectionColor.ToColor4()))
-                    {
-                        foreach (var metric in metrics)
-                        {
-                            var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
-                            aabb = _label.ConvertTo(aabb, this);
+                    context.Renderer.FillColor = Style.SelectionColor;
 
-                            context.RenderTarget.FillRectangle(aabb.ToRawRectangleF(), brush);
-                        }
+                    foreach (var metric in metrics)
+                    {
+                        var aabb = AABB.FromRectangle(metric.Left, metric.Top, metric.Width, metric.Height);
+                        aabb = _label.ConvertTo(aabb, this);
+
+                        context.Renderer.FillArea(aabb);
                     }
                 });
             });
@@ -683,13 +684,8 @@ namespace PixUI.Controls
 
             var caretLocation = GetCaretBounds(context);
 
-            var color = Style.CaretColor.ToColor4();
-            color.Alpha = transparency;
-
-            using (var brush = new SolidColorBrush(context.RenderTarget, color))
-            {
-                context.RenderTarget.FillRectangle(caretLocation.ToRawRectangleF(), brush);
-            }
+            context.Renderer.FillColor = Style.CaretColor.WithTransparency(transparency);
+            context.Renderer.FillArea(caretLocation);
         }
 
         private AABB GetCaretBounds([NotNull] ControlRenderingContext context)
