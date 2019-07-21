@@ -40,6 +40,7 @@ using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Factory = SharpDX.DirectWrite.Factory;
+using PathGeometry = PixCore.Geometry.PathGeometry;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
@@ -626,6 +627,25 @@ namespace PixDirectX.Rendering
             _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke(), StrokeWidth);
         }
 
+        public void StrokeGeometry(PathGeometry geometry)
+        {
+            using (var geom = new SharpDX.Direct2D1.PathGeometry(_state.D2DFactory))
+            {
+                foreach (var polygon in geometry.Polygons())
+                {
+                    var sink = geom.Open();
+                    sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
+                    foreach (var vector in polygon.Skip(1))
+                    {
+                        sink.AddLine(vector.ToRawVector2());
+                    }
+                    sink.Close();
+                }
+
+                _state.D2DRenderTarget.DrawGeometry(geom, BrushForStroke(), StrokeWidth);
+            }
+        }
+
         #endregion
 
         #region Fill
@@ -661,6 +681,25 @@ namespace PixDirectX.Rendering
             };
 
             _state.D2DRenderTarget.FillRoundedRectangle(roundedRect, BrushForFill());
+        }
+
+        public void FillGeometry(PathGeometry geometry)
+        {
+            using (var geom = new SharpDX.Direct2D1.PathGeometry(_state.D2DFactory))
+            {
+                foreach (var polygon in geometry.Polygons())
+                {
+                    var sink = geom.Open();
+                    sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
+                    foreach (var vector in polygon.Skip(1))
+                    {
+                        sink.AddLine(vector.ToRawVector2());
+                    }
+                    sink.Close();
+                }
+
+                _state.D2DRenderTarget.FillGeometry(geom, BrushForFill());
+            }
         }
 
         #endregion

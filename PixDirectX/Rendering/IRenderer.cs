@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using JetBrains.Annotations;
 using PixCore.Geometry;
 
 namespace PixDirectX.Rendering
@@ -53,6 +54,10 @@ namespace PixDirectX.Rendering
         /// Strokes the outline of an <see cref="AABB"/>-bounded area with rounded corners with the current <see cref="StrokeColor"/>.
         /// </summary>
         void StrokeRoundedArea(AABB area, float radiusX, float radiusY);
+        /// <summary>
+        /// Strokes a geometrical object with the current <see cref="StrokeColor"/>.
+        /// </summary>
+        void StrokeGeometry([NotNull] PathGeometry geometry);
 
         #endregion
 
@@ -78,6 +83,10 @@ namespace PixDirectX.Rendering
         /// Fills the outline of an <see cref="AABB"/>-bounded area with rounded corners with the current <see cref="StrokeColor"/>.
         /// </summary>
         void FillRoundedArea(AABB area, float radiusX, float radiusY);
+        /// <summary>
+        /// Fills a geometrical object with the current <see cref="StrokeColor"/>.
+        /// </summary>
+        void FillGeometry([NotNull] PathGeometry geometry);
 
         #endregion
 

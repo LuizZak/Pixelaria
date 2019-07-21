@@ -69,6 +69,7 @@
     <Compile Include="Geometry\Algorithms\RectangleDissectionTests.cs" />
     <Compile Include="Geometry\Algorithms\TotalRectanglesAreaTests.cs" />
     <Compile Include="Geometry\DrawingUtilitiesTests.cs" />
+    <Compile Include="Geometry\PathGeometryTests.cs" />
     <Compile Include="Imaging\ImageUtilitiesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Text\AttributedTextTests.cs" />
@@ -87,6 +88,10 @@
     <ProjectReference Include="..\PixCore\PixCore.csproj">
       <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
       <Name>PixCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj">
+      <Project>{EB5D6DEA-6AE2-4545-A708-6F0F2B1F5C50}</Project>
+      <Name>PixSnapshot</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

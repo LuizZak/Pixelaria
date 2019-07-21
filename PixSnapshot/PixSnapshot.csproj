@@ -67,16 +67,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PixCore\PixCore.csproj">
-      <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
-      <Name>PixCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
-      <Project>{c014734d-c99a-41a7-b2e1-33dcc66de2c9}</Project>
-      <Name>PixDirectX</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

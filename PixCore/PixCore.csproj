@@ -36,6 +36,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="clipper_library, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Clipper.6.4.0\lib\net40\clipper_library.dll</HintPath>
+    </Reference>
     <Reference Include="FastBitmapLib, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastBitmapLib.1.1.2\lib\net452\FastBitmapLib.dll</HintPath>
     </Reference>
@@ -90,6 +93,7 @@
     <Compile Include="Geometry\DrawingUtilities.cs" />
     <Compile Include="Geometry\ISpatialReference.cs" />
     <Compile Include="Geometry\Matrix2D.cs" />
+    <Compile Include="Geometry\PathGeometry.cs" />
     <Compile Include="Geometry\QuadTree.cs" />
     <Compile Include="Geometry\Vector.cs" />
     <Compile Include="Imaging\ImageUtilities.cs" />
@@ -134,6 +138,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\color_picker.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj">
+      <Project>{eb5d6dea-6ae2-4545-a708-6f0f2b1f5c50}</Project>
+      <Name>PixSnapshot</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

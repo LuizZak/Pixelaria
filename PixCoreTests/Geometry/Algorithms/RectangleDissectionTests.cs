@@ -322,7 +322,7 @@ namespace PixCoreTests.Geometry.Algorithms
         }
 
         /// <summary>
-        /// Makes an assertion that all rectangles combined have the same total area, exclusing overlapping regions.
+        /// Makes an assertion that all rectangles combined have the same total area, excluding overlapping regions.
         /// 
         /// If the assertion fails, an <see cref="Assert.Fail()"/> is raised.
         /// </summary>
@@ -335,7 +335,7 @@ namespace PixCoreTests.Geometry.Algorithms
         }
 
         /// <summary>
-        /// Makes an assertion that all rectangles combined have the given area, exclusing overlapping regions.
+        /// Makes an assertion that all rectangles combined have the given area, excluding overlapping regions.
         /// 
         /// If the assertion fails, an <see cref="Assert.Fail()"/> is raised.
         /// </summary>

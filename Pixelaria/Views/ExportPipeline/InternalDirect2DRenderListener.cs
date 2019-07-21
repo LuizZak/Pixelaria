@@ -41,6 +41,7 @@ using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Brush = SharpDX.Direct2D1.Brush;
 using Color = System.Drawing.Color;
+using PathGeometry = SharpDX.Direct2D1.PathGeometry;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
 

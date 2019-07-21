@@ -44,6 +44,7 @@ using SharpDX.Direct2D1;
 using SharpDX.Windows;
 using Color = System.Drawing.Color;
 using FillMode = SharpDX.Direct2D1.FillMode;
+using PathGeometry = SharpDX.Direct2D1.PathGeometry;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;

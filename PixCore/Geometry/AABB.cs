@@ -66,6 +66,9 @@ namespace PixCore.Geometry
 
         public Vector Center => (Minimum + Maximum) / 2;
 
+        /// <summary>
+        /// Returns true iff this <see cref="AABB"/>'s area is empty (i.e. <see cref="Minimum"/> == <see cref="Maximum"/>).
+        /// </summary>
         public bool IsEmpty => Minimum == Maximum;
 
         /// <summary>
@@ -74,32 +77,32 @@ namespace PixCore.Geometry
         public float Area => Size.X * Size.Y;
 
         /// <summary>
-        /// Alias for Minimum.Y
+        /// Alias for <see cref="Minimum"/>.Y
         /// </summary>
         public float Top => Minimum.Y;
 
         /// <summary>
-        /// Alias for Minimum.X
+        /// Alias for <see cref="Minimum"/>.X
         /// </summary>
         public float Left => Minimum.X;
 
         /// <summary>
-        /// Alias for Maximum.X
+        /// Alias for <see cref="Maximum"/>.X
         /// </summary>
         public float Right => Maximum.X;
 
         /// <summary>
-        /// Alias for Maximum.Y
+        /// Alias for <see cref="Maximum"/>.Y
         /// </summary>
         public float Bottom => Maximum.Y;
 
         /// <summary>
-        /// Returns an array of vectors that represent this AABB's corners in clockwise
+        /// Returns an array of vectors that represent this <see cref="AABB"/>'s corners in clockwise
         /// order, starting from the top-left corner.
         /// 
         /// Always contains 4 elements.
         /// 
-        /// If this AABB is Invalid, returns an array of (0, 0) values.
+        /// If this <see cref="AABB"/> is Invalid, returns an array of (0, 0) values.
         /// </summary>
         public Vector[] Corners
         {
