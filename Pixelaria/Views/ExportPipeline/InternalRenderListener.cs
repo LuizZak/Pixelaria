@@ -623,12 +623,11 @@ namespace Pixelaria.Views.ExportPipeline
         {
             var renderer = parameters.Renderer;
 
-            var renderingState = parameters.State;
             var clippingRegion = parameters.ClippingRegion;
 
-            renderingState.PushingTransform(() =>
+            renderer.PushingTransform(() =>
             {
-                renderingState.D2DRenderTarget.Transform = labelView.GetAbsoluteTransform().ToRawMatrix3X2();
+                renderer.Transform = labelView.GetAbsoluteTransform();
 
                 var visibleArea =
                     labelView

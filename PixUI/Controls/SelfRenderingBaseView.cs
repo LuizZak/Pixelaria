@@ -210,7 +210,7 @@ namespace PixUI.Controls
         /// <summary>
         /// Gets the image resources provider to use when fetching image resources
         /// </summary>
-        public ID2DImageResourceProvider ImageResources { get; }
+        public IImageResourceProvider ImageResources { get; }
 
         /// <summary>
         /// Gets the current drawing clipping region.
@@ -230,7 +230,7 @@ namespace PixUI.Controls
 
         public ControlRenderingContext(IRenderer renderer, IDirect2DRenderingState state,
             IClippingRegion clippingRegion, ITextMetricsProvider textMetricsProvider,
-            ID2DImageResourceProvider imageResources, [NotNull] ITextLayoutRenderer textLayoutRenderer)
+            IImageResourceProvider imageResources, [NotNull] ITextLayoutRenderer textLayoutRenderer)
         {
             Renderer = renderer;
             State = state;
@@ -238,6 +238,16 @@ namespace PixUI.Controls
             TextMetricsProvider = textMetricsProvider;
             ImageResources = imageResources;
             TextLayoutRenderer = textLayoutRenderer;
+        }
+
+        public ControlRenderingContext([NotNull] IRenderListenerParameters parameters)
+        {
+            Renderer = parameters.Renderer;
+            State = parameters.State;
+            ClippingRegion = parameters.ClippingRegion;
+            TextMetricsProvider = parameters.TextMetricsProvider;
+            ImageResources = parameters.ImageResources;
+            TextLayoutRenderer = parameters.TextLayoutRenderer;
         }
     }
 }

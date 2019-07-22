@@ -28,11 +28,11 @@ using Bitmap = System.Drawing.Bitmap;
 
 namespace PixDirectX.Rendering
 {
-    /// <inheritdoc cref="ID2DImageResourceManager" />
+    /// <inheritdoc cref="IImageResourceManager" />
     /// <summary>
     /// Helper class for dealing with Direct2D image resource loading
     /// </summary>
-    public sealed class D2DImageResources : IDisposable, ID2DImageResourceManager
+    public sealed class ImageResources : IDisposable, IImageResourceManager
     {
         private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
 
@@ -46,8 +46,10 @@ namespace PixDirectX.Rendering
             _bitmapResources.Clear();
         }
 
-        public ImageResource AddImageResource(IDirect2DRenderingState state, Bitmap bitmap, string resourceName)
+        public ImageResource AddImageResource(IRenderLoopState renderLoopState, Bitmap bitmap, string resourceName)
         {
+            var state = (IDirect2DRenderingState) renderLoopState;
+
             var res = new ImageResource(resourceName, bitmap.Width, bitmap.Height);
 
             if (_bitmapResources.ContainsKey(resourceName))

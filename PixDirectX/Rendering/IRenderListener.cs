@@ -66,7 +66,7 @@ namespace PixDirectX.Rendering
         /// Gets the image resources manager for managing image resources for rendering
         /// </summary>
         [NotNull]
-        ID2DImageResourceProvider ImageResources { get; }
+        IImageResourceManager ImageResources { get; }
 
         /// <summary>
         /// The clipping region for drawing on

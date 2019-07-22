@@ -226,7 +226,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 private readonly PipelineNodeView _nodeView;
 
-                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] ID2DImageResourceProvider imageProvider)
+                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] IImageResourceProvider imageProvider)
                 {
                     var node = nodeSpec.CreateNode();
                     _nodeView = PipelineNodeView.Create(node);

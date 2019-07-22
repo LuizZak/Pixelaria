@@ -59,7 +59,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private readonly IExportPipelineDirect2DRenderer _pipelineDirect2DRenderer;
         [NotNull] 
         private readonly IInvalidatableControl _invalidateTarget;
-        private readonly ID2DImageResourceProvider _imageResourceProvider;
+        private readonly IImageResourceProvider _imageResourceProvider;
         private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
 
         private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
@@ -289,7 +289,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         /// 
         /// This image is used for representing the node's type visually in a small icon form.
         /// </summary>
-        public static ImageResource? IconForPipelineNode([NotNull] IPipelineNode node, [NotNull] ID2DImageResourceProvider resourcesProvider)
+        public static ImageResource? IconForPipelineNode([NotNull] IPipelineNode node, [NotNull] IImageResourceProvider resourcesProvider)
         {
             return IconForPipelineNodeType(node.GetType(), resourcesProvider);
         }
@@ -299,7 +299,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         /// 
         /// This image is used for representing the node's type visually in a small icon form.
         /// </summary>
-        public static ImageResource? IconForPipelineNodeType(Type nodeType, [NotNull] ID2DImageResourceProvider resourcesProvider)
+        public static ImageResource? IconForPipelineNodeType(Type nodeType, [NotNull] IImageResourceProvider resourcesProvider)
         {
             string iconName = null;
 

@@ -61,7 +61,7 @@ namespace PixDirectX.Rendering
         protected readonly TextColorRenderer TextColorRenderer = new TextColorRenderer();
         protected readonly List<IRenderListener> RenderListeners = new List<IRenderListener>();
         
-        private readonly D2DImageResources _imageResources;
+        private readonly ImageResources _imageResources;
         private readonly TextMetrics _textMetrics;
 
         [CanBeNull]
@@ -79,14 +79,14 @@ namespace PixDirectX.Rendering
         /// </summary>
         public Color BackColor { get; set; } = Color.FromArgb(255, 25, 25, 25);
 
-        public ID2DImageResourceManager ImageResources => _imageResources;
+        public IImageResourceManager ImageResources => _imageResources;
 
         /// <inheritdoc />
         public ITextMetricsProvider TextMetricsProvider => _textMetrics;
 
         protected BaseDirect2DRenderer()
         {
-            _imageResources = new D2DImageResources();
+            _imageResources = new ImageResources();
             _textMetrics = new TextMetrics(this);
         }
 
@@ -573,7 +573,7 @@ namespace PixDirectX.Rendering
         private InternalBrush _fillBrush;
 
         private readonly IDirect2DRenderingState _state;
-        private readonly D2DImageResources _imageResource;
+        private readonly ImageResources _imageResource;
 
         public Matrix2D Transform
         {
@@ -581,7 +581,7 @@ namespace PixDirectX.Rendering
             set => _state.Transform = value.ToRawMatrix3X2();
         }
 
-        public WrappedDirect2DRenderer([NotNull] IDirect2DRenderingState state, [NotNull] D2DImageResources imageResource)
+        public WrappedDirect2DRenderer([NotNull] IDirect2DRenderingState state, [NotNull] ImageResources imageResource)
         {
             _state = state;
             _imageResource = imageResource;
@@ -1117,7 +1117,7 @@ namespace PixDirectX.Rendering
 
     public struct RenderListenerParameters : IRenderListenerParameters
     {
-        public ID2DImageResourceProvider ImageResources { get; }
+        public IImageResourceManager ImageResources { get; }
         public IClippingRegion ClippingRegion { get; }
         public IRenderer Renderer { get; }
         public IDirect2DRenderingState State { get; }
@@ -1126,7 +1126,7 @@ namespace PixDirectX.Rendering
         public ITextRenderer TextRenderer { get; }
         public ITextMetricsProvider TextMetricsProvider { get; }
 
-        public RenderListenerParameters([NotNull] ID2DImageResourceProvider imageResources,
+        public RenderListenerParameters([NotNull] IImageResourceManager imageResources,
             [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
             [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
             [NotNull] ITextMetricsProvider textMetricsProvider, [NotNull] IRenderer renderer, [NotNull] ITextRenderer textRenderer)

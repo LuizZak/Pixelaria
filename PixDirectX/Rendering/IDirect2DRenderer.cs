@@ -44,7 +44,7 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// Gets the image resources manager for this Direct2D renderer
         /// </summary>
-        ID2DImageResourceManager ImageResources { get; }
+        IImageResourceManager ImageResources { get; }
 
         /// <summary>
         /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IDirect2DRenderer"/>
@@ -189,13 +189,13 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Interface for objects capable of creating, updating, providing and destroying Direct2D bitmap resources.
     /// </summary>
-    public interface ID2DImageResourceManager: ID2DImageResourceProvider
+    public interface IImageResourceManager: IImageResourceProvider
     {
         /// <summary>
-        /// Creates a new image from a given <see cref="System.Drawing.Bitmap"/> instance, assigns it with a given resource name, and
+        /// Creates a new image from a given <see cref="Bitmap"/> instance, assigns it with a given resource name, and
         /// then returns it to be used.
         /// </summary>
-        ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
+        ImageResource AddImageResource([NotNull] IRenderLoopState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
 
         void RemoveImageResource([NotNull] string resourceName);
 
@@ -205,7 +205,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Interface for objects that can provide encapsulated access to image resources.
     /// </summary>
-    public interface ID2DImageResourceProvider
+    public interface IImageResourceProvider
     {
         /// <summary>
         /// Fetches an image resource formatted as an image resource struct.

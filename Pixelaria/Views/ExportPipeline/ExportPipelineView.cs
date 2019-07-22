@@ -430,7 +430,7 @@ namespace Pixelaria.Views.ExportPipeline
             LabelView.DefaultLabelViewSizeProvider = control.LabelViewSizeProvider;
         }
 
-        public static void RegisterIcons([NotNull] ID2DImageResourceManager manager, [NotNull] IDirect2DRenderingState state)
+        public static void RegisterIcons([NotNull] IImageResourceManager manager, [NotNull] IDirect2DRenderingState state)
         {
             void AddImage(System.Drawing.Bitmap bitmap, string name)
             {

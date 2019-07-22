@@ -57,7 +57,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the image resources provider for this pipeline control
         /// </summary>
-        ID2DImageResourceManager ImageResources { get; }
+        IImageResourceManager ImageResources { get; }
         
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control

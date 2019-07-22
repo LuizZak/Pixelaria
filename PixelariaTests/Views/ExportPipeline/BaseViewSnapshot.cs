@@ -62,7 +62,7 @@ namespace PixelariaTests.Views.ExportPipeline
         public static float Tolerance = 0.01f;
 
         [CanBeNull]
-        public static Action<ID2DImageResourceManager, IDirect2DRenderingState> ImagesConfig;
+        public static Action<IImageResourceManager, IDirect2DRenderingState> ImagesConfig;
         
         public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, bool? recordMode = null, string suffix = "", float? tolerance = null)
         {
@@ -107,7 +107,7 @@ namespace PixelariaTests.Views.ExportPipeline
                     var visitor = new ViewRenderingVisitor();
 
                     var context = new ControlRenderingContext(
-                        new WrappedDirect2DRenderer(state, (D2DImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
+                        new WrappedDirect2DRenderer(state, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 

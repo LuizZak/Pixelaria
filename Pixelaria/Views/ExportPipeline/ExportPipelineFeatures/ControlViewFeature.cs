@@ -121,9 +121,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public void Render(IRenderListenerParameters parameters)
         {
-            var context = new ControlRenderingContext(parameters.Renderer, parameters.State,
-                Control.D2DRenderer.ClippingRegion,
-                Control.TextMetricsProvider, Control.ImageResources, Control.D2DRenderer);
+            var context = new ControlRenderingContext(parameters);
 
             // Create a renderer visitor for the root UI element we got
             var visitor = new ViewRenderingVisitor();
