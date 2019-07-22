@@ -121,8 +121,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public void Render(IRenderListenerParameters parameters)
         {
-            var context = new ControlRenderingContext(
-                new WrappedDirect2DRenderer(parameters.State, parameters.ImageResources), parameters.State,
+            var context = new ControlRenderingContext(parameters.Renderer, parameters.State,
                 Control.D2DRenderer.ClippingRegion,
                 Control.TextMetricsProvider, Control.ImageResources, Control.D2DRenderer);
 

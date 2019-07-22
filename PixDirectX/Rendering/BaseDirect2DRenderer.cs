@@ -138,7 +138,7 @@ namespace PixDirectX.Rendering
         /// </summary>
         protected virtual void RecreateState([NotNull] IDirect2DRenderingState state)
         {
-            _wrappedDirect2D = new WrappedDirect2DRenderer(state, ImageResources);
+            _wrappedDirect2D = new WrappedDirect2DRenderer(state, _imageResources);
 
             foreach (var listener in RenderListeners)
             {
@@ -155,8 +155,10 @@ namespace PixDirectX.Rendering
         /// 
         /// Calls <see cref="RecreateState"/> after calls to <see cref="InvalidateState"/> automatically.
         /// </summary>
-        public void UpdateRenderingState(IDirect2DRenderingState state, IClippingRegion clipping)
+        public void UpdateRenderingState(IRenderLoopState renderLoopState, IClippingRegion clipping)
         {
+            var state = (IDirect2DRenderingState) renderLoopState;
+
             if (_isRefreshingState)
             {
                 RecreateState(state);
@@ -571,7 +573,7 @@ namespace PixDirectX.Rendering
         private InternalBrush _fillBrush;
 
         private readonly IDirect2DRenderingState _state;
-        private readonly ID2DImageResourceProvider _imageResource;
+        private readonly D2DImageResources _imageResource;
 
         public Matrix2D Transform
         {
@@ -579,7 +581,7 @@ namespace PixDirectX.Rendering
             set => _state.Transform = value.ToRawMatrix3X2();
         }
 
-        public WrappedDirect2DRenderer([NotNull] IDirect2DRenderingState state, [NotNull] ID2DImageResourceProvider imageResource)
+        public WrappedDirect2DRenderer([NotNull] IDirect2DRenderingState state, [NotNull] D2DImageResources imageResource)
         {
             _state = state;
             _imageResource = imageResource;
@@ -925,7 +927,7 @@ namespace PixDirectX.Rendering
 
         private class InternalBrush : IBrush
         {
-            internal bool IsLoaded { get; set; } = false;
+            internal bool IsLoaded { get; private set; }
             public Brush Brush { get; protected set; }
 
             public virtual void LoadBrush(RenderTarget renderTarget)

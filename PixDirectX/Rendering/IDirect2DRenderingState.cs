@@ -28,7 +28,7 @@ using SharpDX.Direct2D1;
 
 namespace PixDirectX.Rendering
 {
-    public interface IDirect2DRenderingState : IDisposable
+    public interface IDirect2DRenderingState : IDisposable, IRenderLoopState
     {
         /// <summary>
         /// Direct2D factory instance

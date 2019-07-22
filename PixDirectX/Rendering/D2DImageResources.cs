@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace PixDirectX.Rendering
@@ -57,7 +58,7 @@ namespace PixDirectX.Rendering
             return res;
         }
 
-        public ImageResource AddImageResource(IDirect2DRenderingState state, SharpDX.WIC.Bitmap bitmap, string resourceName)
+        public ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] SharpDX.WIC.Bitmap bitmap, [NotNull] string resourceName)
         {
             var res = new ImageResource(resourceName, bitmap.Size.Width, bitmap.Size.Height);
 
@@ -103,12 +104,14 @@ namespace PixDirectX.Rendering
             return null;
         }
         
+        [CanBeNull]
         public SharpDX.Direct2D1.Bitmap BitmapForResource(ImageResource resource)
         {
             return BitmapForResource(resource.ResourceName);
         }
 
-        public SharpDX.Direct2D1.Bitmap BitmapForResource(string name)
+        [CanBeNull]
+        public SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string name)
         {
             return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
         }

@@ -61,7 +61,7 @@ namespace PixDirectX.Rendering
         /// 
         /// Must be called whenever devices/surfaces/etc. have been invalidated or the clipping region has been changed.
         /// </summary>
-        void UpdateRenderingState([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping);
+        void UpdateRenderingState([NotNull] IRenderLoopState state, [NotNull] IClippingRegion clipping);
 
         /// <summary>
         /// Adds a new render listener which will be invoked when rendering is being performed.
@@ -197,12 +197,6 @@ namespace PixDirectX.Rendering
         /// </summary>
         ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
 
-        /// <summary>
-        /// Creates a new image from a given <see cref="SharpDX.WIC.Bitmap"/> instance, assigns it with a given resource name, and
-        /// then returns it to be used.
-        /// </summary>
-        ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] SharpDX.WIC.Bitmap bitmap, [NotNull] string resourceName);
-
         void RemoveImageResource([NotNull] string resourceName);
 
         void RemoveAllImageResources();
@@ -219,21 +213,5 @@ namespace PixDirectX.Rendering
         /// Returns null, if no resource with the given name is found.
         /// </summary>
         ImageResource? GetImageResource([NotNull] string resourceName);
-
-        /// <summary>
-        /// Gets a Direct2D bitmap object for a matching image resource from this provider.
-        /// 
-        /// Returns null, if resource could not be found.
-        /// </summary>
-        [CanBeNull]
-        SharpDX.Direct2D1.Bitmap BitmapForResource(ImageResource resource);
-
-        /// <summary>
-        /// Gets a Direct2D bitmap object for an image resource matching a given name from this provider.
-        /// 
-        /// Returns null, if resource could not be found.
-        /// </summary>
-        [CanBeNull]
-        SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string named);
     }
 }

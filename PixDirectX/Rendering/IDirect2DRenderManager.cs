@@ -71,14 +71,6 @@ namespace PixDirectX.Rendering
     /// </summary>
     public interface IRenderLoopState
     {
-        /// <summary>
-        /// Gets the renderer for this render loop state.
-        /// </summary>
-        IRenderer Renderer { get; }
-
-        /// <summary>
-        /// Gets the currently active clipping region.
-        /// </summary>
-        IClippingRegion ClippingRegion { get; }
+        
     }
 }
