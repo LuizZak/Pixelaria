@@ -134,6 +134,11 @@ namespace PixDirectX.Rendering
         /// Draws a text layout at a given location on the current render target.
         /// </summary>
         void Draw(ITextLayout textLayout, float x, float y);
+
+        /// <summary>
+        /// Draws a string of text with a given set of attributes, on a given area with a given color.
+        /// </summary>
+        void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
     }
 
     /// <summary>

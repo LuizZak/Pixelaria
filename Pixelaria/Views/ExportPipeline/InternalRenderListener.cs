@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using FastBitmapLib;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
@@ -34,7 +33,6 @@ using PixDirectX.Utils;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
-using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using RectangleF = System.Drawing.RectangleF;
 
@@ -60,11 +58,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RecreateState(IDirect2DRenderingState state)
         {
-            // Create shadow box image
-            using (var bitmap = new Bitmap(64, 64))
-            {
-                FastBitmap.ClearBitmap(bitmap, Color.Black);
-            }
+            
         }
 
         public void Render(IRenderListenerParameters parameters)
@@ -359,39 +353,6 @@ namespace Pixelaria.Views.ExportPipeline
                 Fill,
                 OuterStroke,
                 Stroke
-            }
-        }
-
-        internal sealed class DisposeBag : IDisposable
-        {
-            private bool _isDisposed;
-            private readonly IList<IDisposable> _disposables = new List<IDisposable>();
-
-            public void Dispose()
-            {
-                CheckNotDisposed();
-
-                _isDisposed = true;
-
-                foreach (var disposable in _disposables)
-                {
-                    disposable.Dispose();
-                }
-            }
-
-            public void AddDisposable(IDisposable disposable)
-            {
-                CheckNotDisposed();
-
-                _disposables.Add(disposable);
-            }
-
-            private void CheckNotDisposed()
-            {
-                if (_isDisposed)
-                {
-                    throw new ObjectDisposedException(nameof(DisposeBag));
-                }
             }
         }
     }

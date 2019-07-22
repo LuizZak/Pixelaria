@@ -36,6 +36,11 @@ namespace PixDirectX.Rendering
         public VerticalTextAlignment VerticalTextAlignment { get; set; }
         public TextWordWrap WordWrap { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ellipsis trimming for this text layout.
+        /// </summary>
+        public TextEllipsisTrimming? TextEllipsisTrimming { get; set; }
+
         public TextFormatAttributes([NotNull] string font, float fontSize)
         {
             Font = font;
@@ -43,6 +48,7 @@ namespace PixDirectX.Rendering
             HorizontalTextAlignment = HorizontalTextAlignment.Leading;
             VerticalTextAlignment = VerticalTextAlignment.Near;
             WordWrap = TextWordWrap.None;
+            TextEllipsisTrimming = null;
         }
     }
 
@@ -52,8 +58,9 @@ namespace PixDirectX.Rendering
     public enum HorizontalTextAlignment
     {
         Leading,
+        Trailing,
         Center,
-        Trailing
+        Justified
     }
 
     /// <summary>
@@ -62,8 +69,8 @@ namespace PixDirectX.Rendering
     public enum VerticalTextAlignment
     {
         Near,
-        Center,
-        Far
+        Far,
+        Center
     }
 
     /// <summary>

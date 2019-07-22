@@ -34,134 +34,56 @@ namespace PixDirectX.Rendering
     {
         public static TextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
         {
-            TextAlignment horizontalAlign;
-
-            switch (alignment)
-            {
-                case HorizontalTextAlignment.Leading:
-                    horizontalAlign = TextAlignment.Leading;
-                    break;
-                case HorizontalTextAlignment.Center:
-                    horizontalAlign = TextAlignment.Center;
-                    break;
-                case HorizontalTextAlignment.Trailing:
-                    horizontalAlign = TextAlignment.Trailing;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return horizontalAlign;
+            return (TextAlignment) alignment;
         }
-
         public static ParagraphAlignment DirectWriteAlignmentFor(VerticalTextAlignment alignment)
         {
-            ParagraphAlignment verticalAlign;
-
-            switch (alignment)
-            {
-                case VerticalTextAlignment.Near:
-                    verticalAlign = ParagraphAlignment.Near;
-                    break;
-                case VerticalTextAlignment.Center:
-                    verticalAlign = ParagraphAlignment.Center;
-                    break;
-                case VerticalTextAlignment.Far:
-                    verticalAlign = ParagraphAlignment.Far;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return verticalAlign;
+            return (ParagraphAlignment) alignment;
         }
-
         public static WordWrapping DirectWriteWordWrapFor(TextWordWrap wordWrap)
         {
-            WordWrapping verticalAlign;
-
             switch (wordWrap)
             {
                 case TextWordWrap.None:
-                    verticalAlign = WordWrapping.NoWrap;
-                    break;
+                    return WordWrapping.NoWrap;
                 case TextWordWrap.ByCharacter:
-                    verticalAlign = WordWrapping.Character;
-                    break;
+                    return WordWrapping.Character;
                 case TextWordWrap.ByWord:
-                    verticalAlign = WordWrapping.Wrap;
-                    break;
+                    return WordWrapping.WholeWord;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(wordWrap), wordWrap, null);
             }
-
-            return verticalAlign;
+        }
+        public static TrimmingGranularity DirectWriteGranularityFor(TextTrimmingGranularity granularity)
+        {
+            return (TrimmingGranularity) granularity;
         }
 
         public static HorizontalTextAlignment HorizontalTextAlignmentFor(TextAlignment alignment)
         {
-            HorizontalTextAlignment horizontalAlign;
-
-            switch (alignment)
-            {
-                case TextAlignment.Leading:
-                    horizontalAlign = HorizontalTextAlignment.Leading;
-                    break;
-                case TextAlignment.Center:
-                    horizontalAlign = HorizontalTextAlignment.Center;
-                    break;
-                case TextAlignment.Trailing:
-                    horizontalAlign = HorizontalTextAlignment.Trailing;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return horizontalAlign;
+            return (HorizontalTextAlignment) alignment;
         }
-
         public static VerticalTextAlignment VerticalTextAlignmentFor(ParagraphAlignment alignment)
         {
-            VerticalTextAlignment verticalAlign;
-
-            switch (alignment)
-            {
-                case ParagraphAlignment.Near:
-                    verticalAlign = VerticalTextAlignment.Near;
-                    break;
-                case ParagraphAlignment.Center:
-                    verticalAlign = VerticalTextAlignment.Center;
-                    break;
-                case ParagraphAlignment.Far:
-                    verticalAlign = VerticalTextAlignment.Far;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return verticalAlign;
+            return (VerticalTextAlignment) alignment;
         }
-
-        public static TextWordWrap TextWordWrapFor(WordWrapping wordWrap)
+        public static TextWordWrap TextWordWrapFor(WordWrapping wordWrapping)
         {
-            TextWordWrap verticalAlign;
-
-            switch (wordWrap)
+            switch (wordWrapping)
             {
                 case WordWrapping.NoWrap:
-                    verticalAlign = TextWordWrap.None;
-                    break;
+                    return TextWordWrap.None;
                 case WordWrapping.Character:
-                    verticalAlign = TextWordWrap.ByCharacter;
-                    break;
-                case WordWrapping.Wrap:
-                    verticalAlign = TextWordWrap.ByWord;
-                    break;
+                    return TextWordWrap.ByCharacter;
+                case WordWrapping.WholeWord:
+                    return TextWordWrap.ByWord;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(wordWrapping), wordWrapping, null);
             }
-
-            return verticalAlign;
+        }
+        public static TextTrimmingGranularity TextTrimmingGranularityFor(TrimmingGranularity granularity)
+        {
+            return (TextTrimmingGranularity) granularity;
         }
 
         /// <summary>

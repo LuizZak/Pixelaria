@@ -33,7 +33,6 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
-using SharpDX.Direct2D1;
 using PixUI;
 using PixUI.Controls;
 
@@ -49,7 +48,6 @@ using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
-using SharpDX.DirectWrite;
 using Bitmap = SharpDX.Direct2D1.Bitmap;
 using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using Font = System.Drawing.Font;
@@ -771,30 +769,26 @@ namespace Pixelaria.Views.ExportPipeline
                 }
                 else
                 {
-                    using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.DimGray.ToColor4()))
-                    {
-                        state.D2DRenderTarget.FillRectangle(bounds.ImageBounds.ToRawRectangleF(), brush);
-                    }
+                    parameters.Renderer.SetFillColor(Color.DimGray);
+                    parameters.Renderer.FillArea(bounds.ImageBounds);
                 }
 
-                using (var brush = new SolidColorBrush(state.D2DRenderTarget, Color.Gray.ToColor4()))
-                {
-                    state.D2DRenderTarget.DrawRectangle(bounds.ImageBounds.ToRawRectangleF(), brush);
-                }
+                parameters.Renderer.SetStrokeColor(Color.Gray);
+                parameters.Renderer.StrokeArea(bounds.ImageBounds);
 
                 // Draw title
-                using (var background = new SolidColorBrush(state.D2DRenderTarget, Color.Black.ToColor4()))
-                using (var foreground = new SolidColorBrush(state.D2DRenderTarget, Color.White.ToColor4()))
-                using (var textFormat = new TextFormat(state.DirectWriteFactory, _font.FontFamily.Name, _font.Size))
-                using (var trimming = new EllipsisTrimming(state.DirectWriteFactory, textFormat))
+                var format = new TextFormatAttributes(_font.FontFamily.Name, _font.Size)
                 {
-                    textFormat.WordWrapping = WordWrapping.NoWrap;
-                    textFormat.SetTrimming(new Trimming { Granularity = TrimmingGranularity.Character }, trimming);
+                    TextEllipsisTrimming = new TextEllipsisTrimming
+                    {
+                        Granularity = TextTrimmingGranularity.Character
+                    }
+                };
 
-                    state.D2DRenderTarget.FillRectangle(bounds.TitleBounds.ToRawRectangleF(), background);
-                    state.D2DRenderTarget.DrawText(step.Name, textFormat,
-                        bounds.TitleBounds.Inset(_titleInset).ToRawRectangleF(), foreground);
-                }
+                parameters.Renderer.SetFillColor(Color.Black);
+                parameters.Renderer.FillArea(bounds.TitleBounds);
+
+                parameters.TextRenderer.Draw(step.Name, format, bounds.TitleBounds.Inset(_titleInset), Color.White);
             }
         }
 

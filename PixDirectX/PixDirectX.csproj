@@ -82,6 +82,7 @@
     <Compile Include="Rendering\IRenderListener.cs" />
     <Compile Include="Rendering\ITextMetricsProvider.cs" />
     <Compile Include="Rendering\PixBrush.cs" />
+    <Compile Include="Rendering\TextEllipsisTrimming.cs" />
     <Compile Include="Rendering\TextFormatAttributes.cs" />
     <Compile Include="Rendering\TextLayoutAttributes.cs" />
     <Compile Include="Utils\GeomExtensions.cs" />

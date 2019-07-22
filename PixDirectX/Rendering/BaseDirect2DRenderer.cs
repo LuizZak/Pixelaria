@@ -211,10 +211,31 @@ namespace PixDirectX.Rendering
                 WordWrapping = wordWrap
             };
 
+            EllipsisTrimming ellipsisTrimming = null;
+
+            if (attributes.TextFormatAttributes.TextEllipsisTrimming.HasValue)
+            {
+                var trimming = CreateTrimming(attributes.TextFormatAttributes.TextEllipsisTrimming.Value);
+                ellipsisTrimming = new EllipsisTrimming(directWriteFactory, textFormat);
+                textFormat.SetTrimming(trimming, ellipsisTrimming);
+            }
+
             var textLayout = new TextLayout(directWriteFactory, text.String, textFormat,
                 attributes.AvailableWidth, attributes.AvailableHeight);
 
-            return new InnerTextLayout(textLayout, attributes);
+            return new InnerTextLayout(textLayout, ellipsisTrimming, attributes);
+        }
+
+        private static Trimming CreateTrimming(TextEllipsisTrimming ellipsis)
+        {
+            var trimming = new Trimming
+            {
+                Granularity = Direct2DConversionHelpers.DirectWriteGranularityFor(ellipsis.Granularity),
+                Delimiter = ellipsis.Delimiter,
+                DelimiterCount = ellipsis.DelimiterCount
+            };
+
+            return trimming;
         }
 
         public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, TextLayoutAttributes attributes, Action<ITextLayout, ITextRenderer> perform)
@@ -267,7 +288,7 @@ namespace PixDirectX.Rendering
                 var prev = TextColorRenderer.DefaultBrush;
                 TextColorRenderer.DefaultBrush = brush;
 
-                perform(layout, new InnerTextRenderer(TextColorRenderer));
+                perform(layout, new InnerTextRenderer(TextColorRenderer, _lastRenderingState.DirectWriteFactory, _lastRenderingState.D2DRenderTarget));
 
                 TextColorRenderer.DefaultBrush = prev;
 
@@ -283,7 +304,7 @@ namespace PixDirectX.Rendering
         public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
             var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer,
-                this, TextMetricsProvider, _wrappedDirect2D, new InnerTextRenderer(TextColorRenderer));
+                this, TextMetricsProvider, _wrappedDirect2D, new InnerTextRenderer(TextColorRenderer, state.DirectWriteFactory, state.D2DRenderTarget));
 
             return parameters;
         }
@@ -463,17 +484,21 @@ namespace PixDirectX.Rendering
         private class InnerTextLayout : ITextLayout
         {
             public TextLayout TextLayout { get; }
+            [CanBeNull]
+            public EllipsisTrimming EllipsisTrimming { get; }
             public TextLayoutAttributes Attributes { get; }
 
-            public InnerTextLayout(TextLayout textLayout, TextLayoutAttributes attributes)
+            public InnerTextLayout(TextLayout textLayout, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
             {
                 TextLayout = textLayout;
+                EllipsisTrimming = ellipsisTrimming;
                 Attributes = attributes;
             }
 
             public void Dispose()
             {
                 TextLayout?.Dispose();
+                EllipsisTrimming?.Dispose();
             }
 
             public HitTestMetrics HitTestPoint(float x, float y, out bool isTrailingHit, out bool isInside)
@@ -500,10 +525,14 @@ namespace PixDirectX.Rendering
         private class InnerTextRenderer : ITextRenderer
         {
             public TextRendererBase TextRenderer { get; }
+            private Factory directWriteFactory;
+            private RenderTarget renderTarget;
 
-            public InnerTextRenderer(TextRendererBase textRenderer)
+            public InnerTextRenderer(TextRendererBase textRenderer, Factory directWriteFactory, RenderTarget renderTarget)
             {
                 TextRenderer = textRenderer;
+                this.directWriteFactory = directWriteFactory;
+                this.renderTarget = renderTarget;
             }
 
             public void Draw(ITextLayout textLayout, float x, float y)
@@ -512,6 +541,26 @@ namespace PixDirectX.Rendering
                     return;
 
                 layout.TextLayout.Draw(TextRenderer, x, y);
+            }
+
+            public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
+            {
+                EllipsisTrimming trimming = null;
+
+                using (var foreground = new SolidColorBrush(renderTarget, color.ToColor4()))
+                using (var textFormat = new TextFormat(directWriteFactory, textFormatAttributes.Font, textFormatAttributes.FontSize))
+                {
+                    textFormat.WordWrapping = WordWrapping.NoWrap;
+                    if (textFormatAttributes.TextEllipsisTrimming.HasValue)
+                    {
+                        trimming = new EllipsisTrimming(directWriteFactory, textFormat);
+                        textFormat.SetTrimming(CreateTrimming(textFormatAttributes.TextEllipsisTrimming.Value), trimming);
+                    }
+
+                    renderTarget.DrawText(text, textFormat, area.ToRawRectangleF(), foreground);
+                }
+
+                trimming?.Dispose();
             }
         }
     }

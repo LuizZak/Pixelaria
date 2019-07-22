@@ -29,6 +29,9 @@ namespace PixDirectX.Rendering
     /// </summary>
     public struct TextLayoutAttributes
     {
+        /// <summary>
+        /// Gets or sets the text format attributes for this text layout.
+        /// </summary>
         public TextFormatAttributes TextFormatAttributes { get; set; }
 
         /// <summary>
@@ -54,7 +57,6 @@ namespace PixDirectX.Rendering
                 VerticalTextAlignment = vertical,
                 WordWrap = wordWrap
             };
-
             AvailableWidth = float.PositiveInfinity;
             AvailableHeight = float.PositiveInfinity;
         }
