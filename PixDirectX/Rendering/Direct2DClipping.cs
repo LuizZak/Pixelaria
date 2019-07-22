@@ -32,18 +32,18 @@ using SharpDX.Direct2D1;
 namespace PixDirectX.Rendering
 {
     /// <summary>
-    /// A clipping region with extended capabilities to work with Direct2D rendering contexts
+    /// Helper class to work with clipping on Direct2D rendering contexts
     /// </summary>
-    public class Direct2DClippingRegion : ClippingRegion
+    public class Direct2DClipping
     {
         /// <summary>
-        /// Pushes this clipping region's area on top of a given Direct2D rendering state.
+        /// Pushes a clipping region's area on top of a given Direct2D rendering state.
         /// </summary>
-        public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state)
+        public static IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] ClippingRegion clippingRegion)
         {
             var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
 
-            var aabbClips = RedrawRegionRectangles(size).Select(rect => (AABB) rect).ToArray();
+            var aabbClips = clippingRegion.RedrawRegionRectangles(size).Select(rect => (AABB) rect).ToArray();
 
             // If we're only working with a single rectangular clip, use a plain axis-aligned clip
             if (aabbClips.Length == 1)
@@ -97,9 +97,9 @@ namespace PixDirectX.Rendering
         }
 
         /// <summary>
-        /// Pops a clipping state that was created by this <see cref="Direct2DClippingRegion"/> from a given Direct2D rendering state.
+        /// Pops a clipping state that was created by this <see cref="Direct2DClipping"/> from a given Direct2D rendering state.
         /// </summary>
-        public virtual void PopDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
+        public static void PopDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] IDirect2DClippingState clipState)
         {
             switch (clipState)
             {

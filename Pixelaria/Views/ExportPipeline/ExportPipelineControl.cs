@@ -60,7 +60,7 @@ namespace Pixelaria.Views.ExportPipeline
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
 
-        private readonly Direct2DClippingRegion _clippingRegion = new Direct2DClippingRegion();
+        private readonly ClippingRegion _clippingRegion = new ClippingRegion();
 
         #region Intrinsic Features
 
@@ -214,11 +214,11 @@ namespace Pixelaria.Views.ExportPipeline
                 return;
 
             // Use clipping region
-            var clipState = _clippingRegion.PushDirect2DClipping((IDirect2DRenderingState)state);
+            var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, _clippingRegion);
 
             RendererManager.Render(state, _clippingRegion);
 
-            _clippingRegion.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
+            Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 
             _clippingRegion.Clear();
         }
