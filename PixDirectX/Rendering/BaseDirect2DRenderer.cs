@@ -434,7 +434,6 @@ namespace PixDirectX.Rendering
                     WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.TextFormatAttributes.WordWrap)
                 };
 
-
                 using (var textFormat = format)
                 using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight))
                 {
@@ -514,33 +513,11 @@ namespace PixDirectX.Rendering
 
     public sealed class WrappedDirect2DRenderer : IRenderer, IDisposable
     {
-        private Brush _strokeBrush;
-        private Brush _fillBrush;
-        private Color _strokeColor;
-        private Color _fillColor;
+        private InternalBrush _strokeBrush;
+        private InternalBrush _fillBrush;
 
         private readonly IDirect2DRenderingState _state;
         private readonly ID2DImageResourceProvider _imageResource;
-
-        public Color FillColor
-        {
-            get => _fillColor;
-            set
-            {
-                _fillColor = value;
-                RecreateFillBrush();
-            }
-        }
-
-        public Color StrokeColor
-        {
-            get => _strokeColor;
-            set
-            {
-                _strokeColor = value;
-                RecreateStrokeBrush();
-            }
-        }
 
         public float StrokeWidth { get; set; } = 1;
 
@@ -554,8 +531,8 @@ namespace PixDirectX.Rendering
         {
             _state = state;
             _imageResource = imageResource;
-            RecreateStrokeBrush();
-            RecreateFillBrush();
+            _strokeBrush = new InternalSolidBrush(state.D2DRenderTarget, Color.Black);
+            _fillBrush = new InternalSolidBrush(state.D2DRenderTarget, Color.Black);
         }
 
         public void Dispose()
@@ -564,26 +541,14 @@ namespace PixDirectX.Rendering
             _fillBrush?.Dispose();
         }
 
-        private void RecreateStrokeBrush()
-        {
-            _strokeBrush?.Dispose();
-            _strokeBrush = new SolidColorBrush(_state.D2DRenderTarget, StrokeColor.ToColor4());
-        }
-
-        private void RecreateFillBrush()
-        {
-            _fillBrush?.Dispose();
-            _fillBrush = new SolidColorBrush(_state.D2DRenderTarget, FillColor.ToColor4());
-        }
-
         private Brush BrushForStroke()
         {
-            return _strokeBrush;
+            return _strokeBrush.Brush;
         }
 
         private Brush BrushForFill()
         {
-            return _fillBrush;
+            return _fillBrush.Brush;
         }
 
         #region Stroke
@@ -602,7 +567,7 @@ namespace PixDirectX.Rendering
         {
             var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
 
-            _state.D2DRenderTarget.DrawEllipse(ellipse, _strokeBrush, StrokeWidth);
+            _state.D2DRenderTarget.DrawEllipse(ellipse, BrushForStroke(), StrokeWidth);
         }
 
         public void StrokeRectangle(RectangleF rectangle)
@@ -792,7 +757,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void SetStrokeColor(Color color)
         {
-            _strokeBrush = new SolidColorBrush(_state.D2DRenderTarget, color.ToColor4());
+            _strokeBrush?.Dispose();
+            _strokeBrush = new InternalSolidBrush(_state.D2DRenderTarget, color);
         }
 
         /// <summary>
@@ -800,7 +766,11 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void SetStrokeBrush(IBrush brush)
         {
-            _strokeBrush = CastBrushOrFailure(brush).Brush;
+            if (brush == _strokeBrush)
+                return;
+
+            _strokeBrush?.Dispose();
+            _strokeBrush = CastBrushOrFailure(brush);
         }
 
         /// <summary>
@@ -808,7 +778,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void SetFillColor(Color color)
         {
-            _fillBrush = new SolidColorBrush(_state.D2DRenderTarget, color.ToColor4());
+            _fillBrush?.Dispose();
+            _fillBrush = new InternalSolidBrush(_state.D2DRenderTarget, color);
         }
 
         /// <summary>
@@ -816,7 +787,11 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void SetFillBrush(IBrush brush)
         {
-            _fillBrush = CastBrushOrFailure(brush).Brush;
+            if (brush == _fillBrush)
+                return;
+
+            _fillBrush?.Dispose();
+            _fillBrush = CastBrushOrFailure(brush);
         }
 
         /// <summary>
@@ -854,8 +829,20 @@ namespace PixDirectX.Rendering
             }
         }
 
+        private class InternalSolidBrush : InternalBrush, ISolidBrush
+        {
+            public Color Color { get; }
+
+            public InternalSolidBrush(RenderTarget renderTarget, Color color)
+            {
+                Color = color;
+                Brush = new SolidColorBrush(renderTarget, color.ToColor4());
+            }
+        }
+
         private class InternalLinearBrush : InternalBrush, ILinearGradientBrush
         {
+            private readonly GradientStopCollection _stopCollection;
             public IReadOnlyList<PixGradientStop> GradientStops { get; }
 
             public InternalLinearBrush(RenderTarget renderTarget, [NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
@@ -869,6 +856,15 @@ namespace PixDirectX.Rendering
                 };
 
                 Brush = new LinearGradientBrush(renderTarget, properties, stops);
+                _stopCollection = stops;
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+
+                if(disposing)
+                    _stopCollection.Dispose();
             }
 
             private static GradientStop ToGradientStop(PixGradientStop stop)

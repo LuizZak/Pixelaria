@@ -177,88 +177,85 @@ namespace Pixelaria.Views.ExportPipeline
             var renderingState = parameters.State;
             var clippingRegion = parameters.ClippingRegion;
 
-            renderingState.PushingTransform(() =>
+            var transform = _container.ContentsView.GetAbsoluteTransform();
+
+            var topLeft = _container.ContentsView.ConvertFrom(Vector.Zero, null);
+
+            var scale = Vector.Unit;
+            var gridOffset = topLeft;
+
+            // Raw, non-transformed target grid separation.
+            var baseGridSize = new Vector(100, 100);
+
+            // Scale grid to increments of baseGridSize over zoom step.
+            var largeGridSize = Vector.Round(baseGridSize * scale);
+            var smallGridSize = largeGridSize / 10;
+
+            var reg = new RectangleF(topLeft, new SizeF(_control.Size / _container.ContentsView.Scale));
+
+            float startX = gridOffset.X;
+            float endX = reg.Right;
+
+            float startY = gridOffset.Y;
+            float endY = reg.Bottom;
+
+            var smallGridColor = Color.FromArgb(40, 40, 40).ToColor4();
+            var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
+
+            // Draw small grid (when zoomed in enough)
+            if (_container.ContentsView.Scale > new Vector(1.5f, 1.5f))
             {
-                var transform = _container.ContentsView.GetAbsoluteTransform();
-
-                var topLeft = _container.ContentsView.ConvertFrom(Vector.Zero, null);
-
-                var scale = Vector.Unit;
-                var gridOffset = topLeft;
-
-                // Raw, non-transformed target grid separation.
-                var baseGridSize = new Vector(100, 100);
-
-                // Scale grid to increments of baseGridSize over zoom step.
-                var largeGridSize = Vector.Round(baseGridSize * scale);
-                var smallGridSize = largeGridSize / 10;
-                
-                var reg = new RectangleF(topLeft, new SizeF(_control.Size / _container.ContentsView.Scale));
-
-                float startX = gridOffset.X;
-                float endX = reg.Right;
-
-                float startY = gridOffset.Y;
-                float endY = reg.Bottom;
-
-                var smallGridColor = Color.FromArgb(40, 40, 40).ToColor4();
-                var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
-
-                // Draw small grid (when zoomed in enough)
-                if (_container.ContentsView.Scale > new Vector(1.5f, 1.5f))
+                using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
                 {
-                    using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
-                    {
-                        for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
-                        {
-                            var start = new Vector(x, reg.Top) * transform;
-                            var end = new Vector(x, reg.Bottom) * transform;
-
-                            if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(1, 0)))
-                                continue;
-
-                            renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
-                        }
-
-                        for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
-                        {
-                            var start = new Vector(reg.Left, y) * transform;
-                            var end = new Vector(reg.Right, y) * transform;
-
-                            if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(0, 1)))
-                                continue;
-
-                            renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
-                        }
-                    }
-                }
-
-                // Draw large grid on top
-                using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, largeGridColor))
-                {
-                    for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
+                    for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
                     {
                         var start = new Vector(x, reg.Top) * transform;
                         var end = new Vector(x, reg.Bottom) * transform;
 
-                        if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(1, 0)))
+                        if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(1, 0)))
                             continue;
 
                         renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                     }
 
-                    for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
+                    for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
                     {
                         var start = new Vector(reg.Left, y) * transform;
                         var end = new Vector(reg.Right, y) * transform;
 
-                        if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(0, 1)))
+                        if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(0, 1)))
                             continue;
 
                         renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
                     }
                 }
-            });
+            }
+
+            // Draw large grid on top
+            using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, largeGridColor))
+            {
+                for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
+                {
+                    var start = new Vector(x, reg.Top) * transform;
+                    var end = new Vector(x, reg.Bottom) * transform;
+
+                    if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(1, 0)))
+                        continue;
+
+                    renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
+                }
+
+                for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
+                {
+                    var start = new Vector(reg.Left, y) * transform;
+                    var end = new Vector(reg.Right, y) * transform;
+
+                    if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(0, 1)))
+                        continue;
+
+                    renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
+                }
+            }
         }
 
         #endregion
@@ -563,6 +560,8 @@ namespace Pixelaria.Views.ExportPipeline
 
             Renderer.Transform = _nodeView.GetAbsoluteTransform();
 
+            var disposeBag = new InternalDirect2DRenderListener.DisposeBag();
+
             // Create rendering states for decorators
             var stepViewState = new PipelineStepViewState
             {
@@ -595,6 +594,8 @@ namespace Pixelaria.Views.ExportPipeline
                 new PixGradientStop(stepViewState.FillColor.Faded(Color.Black, 0.1f), 1)
             }, Vector.Zero, new Vector(0, Bounds.Height));
 
+            disposeBag.AddDisposable(bodyFillBrush);
+
             DrawConnectionLabelsBackground(roundedRectGeom, bodyFillBrush);
             DrawConnectionsBackground(roundedRectGeom);
             DrawTitleBackground(roundedRectGeom, stepViewState);
@@ -603,6 +604,8 @@ namespace Pixelaria.Views.ExportPipeline
             DrawIcon(TitleArea);
             DrawTitleText(textFormat, stepViewState);
             DrawLinkViews(decorators);
+
+            disposeBag.Dispose();
         }
 
         private void DrawConnectionLabelsBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry, [NotNull] IBrush bodyFillGradientBrush)

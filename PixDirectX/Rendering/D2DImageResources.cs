@@ -110,7 +110,7 @@ namespace PixDirectX.Rendering
 
         public SharpDX.Direct2D1.Bitmap BitmapForResource(string name)
         {
-            return _bitmapResources.TryGetValue(name, out SharpDX.Direct2D1.Bitmap bitmap) ? bitmap : null;
+            return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
         }
     }
 }
