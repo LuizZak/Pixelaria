@@ -55,6 +55,7 @@ namespace PixDirectX.Rendering
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
+        private WrappedDirect2DRenderer _wrappedDirect2D;
 
         private bool _isRefreshingState;
 
@@ -126,6 +127,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         public virtual void InvalidateState()
         {
+            _wrappedDirect2D?.Dispose();
+            _wrappedDirect2D = null;
             TextColorRenderer.DefaultBrush.Dispose();
 
             _isRefreshingState = true;
@@ -136,6 +139,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         protected virtual void RecreateState([NotNull] IDirect2DRenderingState state)
         {
+            _wrappedDirect2D = new WrappedDirect2DRenderer(state, ImageResources);
+
             foreach (var listener in RenderListeners)
             {
                 listener.RecreateState(state);
@@ -278,7 +283,7 @@ namespace PixDirectX.Rendering
         public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
             var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer,
-                this, TextMetricsProvider, new WrappedDirect2DRenderer(state, ImageResources), new InnerTextRenderer(TextColorRenderer));
+                this, TextMetricsProvider, _wrappedDirect2D, new InnerTextRenderer(TextColorRenderer));
 
             return parameters;
         }
