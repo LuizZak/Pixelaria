@@ -35,6 +35,15 @@ namespace PixDirectX.Rendering
         public HorizontalTextAlignment HorizontalTextAlignment { get; set; }
         public VerticalTextAlignment VerticalTextAlignment { get; set; }
         public TextWordWrap WordWrap { get; set; }
+
+        public TextFormatAttributes([NotNull] string font, float fontSize)
+        {
+            Font = font;
+            FontSize = fontSize;
+            HorizontalTextAlignment = HorizontalTextAlignment.Leading;
+            VerticalTextAlignment = VerticalTextAlignment.Near;
+            WordWrap = TextWordWrap.None;
+        }
     }
 
     /// <summary>

@@ -338,7 +338,7 @@ namespace PixUI
             }
         }
 
-        private class GraphicsPathInputSink: IPathInputSink
+        private class GraphicsPathInputSink : IPathInputSink
         {
             private readonly GraphicsPath _graphicsPath;
             private Vector _point;
@@ -372,7 +372,7 @@ namespace PixUI
 
             public void AddRectangle(AABB rectangle)
             {
-                _graphicsPath.AddRectangle((Rectangle)rectangle);
+                _graphicsPath.AddRectangle((Rectangle) rectangle);
                 _point = rectangle.Minimum;
             }
 

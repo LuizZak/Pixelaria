@@ -55,16 +55,6 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly IPipelineContainer _container; // For relative position calculations
         private readonly IExportPipelineControl _control;
 
-        /// <summary>
-        /// A small 32x32 box used to draw shadow boxes for labels.
-        /// </summary>
-        private SharpDX.Direct2D1.Bitmap _shadowBox;
-
-        /// <summary>
-        /// For rendering title of pipeline nodes
-        /// </summary>
-        private TextFormat _nodeTitlesTextFormat;
-
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
 
         public InternalDirect2DRenderListener(IPipelineContainer container, IExportPipelineControl control)
@@ -73,32 +63,12 @@ namespace Pixelaria.Views.ExportPipeline
             _control = control;
         }
 
-        protected void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _shadowBox.Dispose();
-
-                _nodeTitlesTextFormat.Dispose();
-            }
-        }
-
         public void RecreateState(IDirect2DRenderingState state)
         {
-            _nodeTitlesTextFormat?.Dispose();
-
-            _nodeTitlesTextFormat = new TextFormat(state.DirectWriteFactory, "Microsoft Sans Serif", 11)
-            {
-                TextAlignment = TextAlignment.Leading, 
-                ParagraphAlignment = ParagraphAlignment.Center
-            };
-
             // Create shadow box image
             using (var bitmap = new Bitmap(64, 64))
             {
                 FastBitmap.ClearBitmap(bitmap, Color.Black);
-                _shadowBox?.Dispose();
-                _shadowBox = BaseDirect2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
             }
         }
 
