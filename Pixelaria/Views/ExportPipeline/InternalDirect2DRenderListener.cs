@@ -560,8 +560,6 @@ namespace Pixelaria.Views.ExportPipeline
 
             Renderer.Transform = _nodeView.GetAbsoluteTransform();
 
-            var disposeBag = new InternalDirect2DRenderListener.DisposeBag();
-
             // Create rendering states for decorators
             var stepViewState = new PipelineStepViewState
             {
@@ -594,8 +592,6 @@ namespace Pixelaria.Views.ExportPipeline
                 new PixGradientStop(stepViewState.FillColor.Faded(Color.Black, 0.1f), 1)
             }, Vector.Zero, new Vector(0, Bounds.Height));
 
-            disposeBag.AddDisposable(bodyFillBrush);
-
             DrawConnectionLabelsBackground(roundedRectGeom, bodyFillBrush);
             DrawConnectionsBackground(roundedRectGeom);
             DrawTitleBackground(roundedRectGeom, stepViewState);
@@ -604,8 +600,6 @@ namespace Pixelaria.Views.ExportPipeline
             DrawIcon(TitleArea);
             DrawTitleText(textFormat, stepViewState);
             DrawLinkViews(decorators);
-
-            disposeBag.Dispose();
         }
 
         private void DrawConnectionLabelsBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry, [NotNull] IBrush bodyFillGradientBrush)
