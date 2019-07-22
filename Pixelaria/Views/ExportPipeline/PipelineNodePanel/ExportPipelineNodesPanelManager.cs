@@ -437,7 +437,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                     renderer.ClippingRegion = new FullClippingRegion();
 
-                    renderLoop.InitializeDirect2D();
+                    renderLoop.Initialize();
                     renderLoop.RenderSingleFrame(state =>
                     {
                         state.Transform = Matrix2D.Translation(bitmapOffset).ToRawMatrix3X2();

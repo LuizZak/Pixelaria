@@ -38,7 +38,7 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// Initializes the Direct2D rendering state, but do not start the render loop yet.
         /// </summary>
-        void InitializeDirect2D();
+        void Initialize();
 
         /// <summary>
         /// Renders a single frame using a given closure as the actual content rendering delegate.
@@ -46,5 +46,39 @@ namespace PixDirectX.Rendering
         /// This method returns immediately after rendering the frame.
         /// </summary>
         void RenderSingleFrame([NotNull, InstantHandle] Action<IDirect2DRenderingState> render);
+    }
+
+    /// <summary>
+    /// An interface for an object capable of performing a synchronous render loop.
+    /// </summary>
+    public interface IRenderLoopManager: IDisposable
+    {
+        /// <summary>
+        /// Initializes this render loop manager.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
+        /// Renders a single frame using a given closure as the actual content rendering delegate.
+        /// 
+        /// This method returns immediately after rendering the frame.
+        /// </summary>
+        void RenderSingleFrame([NotNull, InstantHandle] Action<IRenderLoopState> render);
+    }
+
+    /// <summary>
+    /// The state for a single render loop invocation.
+    /// </summary>
+    public interface IRenderLoopState
+    {
+        /// <summary>
+        /// Gets the renderer for this render loop state.
+        /// </summary>
+        IRenderer Renderer { get; }
+
+        /// <summary>
+        /// Gets the currently active clipping region.
+        /// </summary>
+        IClippingRegion ClippingRegion { get; }
     }
 }

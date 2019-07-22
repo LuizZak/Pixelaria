@@ -95,7 +95,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 var last = LabelView.DefaultLabelViewSizeProvider;
                 LabelView.DefaultLabelViewSizeProvider = renderer.SizeProvider;
 
-                renderLoop.InitializeDirect2D();
+                renderLoop.Initialize();
 
                 ImagesConfig?.Invoke(renderer.ImageResources, renderLoop.RenderingState);
                 ImagesConfig = null; // Always erase after each snapshot to make sure we don't accidentally carry over resources across snapshot tests

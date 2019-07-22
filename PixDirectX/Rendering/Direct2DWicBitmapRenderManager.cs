@@ -86,7 +86,7 @@ namespace PixDirectX.Rendering
         }
 
         /// <inheritdoc />
-        public void InitializeDirect2D()
+        public void Initialize()
         {
             var d3Device1 = _d3DDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
 

@@ -243,7 +243,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             using (var factory = new SharpDX.Direct2D1.Factory())
             using (var renderManager = new Direct2DRenderLoopManager(control, factory))
             {
-                renderManager.InitializeDirect2D();
+                renderManager.Initialize();
 
                 renderManager.RenderSingleFrame(state =>
                 {

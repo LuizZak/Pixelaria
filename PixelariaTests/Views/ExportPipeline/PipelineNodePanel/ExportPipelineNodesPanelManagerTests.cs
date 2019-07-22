@@ -57,7 +57,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
                 Container = {Size = _control.Size}
             };
             _renderer = new Direct2DRenderLoopManager(_control, DxSupport.D2DFactory);
-            _renderer.InitializeDirect2D();
+            _renderer.Initialize();
 
             PipelineControlConfigurator.Configure(_control, _renderer.RenderingState);
 

@@ -112,7 +112,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager = new Direct2DRenderLoopManager(exportPipelineControl, DxSupport.D2DFactory, DxSupport.D3DDevice);
 
-            _direct2DLoopManager.InitializeDirect2D();
+            _direct2DLoopManager.Initialize();
 
             exportPipelineControl.InitializeDirect2DRenderer(_direct2DLoopManager.RenderingState);
             ConfigureForm();

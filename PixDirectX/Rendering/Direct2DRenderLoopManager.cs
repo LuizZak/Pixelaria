@@ -56,6 +56,7 @@ namespace PixDirectX.Rendering
         private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
         private readonly Factory _d2DFactory;
         private readonly Device _d3DDevice;
+        [CanBeNull]
         private DeviceDebug _deviceDebug;
 
         /// <summary>
@@ -107,15 +108,17 @@ namespace PixDirectX.Rendering
         {
             _frameDeltaTimer.Stop();
             _renderingState.Dispose();
-            _deviceDebug.Dispose();
+            _deviceDebug?.Dispose();
         }
         
         /// <summary>
         /// Initializes the Direct2D rendering state, but do not start the render loop yet.
         /// </summary>
-        public void InitializeDirect2D()
+        public void Initialize()
         {
+#if DEBUG
             _deviceDebug = new DeviceDebug(_d3DDevice);
+#endif
 
             var d3Device1 = _d3DDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
 

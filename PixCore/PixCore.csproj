@@ -91,6 +91,7 @@
     <Compile Include="Geometry\Algorithms\RectangleDissection.cs" />
     <Compile Include="Geometry\Algorithms\TotalRectanglesArea.cs" />
     <Compile Include="Geometry\DrawingUtilities.cs" />
+    <Compile Include="Geometry\IRegion.cs" />
     <Compile Include="Geometry\ISpatialReference.cs" />
     <Compile Include="Geometry\Matrix2D.cs" />
     <Compile Include="Geometry\PolyGeometry.cs" />

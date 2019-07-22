@@ -177,7 +177,7 @@ namespace PixDirectXTests.Rendering
             {
                 _bitmap = new WicBitmap(factory, 2, 2, pixelFormat, bitmapCreateCacheOption);
                 _renderer = new Direct2DWicBitmapRenderManager(_bitmap, _factory);
-                _renderer.InitializeDirect2D();
+                _renderer.Initialize();
             }
         }
 

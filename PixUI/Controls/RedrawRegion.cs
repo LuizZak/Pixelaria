@@ -29,7 +29,7 @@ namespace PixUI.Controls
     /// <summary>
     /// Specifies a compounded region of axis-aligned rectangles that represent a redraw region request.
     /// </summary>
-    public class RedrawRegion
+    public class RedrawRegion: IRegion
     {
         private readonly List<AABB> _rectangles = new List<AABB>();
 

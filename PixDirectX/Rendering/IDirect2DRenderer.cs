@@ -57,6 +57,13 @@ namespace PixDirectX.Rendering
         IClippingRegion ClippingRegion { get; }
 
         /// <summary>
+        /// Updates the rendering state and clipping region of this Direct2D renderer instance to the ones specified.
+        /// 
+        /// Must be called whenever devices/surfaces/etc. have been invalidated or the clipping region has been changed.
+        /// </summary>
+        void UpdateRenderingState([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping);
+
+        /// <summary>
         /// Adds a new render listener which will be invoked when rendering is being performed.
         /// </summary>
         void AddRenderListener(IRenderListener renderListener);
