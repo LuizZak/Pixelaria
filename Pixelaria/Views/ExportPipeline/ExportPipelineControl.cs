@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly Timer _fixedTimer;
 
         private readonly InternalRenderListener _internalRenderer;
-        private readonly Direct2DRenderer _d2DRenderer;
+        private readonly Direct2DRenderer _d2DRendererManager;
         
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
 
@@ -96,22 +96,22 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the image resources provider for this pipeline control
         /// </summary>
-        public IImageResourceManager ImageResources => _d2DRenderer.ImageResources;
+        public IImageResourceManager ImageResources => _d2DRendererManager.ImageResources;
 
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
-        public IExportPipelineDirect2DRenderer D2DRenderer => _d2DRenderer;
+        public IExportPipelineRendererManager D2DRendererManager => _d2DRendererManager;
 
         /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
-        public ILabelViewSizeProvider LabelViewSizeProvider => _d2DRenderer.LabelViewSizeProvider;
+        public ILabelViewSizeProvider LabelViewSizeProvider => _d2DRendererManager.LabelViewSizeProvider;
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control
         /// </summary>
-        public ITextMetricsProvider TextMetricsProvider => _d2DRenderer.TextMetricsProvider;
+        public ITextMetricsProvider TextMetricsProvider => _d2DRendererManager.TextMetricsProvider;
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control
@@ -132,8 +132,8 @@ namespace Pixelaria.Views.ExportPipeline
             _container = new InternalPipelineContainer(this);
 
             _internalRenderer = new InternalRenderListener(_container, this);
-            _d2DRenderer = new Direct2DRenderer();
-            _d2DRenderer.AddRenderListener(_internalRenderer);
+            _d2DRendererManager = new Direct2DRenderer();
+            _d2DRendererManager.AddRenderListener(_internalRenderer);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             
@@ -154,7 +154,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             if (disposing)
             {
-                _d2DRenderer.Dispose();
+                _d2DRendererManager.Dispose();
 
                 _fixedTimer.Tick -= fixedTimer_Tick;
                 _fixedTimer.Dispose();
@@ -199,12 +199,12 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void InitializeDirect2DRenderer([NotNull] IDirect2DRenderingState state)
         {
-            _d2DRenderer.Initialize(state);
+            _d2DRendererManager.Initialize(state);
         }
 
         public void RenderDirect2D([NotNull] IDirect2DRenderingState state)
         {
-            if (_d2DRenderer == null)
+            if (_d2DRendererManager == null)
                 throw new InvalidOperationException(
                     $"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(RenderDirect2D)}.");
 
@@ -217,7 +217,7 @@ namespace Pixelaria.Views.ExportPipeline
             // Use clipping region
             var clipState = _clippingRegion.PushDirect2DClipping(state);
 
-            _d2DRenderer.Render(state, _clippingRegion);
+            _d2DRendererManager.Render(state, _clippingRegion);
 
             _clippingRegion.PopDirect2DClipping(state, clipState);
 

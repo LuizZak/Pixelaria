@@ -25,7 +25,7 @@ using PixUI;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    internal interface IExportPipelineDirect2DRenderer : IDirect2DRenderer
+    internal interface IExportPipelineRendererManager : IRendererManager
     {
         /// <summary>
         /// Gets the label view size provider stored on this export pipeline Direct2D renderer

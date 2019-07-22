@@ -58,7 +58,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             private const float DistanceToDrag = 5;
 
             [NotNull] 
-            private readonly IExportPipelineDirect2DRenderer _pipelineDirect2DRenderer;
+            private readonly IExportPipelineRendererManager _pipelineRendererManager;
 
             [NotNull] 
             private readonly IInvalidatableControl _invalidatableControl;
@@ -74,13 +74,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
                 [NotNull] PipelineNodeSpec nodeSpec,
                 [NotNull] IInvalidatableControl invalidatableControl,
-                [NotNull] IExportPipelineDirect2DRenderer pipelineDirect2DRenderer, 
+                [NotNull] IExportPipelineRendererManager pipelineRendererManager, 
                 [NotNull] IPipelineNodeButtonDragAndDropHandlerDelegate @delegate)
             {
                 _buttonControl = buttonControl;
                 _nodeSpec = nodeSpec;
                 _invalidatableControl = invalidatableControl;
-                _pipelineDirect2DRenderer = pipelineDirect2DRenderer;
+                _pipelineRendererManager = pipelineRendererManager;
                 _delegate = @delegate;
 
                 Setup(buttonControl);
@@ -104,7 +104,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 }
 
                 var renderListener =
-                    new PipelineNodeDragRenderListener(_nodeSpec, _pipelineDirect2DRenderer.ImageResources);
+                    new PipelineNodeDragRenderListener(_nodeSpec, _pipelineRendererManager.ImageResources);
 
                 _disposeBag.Add(renderListener);
 
@@ -148,7 +148,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                                     break;
                             }
 
-                            _pipelineDirect2DRenderer.RemoveRenderListener(renderListener);
+                            _pipelineRendererManager.RemoveRenderListener(renderListener);
                         }
 
                         isDraggingPreview = false;
@@ -162,7 +162,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                         {
                             isDraggingPreview = true;
 
-                            _pipelineDirect2DRenderer.AddRenderListener(renderListener);
+                            _pipelineRendererManager.AddRenderListener(renderListener);
                         }
 
                         if (isDraggingPreview)

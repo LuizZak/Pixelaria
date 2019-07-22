@@ -69,7 +69,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             InitializeComponent();
             
-            exportPipelineControl.BackColor = exportPipelineControl.D2DRenderer.BackColor;
+            exportPipelineControl.BackColor = exportPipelineControl.D2DRendererManager.BackColor;
         }
 
         /// <summary>
@@ -653,7 +653,7 @@ namespace Pixelaria.Views.ExportPipeline
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
             control.SizeChanged += ControlOnSizeChanged;
 
-            control.D2DRenderer.AddRenderListener(this);
+            control.D2DRendererManager.AddRenderListener(this);
         }
 
         private void ControlOnSizeChanged(object sender, EventArgs e)

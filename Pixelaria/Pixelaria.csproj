@@ -261,7 +261,7 @@
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
-    <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\IExportPipelineRendererManager.cs" />
     <Compile Include="Views\ExportPipeline\InternalRenderListener.cs" />
     <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
     <Compile Include="Views\ExportPipeline\IRenderingDecorator.cs" />

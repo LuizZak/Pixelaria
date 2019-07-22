@@ -31,32 +31,32 @@ using Rectangle = System.Drawing.Rectangle;
 namespace PixDirectX.Rendering
 {
     /// <summary>
-    /// Public interface for the Export Pipeline's Direct2D renderer
+    /// Public interface for the Export Pipeline's renderer manager
     /// </summary>
-    public interface IDirect2DRenderer : ITextLayoutRenderer
+    public interface IRendererManager : ITextLayoutRenderer
     {
         /// <summary>
-        /// Gets or sets the background color that this Direct2D renderer uses to clear the display area
+        /// Gets or sets the background color that this renderer manager uses to clear the display area
         /// </summary>
         Color BackColor { get; set; }
 
         /// <summary>
-        /// Gets the image resources manager for this Direct2D renderer
+        /// Gets the image resources manager for this renderer manager
         /// </summary>
         IImageResourceManager ImageResources { get; }
 
         /// <summary>
-        /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IDirect2DRenderer"/>
+        /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IRendererManager"/>
         /// </summary>
         ITextMetricsProvider TextMetricsProvider { get; }
         
         /// <summary>
-        /// The clipping region for this Direct2D renderer
+        /// The clipping region for this renderer manager
         /// </summary>
         IClippingRegion ClippingRegion { get; }
 
         /// <summary>
-        /// Updates the rendering state and clipping region of this Direct2D renderer instance to the ones specified.
+        /// Updates the rendering state and clipping region of this renderer manager instance to the ones specified.
         /// 
         /// Must be called whenever devices/surfaces/etc. have been invalidated or the clipping region has been changed.
         /// </summary>
@@ -148,7 +148,7 @@ namespace PixDirectX.Rendering
     }
 
     /// <summary>
-    /// Represents a common interface for an object that provides clipping region querying for a <see cref="IDirect2DRenderer"/>.
+    /// Represents a common interface for an object that provides clipping region querying for a <see cref="IRendererManager"/>.
     /// </summary>
     public interface IClippingRegion
     {

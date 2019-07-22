@@ -46,11 +46,11 @@ using TextRange = SharpDX.DirectWrite.TextRange;
 
 namespace PixDirectX.Rendering
 {
-    /// <inheritdoc cref="IDirect2DRenderer" />
+    /// <inheritdoc cref="IRendererManager" />
     /// <summary>
     /// Base Direct2D renderer class that other packages may inherit from to provide custom rendering logic
     /// </summary>
-    public abstract class BaseDirect2DRenderer : IDisposable, IDirect2DRenderer, IDirect2DRenderingStateProvider
+    public abstract class BaseDirect2DRenderer : IDisposable, IRendererManager, IDirect2DRenderingStateProvider
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
