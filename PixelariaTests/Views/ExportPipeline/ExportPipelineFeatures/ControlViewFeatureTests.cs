@@ -47,7 +47,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         public void TestIgnoreRenderingClipToBoundsOutOfView()
         {
             // Arrange
-            var controlViewFeature = new ControlViewFeature(new ExportPipelineControl());
+            var controlViewFeature = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
             var sut = new ViewRenderingVisitor();
 
             var mockChild1 = MockRepository.GeneratePartialMock<ControlView>();
@@ -71,7 +71,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         public void TestDontIgnoreRenderingNonClippedToBoundsOutOfView()
         {
             // Arrange
-            var controlViewFeature = new ControlViewFeature(new ExportPipelineControl());
+            var controlViewFeature = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
             var sut = new ViewRenderingVisitor();
 
             var mockChild1 = MockRepository.GeneratePartialMock<ControlView>();
@@ -95,7 +95,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         [TestMethod]
         public void TestOnMouseDown()
         {
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var ev = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
 
@@ -116,7 +116,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         [TestMethod]
         public void TestOnMouseUp()
         {
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var ev = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
 
@@ -140,7 +140,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         {
             // OnMouseUp should only fire on controls which have been pressed down
             // with OnMouseDown beforehand
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var ev = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
 
@@ -162,7 +162,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             // Test that the mouse up event is also fired when the user presses
             // down, leaves the view, and presses up outside of the view's bounds.
 
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var evDown = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
             var evMove = new MouseEventArgs(MouseButtons.Left, 0, -10, -10, 0);
@@ -191,7 +191,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             // down, and quickly releases outside of the view's bounds before the
             // feature can detect a mouse move event.
 
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var evDown = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
             var evUp = new MouseEventArgs(MouseButtons.Left, 0, -10, -10, 0);
@@ -217,7 +217,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             // OnMouseClick is called when both OnMouseDown and OnMouseUp occur on top
             // of the same control
 
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var evOver = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
             var evNotOver = new MouseEventArgs(MouseButtons.Left, 0, -100, -100, 0);
@@ -260,7 +260,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             // Tests a full sequence of mouse move events where the proper
             // sequence of mouse enter/move/leave events are fired.
 
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var evOver = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
             var evNotOver = new MouseEventArgs(MouseButtons.Left, 0, -100, 100, 0);
@@ -293,7 +293,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         [TestMethod]
         public void TestTextFieldControlSample()
         {
-            var sut = new ControlViewFeature(new ExportPipelineControl());
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderer());
 
             var textField = TextField.Create();
             textField.Location = new Vector();

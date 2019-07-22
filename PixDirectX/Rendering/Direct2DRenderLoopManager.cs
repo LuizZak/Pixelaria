@@ -208,6 +208,7 @@ namespace PixDirectX.Rendering
         {
             bool isOccluded = false;
             bool quitLoop = false;
+            bool isFirstLoop = true;
             
             using (var renderLoop = new RenderLoop(_target) { UseApplicationDoEvents = false })
             {
@@ -238,10 +239,12 @@ namespace PixDirectX.Rendering
 
                     var parameters = new PresentParameters
                     {
-                        DirtyRectangles = rects,
+                        DirtyRectangles = isFirstLoop ? null : rects,
                         ScrollOffset = null,
                         ScrollRectangle = null
                     };
+
+                    isFirstLoop = false;
 
                     // Test if we're in occluded state
                     if (_renderingState.SwapChain.Present(0, PresentFlags.Test) == (int)DXGIStatus.Occluded)

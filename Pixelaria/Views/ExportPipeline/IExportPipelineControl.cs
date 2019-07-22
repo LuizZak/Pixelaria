@@ -60,11 +60,6 @@ namespace Pixelaria.Views.ExportPipeline
         IImageResourceManager ImageResources { get; }
         
         /// <summary>
-        /// Gets the Direct2D renderer initialized for this control
-        /// </summary>
-        IExportPipelineRendererManager RendererManager { get; }
-
-        /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
         ILabelViewSizeProvider LabelViewSizeProvider { get; }

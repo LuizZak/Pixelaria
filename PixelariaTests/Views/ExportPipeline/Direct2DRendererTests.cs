@@ -303,10 +303,11 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var renderManager = new Direct2DRenderLoopManager(_control, factory))
             {
                 renderManager.Initialize();
-
+                var renderer = new TestDirect2DRenderer();
+                renderer.Initialize(renderManager.RenderingState);
                 renderManager.RenderSingleFrame(state =>
                 {
-                    _control.InitializeRenderer(_control.RendererManager, state);
+                    _control.InitializeRenderer(renderer);
                     if (context.ImageResources != null)
                     {
                         foreach (var pair in context.ImageResources)

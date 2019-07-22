@@ -22,6 +22,7 @@
 
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
+using Pixelaria.Views.ExportPipeline;
 using PixUI;
 using PixUI.Rendering;
 
@@ -32,10 +33,11 @@ namespace PixelariaTests.Views.ExportPipeline
     /// <summary>
     /// Basic rendering shim for snapshot tests
     /// </summary>
-    public class TestDirect2DRenderer : BaseDirect2DRenderer
+    public class TestDirect2DRenderer : BaseDirect2DRenderer, IExportPipelineRendererManager
     {
         private DefaultLabelViewSizeProvider _sizeProvider;
         public ILabelViewSizeProvider SizeProvider => _sizeProvider;
+        public ILabelViewSizeProvider LabelViewSizeProvider => _sizeProvider;
 
         public void Initialize([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {

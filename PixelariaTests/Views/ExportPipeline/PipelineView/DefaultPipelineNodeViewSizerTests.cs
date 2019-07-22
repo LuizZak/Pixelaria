@@ -254,7 +254,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
                     PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);
 
-                    control.InitializeRenderer(control.RendererManager, state);
+                    control.InitializeRenderer(renderer);
 
                     testAction(new StaticDirect2DRenderingStateProvider(state));
                 });

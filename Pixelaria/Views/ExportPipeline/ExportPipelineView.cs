@@ -55,7 +55,8 @@ namespace Pixelaria.Views.ExportPipeline
     public partial class ExportPipelineView : PxlRenderForm
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        
+        private readonly Direct2DRenderer _renderManager = new Direct2DRenderer();
+
         private ExportPipelineNodesPanelManager _panelManager;
         private BitmapPreviewPipelineWindowManager _previewManager;
 
@@ -109,7 +110,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager.Initialize();
 
-            exportPipelineControl.InitializeRenderer(exportPipelineControl.RendererManager, _direct2DLoopManager.RenderingState);
+            _renderManager.Initialize(_direct2DLoopManager.RenderingState);
+
+            exportPipelineControl.InitializeRenderer(_renderManager);
             ConfigureForm();
 
             _direct2DLoopManager.InvalidatedState += (sender, args) =>
@@ -117,11 +120,13 @@ namespace Pixelaria.Views.ExportPipeline
                 exportPipelineControl.InvalidateState();
             };
 
+            exportPipelineControl.InvalidateAll();
+
             _direct2DLoopManager.StartRenderLoop(state =>
             {
                 var rects = exportPipelineControl.ClippingRegionRectangles;
 
-                exportPipelineControl.Render(exportPipelineControl.RendererManager, _direct2DLoopManager.RenderingState);
+                exportPipelineControl.Render(_renderManager, _direct2DLoopManager.RenderingState);
 
                 var redrawRects =
                     rects.Select(rect =>
@@ -160,7 +165,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigureNodesPanel()
         {
-            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl);
+            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl, _renderManager);
             _panelManager.RegisterResizeEvent(exportPipelineControl);
 
             _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
@@ -178,7 +183,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigurePreviewManager([NotNull] PropertiesPanel propertiesPanel)
         {
-            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl)
+            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl, _renderManager)
             {
                 ScreenInsetBounds = new InsetBounds(5, 5, 5, propertiesPanel.PanelWidth + 5)
             };
@@ -645,13 +650,13 @@ namespace Pixelaria.Views.ExportPipeline
 
         public int RenderOrder => RenderOrdering.UserInterface;
 
-        public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control) : base(control)
+        public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control, [NotNull] IRendererManager rendererManager) : base(control)
         {
             control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
             control.SizeChanged += ControlOnSizeChanged;
 
-            control.RendererManager.AddRenderListener(this);
+            rendererManager.AddRenderListener(this);
         }
 
         private void ControlOnSizeChanged(object sender, EventArgs e)

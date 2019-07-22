@@ -64,8 +64,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         #region Intrinsic Features
 
-        private readonly SmoothViewPanAndZoomUiFeature _panAndZoom;
-        private readonly ControlViewFeature _controlViewFeature;
+        private SmoothViewPanAndZoomUiFeature _panAndZoom;
+        private ControlViewFeature _controlViewFeature;
 
         #endregion
 
@@ -97,11 +97,6 @@ namespace Pixelaria.Views.ExportPipeline
         public IImageResourceManager ImageResources { get; set; }
 
         /// <summary>
-        /// Gets the Direct2D renderer initialized for this control
-        /// </summary>
-        public IExportPipelineRendererManager RendererManager { get; }
-
-        /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
         public ILabelViewSizeProvider LabelViewSizeProvider { get; set; }
@@ -130,20 +125,9 @@ namespace Pixelaria.Views.ExportPipeline
             _container = new InternalPipelineContainer(this);
 
             _internalRenderer = new InternalRenderListener(_container, this);
-            RendererManager = new Direct2DRenderer();
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
             UpdateStyles();
-
-            _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
-            _controlViewFeature = new ControlViewFeature(this);
-
-            AddFeature(new NodeLinkHoverLabelFeature(this));
-            AddFeature(_panAndZoom);
-            AddFeature(new DragAndDropUiFeature(this));
-            AddFeature(new SelectionUiFeature(this));
-            AddFeature(new PipelineLinkContextMenuFeature(this));
-            AddFeature(_controlViewFeature);
 
             _internalRenderer.AddDecorator(new ConnectedLinksDecorator(_container));
         }
@@ -152,8 +136,6 @@ namespace Pixelaria.Views.ExportPipeline
         {
             if (disposing)
             {
-                (RendererManager as IDisposable)?.Dispose();
-
                 _fixedTimer.Tick -= fixedTimer_Tick;
                 _fixedTimer.Dispose();
             }
@@ -195,24 +177,28 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeRenderer([NotNull] IExportPipelineRendererManager rendererManager, [NotNull] IRenderLoopState state)
+        public void InitializeRenderer([NotNull] IExportPipelineRendererManager rendererManager)
         {
+            _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
+            _controlViewFeature = new ControlViewFeature(this, rendererManager);
+
+            AddFeature(new NodeLinkHoverLabelFeature(this, rendererManager));
+            AddFeature(_panAndZoom);
+            AddFeature(new DragAndDropUiFeature(this));
+            AddFeature(new SelectionUiFeature(this));
+            AddFeature(new PipelineLinkContextMenuFeature(this));
+            AddFeature(_controlViewFeature);
+
             rendererManager.AddRenderListener(_internalRenderer);
             BackColor = rendererManager.BackColor;
 
             ImageResources = rendererManager.ImageResources;
             LabelViewSizeProvider = rendererManager.LabelViewSizeProvider;
             TextMetricsProvider = rendererManager.TextMetricsProvider;
-
-            RendererManager.Initialize(state);
         }
 
         public void Render([NotNull] IExportPipelineRendererManager renderManager, [NotNull] IRenderLoopState state)
         {
-            if (RendererManager == null)
-                throw new InvalidOperationException(
-                    $"Direct2D renderer was not initialized. Please call {nameof(InitializeRenderer)} before calling {nameof(Render)}.");
-
             // Update animations
             AnimationsManager.Update(state.FrameRenderDeltaTime);
 

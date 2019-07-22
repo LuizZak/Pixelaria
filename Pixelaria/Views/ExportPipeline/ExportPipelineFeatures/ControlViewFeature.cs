@@ -68,7 +68,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         [CanBeNull]
         private IKeyboardEventHandler _firstResponder;
 
-        public ControlViewFeature([NotNull] IExportPipelineControl control) : base(control)
+        public ControlViewFeature([NotNull] IExportPipelineControl control, [NotNull] IRendererManager rendererManager) : base(control)
         {
             BaseControl = new RootControlView(this)
             {
@@ -76,7 +76,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 InvalidateRegionDelegate = this
             };
 
-            control.RendererManager.AddRenderListener(this);
+            rendererManager.AddRenderListener(this);
         }
 
         /// <summary>

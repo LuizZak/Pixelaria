@@ -59,11 +59,14 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
             _renderer = new Direct2DRenderLoopManager(_control, DxSupport.D2DFactory);
             _renderer.Initialize();
 
-            _control.InitializeRenderer(_control.RendererManager, _renderer.RenderingState);
+            var renderManager = new Direct2DRenderer();
+            renderManager.Initialize(_renderer.RenderingState);
+
+            _control.InitializeRenderer(renderManager);
 
             PipelineControlConfigurator.Configure(_control, _renderer.RenderingState);
 
-            _sut = new ExportPipelineNodesPanelManager(_container, _control.RendererManager, new TestInvalidateTarget(),  new PipelineNodeBitmapGenerator(_control));
+            _sut = new ExportPipelineNodesPanelManager(_container, renderManager, new TestInvalidateTarget(),  new PipelineNodeBitmapGenerator(_control));
             _sut.RegisterResizeEvent(_control);
 
             var provider = new DefaultPipelineNodeSpecsProvider();
