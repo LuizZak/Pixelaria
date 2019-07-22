@@ -249,12 +249,12 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
                 {
                     state.D2DRenderTarget.Clear(null);
 
-                    control.InitializeRenderer(state);
-
                     var renderer = new TestDirect2DRenderer();
                     renderer.Initialize(state);
-                    
+
                     PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);
+
+                    control.InitializeRenderer(control.RendererManager, state);
 
                     testAction(new StaticDirect2DRenderingStateProvider(state));
                 });

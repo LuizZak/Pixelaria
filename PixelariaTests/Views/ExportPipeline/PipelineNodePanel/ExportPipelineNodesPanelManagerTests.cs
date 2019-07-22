@@ -59,6 +59,8 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
             _renderer = new Direct2DRenderLoopManager(_control, DxSupport.D2DFactory);
             _renderer.Initialize();
 
+            _control.InitializeRenderer(_control.RendererManager, _renderer.RenderingState);
+
             PipelineControlConfigurator.Configure(_control, _renderer.RenderingState);
 
             _sut = new ExportPipelineNodesPanelManager(_container, _control.RendererManager, new TestInvalidateTarget(),  new PipelineNodeBitmapGenerator(_control));

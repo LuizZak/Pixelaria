@@ -68,8 +68,6 @@ namespace Pixelaria.Views.ExportPipeline
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
 
             InitializeComponent();
-            
-            exportPipelineControl.BackColor = exportPipelineControl.RendererManager.BackColor;
         }
 
         /// <summary>
@@ -111,7 +109,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager.Initialize();
 
-            exportPipelineControl.InitializeRenderer(_direct2DLoopManager.RenderingState);
+            exportPipelineControl.InitializeRenderer(exportPipelineControl.RendererManager, _direct2DLoopManager.RenderingState);
             ConfigureForm();
 
             _direct2DLoopManager.InvalidatedState += (sender, args) =>
@@ -123,7 +121,7 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 var rects = exportPipelineControl.ClippingRegionRectangles;
 
-                exportPipelineControl.Render(_direct2DLoopManager.RenderingState);
+                exportPipelineControl.Render(exportPipelineControl.RendererManager, _direct2DLoopManager.RenderingState);
 
                 var redrawRects =
                     rects.Select(rect =>

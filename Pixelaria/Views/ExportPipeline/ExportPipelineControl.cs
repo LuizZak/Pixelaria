@@ -94,7 +94,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the image resources provider for this pipeline control
         /// </summary>
-        public IImageResourceManager ImageResources => RendererManager.ImageResources;
+        public IImageResourceManager ImageResources { get; set; }
 
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control
@@ -104,12 +104,12 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
-        public ILabelViewSizeProvider LabelViewSizeProvider => RendererManager.LabelViewSizeProvider;
+        public ILabelViewSizeProvider LabelViewSizeProvider { get; set; }
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control
         /// </summary>
-        public ITextMetricsProvider TextMetricsProvider => RendererManager.TextMetricsProvider;
+        public ITextMetricsProvider TextMetricsProvider { get; set; }
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control
@@ -131,7 +131,6 @@ namespace Pixelaria.Views.ExportPipeline
 
             _internalRenderer = new InternalRenderListener(_container, this);
             RendererManager = new Direct2DRenderer();
-            RendererManager.AddRenderListener(_internalRenderer);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
             UpdateStyles();
@@ -196,12 +195,19 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeRenderer([NotNull] IRenderLoopState state)
+        public void InitializeRenderer([NotNull] IExportPipelineRendererManager rendererManager, [NotNull] IRenderLoopState state)
         {
+            rendererManager.AddRenderListener(_internalRenderer);
+            BackColor = rendererManager.BackColor;
+
+            ImageResources = rendererManager.ImageResources;
+            LabelViewSizeProvider = rendererManager.LabelViewSizeProvider;
+            TextMetricsProvider = rendererManager.TextMetricsProvider;
+
             RendererManager.Initialize(state);
         }
 
-        public void Render([NotNull] IRenderLoopState state)
+        public void Render([NotNull] IExportPipelineRendererManager renderManager, [NotNull] IRenderLoopState state)
         {
             if (RendererManager == null)
                 throw new InvalidOperationException(
@@ -216,7 +222,7 @@ namespace Pixelaria.Views.ExportPipeline
             // Use clipping region
             var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, _clippingRegion);
 
-            RendererManager.Render(state, _clippingRegion);
+            renderManager.Render(state, _clippingRegion);
 
             Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 
