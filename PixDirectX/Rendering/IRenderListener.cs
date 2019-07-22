@@ -48,7 +48,7 @@ namespace PixDirectX.Rendering
         /// This method is invoked by a renderer after a render listener is added, as soon as a valid render state is available, as well as
         /// when previous render states have been invalidated and need to be recreated, using a given render state as a new state basis.
         /// </summary>
-        void RecreateState([NotNull] IDirect2DRenderingState state);
+        void RecreateState([NotNull] IRenderLoopState state);
 
         /// <summary>
         /// Called to notify a new rendering process will take place on an <see cref="IDirect2DRenderer"/>, with a given valid render state
@@ -84,7 +84,7 @@ namespace PixDirectX.Rendering
         /// The latest valid rendering state to use
         /// </summary>
         [NotNull]
-        IDirect2DRenderingState State { get; }
+        IRenderLoopState State { get; }
 
         /// <summary>
         /// A text color renderer to use across render listeners

@@ -669,7 +669,7 @@ namespace PixDirectX.Rendering
 
         public void StrokePath(IPathGeometry path, float strokeWidth = 1)
         {
-            var pathGeom = CastPathOrFailure(path);
+            var pathGeom = CastPathOrFail(path);
 
             _state.D2DRenderTarget.DrawGeometry(pathGeom.PathGeometry, BrushForStroke(), strokeWidth);
         }
@@ -735,7 +735,7 @@ namespace PixDirectX.Rendering
 
         public void FillPath(IPathGeometry path)
         {
-            var pathGeom = CastPathOrFailure(path);
+            var pathGeom = CastPathOrFail(path);
 
             _state.D2DRenderTarget.FillGeometry(pathGeom.PathGeometry, BrushForFill());
         }
@@ -778,6 +778,18 @@ namespace PixDirectX.Rendering
         }
 
         public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
+        {
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
+        }
+
+        public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode)
+        {
+            var bitmap = CastBitmapOrFail(image);
+
+            _state.D2DRenderTarget.DrawBitmap(bitmap.bitmap, opacity, ToBitmapInterpolation(interpolationMode));
+        }
+
+        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
         {
             DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
         }
@@ -875,7 +887,7 @@ namespace PixDirectX.Rendering
                 return;
 
             _strokeBrush?.UnloadBrush();
-            _strokeBrush = CastBrushOrFailure(brush);
+            _strokeBrush = CastBrushOrFail(brush);
         }
 
         /// <summary>
@@ -896,7 +908,7 @@ namespace PixDirectX.Rendering
                 return;
 
             _fillBrush?.UnloadBrush();
-            _fillBrush = CastBrushOrFailure(brush);
+            _fillBrush = CastBrushOrFail(brush);
         }
 
         /// <summary>
@@ -909,7 +921,7 @@ namespace PixDirectX.Rendering
 
         #endregion
 
-        private static InternalBrush CastBrushOrFailure([NotNull] IBrush brush)
+        private static InternalBrush CastBrushOrFail([NotNull] IBrush brush)
         {
             if (brush is InternalBrush internalBrush)
                 return internalBrush;
@@ -917,12 +929,20 @@ namespace PixDirectX.Rendering
             throw new InvalidOperationException($"Expected a brush of type {typeof(InternalBrush)}");
         }
 
-        private static InternalPathGeometry CastPathOrFailure([NotNull] IPathGeometry path)
+        private static InternalPathGeometry CastPathOrFail([NotNull] IPathGeometry path)
         {
             if (path is InternalPathGeometry internalPath)
                 return internalPath;
 
             throw new InvalidOperationException($"Expected a path geometry of type {typeof(InternalPathGeometry)}");
+        }
+
+        private static DirectXBitmap CastBitmapOrFail([NotNull] IManagedImageResource bitmap)
+        {
+            if (bitmap is DirectXBitmap dxBitmap)
+                return dxBitmap;
+
+            throw new InvalidOperationException($"Expected a bitmap of type {typeof(DirectXBitmap)}");
         }
 
         private class InternalBrush : IBrush
@@ -1120,14 +1140,14 @@ namespace PixDirectX.Rendering
         public IImageResourceManager ImageResources { get; }
         public IClippingRegion ClippingRegion { get; }
         public IRenderer Renderer { get; }
-        public IDirect2DRenderingState State { get; }
+        public IRenderLoopState State { get; }
         public TextColorRenderer TextColorRenderer { get; }
         public ITextLayoutRenderer TextLayoutRenderer { get; }
         public ITextRenderer TextRenderer { get; }
         public ITextMetricsProvider TextMetricsProvider { get; }
 
         public RenderListenerParameters([NotNull] IImageResourceManager imageResources,
-            [NotNull] IClippingRegion clippingRegion, [NotNull] IDirect2DRenderingState state,
+            [NotNull] IClippingRegion clippingRegion, [NotNull] IRenderLoopState state,
             [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
             [NotNull] ITextMetricsProvider textMetricsProvider, [NotNull] IRenderer renderer, [NotNull] ITextRenderer textRenderer)
         {

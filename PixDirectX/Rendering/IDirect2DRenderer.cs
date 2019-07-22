@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
@@ -184,34 +183,5 @@ namespace PixDirectX.Rendering
         /// given reference point to screen-space.
         /// </summary>
         bool IsVisibleInClippingRegion(Vector point, [NotNull] ISpatialReference reference);
-    }
-
-    /// <summary>
-    /// Interface for objects capable of creating, updating, providing and destroying Direct2D bitmap resources.
-    /// </summary>
-    public interface IImageResourceManager: IImageResourceProvider
-    {
-        /// <summary>
-        /// Creates a new image from a given <see cref="Bitmap"/> instance, assigns it with a given resource name, and
-        /// then returns it to be used.
-        /// </summary>
-        ImageResource AddImageResource([NotNull] IRenderLoopState state, [NotNull] Bitmap bitmap, [NotNull] string resourceName);
-
-        void RemoveImageResource([NotNull] string resourceName);
-
-        void RemoveAllImageResources();
-    }
-
-    /// <summary>
-    /// Interface for objects that can provide encapsulated access to image resources.
-    /// </summary>
-    public interface IImageResourceProvider
-    {
-        /// <summary>
-        /// Fetches an image resource formatted as an image resource struct.
-        /// 
-        /// Returns null, if no resource with the given name is found.
-        /// </summary>
-        ImageResource? GetImageResource([NotNull] string resourceName);
     }
 }

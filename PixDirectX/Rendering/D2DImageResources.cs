@@ -71,7 +71,26 @@ namespace PixDirectX.Rendering
 
             return res;
         }
-        
+
+        public IManagedImageResource CreateManagedImageResource(IRenderLoopState renderLoopState, Bitmap bitmap)
+        {
+            var state = (IDirect2DRenderingState)renderLoopState;
+
+            var dxBitmap = BaseDirect2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+
+            return new DirectXBitmap(dxBitmap);
+        }
+
+        public void UpdateManagedImageResource(IRenderLoopState renderLoopState, ref IManagedImageResource managedImage, Bitmap bitmap)
+        {
+            var state = (IDirect2DRenderingState)renderLoopState;
+            if(!(managedImage is DirectXBitmap dxBitmap))
+                throw new ArgumentException($"Expected bitmap to be of type ${typeof(DirectXBitmap)}");
+
+            dxBitmap.bitmap.Dispose();
+            dxBitmap.bitmap = BaseDirect2DRenderer.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+        }
+
         public void RemoveAllImageResources()
         {
             foreach (var value in _bitmapResources.Values)
@@ -116,6 +135,24 @@ namespace PixDirectX.Rendering
         public SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string name)
         {
             return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
+        }
+    }
+
+    public class DirectXBitmap : IManagedImageResource
+    {
+        internal SharpDX.Direct2D1.Bitmap bitmap;
+
+        public int Width => bitmap.PixelSize.Width;
+        public int Height => bitmap.PixelSize.Height;
+
+        public DirectXBitmap(SharpDX.Direct2D1.Bitmap bitmap)
+        {
+            this.bitmap = bitmap;
+        }
+
+        public void Dispose()
+        {
+            bitmap.Dispose();
         }
     }
 }

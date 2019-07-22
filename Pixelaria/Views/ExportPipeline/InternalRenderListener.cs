@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ExportPipeline
             _control = control;
         }
 
-        public void RecreateState(IDirect2DRenderingState state)
+        public void RecreateState(IRenderLoopState state)
         {
             
         }

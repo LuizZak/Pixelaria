@@ -419,7 +419,7 @@ namespace Pixelaria.Views.ExportPipeline
 
     internal class PipelineControlConfigurator
     {
-        public static void Configure([NotNull] IExportPipelineControl control, [NotNull] IDirect2DRenderingState state)
+        public static void Configure([NotNull] IExportPipelineControl control, [NotNull] IRenderLoopState state)
         {
             ConfigureLabelSizeProvider(control);
             RegisterIcons(control.ImageResources, state);
@@ -430,7 +430,7 @@ namespace Pixelaria.Views.ExportPipeline
             LabelView.DefaultLabelViewSizeProvider = control.LabelViewSizeProvider;
         }
 
-        public static void RegisterIcons([NotNull] IImageResourceManager manager, [NotNull] IDirect2DRenderingState state)
+        public static void RegisterIcons([NotNull] IImageResourceManager manager, [NotNull] IRenderLoopState state)
         {
             void AddImage(System.Drawing.Bitmap bitmap, string name)
             {
@@ -625,12 +625,12 @@ namespace Pixelaria.Views.ExportPipeline
     internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature, IRenderListener
     {
         [CanBeNull]
-        private IDirect2DRenderingState _latestRenderState;
+        private IRenderLoopState _latestRenderState;
 
         private readonly Font _font = new Font(FontFamily.GenericSansSerif, 12);
 
         private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
-        private readonly Dictionary<BitmapPreviewPipelineStep, Bitmap> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, Bitmap>();
+        private readonly Dictionary<BitmapPreviewPipelineStep, IManagedImageResource> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, IManagedImageResource>();
         private readonly List<PreviewBounds> _previewBounds = new List<PreviewBounds>();
         private readonly InsetBounds _titleInset = new InsetBounds(5, 5, 5, 5);
         private InsetBounds _screenInsetBounds = new InsetBounds(5, 5, 5, 5);
@@ -720,6 +720,7 @@ namespace Pixelaria.Views.ExportPipeline
             step.Renamed -= OnBitmapStepOnRenamed;
 
             _previewSteps.Remove(step);
+            _latestPreviews[step].Dispose();
             _latestPreviews.Remove(step);
 
             ReloadBoundsCache();
@@ -730,19 +731,26 @@ namespace Pixelaria.Views.ExportPipeline
             if (_latestRenderState == null)
                 return;
 
-            if(_latestPreviews.TryGetValue(step, out var old))
-                old.Dispose();
+            IManagedImageResource managedBitmap;
 
-            var newBit = BaseDirect2DRenderer.CreateSharpDxBitmap(_latestRenderState.D2DRenderTarget, bitmap);
+            if (_latestPreviews.TryGetValue(step, out var old))
+            {
+                managedBitmap = old;
+                control.ImageResources.UpdateManagedImageResource(_latestRenderState, ref managedBitmap, bitmap);
+            }
+            else
+            {
+                managedBitmap = control.ImageResources.CreateManagedImageResource(_latestRenderState, bitmap);
+            }
 
-            _latestPreviews[step] = newBit;
+            _latestPreviews[step] = managedBitmap;
             
             ReloadBoundsCache();
 
             control.InvalidateAll();
         }
 
-        public void RecreateState(IDirect2DRenderingState state)
+        public void RecreateState(IRenderLoopState state)
         {
             _latestRenderState = state;
         }
@@ -764,8 +772,7 @@ namespace Pixelaria.Views.ExportPipeline
                 // Draw image, or opaque background
                 if (bitmap != null)
                 {
-                    state.D2DRenderTarget.DrawBitmap(bitmap, bounds.ImageBounds.ToRawRectangleF(), 1,
-                        BitmapInterpolationMode.Linear);
+                    parameters.Renderer.DrawBitmap(bitmap, bounds.ImageBounds, 1, ImageInterpolationMode.Linear);
                 }
                 else
                 {
@@ -810,7 +817,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 var size = new Vector(120, 90);
                 if (bitmap != null)
-                    size = new Vector(120 * ((float) bitmap.PixelSize.Width / bitmap.PixelSize.Height), 90);
+                    size = new Vector(120 * ((float) bitmap.Width / bitmap.Height), 90);
 
                 var availableBounds = 
                     AABB.FromRectangle(Vector.Zero, Control.Size)

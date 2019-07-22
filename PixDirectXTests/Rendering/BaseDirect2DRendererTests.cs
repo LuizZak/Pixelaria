@@ -56,7 +56,7 @@ namespace PixDirectXTests.Rendering
             RenderOrder = renderOrder;
         }
 
-        public void RecreateState(IDirect2DRenderingState state)
+        public void RecreateState(IRenderLoopState state)
         {
 
         }

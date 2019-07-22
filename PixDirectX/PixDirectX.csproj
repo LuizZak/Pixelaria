@@ -76,7 +76,9 @@
     <Compile Include="Rendering\Direct2DConversionHelpers.cs" />
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
+    <Compile Include="Rendering\IImageResourceManager.cs" />
     <Compile Include="Rendering\ImageResource.cs" />
+    <Compile Include="Rendering\IManagedImageResource.cs" />
     <Compile Include="Rendering\IPathGeometry.cs" />
     <Compile Include="Rendering\IPathInputSink.cs" />
     <Compile Include="Rendering\IRenderer.cs" />

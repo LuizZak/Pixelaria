@@ -185,7 +185,7 @@ namespace PixDirectX.Rendering
         /// This method does not return after being called, and will continue processing Windows Form events
         /// internally until the application is closed.
         /// </summary>
-        public void StartRenderLoop([NotNull, InstantHandle] Action<IDirect2DRenderingState> loop)
+        public void StartRenderLoop([NotNull, InstantHandle] Action<IRenderLoopState> loop)
         {
             StartRenderLoop(state =>
             {
@@ -204,7 +204,7 @@ namespace PixDirectX.Rendering
         /// This method does not return after being called, and will continue processing Windows Form events
         /// internally until the application is closed.
         /// </summary>
-        public void StartRenderLoop([NotNull, InstantHandle] Func<IDirect2DRenderingState, Direct2DRenderLoopResponse> loop)
+        public void StartRenderLoop([NotNull, InstantHandle] Func<IRenderLoopState, Direct2DRenderLoopResponse> loop)
         {
             bool isOccluded = false;
             bool quitLoop = false;

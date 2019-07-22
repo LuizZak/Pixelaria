@@ -136,7 +136,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             BaseControl.Size = Control.Size;
         }
 
-        public void RecreateState(IDirect2DRenderingState state)
+        public void RecreateState(IRenderLoopState state)
         {
             
         }

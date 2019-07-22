@@ -205,7 +205,7 @@ namespace PixUI.Controls
         /// </summary>
         public IRenderer Renderer { get; }
 
-        public IDirect2DRenderingState State { get; }
+        public IRenderLoopState State { get; }
 
         /// <summary>
         /// Gets the image resources provider to use when fetching image resources
@@ -228,7 +228,7 @@ namespace PixUI.Controls
         [NotNull]
         public ITextLayoutRenderer TextLayoutRenderer { get; }
 
-        public ControlRenderingContext(IRenderer renderer, IDirect2DRenderingState state,
+        public ControlRenderingContext(IRenderer renderer, IRenderLoopState state,
             IClippingRegion clippingRegion, ITextMetricsProvider textMetricsProvider,
             IImageResourceProvider imageResources, [NotNull] ITextLayoutRenderer textLayoutRenderer)
         {

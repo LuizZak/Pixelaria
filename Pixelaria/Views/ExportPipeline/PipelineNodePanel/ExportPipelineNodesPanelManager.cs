@@ -440,8 +440,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     renderLoop.Initialize();
                     renderLoop.RenderSingleFrame(state =>
                     {
-                        state.Transform = Matrix2D.Translation(bitmapOffset).ToRawMatrix3X2();
-                        var parameters = renderer.CreateRenderListenerParameters(state);
+                        renderLoop.RenderingState.Transform = Matrix2D.Translation(bitmapOffset).ToRawMatrix3X2();
+                        var parameters = renderer.CreateRenderListenerParameters(renderLoop.RenderingState);
 
                         listener.RenderStepView(view, parameters, new IRenderingDecorator[0]);
                     });

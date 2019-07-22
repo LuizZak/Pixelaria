@@ -141,6 +141,24 @@ namespace PixDirectX.Rendering
         /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
         void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode);
 
+        /// <summary>
+        /// Renders an image resource.
+        /// </summary>
+        /// <param name="image">An image resource to render.</param>
+        /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
+        /// <param name="opacity">Opacity to use when rendering the image.</param>
+        /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
+        void DrawBitmap([NotNull] IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode);
+
+        /// <summary>
+        /// Renders an image resource.
+        /// </summary>
+        /// <param name="image">An image resource to render.</param>
+        /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
+        /// <param name="opacity">Opacity to use when rendering the image.</param>
+        /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
+        void DrawBitmap([NotNull] IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode);
+
         #endregion
 
         #region Clipping

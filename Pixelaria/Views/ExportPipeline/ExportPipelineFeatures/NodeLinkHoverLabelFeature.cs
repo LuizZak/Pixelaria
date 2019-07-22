@@ -211,7 +211,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             [CanBeNull]
             public LabelView View { get; set; }
 
-            public void RecreateState(IDirect2DRenderingState state)
+            public void RecreateState(IRenderLoopState state)
             {
                 
             }

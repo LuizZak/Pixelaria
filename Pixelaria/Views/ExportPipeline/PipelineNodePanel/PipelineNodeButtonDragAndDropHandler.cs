@@ -241,7 +241,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 }
 
-                public void RecreateState(IDirect2DRenderingState state)
+                public void RecreateState(IRenderLoopState state)
                 {
 
                 }
@@ -251,9 +251,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     if (!Visible)
                         return;
 
-                    var state = parameters.State;
-
-                    state.PushingTransform(() =>
+                    parameters.Renderer.PushingTransform(() =>
                     {
                         var renderer = new InternalNodeViewRenderer(_nodeView, parameters, true);
 
