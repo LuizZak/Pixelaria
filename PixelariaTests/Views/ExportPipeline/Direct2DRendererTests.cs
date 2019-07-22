@@ -306,7 +306,7 @@ namespace PixelariaTests.Views.ExportPipeline
 
                 renderManager.RenderSingleFrame(state =>
                 {
-                    _control.InitializeDirect2DRenderer(state);
+                    _control.InitializeRenderer(state);
                     if (context.ImageResources != null)
                     {
                         foreach (var pair in context.ImageResources)

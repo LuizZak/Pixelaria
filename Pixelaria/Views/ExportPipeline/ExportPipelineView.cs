@@ -111,7 +111,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager.Initialize();
 
-            exportPipelineControl.InitializeDirect2DRenderer(_direct2DLoopManager.RenderingState);
+            exportPipelineControl.InitializeRenderer(_direct2DLoopManager.RenderingState);
             ConfigureForm();
 
             _direct2DLoopManager.InvalidatedState += (sender, args) =>

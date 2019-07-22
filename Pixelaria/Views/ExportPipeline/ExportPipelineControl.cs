@@ -196,7 +196,7 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeDirect2DRenderer([NotNull] IRenderLoopState state)
+        public void InitializeRenderer([NotNull] IRenderLoopState state)
         {
             RendererManager.Initialize(state);
         }
@@ -205,7 +205,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             if (RendererManager == null)
                 throw new InvalidOperationException(
-                    $"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(Render)}.");
+                    $"Direct2D renderer was not initialized. Please call {nameof(InitializeRenderer)} before calling {nameof(Render)}.");
 
             // Update animations
             AnimationsManager.Update(state.FrameRenderDeltaTime);
