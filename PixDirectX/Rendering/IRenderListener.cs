@@ -110,12 +110,4 @@ namespace PixDirectX.Rendering
         [NotNull]
         ITextMetricsProvider TextMetricsProvider { get; }
     }
-
-    public static class RenderListenerExt
-    {
-        public static IDirect2DRenderingStateProvider ToStateProvider([NotNull] this IRenderListenerParameters parameters)
-        {
-            return new StaticDirect2DRenderingStateProvider(parameters.State);
-        }
-    }
 }

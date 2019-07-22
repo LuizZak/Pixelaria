@@ -311,7 +311,7 @@ namespace PixelariaTests.Views.ExportPipeline
                     {
                         foreach (var pair in context.ImageResources)
                         {
-                            _control.D2DRenderer.ImageResources.AddImageResource(state, pair.Value, pair.Key);
+                            _control.ImageResources.AddImageResource(state, pair.Value, pair.Key);
                         }
                     }
 

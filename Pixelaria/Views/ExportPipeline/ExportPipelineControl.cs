@@ -94,9 +94,19 @@ namespace Pixelaria.Views.ExportPipeline
         public IRenderingDecoratorContainer RenderingDecoratorTarget => _internalRenderer;
 
         /// <summary>
+        /// Gets the image resources provider for this pipeline control
+        /// </summary>
+        public ID2DImageResourceManager ImageResources => _d2DRenderer.ImageResources;
+
+        /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
         public IExportPipelineDirect2DRenderer D2DRenderer => _d2DRenderer;
+
+        /// <summary>
+        /// Gets the label size provider for this control
+        /// </summary>
+        public ILabelViewSizeProvider LabelViewSizeProvider => _d2DRenderer.LabelViewSizeProvider;
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control
@@ -1022,7 +1032,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             public void AutoSizeNode(PipelineNodeView view)
             {
-                _control.PipelineNodeViewSizer.AutoSize(view, _control.D2DRenderer.LabelViewSizeProvider);
+                _control.PipelineNodeViewSizer.AutoSize(view, _control.LabelViewSizeProvider);
             }
 
             public void PerformAction(IExportPipelineAction action)

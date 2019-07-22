@@ -55,9 +55,19 @@ namespace Pixelaria.Views.ExportPipeline
         IRenderingDecoratorContainer RenderingDecoratorTarget { get; }
 
         /// <summary>
+        /// Gets the image resources provider for this pipeline control
+        /// </summary>
+        ID2DImageResourceManager ImageResources { get; }
+        
+        /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
         IExportPipelineDirect2DRenderer D2DRenderer { get; }
+
+        /// <summary>
+        /// Gets the label size provider for this control
+        /// </summary>
+        ILabelViewSizeProvider LabelViewSizeProvider { get; }
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control

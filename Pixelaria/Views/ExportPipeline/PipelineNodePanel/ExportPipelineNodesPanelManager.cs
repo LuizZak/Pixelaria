@@ -412,7 +412,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
             var view = PipelineNodeView.Create(node);
-            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.D2DRenderer.ImageResources);
+            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.ImageResources);
 
             container.AutoSizeNode(view);
 

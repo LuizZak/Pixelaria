@@ -155,7 +155,7 @@ namespace PixDirectX.Rendering
         /// 
         /// Calls <see cref="RecreateState"/> after calls to <see cref="InvalidateState"/> automatically.
         /// </summary>
-        public void UpdateRenderingState([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        public void UpdateRenderingState(IDirect2DRenderingState state, IClippingRegion clipping)
         {
             if (_isRefreshingState)
             {

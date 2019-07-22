@@ -124,7 +124,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             var context = new ControlRenderingContext(
                 new WrappedDirect2DRenderer(parameters.State, parameters.ImageResources), parameters.State,
                 Control.D2DRenderer.ClippingRegion,
-                Control.TextMetricsProvider, Control.D2DRenderer.ImageResources, Control.D2DRenderer);
+                Control.TextMetricsProvider, Control.ImageResources, Control.D2DRenderer);
 
             // Create a renderer visitor for the root UI element we got
             var visitor = new ViewRenderingVisitor();
