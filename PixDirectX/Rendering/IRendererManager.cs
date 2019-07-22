@@ -56,6 +56,11 @@ namespace PixDirectX.Rendering
         IClippingRegion ClippingRegion { get; }
 
         /// <summary>
+        /// Initializes this render manager with a given rendering state.
+        /// </summary>
+        void Initialize([NotNull] IRenderLoopState state);
+
+        /// <summary>
         /// Updates the rendering state and clipping region of this renderer manager instance to the ones specified.
         /// 
         /// Must be called whenever devices/surfaces/etc. have been invalidated or the clipping region has been changed.

@@ -71,6 +71,9 @@ namespace PixDirectX.Rendering
     /// </summary>
     public interface IRenderLoopState
     {
-        
+        /// <summary>
+        /// Gets the time span since the last frame rendered
+        /// </summary>
+        TimeSpan FrameRenderDeltaTime { get; }
     }
 }

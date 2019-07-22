@@ -112,8 +112,10 @@ namespace PixDirectX.Rendering
             _imageResources.Dispose();
         }
 
-        public virtual void Initialize([NotNull] IDirect2DRenderingState state)
+        public virtual void Initialize([NotNull] IRenderLoopState renderLoopState)
         {
+            var state = (IDirect2DRenderingState)renderLoopState;
+
             _lastRenderingState = state;
 
             RecreateState(state);
@@ -179,8 +181,10 @@ namespace PixDirectX.Rendering
         ///
         /// If overriden, must be called to properly update the render state of the renderer.
         /// </summary>
-        public virtual void Render([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
+        public virtual void Render([NotNull] IRenderLoopState renderLoopState, [NotNull] IClippingRegion clipping)
         {
+            var state = (IDirect2DRenderingState)renderLoopState;
+
             UpdateRenderingState(state, clipping);
 
             // Clean background

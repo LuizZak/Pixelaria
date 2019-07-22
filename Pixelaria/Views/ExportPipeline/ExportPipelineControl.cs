@@ -96,7 +96,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the image resources provider for this pipeline control
         /// </summary>
-        public IImageResourceManager ImageResources => _d2DRendererManager.ImageResources;
+        public IImageResourceManager ImageResources => D2DRendererManager.ImageResources;
 
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control
@@ -106,12 +106,12 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
-        public ILabelViewSizeProvider LabelViewSizeProvider => _d2DRendererManager.LabelViewSizeProvider;
+        public ILabelViewSizeProvider LabelViewSizeProvider => D2DRendererManager.LabelViewSizeProvider;
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control
         /// </summary>
-        public ITextMetricsProvider TextMetricsProvider => _d2DRendererManager.TextMetricsProvider;
+        public ITextMetricsProvider TextMetricsProvider => D2DRendererManager.TextMetricsProvider;
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control
@@ -133,7 +133,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _internalRenderer = new InternalRenderListener(_container, this);
             _d2DRendererManager = new Direct2DRenderer();
-            _d2DRendererManager.AddRenderListener(_internalRenderer);
+            D2DRendererManager.AddRenderListener(_internalRenderer);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             
@@ -197,12 +197,12 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeDirect2DRenderer([NotNull] IDirect2DRenderingState state)
+        public void InitializeDirect2DRenderer([NotNull] IRenderLoopState state)
         {
             _d2DRendererManager.Initialize(state);
         }
 
-        public void RenderDirect2D([NotNull] IDirect2DRenderingState state)
+        public void RenderDirect2D([NotNull] IRenderLoopState state)
         {
             if (_d2DRendererManager == null)
                 throw new InvalidOperationException(
@@ -1170,17 +1170,17 @@ namespace Pixelaria.Views.ExportPipeline
             return true;
         }
         
-        public override IDirect2DClippingState PushDirect2DClipping(IDirect2DRenderingState state)
+        public override IClippingState PushDirect2DClipping(IRenderLoopState state)
         {
             return new DummyD2DClippingState();
         }
 
-        public override void PopDirect2DClipping(IDirect2DRenderingState state, IDirect2DClippingState clipState)
+        public override void PopDirect2DClipping(IRenderLoopState state, IClippingState clipState)
         {
             
         }
 
-        private class DummyD2DClippingState : IDirect2DClippingState
+        private class DummyD2DClippingState : IClippingState
         {
 
         }

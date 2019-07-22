@@ -51,11 +51,6 @@ namespace PixDirectX.Rendering
         DeviceContext DeviceContext { get; }
 
         /// <summary>
-        /// Gets the time span since the last frame rendered
-        /// </summary>
-        TimeSpan FrameRenderDeltaTime { get; }
-
-        /// <summary>
         /// Gets the scaling factor for the currently active Desktop DPI (Dots-per-inch).
         /// </summary>
         Vector DesktopDpiScaling { get; }

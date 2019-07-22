@@ -20,14 +20,12 @@
     base directory of this project.
 */
 
-using FastBitmapLib;
 using PixDirectX.Rendering;
 using PixUI;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Rendering;
 
-using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -44,28 +42,6 @@ namespace Pixelaria.Views.ExportPipeline
         public Direct2DRenderer()
         {
             _labelViewSizeProvider = new DefaultLabelViewSizeProvider(this);
-        }
-        
-        public override void Initialize(IDirect2DRenderingState state)
-        {
-            base.Initialize(state);
-            
-            // Create shadow box image
-            using (var bitmap = new Bitmap(64, 64))
-            {
-                FastBitmap.ClearBitmap(bitmap, Color.Black);
-            }
-        }
-
-        protected override void RecreateState(IDirect2DRenderingState state)
-        {
-            base.RecreateState(state);
-
-            // Create shadow box image
-            using (var bitmap = new Bitmap(64, 64))
-            {
-                FastBitmap.ClearBitmap(bitmap, Color.Black);
-            }
         }
     }
 

@@ -161,8 +161,10 @@ namespace PixDirectX.Rendering
             return _rectangles.Count == 0;
         }
 
-        public virtual IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state)
+        public virtual IClippingState PushDirect2DClipping([NotNull] IRenderLoopState renderLoopState)
         {
+            var state = (IDirect2DRenderingState) renderLoopState;
+
             var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
 
             var aabbClips = RedrawRegionRectangles(size).Select(rect => (AABB) rect).ToArray();
@@ -218,9 +220,10 @@ namespace PixDirectX.Rendering
             return new Direct2DGeometryClippingState(geom, layer);
         }
 
-        public virtual void PopDirect2DClipping([NotNull] IDirect2DRenderingState state,
-            [NotNull] IDirect2DClippingState clipState)
+        public virtual void PopDirect2DClipping([NotNull] IRenderLoopState renderLoopState, [NotNull] IClippingState clipState)
         {
+            var state = (IDirect2DRenderingState)renderLoopState;
+
             switch (clipState)
             {
                 case Direct2DAxisAlignedClippingState _:
@@ -236,9 +239,9 @@ namespace PixDirectX.Rendering
         }
 
         /// <summary>
-        /// Stores context about a Direct2D clipping operation
+        /// Stores context about a Direct2D clipping operation.
         /// </summary>
-        public interface IDirect2DClippingState
+        public interface IClippingState
         {
 
         }
@@ -253,7 +256,7 @@ namespace PixDirectX.Rendering
             _needsDissect = false;
         }
 
-        private struct Direct2DGeometryClippingState : IDirect2DClippingState, IDisposable
+        private struct Direct2DGeometryClippingState : IClippingState, IDisposable
         {
             private Geometry Geometry { get; }
             private Layer Layer { get; }
@@ -271,7 +274,7 @@ namespace PixDirectX.Rendering
             }
         }
 
-        private sealed class Direct2DAxisAlignedClippingState : IDirect2DClippingState
+        private sealed class Direct2DAxisAlignedClippingState : IClippingState
         {
 
         }
