@@ -37,7 +37,6 @@ using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
 using PixUI.Controls;
-using SharpDX.Windows;
 using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
@@ -45,7 +44,7 @@ using RectangleF = System.Drawing.RectangleF;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    internal class ExportPipelineControl: RenderControl, IExportPipelineControl
+    internal class ExportPipelineControl: UserControl, IExportPipelineControl
     {
         public AnimationsManager AnimationsManager { get; } = new AnimationsManager();
 
@@ -134,8 +133,9 @@ namespace Pixelaria.Views.ExportPipeline
             RendererManager = new Direct2DRenderer();
             RendererManager.AddRenderListener(_internalRenderer);
 
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            
+            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.Opaque, true);
+            UpdateStyles();
+
             _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
             _controlViewFeature = new ControlViewFeature(this);
 
