@@ -20,16 +20,16 @@
     base directory of this project.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
+using PixCore.Geometry;
 
 namespace PixDirectX.Rendering
 {
     /// <summary>
     /// A brush for drawing with.
     /// </summary>
-    public interface IBrush: IDisposable
+    public interface IBrush
     {
         
     }
@@ -61,7 +61,14 @@ namespace PixDirectX.Rendering
     /// </summary>
     public interface ILinearGradientBrush : IGradientBrush
     {
-
+        /// <summary>
+        /// The start of this linear brush
+        /// </summary>
+        Vector Start { get; }
+        /// <summary>
+        /// The end of this linear brush
+        /// </summary>
+        Vector End { get; }
     }
 
     /// <summary>

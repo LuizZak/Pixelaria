@@ -536,23 +536,25 @@ namespace PixDirectX.Rendering
         {
             _state = state;
             _imageResource = imageResource;
-            _strokeBrush = new InternalSolidBrush(state.D2DRenderTarget, Color.Black);
-            _fillBrush = new InternalSolidBrush(state.D2DRenderTarget, Color.Black);
+            _strokeBrush = new InternalSolidBrush(Color.Black);
+            _fillBrush = new InternalSolidBrush(Color.Black);
         }
 
         public void Dispose()
         {
-            _strokeBrush?.Dispose();
-            _fillBrush?.Dispose();
+            _strokeBrush?.UnloadBrush();
+            _fillBrush?.UnloadBrush();
         }
 
         private Brush BrushForStroke()
         {
+            _strokeBrush.LoadBrush(_state.D2DRenderTarget);
             return _strokeBrush.Brush;
         }
 
         private Brush BrushForFill()
         {
+            _fillBrush.LoadBrush(_state.D2DRenderTarget);
             return _fillBrush.Brush;
         }
 
@@ -762,8 +764,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void SetStrokeColor(Color color)
         {
-            _strokeBrush?.Dispose();
-            _strokeBrush = new InternalSolidBrush(_state.D2DRenderTarget, color);
+            _strokeBrush?.UnloadBrush();
+            _strokeBrush = new InternalSolidBrush(color);
         }
 
         /// <summary>
@@ -774,7 +776,7 @@ namespace PixDirectX.Rendering
             if (brush == _strokeBrush)
                 return;
 
-            _strokeBrush?.Dispose();
+            _strokeBrush?.UnloadBrush();
             _strokeBrush = CastBrushOrFailure(brush);
         }
 
@@ -783,8 +785,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         public void SetFillColor(Color color)
         {
-            _fillBrush?.Dispose();
-            _fillBrush = new InternalSolidBrush(_state.D2DRenderTarget, color);
+            _fillBrush?.UnloadBrush();
+            _fillBrush = new InternalSolidBrush(color);
         }
 
         /// <summary>
@@ -795,7 +797,7 @@ namespace PixDirectX.Rendering
             if (brush == _fillBrush)
                 return;
 
-            _fillBrush?.Dispose();
+            _fillBrush?.UnloadBrush();
             _fillBrush = CastBrushOrFailure(brush);
         }
 
@@ -804,7 +806,7 @@ namespace PixDirectX.Rendering
         /// </summary>
         public ILinearGradientBrush CreateLinearGradientBrush(IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
         {
-            return new InternalLinearBrush(_state.D2DRenderTarget, gradientStops, start, end);
+            return new InternalLinearBrush(gradientStops, start, end);
         }
 
         #endregion
@@ -819,18 +821,21 @@ namespace PixDirectX.Rendering
 
         private class InternalBrush : IBrush
         {
+            internal bool IsLoaded { get; set; } = false;
             public Brush Brush { get; protected set; }
 
-            protected virtual void Dispose(bool disposing)
+            public virtual void LoadBrush(RenderTarget renderTarget)
             {
-                if (disposing)
-                    Brush?.Dispose();
+                IsLoaded = true;
             }
 
-            public void Dispose()
+            public virtual void UnloadBrush()
             {
-                Dispose(true);
-                GC.SuppressFinalize(this);
+                if (!IsLoaded)
+                    return;
+
+                IsLoaded = false;
+                Brush.Dispose();
             }
         }
 
@@ -838,38 +843,62 @@ namespace PixDirectX.Rendering
         {
             public Color Color { get; }
 
-            public InternalSolidBrush(RenderTarget renderTarget, Color color)
+            public InternalSolidBrush(Color color)
             {
                 Color = color;
-                Brush = new SolidColorBrush(renderTarget, color.ToColor4());
+            }
+
+            public override void LoadBrush(RenderTarget renderTarget)
+            {
+                if (IsLoaded)
+                    return;
+
+                base.LoadBrush(renderTarget);
+
+                Brush = new SolidColorBrush(renderTarget, Color.ToColor4());
             }
         }
 
         private class InternalLinearBrush : InternalBrush, ILinearGradientBrush
         {
-            private readonly GradientStopCollection _stopCollection;
+            private GradientStopCollection _stopCollection;
             public IReadOnlyList<PixGradientStop> GradientStops { get; }
+            public Vector Start { get; }
+            public Vector End { get; }
 
-            public InternalLinearBrush(RenderTarget renderTarget, [NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
+            public InternalLinearBrush([NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
             {
                 GradientStops = gradientStops;
-                var stops = new GradientStopCollection(renderTarget, gradientStops.Select(ToGradientStop).ToArray());
+                Start = start;
+                End = end;
+            }
+
+            public override void LoadBrush(RenderTarget renderTarget)
+            {
+                if (IsLoaded)
+                    return;
+
+                base.LoadBrush(renderTarget);
+
+                var stops = new GradientStopCollection(renderTarget, GradientStops.Select(ToGradientStop).ToArray());
                 var properties = new LinearGradientBrushProperties
                 {
-                    StartPoint = start.ToRawVector2(),
-                    EndPoint = end.ToRawVector2()
+                    StartPoint = Start.ToRawVector2(),
+                    EndPoint = End.ToRawVector2()
                 };
 
                 Brush = new LinearGradientBrush(renderTarget, properties, stops);
                 _stopCollection = stops;
             }
 
-            protected override void Dispose(bool disposing)
+            public override void UnloadBrush()
             {
-                base.Dispose(disposing);
+                if (!IsLoaded)
+                    return;
 
-                if(disposing)
-                    _stopCollection.Dispose();
+                base.UnloadBrush();
+
+                _stopCollection.Dispose();
             }
 
             private static GradientStop ToGradientStop(PixGradientStop stop)
