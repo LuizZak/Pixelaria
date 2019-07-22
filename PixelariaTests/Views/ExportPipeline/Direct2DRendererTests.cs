@@ -335,7 +335,7 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 renderManager.InitializeDirect2D();
 
-                var listener = new InternalDirect2DRenderListener(_control.PipelineContainer, _control);
+                var listener = new InternalRenderListener(_control.PipelineContainer, _control);
                 renderer.AddRenderListener(listener);
                 
                 renderManager.RenderSingleFrame(state =>

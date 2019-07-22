@@ -29,26 +29,21 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
-using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using RectangleF = System.Drawing.RectangleF;
-using TextRange = SharpDX.DirectWrite.TextRange;
 
 namespace Pixelaria.Views.ExportPipeline
 {
     /// <summary>
     /// Internal render listener for rendering pipeline steps
     /// </summary>
-    internal class InternalDirect2DRenderListener : IRenderListener, IRenderingDecoratorContainer
+    internal class InternalRenderListener : IRenderListener, IRenderingDecoratorContainer
     {
         public int RenderOrder { get; } = RenderOrdering.PipelineView;
 
@@ -57,7 +52,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         protected readonly List<IRenderingDecorator> RenderingDecorators = new List<IRenderingDecorator>();
 
-        public InternalDirect2DRenderListener(IPipelineContainer container, IExportPipelineControl control)
+        public InternalRenderListener(IPipelineContainer container, IExportPipelineControl control)
         {
             _container = container;
             _control = control;
@@ -665,6 +660,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         public static void DrawLabelView([NotNull] IRenderListenerParameters parameters, [NotNull] LabelView labelView, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
+            var renderer = parameters.Renderer;
+
             var renderingState = parameters.State;
             var clippingRegion = parameters.ClippingRegion;
 
@@ -692,86 +689,34 @@ namespace Pixelaria.Views.ExportPipeline
                 foreach (var decorator in decorators)
                     decorator.DecorateLabelView(labelView, ref state);
 
-                var roundedRect = new RoundedRectangle
-                {
-                    RadiusX = 5,
-                    RadiusY = 5,
-                    Rect = new RawRectangleF(0, 0, labelView.Bounds.Width, labelView.Bounds.Height)
-                };
-
-                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.BackgroundColor.ToColor4()))
-                {
-                    renderingState.D2DRenderTarget.FillRoundedRectangle(roundedRect, brush);
-                }
+                renderer.SetFillColor(state.BackgroundColor);
+                renderer.FillRoundedArea(labelView.Bounds, 5, 5);
 
                 if (state.StrokeWidth > 0)
-                    using (var pen = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                    {
-                        renderingState.D2DRenderTarget.DrawRoundedRectangle(roundedRect, pen, state.StrokeWidth);
-                    }
+                {
+                    renderer.SetStrokeColor(state.StrokeColor);
+                    renderer.StrokeRoundedArea(labelView.Bounds, 5, 5);
+                }
 
                 var textBounds = labelView.TextBounds;
 
-                var format = new TextFormat(renderingState.DirectWriteFactory, labelView.TextFont.Name, labelView.TextFont.Size)
+                var format = new TextFormatAttributes(labelView.TextFont.Name, labelView.TextFont.Size)
                 {
-                    TextAlignment = TextAlignment.Leading, 
-                    ParagraphAlignment = ParagraphAlignment.Center
+                    HorizontalTextAlignment = HorizontalTextAlignment.Leading,
+                    VerticalTextAlignment = VerticalTextAlignment.Center
+                };
+                var attributes = new TextLayoutAttributes(format)
+                {
+                    AvailableWidth = textBounds.Width,
+                    AvailableHeight = textBounds.Height
                 };
 
-                using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.TextColor.ToColor4()))
-                using (var textFormat = format)
-                using (var textLayout = new TextLayout(renderingState.DirectWriteFactory, labelView.Text, textFormat, textBounds.Width, textBounds.Height))
-                {
-                    // Apply text attributes
-                    if (labelView.AttributedText.HasAttributes)
+                ITextLayout existing = null;
+                parameters.TextLayoutRenderer.WithPreparedTextLayout(state.TextColor, labelView.AttributedText, ref existing, attributes,
+                    (layout, textRenderer) =>
                     {
-                        var disposes = new List<IDisposable>();
-
-                        foreach (var textSegment in labelView.AttributedText.GetTextSegments())
-                        {
-                            if (textSegment.HasAttribute<ForegroundColorAttribute>())
-                            {
-                                var colorAttr = textSegment.GetAttribute<ForegroundColorAttribute>();
-
-                                var segmentBrush =
-                                    new SolidColorBrush(renderingState.D2DRenderTarget,
-                                        colorAttr.ForeColor.ToColor4());
-
-                                disposes.Add(segmentBrush);
-
-                                textLayout.SetDrawingEffect(segmentBrush,
-                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                            }
-                            if (textSegment.HasAttribute<TextFontAttribute>())
-                            {
-                                var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                                textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                                textLayout.SetFontSize(fontAttr.Font.Size,
-                                    new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                            }
-                        }
-
-                        var textRenderer = parameters.TextColorRenderer;
-
-                        var prev = textRenderer.DefaultBrush;
-                        textRenderer.DefaultBrush = brush;
-
-                        textLayout.Draw(textRenderer, textBounds.Minimum.X, textBounds.Minimum.Y);
-
-                        textRenderer.DefaultBrush = prev;
-
-                        foreach (var disposable in disposes)
-                        {
-                            disposable.Dispose();
-                        }
-                    }
-                    else
-                    {
-                        renderingState.D2DRenderTarget.DrawTextLayout(textBounds.Minimum.ToRawVector2(), textLayout, brush);
-                    }
-                }
+                        textRenderer.Draw(layout, textBounds.Minimum.X, textBounds.Minimum.Y);
+                    });
             });
         }
     }

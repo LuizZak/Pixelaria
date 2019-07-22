@@ -60,7 +60,7 @@ namespace Pixelaria.Views.ExportPipeline
         // Timer used to tick the fixed step OnFixedFrame method on each control feature added
         private readonly Timer _fixedTimer;
 
-        private readonly InternalDirect2DRenderListener _internalRenderer;
+        private readonly InternalRenderListener _internalRenderer;
         private readonly Direct2DRenderer _d2DRenderer;
         
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
@@ -127,7 +127,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _container = new InternalPipelineContainer(this);
 
-            _internalRenderer = new InternalDirect2DRenderListener(_container, this);
+            _internalRenderer = new InternalRenderListener(_container, this);
             _d2DRenderer = new Direct2DRenderer();
             _d2DRenderer.AddRenderListener(_internalRenderer);
 

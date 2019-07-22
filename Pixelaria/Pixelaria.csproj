@@ -262,7 +262,7 @@
     <Compile Include="Views\ExportPipeline\ExportPipelineUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineDirect2DRenderer.cs" />
-    <Compile Include="Views\ExportPipeline\InternalDirect2DRenderListener.cs" />
+    <Compile Include="Views\ExportPipeline\InternalRenderListener.cs" />
     <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
     <Compile Include="Views\ExportPipeline\IRenderingDecorator.cs" />
     <Compile Include="Views\ExportPipeline\PipelineNodePanel\PipelineNodeButtonDragAndDropHandler.cs" />

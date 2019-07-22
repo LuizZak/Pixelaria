@@ -236,7 +236,8 @@ namespace PixDirectX.Rendering
             using (var brush = new SolidColorBrush(_lastRenderingState.D2DRenderTarget, textColor.ToColor4()))
             {
                 var disposes = new List<IDisposable>();
-
+                
+                // Apply text attributes
                 foreach (var textSegment in text.GetTextSegments())
                 {
                     if (textSegment.HasAttribute<ForegroundColorAttribute>())
