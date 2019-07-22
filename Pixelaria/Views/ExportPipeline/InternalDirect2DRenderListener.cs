@@ -39,7 +39,6 @@ using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
-using Brush = SharpDX.Direct2D1.Brush;
 using Color = System.Drawing.Color;
 using PathGeometry = SharpDX.Direct2D1.PathGeometry;
 using RectangleF = System.Drawing.RectangleF;
@@ -502,80 +501,6 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        internal sealed class GeometryCombination : IDisposable
-        {
-            private readonly PathGeometry _geometry;
-            private readonly SharpDX.Direct2D1.Factory _factory;
-
-            public GeometryCombination(SharpDX.Direct2D1.Factory factory)
-            {
-                _factory = factory;
-                _geometry = new PathGeometry(factory);
-            }
-
-            #region IDisposable
-
-            ~GeometryCombination()
-            {
-                Dispose(false);
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-
-                GC.SuppressFinalize(this);
-            }
-
-            private void Dispose(bool disposing)
-            {
-                _geometry?.Dispose();
-            }
-
-            #endregion
-
-            public Geometry GetGeometry()
-            {
-                return _geometry;
-            }
-
-            public void Combine([NotNull] Geometry geometry, CombineMode combineMode)
-            {
-                using (var sink = _geometry.Open())
-                {
-                    geometry.Combine(_geometry, combineMode, sink);
-
-                    sink.Close();
-                }
-            }
-
-            public void Combine([NotNull] Geometry geometry1, [NotNull] Geometry geometry2, CombineMode combineMode)
-            {
-                using (var sink = _geometry.Open())
-                {
-                    geometry1.Combine(geometry2, combineMode, sink);
-
-                    sink.Close();
-                }
-            }
-
-            public void Combine(RawRectangleF rectangle, [NotNull] Geometry geometry, CombineMode combineMode)
-            {
-                using (var rectGeometry = new RectangleGeometry(_factory, rectangle))
-                {
-                    Combine(rectGeometry, geometry, combineMode);
-                }
-            }
-
-            public void Combine([NotNull] Geometry geometry, RawRectangleF rectangle, CombineMode combineMode)
-            {
-                using (var rectGeometry = new RectangleGeometry(_factory, rectangle))
-                {
-                    Combine(geometry, rectGeometry, combineMode);
-                }
-            }
-        }
-
         internal sealed class DisposeBag : IDisposable
         {
             private bool _isDisposed;
@@ -614,7 +539,6 @@ namespace Pixelaria.Views.ExportPipeline
     {
         [NotNull] private readonly PipelineNodeView _nodeView;
         private readonly IRenderListenerParameters _parameters;
-        private readonly IDirect2DRenderingState _state;
         private readonly bool _useNearestNeighborOnIcon;
 
         private IRenderer Renderer => _parameters.Renderer;
@@ -630,7 +554,6 @@ namespace Pixelaria.Views.ExportPipeline
         {
             _nodeView = nodeView;
             _parameters = parameters;
-            _state = _parameters.State;
             _useNearestNeighborOnIcon = useNearestNeighborOnIcon;
         }
 
@@ -639,8 +562,6 @@ namespace Pixelaria.Views.ExportPipeline
             Renderer.PushTransform();
 
             Renderer.Transform = _nodeView.GetAbsoluteTransform();
-
-            var disposeBag = new InternalDirect2DRenderListener.DisposeBag();
 
             // Create rendering states for decorators
             var stepViewState = new PipelineStepViewState
@@ -657,61 +578,41 @@ namespace Pixelaria.Views.ExportPipeline
             foreach (var decorator in decorators)
                 decorator.DecoratePipelineStep(_nodeView, ref stepViewState);
 
+            var roundedRectGeom = PixCore.Geometry.PathGeometry.RoundedRectangle(Bounds, 5, 5, 5);
+            
             // Create disposable objects
-            var roundedRect = new RoundedRectangle
+            var textFormat = new TextFormatAttributes
             {
-                RadiusX = 5,
-                RadiusY = 5,
-                Rect = new RawRectangleF(0, 0, Bounds.Width, Bounds.Height)
+                Font = _nodeView.Font.Name,
+                FontSize = _nodeView.Font.Size,
+                HorizontalTextAlignment = HorizontalTextAlignment.Leading, 
+                VerticalTextAlignment = VerticalTextAlignment.Center
             };
 
-            var roundedRectArea = new RoundedRectangleGeometry(_state.D2DFactory, roundedRect);
-            var bodyFillStopCollection = new GradientStopCollection(_state.D2DRenderTarget, new[]
+            var bodyFillBrush = Renderer.CreateLinearGradientBrush(new[]
             {
-                new GradientStop {Color = stepViewState.FillColor.ToColor4(), Position = 0},
-                new GradientStop {Color = stepViewState.FillColor.Faded(Color.Black, 0.1f).ToColor4(), Position = 1}
-            });
-            var bodyFillGradientBrush = new LinearGradientBrush(
-                _state.D2DRenderTarget,
-                new LinearGradientBrushProperties
-                {
-                    StartPoint = new RawVector2(0, 0),
-                    EndPoint = new RawVector2(0, Bounds.Height)
-                },
-                bodyFillStopCollection);
+                new PixGradientStop(stepViewState.FillColor, 0),
+                new PixGradientStop(stepViewState.FillColor.Faded(Color.Black, 0.1f), 1)
+            }, Vector.Zero, new Vector(0, Bounds.Height));
 
-            var textFormat = new TextFormat(_state.DirectWriteFactory, _nodeView.Font.Name, _nodeView.Font.Size)
-            {
-                TextAlignment = TextAlignment.Leading, 
-                ParagraphAlignment = ParagraphAlignment.Center
-            };
-
-            disposeBag.AddDisposable(roundedRectArea);
-            disposeBag.AddDisposable(bodyFillStopCollection);
-            disposeBag.AddDisposable(bodyFillGradientBrush);
-            disposeBag.AddDisposable(textFormat);
-
-            DrawConnectionLabelsBackground(roundedRectArea, bodyFillGradientBrush);
-            DrawConnectionsBackground(roundedRectArea);
-            DrawTitleBackground(roundedRectArea, stepViewState);
-            DrawBodyText(stepViewState, roundedRectArea, bodyFillGradientBrush, textFormat);
-            DrawBodyOutline(stepViewState, roundedRect);
+            DrawConnectionLabelsBackground(roundedRectGeom, bodyFillBrush);
+            DrawConnectionsBackground(roundedRectGeom);
+            DrawTitleBackground(roundedRectGeom, stepViewState);
+            DrawBodyText(stepViewState, roundedRectGeom, bodyFillBrush, textFormat);
+            DrawBodyOutline(stepViewState, Bounds, 5, 5);
             DrawIcon(TitleArea);
             DrawTitleText(textFormat, stepViewState);
             DrawLinkViews(decorators);
-
-            disposeBag.Dispose();
         }
 
-        private void DrawConnectionLabelsBackground([NotNull] Geometry bodyGeometry, Brush bodyFillGradientBrush)
+        private void DrawConnectionLabelsBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry, [NotNull] IBrush bodyFillGradientBrush)
         {
-            using (var linkAreaGeom = new InternalDirect2DRenderListener.GeometryCombination(_state.D2DFactory))
-            {
-                linkAreaGeom.Combine(LinkLabelArea.ToRawRectangleF(), bodyGeometry, CombineMode.Intersect);
+            var linkAreaGeom = PixCore.Geometry.PathGeometry.Rectangle(LinkLabelArea);
+            linkAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
 
-                // Fill for link label area
-                _state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), bodyFillGradientBrush);
-            }
+            // Fill for link label area
+            Renderer.SetFillBrush(bodyFillGradientBrush);
+            Renderer.FillGeometry(linkAreaGeom);
         }
 
         private void DrawLinkViews(IReadOnlyList<IRenderingDecorator> decorators)
@@ -727,7 +628,7 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 float yLine = (float)Math.Round(OutLinks.Select(o => o.FrameOnParent.Bottom + 6).Max());
 
-                Renderer.StrokeColor = Color.Gray.WithTransparency(0.5f);
+                Renderer.SetStrokeColor(Color.Gray.WithTransparency(0.5f));
                 Renderer.StrokeLine(new Vector(LinkLabelArea.Left + 6, yLine), new Vector(LinkLabelArea.Right - 6, yLine));
             }
 
@@ -738,55 +639,44 @@ namespace Pixelaria.Views.ExportPipeline
             }
         }
 
-        private void DrawBodyOutline(PipelineStepViewState stepViewState, RoundedRectangle roundedRect)
+        private void DrawBodyOutline(PipelineStepViewState stepViewState, AABB rect, float radiusX, float radiusY)
         {
-            Renderer.StrokeColor = stepViewState.StrokeColor;
+            Renderer.SetStrokeColor(stepViewState.StrokeColor);
             Renderer.StrokeWidth = stepViewState.StrokeWidth;
 
-            Renderer.StrokeRoundedArea(roundedRect.Rect.ToAABB(), roundedRect.RadiusX, roundedRect.RadiusY);
+            Renderer.StrokeRoundedArea(rect, radiusX, radiusY);
         }
 
-        private void DrawTitleBackground([NotNull] Geometry bodyGeometry, PipelineStepViewState stepViewState)
+        private void DrawTitleBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry, PipelineStepViewState stepViewState)
         {
-            using (var titleAreaGeom = new InternalDirect2DRenderListener.GeometryCombination(_state.D2DFactory))
-            {
-                var titleRect = new RawRectangleF(0, 0, TitleArea.Width, TitleArea.Height);
+            var titleRect = AABB.FromRectangle(0, 0, TitleArea.Width, TitleArea.Height);
 
-                titleAreaGeom.Combine(titleRect, bodyGeometry, CombineMode.Intersect);
+            var titleAreaGeom = PixCore.Geometry.PathGeometry.Rectangle(titleRect);
+            titleAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
 
-                // Fill title BG
-                using (var solidColorBrush =
-                    new SolidColorBrush(_state.D2DRenderTarget, stepViewState.TitleFillColor.ToColor4()))
-                {
-                    _state.D2DRenderTarget.FillGeometry(titleAreaGeom.GetGeometry(), solidColorBrush);
-                }
-            }
+            // Fill title BG
+            Renderer.SetFillColor(stepViewState.TitleFillColor);
+            Renderer.FillGeometry(titleAreaGeom);
         }
 
-        private void DrawConnectionsBackground([NotNull] Geometry bodyGeometry)
+        private void DrawConnectionsBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry)
         {
-            using (var stopCollection = new GradientStopCollection(_state.D2DRenderTarget, new[]
+            var stops = new[]
             {
-                new GradientStop {Color = Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f).ToColor4(), Position = 0},
-                new GradientStop {Color = Color.Black.WithTransparency(0.5f).ToColor4(), Position = 0.3f}
-            }))
-            using (var gradientBrush = new LinearGradientBrush(
-                _state.D2DRenderTarget,
-                new LinearGradientBrushProperties
-                {
-                    StartPoint = new RawVector2(0, 0),
-                    EndPoint = new RawVector2(0, Bounds.Height)
-                },
-                stopCollection))
-            using (var linkAreaGeom = new InternalDirect2DRenderListener.GeometryCombination(_state.D2DFactory))
-            {
-                linkAreaGeom.Combine(bodyGeometry, LinkLabelArea.ToRawRectangleF(), CombineMode.Exclude);
+                new PixGradientStop(Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f), 0),
+                new PixGradientStop(Color.Black.WithTransparency(0.5f), 0.3f)
+            };
 
-                _state.D2DRenderTarget.FillGeometry(linkAreaGeom.GetGeometry(), gradientBrush);
-            }
+            var brush = Renderer.CreateLinearGradientBrush(stops, Vector.Zero, new Vector(0, Bounds.Height));
+
+            var linkAreaGeom = new PixCore.Geometry.PathGeometry(bodyGeometry);
+            linkAreaGeom.Combine(LinkLabelArea, GeometryOperation.Exclude);
+
+            Renderer.SetFillBrush(brush);
+            Renderer.FillGeometry(linkAreaGeom);
         }
 
-        private void DrawBodyText(PipelineStepViewState stepViewState, Geometry bodyGeometry, Brush bodyFillBrush, TextFormat textFormat)
+        private void DrawBodyText(PipelineStepViewState stepViewState, PixCore.Geometry.PathGeometry bodyGeometry, IBrush bodyFillBrush, TextFormatAttributes textFormatAttributes)
         {
             string bodyText = _nodeView.BodyText;
             if (string.IsNullOrEmpty(bodyText))
@@ -799,31 +689,22 @@ namespace Pixelaria.Views.ExportPipeline
             if (hasLinks)
             {
                 yLine = (float)Math.Round(OutLinks.Concat(InLinks).Select(o => o.FrameOnParent.Bottom + 6).Max());
-                using (var brush = new SolidColorBrush(_state.D2DRenderTarget,
-                    stepViewState.StrokeColor.WithTransparency(0.7f).ToColor4()))
-                {
-                    _state.D2DRenderTarget.DrawLine(new Vector(0, yLine).ToRawVector2(),
-                        new Vector(_nodeView.Width, yLine).ToRawVector2(), brush);
-                }
+
+                Renderer.SetStrokeColor(stepViewState.StrokeColor.WithTransparency(0.7f));
+                Renderer.StrokeLine(new Vector(0, yLine), new Vector(_nodeView.Width, yLine));
             }
 
             // Draw fill color
-            using (var textAreaGeom = new InternalDirect2DRenderListener.GeometryCombination(_state.D2DFactory))
+            var areaOnView = new AABB(0, hasLinks ? yLine : TitleArea.Bottom, _nodeView.Height, _nodeView.Width);
+
+            var textAreaGeom = PixCore.Geometry.PathGeometry.Rectangle(areaOnView);
+            textAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
+
+            Renderer.SetFillBrush(bodyFillBrush);
+            Renderer.FillGeometry(textAreaGeom);
+
+            var attributes = new TextLayoutAttributes(textFormatAttributes)
             {
-                var areaOnView = new AABB(0, hasLinks ? yLine : TitleArea.Bottom, _nodeView.Height, _nodeView.Width);
-
-                textAreaGeom.Combine(areaOnView.ToRawRectangleF(), bodyGeometry, CombineMode.Intersect);
-
-                _state.D2DRenderTarget.FillGeometry(textAreaGeom.GetGeometry(), bodyFillBrush);
-            }
-
-            var attributes = new TextLayoutAttributes
-            {
-                Font = textFormat.FontFamilyName,
-                FontSize = textFormat.FontSize,
-                HorizontalTextAlignment = Direct2DConversionHelpers.HorizontalTextAlignmentFor(textFormat.TextAlignment),
-                VerticalTextAlignment = Direct2DConversionHelpers.VerticalTextAlignmentFor(textFormat.ParagraphAlignment),
-                WordWrap = Direct2DConversionHelpers.TextWordWrapFor(textFormat.WordWrapping),
                 AvailableWidth = BodyTextArea.Width,
                 AvailableHeight = BodyTextArea.Height
             };
@@ -836,15 +717,10 @@ namespace Pixelaria.Views.ExportPipeline
                 });
         }
 
-        private void DrawTitleText([NotNull] TextFormat textFormat, PipelineStepViewState stepViewState)
+        private void DrawTitleText([NotNull] TextFormatAttributes textFormatAttributes, PipelineStepViewState stepViewState)
         {
-            var attributes = new TextLayoutAttributes
+            var attributes = new TextLayoutAttributes(textFormatAttributes)
             {
-                Font = textFormat.FontFamilyName,
-                FontSize = textFormat.FontSize,
-                HorizontalTextAlignment = Direct2DConversionHelpers.HorizontalTextAlignmentFor(textFormat.TextAlignment),
-                VerticalTextAlignment = Direct2DConversionHelpers.VerticalTextAlignmentFor(textFormat.ParagraphAlignment),
-                WordWrap = Direct2DConversionHelpers.TextWordWrapFor(textFormat.WordWrapping),
                 AvailableWidth = _nodeView.TitleTextArea.Width,
                 AvailableHeight = _nodeView.TitleTextArea.Height
             };
@@ -864,27 +740,22 @@ namespace Pixelaria.Views.ExportPipeline
 
             var icon = _nodeView.Icon.Value;
 
-            var bitmap = _parameters.ImageResources.BitmapForResource(icon);
-            if (bitmap == null)
-                return;
-
             float imgY = titleArea.Height / 2 - (float)icon.Height / 2;
             var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
 
-            var mode = BitmapInterpolationMode.Linear;
+            var mode = ImageInterpolationMode.Linear;
 
             // Draw with pixel quality when zoomed in so icon doesn't render all blurry
             if (_useNearestNeighborOnIcon)
             {
-                mode = BitmapInterpolationMode.NearestNeighbor;
+                mode = ImageInterpolationMode.NearestNeighbor;
             }
 
-            _state.D2DRenderTarget.DrawBitmap(bitmap, imgBounds.ToRawRectangleF(), 1f, mode);
+            Renderer.DrawBitmap(icon, (RectangleF)imgBounds, 1, mode);
         }
 
         private void DrawNodeLinkView([NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
-            var state = _parameters.State;
             var clippingRegion = _parameters.ClippingRegion;
 
             Renderer.PushTransform();
@@ -913,8 +784,8 @@ namespace Pixelaria.Views.ExportPipeline
 
                 var rectangle = link.Bounds;
 
-                Renderer.StrokeColor = linkState.StrokeColor;
-                Renderer.FillColor = linkState.FillColor;
+                Renderer.SetStrokeColor(linkState.StrokeColor);
+                Renderer.SetFillColor(linkState.FillColor);
 
                 Renderer.FillEllipse(rectangle);
                 Renderer.StrokeEllipse(rectangle);

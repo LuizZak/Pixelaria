@@ -649,7 +649,7 @@ namespace PixUI.Controls
             var characterBounds =
                 context.TextMetricsProvider.LocationOfCharacters(_textEngine.Caret.Start, _textEngine.Caret.Length, _label.AttributedText, _label.TextLayoutAttributes());
 
-            context.Renderer.FillColor = Style.SelectionColor;
+            context.Renderer.SetFillColor(Style.SelectionColor);
 
             foreach (var bounds in characterBounds)
             {
@@ -676,7 +676,7 @@ namespace PixUI.Controls
 
             var caretLocation = GetCaretBounds(context);
 
-            context.Renderer.FillColor = Style.CaretColor.WithTransparency(transparency);
+            context.Renderer.SetFillColor(Style.CaretColor.WithTransparency(transparency));
             context.Renderer.FillArea(caretLocation);
         }
 
@@ -686,13 +686,10 @@ namespace PixUI.Controls
 
             string text = Text;
 
-            var attributes = new TextLayoutAttributes(_label.TextFont.Name, _label.TextFont.Size)
+            var attributes = new TextLayoutAttributes(_label.TextFont.Name, _label.TextFont.Size, _label.HorizontalTextAlignment, _label.VerticalTextAlignment, _label.TextWordWrap)
             {
-                HorizontalTextAlignment = _label.HorizontalTextAlignment,
-                VerticalTextAlignment = _label.VerticalTextAlignment,
                 AvailableWidth = _label.Width,
                 AvailableHeight = _label.Height,
-                WordWrap = _label.TextWordWrap
             };
 
             var provider = context.TextMetricsProvider;

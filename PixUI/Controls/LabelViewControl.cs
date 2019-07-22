@@ -186,7 +186,7 @@ namespace PixUI.Controls
                 {
                     var attr = segment.GetAttribute<BackgroundColorAttribute>();
 
-                    context.Renderer.FillColor = attr.BackColor;
+                    context.Renderer.SetFillColor(attr.BackColor);
 
                     var bounds = context.TextMetricsProvider.LocationOfCharacters(segment.TextRange.Start, segment.TextRange.Length, AttributedText, TextLayoutAttributes());
 
@@ -212,11 +212,10 @@ namespace PixUI.Controls
         /// </summary>
         public TextLayoutAttributes TextLayoutAttributes()
         {
-            return new TextLayoutAttributes(TextFont.Name, TextFont.Size, HorizontalTextAlignment, VerticalTextAlignment)
+            return new TextLayoutAttributes(TextFont.Name, TextFont.Size, HorizontalTextAlignment, VerticalTextAlignment, TextWordWrap)
             {
                 AvailableWidth = Width,
-                AvailableHeight = Height,
-                WordWrap = TextWordWrap
+                AvailableHeight = Height
             };
         }
 

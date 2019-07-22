@@ -267,7 +267,7 @@ namespace PixUI.Controls
             var image = Image.Value;
             var bitmapBounds = BoundsForImage(image);
 
-            context.Renderer.DrawBitmap(image, (RectangleF)bitmapBounds, 1, ImageInterpolation.Linear);
+            context.Renderer.DrawBitmap(image, (RectangleF)bitmapBounds, 1, ImageInterpolationMode.Linear);
         }
 
         private AABB BoundsForText()

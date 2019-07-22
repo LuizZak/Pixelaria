@@ -1,4 +1,27 @@
-﻿using System.Drawing;
+﻿/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
+
+using System.Collections.Generic;
+using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 
@@ -9,15 +32,6 @@ namespace PixDirectX.Rendering
     /// </summary>
     public interface IRenderer
     {
-        /// <summary>
-        /// Gets or sets the color for Fill- operations
-        /// </summary>
-        Color FillColor { get; set; }
-        /// <summary>
-        /// Gets or sets the color for Stroke- operations
-        /// </summary>
-        Color StrokeColor { get; set; }
-
         /// <summary>
         /// Gets or sets the width of the stroke for Stroke- operations
         /// </summary>
@@ -98,8 +112,17 @@ namespace PixDirectX.Rendering
         /// <param name="image">An image resource to render.</param>
         /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
         /// <param name="opacity">Opacity to use when rendering the image.</param>
-        /// <param name="interpolation">The interpolation mode to use when rendering the image.</param>
-        void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolation interpolation);
+        /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
+        void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode);
+
+        /// <summary>
+        /// Renders an image resource.
+        /// </summary>
+        /// <param name="image">An image resource to render.</param>
+        /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
+        /// <param name="opacity">Opacity to use when rendering the image.</param>
+        /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
+        void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode);
 
         #endregion
 
@@ -135,12 +158,41 @@ namespace PixDirectX.Rendering
         void PopTransform();
 
         #endregion
+
+        #region Brush
+
+        /// <summary>
+        /// Sets the stroke color for this renderer.
+        /// </summary>
+        void SetStrokeColor(Color color);
+
+        /// <summary>
+        /// Sets the stroke brush for this renderer.
+        /// </summary>
+        void SetStrokeBrush([NotNull] IBrush brush);
+
+        /// <summary>
+        /// Sets the fill color for this renderer.
+        /// </summary>
+        void SetFillColor(Color color);
+
+        /// <summary>
+        /// Sets the fill brush for this renderer.
+        /// </summary>
+        void SetFillBrush([NotNull] IBrush brush);
+
+        /// <summary>
+        /// Creates a linear gradient brush for drawing.
+        /// </summary>
+        ILinearGradientBrush CreateLinearGradientBrush([NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end);
+
+        #endregion
     }
 
     /// <summary>
     /// Specifies the image interpolation mode to use when rendering bitmaps in an <see cref="IRenderer"/>.
     /// </summary>
-    public enum ImageInterpolation
+    public enum ImageInterpolationMode
     {
         NearestNeighbor,
         Linear

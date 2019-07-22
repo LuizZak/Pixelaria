@@ -131,8 +131,8 @@ namespace PixUI.Controls
         /// </summary>
         public virtual void RenderBackground([NotNull] ControlRenderingContext context)
         {
-            context.Renderer.StrokeColor = StrokeColor;
-            context.Renderer.FillColor = BackColor;
+            context.Renderer.SetStrokeColor(StrokeColor);
+            context.Renderer.SetFillColor(BackColor);
 
             // Default background renderer
             if (Math.Abs(CornerRadius) < float.Epsilon)

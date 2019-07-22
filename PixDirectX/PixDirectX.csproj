@@ -79,6 +79,8 @@
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\IRenderListener.cs" />
     <Compile Include="Rendering\ITextMetricsProvider.cs" />
+    <Compile Include="Rendering\PixBrush.cs" />
+    <Compile Include="Rendering\TextFormatAttributes.cs" />
     <Compile Include="Rendering\TextLayoutAttributes.cs" />
     <Compile Include="Utils\GeomExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

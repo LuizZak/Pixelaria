@@ -29,12 +29,7 @@ namespace PixDirectX.Rendering
     /// </summary>
     public struct TextLayoutAttributes
     {
-        [NotNull]
-        public string Font { get; set; }
-        public float FontSize { get; set; }
-        public HorizontalTextAlignment HorizontalTextAlignment { get; set; }
-        public VerticalTextAlignment VerticalTextAlignment { get; set; }
-        public TextWordWrap WordWrap { get; set; }
+        public TextFormatAttributes TextFormatAttributes { get; set; }
 
         /// <summary>
         /// Total available width to draw text onto
@@ -48,45 +43,27 @@ namespace PixDirectX.Rendering
 
         public TextLayoutAttributes([NotNull] string font, float fontSize,
             HorizontalTextAlignment horizontal = HorizontalTextAlignment.Leading,
-            VerticalTextAlignment vertical = VerticalTextAlignment.Near)
+            VerticalTextAlignment vertical = VerticalTextAlignment.Near,
+            TextWordWrap wordWrap = TextWordWrap.ByWord)
         {
-            Font = font;
-            FontSize = fontSize;
-            HorizontalTextAlignment = horizontal;
-            VerticalTextAlignment = vertical;
+            TextFormatAttributes = new TextFormatAttributes
+            {
+                Font = font,
+                FontSize = fontSize,
+                HorizontalTextAlignment = horizontal,
+                VerticalTextAlignment = vertical,
+                WordWrap = wordWrap
+            };
+
             AvailableWidth = float.PositiveInfinity;
             AvailableHeight = float.PositiveInfinity;
-            WordWrap = TextWordWrap.ByWord;
         }
-    }
-    
-    /// <summary>
-    /// Horizontal text alignment.
-    /// </summary>
-    public enum HorizontalTextAlignment
-    {
-        Leading,
-        Center,
-        Trailing
-    }
 
-    /// <summary>
-    /// Vertical text alignment.
-    /// </summary>
-    public enum VerticalTextAlignment
-    {
-        Near,
-        Center,
-        Far
-    }
-    
-    /// <summary>
-    /// Text word wrap.
-    /// </summary>
-    public enum TextWordWrap
-    {
-        None,
-        ByCharacter,
-        ByWord
+        public TextLayoutAttributes(TextFormatAttributes textFormatAttributes)
+        {
+            TextFormatAttributes = textFormatAttributes;
+            AvailableWidth = float.PositiveInfinity;
+            AvailableHeight = float.PositiveInfinity;
+        }
     }
 }

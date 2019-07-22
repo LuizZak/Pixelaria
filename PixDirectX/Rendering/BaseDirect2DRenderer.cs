@@ -194,13 +194,13 @@ namespace PixDirectX.Rendering
                 throw new InvalidOperationException("Direct2D renderer has no previous rendering state to derive a DirectWrite factory from.");
 
             var horizontalAlign =
-                Direct2DConversionHelpers.DirectWriteAlignmentFor(attributes.HorizontalTextAlignment);
+                Direct2DConversionHelpers.DirectWriteAlignmentFor(attributes.TextFormatAttributes.HorizontalTextAlignment);
             var verticalAlign =
-                Direct2DConversionHelpers.DirectWriteAlignmentFor(attributes.VerticalTextAlignment);
+                Direct2DConversionHelpers.DirectWriteAlignmentFor(attributes.TextFormatAttributes.VerticalTextAlignment);
             var wordWrap =
-                Direct2DConversionHelpers.DirectWriteWordWrapFor(attributes.WordWrap);
+                Direct2DConversionHelpers.DirectWriteWordWrapFor(attributes.TextFormatAttributes.WordWrap);
 
-            var textFormat = new TextFormat(directWriteFactory, attributes.Font, attributes.FontSize)
+            var textFormat = new TextFormat(directWriteFactory, attributes.TextFormatAttributes.Font, attributes.TextFormatAttributes.FontSize)
             {
                 TextAlignment = horizontalAlign,
                 ParagraphAlignment = verticalAlign,
@@ -424,14 +424,14 @@ namespace PixDirectX.Rendering
             private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes,
                 [NotNull] Func<TextFormat, TextLayout, T> action)
             {
-                var format = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.Font,
-                    textLayoutAttributes.FontSize)
+                var format = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.TextFormatAttributes.Font,
+                    textLayoutAttributes.TextFormatAttributes.FontSize)
                 {
                     TextAlignment =
-                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.HorizontalTextAlignment),
+                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.TextFormatAttributes.HorizontalTextAlignment),
                     ParagraphAlignment =
-                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.VerticalTextAlignment),
-                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.WordWrap)
+                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.TextFormatAttributes.VerticalTextAlignment),
+                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.TextFormatAttributes.WordWrap)
                 };
 
 
@@ -687,16 +687,19 @@ namespace PixDirectX.Rendering
         {
             using (var geom = new SharpDX.Direct2D1.PathGeometry(_state.D2DFactory))
             {
+                var sink = geom.Open();
+
                 foreach (var polygon in geometry.Polygons())
                 {
-                    var sink = geom.Open();
                     sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
                     foreach (var vector in polygon.Skip(1))
                     {
                         sink.AddLine(vector.ToRawVector2());
                     }
-                    sink.Close();
+                    sink.EndFigure(FigureEnd.Closed);
                 }
+
+                sink.Close();
 
                 _state.D2DRenderTarget.FillGeometry(geom, BrushForFill());
             }
@@ -706,21 +709,26 @@ namespace PixDirectX.Rendering
 
         #region Bitmap
 
-        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolation interpolation)
+        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode)
         {
             var bitmap = _imageResource.BitmapForResource(image);
             Contract.Assert(bitmap != null, $"No bitmap found for image resource {image}. Make sure the bitmap is pre-loaded before using it.");
 
-            _state.D2DRenderTarget.DrawBitmap(bitmap, new AABB(region).ToRawRectangleF(), opacity, ToBitmapInterpolation(interpolation));
+            _state.D2DRenderTarget.DrawBitmap(bitmap, new AABB(region).ToRawRectangleF(), opacity, ToBitmapInterpolation(interpolationMode));
         }
 
-        private static BitmapInterpolationMode ToBitmapInterpolation(ImageInterpolation imageInterpolation)
+        public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
         {
-            switch (imageInterpolation)
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
+        }
+
+        private static BitmapInterpolationMode ToBitmapInterpolation(ImageInterpolationMode imageInterpolationMode)
+        {
+            switch (imageInterpolationMode)
             {
-                case ImageInterpolation.Linear:
+                case ImageInterpolationMode.Linear:
                     return BitmapInterpolationMode.Linear;
-                case ImageInterpolation.NearestNeighbor:
+                case ImageInterpolationMode.NearestNeighbor:
                     return BitmapInterpolationMode.NearestNeighbor;
                 default:
                     return BitmapInterpolationMode.Linear;
@@ -776,6 +784,102 @@ namespace PixDirectX.Rendering
         }
 
         #endregion
+
+        #region Brush
+
+        /// <summary>
+        /// Sets the stroke color for this renderer
+        /// </summary>
+        public void SetStrokeColor(Color color)
+        {
+            _strokeBrush = new SolidColorBrush(_state.D2DRenderTarget, color.ToColor4());
+        }
+
+        /// <summary>
+        /// Sets the stroke brush for this renderer.
+        /// </summary>
+        public void SetStrokeBrush(IBrush brush)
+        {
+            _strokeBrush = CastBrushOrFailure(brush).Brush;
+        }
+
+        /// <summary>
+        /// Sets the fill color for this renderer
+        /// </summary>
+        public void SetFillColor(Color color)
+        {
+            _fillBrush = new SolidColorBrush(_state.D2DRenderTarget, color.ToColor4());
+        }
+
+        /// <summary>
+        /// Sets the fill brush for this renderer.
+        /// </summary>
+        public void SetFillBrush(IBrush brush)
+        {
+            _fillBrush = CastBrushOrFailure(brush).Brush;
+        }
+
+        /// <summary>
+        /// Creates a linear gradient brush for drawing.
+        /// </summary>
+        public ILinearGradientBrush CreateLinearGradientBrush(IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
+        {
+            return new InternalLinearBrush(_state.D2DRenderTarget, gradientStops, start, end);
+        }
+
+        #endregion
+
+        private static InternalBrush CastBrushOrFailure([NotNull] IBrush brush)
+        {
+            if (brush is InternalBrush internalBrush)
+                return internalBrush;
+
+            throw new InvalidOperationException($"Expected a brush of type {typeof(InternalBrush)}");
+        }
+
+        private class InternalBrush : IBrush
+        {
+            public Brush Brush { get; protected set; }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing)
+                    Brush?.Dispose();
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        private class InternalLinearBrush : InternalBrush, ILinearGradientBrush
+        {
+            public IReadOnlyList<PixGradientStop> GradientStops { get; }
+
+            public InternalLinearBrush(RenderTarget renderTarget, [NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
+            {
+                GradientStops = gradientStops;
+                var stops = new GradientStopCollection(renderTarget, gradientStops.Select(ToGradientStop).ToArray());
+                var properties = new LinearGradientBrushProperties
+                {
+                    StartPoint = start.ToRawVector2(),
+                    EndPoint = end.ToRawVector2()
+                };
+
+                Brush = new LinearGradientBrush(renderTarget, properties, stops);
+            }
+
+            private static GradientStop ToGradientStop(PixGradientStop stop)
+            {
+                return new GradientStop
+                {
+                    Color = stop.Color.ToColor4(),
+                    Position = stop.Position
+                };
+            }
+        }
     }
 
     public struct RenderListenerParameters : IRenderListenerParameters

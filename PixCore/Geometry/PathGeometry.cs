@@ -47,6 +47,15 @@ namespace PixCore.Geometry
 
         }
 
+        /// <summary>
+        /// Creates a copy of a given path geometry object.
+        /// </summary>
+        /// <param name="copying">The object to copy onto this new geometry path.</param>
+        public PathGeometry([NotNull] PathGeometry copying)
+        {
+            _paths.AddRange(copying._paths);
+        }
+
         private PathGeometry(Path path)
         {
             _paths.Add(path);
@@ -91,6 +100,14 @@ namespace PixCore.Geometry
             }
 
             _paths = solution.Select(p => new Path(p, Scale)).ToList();
+        }
+
+        /// <summary>
+        /// Combines this path geometry with an area using a given <see cref="GeometryOperation"/>.
+        /// </summary>
+        public void Combine(AABB area, GeometryOperation operation)
+        {
+            Combine(PathGeometry.Rectangle(area), operation);
         }
 
         /// <summary>
