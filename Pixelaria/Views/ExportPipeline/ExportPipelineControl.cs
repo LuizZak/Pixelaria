@@ -60,7 +60,7 @@ namespace Pixelaria.Views.ExportPipeline
         [CanBeNull]
         private ExportPipelineUiFeature _exclusiveControl;
 
-        private readonly ClippingRegion _clippingRegion = new ClippingRegion();
+        private readonly Direct2DClippingRegion _clippingRegion = new Direct2DClippingRegion();
 
         #region Intrinsic Features
 
@@ -214,17 +214,17 @@ namespace Pixelaria.Views.ExportPipeline
                 return;
 
             // Use clipping region
-            var clipState = _clippingRegion.PushDirect2DClipping(state);
+            var clipState = _clippingRegion.PushDirect2DClipping((IDirect2DRenderingState)state);
 
             RendererManager.Render(state, _clippingRegion);
 
-            _clippingRegion.PopDirect2DClipping(state, clipState);
+            _clippingRegion.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 
             _clippingRegion.Clear();
         }
 
         /// <summary>
-        /// Invalidates the Direct2D renderer for this control.
+        /// Invalidates the renderer for this control.
         /// 
         /// The rendering context will be re-created on the next call to <see cref="Render"/>
         /// </summary>
@@ -1167,21 +1167,6 @@ namespace Pixelaria.Views.ExportPipeline
         public override bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
         {
             return true;
-        }
-        
-        public override IClippingState PushDirect2DClipping(IRenderLoopState state)
-        {
-            return new DummyD2DClippingState();
-        }
-
-        public override void PopDirect2DClipping(IRenderLoopState state, IClippingState clipState)
-        {
-            
-        }
-
-        private class DummyD2DClippingState : IClippingState
-        {
-
         }
     }
 

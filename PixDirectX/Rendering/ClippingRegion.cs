@@ -20,16 +20,12 @@
     base directory of this project.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Geometry.Algorithms;
-using PixDirectX.Utils;
-using SharpDX;
-using SharpDX.Direct2D1;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
@@ -161,91 +157,6 @@ namespace PixDirectX.Rendering
             return _rectangles.Count == 0;
         }
 
-        public virtual IClippingState PushDirect2DClipping([NotNull] IRenderLoopState renderLoopState)
-        {
-            var state = (IDirect2DRenderingState) renderLoopState;
-
-            var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
-
-            var aabbClips = RedrawRegionRectangles(size).Select(rect => (AABB) rect).ToArray();
-
-            // If we're only working with a single rectangular clip, use a plain axis-aligned clip
-            if (aabbClips.Length == 1)
-            {
-                state.D2DRenderTarget.PushAxisAlignedClip(aabbClips[0].ToRawRectangleF(), AntialiasMode.Aliased);
-
-                return new Direct2DAxisAlignedClippingState();
-            }
-
-            var geom = new PathGeometry(state.D2DFactory);
-            using (var sink = geom.Open())
-            {
-                sink.SetFillMode(FillMode.Winding);
-
-                // Create geometry
-                var poly = new PolyGeometry();
-                foreach (var aabb in aabbClips)
-                {
-                    poly.Combine(aabb, GeometryOperation.Union);
-                }
-
-                foreach (var polygon in poly.Polygons())
-                {
-                    sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
-
-                    foreach (var corner in polygon.Skip(1))
-                    {
-                        sink.AddLine(corner.ToRawVector2());
-                    }
-
-                    sink.EndFigure(FigureEnd.Closed);
-                }
-
-                sink.Close();
-            }
-
-            var layerParams = new LayerParameters
-            {
-                ContentBounds = SharpDX.RectangleF.Infinite,
-                MaskAntialiasMode = AntialiasMode.Aliased,
-                Opacity = 1f,
-                GeometricMask = geom,
-                MaskTransform = Matrix3x2.Identity,
-                LayerOptions = LayerOptions.InitializeForCleartype
-            };
-
-            var layer = new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size);
-            state.D2DRenderTarget.PushLayer(ref layerParams, layer);
-
-            return new Direct2DGeometryClippingState(geom, layer);
-        }
-
-        public virtual void PopDirect2DClipping([NotNull] IRenderLoopState renderLoopState, [NotNull] IClippingState clipState)
-        {
-            var state = (IDirect2DRenderingState)renderLoopState;
-
-            switch (clipState)
-            {
-                case Direct2DAxisAlignedClippingState _:
-                    state.D2DRenderTarget.PopAxisAlignedClip();
-
-                    break;
-                case Direct2DGeometryClippingState d2DClip:
-                    state.D2DRenderTarget.PopLayer();
-
-                    d2DClip.Dispose();
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Stores context about a Direct2D clipping operation.
-        /// </summary>
-        public interface IClippingState
-        {
-
-        }
-
         private void Dissect()
         {
             var ret = RectangleDissection.Dissect(_rectangles);
@@ -254,29 +165,6 @@ namespace PixDirectX.Rendering
             _rectangles.AddRange(ret);
 
             _needsDissect = false;
-        }
-
-        private struct Direct2DGeometryClippingState : IClippingState, IDisposable
-        {
-            private Geometry Geometry { get; }
-            private Layer Layer { get; }
-
-            public Direct2DGeometryClippingState(Geometry geometry, Layer layer)
-            {
-                Geometry = geometry;
-                Layer = layer;
-            }
-
-            public void Dispose()
-            {
-                Geometry?.Dispose();
-                Layer?.Dispose();
-            }
-        }
-
-        private sealed class Direct2DAxisAlignedClippingState : IClippingState
-        {
-
         }
     }
 }
