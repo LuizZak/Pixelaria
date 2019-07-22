@@ -76,6 +76,8 @@
     <Compile Include="Rendering\IDirect2DRenderer.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
     <Compile Include="Rendering\ImageResource.cs" />
+    <Compile Include="Rendering\IPathGeometry.cs" />
+    <Compile Include="Rendering\IPathInputSink.cs" />
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\IRenderListener.cs" />
     <Compile Include="Rendering\ITextMetricsProvider.cs" />

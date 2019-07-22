@@ -40,7 +40,6 @@ using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Factory = SharpDX.DirectWrite.Factory;
-using PathGeometry = PixCore.Geometry.PathGeometry;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
@@ -524,8 +523,6 @@ namespace PixDirectX.Rendering
         private readonly IDirect2DRenderingState _state;
         private readonly ID2DImageResourceProvider _imageResource;
 
-        public float StrokeWidth { get; set; } = 1;
-
         public Matrix2D Transform
         {
             get => _state.Transform.ToMatrix2D();
@@ -560,34 +557,34 @@ namespace PixDirectX.Rendering
 
         #region Stroke
 
-        public void StrokeLine(Vector start, Vector end)
+        public void StrokeLine(Vector start, Vector end, float strokeWidth = 1)
         {
-            _state.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), BrushForStroke(), StrokeWidth);
+            _state.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), BrushForStroke(), strokeWidth);
         }
 
-        public void StrokeCircle(Vector center, float radius)
+        public void StrokeCircle(Vector center, float radius, float strokeWidth = 1)
         {
-            StrokeEllipse(new AABB(center - new Vector(radius) * 2, center + new Vector(radius) * 2));
+            StrokeEllipse(new AABB(center - new Vector(radius) * 2, center + new Vector(radius) * 2), strokeWidth);
         }
 
-        public void StrokeEllipse(AABB ellipseArea)
+        public void StrokeEllipse(AABB ellipseArea, float strokeWidth = 1)
         {
             var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
 
-            _state.D2DRenderTarget.DrawEllipse(ellipse, BrushForStroke(), StrokeWidth);
+            _state.D2DRenderTarget.DrawEllipse(ellipse, BrushForStroke(), strokeWidth);
         }
 
-        public void StrokeRectangle(RectangleF rectangle)
+        public void StrokeRectangle(RectangleF rectangle, float strokeWidth = 1)
         {
-            StrokeArea(new AABB(rectangle));
+            StrokeArea(new AABB(rectangle), strokeWidth);
         }
 
-        public void StrokeArea(AABB area)
+        public void StrokeArea(AABB area, float strokeWidth = 1)
         {
-            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectangleF(), BrushForStroke(), StrokeWidth);
+            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectangleF(), BrushForStroke(), strokeWidth);
         }
 
-        public void StrokeRoundedArea(AABB area, float radiusX, float radiusY)
+        public void StrokeRoundedArea(AABB area, float radiusX, float radiusY, float strokeWidth = 1)
         {
             var roundedRect = new RoundedRectangle
             {
@@ -596,12 +593,12 @@ namespace PixDirectX.Rendering
                 Rect = area.ToRawRectangleF()
             };
 
-            _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke(), StrokeWidth);
+            _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke(), strokeWidth);
         }
 
-        public void StrokeGeometry(PathGeometry geometry)
+        public void StrokeGeometry(PolyGeometry geometry, float strokeWidth = 1)
         {
-            using (var geom = new SharpDX.Direct2D1.PathGeometry(_state.D2DFactory))
+            using (var geom = new PathGeometry(_state.D2DFactory))
             {
                 foreach (var polygon in geometry.Polygons())
                 {
@@ -614,8 +611,15 @@ namespace PixDirectX.Rendering
                     sink.Close();
                 }
 
-                _state.D2DRenderTarget.DrawGeometry(geom, BrushForStroke(), StrokeWidth);
+                _state.D2DRenderTarget.DrawGeometry(geom, BrushForStroke(), strokeWidth);
             }
+        }
+
+        public void StrokePath(IPathGeometry path, float strokeWidth = 1)
+        {
+            var pathGeom = CastPathOrFailure(path);
+
+            _state.D2DRenderTarget.DrawGeometry(pathGeom.PathGeometry, BrushForStroke(), strokeWidth);
         }
 
         #endregion
@@ -655,9 +659,9 @@ namespace PixDirectX.Rendering
             _state.D2DRenderTarget.FillRoundedRectangle(roundedRect, BrushForFill());
         }
 
-        public void FillGeometry(PathGeometry geometry)
+        public void FillGeometry(PolyGeometry geometry)
         {
-            using (var geom = new SharpDX.Direct2D1.PathGeometry(_state.D2DFactory))
+            using (var geom = new PathGeometry(_state.D2DFactory))
             {
                 var sink = geom.Open();
 
@@ -675,6 +679,38 @@ namespace PixDirectX.Rendering
 
                 _state.D2DRenderTarget.FillGeometry(geom, BrushForFill());
             }
+        }
+
+        public void FillPath(IPathGeometry path)
+        {
+            var pathGeom = CastPathOrFailure(path);
+
+            _state.D2DRenderTarget.FillGeometry(pathGeom.PathGeometry, BrushForFill());
+        }
+
+        #endregion
+
+        #region Path Geometry
+
+        /// <summary>
+        /// Creates a path geometry by invoking path-drawing operations on an
+        /// <see cref="IPathInputSink"/> provided within a closure.
+        ///
+        /// The path returned by this method can then be used in further rendering
+        /// operations by this <see cref="IRenderer"/>.
+        /// </summary>
+        public IPathGeometry CreatePath(Action<IPathInputSink> execute)
+        {
+            var geom = new PathGeometry(_state.D2DFactory);
+
+            var sink = geom.Open();
+
+            var pathSink = new InternalPathSink(sink, FigureBegin.Filled);
+            execute(pathSink);
+
+            sink.Close();
+
+            return new InternalPathGeometry(geom);
         }
 
         #endregion
@@ -755,6 +791,16 @@ namespace PixDirectX.Rendering
             _state.PopMatrix();
         }
 
+        /// <summary>
+        /// Runs a closure between a pair of <see cref="PushTransform()"/>/<see cref="PopTransform"/> invocations.
+        /// </summary>
+        public void PushingTransform(Action execute)
+        {
+            PushTransform();
+            execute();
+            PopTransform();
+        }
+
         #endregion
 
         #region Brush
@@ -817,6 +863,14 @@ namespace PixDirectX.Rendering
                 return internalBrush;
 
             throw new InvalidOperationException($"Expected a brush of type {typeof(InternalBrush)}");
+        }
+
+        private static InternalPathGeometry CastPathOrFailure([NotNull] IPathGeometry path)
+        {
+            if (path is InternalPathGeometry internalPath)
+                return internalPath;
+
+            throw new InvalidOperationException($"Expected a path geometry of type {typeof(InternalPathGeometry)}");
         }
 
         private class InternalBrush : IBrush
@@ -908,6 +962,103 @@ namespace PixDirectX.Rendering
                     Color = stop.Color.ToColor4(),
                     Position = stop.Position
                 };
+            }
+        }
+
+        private class InternalPathSink : IPathInputSink
+        {
+            private readonly GeometrySink _geometrySink;
+            private bool _startOfFigure = true;
+            private Vector _startLocation;
+            private readonly FigureBegin _figureBegin;
+
+            public InternalPathSink(GeometrySink geometrySink, FigureBegin figureBegin)
+            {
+                _geometrySink = geometrySink;
+                _figureBegin = figureBegin;
+            }
+
+            public void BeginFigure(Vector location, bool filled)
+            {
+                _startOfFigure = false;
+                _geometrySink.BeginFigure(location.ToRawVector2(), filled ? FigureBegin.Filled : FigureBegin.Hollow);
+                _startLocation = location;
+            }
+
+            public void MoveTo(Vector point)
+            {
+                if (!_startOfFigure)
+                    _geometrySink.EndFigure(FigureEnd.Open);
+
+                _startLocation = point;
+                _startOfFigure = true;
+            }
+
+            public void LineTo(Vector point)
+            {
+                EnsureBeginFigure();
+
+                _geometrySink.AddLine(point.ToRawVector2());
+                _startLocation = point;
+            }
+
+            public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
+            {
+                EnsureBeginFigure();
+
+                _geometrySink.AddBezier(new BezierSegment
+                {
+                    Point1 = anchor1.ToRawVector2(),
+                    Point2 = anchor2.ToRawVector2(),
+                    Point3 = endPoint.ToRawVector2(),
+                });
+
+                _startLocation = endPoint;
+            }
+
+            public void AddRectangle(AABB rectangle)
+            {
+                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Top).ToRawVector2());
+                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Bottom).ToRawVector2());
+                _geometrySink.AddLine(new Vector(rectangle.Left, rectangle.Bottom).ToRawVector2());
+            }
+
+            public void EndFigure(bool closePath)
+            {
+                EndFigure(closePath ? FigureEnd.Closed : FigureEnd.Open);
+            }
+
+            private void EnsureBeginFigure()
+            {
+                if (!_startOfFigure)
+                    return;
+
+                _geometrySink.BeginFigure(_startLocation.ToRawVector2(), _figureBegin);
+                _startOfFigure = false;
+            }
+
+            private void EndFigure(FigureEnd end)
+            {
+                if (_startOfFigure)
+                    return;
+
+                _geometrySink.EndFigure(end);
+                _startOfFigure = true;
+            }
+        }
+
+        private class InternalPathGeometry : IPathGeometry
+        {
+            public PathGeometry PathGeometry { get; }
+
+            public InternalPathGeometry(PathGeometry pathGeometry)
+            {
+                PathGeometry = pathGeometry;
+            }
+
+            public void Dispose()
+            {
+                PathGeometry.Dispose();
             }
         }
     }

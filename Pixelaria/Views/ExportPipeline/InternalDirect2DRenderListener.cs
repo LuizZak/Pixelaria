@@ -40,7 +40,6 @@ using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
-using PathGeometry = SharpDX.Direct2D1.PathGeometry;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
 
@@ -119,7 +118,7 @@ namespace Pixelaria.Views.ExportPipeline
         public void RenderInView([NotNull] BaseView view, [NotNull] IRenderListenerParameters parameters, [NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
             var clippingRegion = parameters.ClippingRegion;
-            var bezierRenderer = new BezierViewRenderer(new StaticDirect2DRenderingStateProvider(parameters.State));
+            var bezierRenderer = new BezierViewRenderer(parameters);
 
             // Render all remaining objects
             var labels = view.Children.OfType<LabelView>().ToArray();
@@ -150,12 +149,11 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
-            var state = parameters.State;
             var clippingRegion = parameters.ClippingRegion;
 
-            state.PushingTransform(() =>
+            parameters.Renderer.PushingTransform(() =>
             {
-                state.D2DRenderTarget.Transform = nodeView.GetAbsoluteTransform().ToRawMatrix3X2();
+                parameters.Renderer.Transform = nodeView.GetAbsoluteTransform();
 
                 var visibleArea = nodeView.GetFullBounds().Corners.Transform(nodeView.GetAbsoluteTransform()).Area();
 
@@ -174,8 +172,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RenderBackground([NotNull] IRenderListenerParameters parameters)
         {
-            var renderingState = parameters.State;
             var clippingRegion = parameters.ClippingRegion;
+            var renderer = parameters.Renderer;
 
             var transform = _container.ContentsView.GetAbsoluteTransform();
 
@@ -199,62 +197,59 @@ namespace Pixelaria.Views.ExportPipeline
             float startY = gridOffset.Y;
             float endY = reg.Bottom;
 
-            var smallGridColor = Color.FromArgb(40, 40, 40).ToColor4();
-            var largeGridColor = Color.FromArgb(50, 50, 50).ToColor4();
+            var smallGridColor = Color.FromArgb(40, 40, 40);
+            var largeGridColor = Color.FromArgb(50, 50, 50);
 
             // Draw small grid (when zoomed in enough)
             if (_container.ContentsView.Scale > new Vector(1.5f, 1.5f))
             {
-                using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, smallGridColor))
-                {
-                    for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
-                    {
-                        var start = new Vector(x, reg.Top) * transform;
-                        var end = new Vector(x, reg.Bottom) * transform;
+                renderer.SetStrokeColor(smallGridColor);
 
-                        if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(1, 0)))
-                            continue;
-
-                        renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
-                    }
-
-                    for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
-                    {
-                        var start = new Vector(reg.Left, y) * transform;
-                        var end = new Vector(reg.Right, y) * transform;
-
-                        if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(0, 1)))
-                            continue;
-
-                        renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
-                    }
-                }
-            }
-
-            // Draw large grid on top
-            using (var gridPen = new SolidColorBrush(renderingState.D2DRenderTarget, largeGridColor))
-            {
-                for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
+                for (float x = startX - reg.Left % smallGridSize.X; x <= endX; x += smallGridSize.X)
                 {
                     var start = new Vector(x, reg.Top) * transform;
                     var end = new Vector(x, reg.Bottom) * transform;
 
-                    if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(1, 0)))
+                    if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(1, 0)))
                         continue;
 
-                    renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
+                    renderer.StrokeLine(start, end);
                 }
 
-                for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
+                for (float y = startY - reg.Top % smallGridSize.Y; y <= endY; y += smallGridSize.Y)
                 {
                     var start = new Vector(reg.Left, y) * transform;
                     var end = new Vector(reg.Right, y) * transform;
 
-                    if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] {start, end}).Inflated(0, 1)))
+                    if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(0, 1)))
                         continue;
 
-                    renderingState.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), gridPen);
+                    renderer.StrokeLine(start, end);
                 }
+            }
+
+            // Draw large grid on top
+            renderer.SetStrokeColor(largeGridColor);
+            for (float x = startX - reg.Left % largeGridSize.X; x <= endX; x += largeGridSize.X)
+            {
+                var start = new Vector(x, reg.Top) * transform;
+                var end = new Vector(x, reg.Bottom) * transform;
+
+                if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(1, 0)))
+                    continue;
+
+                renderer.StrokeLine(start, end);
+            }
+
+            for (float y = startY - reg.Top % largeGridSize.Y; y <= endY; y += largeGridSize.Y)
+            {
+                var start = new Vector(reg.Left, y) * transform;
+                var end = new Vector(reg.Right, y) * transform;
+
+                if (!clippingRegion.IsVisibleInClippingRegion(new AABB(new[] { start, end }).Inflated(0, 1)))
+                    continue;
+
+                renderer.StrokeLine(start, end);
             }
         }
 
@@ -276,12 +271,12 @@ namespace Pixelaria.Views.ExportPipeline
 
         private class BezierViewRenderer
         {
-            private readonly IDirect2DRenderingStateProvider _stateProvider;
+            private readonly IRenderListenerParameters _parameters;
             private IClippingRegion _clippingRegion;
 
-            public BezierViewRenderer(IDirect2DRenderingStateProvider stateProvider)
+            public BezierViewRenderer(IRenderListenerParameters parameters)
             {
-                _stateProvider = stateProvider;
+                _parameters = parameters;
             }
 
             public void RenderBezierViews([NotNull] IEnumerable<BezierPathView> views, IClippingRegion clippingRegion, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
@@ -309,23 +304,23 @@ namespace Pixelaria.Views.ExportPipeline
 
             private void RenderBezierView([NotNull] BezierPathView bezierView, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators, Step step)
             {
-                var renderingState = _stateProvider.GetLatestValidRenderingState();
-
-                renderingState?.PushingTransform(() =>
+                _parameters.Renderer.PushingTransform(() =>
                 {
-                    renderingState.D2DRenderTarget.Transform = bezierView.GetAbsoluteTransform().ToRawMatrix3X2();
+                    _parameters.Renderer.Transform = bezierView.GetAbsoluteTransform();
 
                     var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
 
                     if (!_clippingRegion.IsVisibleInClippingRegion(visibleArea))
                         return;
 
-                    InnerRenderBezierView(bezierView, decorators, renderingState, step);
+                    InnerRenderBezierView(bezierView, decorators, _parameters, step);
                 });
             }
 
-            private static void InnerRenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IEnumerable<IRenderingDecorator> decorators, [NotNull] IDirect2DRenderingState renderingState, Step step)
+            private static void InnerRenderBezierView([NotNull] BezierPathView bezierView, [NotNull] IEnumerable<IRenderingDecorator> decorators, [NotNull] IRenderListenerParameters parameters, Step step)
             {
+                var renderer = parameters.Renderer;
+
                 var state = new BezierPathViewState
                 {
                     StrokeColor = bezierView.StrokeColor,
@@ -335,13 +330,10 @@ namespace Pixelaria.Views.ExportPipeline
                     OuterStrokeWidth = bezierView.OuterStrokeWidth
                 };
 
-                var geom = new PathGeometry(renderingState.D2DRenderTarget.Factory);
-
-                var sink = geom.Open();
-
-                FillBezierFigureSink(bezierView, sink);
-
-                sink.Close();
+                var path = renderer.CreatePath(sink =>
+                {
+                    FillBezierFigureSink(bezierView, sink);
+                });
 
                 // Decorate
                 foreach (var decorator in decorators)
@@ -355,10 +347,8 @@ namespace Pixelaria.Views.ExportPipeline
                         // Fill
                         if (state.FillColor != Color.Transparent)
                         {
-                            using (var brush = new SolidColorBrush(renderingState.D2DRenderTarget, state.FillColor.ToColor4()))
-                            {
-                                renderingState.D2DRenderTarget.FillGeometry(geom, brush);
-                            }
+                            renderer.SetFillColor(state.FillColor);
+                            renderer.FillPath(path);
                         }
 
                         break;
@@ -368,12 +358,8 @@ namespace Pixelaria.Views.ExportPipeline
                         // Outer stroke
                         if (state.OuterStrokeWidth > 0 && state.OuterStrokeColor != Color.Transparent)
                         {
-                            using (var brushOuterStroke =
-                                new SolidColorBrush(renderingState.D2DRenderTarget, state.OuterStrokeColor.ToColor4()))
-                            {
-                                renderingState.D2DRenderTarget.DrawGeometry(geom, brushOuterStroke,
-                                    state.StrokeWidth + state.OuterStrokeWidth);
-                            }
+                            renderer.SetStrokeColor(state.OuterStrokeColor);
+                            renderer.StrokePath(path, state.StrokeWidth + state.OuterStrokeWidth);
                         }
 
                         break;
@@ -383,29 +369,24 @@ namespace Pixelaria.Views.ExportPipeline
                         // Inner stroke
                         if (state.StrokeWidth > 0 && state.StrokeColor != Color.Transparent)
                         {
-                            using (var brushStroke = new SolidColorBrush(renderingState.D2DRenderTarget, state.StrokeColor.ToColor4()))
-                            {
-                                renderingState.D2DRenderTarget.DrawGeometry(geom, brushStroke, state.StrokeWidth);
-                            }
+                            renderer.SetStrokeColor(state.StrokeColor);
+                            renderer.StrokePath(path, state.StrokeWidth);
                         }
 
                         break;
                 }
 
-                sink.Dispose();
-                geom.Dispose();
+                path.Dispose();
             }
 
-            private static void FillBezierFigureSink([NotNull] BezierPathView bezierView, [NotNull] GeometrySink sink)
+            private static void FillBezierFigureSink([NotNull] BezierPathView bezierView, [NotNull] IPathInputSink sink)
             {
-                var d2DSink = new D2DPathSink(sink, FigureBegin.Filled);
-
                 foreach (var input in bezierView.GetPathInputs())
                 {
-                    input.ApplyOnSink(d2DSink);
+                    input.ApplyOnSink(sink);
                 }
 
-                d2DSink.EndFigure(false);
+                sink.EndFigure(false);
             }
 
             private enum Step
@@ -413,88 +394,6 @@ namespace Pixelaria.Views.ExportPipeline
                 Fill,
                 OuterStroke,
                 Stroke
-            }
-        }
-
-        internal class D2DPathSink : IPathInputSink
-        {
-            private readonly GeometrySink _geometrySink;
-            private bool _startOfFigure = true;
-            private Vector _startLocation;
-            private readonly FigureBegin _figureBegin;
-
-            public D2DPathSink(GeometrySink geometrySink, FigureBegin figureBegin)
-            {
-                _geometrySink = geometrySink;
-                _figureBegin = figureBegin;
-            }
-
-            public void BeginFigure(Vector location, bool filled)
-            {
-                _startOfFigure = false;
-                _geometrySink.BeginFigure(location.ToRawVector2(), filled ? FigureBegin.Filled : FigureBegin.Hollow);
-                _startLocation = location;
-            }
-
-            public void MoveTo(Vector point)
-            {
-                if (!_startOfFigure)
-                    _geometrySink.EndFigure(FigureEnd.Open);
-
-                _startLocation = point;
-                _startOfFigure = true;
-            }
-
-            public void LineTo(Vector point)
-            {
-                EnsureBeginFigure();
-
-                _geometrySink.AddLine(point.ToRawVector2());
-                _startLocation = point;
-            }
-
-            public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
-            {
-                EnsureBeginFigure();
-
-                _geometrySink.AddBezier(new BezierSegment
-                {
-                    Point1 = anchor1.ToRawVector2(),
-                    Point2 = anchor2.ToRawVector2(),
-                    Point3 = endPoint.ToRawVector2(),
-                });
-
-                _startLocation = endPoint;
-            }
-
-            public void AddRectangle(AABB rectangle)
-            {
-                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Top).ToRawVector2());
-                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Bottom).ToRawVector2());
-                _geometrySink.AddLine(new Vector(rectangle.Left, rectangle.Bottom).ToRawVector2());
-            }
-
-            public void EndFigure(bool closePath)
-            {
-                EndFigure(closePath ? FigureEnd.Closed : FigureEnd.Open);
-            }
-
-            private void EnsureBeginFigure()
-            {
-                if (!_startOfFigure)
-                    return;
-
-                _geometrySink.BeginFigure(_startLocation.ToRawVector2(), _figureBegin);
-                _startOfFigure = false;
-            }
-
-            private void EndFigure(FigureEnd end)
-            {
-                if (_startOfFigure)
-                    return;
-
-                _geometrySink.EndFigure(end);
-                _startOfFigure = true;
             }
         }
 
@@ -575,7 +474,7 @@ namespace Pixelaria.Views.ExportPipeline
             foreach (var decorator in decorators)
                 decorator.DecoratePipelineStep(_nodeView, ref stepViewState);
 
-            var roundedRectGeom = PixCore.Geometry.PathGeometry.RoundedRectangle(Bounds, 5, 5, 5);
+            var roundedRectGeom = PolyGeometry.RoundedRectangle(Bounds, 5, 5, 5);
             
             // Create disposable objects
             var textFormat = new TextFormatAttributes
@@ -600,11 +499,13 @@ namespace Pixelaria.Views.ExportPipeline
             DrawIcon(TitleArea);
             DrawTitleText(textFormat, stepViewState);
             DrawLinkViews(decorators);
+
+            Renderer.PopTransform();
         }
 
-        private void DrawConnectionLabelsBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry, [NotNull] IBrush bodyFillGradientBrush)
+        private void DrawConnectionLabelsBackground([NotNull] PolyGeometry bodyGeometry, [NotNull] IBrush bodyFillGradientBrush)
         {
-            var linkAreaGeom = PixCore.Geometry.PathGeometry.Rectangle(LinkLabelArea);
+            var linkAreaGeom = PolyGeometry.Rectangle(LinkLabelArea);
             linkAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
 
             // Fill for link label area
@@ -639,16 +540,14 @@ namespace Pixelaria.Views.ExportPipeline
         private void DrawBodyOutline(PipelineStepViewState stepViewState, AABB rect, float radiusX, float radiusY)
         {
             Renderer.SetStrokeColor(stepViewState.StrokeColor);
-            Renderer.StrokeWidth = stepViewState.StrokeWidth;
-
-            Renderer.StrokeRoundedArea(rect, radiusX, radiusY);
+            Renderer.StrokeRoundedArea(rect, radiusX, radiusY, stepViewState.StrokeWidth);
         }
 
-        private void DrawTitleBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry, PipelineStepViewState stepViewState)
+        private void DrawTitleBackground([NotNull] PolyGeometry bodyGeometry, PipelineStepViewState stepViewState)
         {
             var titleRect = AABB.FromRectangle(0, 0, TitleArea.Width, TitleArea.Height);
 
-            var titleAreaGeom = PixCore.Geometry.PathGeometry.Rectangle(titleRect);
+            var titleAreaGeom = PolyGeometry.Rectangle(titleRect);
             titleAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
 
             // Fill title BG
@@ -656,7 +555,7 @@ namespace Pixelaria.Views.ExportPipeline
             Renderer.FillGeometry(titleAreaGeom);
         }
 
-        private void DrawConnectionsBackground([NotNull] PixCore.Geometry.PathGeometry bodyGeometry)
+        private void DrawConnectionsBackground([NotNull] PolyGeometry bodyGeometry)
         {
             var stops = new[]
             {
@@ -666,14 +565,14 @@ namespace Pixelaria.Views.ExportPipeline
 
             var brush = Renderer.CreateLinearGradientBrush(stops, Vector.Zero, new Vector(0, Bounds.Height));
 
-            var linkAreaGeom = new PixCore.Geometry.PathGeometry(bodyGeometry);
+            var linkAreaGeom = new PolyGeometry(bodyGeometry);
             linkAreaGeom.Combine(LinkLabelArea, GeometryOperation.Exclude);
 
             Renderer.SetFillBrush(brush);
             Renderer.FillGeometry(linkAreaGeom);
         }
 
-        private void DrawBodyText(PipelineStepViewState stepViewState, PixCore.Geometry.PathGeometry bodyGeometry, IBrush bodyFillBrush, TextFormatAttributes textFormatAttributes)
+        private void DrawBodyText(PipelineStepViewState stepViewState, PolyGeometry bodyGeometry, IBrush bodyFillBrush, TextFormatAttributes textFormatAttributes)
         {
             string bodyText = _nodeView.BodyText;
             if (string.IsNullOrEmpty(bodyText))
@@ -694,7 +593,7 @@ namespace Pixelaria.Views.ExportPipeline
             // Draw fill color
             var areaOnView = new AABB(0, hasLinks ? yLine : TitleArea.Bottom, _nodeView.Height, _nodeView.Width);
 
-            var textAreaGeom = PixCore.Geometry.PathGeometry.Rectangle(areaOnView);
+            var textAreaGeom = PolyGeometry.Rectangle(areaOnView);
             textAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
 
             Renderer.SetFillBrush(bodyFillBrush);
@@ -714,7 +613,7 @@ namespace Pixelaria.Views.ExportPipeline
                 });
         }
 
-        private void DrawTitleText([NotNull] TextFormatAttributes textFormatAttributes, PipelineStepViewState stepViewState)
+        private void DrawTitleText(TextFormatAttributes textFormatAttributes, PipelineStepViewState stepViewState)
         {
             var attributes = new TextLayoutAttributes(textFormatAttributes)
             {

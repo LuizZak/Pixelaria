@@ -45,7 +45,7 @@ namespace PixCoreTests.Geometry
             //  |       |
             //  !_______!
             //
-            var poly1 = PathGeometry.Rectangle(0, 0, 100, 100);
+            var poly1 = PolyGeometry.Rectangle(0, 0, 100, 100);
             //
             //
             //     ._______.
@@ -53,7 +53,7 @@ namespace PixCoreTests.Geometry
             //     |       |
             //     !_______!
             //
-            var poly2 = PathGeometry.Rectangle(50, 50, 100, 100);
+            var poly2 = PolyGeometry.Rectangle(50, 50, 100, 100);
 
             poly1.Combine(poly2, GeometryOperation.Union);
 
@@ -92,7 +92,7 @@ namespace PixCoreTests.Geometry
             //  |       |
             //  !_______!
             //
-            var poly1 = PathGeometry.Rectangle(0, 0, 100, 100);
+            var poly1 = PolyGeometry.Rectangle(0, 0, 100, 100);
             //
             //
             //     ._______.
@@ -100,7 +100,7 @@ namespace PixCoreTests.Geometry
             //     |       |
             //     !_______!
             //
-            var poly2 = PathGeometry.Rectangle(50, 50, 100, 100);
+            var poly2 = PolyGeometry.Rectangle(50, 50, 100, 100);
 
             poly1.Combine(poly2, GeometryOperation.Intersect);
 
@@ -133,7 +133,7 @@ namespace PixCoreTests.Geometry
             //  |       |
             //  !_______!
             //
-            var poly1 = PathGeometry.Rectangle(0, 0, 100, 100);
+            var poly1 = PolyGeometry.Rectangle(0, 0, 100, 100);
             //
             //
             //     ._______.
@@ -141,7 +141,7 @@ namespace PixCoreTests.Geometry
             //     |       |
             //     !_______!
             //
-            var poly2 = PathGeometry.Rectangle(50, 50, 200, 200);
+            var poly2 = PolyGeometry.Rectangle(50, 50, 200, 200);
 
             poly1.Combine(poly2, GeometryOperation.Exclude);
 
@@ -177,14 +177,14 @@ namespace PixCoreTests.Geometry
             //  |       |
             //  !_______!
             //
-            var poly1 = PathGeometry.Rectangle(0, 0, 100, 100);
+            var poly1 = PolyGeometry.Rectangle(0, 0, 100, 100);
             //
             //
             //  ._________.
             //  !_________!
             //
             //
-            var poly2 = PathGeometry.Rectangle(0, 50, 200, 25);
+            var poly2 = PolyGeometry.Rectangle(0, 50, 200, 25);
 
             poly1.Combine(poly2, GeometryOperation.Exclude);
 
@@ -227,7 +227,7 @@ namespace PixCoreTests.Geometry
             //  |       |
             //  !_______!
             //
-            var poly1 = PathGeometry.Rectangle(0, 0, 100, 100);
+            var poly1 = PolyGeometry.Rectangle(0, 0, 100, 100);
             //
             //
             //     ._______.
@@ -235,7 +235,7 @@ namespace PixCoreTests.Geometry
             //     |       |
             //     !_______!
             //
-            var poly2 = PathGeometry.Rectangle(50, 50, 100, 100);
+            var poly2 = PolyGeometry.Rectangle(50, 50, 100, 100);
 
             poly1.Combine(poly2, GeometryOperation.Xor);
 
@@ -276,7 +276,7 @@ namespace PixCoreTests.Geometry
         [TestMethod]
         public void TestRectangle()
         {
-            var path = PathGeometry.Rectangle(20, 20, 40, 40);
+            var path = PolyGeometry.Rectangle(20, 20, 40, 40);
 
             var result = path.Polygons();
 
@@ -295,7 +295,7 @@ namespace PixCoreTests.Geometry
         [TestMethod]
         public void TestCircle()
         {
-            var path = PathGeometry.Circle(Vector.Zero, 10, 100);
+            var path = PolyGeometry.Circle(Vector.Zero, 10, 100);
 
             // Use the formula for the circle's area to figure out if we're off from the goal here
             AssertArea(path.Polygons()[0], (float)(Math.PI * 10 * 10), 1);
@@ -304,7 +304,7 @@ namespace PixCoreTests.Geometry
         [TestMethod]
         public void TestRoundedRectangle()
         {
-            var path = PathGeometry.RoundedRectangle(AABB.FromRectangle(25, 25, 250, 250), 30, 30, 20);
+            var path = PolyGeometry.RoundedRectangle(AABB.FromRectangle(25, 25, 250, 250), 30, 30, 20);
 
             var bitmap = ToBitmap(path, 300, 300, Color.Transparent, Color.CornflowerBlue);
 
@@ -314,7 +314,7 @@ namespace PixCoreTests.Geometry
         [TestMethod]
         public void TestRoundedRectangleSeparateRadii()
         {
-            var path = PathGeometry.RoundedRectangle(AABB.FromRectangle(25, 25, 250, 250), 50, 100, 20);
+            var path = PolyGeometry.RoundedRectangle(AABB.FromRectangle(25, 25, 250, 250), 50, 100, 20);
 
             var bitmap = ToBitmap(path, 300, 300, Color.Transparent, Color.CornflowerBlue);
 
@@ -324,7 +324,7 @@ namespace PixCoreTests.Geometry
         [TestMethod]
         public void TestRoundedRectangleLargeRadius()
         {
-            var path = PathGeometry.RoundedRectangle(AABB.FromRectangle(25, 25, 250, 250), 200, 200, 20);
+            var path = PolyGeometry.RoundedRectangle(AABB.FromRectangle(25, 25, 250, 250), 200, 200, 20);
 
             var bitmap = ToBitmap(path, 300, 300, Color.Transparent, Color.CornflowerBlue);
 
@@ -367,7 +367,7 @@ namespace PixCoreTests.Geometry
             Assert.AreEqual(area / 2, expected, tolerance);
         }
 
-        private static Bitmap ToBitmap(PathGeometry geometry, int width, int height, Color backColor, Color fillColor)
+        private static Bitmap ToBitmap(PolyGeometry geometry, int width, int height, Color backColor, Color fillColor)
         {
             var bitmap = new Bitmap(width, height);
 

@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
@@ -33,11 +34,6 @@ namespace PixDirectX.Rendering
     public interface IRenderer
     {
         /// <summary>
-        /// Gets or sets the width of the stroke for Stroke- operations
-        /// </summary>
-        float StrokeWidth { get; set; }
-
-        /// <summary>
         /// Gets or sets the topmost active transformation matrix.
         /// </summary>
         Matrix2D Transform { get; set; }
@@ -45,62 +41,83 @@ namespace PixDirectX.Rendering
         #region Stroke
 
         /// <summary>
-        /// Strokes a line with the current <see cref="StrokeColor"/>.
+        /// Strokes a line with the current stroke brush.
         /// </summary>
-        void StrokeLine(Vector start, Vector end);
+        void StrokeLine(Vector start, Vector end, float strokeWidth = 1);
         /// <summary>
-        /// Strokes the outline of a circle with the current <see cref="StrokeColor"/>.
+        /// Strokes the outline of a circle with the current stroke brush.
         /// </summary>
-        void StrokeCircle(Vector center, float radius);
+        void StrokeCircle(Vector center, float radius, float strokeWidth = 1);
         /// <summary>
-        /// Strokes the outline of an ellipse with the current <see cref="StrokeColor"/>.
+        /// Strokes the outline of an ellipse with the current stroke brush.
         /// </summary>
-        void StrokeEllipse(AABB ellipseArea);
+        void StrokeEllipse(AABB ellipseArea, float strokeWidth = 1);
         /// <summary>
-        /// Strokes the outline of a rectangle with the current <see cref="StrokeColor"/>.
+        /// Strokes the outline of a rectangle with the current stroke brush.
         /// </summary>
-        void StrokeRectangle(RectangleF rectangle);
+        void StrokeRectangle(RectangleF rectangle, float strokeWidth = 1);
         /// <summary>
-        /// Strokes the outline of an <see cref="AABB"/>-bounded area with the current <see cref="StrokeColor"/>.
+        /// Strokes the outline of an <see cref="AABB"/>-bounded area with the current stroke brush.
         /// </summary>
-        void StrokeArea(AABB area);
+        void StrokeArea(AABB area, float strokeWidth = 1);
         /// <summary>
-        /// Strokes the outline of an <see cref="AABB"/>-bounded area with rounded corners with the current <see cref="StrokeColor"/>.
+        /// Strokes the outline of an <see cref="AABB"/>-bounded area with rounded corners with the current stroke brush.
         /// </summary>
-        void StrokeRoundedArea(AABB area, float radiusX, float radiusY);
+        void StrokeRoundedArea(AABB area, float radiusX, float radiusY, float strokeWidth = 1);
         /// <summary>
-        /// Strokes a geometrical object with the current <see cref="StrokeColor"/>.
+        /// Strokes a geometrical object with the current stroke brush.
         /// </summary>
-        void StrokeGeometry([NotNull] PathGeometry geometry);
+        void StrokeGeometry([NotNull] PolyGeometry geometry, float strokeWidth = 1);
+        /// <summary>
+        /// Strokes a path geometry object with the current stroke brush.
+        /// </summary>
+        void StrokePath([NotNull] IPathGeometry path, float strokeWidth = 1);
 
         #endregion
 
         #region Fill
 
         /// <summary>
-        /// Fills the area of a circle with the current <see cref="StrokeColor"/>.
+        /// Fills the area of a circle with the current fill brush.
         /// </summary>
         void FillCircle(Vector center, float radius);
         /// <summary>
-        /// Fills the area of an ellipse with the current <see cref="StrokeColor"/>.
+        /// Fills the area of an ellipse with the current fill brush.
         /// </summary>
         void FillEllipse(AABB ellipseArea);
         /// <summary>
-        /// Fills the area of a rectangle with the current <see cref="StrokeColor"/>.
+        /// Fills the area of a rectangle with the current fill brush.
         /// </summary>
         void FillRectangle(RectangleF rectangle);
         /// <summary>
-        /// Fills an <see cref="AABB"/>-bounded area with the current <see cref="StrokeColor"/>.
+        /// Fills an <see cref="AABB"/>-bounded area with the current fill brush.
         /// </summary>
         void FillArea(AABB area);
         /// <summary>
-        /// Fills the outline of an <see cref="AABB"/>-bounded area with rounded corners with the current <see cref="StrokeColor"/>.
+        /// Fills the outline of an <see cref="AABB"/>-bounded area with rounded corners with the current fill brush.
         /// </summary>
         void FillRoundedArea(AABB area, float radiusX, float radiusY);
         /// <summary>
-        /// Fills a geometrical object with the current <see cref="StrokeColor"/>.
+        /// Fills a geometrical object with the current fill brush.
         /// </summary>
-        void FillGeometry([NotNull] PathGeometry geometry);
+        void FillGeometry([NotNull] PolyGeometry geometry);
+        /// <summary>
+        /// Fills a path geometry with the current fill brush.
+        /// </summary>
+        void FillPath([NotNull] IPathGeometry path);
+
+        #endregion
+
+        #region Path Geometry
+
+        /// <summary>
+        /// Creates a path geometry by invoking path-drawing operations on an
+        /// <see cref="IPathInputSink"/> provided within a closure.
+        ///
+        /// The path returned by this method can then be used in further rendering
+        /// operations by this <see cref="IRenderer"/>.
+        /// </summary>
+        IPathGeometry CreatePath([NotNull] Action<IPathInputSink> execute);
 
         #endregion
 
@@ -156,6 +173,11 @@ namespace PixDirectX.Rendering
         /// Pops the top-most active transformation matrix.
         /// </summary>
         void PopTransform();
+
+        /// <summary>
+        /// Runs a closure between a pair of <see cref="PushTransform()"/>/<see cref="PopTransform"/> invocations.
+        /// </summary>
+        void PushingTransform([NotNull] Action execute);
 
         #endregion
 

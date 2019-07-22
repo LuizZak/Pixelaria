@@ -34,7 +34,7 @@ namespace PixCore.Geometry
     /// <summary>
     /// Represents an arbitrary geometric object.
     /// </summary>
-    public class PathGeometry
+    public class PolyGeometry
     {
         private const float Scale = 1024;
         private List<Path> _paths = new List<Path>();
@@ -42,7 +42,7 @@ namespace PixCore.Geometry
         /// <summary>
         /// Creates a new empty path geometry object.
         /// </summary>
-        public PathGeometry()
+        public PolyGeometry()
         {
 
         }
@@ -51,12 +51,12 @@ namespace PixCore.Geometry
         /// Creates a copy of a given path geometry object.
         /// </summary>
         /// <param name="copying">The object to copy onto this new geometry path.</param>
-        public PathGeometry([NotNull] PathGeometry copying)
+        public PolyGeometry([NotNull] PolyGeometry copying)
         {
             _paths.AddRange(copying._paths);
         }
 
-        private PathGeometry(Path path)
+        private PolyGeometry(Path path)
         {
             _paths.Add(path);
         }
@@ -64,7 +64,7 @@ namespace PixCore.Geometry
         /// <summary>
         /// Creates a new path geometry object with a given list of vertices.
         /// </summary>
-        public PathGeometry([NotNull] IEnumerable<Vector> vertices)
+        public PolyGeometry([NotNull] IEnumerable<Vector> vertices)
         {
             _paths.Add(new Path(vertices));
         }
@@ -72,7 +72,7 @@ namespace PixCore.Geometry
         /// <summary>
         /// Combines this path geometry with another path geometry using a given <see cref="GeometryOperation"/>.
         /// </summary>
-        public void Combine([NotNull] PathGeometry other, GeometryOperation operation)
+        public void Combine([NotNull] PolyGeometry other, GeometryOperation operation)
         {
             var clipper = new Clipper();
             
@@ -107,7 +107,7 @@ namespace PixCore.Geometry
         /// </summary>
         public void Combine(AABB area, GeometryOperation operation)
         {
-            Combine(PathGeometry.Rectangle(area), operation);
+            Combine(PolyGeometry.Rectangle(area), operation);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace PixCore.Geometry
         /// <summary>
         /// Creates a new path geometry object that represents a rectangle with the given dimensions.
         /// </summary>
-        public static PathGeometry Rectangle(float x, float y, float width, float height)
+        public static PolyGeometry Rectangle(float x, float y, float width, float height)
         {
             return Rectangle(AABB.FromRectangle(x, y, width, height));
         }
@@ -134,16 +134,16 @@ namespace PixCore.Geometry
         /// <summary>
         /// Creates a new path geometry object that represents a rectangle with the given area.
         /// </summary>
-        public static PathGeometry Rectangle(AABB area)
+        public static PolyGeometry Rectangle(AABB area)
         {
-            return new PathGeometry(area.Corners);
+            return new PolyGeometry(area.Corners);
         }
 
         /// <summary>
         /// Creates a new path geometry that represents a circle with the given center and radius,
         /// with a number of sides making up the polygon-based circle.
         /// </summary>
-        public static PathGeometry Circle(Vector center, float radius, int sides)
+        public static PolyGeometry Circle(Vector center, float radius, int sides)
         {
             var path = new Path();
 
@@ -157,7 +157,7 @@ namespace PixCore.Geometry
                 path.vertices.Add(center + new Vector((float)x, (float)y));
             }
 
-            return new PathGeometry(path);
+            return new PolyGeometry(path);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace PixCore.Geometry
         /// A parameter <see cref="arcSides"/> can be used to specify how detailed the arced
         /// corners of the rectangle should be.
         /// </summary>
-        public static PathGeometry RoundedRectangle(AABB area, float radiusX, float radiusY, int arcSides)
+        public static PolyGeometry RoundedRectangle(AABB area, float radiusX, float radiusY, int arcSides)
         {
             void AddArc(Vector center, float radX, float radY, double startAngle, double endAngle, IList<Vector> list)
             {
@@ -193,7 +193,7 @@ namespace PixCore.Geometry
             path.vertices.Add(new Vector(area.Left, area.Top + radiusY));
             AddArc(new Vector(area.Left, area.Top) + new Vector(radiusX, radiusY), radiusX, radiusY, Math.PI, Math.PI * 2 * 0.75, path.vertices);
 
-            return new PathGeometry(path);
+            return new PolyGeometry(path);
         }
 
         private class Path

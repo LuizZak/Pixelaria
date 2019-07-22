@@ -93,7 +93,7 @@
     <Compile Include="Geometry\DrawingUtilities.cs" />
     <Compile Include="Geometry\ISpatialReference.cs" />
     <Compile Include="Geometry\Matrix2D.cs" />
-    <Compile Include="Geometry\PathGeometry.cs" />
+    <Compile Include="Geometry\PolyGeometry.cs" />
     <Compile Include="Geometry\QuadTree.cs" />
     <Compile Include="Geometry\Vector.cs" />
     <Compile Include="Imaging\ImageUtilities.cs" />
