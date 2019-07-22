@@ -379,7 +379,7 @@ namespace PixDirectX.Rendering
     }
 
     /// <summary>
-    /// Encapsulates a response for the render loop method of <see cref="Direct2DRenderLoopManager.StartRenderLoop(Func{IDirect2DRenderingState,Direct2DRenderLoopResponse})"/>
+    /// Encapsulates a response for the render loop method of <see cref="Direct2DRenderLoopManager.StartRenderLoop(Action{IRenderLoopState})"/>
     /// </summary>
     public readonly struct Direct2DRenderLoopResponse
     {
@@ -392,7 +392,7 @@ namespace PixDirectX.Rendering
 
         /// <summary>
         /// If set to true, <see cref="Direct2DRenderLoopManager"/> will stop its rendering loop and return control to the caller of
-        /// <see cref="Direct2DRenderLoopManager.StartRenderLoop(Func{IDirect2DRenderingState,Direct2DRenderLoopResponse})"/>.
+        /// <see cref="Direct2DRenderLoopManager.StartRenderLoop(Action{IRenderLoopState})"/>.
         /// 
         /// Defaults to false.
         /// </summary>
