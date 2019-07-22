@@ -32,7 +32,6 @@ using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using PixUI;
 using PixUI.Controls;
 
@@ -48,8 +47,6 @@ using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI.Animation;
-using Bitmap = SharpDX.Direct2D1.Bitmap;
-using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using Font = System.Drawing.Font;
 using FontFamily = System.Drawing.FontFamily;
 
@@ -432,7 +429,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public static void RegisterIcons([NotNull] IImageResourceManager manager, [NotNull] IRenderLoopState state)
         {
-            void AddImage(System.Drawing.Bitmap bitmap, string name)
+            void AddImage(Bitmap bitmap, string name)
             {
                 manager.AddImageResource(state, bitmap, name);
             }
@@ -720,13 +717,13 @@ namespace Pixelaria.Views.ExportPipeline
             step.Renamed -= OnBitmapStepOnRenamed;
 
             _previewSteps.Remove(step);
-            _latestPreviews[step].Dispose();
+            _latestPreviews[step]?.Dispose();
             _latestPreviews.Remove(step);
 
             ReloadBoundsCache();
         }
 
-        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, System.Drawing.Bitmap bitmap, [NotNull] IExportPipelineControl control)
+        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, Bitmap bitmap, [NotNull] IExportPipelineControl control)
         {
             if (_latestRenderState == null)
                 return;
@@ -835,7 +832,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 var previewBounds = new PreviewBounds(titleBounds, bounds);
 
-                y += size.Y + 5;
+                y += previewBounds.TotalBounds.Height + 5;
 
                 _previewBounds.Add(previewBounds);
             }

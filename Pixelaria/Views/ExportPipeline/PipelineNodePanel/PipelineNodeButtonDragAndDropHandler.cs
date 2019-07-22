@@ -24,21 +24,14 @@ using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using JetBrains.Annotations;
-using PixCore.Colors;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
 using PixUI.Controls;
-using SharpDX.Direct2D1;
-using SharpDX.WIC;
-using Bitmap = SharpDX.Direct2D1.Bitmap;
-using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
-using PixelFormat = SharpDX.WIC.PixelFormat;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 {
