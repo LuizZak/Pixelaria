@@ -69,7 +69,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             InitializeComponent();
             
-            exportPipelineControl.BackColor = exportPipelineControl.D2DRendererManager.BackColor;
+            exportPipelineControl.BackColor = exportPipelineControl.RendererManager.BackColor;
         }
 
         /// <summary>
@@ -116,14 +116,14 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager.InvalidatedState += (sender, args) =>
             {
-                exportPipelineControl.InvalidateDirect2D();
+                exportPipelineControl.InvalidateState();
             };
 
             _direct2DLoopManager.StartRenderLoop(state =>
             {
                 var rects = exportPipelineControl.ClippingRegionRectangles;
 
-                exportPipelineControl.RenderDirect2D(_direct2DLoopManager.RenderingState);
+                exportPipelineControl.Render(_direct2DLoopManager.RenderingState);
 
                 var redrawRects =
                     rects.Select(rect =>
@@ -653,7 +653,7 @@ namespace Pixelaria.Views.ExportPipeline
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
             control.SizeChanged += ControlOnSizeChanged;
 
-            control.D2DRendererManager.AddRenderListener(this);
+            control.RendererManager.AddRenderListener(this);
         }
 
         private void ControlOnSizeChanged(object sender, EventArgs e)

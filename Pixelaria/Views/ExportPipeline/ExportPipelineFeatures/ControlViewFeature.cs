@@ -76,7 +76,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 InvalidateRegionDelegate = this
             };
 
-            control.D2DRendererManager.AddRenderListener(this);
+            control.RendererManager.AddRenderListener(this);
         }
 
         /// <summary>

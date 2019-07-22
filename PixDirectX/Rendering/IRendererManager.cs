@@ -68,6 +68,13 @@ namespace PixDirectX.Rendering
         void UpdateRenderingState([NotNull] IRenderLoopState state, [NotNull] IClippingRegion clipping);
 
         /// <summary>
+        /// Renders all render listeners on this <see cref="IRendererManager"/> instance.
+        ///
+        /// If overriden, must be called to properly update the render state of the renderer.
+        /// </summary>
+        void Render([NotNull] IRenderLoopState renderLoopState, [NotNull] IClippingRegion clipping);
+
+        /// <summary>
         /// Adds a new render listener which will be invoked when rendering is being performed.
         /// </summary>
         void AddRenderListener(IRenderListener renderListener);

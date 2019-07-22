@@ -62,7 +62,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
-        IExportPipelineRendererManager D2DRendererManager { get; }
+        IExportPipelineRendererManager RendererManager { get; }
 
         /// <summary>
         /// Gets the label size provider for this control
@@ -96,9 +96,9 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Invalidates the Direct2D renderer for this control.
         /// 
-        /// The rendering context will be re-created on the next call to <see cref="ExportPipelineControl.RenderDirect2D"/>
+        /// The rendering context will be re-created on the next call to <see cref="ExportPipelineControl.Render"/>
         /// </summary>
-        void InvalidateDirect2D();
+        void InvalidateState();
 
         /// <summary>
         /// Called to grant a UI feature exclusive access to modifying UI views.

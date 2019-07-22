@@ -57,7 +57,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 TextInsetBounds = new InsetBounds(5, 5, 5, 5)
             };
 
-            Control.D2DRendererManager.AddRenderListener(_renderListener);
+            Control.RendererManager.AddRenderListener(_renderListener);
         }
 
         public override void OnMouseLeave(EventArgs e)

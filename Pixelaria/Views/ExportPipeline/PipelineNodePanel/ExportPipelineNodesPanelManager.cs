@@ -74,7 +74,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
 
         public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control)
-            : this(control.ControlContainer, control.D2DRendererManager,
+            : this(control.ControlContainer, control.RendererManager,
                 control,
                 new PipelineNodeBitmapGenerator(control))
         {

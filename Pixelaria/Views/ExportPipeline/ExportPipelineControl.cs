@@ -55,8 +55,7 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly Timer _fixedTimer;
 
         private readonly InternalRenderListener _internalRenderer;
-        private readonly Direct2DRenderer _d2DRendererManager;
-        
+
         private readonly List<ExportPipelineUiFeature> _features = new List<ExportPipelineUiFeature>();
 
         [CanBeNull]
@@ -96,22 +95,22 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the image resources provider for this pipeline control
         /// </summary>
-        public IImageResourceManager ImageResources => D2DRendererManager.ImageResources;
+        public IImageResourceManager ImageResources => RendererManager.ImageResources;
 
         /// <summary>
         /// Gets the Direct2D renderer initialized for this control
         /// </summary>
-        public IExportPipelineRendererManager D2DRendererManager => _d2DRendererManager;
+        public IExportPipelineRendererManager RendererManager { get; }
 
         /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
-        public ILabelViewSizeProvider LabelViewSizeProvider => D2DRendererManager.LabelViewSizeProvider;
+        public ILabelViewSizeProvider LabelViewSizeProvider => RendererManager.LabelViewSizeProvider;
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control
         /// </summary>
-        public ITextMetricsProvider TextMetricsProvider => D2DRendererManager.TextMetricsProvider;
+        public ITextMetricsProvider TextMetricsProvider => RendererManager.TextMetricsProvider;
 
         /// <summary>
         /// Gets the pipeline node and connections container for this control
@@ -132,8 +131,8 @@ namespace Pixelaria.Views.ExportPipeline
             _container = new InternalPipelineContainer(this);
 
             _internalRenderer = new InternalRenderListener(_container, this);
-            _d2DRendererManager = new Direct2DRenderer();
-            D2DRendererManager.AddRenderListener(_internalRenderer);
+            RendererManager = new Direct2DRenderer();
+            RendererManager.AddRenderListener(_internalRenderer);
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             
@@ -154,7 +153,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             if (disposing)
             {
-                _d2DRendererManager.Dispose();
+                (RendererManager as IDisposable)?.Dispose();
 
                 _fixedTimer.Tick -= fixedTimer_Tick;
                 _fixedTimer.Dispose();
@@ -199,14 +198,14 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void InitializeDirect2DRenderer([NotNull] IRenderLoopState state)
         {
-            _d2DRendererManager.Initialize(state);
+            RendererManager.Initialize(state);
         }
 
-        public void RenderDirect2D([NotNull] IRenderLoopState state)
+        public void Render([NotNull] IRenderLoopState state)
         {
-            if (_d2DRendererManager == null)
+            if (RendererManager == null)
                 throw new InvalidOperationException(
-                    $"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(RenderDirect2D)}.");
+                    $"Direct2D renderer was not initialized. Please call {nameof(InitializeDirect2DRenderer)} before calling {nameof(Render)}.");
 
             // Update animations
             AnimationsManager.Update(state.FrameRenderDeltaTime);
@@ -217,7 +216,7 @@ namespace Pixelaria.Views.ExportPipeline
             // Use clipping region
             var clipState = _clippingRegion.PushDirect2DClipping(state);
 
-            _d2DRendererManager.Render(state, _clippingRegion);
+            RendererManager.Render(state, _clippingRegion);
 
             _clippingRegion.PopDirect2DClipping(state, clipState);
 
@@ -227,9 +226,9 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Invalidates the Direct2D renderer for this control.
         /// 
-        /// The rendering context will be re-created on the next call to <see cref="RenderDirect2D"/>
+        /// The rendering context will be re-created on the next call to <see cref="Render"/>
         /// </summary>
-        public void InvalidateDirect2D()
+        public void InvalidateState()
         {
 
         }
