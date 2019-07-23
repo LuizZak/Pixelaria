@@ -197,32 +197,25 @@ namespace Pixelaria.Views.ExportPipeline
             TextMetricsProvider = renderManager.TextMetricsProvider;
         }
 
-        public void Render([NotNull] IExportPipelineRenderManager renderManager, [NotNull] IRenderLoopState state)
+        /// <summary>
+        /// Performs frame-based step updates
+        /// </summary>
+        public void UpdateFrameStep(TimeSpan frameRenderDeltaTime)
         {
             // Update animations
-            AnimationsManager.Update(state.FrameRenderDeltaTime);
-
-            if (_clippingRegion.IsEmpty())
-                return;
-
-            // Use clipping region
-            var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, _clippingRegion);
-
-            renderManager.Render(state, _clippingRegion);
-
-            Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
-
-            _clippingRegion.Clear();
+            AnimationsManager.Update(frameRenderDeltaTime);
         }
 
         /// <summary>
-        /// Invalidates the renderer for this control.
-        /// 
-        /// The rendering context will be re-created on the next call to <see cref="Render"/>
+        /// Requests that this control fill a clipping region with invalidated regions for redrawing.
         /// </summary>
-        public void InvalidateState()
+        public void FillRedrawRegion([NotNull] ClippingRegion clippingRegion)
         {
+            if (_clippingRegion.IsEmpty())
+                return;
 
+            clippingRegion.AddClippingRegion(_clippingRegion);
+            _clippingRegion.Clear();
         }
 
         private void fixedTimer_Tick(object sender, EventArgs e)

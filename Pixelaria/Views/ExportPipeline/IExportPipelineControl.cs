@@ -89,13 +89,6 @@ namespace Pixelaria.Views.ExportPipeline
         void SetPanAndZoom(Vector pan, Vector zoom);
 
         /// <summary>
-        /// Invalidates the Direct2D renderer for this control.
-        /// 
-        /// The rendering context will be re-created on the next call to <see cref="ExportPipelineControl.Render"/>
-        /// </summary>
-        void InvalidateState();
-
-        /// <summary>
         /// Called to grant a UI feature exclusive access to modifying UI views.
         /// 
         /// This is used only as a managing effort for concurrent features, and can be

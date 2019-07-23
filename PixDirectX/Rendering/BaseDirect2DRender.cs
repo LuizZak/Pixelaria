@@ -112,7 +112,7 @@ namespace PixDirectX.Rendering
             _imageResources.Dispose();
         }
 
-        public virtual void Initialize([NotNull] IRenderLoopState renderLoopState)
+        public virtual void Initialize(IRenderLoopState renderLoopState)
         {
             var state = (IDirect2DRenderingState)renderLoopState;
 

@@ -141,6 +141,15 @@ namespace PixDirectX.Rendering
             }
         }
 
+        /// <summary>
+        /// Adds the regions of another clipping region to this clipping region instance.
+        /// </summary>
+        public void AddClippingRegion([NotNull] ClippingRegion region)
+        {
+            _rectangles.AddRange(region._rectangles);
+            _needsDissect = true;
+        }
+
         public void SetRectangle(RectangleF rectangle)
         {
             Clear();

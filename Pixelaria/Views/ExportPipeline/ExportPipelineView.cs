@@ -115,18 +115,25 @@ namespace Pixelaria.Views.ExportPipeline
             exportPipelineControl.InitializeRenderer(_renderManager);
             ConfigureForm();
 
-            _direct2DLoopManager.InvalidatedState += (sender, args) =>
-            {
-                exportPipelineControl.InvalidateState();
-            };
-
             exportPipelineControl.InvalidateAll();
+
+            var clippingRegion = new ClippingRegion();
 
             _direct2DLoopManager.StartRenderLoop(state =>
             {
                 var rects = exportPipelineControl.ClippingRegionRectangles;
 
-                exportPipelineControl.Render(_renderManager, _direct2DLoopManager.RenderingState);
+                exportPipelineControl.UpdateFrameStep(_direct2DLoopManager.RenderingState.FrameRenderDeltaTime);
+                exportPipelineControl.FillRedrawRegion(clippingRegion);
+
+                // Use clipping region
+                var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
+
+                _renderManager.Render(state, clippingRegion);
+
+                Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
+
+                clippingRegion.Clear();
 
                 var redrawRects =
                     rects.Select(rect =>
