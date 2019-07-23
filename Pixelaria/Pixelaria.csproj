@@ -259,6 +259,7 @@
     <Compile Include="ExportPipeline\Steps\SinkPipelineStep.cs" />
     <Compile Include="ExportPipeline\Steps\SpriteSheetGenerationPipelineStep.cs" />
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
+    <Compile Include="Views\ExportPipeline\Direct2DRendererStack.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineRenderManager.cs" />

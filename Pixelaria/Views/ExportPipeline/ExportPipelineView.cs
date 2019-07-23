@@ -108,7 +108,7 @@ namespace Pixelaria.Views.ExportPipeline
             exportPipelineControl.InitializeRenderer(renderManager);
             exportPipelineControl.InvalidateAll();
 
-            ConfigureForm(renderManager, _rendererStack.RenderingState);
+            ConfigureForm(renderManager, _rendererStack.RenderingState ?? throw new InvalidOperationException("No initial rendering state available"));
 
             _rendererStack.StartRenderLoop((state, clipping) =>
             {

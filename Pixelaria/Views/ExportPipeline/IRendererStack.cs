@@ -21,81 +21,42 @@
 */
 
 using System;
-using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PixDirectX.Rendering;
-using Pixelaria.DXSupport;
 
 namespace Pixelaria.Views.ExportPipeline
 {
+    /// <summary>
+    /// Implements a full stack of a rendering API + render loop
+    /// </summary>
     public interface IRendererStack: IDisposable
     {
+        /// <summary>
+        /// The latest valid rendering state.
+        ///
+        /// May be null, in case rendering state has been invalidated or the renderer stack
+        /// has not been initialized.
+        /// </summary>
+        [CanBeNull]
         IRenderLoopState RenderingState { get; }
 
+        /// <summary>
+        /// Initializes this renderer stack using a given host control.
+        ///
+        /// In exchange, a render manager is returned which can be used to access rendering
+        /// resources and general text layout machinery.
+        /// </summary>
         IExportPipelineRenderManager Initialize(Control control);
+
+        /// <summary>
+        /// Starts a render loop, executing until the application closes.
+        ///
+        /// The clipping region provided should be populated with the redraw regions of the
+        /// frame to be rendered.
+        ///
+        /// Frame rendering occurs after the closure is executed.
+        /// </summary>
         void StartRenderLoop(Action<IRenderLoopState, ClippingRegion> execute);
-    }
-
-    public class Direct2DRendererStack : IRendererStack
-    {
-        private Direct2DRenderLoopManager _direct2DLoopManager;
-        private readonly Direct2DRender _renderManager;
-        public IRenderLoopState RenderingState => _direct2DLoopManager.RenderingState;
-
-
-        public Direct2DRendererStack()
-        {
-            _renderManager = new Direct2DRender();
-        }
-
-        public void Dispose()
-        {
-            _direct2DLoopManager?.Dispose();
-        }
-
-        public IExportPipelineRenderManager Initialize(Control control)
-        {
-            _direct2DLoopManager = new Direct2DRenderLoopManager(control, DxSupport.D2DFactory, DxSupport.D3DDevice);
-            _direct2DLoopManager.Initialize();
-            _renderManager.Initialize(_direct2DLoopManager.RenderingState);
-
-            return _renderManager;
-        }
-
-        public void StartRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
-        {
-            var clippingRegion = new ClippingRegion();
-
-            _direct2DLoopManager.StartRenderLoop(state =>
-            {
-                clippingRegion.Clear();
-
-                execute(state, clippingRegion);
-                // Use clipping region
-                var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
-
-                _renderManager.Render(state, clippingRegion);
-                
-                Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
-
-                var size = new Size(_direct2DLoopManager.RenderingState.D2DRenderTarget.PixelSize.Width, _direct2DLoopManager.RenderingState.D2DRenderTarget.PixelSize.Height);
-                var rects = clippingRegion.RedrawRegionRectangles(size);
-
-                var redrawRects =
-                    rects.Select(rect =>
-                    {
-                        int x = (int)Math.Floor(rect.X);
-                        int y = (int)Math.Floor(rect.Y);
-
-                        int width = (int)Math.Ceiling(rect.Width);
-                        int height = (int)Math.Ceiling(rect.Height);
-
-                        return new Rectangle(x, y, width, height);
-                    }).ToArray();
-
-                return new Direct2DRenderLoopResponse(redrawRects);
-            });
-        }
     }
 }
