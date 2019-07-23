@@ -25,7 +25,7 @@ using JetBrains.Annotations;
 namespace PixDirectX.Rendering
 {
     /// <summary>
-    /// Describes an object that can participate in the main render sequence of an <see cref="IRendererManager"/>.
+    /// Describes an object that can participate in the main render sequence of an <see cref="IRenderManager"/>.
     /// </summary>
     public interface IRenderListener
     {
@@ -34,10 +34,10 @@ namespace PixDirectX.Rendering
         ///
         /// Render listeners with a higher render order are invoked before listeners with a lower render order.
         ///
-        /// If two listeners share the same render order, the order in which they where registered in the <see cref="IRendererManager"/>
+        /// If two listeners share the same render order, the order in which they where registered in the <see cref="IRenderManager"/>
         /// is used to break the tie, instead.
         ///
-        /// This value is read only when adding the render listener to a <see cref="IRendererManager"/>; updating this value at runtime is
+        /// This value is read only when adding the render listener to a <see cref="IRenderManager"/>; updating this value at runtime is
         /// not supported and may lead to undesired render ordering of elements.
         /// </summary>
         int RenderOrder { get; }
@@ -51,7 +51,7 @@ namespace PixDirectX.Rendering
         void RecreateState([NotNull] IRenderLoopState state);
 
         /// <summary>
-        /// Called to notify a new rendering process will take place on an <see cref="IRendererManager"/>, with a given valid render state
+        /// Called to notify a new rendering process will take place on an <see cref="IRenderManager"/>, with a given valid render state
         /// associated.
         /// </summary>
         void Render([NotNull] IRenderListenerParameters parameters);
@@ -85,12 +85,6 @@ namespace PixDirectX.Rendering
         /// </summary>
         [NotNull]
         IRenderLoopState State { get; }
-
-        /// <summary>
-        /// A text color renderer to use across render listeners
-        /// </summary>
-        [NotNull]
-        TextColorRenderer TextColorRenderer { get; }
 
         /// <summary>
         /// Gets a text layout renderer

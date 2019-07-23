@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ExportPipeline
     public partial class ExportPipelineView : PxlRenderForm
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly Direct2DRenderer _renderManager = new Direct2DRenderer();
+        private readonly Direct2DRender _renderManager = new Direct2DRender();
 
         private ExportPipelineNodesPanelManager _panelManager;
         private BitmapPreviewPipelineWindowManager _previewManager;
@@ -150,7 +150,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             // InitTest();
 
-            ControlView.TextLayoutRenderer = new Direct2DRenderer();
+            ControlView.TextLayoutRenderer = new Direct2DRender();
 
             ConfigurePipelineControl();
             ConfigureNodesPanel();
@@ -650,13 +650,13 @@ namespace Pixelaria.Views.ExportPipeline
 
         public int RenderOrder => RenderOrdering.UserInterface;
 
-        public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control, [NotNull] IRendererManager rendererManager) : base(control)
+        public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager) : base(control)
         {
             control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
             control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
             control.SizeChanged += ControlOnSizeChanged;
 
-            rendererManager.AddRenderListener(this);
+            renderManager.AddRenderListener(this);
         }
 
         private void ControlOnSizeChanged(object sender, EventArgs e)

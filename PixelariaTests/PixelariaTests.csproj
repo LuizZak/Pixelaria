@@ -157,7 +157,7 @@
     <Compile Include="Views\ExportPipeline\Direct2DRendererTests.cs" />
     <Compile Include="Views\ExportPipeline\PipelineNodePanel\ExportPipelineNodesPanelManagerTests.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\DefaultPipelineNodeViewSizerTests.cs" />
-    <Compile Include="Views\ExportPipeline\TestDirect2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\TestDirect2DRender.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj">

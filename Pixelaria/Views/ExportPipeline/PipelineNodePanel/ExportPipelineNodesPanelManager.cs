@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private readonly List<PipelineNodeButtonDragAndDropHandler> _buttonHandlers = new List<PipelineNodeButtonDragAndDropHandler>();
 
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly IExportPipelineRendererManager _pipelineRendererManager;
+        private readonly IExportPipelineRenderManager _pipelineRenderManager;
         [NotNull] 
         private readonly IInvalidatableControl _invalidateTarget;
         private readonly IImageResourceProvider _imageResourceProvider;
@@ -73,19 +73,19 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
 
-        public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control, [NotNull] IExportPipelineRendererManager rendererManager)
-            : this(control.ControlContainer, rendererManager,
+        public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control, [NotNull] IExportPipelineRenderManager renderManager)
+            : this(control.ControlContainer, renderManager,
                 control,
                 new PipelineNodeBitmapGenerator(control))
         {
             
         }
 
-        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IExportPipelineRendererManager pipelineRendererManager, [NotNull] IInvalidatableControl invalidateTarget, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
+        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IExportPipelineRenderManager pipelineRenderManager, [NotNull] IInvalidatableControl invalidateTarget, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
         {
-            _pipelineRendererManager = pipelineRendererManager;
+            _pipelineRenderManager = pipelineRenderManager;
             _invalidateTarget = invalidateTarget;
-            _imageResourceProvider = _pipelineRendererManager.ImageResources;
+            _imageResourceProvider = _pipelineRenderManager.ImageResources;
             _bitmapGenerator = bitmapGenerator;
 
             Setup(container);
@@ -270,7 +270,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button, [NotNull] PipelineNodeSpec nodeSpec)
         {
             return new PipelineNodeButtonDragAndDropHandler(button, nodeSpec, _invalidateTarget,
-                _pipelineRendererManager, new PipelineNodeButtonDragAndDropHandlerDelegate(this));
+                _pipelineRenderManager, new PipelineNodeButtonDragAndDropHandlerDelegate(this));
         }
 
         private Vector GetButtonSize()
@@ -426,7 +426,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 var wicBitmap = new Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
 
                 using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, DxSupport.D2DFactory, DxSupport.D3DDevice))
-                using (var renderer = new Direct2DRenderer())
+                using (var renderer = new Direct2DRender())
                 {
                     var listener = new InternalRenderListener(container, _exportPipelineControl);
 

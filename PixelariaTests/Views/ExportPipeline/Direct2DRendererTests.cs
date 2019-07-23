@@ -303,7 +303,7 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var renderManager = new Direct2DRenderLoopManager(_control, factory))
             {
                 renderManager.Initialize();
-                var renderer = new TestDirect2DRenderer();
+                var renderer = new TestDirect2DRender();
                 renderer.Initialize(renderManager.RenderingState);
                 renderManager.RenderSingleFrame(state =>
                 {
@@ -332,7 +332,7 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var factory = new SharpDX.Direct2D1.Factory())
             using (var renderManager = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
-            using (var renderer = new Direct2DRenderer())
+            using (var renderer = new Direct2DRender())
             {
                 renderManager.Initialize();
 

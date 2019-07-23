@@ -59,7 +59,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
             _renderer = new Direct2DRenderLoopManager(_control, DxSupport.D2DFactory);
             _renderer.Initialize();
 
-            var renderManager = new Direct2DRenderer();
+            var renderManager = new Direct2DRender();
             renderManager.Initialize(_renderer.RenderingState);
 
             _control.InitializeRenderer(renderManager);

@@ -32,7 +32,7 @@ namespace PixDirectXTests.Rendering
         [TestMethod]
         public void TestRenderListenerOrdering()
         {
-            var sut = new MockBaseDirect2DRenderer();
+            var sut = new MockBaseDirect2DRender();
             var lastListener = new MockRenderListener(0);
             var firstListener1 = new MockRenderListener(1);
             var firstListener2 = new MockRenderListener(1);
@@ -67,7 +67,7 @@ namespace PixDirectXTests.Rendering
         }
     }
 
-    class MockBaseDirect2DRenderer : BaseDirect2DRenderer
+    class MockBaseDirect2DRender : BaseDirect2DRender
     {
         public IList<IRenderListener> RenderListenersSpy => RenderListeners;
     }

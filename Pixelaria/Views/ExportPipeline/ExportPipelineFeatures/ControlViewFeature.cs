@@ -68,7 +68,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         [CanBeNull]
         private IKeyboardEventHandler _firstResponder;
 
-        public ControlViewFeature([NotNull] IExportPipelineControl control, [NotNull] IRendererManager rendererManager) : base(control)
+        public ControlViewFeature([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager) : base(control)
         {
             BaseControl = new RootControlView(this)
             {
@@ -76,7 +76,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 InvalidateRegionDelegate = this
             };
 
-            rendererManager.AddRenderListener(this);
+            renderManager.AddRenderListener(this);
         }
 
         /// <summary>
@@ -129,11 +129,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             traverser.Visit(BaseControl);
         }
 
-        public override void OnResize(EventArgs e)
+        public override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
 
-            BaseControl.Size = Control.Size;
+            BaseControl.Size = e.Size;
         }
 
         public void RecreateState(IRenderLoopState state)

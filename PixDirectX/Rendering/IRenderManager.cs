@@ -33,7 +33,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Public interface for the Export Pipeline's renderer manager
     /// </summary>
-    public interface IRendererManager : ITextLayoutRenderer
+    public interface IRenderManager : ITextLayoutRenderer
     {
         /// <summary>
         /// Gets or sets the background color that this renderer manager uses to clear the display area
@@ -46,7 +46,7 @@ namespace PixDirectX.Rendering
         IImageResourceManager ImageResources { get; }
 
         /// <summary>
-        /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IRendererManager"/>
+        /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IRenderManager"/>
         /// </summary>
         ITextMetricsProvider TextMetricsProvider { get; }
         
@@ -68,7 +68,7 @@ namespace PixDirectX.Rendering
         void UpdateRenderingState([NotNull] IRenderLoopState state, [NotNull] IClippingRegion clipping);
 
         /// <summary>
-        /// Renders all render listeners on this <see cref="IRendererManager"/> instance.
+        /// Renders all render listeners on this <see cref="IRenderManager"/> instance.
         ///
         /// If overriden, must be called to properly update the render state of the renderer.
         /// </summary>
@@ -160,7 +160,7 @@ namespace PixDirectX.Rendering
     }
 
     /// <summary>
-    /// Represents a common interface for an object that provides clipping region querying for a <see cref="IRendererManager"/>.
+    /// Represents a common interface for an object that provides clipping region querying for a <see cref="IRenderManager"/>.
     /// </summary>
     public interface IClippingRegion
     {

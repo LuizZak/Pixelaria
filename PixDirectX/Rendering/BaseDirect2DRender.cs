@@ -46,11 +46,11 @@ using TextRange = SharpDX.DirectWrite.TextRange;
 
 namespace PixDirectX.Rendering
 {
-    /// <inheritdoc cref="IRendererManager" />
+    /// <inheritdoc cref="IRenderManager" />
     /// <summary>
     /// Base Direct2D renderer class that other packages may inherit from to provide custom rendering logic
     /// </summary>
-    public abstract class BaseDirect2DRenderer : IDisposable, IRendererManager, IDirect2DRenderingStateProvider
+    public abstract class BaseDirect2DRender : IDisposable, IRenderManager, IDirect2DRenderingStateProvider
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
@@ -84,13 +84,13 @@ namespace PixDirectX.Rendering
         /// <inheritdoc />
         public ITextMetricsProvider TextMetricsProvider => _textMetrics;
 
-        protected BaseDirect2DRenderer()
+        protected BaseDirect2DRender()
         {
             _imageResources = new ImageResources();
             _textMetrics = new TextMetrics(this);
         }
 
-        ~BaseDirect2DRenderer()
+        ~BaseDirect2DRender()
         {
             Dispose(false);
         }
@@ -177,11 +177,11 @@ namespace PixDirectX.Rendering
         }
         
         /// <summary>
-        /// Renders all render listeners on this <see cref="BaseDirect2DRenderer"/> instance.
+        /// Renders all render listeners on this <see cref="BaseDirect2DRender"/> instance.
         ///
         /// If overriden, must be called to properly update the render state of the renderer.
         /// </summary>
-        public virtual void Render([NotNull] IRenderLoopState renderLoopState, [NotNull] IClippingRegion clipping)
+        public virtual void Render(IRenderLoopState renderLoopState, IClippingRegion clipping)
         {
             var state = (IDirect2DRenderingState)renderLoopState;
 

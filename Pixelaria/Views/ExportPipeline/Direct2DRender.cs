@@ -33,13 +33,13 @@ namespace Pixelaria.Views.ExportPipeline
     /// <summary>
     /// Renders a pipeline export view
     /// </summary>
-    internal class Direct2DRenderer : BaseDirect2DRenderer, IExportPipelineRendererManager
+    internal class Direct2DRender : BaseDirect2DRender, IExportPipelineRenderManager
     {
         private readonly DefaultLabelViewSizeProvider _labelViewSizeProvider;
 
         public ILabelViewSizeProvider LabelViewSizeProvider => _labelViewSizeProvider;
 
-        public Direct2DRenderer()
+        public Direct2DRender()
         {
             _labelViewSizeProvider = new DefaultLabelViewSizeProvider(this);
         }

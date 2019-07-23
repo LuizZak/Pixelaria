@@ -261,7 +261,7 @@
     <Compile Include="Views\Controls\Filters\IFilterControl.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
-    <Compile Include="Views\ExportPipeline\IExportPipelineRendererManager.cs" />
+    <Compile Include="Views\ExportPipeline\IExportPipelineRenderManager.cs" />
     <Compile Include="Views\ExportPipeline\InternalRenderListener.cs" />
     <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
     <Compile Include="Views\ExportPipeline\IRenderingDecorator.cs" />
@@ -301,7 +301,7 @@
     <Compile Include="Views\ExportPipeline\ExportPipelineControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Views\ExportPipeline\Direct2DRenderer.cs" />
+    <Compile Include="Views\ExportPipeline\Direct2DRender.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\SmoothViewPanAndZoomUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\ExportPipelineFeatures\NodeLinkHoverLabelFeature.cs" />
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />

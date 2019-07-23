@@ -71,11 +71,11 @@
   <ItemGroup>
     <Compile Include="Rendering\ClippingRegion.cs" />
     <Compile Include="Rendering\D2DImageResources.cs" />
-    <Compile Include="Rendering\BaseDirect2DRenderer.cs" />
+    <Compile Include="Rendering\BaseDirect2DRender.cs" />
     <Compile Include="Rendering\Direct2DClipping.cs" />
     <Compile Include="Rendering\Direct2DWicBitmapRenderManager.cs" />
     <Compile Include="Rendering\Direct2DConversionHelpers.cs" />
-    <Compile Include="Rendering\IRendererManager.cs" />
+    <Compile Include="Rendering\IRenderManager.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
     <Compile Include="Rendering\IImageResourceManager.cs" />
     <Compile Include="Rendering\ImageResource.cs" />

@@ -45,7 +45,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             // PipelineViewSnapshot.RecordMode = true;
 
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
-            ControlView.TextLayoutRenderer = new TestDirect2DRenderer();
+            ControlView.TextLayoutRenderer = new TestDirect2DRender();
         }
 
         [TestMethod]
@@ -249,7 +249,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
                 {
                     state.D2DRenderTarget.Clear(null);
 
-                    var renderer = new TestDirect2DRenderer();
+                    var renderer = new TestDirect2DRender();
                     renderer.Initialize(state);
 
                     PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);

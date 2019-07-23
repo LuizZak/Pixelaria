@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
@@ -45,8 +46,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         /// <summary>
         /// When an <see cref="ExportPipelineControl"/> calls one of the event handlers
-        /// On[...] (like OnMouseDown, OnMouseLeave, OnKeyDown, etc., except <see cref="OnRender"/>,
-        /// <see cref="OnResize"/> and <see cref="OnFixedFrame"/>) this flag is reset to false on all pipeline UI 
+        /// On[...] (like OnMouseDown, OnMouseLeave, OnKeyDown, etc., except <see cref="OnResize"/> and
+        /// <see cref="OnFixedFrame"/>) this flag is reset to false on all pipeline UI 
         /// features, and after every feature's event handler call this flag is checked to 
         /// stop calling the event handler on further features.
         /// </summary>
@@ -86,6 +87,8 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         public virtual void OnFixedFrame([NotNull] EventArgs e) { }
 
+        public virtual void OnResize([NotNull] ResizeEventArgs e) { }
+
         #region Mouse Events
 
         public virtual void OnMouseLeave([NotNull] EventArgs e) { }
@@ -105,8 +108,6 @@ namespace Pixelaria.Views.ExportPipeline
         public virtual void OnKeyUp([NotNull] KeyEventArgs e) { }
         public virtual void OnKeyPress([NotNull] KeyPressEventArgs e) { }
         public virtual void OnPreviewKeyDown([NotNull] PreviewKeyDownEventArgs e) { }
-        public virtual void OnResize([NotNull] EventArgs e) { }
-
         #endregion
 
         /// <summary>
@@ -163,6 +164,19 @@ namespace Pixelaria.Views.ExportPipeline
             action();
 
             ReleaseExclusiveControl();
+        }
+    }
+
+    /// <summary>
+    /// Event args for a resize event
+    /// </summary>
+    public class ResizeEventArgs : EventArgs
+    {
+        public Size Size { get; }
+
+        public ResizeEventArgs(Size size)
+        {
+            Size = size;
         }
     }
 }

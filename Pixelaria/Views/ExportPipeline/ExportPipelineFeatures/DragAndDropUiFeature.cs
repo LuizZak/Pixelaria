@@ -70,7 +70,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             if (_isMouseDown && e.Button == MouseButtons.Left)
             {
-                // Dragging happens when a minimum distance has been travelled
+                // Dragging happens when a minimum distance has been traveled
                 if (!_isDragging && _mouseDownPoint.Distance(e.Location) > 3)
                 {
                     if (RequestExclusiveControl())

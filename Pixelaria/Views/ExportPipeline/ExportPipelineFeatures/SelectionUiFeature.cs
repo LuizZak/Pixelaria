@@ -382,12 +382,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         #region IRenderingDecorator
 
-        public void Added(IExportPipelineRendererManager rendererManager)
+        public void Added(IExportPipelineRenderManager renderManager)
         {
             
         }
 
-        public void Removed(IExportPipelineRendererManager rendererManager)
+        public void Removed(IExportPipelineRenderManager renderManager)
         {
             
         }

@@ -177,27 +177,27 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeRenderer([NotNull] IExportPipelineRendererManager rendererManager)
+        public void InitializeRenderer([NotNull] IExportPipelineRenderManager renderManager)
         {
             _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
-            _controlViewFeature = new ControlViewFeature(this, rendererManager);
+            _controlViewFeature = new ControlViewFeature(this, renderManager);
 
-            AddFeature(new NodeLinkHoverLabelFeature(this, rendererManager));
+            AddFeature(new NodeLinkHoverLabelFeature(this, renderManager));
             AddFeature(_panAndZoom);
             AddFeature(new DragAndDropUiFeature(this));
             AddFeature(new SelectionUiFeature(this));
             AddFeature(new PipelineLinkContextMenuFeature(this));
             AddFeature(_controlViewFeature);
 
-            rendererManager.AddRenderListener(_internalRenderer);
-            BackColor = rendererManager.BackColor;
+            renderManager.AddRenderListener(_internalRenderer);
+            BackColor = renderManager.BackColor;
 
-            ImageResources = rendererManager.ImageResources;
-            LabelViewSizeProvider = rendererManager.LabelViewSizeProvider;
-            TextMetricsProvider = rendererManager.TextMetricsProvider;
+            ImageResources = renderManager.ImageResources;
+            LabelViewSizeProvider = renderManager.LabelViewSizeProvider;
+            TextMetricsProvider = renderManager.TextMetricsProvider;
         }
 
-        public void Render([NotNull] IExportPipelineRendererManager renderManager, [NotNull] IRenderLoopState state)
+        public void Render([NotNull] IExportPipelineRenderManager renderManager, [NotNull] IRenderLoopState state)
         {
             // Update animations
             AnimationsManager.Update(state.FrameRenderDeltaTime);
@@ -384,8 +384,10 @@ namespace Pixelaria.Views.ExportPipeline
         {
             base.OnResize(e);
 
+            var args = new ResizeEventArgs(Size);
+
             foreach (var feature in _features)
-                feature.OnResize(e);
+                feature.OnResize(args);
         }
 
         /// <summary>

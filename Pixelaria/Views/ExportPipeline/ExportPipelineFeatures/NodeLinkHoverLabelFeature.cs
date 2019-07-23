@@ -45,7 +45,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private readonly LabelView _labelView;
         private readonly RenderListener _renderListener = new RenderListener();
 
-        public NodeLinkHoverLabelFeature([NotNull] IExportPipelineControl control, [NotNull] IRendererManager rendererManager) : base(control)
+        public NodeLinkHoverLabelFeature([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager) : base(control)
         {
             _labelView = new LabelView
             {
@@ -57,7 +57,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 TextInsetBounds = new InsetBounds(5, 5, 5, 5)
             };
 
-            rendererManager.AddRenderListener(_renderListener);
+            renderManager.AddRenderListener(_renderListener);
         }
 
         public override void OnMouseLeave(EventArgs e)

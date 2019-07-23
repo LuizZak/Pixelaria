@@ -39,7 +39,7 @@ namespace PixUITests.Controls
         public void Setup()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
-            ControlView.TextLayoutRenderer = new TestDirect2DRenderer();
+            ControlView.TextLayoutRenderer = new TestDirect2DRender();
 
             //BaseViewSnapshot.RecordMode = true;
         }
