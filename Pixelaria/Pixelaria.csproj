@@ -264,6 +264,7 @@
     <Compile Include="Views\ExportPipeline\IExportPipelineRenderManager.cs" />
     <Compile Include="Views\ExportPipeline\InternalRenderListener.cs" />
     <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
+    <Compile Include="Views\ExportPipeline\IRendererStack.cs" />
     <Compile Include="Views\ExportPipeline\IRenderingDecorator.cs" />
     <Compile Include="Views\ExportPipeline\PipelineNodePanel\PipelineNodeButtonDragAndDropHandler.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\PipelineNodeConnectionLineView.cs" />

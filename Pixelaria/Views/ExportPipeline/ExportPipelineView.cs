@@ -38,7 +38,6 @@ using PixUI.Controls;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
-using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps;
@@ -61,8 +60,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private PropertiesPanel _propertiesPanel;
 
-        private Direct2DRenderLoopManager _direct2DLoopManager;
-        private readonly Direct2DRender _renderManager = new Direct2DRender();
+        private IRendererStack _rendererStack;
 
         public ExportPipelineView()
         {
@@ -81,14 +79,13 @@ namespace Pixelaria.Views.ExportPipeline
             if (disposing)
             {
                 // Release all Direct2D resources
-                _direct2DLoopManager?.Dispose();
-
-                _renderManager.Dispose();
                 _disposeBag.Dispose();
                 _panelManager?.Dispose();
                 _propertiesPanel?.Dispose();
 
                 components?.Dispose();
+
+                _rendererStack?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -98,81 +95,50 @@ namespace Pixelaria.Views.ExportPipeline
         {
             base.OnShown(e);
             
-            StartDirect2DLoop();
+            StartRenderLoop();
         }
 
-        public void StartDirect2DLoop()
+        public void StartRenderLoop()
         {
             if (DesignMode)
                 return;
 
-            _direct2DLoopManager = new Direct2DRenderLoopManager(exportPipelineControl, DxSupport.D2DFactory, DxSupport.D3DDevice);
-
-            _direct2DLoopManager.Initialize();
-
-            _renderManager.Initialize(_direct2DLoopManager.RenderingState);
-
-            exportPipelineControl.InitializeRenderer(_renderManager);
-            ConfigureForm();
-
+            _rendererStack = new Direct2DRendererStack();
+            var renderManager = _rendererStack.Initialize(exportPipelineControl);
+            exportPipelineControl.InitializeRenderer(renderManager);
             exportPipelineControl.InvalidateAll();
 
-            var clippingRegion = new ClippingRegion();
+            ConfigureForm(renderManager, _rendererStack.RenderingState);
 
-            _direct2DLoopManager.StartRenderLoop(state =>
+            _rendererStack.StartRenderLoop((state, clipping) =>
             {
-                clippingRegion.Clear();
-
-                exportPipelineControl.UpdateFrameStep(_direct2DLoopManager.RenderingState.FrameRenderDeltaTime);
-                exportPipelineControl.FillRedrawRegion(clippingRegion);
-
-                // Use clipping region
-                var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
-
-                _renderManager.Render(state, clippingRegion);
-
-                Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
-
-                var rects = clippingRegion.RedrawRegionRectangles(exportPipelineControl.Size);
-
-                var redrawRects =
-                    rects.Select(rect =>
-                    {
-                        int x = (int) Math.Floor(rect.X);
-                        int y = (int) Math.Floor(rect.Y);
-
-                        int width = (int) Math.Ceiling(rect.Width);
-                        int height = (int) Math.Ceiling(rect.Height);
-
-                        return new Rectangle(x, y, width, height);
-                    }).ToArray();
-
-                return new Direct2DRenderLoopResponse(redrawRects);
+                exportPipelineControl.UpdateFrameStep(state.FrameRenderDeltaTime);
+                exportPipelineControl.FillRedrawRegion(clipping);
             });
         }
 
         #region Form Configuration
 
-        private void ConfigureForm()
+        private void ConfigureForm([NotNull] IExportPipelineRenderManager renderer, [NotNull] IRenderLoopState state)
         {
             // InitTest();
 
             ControlView.TextLayoutRenderer = new Direct2DRender();
 
-            ConfigurePipelineControl();
-            ConfigureNodesPanel();
+            ConfigurePipelineControl(state);
+            ConfigureNodesPanel(renderer);
             ConfigurePropertiesPanel();
-            ConfigurePreviewManager(_propertiesPanel);
+            ConfigurePreviewManager(renderer, _propertiesPanel);
         }
 
-        private void ConfigurePipelineControl()
+        private void ConfigurePipelineControl([NotNull] IRenderLoopState state)
         {
-            PipelineControlConfigurator.Configure(exportPipelineControl, _direct2DLoopManager.RenderingState);
+            PipelineControlConfigurator.Configure(exportPipelineControl, state);
         }
 
-        private void ConfigureNodesPanel()
+        private void ConfigureNodesPanel([NotNull] IExportPipelineRenderManager renderer)
         {
-            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl, _renderManager);
+            _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl, renderer);
             _panelManager.RegisterResizeEvent(exportPipelineControl);
 
             _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
@@ -188,9 +154,9 @@ namespace Pixelaria.Views.ExportPipeline
             _propertiesPanel = new PropertiesPanel(exportPipelineControl);
         }
 
-        private void ConfigurePreviewManager([NotNull] PropertiesPanel propertiesPanel)
+        private void ConfigurePreviewManager([NotNull] IRenderManager renderer, [NotNull] PropertiesPanel propertiesPanel)
         {
-            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl, _renderManager)
+            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl, renderer)
             {
                 ScreenInsetBounds = new InsetBounds(5, 5, 5, propertiesPanel.PanelWidth + 5)
             };
