@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets a set of rectangles that represent the invalidated redraw regions of this pipeline control.
         /// </summary>
-        public RectangleF[] ClippingRegionRectangles => _clippingRegion.RedrawRegionRectangles(Size);
+        public IReadOnlyList<RectangleF> ClippingRegionRectangles => _clippingRegion.RedrawRegionRectangles(Size);
 
         /// <summary>
         /// Container for <see cref="ControlView"/>-based controls

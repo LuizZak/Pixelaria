@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -66,6 +66,14 @@ namespace PixUI.Controls
         public void Clear()
         {
             _rectangles.Clear();
+        }
+
+        /// <summary>
+        /// Returns true if this redraw region is currently empty.
+        /// </summary>
+        public bool IsEmpty()
+        {
+            return _rectangles.Count == 0;
         }
 
         /// <summary>

@@ -45,6 +45,12 @@ namespace PixDirectX.Rendering
             _rectangles = new List<RectangleF>();
         }
 
+        public ClippingRegion([NotNull] IEnumerable<RectangleF> rects, bool areDissected)
+        {
+            _needsDissect = areDissected;
+            _rectangles.AddRange(rects);
+        }
+
         /// <summary>
         /// Returns a series of <see cref="RectangleF"/> instances that approximate the redraw region
         /// of this <see cref="ClippingRegion"/>, truncated to be within the given <see cref="Size"/>-d rectangle.
@@ -148,6 +154,43 @@ namespace PixDirectX.Rendering
         {
             _rectangles.AddRange(region._rectangles);
             _needsDissect = true;
+        }
+
+        /// <summary>
+        /// Applies a clip to the rectangles on this <see cref="ClippingRegion"/> so they are all contained within
+        /// a given region.
+        /// </summary>
+        public void ApplyClip(AABB region, [CanBeNull] ISpatialReference reference)
+        {
+            ApplyClip((RectangleF)region, reference);
+        }
+
+        /// <summary>
+        /// Applies a clip to the rectangles on this <see cref="ClippingRegion"/> so they are all contained within
+        /// a given region.
+        /// </summary>
+        public void ApplyClip(RectangleF region, [CanBeNull] ISpatialReference reference)
+        {
+            var clipRegion = region;
+            if (reference != null)
+            {
+                clipRegion = (RectangleF)reference.ConvertTo(region, null);
+            }
+
+            for (int i = _rectangles.Count - 1; i >= 0; i--)
+            {
+                var rect = _rectangles[i];
+                rect = RectangleF.Intersect(rect, clipRegion);
+
+                if (rect.IsEmpty)
+                {
+                    _rectangles.RemoveAt(i);
+                }
+                else
+                {
+                    _rectangles[i] = rect;
+                }
+            }
         }
 
         public void SetRectangle(RectangleF rectangle)

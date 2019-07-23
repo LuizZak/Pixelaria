@@ -55,7 +55,6 @@ namespace Pixelaria.Views.ExportPipeline
     public partial class ExportPipelineView : PxlRenderForm
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly Direct2DRender _renderManager = new Direct2DRender();
 
         private ExportPipelineNodesPanelManager _panelManager;
         private BitmapPreviewPipelineWindowManager _previewManager;
@@ -63,6 +62,7 @@ namespace Pixelaria.Views.ExportPipeline
         private PropertiesPanel _propertiesPanel;
 
         private Direct2DRenderLoopManager _direct2DLoopManager;
+        private readonly Direct2DRender _renderManager = new Direct2DRender();
 
         public ExportPipelineView()
         {
@@ -83,12 +83,12 @@ namespace Pixelaria.Views.ExportPipeline
                 // Release all Direct2D resources
                 _direct2DLoopManager?.Dispose();
 
+                _renderManager.Dispose();
                 _disposeBag.Dispose();
                 _panelManager?.Dispose();
                 _propertiesPanel?.Dispose();
 
-                if (components != null)
-                    components.Dispose();
+                components?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -121,7 +121,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _direct2DLoopManager.StartRenderLoop(state =>
             {
-                var rects = exportPipelineControl.ClippingRegionRectangles;
+                clippingRegion.Clear();
 
                 exportPipelineControl.UpdateFrameStep(_direct2DLoopManager.RenderingState.FrameRenderDeltaTime);
                 exportPipelineControl.FillRedrawRegion(clippingRegion);
@@ -133,7 +133,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 
-                clippingRegion.Clear();
+                var rects = clippingRegion.RedrawRegionRectangles(exportPipelineControl.Size);
 
                 var redrawRects =
                     rects.Select(rect =>
