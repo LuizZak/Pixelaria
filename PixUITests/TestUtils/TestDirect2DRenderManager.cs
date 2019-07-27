@@ -28,7 +28,7 @@ namespace PixUITests.TestUtils
     /// <summary>
     /// Basic rendering shim for snapshot tests
     /// </summary>
-    public class TestDirect2DRender : BaseDirect2DRender
+    public class TestDirect2DRenderManager : Direct2DRenderManager
     {
         public void Initialize([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {

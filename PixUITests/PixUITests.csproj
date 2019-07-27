@@ -92,7 +92,7 @@
     <Compile Include="TestUtils\BaseViewSnapshot.cs" />
     <Compile Include="Controls\LabelViewControlTests.cs" />
     <Compile Include="TestInvalidateBaseView.cs" />
-    <Compile Include="TestUtils\TestDirect2DRender.cs" />
+    <Compile Include="TestUtils\TestDirect2DRenderManager.cs" />
     <Compile Include="BaseViewTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuControlTests.cs" />
     <Compile Include="Controls\ContextMenu\ContextMenuItemTests.cs" />

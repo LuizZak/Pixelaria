@@ -426,7 +426,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 var wicBitmap = new Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
 
                 using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, DxSupport.D2DFactory, DxSupport.D3DDevice))
-                using (var renderer = new BaseDirect2DRender())
+                using (var renderer = new Direct2DRenderManager())
                 {
                     var listener = new InternalRenderListener(container, _exportPipelineControl);
 

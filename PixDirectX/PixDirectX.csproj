@@ -71,7 +71,7 @@
   <ItemGroup>
     <Compile Include="Rendering\ClippingRegion.cs" />
     <Compile Include="Rendering\D2DImageResources.cs" />
-    <Compile Include="Rendering\BaseDirect2DRender.cs" />
+    <Compile Include="Rendering\Direct2DRenderManager.cs" />
     <Compile Include="Rendering\D2DTextSizeProvider.cs" />
     <Compile Include="Rendering\Direct2DClipping.cs" />
     <Compile Include="Rendering\Direct2DWicBitmapRenderManager.cs" />

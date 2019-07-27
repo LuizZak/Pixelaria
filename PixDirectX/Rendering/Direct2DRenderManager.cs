@@ -51,7 +51,7 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Base Direct2D renderer class that other packages may inherit from to provide custom rendering logic
     /// </summary>
-    public class BaseDirect2DRender : IDisposable, IRenderManager, IDirect2DRenderingStateProvider
+    public class Direct2DRenderManager : IDisposable, IRenderManager, IDirect2DRenderingStateProvider
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
@@ -88,14 +88,14 @@ namespace PixDirectX.Rendering
         /// <inheritdoc />
         public ITextSizeProvider TextSizeProvider => _textSizeProvider;
 
-        public BaseDirect2DRender()
+        public Direct2DRenderManager()
         {
             _imageResources = new ImageResources();
             _textMetrics = new TextMetrics(this);
             _textSizeProvider = new D2DTextSizeProvider(this);
         }
 
-        ~BaseDirect2DRender()
+        ~Direct2DRenderManager()
         {
             Dispose(false);
         }
@@ -182,7 +182,7 @@ namespace PixDirectX.Rendering
         }
         
         /// <summary>
-        /// Renders all render listeners on this <see cref="BaseDirect2DRender"/> instance.
+        /// Renders all render listeners on this <see cref="Direct2DRenderManager"/> instance.
         ///
         /// If overriden, must be called to properly update the render state of the renderer.
         /// </summary>

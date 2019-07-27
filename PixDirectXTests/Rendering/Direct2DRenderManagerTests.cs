@@ -27,12 +27,12 @@ using PixDirectX.Rendering;
 namespace PixDirectXTests.Rendering
 {
     [TestClass]
-    public class BaseDirect2DRendererTests
+    public class Direct2DRenderManagerTests
     {
         [TestMethod]
         public void TestRenderListenerOrdering()
         {
-            var sut = new MockBaseDirect2DRender();
+            var sut = new MockDirect2DRenderManager();
             var lastListener = new MockRenderListener(0);
             var firstListener1 = new MockRenderListener(1);
             var firstListener2 = new MockRenderListener(1);
@@ -67,7 +67,7 @@ namespace PixDirectXTests.Rendering
         }
     }
 
-    class MockBaseDirect2DRender : BaseDirect2DRender
+    class MockDirect2DRenderManager : Direct2DRenderManager
     {
         public IList<IRenderListener> RenderListenersSpy => RenderListeners;
     }

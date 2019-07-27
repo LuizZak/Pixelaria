@@ -35,12 +35,12 @@ namespace Pixelaria.Views.ExportPipeline
     public class Direct2DRendererStack : IRendererStack
     {
         private Direct2DRenderLoopManager _direct2DLoopManager;
-        private readonly BaseDirect2DRender _renderManager;
+        private readonly Direct2DRenderManager _renderManagerManager;
         public IRenderLoopState RenderingState => _direct2DLoopManager.RenderingState;
 
         public Direct2DRendererStack()
         {
-            _renderManager = new BaseDirect2DRender();
+            _renderManagerManager = new Direct2DRenderManager();
         }
 
         public void Dispose()
@@ -52,9 +52,9 @@ namespace Pixelaria.Views.ExportPipeline
         {
             _direct2DLoopManager = new Direct2DRenderLoopManager(control, DxSupport.D2DFactory, DxSupport.D3DDevice);
             _direct2DLoopManager.Initialize();
-            _renderManager.Initialize(_direct2DLoopManager.RenderingState);
+            _renderManagerManager.Initialize(_direct2DLoopManager.RenderingState);
 
-            return _renderManager;
+            return _renderManagerManager;
         }
 
         public void StartRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
@@ -69,7 +69,7 @@ namespace Pixelaria.Views.ExportPipeline
                 // Use clipping region
                 var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
 
-                _renderManager.Render(state, clippingRegion);
+                _renderManagerManager.Render(state, clippingRegion);
                 
                 Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 

@@ -55,7 +55,7 @@ namespace PixDirectX.Rendering
             if (_bitmapResources.ContainsKey(resourceName))
                 throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
 
-            _bitmapResources[resourceName] = BaseDirect2DRender.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            _bitmapResources[resourceName] = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
 
             return res;
         }
@@ -67,7 +67,7 @@ namespace PixDirectX.Rendering
             if (_bitmapResources.ContainsKey(resourceName))
                 throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
 
-            _bitmapResources[resourceName] = BaseDirect2DRender.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            _bitmapResources[resourceName] = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
 
             return res;
         }
@@ -76,7 +76,7 @@ namespace PixDirectX.Rendering
         {
             var state = (IDirect2DRenderingState)renderLoopState;
 
-            var dxBitmap = BaseDirect2DRender.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            var dxBitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
 
             return new DirectXBitmap(dxBitmap);
         }
@@ -88,7 +88,7 @@ namespace PixDirectX.Rendering
                 throw new ArgumentException($"Expected bitmap to be of type ${typeof(DirectXBitmap)}");
 
             dxBitmap.bitmap.Dispose();
-            dxBitmap.bitmap = BaseDirect2DRender.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            dxBitmap.bitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
         }
 
         public void RemoveAllImageResources()

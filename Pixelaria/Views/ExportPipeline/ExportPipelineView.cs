@@ -123,7 +123,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             // InitTest();
 
-            ControlView.TextLayoutRenderer = new BaseDirect2DRender();
+            ControlView.TextLayoutRenderer = new Direct2DRenderManager();
 
             ConfigurePipelineControl(state);
             ConfigureNodesPanel(renderer);

@@ -88,7 +88,7 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var factory = new SharpDX.Direct2D1.Factory())
             using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
-            using (var renderer = new TestDirect2DRender())
+            using (var renderer = new TestDirect2DRenderManager())
             {
                 ControlView.TextLayoutRenderer = renderer;
 
