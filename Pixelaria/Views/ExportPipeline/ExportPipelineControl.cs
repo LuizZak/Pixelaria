@@ -99,7 +99,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
-        public ILabelViewSizeProvider LabelViewSizeProvider { get; set; }
+        public ITextSizeProvider TextSizeProvider { get; set; }
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control
@@ -177,7 +177,7 @@ namespace Pixelaria.Views.ExportPipeline
             _features.Insert(0, feature);
         }
 
-        public void InitializeRenderer([NotNull] IExportPipelineRenderManager renderManager)
+        public void InitializeRenderer([NotNull] IRenderManager renderManager)
         {
             _panAndZoom = new SmoothViewPanAndZoomUiFeature(this);
             _controlViewFeature = new ControlViewFeature(this, renderManager);
@@ -193,7 +193,7 @@ namespace Pixelaria.Views.ExportPipeline
             BackColor = renderManager.BackColor;
 
             ImageResources = renderManager.ImageResources;
-            LabelViewSizeProvider = renderManager.LabelViewSizeProvider;
+            TextSizeProvider = renderManager.TextSizeProvider;
             TextMetricsProvider = renderManager.TextMetricsProvider;
         }
 
@@ -1018,7 +1018,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             public void AutoSizeNode(PipelineNodeView view)
             {
-                _control.PipelineNodeViewSizer.AutoSize(view, _control.LabelViewSizeProvider);
+                _control.PipelineNodeViewSizer.AutoSize(view, _control.TextSizeProvider);
             }
 
             public void PerformAction(IExportPipelineAction action)

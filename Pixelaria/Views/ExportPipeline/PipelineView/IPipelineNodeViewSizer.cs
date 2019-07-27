@@ -21,8 +21,7 @@
 */
 
 using JetBrains.Annotations;
-
-using PixUI;
+using PixDirectX.Rendering;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
@@ -34,6 +33,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// <summary>
         /// Auto-sizes a given node view object.
         /// </summary>
-        void AutoSize([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider);
+        void AutoSize([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider);
     }
 }

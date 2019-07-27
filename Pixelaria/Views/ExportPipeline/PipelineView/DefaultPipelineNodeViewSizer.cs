@@ -24,7 +24,7 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixUI;
+using PixDirectX.Rendering;
 using PixUI.Utils.Layouting;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         private const float BLOCKID_LINK_OUTPUT_INPUTS_SEPARATION = 7;
         
-        public void AutoSize(PipelineNodeView nodeView, ILabelViewSizeProvider sizeProvider)
+        public void AutoSize(PipelineNodeView nodeView, ITextSizeProvider sizeProvider)
         {
             // Get minimum width first
             const float minimumWidth = 80;
@@ -106,7 +106,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             }
         }
 
-        private static void ResizeLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        private static void ResizeLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider)
         {
             // Pre-size links
             var size = new Vector(BLOCKID_LINK_SIZE);
@@ -166,7 +166,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             height = y;
         }
 
-        private Vector SizeForTextBody([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        private Vector SizeForTextBody([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider)
         {
             var bodySize = new Vector();
             string bodyText = nodeView.BodyText;
@@ -179,7 +179,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return bodySize;
         }
         
-        private AABB AreaForTitle([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        private AABB AreaForTitle([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider)
         {
             // Calculate title size
             var titleArea =
@@ -201,12 +201,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return titleArea;
         }
 
-        private static float WidthForLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ILabelViewSizeProvider sizeProvider)
+        private static float WidthForLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider)
         {
             float width = 0;
             foreach (var linkView in nodeView.InputViews.Concat(nodeView.OutputViews))
             {
-                linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel);
+                linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel.AttributedText, linkView.LinkLabel.TextFont);
 
                 float linkWidth = linkView.GetFullBounds().Width + (BLOCKID_OUTER_MARGINS_PADDING - BLOCKID_LINK_SIZE) / 2 + BLOCKID_LINK_SEPARATION * 2;
 
@@ -222,9 +222,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return width;
         }
         
-        private static void ConfigureNodeLinkLabel([NotNull] PipelineNodeLinkView linkView, LabelLocation location, [NotNull] ILabelViewSizeProvider sizeProvider)
+        private static void ConfigureNodeLinkLabel([NotNull] PipelineNodeLinkView linkView, LabelLocation location, [NotNull] ITextSizeProvider sizeProvider)
         {
-            linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel);
+            linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel.AttributedText, linkView.LinkLabel.TextFont);
 
             float labelY = linkView.Size.Y / 2 - linkView.LinkLabel.Size.Y / 2;
 

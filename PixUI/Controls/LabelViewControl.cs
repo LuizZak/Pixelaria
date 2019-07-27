@@ -165,7 +165,7 @@ namespace PixUI.Controls
         private void CalculateBounds()
         {
             if (AutoResize)
-                Size = _labelViewBacking.CalculateSize(LabelView.DefaultLabelViewSizeProvider);
+                Size = _labelViewBacking.CalculateSize(LabelView.defaultTextSizeProvider);
         }
         
         public override void RenderForeground(ControlRenderingContext context)

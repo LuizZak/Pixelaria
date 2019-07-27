@@ -24,23 +24,36 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.Gdi;
 using Pixelaria.DXSupport;
 
 namespace Pixelaria.Views.ExportPipeline
 {
     /// <summary>
-    /// A full Direct2D renderer stack.
+    /// A GDI+-based renderer stack.
     /// </summary>
-    public class Direct2DRendererStack : IRendererStack
+    public class GdiRendererStack : IRendererStack
     {
+        private bool isControlDisposed = false;
+        private Control _control;
         private Direct2DRenderLoopManager _direct2DLoopManager;
-        private readonly BaseDirect2DRender _renderManager;
+        private readonly GdiRenderManager _renderManager;
+        private readonly GdiImageResourceManager _imageResource = new GdiImageResourceManager();
         public IRenderLoopState RenderingState => _direct2DLoopManager.RenderingState;
 
-        public Direct2DRendererStack()
+        public GdiRendererStack([NotNull] Control control)
         {
-            _renderManager = new BaseDirect2DRender();
+            _control = control;
+            _renderManager = new GdiRenderManager(_imageResource);
+
+            control.Disposed += ControlOnDisposed;
+        }
+
+        private void ControlOnDisposed(object sender, EventArgs e)
+        {
+            isControlDisposed = true;
         }
 
         public void Dispose()
@@ -61,6 +74,17 @@ namespace Pixelaria.Views.ExportPipeline
         {
             var clippingRegion = new ClippingRegion();
 
+            while (!isControlDisposed)
+            {
+                Application.DoEvents();
+
+                _control.CreateGraphics();
+
+                clippingRegion.Clear();
+
+                execute(RenderingState, clippingRegion);
+            }
+
             _direct2DLoopManager.StartRenderLoop(state =>
             {
                 clippingRegion.Clear();
@@ -70,7 +94,7 @@ namespace Pixelaria.Views.ExportPipeline
                 var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
 
                 _renderManager.Render(state, clippingRegion);
-                
+
                 Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 
                 var size = new Size(_direct2DLoopManager.D2DRenderState.D2DRenderTarget.PixelSize.Width, _direct2DLoopManager.D2DRenderState.D2DRenderTarget.PixelSize.Height);
@@ -79,11 +103,11 @@ namespace Pixelaria.Views.ExportPipeline
                 var redrawRects =
                     rects.Select(rect =>
                     {
-                        int x = (int)Math.Floor((double) rect.X);
-                        int y = (int)Math.Floor((double) rect.Y);
+                        int x = (int)Math.Floor((double)rect.X);
+                        int y = (int)Math.Floor((double)rect.Y);
 
-                        int width = (int)Math.Ceiling((double) rect.Width);
-                        int height = (int)Math.Ceiling((double) rect.Height);
+                        int width = (int)Math.Ceiling((double)rect.Width);
+                        int height = (int)Math.Ceiling((double)rect.Height);
 
                         return new Rectangle(x, y, width, height);
                     }).ToArray();

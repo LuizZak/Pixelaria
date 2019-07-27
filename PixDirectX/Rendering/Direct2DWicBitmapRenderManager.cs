@@ -49,8 +49,10 @@ namespace PixDirectX.Rendering
         private readonly Device _d3DDevice;
         private readonly Bitmap _target;
         private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
-        
-        public IDirect2DRenderingState RenderingState => _renderingState;
+
+        public IDirect2DRenderingState D2DRenderState => _renderingState;
+
+        public IRenderLoopState RenderingState => _renderingState;
 
         public Direct2DWicBitmapRenderManager(Bitmap target, Factory d2DFactory, Device d3DDevice)
         {
@@ -117,7 +119,7 @@ namespace PixDirectX.Rendering
         }
 
         /// <inheritdoc />
-        public void RenderSingleFrame(Action<IDirect2DRenderingState> render)
+        public void RenderSingleFrame(Action<IRenderLoopState> render)
         {
             _renderingState.D2DRenderTarget.BeginDraw();
 

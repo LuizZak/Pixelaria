@@ -119,11 +119,11 @@ namespace Pixelaria.Views.ExportPipeline
 
         #region Form Configuration
 
-        private void ConfigureForm([NotNull] IExportPipelineRenderManager renderer, [NotNull] IRenderLoopState state)
+        private void ConfigureForm([NotNull] IRenderManager renderer, [NotNull] IRenderLoopState state)
         {
             // InitTest();
 
-            ControlView.TextLayoutRenderer = new Direct2DRender();
+            ControlView.TextLayoutRenderer = new BaseDirect2DRender();
 
             ConfigurePipelineControl(state);
             ConfigureNodesPanel(renderer);
@@ -136,7 +136,7 @@ namespace Pixelaria.Views.ExportPipeline
             PipelineControlConfigurator.Configure(exportPipelineControl, state);
         }
 
-        private void ConfigureNodesPanel([NotNull] IExportPipelineRenderManager renderer)
+        private void ConfigureNodesPanel([NotNull] IRenderManager renderer)
         {
             _panelManager = new ExportPipelineNodesPanelManager(exportPipelineControl, renderer);
             _panelManager.RegisterResizeEvent(exportPipelineControl);
@@ -400,7 +400,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private static void ConfigureLabelSizeProvider([NotNull] IExportPipelineControl control)
         {
-            LabelView.DefaultLabelViewSizeProvider = control.LabelViewSizeProvider;
+            LabelView.defaultTextSizeProvider = control.TextSizeProvider;
         }
 
         public static void RegisterIcons([NotNull] IImageResourceManager manager, [NotNull] IRenderLoopState state)
@@ -782,7 +782,7 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 string name = step.Name;
 
-                var nameSize = Control.LabelViewSizeProvider.CalculateTextSize(name, _font);
+                var nameSize = Control.TextSizeProvider.CalculateTextSize(name, _font);
                 nameSize.Width += _titleInset.Left + _titleInset.Right;
                 nameSize.Height += _titleInset.Top + _titleInset.Bottom;
 

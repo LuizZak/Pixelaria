@@ -29,58 +29,5 @@ using Font = System.Drawing.Font;
 
 namespace PixUI.Rendering
 {
-    public class DefaultLabelViewSizeProvider : ILabelViewSizeProvider
-    {
-        private readonly IDirect2DRenderingStateProvider _renderingStateProvider;
-
-        public DefaultLabelViewSizeProvider(IDirect2DRenderingStateProvider renderingStateProvider)
-        {
-            _renderingStateProvider = renderingStateProvider;
-        }
-
-        public SizeF CalculateTextSize(LabelView labelView)
-        {
-            return CalculateTextSize(labelView.AttributedText, labelView.TextFont);
-        }
-
-        public SizeF CalculateTextSize(string text, Font font)
-        {
-            return CalculateTextSize(new AttributedText(text), font);
-        }
-
-        public SizeF CalculateTextSize(IAttributedText text, Font font)
-        {
-            return CalculateTextSize(text, font.Name, font.Size);
-        }
-
-        public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
-        {
-            var renderState = _renderingStateProvider.GetLatestValidRenderingState();
-            if (renderState == null)
-                return SizeF.Empty;
-
-            var format = new TextFormat(renderState.DirectWriteFactory, font, fontSize);
-            format.TextAlignment = TextAlignment.Leading;
-            format.ParagraphAlignment = ParagraphAlignment.Center;
-
-            using (var textFormat = format)
-            using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
-            {
-                foreach (var textSegment in text.GetTextSegments())
-                {
-                    if (!textSegment.HasAttribute<TextFontAttribute>())
-                        continue;
-
-                    var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-
-                    textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                        new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    textLayout.SetFontSize(fontAttr.Font.Size,
-                        new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                }
-                
-                return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
-            }
-        }
-    }
+    
 }

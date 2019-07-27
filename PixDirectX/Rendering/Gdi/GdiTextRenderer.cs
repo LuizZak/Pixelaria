@@ -20,23 +20,31 @@
     base directory of this project.
 */
 
-using JetBrains.Annotations;
-using PixDirectX.Rendering;
+using System.Drawing;
+using System.Windows.Forms;
+using PixCore.Geometry;
 
-namespace PixelariaTests.Views.ExportPipeline
+namespace PixDirectX.Rendering.Gdi
 {
-    // TODO: Try to collapse the implementation of this class with similar PixUITest's implementation.
-
-    /// <summary>
-    /// Basic rendering shim for snapshot tests
-    /// </summary>
-    public class TestDirect2DRender : BaseDirect2DRender
+    public class GdiTextRenderer : ITextRenderer
     {
-        public void Initialize([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
-        {
-            base.Initialize(state);
+        private readonly IDeviceContext _deviceContext;
 
-            ClippingRegion = clipping;
+        public GdiTextRenderer(IDeviceContext deviceContext)
+        {
+            _deviceContext = deviceContext;
+        }
+
+        public void Draw(ITextLayout textLayout, float x, float y)
+        {
+            Draw(textLayout.Text.String, textLayout.Attributes.TextFormatAttributes, AABB.FromRectangle(x, y, textLayout.Attributes.AvailableWidth, textLayout.Attributes.AvailableHeight), Color.Black);
+        }
+
+        public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
+        {
+            var font = new Font(textFormatAttributes.Font, textFormatAttributes.FontSize);
+
+            TextRenderer.DrawText(_deviceContext, text, font, (Rectangle)area, color);
         }
     }
 }

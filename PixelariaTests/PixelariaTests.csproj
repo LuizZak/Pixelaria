@@ -154,7 +154,7 @@
     <Compile Include="Views\ExportPipeline\PipelineView\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\RecentFileListTests.cs" />
-    <Compile Include="Views\ExportPipeline\Direct2DRendererTests.cs" />
+    <Compile Include="Views\ExportPipeline\InternalRenderListenerTests.cs" />
     <Compile Include="Views\ExportPipeline\PipelineNodePanel\ExportPipelineNodesPanelManagerTests.cs" />
     <Compile Include="Views\ExportPipeline\PipelineView\DefaultPipelineNodeViewSizerTests.cs" />
     <Compile Include="Views\ExportPipeline\TestDirect2DRender.cs" />

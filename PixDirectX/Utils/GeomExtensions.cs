@@ -20,19 +20,21 @@
     base directory of this project.
 */
 
-using System;
-using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using PixCore.Geometry;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
+using Matrix = System.Drawing.Drawing2D.Matrix;
 
 namespace PixDirectX.Utils
 {
     /// <summary>
-    /// Useful conversion methods from PixCore's to SharpDX's geometry types
+    /// Useful conversion methods from PixCore to SharpDX and GDI+ geometry types
     /// </summary>
     public static class GeomExtensions
     {
+        #region Vector / RawVector2
+
         /// <summary>
         /// Converts a <see cref="RawVector2"/> to an equivalent <see cref="Vector"/> value.
         /// </summary>
@@ -48,6 +50,10 @@ namespace PixDirectX.Utils
         {
             return *(RawVector2*)&vec;
         }
+
+        #endregion
+
+        #region AABB / RawRectangleF
 
         /// <summary>
         /// Converts a <see cref="RawRectangleF"/> to an equivalent <see cref="AABB"/> value.
@@ -66,6 +72,10 @@ namespace PixDirectX.Utils
             return new RawRectangleF(rec.Left, rec.Top, rec.Right, rec.Bottom);
         }
         
+        #endregion
+
+        #region Matrix2D / RawMatrix3x2 / Matrix3x2
+
         /// <summary>
         /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="RawMatrix3x2"/> value.
         /// </summary>
@@ -89,5 +99,27 @@ namespace PixDirectX.Utils
         {
             return *(Matrix2D*)&matrix;
         }
+
+        #endregion
+
+        #region Matrix2D / Matrix
+
+        /// <summary>
+        /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="Matrix"/> value.
+        /// </summary>
+        public static Matrix ToMatrix(this Matrix2D matrix)
+        {
+            return new Matrix(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Matrix"/> to an equivalent <see cref="Matrix2D"/> value.
+        /// </summary>
+        public static unsafe Matrix2D ToMatrix2D([NotNull] this Matrix matrix)
+        {
+            return new Matrix2D(matrix.Elements);
+        }
+
+        #endregion
     }
 }

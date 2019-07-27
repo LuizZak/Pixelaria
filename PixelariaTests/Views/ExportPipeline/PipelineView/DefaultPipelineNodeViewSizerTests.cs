@@ -229,7 +229,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         {
             TestWithRenderingState(provider =>
             {
-                var sizeProvider = new DefaultLabelViewSizeProvider(provider);
+                var sizeProvider = new D2DTextSizeProvider(provider);
 
                 sut.AutoSize(view, sizeProvider);
             });
@@ -247,7 +247,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
                 renderManager.RenderSingleFrame(state =>
                 {
-                    state.D2DRenderTarget.Clear(null);
+                    ((IDirect2DRenderingState) state).D2DRenderTarget.Clear(null);
 
                     var renderer = new TestDirect2DRender();
                     renderer.Initialize(state);
@@ -256,7 +256,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
                     control.InitializeRenderer(renderer);
 
-                    testAction(new StaticDirect2DRenderingStateProvider(state));
+                    testAction(new StaticDirect2DRenderingStateProvider((IDirect2DRenderingState)state));
                 });
             }
         }

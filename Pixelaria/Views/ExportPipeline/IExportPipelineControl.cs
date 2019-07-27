@@ -62,7 +62,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the label size provider for this control
         /// </summary>
-        ILabelViewSizeProvider LabelViewSizeProvider { get; }
+        ITextSizeProvider TextSizeProvider { get; }
 
         /// <summary>
         /// Gets the label view metrics provider initialized for this control

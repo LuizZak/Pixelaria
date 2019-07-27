@@ -47,7 +47,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// In exchange, a render manager is returned which can be used to access rendering
         /// resources and general text layout machinery.
         /// </summary>
-        IExportPipelineRenderManager Initialize(Control control);
+        IRenderManager Initialize(Control control);
 
         /// <summary>
         /// Starts a render loop, executing until the application closes.

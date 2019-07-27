@@ -58,7 +58,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             private const float DistanceToDrag = 5;
 
             [NotNull] 
-            private readonly IExportPipelineRenderManager _pipelineRenderManager;
+            private readonly IRenderManager _pipelineRenderManager;
 
             [NotNull] 
             private readonly IInvalidatableControl _invalidatableControl;
@@ -74,7 +74,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
                 [NotNull] PipelineNodeSpec nodeSpec,
                 [NotNull] IInvalidatableControl invalidatableControl,
-                [NotNull] IExportPipelineRenderManager pipelineRenderManager, 
+                [NotNull] IRenderManager pipelineRenderManager, 
                 [NotNull] IPipelineNodeButtonDragAndDropHandlerDelegate @delegate)
             {
                 _buttonControl = buttonControl;
@@ -226,7 +226,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     _nodeView.Icon = IconForPipelineNode(node, imageProvider);
 
                     var nodeViewSizer = new DefaultPipelineNodeViewSizer();
-                    nodeViewSizer.AutoSize(_nodeView, LabelView.DefaultLabelViewSizeProvider);
+                    nodeViewSizer.AutoSize(_nodeView, LabelView.defaultTextSizeProvider);
                 }
 
                 public void Dispose()

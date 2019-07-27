@@ -52,6 +52,16 @@ namespace PixDirectX.Rendering
         }
 
         /// <summary>
+        /// Initializes a new <see cref="ClippingRegion"/> instance copying the state from another clipping
+        /// region object.
+        /// </summary>
+        public ClippingRegion([NotNull] ClippingRegion copy)
+        {
+            _rectangles.AddRange(copy._rectangles);
+            _needsDissect = copy._needsDissect;
+        }
+
+        /// <summary>
         /// Returns a series of <see cref="RectangleF"/> instances that approximate the redraw region
         /// of this <see cref="ClippingRegion"/>, truncated to be within the given <see cref="Size"/>-d rectangle.
         /// </summary>

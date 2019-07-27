@@ -36,7 +36,6 @@ using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixSnapshot;
 using PixUI;
-using PixUI.Rendering;
 using PixUI.Visitor;
 using SharpDX.WIC;
 using Bitmap = System.Drawing.Bitmap;
@@ -44,7 +43,7 @@ using Bitmap = System.Drawing.Bitmap;
 namespace PixelariaTests.Views.ExportPipeline
 {
     [TestClass]
-    public class Direct2DRendererTests
+    public class InternalRenderListenerTests
     {
         public TestContext TestContext { get; set; }
 
@@ -287,7 +286,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 {
                     case PipelineNodeView nodeView:
                         var labelViewSizer =
-                            new DefaultLabelViewSizeProvider(new StaticDirect2DRenderingStateProvider(state));
+                            new D2DTextSizeProvider(new StaticDirect2DRenderingStateProvider(state));
 
                         var sizer = new DefaultPipelineNodeViewSizer();
                         sizer.AutoSize(nodeView, labelViewSizer);
@@ -316,7 +315,7 @@ namespace PixelariaTests.Views.ExportPipeline
                         }
                     }
 
-                    var traverser = new BaseViewTraverser<IDirect2DRenderingState>(state, visitor);
+                    var traverser = new BaseViewTraverser<IDirect2DRenderingState>((IDirect2DRenderingState)state, visitor);
 
                     traverser.Visit(view);
                 });
@@ -332,7 +331,7 @@ namespace PixelariaTests.Views.ExportPipeline
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var factory = new SharpDX.Direct2D1.Factory())
             using (var renderManager = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
-            using (var renderer = new Direct2DRender())
+            using (var renderer = new BaseDirect2DRender())
             {
                 renderManager.Initialize();
 
@@ -341,10 +340,10 @@ namespace PixelariaTests.Views.ExportPipeline
                 
                 renderManager.RenderSingleFrame(state =>
                 {
-                    renderer.Initialize(renderManager.RenderingState);
+                    renderer.Initialize(renderManager.D2DRenderState);
                     renderer.UpdateRenderingState(state, new FullClipping());
 
-                    var parameters = renderer.CreateRenderListenerParameters(state);
+                    var parameters = renderer.CreateRenderListenerParameters((IDirect2DRenderingState)state);
 
                     PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);
                     

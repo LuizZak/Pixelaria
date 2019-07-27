@@ -106,7 +106,7 @@ namespace Pixelaria.Views.ExportPipeline
                     if (nodeView == null)
                         continue;
 
-                    _control.PipelineNodeViewSizer.AutoSize(nodeView, _control.LabelViewSizeProvider);
+                    _control.PipelineNodeViewSizer.AutoSize(nodeView, _control.TextSizeProvider);
                     
                 }
             }
@@ -119,7 +119,7 @@ namespace Pixelaria.Views.ExportPipeline
                         continue;
 
                     nodeLinkView.UpdateDisplay();
-                    _control.PipelineNodeViewSizer.AutoSize(nodeLinkView.NodeView, _control.LabelViewSizeProvider);
+                    _control.PipelineNodeViewSizer.AutoSize(nodeLinkView.NodeView, _control.TextSizeProvider);
                 }
             }
         }

@@ -20,28 +20,39 @@
     base directory of this project.
 */
 
-using PixDirectX.Rendering;
+using System.Drawing;
 using PixUI;
-
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using PixUI.Rendering;
-
-using Color = System.Drawing.Color;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    /// <summary>
-    /// Renders a pipeline export view
-    /// </summary>
-    internal class Direct2DRender : BaseDirect2DRender, IExportPipelineRenderManager
+    internal abstract class AbstractRenderingDecorator : IRenderingDecorator
     {
-        private readonly DefaultLabelViewSizeProvider _labelViewSizeProvider;
-
-        public ILabelViewSizeProvider LabelViewSizeProvider => _labelViewSizeProvider;
-
-        public Direct2DRender()
+        public virtual void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
         {
-            _labelViewSizeProvider = new DefaultLabelViewSizeProvider(this);
+
+        }
+
+        public virtual void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+            ref PipelineStepViewLinkState state)
+        {
+
+        }
+
+        public virtual void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
+            ref PipelineStepViewLinkState state)
+        {
+
+        }
+
+        public virtual void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
+        {
+
+        }
+
+        public virtual void DecorateLabelView(LabelView pathView, ref LabelViewState state)
+        {
+
         }
     }
 
@@ -77,35 +88,5 @@ namespace Pixelaria.Views.ExportPipeline
         public Color StrokeColor { get; set; }
         public Color TextColor { get; set; }
         public Color BackgroundColor { get; set; }
-    }
-
-    internal abstract class AbstractRenderingDecorator : IRenderingDecorator
-    {
-        public virtual void DecoratePipelineStep(PipelineNodeView nodeView, ref PipelineStepViewState state)
-        {
-
-        }
-
-        public virtual void DecoratePipelineStepInput(PipelineNodeView nodeView, PipelineNodeLinkView link,
-            ref PipelineStepViewLinkState state)
-        {
-
-        }
-
-        public virtual void DecoratePipelineStepOutput(PipelineNodeView nodeView, PipelineNodeLinkView link,
-            ref PipelineStepViewLinkState state)
-        {
-
-        }
-
-        public virtual void DecorateBezierPathView(BezierPathView pathView, ref BezierPathViewState state)
-        {
-
-        }
-
-        public virtual void DecorateLabelView(LabelView pathView, ref LabelViewState state)
-        {
-
-        }
     }
 }

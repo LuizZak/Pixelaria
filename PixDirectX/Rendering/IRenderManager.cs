@@ -49,7 +49,12 @@ namespace PixDirectX.Rendering
         /// An object specialized in calculating text metrics using the latest available rendering state of this <see cref="IRenderManager"/>
         /// </summary>
         ITextMetricsProvider TextMetricsProvider { get; }
-        
+
+        /// <summary>
+        /// Gets the text size provider for this render manager.
+        /// </summary>
+        ITextSizeProvider TextSizeProvider { get; }
+
         /// <summary>
         /// The clipping region for this renderer manager
         /// </summary>
@@ -109,6 +114,8 @@ namespace PixDirectX.Rendering
         /// </summary>
         TextLayoutAttributes Attributes { get; }
 
+        IAttributedText Text { get; }
+
         /// <summary>
         /// Performs a hit test operation at a given location on this text layout, relative to the top-left location of the layout box.
         /// </summary>
@@ -151,12 +158,12 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// Draws a text layout at a given location on the current render target.
         /// </summary>
-        void Draw(ITextLayout textLayout, float x, float y);
+        void Draw([NotNull] ITextLayout textLayout, float x, float y);
 
         /// <summary>
         /// Draws a string of text with a given set of attributes, on a given area with a given color.
         /// </summary>
-        void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
+        void Draw([NotNull] string text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
     }
 
     /// <summary>

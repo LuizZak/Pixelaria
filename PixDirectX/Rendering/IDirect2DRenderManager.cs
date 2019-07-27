@@ -33,7 +33,7 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// Gets the public interface for the rendering state of this Direct2D manager
         /// </summary>
-        IDirect2DRenderingState RenderingState { get; }
+        IRenderLoopState RenderingState { get; }
         
         /// <summary>
         /// Initializes the Direct2D rendering state, but do not start the render loop yet.
@@ -45,7 +45,7 @@ namespace PixDirectX.Rendering
         /// 
         /// This method returns immediately after rendering the frame.
         /// </summary>
-        void RenderSingleFrame([NotNull, InstantHandle] Action<IDirect2DRenderingState> render);
+        void RenderSingleFrame([NotNull, InstantHandle] Action<IRenderLoopState> render);
     }
 
     /// <summary>

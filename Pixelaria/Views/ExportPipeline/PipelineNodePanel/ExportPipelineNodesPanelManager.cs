@@ -56,7 +56,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private readonly List<PipelineNodeButtonDragAndDropHandler> _buttonHandlers = new List<PipelineNodeButtonDragAndDropHandler>();
 
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
-        private readonly IExportPipelineRenderManager _pipelineRenderManager;
+        private readonly IRenderManager _pipelineRenderManager;
         [NotNull] 
         private readonly IInvalidatableControl _invalidateTarget;
         private readonly IImageResourceProvider _imageResourceProvider;
@@ -73,7 +73,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
 
-        public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control, [NotNull] IExportPipelineRenderManager renderManager)
+        public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager)
             : this(control.ControlContainer, renderManager,
                 control,
                 new PipelineNodeBitmapGenerator(control))
@@ -81,7 +81,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             
         }
 
-        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IExportPipelineRenderManager pipelineRenderManager, [NotNull] IInvalidatableControl invalidateTarget, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
+        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IRenderManager pipelineRenderManager, [NotNull] IInvalidatableControl invalidateTarget, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
         {
             _pipelineRenderManager = pipelineRenderManager;
             _invalidateTarget = invalidateTarget;
@@ -426,27 +426,27 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 var wicBitmap = new Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
 
                 using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, DxSupport.D2DFactory, DxSupport.D3DDevice))
-                using (var renderer = new Direct2DRender())
+                using (var renderer = new BaseDirect2DRender())
                 {
                     var listener = new InternalRenderListener(container, _exportPipelineControl);
 
                     ControlView.TextLayoutRenderer = renderer;
 
-                    var last = LabelView.DefaultLabelViewSizeProvider;
-                    LabelView.DefaultLabelViewSizeProvider = renderer.LabelViewSizeProvider;
+                    var last = LabelView.defaultTextSizeProvider;
+                    LabelView.defaultTextSizeProvider = renderer.TextSizeProvider;
 
                     renderer.ClippingRegion = new FullClippingRegion();
 
                     renderLoop.Initialize();
                     renderLoop.RenderSingleFrame(state =>
                     {
-                        renderLoop.RenderingState.Transform = Matrix2D.Translation(bitmapOffset).ToRawMatrix3X2();
-                        var parameters = renderer.CreateRenderListenerParameters(renderLoop.RenderingState);
+                        renderLoop.D2DRenderState.Transform = Matrix2D.Translation(bitmapOffset).ToRawMatrix3X2();
+                        var parameters = renderer.CreateRenderListenerParameters(renderLoop.D2DRenderState);
 
                         listener.RenderStepView(view, parameters, new IRenderingDecorator[0]);
                     });
 
-                    LabelView.DefaultLabelViewSizeProvider = last;
+                    LabelView.defaultTextSizeProvider = last;
 
                     return wicBitmap;
                 }

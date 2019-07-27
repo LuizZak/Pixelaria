@@ -27,7 +27,7 @@ using PixCore.Geometry;
 namespace PixDirectX.Rendering
 {
     /// <summary>
-    /// A brush for drawing with.
+    /// A brush for drawing with on an <see cref="IRenderer"/>.
     /// </summary>
     public interface IBrush
     {

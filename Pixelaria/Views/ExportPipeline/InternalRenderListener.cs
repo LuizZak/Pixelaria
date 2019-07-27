@@ -29,7 +29,6 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
-using PixDirectX.Utils;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;

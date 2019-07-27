@@ -25,6 +25,7 @@ using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
+using PixDirectX.Rendering;
 
 namespace PixUI
 {
@@ -125,7 +126,7 @@ namespace PixUI
         /// Gets or sets the size provider for this label view backing.
         /// </summary>
         [CanBeNull]
-        public ILabelViewSizeProvider SizeProvider { get; set; }
+        public ITextSizeProvider SizeProvider { get; set; }
 
         public LabelViewBacking()
         {
@@ -138,7 +139,7 @@ namespace PixUI
         /// <summary>
         /// Calculates the size for this label view backing using a given size provider
         /// </summary>
-        public Vector CalculateSize([NotNull] ILabelViewSizeProvider sizeProvider)
+        public Vector CalculateSize([NotNull] ITextSizeProvider sizeProvider)
         {
             var textBounds = new RectangleF(PointF.Empty, sizeProvider.CalculateTextSize(AttributedText, TextFont));
             Vector size = textBounds.Size;
@@ -161,7 +162,7 @@ namespace PixUI
         private readonly LabelViewBacking _labelViewBacking = new LabelViewBacking();
 
         [NotNull]
-        public static ILabelViewSizeProvider DefaultLabelViewSizeProvider = new DefaultSizer();
+        public static ITextSizeProvider defaultTextSizeProvider = new GdiTextSizeSizeProvider();
 
         /// <summary>
         /// Gets or sets the background color that is drawn around the label.
@@ -200,10 +201,10 @@ namespace PixUI
         /// <summary>
         /// Gets or sets the size provider for this label view.
         /// 
-        /// If null, label view defaults to using <see cref="DefaultLabelViewSizeProvider"/>
+        /// If null, label view defaults to using <see cref="defaultTextSizeProvider"/>
         /// </summary>
         [CanBeNull]
-        public ILabelViewSizeProvider SizeProvider
+        public ITextSizeProvider SizeProvider
         {
             get => _labelViewBacking.SizeProvider;
             set => _labelViewBacking.SizeProvider = value;
@@ -268,70 +269,7 @@ namespace PixUI
 
         private void CalculateBounds()
         {
-            Size = _labelViewBacking.CalculateSize(SizeProvider ?? DefaultLabelViewSizeProvider);
+            Size = _labelViewBacking.CalculateSize(SizeProvider ?? defaultTextSizeProvider);
         }
-
-        private sealed class DefaultSizer : ILabelViewSizeProvider, IDisposable
-        {
-            private readonly Bitmap _dummy = new Bitmap(1, 1);
-            
-            public void Dispose()
-            {
-                _dummy.Dispose();
-            }
-
-            public SizeF CalculateTextSize(LabelView label)
-            {
-                return CalculateTextSize(label.AttributedText, label.TextFont);
-            }
-
-            public SizeF CalculateTextSize(string text, Font font)
-            {
-                return CalculateTextSize(new AttributedText(text), font);
-            }
-
-            public SizeF CalculateTextSize(IAttributedText text, Font font)
-            {
-                using (var graphics = Graphics.FromImage(_dummy))
-                {
-                    return graphics.MeasureString(text.String, font);
-                }
-            }
-
-            public SizeF CalculateTextSize(IAttributedText text, string fontName, float size)
-            {
-                using (var graphics = Graphics.FromImage(_dummy))
-                using (var font = new Font(fontName, size))
-                {
-                    return graphics.MeasureString(text.String, font);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Interface for objects that are capable of figuring out sizes of text in label views
-    /// </summary>
-    public interface ILabelViewSizeProvider
-    {
-        /// <summary>
-        /// Calculates the text size on a given label view
-        /// </summary>
-        SizeF CalculateTextSize([NotNull] LabelView label);
-
-        /// <summary>
-        /// Calculates the text size for a given pair of string/font
-        /// </summary>
-        SizeF CalculateTextSize([NotNull] string text, [NotNull] Font font);
-
-        /// <summary>
-        /// Calculates the text size for a given pair of attributed string/font
-        /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] Font font);
-        
-        /// <summary>
-        /// Calculates the text size for a given pair of attributed string/font/font size
-        /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
     }
 }

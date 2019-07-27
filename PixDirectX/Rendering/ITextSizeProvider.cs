@@ -20,16 +20,30 @@
     base directory of this project.
 */
 
-using PixDirectX.Rendering;
-using PixUI;
+using System.Drawing;
+using JetBrains.Annotations;
+using PixCore.Text;
 
-namespace Pixelaria.Views.ExportPipeline
+namespace PixDirectX.Rendering
 {
-    public interface IExportPipelineRenderManager : IRenderManager
+    /// <summary>
+    /// Interface for objects that are capable of figuring out sizes of text strings
+    /// </summary>
+    public interface ITextSizeProvider
     {
         /// <summary>
-        /// Gets the label view size provider stored on this export pipeline Direct2D renderer
+        /// Calculates the text size for a given pair of string/font
         /// </summary>
-        ILabelViewSizeProvider LabelViewSizeProvider { get; }
+        SizeF CalculateTextSize([NotNull] string text, [NotNull] System.Drawing.Font font);
+
+        /// <summary>
+        /// Calculates the text size for a given pair of attributed string/font
+        /// </summary>
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] System.Drawing.Font font);
+
+        /// <summary>
+        /// Calculates the text size for a given pair of attributed string/font/font size
+        /// </summary>
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
     }
 }

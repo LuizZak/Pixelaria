@@ -32,6 +32,7 @@ using PixUI;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixDirectX.Rendering;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
@@ -381,12 +382,12 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         #region IRenderingDecorator
 
-        public void Added(IExportPipelineRenderManager renderManager)
+        public void Added(IRenderManager renderManager)
         {
             
         }
 
-        public void Removed(IExportPipelineRenderManager renderManager)
+        public void Removed(IRenderManager renderManager)
         {
             
         }

@@ -72,9 +72,18 @@
     <Compile Include="Rendering\ClippingRegion.cs" />
     <Compile Include="Rendering\D2DImageResources.cs" />
     <Compile Include="Rendering\BaseDirect2DRender.cs" />
+    <Compile Include="Rendering\D2DTextSizeProvider.cs" />
     <Compile Include="Rendering\Direct2DClipping.cs" />
     <Compile Include="Rendering\Direct2DWicBitmapRenderManager.cs" />
     <Compile Include="Rendering\Direct2DConversionHelpers.cs" />
+    <Compile Include="Rendering\DirectWriteTextLayout.cs" />
+    <Compile Include="Rendering\GdiTextSizeSizeProvider.cs" />
+    <Compile Include="Rendering\Gdi\GdiRenderManager.cs" />
+    <Compile Include="Rendering\Gdi\GdiTextLayout.cs" />
+    <Compile Include="Rendering\Gdi\GdiTextRenderer.cs" />
+    <Compile Include="Rendering\Gdi\GdiImageResourceManager.cs" />
+    <Compile Include="Rendering\Gdi\GdiRenderer.cs" />
+    <Compile Include="Rendering\Gdi\GdiTextMetricsProvider.cs" />
     <Compile Include="Rendering\IRenderManager.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
     <Compile Include="Rendering\IImageResourceManager.cs" />
@@ -85,6 +94,7 @@
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\IRenderListener.cs" />
     <Compile Include="Rendering\ITextMetricsProvider.cs" />
+    <Compile Include="Rendering\ITextSizeProvider.cs" />
     <Compile Include="Rendering\PixBrush.cs" />
     <Compile Include="Rendering\TextEllipsisTrimming.cs" />
     <Compile Include="Rendering\TextFormatAttributes.cs" />
@@ -105,6 +115,7 @@
     <None Include="packages.config" />
     <None Include="PixDirectX.licenseheader" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>

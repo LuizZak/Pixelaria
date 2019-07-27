@@ -70,7 +70,12 @@ namespace PixDirectX.Rendering
         /// <summary>
         /// Gets the public interface for the rendering state of this Direct2D manager
         /// </summary>
-        public IDirect2DRenderingState RenderingState => _renderingState;
+        public IDirect2DRenderingState D2DRenderState => _renderingState;
+
+        /// <summary>
+        /// Gets the public interface for the rendering state of this Direct2D manager
+        /// </summary>
+        public IRenderLoopState RenderingState => _renderingState;
 
         public Direct2DRenderLoopManager(Control target, Factory d2DFactory, Device d3DDevice)
         {
@@ -272,15 +277,15 @@ namespace PixDirectX.Rendering
         }
         
         /// <inheritdoc />
-        public void RenderSingleFrame(Action<IDirect2DRenderingState> render)
+        public void RenderSingleFrame(Action<IRenderLoopState> render)
         {
             _frameDeltaTimer.Restart();
 
-            RenderingState.D2DRenderTarget.BeginDraw();
+            _renderingState.D2DRenderTarget.BeginDraw();
 
             render(RenderingState);
 
-            RenderingState.D2DRenderTarget.EndDraw();
+            _renderingState.D2DRenderTarget.EndDraw();
         }
 
         private void ResizeRenderTarget()
@@ -304,6 +309,14 @@ namespace PixDirectX.Rendering
         private void target_Resize(object sender, EventArgs e)
         {
             ResizeRenderTarget();
+        }
+
+        private IDirect2DRenderingState CastRenderStateOrFail([NotNull] IRenderLoopState state)
+        {
+            if (state is IDirect2DRenderingState d2dState)
+                return d2dState;
+
+            throw new InvalidOperationException($"Expected a state value of type {typeof(IDirect2DRenderingState)}");
         }
 
         private class Direct2DRenderingState : IDirect2DRenderingState

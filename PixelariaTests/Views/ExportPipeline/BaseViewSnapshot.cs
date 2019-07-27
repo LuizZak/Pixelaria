@@ -92,29 +92,29 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 ControlView.TextLayoutRenderer = renderer;
 
-                var last = LabelView.DefaultLabelViewSizeProvider;
-                LabelView.DefaultLabelViewSizeProvider = renderer.SizeProvider;
+                var last = LabelView.defaultTextSizeProvider;
+                LabelView.defaultTextSizeProvider = renderer.TextSizeProvider;
 
                 renderLoop.Initialize();
 
                 ImagesConfig?.Invoke(renderer.ImageResources, renderLoop.RenderingState);
                 ImagesConfig = null; // Always erase after each snapshot to make sure we don't accidentally carry over resources across snapshot tests
 
-                renderer.Initialize(renderLoop.RenderingState, new FullClipping());
+                renderer.Initialize(renderLoop.D2DRenderState, new FullClipping());
 
                 renderLoop.RenderSingleFrame(state =>
                 {
                     var visitor = new ViewRenderingVisitor();
 
                     var context = new ControlRenderingContext(
-                        new WrappedDirect2DRenderer(renderLoop.RenderingState, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
+                        new WrappedDirect2DRenderer(renderLoop.D2DRenderState, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);
                 });
 
-                LabelView.DefaultLabelViewSizeProvider = last;
+                LabelView.defaultTextSizeProvider = last;
 
                 var bitmap = new Bitmap(wicBitmap.Size.Width, wicBitmap.Size.Height,
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb);

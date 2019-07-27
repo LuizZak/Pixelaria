@@ -22,8 +22,6 @@
 
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
-using PixUI;
-using PixUI.Rendering;
 
 namespace PixUITests.TestUtils
 {
@@ -32,14 +30,9 @@ namespace PixUITests.TestUtils
     /// </summary>
     public class TestDirect2DRender : BaseDirect2DRender
     {
-        private DefaultLabelViewSizeProvider _sizeProvider;
-        public ILabelViewSizeProvider SizeProvider => _sizeProvider;
-        
         public void Initialize([NotNull] IDirect2DRenderingState state, [NotNull] IClippingRegion clipping)
         {
             base.Initialize(state);
-
-            _sizeProvider = new DefaultLabelViewSizeProvider(this);
 
             ClippingRegion = clipping;
         }

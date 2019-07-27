@@ -39,6 +39,7 @@ using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using Brush = SharpDX.Direct2D1.Brush;
 using Factory = SharpDX.DirectWrite.Factory;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
@@ -50,11 +51,12 @@ namespace PixDirectX.Rendering
     /// <summary>
     /// Base Direct2D renderer class that other packages may inherit from to provide custom rendering logic
     /// </summary>
-    public abstract class BaseDirect2DRender : IDisposable, IRenderManager, IDirect2DRenderingStateProvider
+    public class BaseDirect2DRender : IDisposable, IRenderManager, IDirect2DRenderingStateProvider
     {
         [CanBeNull]
         private IDirect2DRenderingState _lastRenderingState;
         private WrappedDirect2DRenderer _wrappedDirect2D;
+        private readonly D2DTextSizeProvider _textSizeProvider;
 
         private bool _isRefreshingState;
 
@@ -83,11 +85,14 @@ namespace PixDirectX.Rendering
 
         /// <inheritdoc />
         public ITextMetricsProvider TextMetricsProvider => _textMetrics;
+        /// <inheritdoc />
+        public ITextSizeProvider TextSizeProvider => _textSizeProvider;
 
-        protected BaseDirect2DRender()
+        public BaseDirect2DRender()
         {
             _imageResources = new ImageResources();
             _textMetrics = new TextMetrics(this);
+            _textSizeProvider = new D2DTextSizeProvider(this);
         }
 
         ~BaseDirect2DRender()
@@ -229,7 +234,7 @@ namespace PixDirectX.Rendering
             var textLayout = new TextLayout(directWriteFactory, text.String, textFormat,
                 attributes.AvailableWidth, attributes.AvailableHeight);
 
-            return new InnerTextLayout(textLayout, ellipsisTrimming, attributes);
+            return new InnerTextLayout(textLayout, text, ellipsisTrimming, attributes);
         }
 
         private static Trimming CreateTrimming(TextEllipsisTrimming ellipsis)
@@ -309,8 +314,9 @@ namespace PixDirectX.Rendering
 
         public IRenderListenerParameters CreateRenderListenerParameters([NotNull] IDirect2DRenderingState state)
         {
-            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, TextColorRenderer,
-                this, TextMetricsProvider, _wrappedDirect2D, new InnerTextRenderer(TextColorRenderer, state.DirectWriteFactory, state.D2DRenderTarget));
+            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, this,
+                TextMetricsProvider, _wrappedDirect2D,
+                new InnerTextRenderer(TextColorRenderer, state.DirectWriteFactory, state.D2DRenderTarget));
 
             return parameters;
         }
@@ -493,12 +499,14 @@ namespace PixDirectX.Rendering
             [CanBeNull]
             public EllipsisTrimming EllipsisTrimming { get; }
             public TextLayoutAttributes Attributes { get; }
+            public IAttributedText Text { get; }
 
-            public InnerTextLayout(TextLayout textLayout, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
+            public InnerTextLayout(TextLayout textLayout, IAttributedText text, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
             {
                 TextLayout = textLayout;
                 EllipsisTrimming = ellipsisTrimming;
                 Attributes = attributes;
+                Text = text;
             }
 
             public void Dispose()
@@ -1145,20 +1153,18 @@ namespace PixDirectX.Rendering
         public IClippingRegion ClippingRegion { get; }
         public IRenderer Renderer { get; }
         public IRenderLoopState State { get; }
-        public TextColorRenderer TextColorRenderer { get; }
         public ITextLayoutRenderer TextLayoutRenderer { get; }
         public ITextRenderer TextRenderer { get; }
         public ITextMetricsProvider TextMetricsProvider { get; }
 
         public RenderListenerParameters([NotNull] IImageResourceManager imageResources,
             [NotNull] IClippingRegion clippingRegion, [NotNull] IRenderLoopState state,
-            [NotNull] TextColorRenderer textColorRenderer, [NotNull] ITextLayoutRenderer textLayoutRenderer,
+            [NotNull] ITextLayoutRenderer textLayoutRenderer,
             [NotNull] ITextMetricsProvider textMetricsProvider, [NotNull] IRenderer renderer, [NotNull] ITextRenderer textRenderer)
         {
             ImageResources = imageResources;
             ClippingRegion = clippingRegion;
             State = state;
-            TextColorRenderer = textColorRenderer;
             TextLayoutRenderer = textLayoutRenderer;
             TextMetricsProvider = textMetricsProvider;
             Renderer = renderer;
