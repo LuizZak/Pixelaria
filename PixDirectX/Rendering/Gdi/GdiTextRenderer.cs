@@ -79,7 +79,7 @@ namespace PixDirectX.Rendering.Gdi
                     using (var solidBrush = new SolidBrush(foreColor))
                     {
                         var rect = region.GetBounds(_graphics);
-                        _graphics.DrawString(segment.Text, font, solidBrush, rect, stringFormat);
+                        _graphics.DrawString(segment.Text, font, solidBrush, rect.X, rect.Y, stringFormat);
                     }
                 }
 
