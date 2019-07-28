@@ -103,7 +103,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (DesignMode)
                 return;
 
-            _rendererStack = new GdiRendererStack(exportPipelineControl);
+            _rendererStack = new Direct2DRendererStack();
             var renderManager = _rendererStack.Initialize(exportPipelineControl);
             exportPipelineControl.InitializeRenderer(renderManager);
             exportPipelineControl.InvalidateAll();

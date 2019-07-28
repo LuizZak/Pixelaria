@@ -51,10 +51,9 @@ namespace PixDirectX.Rendering.Gdi
 
         public SizeF CalculateTextSize(IAttributedText text, string fontName, float size)
         {
-            using (var graphics = Graphics.FromImage(_dummy))
             using (var font = new Font(fontName, size))
             {
-                return graphics.MeasureString(text.String, font);
+                return CalculateTextSize(text, font);
             }
         }
     }

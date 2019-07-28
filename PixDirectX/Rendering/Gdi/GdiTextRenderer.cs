@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 
@@ -56,30 +57,17 @@ namespace PixDirectX.Rendering.Gdi
 
                 var font = segmentConsumer?.Font ?? new Font(textFormatAttributes.Font, textFormatAttributes.FontSize);
 
-                var stringFormat = new StringFormat
+                using (var stringFormat = CreateStringFormat(textFormatAttributes, segment))
                 {
-                    Alignment = ToStringAlignment(textFormatAttributes.HorizontalTextAlignment)
-                };
+                    var regions = _graphics.MeasureCharacterRanges(text.String, font, layoutRect, stringFormat);
 
-                stringFormat.SetMeasurableCharacterRanges(new []{ new CharacterRange(segment.TextRange.Start, segment.TextRange.Length) });
-
-                if (textFormatAttributes.TextEllipsisTrimming.HasValue)
-                {
-                    stringFormat.Trimming = ToStringTrimming(textFormatAttributes.TextEllipsisTrimming.Value.Granularity);
-                }
-                else
-                {
-                    stringFormat.Trimming = StringTrimming.None;
-                }
-
-                var regions = _graphics.MeasureCharacterRanges(text.String, font, layoutRect, stringFormat);
-
-                foreach (var region in regions)
-                {
-                    using (var solidBrush = new SolidBrush(foreColor))
+                    foreach (var region in regions)
                     {
-                        var rect = region.GetBounds(_graphics);
-                        _graphics.DrawString(segment.Text, font, solidBrush, rect.X, rect.Y, stringFormat);
+                        using (var solidBrush = new SolidBrush(foreColor))
+                        {
+                            var rect = region.GetBounds(_graphics);
+                            _graphics.DrawString(segment.Text, font, solidBrush, rect.X, rect.Y, stringFormat);
+                        }
                     }
                 }
 
@@ -129,6 +117,28 @@ namespace PixDirectX.Rendering.Gdi
                 default:
                     return StringTrimming.None;
             }
+        }
+
+        public static StringFormat CreateStringFormat(TextFormatAttributes textFormatAttributes, [NotNull] ITextSegment segment)
+        {
+            var stringFormat = new StringFormat
+            {
+                Alignment = ToStringAlignment(textFormatAttributes.HorizontalTextAlignment)
+            };
+
+            stringFormat.SetMeasurableCharacterRanges(new[]
+                {new CharacterRange(segment.TextRange.Start, segment.TextRange.Length)});
+
+            if (textFormatAttributes.TextEllipsisTrimming.HasValue)
+            {
+                stringFormat.Trimming = ToStringTrimming(textFormatAttributes.TextEllipsisTrimming.Value.Granularity);
+            }
+            else
+            {
+                stringFormat.Trimming = StringTrimming.None;
+            }
+
+            return stringFormat;
         }
     }
 }
