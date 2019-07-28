@@ -20,42 +20,40 @@
     base directory of this project.
 */
 
-
-using System;
 using System.Drawing;
-using PixCore.Text;
+using JetBrains.Annotations;
+using PixCore.Text.Attributes;
 
-namespace PixDirectX.Rendering
+namespace PixCore.Text
 {
-    public class GdiTextSizeSizeProvider : ITextSizeProvider, IDisposable
+    /// <summary>
+    /// A default text segment consumer which simply collects all attributes as properties.
+    /// </summary>
+    public class CollectingTextAttributeConsumer : ITextAttributeConsumer
     {
-        private readonly Bitmap _dummy = new Bitmap(1, 1);
+        [CanBeNull]
+        public Font Font { get; private set; }
+        public Color? ForeColor { get; private set; }
+        public Color? BackColor { get; private set; }
 
-        public void Dispose()
+        public void Consume(TextFontAttribute textFontAttribute)
         {
-            _dummy.Dispose();
+            Font = textFontAttribute.Font;
         }
 
-        public SizeF CalculateTextSize(string text, Font font)
+        public void Consume(ForegroundColorAttribute foreColorAttribute)
         {
-            return CalculateTextSize(new AttributedText(text), font);
+            ForeColor = foreColorAttribute.ForeColor;
         }
 
-        public SizeF CalculateTextSize(IAttributedText text, Font font)
+        public void Consume(BackgroundColorAttribute backColorAttribute)
         {
-            using (var graphics = Graphics.FromImage(_dummy))
-            {
-                return graphics.MeasureString(text.String, font);
-            }
+            BackColor = backColorAttribute.BackColor;
         }
 
-        public SizeF CalculateTextSize(IAttributedText text, string fontName, float size)
+        public void ConsumeOther(ITextAttribute attribute)
         {
-            using (var graphics = Graphics.FromImage(_dummy))
-            using (var font = new Font(fontName, size))
-            {
-                return graphics.MeasureString(text.String, font);
-            }
+            
         }
     }
 }

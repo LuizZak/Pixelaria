@@ -21,13 +21,13 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
 using PixDirectX.Rendering.Gdi;
-using Pixelaria.DXSupport;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -36,12 +36,16 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     public class GdiRendererStack : IRendererStack
     {
-        private bool isControlDisposed = false;
-        private Control _control;
-        private Direct2DRenderLoopManager _direct2DLoopManager;
+        private bool _isControlDisposed;
+        private readonly ClippingRegion _clippingRegion = new ClippingRegion();
+        private readonly Control _control;
         private readonly GdiRenderManager _renderManager;
+        private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
         private readonly GdiImageResourceManager _imageResource = new GdiImageResourceManager();
-        public IRenderLoopState RenderingState => _direct2DLoopManager.RenderingState;
+        private Action<IRenderLoopState, ClippingRegion> _renderAction;
+        private GdiRenderLoopState _renderState;
+        public IRenderLoopState RenderingState => _renderState;
+
 
         public GdiRendererStack([NotNull] Control control)
         {
@@ -49,71 +53,72 @@ namespace Pixelaria.Views.ExportPipeline
             _renderManager = new GdiRenderManager(_imageResource);
 
             control.Disposed += ControlOnDisposed;
+            control.Paint += ControlOnPaint;
         }
 
         private void ControlOnDisposed(object sender, EventArgs e)
         {
-            isControlDisposed = true;
+            _isControlDisposed = true;
         }
 
         public void Dispose()
         {
-            _direct2DLoopManager?.Dispose();
+
         }
 
-        public IRenderManager Initialize(Control control)
+        public IRenderManager Initialize([NotNull] Control control)
         {
-            _direct2DLoopManager = new Direct2DRenderLoopManager(control, DxSupport.D2DFactory, DxSupport.D3DDevice);
-            _direct2DLoopManager.Initialize();
-            _renderManager.Initialize(_direct2DLoopManager.RenderingState);
+            var graphics = control.CreateGraphics();
+            _renderState = RenderStateFromGraphics(graphics, TimeSpan.Zero);
+            _renderManager.Initialize(_renderState);
 
             return _renderManager;
         }
 
-        public void StartRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
+        private void ControlOnPaint(object sender, PaintEventArgs e)
         {
-            var clippingRegion = new ClippingRegion();
+            if (_renderAction == null)
+                return;
 
-            while (!isControlDisposed)
+            var graphics = e.Graphics;
+
+            _renderState = RenderStateFromGraphics(graphics, _renderState.FrameRenderDeltaTime);
+
+            if (!_clippingRegion.IsEmpty())
+            {
+                _renderManager.Render(_renderState, _clippingRegion);
+            }
+        }
+
+        public void ConfigureRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
+        {
+            _renderAction = execute;
+
+            _frameDeltaTimer.Start();
+            while (!_isControlDisposed)
             {
                 Application.DoEvents();
 
-                _control.CreateGraphics();
+                _renderState.FrameRenderDeltaTime = _frameDeltaTimer.Elapsed;
+                _frameDeltaTimer.Restart();
 
-                clippingRegion.Clear();
+                _renderAction(RenderingState, _clippingRegion);
 
-                execute(RenderingState, clippingRegion);
-            }
-
-            _direct2DLoopManager.StartRenderLoop(state =>
-            {
-                clippingRegion.Clear();
-
-                execute(state, clippingRegion);
-                // Use clipping region
-                var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
-
-                _renderManager.Render(state, clippingRegion);
-
-                Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
-
-                var size = new Size(_direct2DLoopManager.D2DRenderState.D2DRenderTarget.PixelSize.Width, _direct2DLoopManager.D2DRenderState.D2DRenderTarget.PixelSize.Height);
-                var rects = clippingRegion.RedrawRegionRectangles(size);
-
-                var redrawRects =
-                    rects.Select(rect =>
+                if (!_clippingRegion.IsEmpty())
+                {
+                    foreach (var rectangle in _clippingRegion.RedrawRegionRectangles(_control.Size))
                     {
-                        int x = (int)Math.Floor((double)rect.X);
-                        int y = (int)Math.Floor((double)rect.Y);
+                        _control.Invalidate(new Region(rectangle));
+                    }
+                }
 
-                        int width = (int)Math.Ceiling((double)rect.Width);
-                        int height = (int)Math.Ceiling((double)rect.Height);
+                Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
+            }
+        }
 
-                        return new Rectangle(x, y, width, height);
-                    }).ToArray();
-
-                return new Direct2DRenderLoopResponse(redrawRects);
-            });
+        private GdiRenderLoopState RenderStateFromGraphics(Graphics graphics, TimeSpan deltaTime)
+        {
+            return new GdiRenderLoopState(graphics, _control.Size, deltaTime);
         }
     }
 }

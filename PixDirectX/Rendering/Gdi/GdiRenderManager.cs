@@ -23,31 +23,42 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using PixCore.Text;
 
 namespace PixDirectX.Rendering.Gdi
 {
-    public class GdiRenderManager : IRenderManager
+    public class GdiRenderManager : IRenderManager, IDisposable
     {
         private readonly List<IRenderListener> _renderListeners = new List<IRenderListener>();
+        private readonly GdiTextMetricsProvider _textMetricsProvider;
+        private readonly GdiTextSizeProvider _textSizeProvider;
         private readonly GdiImageResourceManager _imageResources;
+        private IRenderLoopState _lastRenderingState;
         public Graphics Graphics { get; set; }
 
         public Color BackColor { get; set; }
 
         public IImageResourceManager ImageResources => _imageResources;
 
-        public ITextMetricsProvider TextMetricsProvider { get; }
+        public ITextMetricsProvider TextMetricsProvider => _textMetricsProvider;
 
-        public ITextSizeProvider TextSizeProvider { get; }
+        public ITextSizeProvider TextSizeProvider => _textSizeProvider;
 
         public IClippingRegion ClippingRegion { get; set; }
 
         public GdiRenderManager(GdiImageResourceManager imageResources)
         {
             _imageResources = imageResources;
-            TextMetricsProvider = new GdiTextMetricsProvider(() => Graphics);
+            _textMetricsProvider = new GdiTextMetricsProvider();
+            _textSizeProvider = new GdiTextSizeProvider();
+        }
+
+        public void Dispose()
+        {
+            _textMetricsProvider?.Dispose();
+            _textSizeProvider?.Dispose();
         }
 
         public void Initialize(IRenderLoopState state)
@@ -57,16 +68,31 @@ namespace PixDirectX.Rendering.Gdi
 
         public void UpdateRenderingState(IRenderLoopState state, IClippingRegion clipping)
         {
+            _lastRenderingState = state;
+
             Graphics = CastRenderLoopStateOrFail(state).Graphics;
             ClippingRegion = clipping;
         }
 
         public void Render(IRenderLoopState renderLoopState, IClippingRegion clipping)
         {
-            Graphics = CastRenderLoopStateOrFail(renderLoopState).Graphics;
-            ClippingRegion = clipping;
+            _lastRenderingState = renderLoopState;
 
-            // Clean background
+            var state = CastRenderLoopStateOrFail(renderLoopState);
+            Graphics = state.Graphics;
+            ClippingRegion = clipping;
+            Graphics.CompositingMode = CompositingMode.SourceOver;
+            Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            Graphics.InterpolationMode = InterpolationMode.Bicubic;
+
+            var redrawRegion = clipping.RedrawRegionRectangles(state.Size);
+
+            foreach (var rect in redrawRegion)
+            {
+                Graphics.Clip.Intersect(rect);
+            }
+
+            // Clear background
             Graphics.Clear(BackColor);
 
             InvokeRenderListeners(renderLoopState);
@@ -76,7 +102,9 @@ namespace PixDirectX.Rendering.Gdi
         {
             var renderState = CastRenderLoopStateOrFail(state);
 
-            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, this, TextMetricsProvider, new GdiRenderer(renderState.Graphics, _imageResources), new GdiTextRenderer(null));
+            var gdiRenderer = new GdiRenderer(renderState.Graphics, _imageResources);
+            var gdiTextRenderer = new GdiTextRenderer(renderState.Graphics, Color.Black);
+            var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, this, TextMetricsProvider, gdiRenderer, gdiTextRenderer);
 
             return parameters;
         }
@@ -91,15 +119,41 @@ namespace PixDirectX.Rendering.Gdi
             }
         }
 
+        #region IRenderListener handling
+
         public void AddRenderListener(IRenderListener renderListener)
         {
-            _renderListeners.Add(renderListener);
+            bool inserted = false;
+
+            // Use the render listener's rendering order value to figure out the correct insertion position
+            for (int i = 0; i < _renderListeners.Count; i++)
+            {
+                var listener = _renderListeners[i];
+                if (listener.RenderOrder > renderListener.RenderOrder)
+                {
+                    _renderListeners.Insert(i, renderListener);
+                    inserted = true;
+                    break;
+                }
+            }
+
+            if (!inserted)
+            {
+                _renderListeners.Add(renderListener);
+            }
+
+            if (Graphics != null)
+            {
+                renderListener.RecreateState(_lastRenderingState);
+            }
         }
 
         public void RemoveRenderListener(IRenderListener renderListener)
         {
             _renderListeners.Remove(renderListener);
         }
+
+        #endregion
 
         public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, TextLayoutAttributes attributes, Action<ITextLayout, ITextRenderer> perform)
         {
@@ -108,7 +162,7 @@ namespace PixDirectX.Rendering.Gdi
                 layout = new GdiTextLayout(attributes, text);
             }
 
-            var textRenderer = new GdiTextRenderer(Graphics);
+            var textRenderer = new GdiTextRenderer(Graphics, textColor);
             perform(layout, textRenderer);
         }
 
@@ -126,14 +180,16 @@ namespace PixDirectX.Rendering.Gdi
         }
     }
 
-    struct GdiRenderLoopState : IRenderLoopState
+    public struct GdiRenderLoopState : IRenderLoopState
     {
         public Graphics Graphics { get; }
-        public TimeSpan FrameRenderDeltaTime { get; }
+        public Size Size { get; }
+        public TimeSpan FrameRenderDeltaTime { get; set; }
 
-        public GdiRenderLoopState(Graphics graphics, TimeSpan frameRenderDeltaTime)
+        public GdiRenderLoopState(Graphics graphics, Size size, TimeSpan frameRenderDeltaTime)
         {
             Graphics = graphics;
+            Size = size;
             FrameRenderDeltaTime = frameRenderDeltaTime;
         }
     }

@@ -57,7 +57,7 @@ namespace PixDirectX.Rendering
         /// </summary>
         public ClippingRegion([NotNull] ClippingRegion copy)
         {
-            _rectangles.AddRange(copy._rectangles);
+            _rectangles = new List<RectangleF>(copy._rectangles);
             _needsDissect = copy._needsDissect;
         }
 
@@ -216,7 +216,7 @@ namespace PixDirectX.Rendering
 
         public virtual bool IsEmpty()
         {
-            return _rectangles.Count == 0;
+            return _rectangles.Count == 0 || _rectangles.All(r => r.IsEmpty);
         }
 
         private void Dissect()

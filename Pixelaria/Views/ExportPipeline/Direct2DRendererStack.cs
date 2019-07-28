@@ -35,12 +35,12 @@ namespace Pixelaria.Views.ExportPipeline
     public class Direct2DRendererStack : IRendererStack
     {
         private Direct2DRenderLoopManager _direct2DLoopManager;
-        private readonly Direct2DRenderManager _renderManagerManager;
+        private readonly Direct2DRenderManager _renderManager;
         public IRenderLoopState RenderingState => _direct2DLoopManager.RenderingState;
 
         public Direct2DRendererStack()
         {
-            _renderManagerManager = new Direct2DRenderManager();
+            _renderManager = new Direct2DRenderManager();
         }
 
         public void Dispose()
@@ -52,12 +52,12 @@ namespace Pixelaria.Views.ExportPipeline
         {
             _direct2DLoopManager = new Direct2DRenderLoopManager(control, DxSupport.D2DFactory, DxSupport.D3DDevice);
             _direct2DLoopManager.Initialize();
-            _renderManagerManager.Initialize(_direct2DLoopManager.RenderingState);
+            _renderManager.Initialize(_direct2DLoopManager.RenderingState);
 
-            return _renderManagerManager;
+            return _renderManager;
         }
 
-        public void StartRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
+        public void ConfigureRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
         {
             var clippingRegion = new ClippingRegion();
 
@@ -69,7 +69,7 @@ namespace Pixelaria.Views.ExportPipeline
                 // Use clipping region
                 var clipState = Direct2DClipping.PushDirect2DClipping((IDirect2DRenderingState)state, clippingRegion);
 
-                _renderManagerManager.Render(state, clippingRegion);
+                _renderManager.Render(state, clippingRegion);
                 
                 Direct2DClipping.PopDirect2DClipping((IDirect2DRenderingState)state, clipState);
 
@@ -79,11 +79,11 @@ namespace Pixelaria.Views.ExportPipeline
                 var redrawRects =
                     rects.Select(rect =>
                     {
-                        int x = (int)Math.Floor((double) rect.X);
-                        int y = (int)Math.Floor((double) rect.Y);
+                        int x = (int)Math.Floor(rect.X);
+                        int y = (int)Math.Floor(rect.Y);
 
-                        int width = (int)Math.Ceiling((double) rect.Width);
-                        int height = (int)Math.Ceiling((double) rect.Height);
+                        int width = (int)Math.Ceiling(rect.Width);
+                        int height = (int)Math.Ceiling(rect.Height);
 
                         return new Rectangle(x, y, width, height);
                     }).ToArray();

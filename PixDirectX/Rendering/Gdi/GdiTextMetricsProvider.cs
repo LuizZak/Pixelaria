@@ -28,42 +28,51 @@ using PixCore.Text;
 
 namespace PixDirectX.Rendering.Gdi
 {
-    public class GdiTextMetricsProvider : ITextMetricsProvider
+    public class GdiTextMetricsProvider : ITextMetricsProvider, IDisposable
     {
-        private readonly Func<Graphics> _fetchGraphics;
+        private readonly Bitmap _dummy = new Bitmap(1, 1);
 
-        public GdiTextMetricsProvider(Func<Graphics> fetchGraphics)
+        public void Dispose()
         {
-            _fetchGraphics = fetchGraphics;
+            _dummy.Dispose();
         }
 
         public AABB LocationOfCharacter(int offset, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
         {
-            var graphics = _fetchGraphics();
+            if (text.IsEmpty)
+                return new AABB(0, 0, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight);
 
+            using (var graphics = Graphics.FromImage(_dummy))
             using (var format = new StringFormat())
             using (var font = new Font(textLayoutAttributes.TextFormatAttributes.Font, textLayoutAttributes.TextFormatAttributes.FontSize))
             {
-                format.SetMeasurableCharacterRanges(new[] { new CharacterRange(offset, 1) });
-
                 var layoutRect = new RectangleF(0, 0, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight);
 
-                return graphics.MeasureCharacterRanges(text.String, font, layoutRect, format).Select(r => (AABB)r.GetBounds(graphics)).First();
+                format.SetMeasurableCharacterRanges(new[] {new CharacterRange(Math.Min(text.Length - 1, offset), 1)});
+
+                var result = graphics.MeasureCharacterRanges(text.String, font, layoutRect, format).Select(r => (AABB) r.GetBounds(graphics)).First();
+
+                if (offset == text.Length)
+                    result = result.WithLocation(result.Maximum.X, result.Top);
+
+                return result;
             }
         }
 
         public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
         {
-            var graphics = _fetchGraphics();
+            if (text.IsEmpty)
+                return new[] { new AABB(0, 0, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight) };
 
-            using (var format = new StringFormat())
+            using (var graphics = Graphics.FromImage(_dummy))
             using (var font = new Font(textLayoutAttributes.TextFormatAttributes.Font, textLayoutAttributes.TextFormatAttributes.FontSize))
             {
-                format.SetMeasurableCharacterRanges(new [] { new CharacterRange(offset, length) });
-
                 var layoutRect = new RectangleF(0, 0, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight);
 
-                return graphics.MeasureCharacterRanges(text.String, font, layoutRect, format).Select(r => (AABB) r.GetBounds(graphics)).ToArray();
+                return GdiTextUtils
+                    .CharacterRegions(offset, length, text.String, font, graphics, layoutRect)
+                    .Select(pair => (AABB)pair.Item1.GetBounds(graphics))
+                    .ToArray();
             }
         }
     }

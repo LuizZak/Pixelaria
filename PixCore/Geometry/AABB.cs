@@ -183,7 +183,25 @@ namespace PixCore.Geometry
 
             Validity = isSet ? State.Valid : State.Invalid;
         }
-        
+
+        /// <summary>
+        /// Returns an AABB that matches this AABB's size with a new location
+        /// </summary>
+        [Pure]
+        public AABB WithLocation(in Vector location)
+        {
+            return new AABB(location, location + Size);
+        }
+
+        /// <summary>
+        /// Returns an AABB that matches this AABB's size with a new location
+        /// </summary>
+        [Pure]
+        public AABB WithLocation(float x, float y)
+        {
+            return WithLocation(new Vector(x, y));
+        }
+
         /// <summary>
         /// Returns an AABB that matches this AABB's top-left location with a new size
         /// </summary>

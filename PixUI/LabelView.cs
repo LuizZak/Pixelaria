@@ -26,6 +26,7 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.Gdi;
 
 namespace PixUI
 {
@@ -162,7 +163,7 @@ namespace PixUI
         private readonly LabelViewBacking _labelViewBacking = new LabelViewBacking();
 
         [NotNull]
-        public static ITextSizeProvider defaultTextSizeProvider = new GdiTextSizeSizeProvider();
+        public static ITextSizeProvider defaultTextSizeProvider = new GdiTextSizeProvider();
 
         /// <summary>
         /// Gets or sets the background color that is drawn around the label.

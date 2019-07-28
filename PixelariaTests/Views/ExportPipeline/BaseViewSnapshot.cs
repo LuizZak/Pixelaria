@@ -136,6 +136,10 @@ namespace PixelariaTests.Views.ExportPipeline
         
         private class FullClipping : IClippingRegion
         {
+            public RectangleF[] RedrawRegionRectangles(Size size)
+            {
+                return new[] { new RectangleF(PointF.Empty, size) };
+            }
             public bool IsVisibleInClippingRegion(Rectangle rectangle)
             {
                 return true;

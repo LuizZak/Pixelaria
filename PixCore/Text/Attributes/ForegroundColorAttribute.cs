@@ -34,6 +34,11 @@ namespace PixCore.Text.Attributes
             ForeColor = foreColor;
         }
 
+        public void Consume(ITextAttributeConsumer consumer)
+        {
+            consumer.Consume(this);
+        }
+
         public bool Equals(ForegroundColorAttribute other)
         {
             return ForeColor.Equals(other.ForeColor);

@@ -43,6 +43,11 @@ namespace PixCore.Text.Attributes
             Inflation = inflation;
         }
 
+        public void Consume(ITextAttributeConsumer consumer)
+        {
+            consumer.Consume(this);
+        }
+
         public bool Equals(BackgroundColorAttribute other)
         {
             return BackColor.Equals(other.BackColor) && Inflation.Equals(other.Inflation);

@@ -34,6 +34,11 @@ namespace PixCore.Text.Attributes
             Font = font;
         }
 
+        public void Consume(ITextAttributeConsumer consumer)
+        {
+            consumer.Consume(this);
+        }
+
         public bool Equals(TextFontAttribute other)
         {
             return Font.Equals(other.Font);

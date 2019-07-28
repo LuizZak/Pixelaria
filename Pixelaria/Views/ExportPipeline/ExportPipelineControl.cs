@@ -142,12 +142,15 @@ namespace Pixelaria.Views.ExportPipeline
 
             base.Dispose(disposing);
         }
-        
+
         /// <summary>
         /// Adds a given region of invalidation to be rendered on the next frame.
         /// </summary>
         public void InvalidateRegion(RedrawRegion region)
         {
+            if (region.IsEmpty())
+                return;
+
             _clippingRegion.AddRegion(region);
         }
 

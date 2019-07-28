@@ -44,6 +44,21 @@ namespace PixCore.Geometry
         }
 
         /// <summary>
+        /// Returns the squared distance between two points objects
+        /// </summary>
+        /// <param name="point">The first point</param>
+        /// <param name="point2">The second point</param>
+        /// <returns>The squared distance between the two points</returns>
+        [Pure]
+        public static float DistanceSquared(in this PointF point, in PointF point2)
+        {
+            float dx = point.X - point2.X;
+            float dy = point.Y - point2.Y;
+
+            return dx * dx + dy * dy;
+        }
+
+        /// <summary>
         /// Returns the distance between two points objects
         /// </summary>
         /// <param name="point">The first point</param>

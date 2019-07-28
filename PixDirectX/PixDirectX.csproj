@@ -77,13 +77,13 @@
     <Compile Include="Rendering\Direct2DWicBitmapRenderManager.cs" />
     <Compile Include="Rendering\Direct2DConversionHelpers.cs" />
     <Compile Include="Rendering\DirectWriteTextLayout.cs" />
-    <Compile Include="Rendering\GdiTextSizeSizeProvider.cs" />
     <Compile Include="Rendering\Gdi\GdiRenderManager.cs" />
     <Compile Include="Rendering\Gdi\GdiTextLayout.cs" />
     <Compile Include="Rendering\Gdi\GdiTextRenderer.cs" />
     <Compile Include="Rendering\Gdi\GdiImageResourceManager.cs" />
     <Compile Include="Rendering\Gdi\GdiRenderer.cs" />
     <Compile Include="Rendering\Gdi\GdiTextMetricsProvider.cs" />
+    <Compile Include="Rendering\Gdi\GdiTextSizeProvider.cs" />
     <Compile Include="Rendering\IRenderManager.cs" />
     <Compile Include="Rendering\IDirect2DRenderManager.cs" />
     <Compile Include="Rendering\IImageResourceManager.cs" />

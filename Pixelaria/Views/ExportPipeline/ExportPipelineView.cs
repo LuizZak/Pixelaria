@@ -95,22 +95,22 @@ namespace Pixelaria.Views.ExportPipeline
         {
             base.OnShown(e);
             
-            StartRenderLoop();
+            ConfigureRenderLoop();
         }
 
-        public void StartRenderLoop()
+        public void ConfigureRenderLoop()
         {
             if (DesignMode)
                 return;
 
-            _rendererStack = new Direct2DRendererStack();
+            _rendererStack = new GdiRendererStack(exportPipelineControl);
             var renderManager = _rendererStack.Initialize(exportPipelineControl);
             exportPipelineControl.InitializeRenderer(renderManager);
             exportPipelineControl.InvalidateAll();
 
             ConfigureForm(renderManager, _rendererStack.RenderingState ?? throw new InvalidOperationException("No initial rendering state available"));
 
-            _rendererStack.StartRenderLoop((state, clipping) =>
+            _rendererStack.ConfigureRenderLoop((state, clipping) =>
             {
                 exportPipelineControl.UpdateFrameStep(state.FrameRenderDeltaTime);
                 exportPipelineControl.FillRedrawRegion(clipping);

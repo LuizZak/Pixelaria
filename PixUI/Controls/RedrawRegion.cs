@@ -21,6 +21,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 
@@ -73,7 +74,7 @@ namespace PixUI.Controls
         /// </summary>
         public bool IsEmpty()
         {
-            return _rectangles.Count == 0;
+            return _rectangles.Count == 0 || _rectangles.All(r => r.IsEmpty);
         }
 
         /// <summary>

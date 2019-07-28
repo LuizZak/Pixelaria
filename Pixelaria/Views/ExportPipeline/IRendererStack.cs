@@ -57,6 +57,6 @@ namespace Pixelaria.Views.ExportPipeline
         ///
         /// Frame rendering occurs after the closure is executed.
         /// </summary>
-        void StartRenderLoop(Action<IRenderLoopState, ClippingRegion> execute);
+        void ConfigureRenderLoop(Action<IRenderLoopState, ClippingRegion> execute);
     }
 }

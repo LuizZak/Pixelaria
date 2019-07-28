@@ -20,31 +20,115 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
-using System.Windows.Forms;
 using PixCore.Geometry;
+using PixCore.Text;
 
 namespace PixDirectX.Rendering.Gdi
 {
     public class GdiTextRenderer : ITextRenderer
     {
-        private readonly IDeviceContext _deviceContext;
+        private readonly Graphics _graphics;
+        private readonly Color _textColor;
 
-        public GdiTextRenderer(IDeviceContext deviceContext)
+        public GdiTextRenderer(Graphics graphics, Color textColor)
         {
-            _deviceContext = deviceContext;
+            _graphics = graphics;
+            _textColor = textColor;
         }
 
         public void Draw(ITextLayout textLayout, float x, float y)
         {
-            Draw(textLayout.Text.String, textLayout.Attributes.TextFormatAttributes, AABB.FromRectangle(x, y, textLayout.Attributes.AvailableWidth, textLayout.Attributes.AvailableHeight), Color.Black);
+            Draw(textLayout.Text, textLayout.Attributes.TextFormatAttributes, AABB.FromRectangle(x, y, textLayout.Attributes.AvailableWidth, textLayout.Attributes.AvailableHeight), _textColor);
+        }
+
+        public void Draw(IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
+        {
+            var layoutRect = (RectangleF) area;
+
+            foreach (var segment in text.GetTextSegments())
+            {
+                var segmentConsumer = new CollectingTextAttributeConsumer();
+                segment.ConsumeAttributes(segmentConsumer);
+
+                var foreColor = segmentConsumer.ForeColor ?? color;
+
+                var font = segmentConsumer?.Font ?? new Font(textFormatAttributes.Font, textFormatAttributes.FontSize);
+
+                var stringFormat = new StringFormat
+                {
+                    Alignment = ToStringAlignment(textFormatAttributes.HorizontalTextAlignment)
+                };
+
+                stringFormat.SetMeasurableCharacterRanges(new []{ new CharacterRange(segment.TextRange.Start, segment.TextRange.Length) });
+
+                if (textFormatAttributes.TextEllipsisTrimming.HasValue)
+                {
+                    stringFormat.Trimming = ToStringTrimming(textFormatAttributes.TextEllipsisTrimming.Value.Granularity);
+                }
+                else
+                {
+                    stringFormat.Trimming = StringTrimming.None;
+                }
+
+                var regions = _graphics.MeasureCharacterRanges(text.String, font, layoutRect, stringFormat);
+
+                foreach (var region in regions)
+                {
+                    using (var solidBrush = new SolidBrush(foreColor))
+                    {
+                        var rect = region.GetBounds(_graphics);
+                        _graphics.DrawString(segment.Text, font, solidBrush, rect, stringFormat);
+                    }
+                }
+
+                if (segmentConsumer.Font == null)
+                {
+                    font.Dispose();
+                }
+            }
         }
 
         public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
         {
-            var font = new Font(textFormatAttributes.Font, textFormatAttributes.FontSize);
+            using (var font = new Font(textFormatAttributes.Font, textFormatAttributes.FontSize))
+            using (var solidBrush = new SolidBrush(color))
+            {
+                _graphics.DrawString(text, font, solidBrush, (RectangleF) area);
+            }
+        }
 
-            TextRenderer.DrawText(_deviceContext, text, font, (Rectangle)area, color);
+        private static StringAlignment ToStringAlignment(HorizontalTextAlignment alignment)
+        {
+            switch (alignment)
+            {
+                case HorizontalTextAlignment.Leading:
+                    return StringAlignment.Near;
+                case HorizontalTextAlignment.Trailing:
+                    return StringAlignment.Far;
+                case HorizontalTextAlignment.Center:
+                    return StringAlignment.Center;
+                case HorizontalTextAlignment.Justified:
+                    return StringAlignment.Near;
+                default:
+                    return StringAlignment.Near;
+            }
+        }
+
+        private static StringTrimming ToStringTrimming(TextTrimmingGranularity granularity)
+        {
+            switch (granularity)
+            {
+                case TextTrimmingGranularity.None:
+                    return StringTrimming.None;
+                case TextTrimmingGranularity.Character:
+                    return StringTrimming.Character;
+                case TextTrimmingGranularity.Word:
+                    return StringTrimming.EllipsisWord;
+                default:
+                    return StringTrimming.None;
+            }
         }
     }
 }

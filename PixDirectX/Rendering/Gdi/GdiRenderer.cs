@@ -424,10 +424,33 @@ namespace PixDirectX.Rendering.Gdi
                     Colors = GradientStops.Select(s => s.Color).ToArray(),
                     Positions = GradientStops.Select(s => s.Position).ToArray()
                 };
+                FixUpColorBlend(colorBlend);
 
                 brush.InterpolationColors = colorBlend;
 
                 Brush = brush;
+            }
+
+            static void FixUpColorBlend([NotNull] ColorBlend colorBlend)
+            {
+                if (colorBlend.Positions.Length == 0 || colorBlend.Colors.Length == 0)
+                    return;
+
+                if (!colorBlend.Positions.Contains(0))
+                {
+                    var leastColor = colorBlend.Colors.Zip(colorBlend.Positions, (color, f) => (color, f)).OrderBy(c => c.f).Select(c => c.color).First();
+
+                    colorBlend.Positions = new [] { 0.0f }.Concat(colorBlend.Positions).ToArray();
+                    colorBlend.Colors = new [] { leastColor }.Concat(colorBlend.Colors).ToArray();
+                }
+
+                if (!colorBlend.Positions.Contains(1))
+                {
+                    var greatestColor = colorBlend.Colors.Zip(colorBlend.Positions, (color, f) => (color, f)).OrderByDescending(c => c.f).Select(c => c.color).First();
+
+                    colorBlend.Positions = colorBlend.Positions.Concat(new[] { 1.0f }).ToArray();
+                    colorBlend.Colors = colorBlend.Colors.Concat(new[] { greatestColor }).ToArray();
+                }
             }
         }
 

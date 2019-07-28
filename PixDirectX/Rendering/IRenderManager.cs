@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
@@ -114,6 +115,9 @@ namespace PixDirectX.Rendering
         /// </summary>
         TextLayoutAttributes Attributes { get; }
 
+        /// <summary>
+        /// Gets the string associated with this text layout.
+        /// </summary>
         IAttributedText Text { get; }
 
         /// <summary>
@@ -161,6 +165,11 @@ namespace PixDirectX.Rendering
         void Draw([NotNull] ITextLayout textLayout, float x, float y);
 
         /// <summary>
+        /// Draws an attributed text with a given set of attributes, on a given area with a given color.
+        /// </summary>
+        void Draw([NotNull] IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
+
+        /// <summary>
         /// Draws a string of text with a given set of attributes, on a given area with a given color.
         /// </summary>
         void Draw([NotNull] string text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
@@ -171,6 +180,12 @@ namespace PixDirectX.Rendering
     /// </summary>
     public interface IClippingRegion
     {
+        /// <summary>
+        /// Returns a series of <see cref="RectangleF"/> instances that approximate the redraw region
+        /// of this <see cref="IClippingRegion"/>, truncated to be within the given <see cref="Size"/>-d rectangle.
+        /// </summary>
+        RectangleF[] RedrawRegionRectangles(Size size);
+
         /// <summary>
         /// Returns true if a section of <see cref="rectangle"/> is visible on the clipping region.
         /// </summary>

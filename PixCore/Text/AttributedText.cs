@@ -48,6 +48,11 @@ namespace PixCore.Text
         bool HasAttributes { get; }
 
         /// <summary>
+        /// Returns true if this attributed text's string contents are empty.
+        /// </summary>
+        bool IsEmpty { get; }
+
+        /// <summary>
         /// Resets the properties of this attributed text and sets the given string
         /// as its contents.
         /// </summary>
@@ -115,6 +120,8 @@ namespace PixCore.Text
         public string String => _stringBuilder.ToString();
         
         public bool HasAttributes => _segments.Any(s => s.TextAttributes.Length > 0);
+
+        public bool IsEmpty => _segments.Count == 0 || _segments.All(s => s.Text.Length == 0);
 
         public AttributedText()
         {
@@ -376,6 +383,14 @@ namespace PixCore.Text
                 TextRange = textRange;
             }
 
+            public void ConsumeAttributes(ITextAttributeConsumer consumer)
+            {
+                foreach (var textAttribute in TextAttributes)
+                {
+                    textAttribute.Consume(consumer);
+                }
+            }
+
             public bool HasAttribute<T>() where T : ITextAttribute
             {
                 return TextAttributes.Any(t => t is T);
@@ -384,6 +399,15 @@ namespace PixCore.Text
             public T GetAttribute<T>() where T : ITextAttribute
             {
                 return TextAttributes.OfType<T>().FirstOrDefault();
+            }
+
+            public T? GetAttributeNullable<T>() where T : struct, ITextAttribute
+            {
+                var array = TextAttributes.OfType<T>().ToArray();
+                if (array.Length == 0)
+                    return null;
+
+                return array[0];
             }
 
             public bool Equals(TextSegment other)
@@ -425,7 +449,10 @@ namespace PixCore.Text
     /// </summary>
     public interface ITextAttribute : ICloneable
     {
-
+        /// <summary>
+        /// Asks this text attribute to be consumed by a given consumer.
+        /// </summary>
+        void Consume([NotNull] ITextAttributeConsumer consumer);
     }
 
     /// <summary>
@@ -439,6 +466,11 @@ namespace PixCore.Text
         TextRange TextRange { get; }
 
         /// <summary>
+        /// Passes all known attributes to a given text attribute consumer.
+        /// </summary>
+        void ConsumeAttributes(ITextAttributeConsumer consumer);
+
+        /// <summary>
         /// Returns whether a given text attribute is applied to this text segment.
         /// </summary>
         bool HasAttribute<T>() where T : ITextAttribute;
@@ -449,5 +481,12 @@ namespace PixCore.Text
         /// </summary>
         [CanBeNull]
         T GetAttribute<T>() where T : ITextAttribute;
+
+        /// <summary>
+        /// Gets an attribute with a given type on the text attributes array.
+        /// Returns null, if attribute type is not present.
+        /// </summary>
+        [CanBeNull]
+        T? GetAttributeNullable<T>() where T : struct, ITextAttribute;
     }
 }

@@ -20,11 +20,9 @@
     base directory of this project.
 */
 
-using PixCore.Geometry;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
-using Color = System.Drawing.Color;
 
 namespace PixDirectX.Rendering
 {

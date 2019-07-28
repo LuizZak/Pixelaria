@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -135,6 +136,11 @@ namespace PixUITests.TestUtils
         
         private class FullClipping : IClippingRegion
         {
+            public RectangleF[] RedrawRegionRectangles(Size size)
+            {
+                return new[] { new RectangleF(PointF.Empty, size) };
+            }
+
             public bool IsVisibleInClippingRegion(Rectangle rectangle)
             {
                 return true;

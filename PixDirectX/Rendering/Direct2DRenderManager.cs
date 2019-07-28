@@ -538,13 +538,13 @@ namespace PixDirectX.Rendering
 
         private class InnerTextRenderer : ITextRenderer
         {
-            public TextRendererBase TextRenderer { get; }
+            public TextColorRenderer TextColorRenderer { get; }
             private Factory directWriteFactory;
             private RenderTarget renderTarget;
 
-            public InnerTextRenderer(TextRendererBase textRenderer, Factory directWriteFactory, RenderTarget renderTarget)
+            public InnerTextRenderer(TextColorRenderer textColorRenderer, Factory directWriteFactory, RenderTarget renderTarget)
             {
-                TextRenderer = textRenderer;
+                TextColorRenderer = textColorRenderer;
                 this.directWriteFactory = directWriteFactory;
                 this.renderTarget = renderTarget;
             }
@@ -554,7 +554,56 @@ namespace PixDirectX.Rendering
                 if (!(textLayout is InnerTextLayout layout))
                     return;
 
-                layout.TextLayout.Draw(TextRenderer, x, y);
+                layout.TextLayout.Draw(TextColorRenderer, x, y);
+            }
+
+            public void Draw(IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
+            {
+                EllipsisTrimming trimming = null;
+
+                using (var brush = new SolidColorBrush(renderTarget, color.ToColor4()))
+                using (var textFormat = TextFormatForAttributes(textFormatAttributes, ref trimming))
+                using (var textLayout = new TextLayout(directWriteFactory, text.String, textFormat, area.Width, area.Height))
+                {
+                    var disposes = new List<IDisposable>();
+
+                    // Apply text attributes
+                    foreach (var textSegment in text.GetTextSegments())
+                    {
+                        var consumer = new CollectingTextAttributeConsumer();
+                        textSegment.ConsumeAttributes(consumer);
+
+                        if (consumer.ForeColor.HasValue)
+                        {
+                            var segmentBrush =
+                                new SolidColorBrush(renderTarget, consumer.ForeColor.Value.ToColor4());
+
+                            disposes.Add(segmentBrush);
+
+                            textLayout.SetDrawingEffect(segmentBrush,
+                                new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        }
+                        if (consumer.Font != null)
+                        {
+                            textLayout.SetFontFamilyName(consumer.Font.FontFamily.Name,
+                                new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                            textLayout.SetFontSize(consumer.Font.Size,
+                                new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        }
+                    }
+
+                    var prev = TextColorRenderer.DefaultBrush;
+                    TextColorRenderer.DefaultBrush = brush;
+
+                    textLayout.Draw(TextColorRenderer, area.Left, area.Top);
+
+                    TextColorRenderer.DefaultBrush = prev;
+
+                    foreach (var disposable in disposes)
+                    {
+                        disposable.Dispose();
+                    }
+                }
             }
 
             public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
@@ -562,19 +611,28 @@ namespace PixDirectX.Rendering
                 EllipsisTrimming trimming = null;
 
                 using (var foreground = new SolidColorBrush(renderTarget, color.ToColor4()))
-                using (var textFormat = new TextFormat(directWriteFactory, textFormatAttributes.Font, textFormatAttributes.FontSize))
+                using (var textFormat = TextFormatForAttributes(textFormatAttributes, ref trimming))
                 {
-                    textFormat.WordWrapping = WordWrapping.NoWrap;
-                    if (textFormatAttributes.TextEllipsisTrimming.HasValue)
-                    {
-                        trimming = new EllipsisTrimming(directWriteFactory, textFormat);
-                        textFormat.SetTrimming(CreateTrimming(textFormatAttributes.TextEllipsisTrimming.Value), trimming);
-                    }
-
                     renderTarget.DrawText(text, textFormat, area.ToRawRectangleF(), foreground);
                 }
 
                 trimming?.Dispose();
+            }
+
+            private TextFormat TextFormatForAttributes(TextFormatAttributes textFormatAttributes, ref EllipsisTrimming trimming)
+            {
+                var textFormat = new TextFormat(directWriteFactory, textFormatAttributes.Font, textFormatAttributes.FontSize)
+                {
+                    WordWrapping = WordWrapping.NoWrap
+                };
+
+                if (textFormatAttributes.TextEllipsisTrimming.HasValue)
+                {
+                    trimming = new EllipsisTrimming(directWriteFactory, textFormat);
+                    textFormat.SetTrimming(CreateTrimming(textFormatAttributes.TextEllipsisTrimming.Value), trimming);
+                }
+
+                return textFormat;
             }
         }
     }

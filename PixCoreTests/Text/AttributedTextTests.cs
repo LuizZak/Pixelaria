@@ -205,6 +205,11 @@ namespace PixCoreTests.Text
             {
                 return new TestAttribute();
             }
+
+            public void Consume(ITextAttributeConsumer consumer)
+            {
+                consumer.ConsumeOther(this);
+            }
         }
 
         private class TestAttribute2 : ITextAttribute
@@ -212,6 +217,11 @@ namespace PixCoreTests.Text
             public object Clone()
             {
                 return new TestAttribute2();
+            }
+
+            public void Consume(ITextAttributeConsumer consumer)
+            {
+                consumer.ConsumeOther(this);
             }
         }
     }

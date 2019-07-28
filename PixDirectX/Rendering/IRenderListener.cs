@@ -31,12 +31,15 @@ namespace PixDirectX.Rendering
     {
         /// <summary>
         /// Gets an integer that specifies the ordering for invoking this render listener in relation to other render listeners.
-        ///
+        /// <br/>
+        /// <br/>
         /// Render listeners with a higher render order are invoked before listeners with a lower render order.
-        ///
+        /// <br/>
+        /// <br/>
         /// If two listeners share the same render order, the order in which they where registered in the <see cref="IRenderManager"/>
         /// is used to break the tie, instead.
-        ///
+        /// <br/>
+        /// <br/>
         /// This value is read only when adding the render listener to a <see cref="IRenderManager"/>; updating this value at runtime is
         /// not supported and may lead to undesired render ordering of elements.
         /// </summary>
