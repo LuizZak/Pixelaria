@@ -210,13 +210,19 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 handler.MouseUp = (mousePosition, action) =>
                 {
-                    if (_container.Contains(mousePosition))
-                        return;
-
                     switch (action)
                     {
                         case PipelineNodeDragAndDropAction.Create:
-                            PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), mousePosition));
+                            if (mousePosition == null)
+                            {
+                                var center = (Vector)_pipelineContainer.ScreenSize / 2;
+                                PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), center));
+                            }
+                            else if (!_container.Contains(mousePosition.Value))
+                            {
+                                PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), mousePosition.Value));
+                            }
+
                             break;
 
                         case PipelineNodeDragAndDropAction.Delete:

@@ -319,7 +319,7 @@ namespace PixUI
         /// </summary>
         private void RecreateLocalTransformMatrix()
         {
-            _localTransform = Matrix2D.Rotation(_rotation) * Matrix2D.Translation(_location) * Matrix2D.Scaling(_scale);
+            _localTransform = Matrix2D.Scaling(_scale) * Matrix2D.Rotation(_rotation) * Matrix2D.Translation(_location);
         }
 
         /// <summary>

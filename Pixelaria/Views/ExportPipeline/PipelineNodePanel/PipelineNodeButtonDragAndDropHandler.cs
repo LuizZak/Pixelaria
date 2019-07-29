@@ -70,7 +70,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             [NotNull] 
             private readonly IPipelineNodeButtonDragAndDropHandlerDelegate _delegate;
 
-            public Action<Vector, PipelineNodeDragAndDropAction> MouseUp { private get; set; }
+            public Action<Vector?, PipelineNodeDragAndDropAction> MouseUp { private get; set; }
 
             public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
                 [NotNull] PipelineNodeSpec nodeSpec,
@@ -145,6 +145,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                             _pipelineRenderManager.RemoveRenderListener(renderListener);
                         }
+                        else
+                        {
+                            MouseUp(null, PipelineNodeDragAndDropAction.Create);
+                        }
 
                         isDraggingPreview = false;
                     }).AddToDisposable(_disposeBag);
@@ -205,7 +209,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 public Vector MousePosition
                 {
-                    set => _nodeView.Location = Vector.Round(value - _nodeView.Size / 2);
+                    set => _nodeView.Location = Vector.Round(value - _nodeView.Size / 2 * TransformMatrix.ScaleVector);
                 }
 
                 public Matrix2D TransformMatrix { get; set; }
@@ -261,7 +265,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 private void PushingAbsoluteTransform([NotNull, InstantHandle] Action action)
                 {
+                    var scale = _nodeView.Scale;
+                    _nodeView.Scale = TransformMatrix.ScaleVector;
+
                     action();
+
+                    _nodeView.Scale = scale;
                 }
 
                 private T PushingAbsoluteTransform<T>([NotNull, InstantHandle] Func<T> action)

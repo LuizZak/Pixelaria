@@ -163,6 +163,11 @@ namespace Pixelaria.Views.ExportPipeline
         /// Subviews on this view are shown over <see cref="ContentsView"/>.
         /// </summary>
         BaseView UiContainerView { get; }
+        
+        /// <summary>
+        /// Gets the available screen size for this pipeline container.
+        /// </summary>
+        Size ScreenSize { get; }
 
         /// <summary>
         /// Gets an array of all visible node views.

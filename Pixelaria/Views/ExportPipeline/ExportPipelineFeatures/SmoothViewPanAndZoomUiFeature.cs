@@ -79,7 +79,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             if (e.Button == MouseButtons.Middle && RequestExclusiveControl())
             {
-                _dragStart = contentsView.Location - e.Location / contentsView.Scale;
+                _dragStart = contentsView.Location - e.Location;
                 _dragging = true;
 
                 ConsumeEvent();
@@ -94,7 +94,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 var point = (Vector)e.Location;
 
-                SetLocation(_dragStart + point / contentsView.Scale);
+                SetLocation(_dragStart + point);
                 Control.InvalidateAll();
             }
         }
@@ -148,7 +148,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             {
                 var afterPivot = contentsView.ConvertFrom(focusPosition, null);
 
-                contentsView.Location += afterPivot - priorPivot;
+                contentsView.Location += (afterPivot - priorPivot) * newZoom;
             }
 
             Control.InvalidateAll();

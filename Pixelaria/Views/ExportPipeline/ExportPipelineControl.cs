@@ -481,6 +481,8 @@ namespace Pixelaria.Views.ExportPipeline
 
             public object[] Selection => _selection.ToArray();
 
+            public Size ScreenSize => _control.Size;
+
             public BaseView ContentsView { get; } = new BaseView();
             public BaseView UiContainerView { get; } = new BaseView();
 
