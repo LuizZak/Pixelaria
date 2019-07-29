@@ -193,6 +193,11 @@ namespace PixDirectX.Rendering
         void PopTransform();
 
         /// <summary>
+        /// Runs a closure between a pair of <see cref="PushTransform(Matrix2D)"/>/<see cref="PopTransform"/> invocations.
+        /// </summary>
+        void PushingTransform(Matrix2D matrix, [NotNull] Action execute);
+
+        /// <summary>
         /// Runs a closure between a pair of <see cref="PushTransform()"/>/<see cref="PopTransform"/> invocations.
         /// </summary>
         void PushingTransform([NotNull] Action execute);

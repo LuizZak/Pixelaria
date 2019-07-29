@@ -24,7 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-
+using System.Security.Permissions;
+using System.Text;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixUI.Controls;
@@ -277,6 +278,40 @@ namespace PixUI
             RecreateLocalTransformMatrix();
 
             _layoutEvents = new InternalLayoutEvents(this);
+        }
+
+        /// <summary>
+        /// Returns a string representing the entire hierarchy of this view.
+        /// </summary>
+        public string DebugHierarchyDescription(string tabs = "")
+        {
+            var newTabs = tabs + "  ";
+            var result = new StringBuilder();
+
+            result.AppendLine($"{tabs}[{this}] {{");
+            string body = DebugHierarchyBodyDescription(newTabs);
+            if (!string.IsNullOrEmpty(body))
+            {
+                result.AppendLine(body);
+            }
+
+            foreach (var child in Children)
+            {
+                result.Append(child.DebugHierarchyDescription(newTabs));
+            }
+            result.AppendLine($"{tabs}}}");
+
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// Returns a string representing the bodied description of this node.
+        /// Used by <see cref="DebugHierarchyDescription"/> to insert specific information
+        /// about this view only.
+        /// </summary>
+        public virtual string DebugHierarchyBodyDescription(string tabs)
+        {
+            return "";
         }
 
         /// <summary>

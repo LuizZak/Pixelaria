@@ -46,12 +46,15 @@ namespace PixUI.Visitor
 
             _viewVisitor.OnVisitorEnter(_state, view);
 
-            _viewVisitor.VisitView(_state, view);
+            var result = _viewVisitor.VisitView(_state, view);
 
-            // Visitr children
-            foreach (var child in view.Children)
+            if (result == VisitViewResult.VisitChildren)
             {
-                Visit(child);
+                // Visit children
+                foreach (var child in view.Children)
+                {
+                    Visit(child);
+                }
             }
 
             _viewVisitor.OnVisitorExit(_state, view);

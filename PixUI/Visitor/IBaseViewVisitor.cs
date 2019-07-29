@@ -37,7 +37,7 @@ namespace PixUI.Visitor
         /// <summary>
         /// Called to apply a visit logic to a view
         /// </summary>
-        void VisitView(T state, [NotNull] BaseView view);
+        VisitViewResult VisitView(T state, [NotNull] BaseView view);
 
         /// <summary>
         /// Called to query whether a given view should be visited.
@@ -53,5 +53,20 @@ namespace PixUI.Visitor
         /// continue up the siblings/parent chain
         /// </summary>
         void OnVisitorExit(T state, [NotNull] BaseView view);
+    }
+
+    /// <summary>
+    /// Specifies the result of a <see cref="IBaseViewVisitor{T}.VisitView"/> invocation.
+    /// </summary>
+    public enum VisitViewResult
+    {
+        /// <summary>
+        /// Indicates to the visitor that it should visit the children of the view.
+        /// </summary>
+        VisitChildren,
+        /// <summary>
+        /// Indicates to the visitor that it should skip visiting the children of the view.
+        /// </summary>
+        SkipChildren
     }
 }

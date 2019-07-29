@@ -61,17 +61,17 @@ namespace PixUITests.Visitor
                 // Root
                 visitor.Expect(v => v.ShouldVisitView(state, Root)).Return(true);
                 visitor.Expect(v => v.OnVisitorEnter(state, Root));
-                visitor.Expect(v => v.VisitView(state, Root));
+                visitor.Expect(v => v.VisitView(state, Root)).Return(VisitViewResult.VisitChildren);
 
                 // Root > Child 1
                 visitor.Expect(v => v.ShouldVisitView(state, Child1)).Return(true);
                 visitor.Expect(v => v.OnVisitorEnter(state, Child1));
-                visitor.Expect(v => v.VisitView(state, Child1));
+                visitor.Expect(v => v.VisitView(state, Child1)).Return(VisitViewResult.VisitChildren);
 
                 // Root > Child 1 > Grandchild 1
                 visitor.Expect(v => v.ShouldVisitView(state, GrandChild1)).Return(true);
                 visitor.Expect(v => v.OnVisitorEnter(state, GrandChild1));
-                visitor.Expect(v => v.VisitView(state, GrandChild1));
+                visitor.Expect(v => v.VisitView(state, GrandChild1)).Return(VisitViewResult.VisitChildren);
                 visitor.Expect(v => v.OnVisitorExit(state, GrandChild1));
 
                 // Root > Child 1
@@ -80,7 +80,7 @@ namespace PixUITests.Visitor
                 // Root > Child 2
                 visitor.Expect(v => v.ShouldVisitView(state, Child2)).Return(true);
                 visitor.Expect(v => v.OnVisitorEnter(state, Child2));
-                visitor.Expect(v => v.VisitView(state, Child2));
+                visitor.Expect(v => v.VisitView(state, Child2)).Return(VisitViewResult.VisitChildren);
                 visitor.Expect(v => v.OnVisitorExit(state, Child2));
 
                 // Root
@@ -107,7 +107,7 @@ namespace PixUITests.Visitor
                 // Root
                 visitor.Expect(v => v.ShouldVisitView(state, Root)).Return(true);
                 visitor.Expect(v => v.OnVisitorEnter(state, Root));
-                visitor.Expect(v => v.VisitView(state, Root));
+                visitor.Expect(v => v.VisitView(state, Root)).Return(VisitViewResult.VisitChildren);
 
                 // Root > Child 1
                 visitor.Expect(v => v.ShouldVisitView(state, Child1)).Return(false);
@@ -115,7 +115,7 @@ namespace PixUITests.Visitor
                 // Root > Child 2
                 visitor.Expect(v => v.ShouldVisitView(state, Child2)).Return(true);
                 visitor.Expect(v => v.OnVisitorEnter(state, Child2));
-                visitor.Expect(v => v.VisitView(state, Child2));
+                visitor.Expect(v => v.VisitView(state, Child2)).Return(VisitViewResult.VisitChildren);
                 visitor.Expect(v => v.OnVisitorExit(state, Child2));
 
                 // Root

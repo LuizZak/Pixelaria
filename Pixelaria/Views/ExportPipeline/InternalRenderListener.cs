@@ -20,16 +20,12 @@
     base directory of this project.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
-using PixCore.Colors;
 using PixCore.Geometry;
-using PixCore.Text;
 using PixDirectX.Rendering;
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixUI;
 using Color = System.Drawing.Color;
@@ -75,6 +71,8 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RenderInView([NotNull] BaseView view, [NotNull] IRenderListenerParameters parameters, [NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
+            parameters.Renderer.PushTransform(view.LocalTransform);
+
             var clippingRegion = parameters.ClippingRegion;
             var bezierRenderer = new BezierViewRenderer(parameters);
 
@@ -103,24 +101,14 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 RenderLabelView(label, parameters, decorators);
             }
+
+            parameters.Renderer.PopTransform();
         }
 
         public void RenderStepView([NotNull] PipelineNodeView nodeView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
         {
-            var clippingRegion = parameters.ClippingRegion;
-
-            parameters.Renderer.PushingTransform(() =>
-            {
-                parameters.Renderer.Transform = nodeView.GetAbsoluteTransform();
-
-                var visibleArea = nodeView.GetFullBounds().Corners.Transform(nodeView.GetAbsoluteTransform()).Area();
-
-                if (!clippingRegion.IsVisibleInClippingRegion(visibleArea))
-                    return;
-
-                var renderView = new InternalNodeViewRenderer(nodeView, parameters, _container.ContentsView.LocalTransform.ScaleVector >= Vector.Unit);
-                renderView.RenderView(decorators);
-            });
+            var renderView = new InternalNodeViewRenderer(nodeView, parameters, parameters.Renderer.Transform.ScaleVector >= Vector.Unit);
+            renderView.RenderView(decorators);
         }
         
         public void RenderLabelView([NotNull] LabelView labelView, [NotNull] IRenderListenerParameters parameters, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
@@ -264,9 +252,9 @@ namespace Pixelaria.Views.ExportPipeline
             {
                 _parameters.Renderer.PushingTransform(() =>
                 {
-                    _parameters.Renderer.Transform = bezierView.GetAbsoluteTransform();
+                    _parameters.Renderer.Transform *= bezierView.LocalTransform;
 
-                    var visibleArea = bezierView.GetFullBounds().Corners.Transform(bezierView.GetAbsoluteTransform()).Area();
+                    var visibleArea = bezierView.BoundsForInvalidateFullBounds().TransformedBounds(_parameters.Renderer.Transform);
 
                     if (!_clippingRegion.IsVisibleInClippingRegion(visibleArea))
                         return;
@@ -353,330 +341,6 @@ namespace Pixelaria.Views.ExportPipeline
                 OuterStroke,
                 Stroke
             }
-        }
-    }
-
-    internal class InternalNodeViewRenderer
-    {
-        [NotNull] private readonly PipelineNodeView _nodeView;
-        private readonly IRenderListenerParameters _parameters;
-        private readonly bool _useNearestNeighborOnIcon;
-
-        private IRenderer Renderer => _parameters.Renderer;
-
-        private AABB TitleArea => _nodeView.GetTitleArea();
-        private AABB BodyTextArea => _nodeView.GetBodyTextArea();
-        private AABB Bounds => _nodeView.Bounds;
-        private AABB LinkLabelArea => _nodeView.LinkViewLabelArea;
-        private IReadOnlyList<PipelineNodeLinkView> InLinks => _nodeView.InputViews;
-        private IReadOnlyList<PipelineNodeLinkView> OutLinks => _nodeView.OutputViews;
-
-        public InternalNodeViewRenderer([NotNull] PipelineNodeView nodeView, [NotNull] IRenderListenerParameters parameters, bool useNearestNeighborOnIcon)
-        {
-            _nodeView = nodeView;
-            _parameters = parameters;
-            _useNearestNeighborOnIcon = useNearestNeighborOnIcon;
-        }
-
-        public void RenderView([NotNull] IReadOnlyList<IRenderingDecorator> decorators)
-        {
-            Renderer.PushTransform();
-
-            Renderer.Transform = _nodeView.GetAbsoluteTransform();
-
-            // Create rendering states for decorators
-            var stepViewState = new PipelineStepViewState
-            {
-                FillColor = _nodeView.Color,
-                TitleFillColor = _nodeView.Color.Faded(Color.Black, 0.8f),
-                StrokeColor = _nodeView.StrokeColor,
-                StrokeWidth = _nodeView.StrokeWidth,
-                TitleFontColor = Color.White,
-                BodyFontColor = Color.Black
-            };
-
-            // Decorate
-            foreach (var decorator in decorators)
-                decorator.DecoratePipelineStep(_nodeView, ref stepViewState);
-
-            var roundedRectGeom = PolyGeometry.RoundedRectangle(Bounds, 5, 5, 5);
-            
-            // Create disposable objects
-            var textFormat = new TextFormatAttributes
-            {
-                Font = _nodeView.Font.Name,
-                FontSize = _nodeView.Font.Size,
-                HorizontalTextAlignment = HorizontalTextAlignment.Leading, 
-                VerticalTextAlignment = VerticalTextAlignment.Center
-            };
-
-            var bodyFillBrush = Renderer.CreateLinearGradientBrush(new[]
-            {
-                new PixGradientStop(stepViewState.FillColor, 0),
-                new PixGradientStop(stepViewState.FillColor.Faded(Color.Black, 0.1f), 1)
-            }, Vector.Zero, new Vector(0, Bounds.Height));
-
-            DrawConnectionLabelsBackground(roundedRectGeom, bodyFillBrush);
-            DrawConnectionsBackground(roundedRectGeom);
-            DrawTitleBackground(roundedRectGeom, stepViewState);
-            DrawBodyText(stepViewState, roundedRectGeom, bodyFillBrush, textFormat);
-            DrawBodyOutline(stepViewState, Bounds, 5, 5);
-            DrawIcon(TitleArea);
-            DrawTitleText(textFormat, stepViewState);
-            DrawLinkViews(decorators);
-
-            Renderer.PopTransform();
-        }
-
-        private void DrawConnectionLabelsBackground([NotNull] PolyGeometry bodyGeometry, [NotNull] IBrush bodyFillGradientBrush)
-        {
-            var linkAreaGeom = PolyGeometry.Rectangle(LinkLabelArea);
-            linkAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
-
-            // Fill for link label area
-            Renderer.SetFillBrush(bodyFillGradientBrush);
-            Renderer.FillGeometry(linkAreaGeom);
-        }
-
-        private void DrawLinkViews(IReadOnlyList<IRenderingDecorator> decorators)
-        {
-            // Draw outputs
-            foreach (var link in OutLinks)
-            {
-                DrawNodeLinkView(link, decorators);
-            }
-
-            // Draw separation between input and output links
-            if (InLinks.Count > 0 && OutLinks.Count > 0)
-            {
-                float yLine = (float)Math.Round(OutLinks.Select(o => o.FrameOnParent.Bottom + 6).Max());
-
-                Renderer.SetStrokeColor(Color.Gray.WithTransparency(0.5f));
-                Renderer.StrokeLine(new Vector(LinkLabelArea.Left + 6, yLine), new Vector(LinkLabelArea.Right - 6, yLine));
-            }
-
-            // Draw inputs
-            foreach (var link in InLinks)
-            {
-                DrawNodeLinkView(link, decorators);
-            }
-        }
-
-        private void DrawBodyOutline(PipelineStepViewState stepViewState, AABB rect, float radiusX, float radiusY)
-        {
-            Renderer.SetStrokeColor(stepViewState.StrokeColor);
-            Renderer.StrokeRoundedArea(rect, radiusX, radiusY, stepViewState.StrokeWidth);
-        }
-
-        private void DrawTitleBackground([NotNull] PolyGeometry bodyGeometry, PipelineStepViewState stepViewState)
-        {
-            var titleRect = AABB.FromRectangle(0, 0, TitleArea.Width, TitleArea.Height);
-
-            var titleAreaGeom = PolyGeometry.Rectangle(titleRect);
-            titleAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
-
-            // Fill title BG
-            Renderer.SetFillColor(stepViewState.TitleFillColor);
-            Renderer.FillGeometry(titleAreaGeom);
-        }
-
-        private void DrawConnectionsBackground([NotNull] PolyGeometry bodyGeometry)
-        {
-            var stops = new[]
-            {
-                new PixGradientStop(Color.Black.WithTransparency(0.5f).Faded(Color.White, 0.2f), 0),
-                new PixGradientStop(Color.Black.WithTransparency(0.5f), 0.3f)
-            };
-
-            var brush = Renderer.CreateLinearGradientBrush(stops, Vector.Zero, new Vector(0, Bounds.Height));
-
-            var linkAreaGeom = new PolyGeometry(bodyGeometry);
-            linkAreaGeom.Combine(LinkLabelArea, GeometryOperation.Exclude);
-
-            Renderer.SetFillBrush(brush);
-            Renderer.FillGeometry(linkAreaGeom);
-        }
-
-        private void DrawBodyText(PipelineStepViewState stepViewState, PolyGeometry bodyGeometry, IBrush bodyFillBrush, TextFormatAttributes textFormatAttributes)
-        {
-            string bodyText = _nodeView.BodyText;
-            if (string.IsNullOrEmpty(bodyText))
-                return;
-
-            float yLine = 0;
-
-            // Draw separation between links and body text
-            bool hasLinks = InLinks.Count > 0 || OutLinks.Count > 0;
-            if (hasLinks)
-            {
-                yLine = (float)Math.Round(OutLinks.Concat(InLinks).Select(o => o.FrameOnParent.Bottom + 6).Max());
-
-                Renderer.SetStrokeColor(stepViewState.StrokeColor.WithTransparency(0.7f));
-                Renderer.StrokeLine(new Vector(0, yLine), new Vector(_nodeView.Width, yLine));
-            }
-
-            // Draw fill color
-            var areaOnView = new AABB(0, hasLinks ? yLine : TitleArea.Bottom, _nodeView.Height, _nodeView.Width);
-
-            var textAreaGeom = PolyGeometry.Rectangle(areaOnView);
-            textAreaGeom.Combine(bodyGeometry, GeometryOperation.Intersect);
-
-            Renderer.SetFillBrush(bodyFillBrush);
-            Renderer.FillGeometry(textAreaGeom);
-
-            var attributes = new TextLayoutAttributes(textFormatAttributes)
-            {
-                AvailableWidth = BodyTextArea.Width,
-                AvailableHeight = BodyTextArea.Height
-            };
-
-            ITextLayout layout = null;
-            _parameters.TextLayoutRenderer.WithPreparedTextLayout(stepViewState.BodyFontColor, (AttributedText)bodyText, ref layout, attributes,
-                (textLayout, renderer) =>
-                {
-                    renderer.Draw(textLayout, BodyTextArea.Minimum.X, BodyTextArea.Minimum.Y);
-                });
-        }
-
-        private void DrawTitleText(TextFormatAttributes textFormatAttributes, PipelineStepViewState stepViewState)
-        {
-            var attributes = new TextLayoutAttributes(textFormatAttributes)
-            {
-                AvailableWidth = _nodeView.TitleTextArea.Width,
-                AvailableHeight = _nodeView.TitleTextArea.Height
-            };
-
-            ITextLayout layout = null;
-            _parameters.TextLayoutRenderer.WithPreparedTextLayout(stepViewState.TitleFontColor, (AttributedText) _nodeView.Name, ref layout, attributes,
-                (textLayout, renderer) =>
-                {
-                    renderer.Draw(textLayout, _nodeView.TitleTextArea.Minimum.X, _nodeView.TitleTextArea.Minimum.Y);
-                });
-        }
-
-        private void DrawIcon(AABB titleArea)
-        {
-            if (_nodeView.Icon == null)
-                return;
-
-            var icon = _nodeView.Icon.Value;
-
-            float imgY = titleArea.Height / 2 - (float)icon.Height / 2;
-            var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
-
-            var mode = ImageInterpolationMode.Linear;
-
-            // Draw with pixel quality when zoomed in so icon doesn't render all blurry
-            if (_useNearestNeighborOnIcon)
-            {
-                mode = ImageInterpolationMode.NearestNeighbor;
-            }
-
-            Renderer.DrawBitmap(icon, (RectangleF)imgBounds, 1, mode);
-        }
-
-        private void DrawNodeLinkView([NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
-        {
-            var clippingRegion = _parameters.ClippingRegion;
-
-            Renderer.PushTransform();
-
-            var visibleArea = link.Bounds.TransformedBounds(link.GetAbsoluteTransform());
-
-            if (clippingRegion.IsVisibleInClippingRegion(visibleArea))
-            {
-                var linkState = new PipelineStepViewLinkState
-                {
-                    FillColor = Color.White,
-                    StrokeColor = link.StrokeColor,
-                    StrokeWidth = link.StrokeWidth
-                };
-
-                // Decorate
-                foreach (var decorator in decorators)
-                {
-                    if (link.NodeLink is IPipelineInput)
-                        decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
-                    else
-                        decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);
-                }
-
-                Renderer.Transform = link.GetAbsoluteTransform();
-
-                var rectangle = link.Bounds;
-
-                Renderer.SetStrokeColor(linkState.StrokeColor);
-                Renderer.SetFillColor(linkState.FillColor);
-
-                Renderer.FillEllipse(rectangle);
-                Renderer.StrokeEllipse(rectangle);
-            }
-
-            // Draw label view
-            DrawLabelView(_parameters, link.LinkLabel, decorators);
-
-            Renderer.PopTransform();
-        }
-
-        public static void DrawLabelView([NotNull] IRenderListenerParameters parameters, [NotNull] LabelView labelView, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)
-        {
-            var renderer = parameters.Renderer;
-
-            var clippingRegion = parameters.ClippingRegion;
-
-            renderer.PushingTransform(() =>
-            {
-                renderer.Transform = labelView.GetAbsoluteTransform();
-
-                var visibleArea =
-                    labelView
-                        .GetFullBounds().Corners
-                        .Transform(labelView.GetAbsoluteTransform()).Area();
-
-                if (!clippingRegion.IsVisibleInClippingRegion(visibleArea))
-                    return;
-
-                var state = new LabelViewState
-                {
-                    StrokeColor = labelView.StrokeColor,
-                    StrokeWidth = labelView.StrokeWidth,
-                    TextColor = labelView.TextColor,
-                    BackgroundColor = labelView.BackgroundColor
-                };
-
-                // Decorate
-                foreach (var decorator in decorators)
-                    decorator.DecorateLabelView(labelView, ref state);
-
-                renderer.SetFillColor(state.BackgroundColor);
-                renderer.FillRoundedArea(labelView.Bounds, 5, 5);
-
-                if (state.StrokeWidth > 0)
-                {
-                    renderer.SetStrokeColor(state.StrokeColor);
-                    renderer.StrokeRoundedArea(labelView.Bounds, 5, 5);
-                }
-
-                var textBounds = labelView.TextBounds;
-
-                var format = new TextFormatAttributes(labelView.TextFont.Name, labelView.TextFont.Size)
-                {
-                    HorizontalTextAlignment = HorizontalTextAlignment.Leading,
-                    VerticalTextAlignment = VerticalTextAlignment.Center
-                };
-                var attributes = new TextLayoutAttributes(format)
-                {
-                    AvailableWidth = textBounds.Width,
-                    AvailableHeight = textBounds.Height
-                };
-
-                ITextLayout existing = null;
-                parameters.TextLayoutRenderer.WithPreparedTextLayout(state.TextColor, labelView.AttributedText, ref existing, attributes,
-                    (layout, textRenderer) =>
-                    {
-                        textRenderer.Draw(layout, textBounds.Minimum.X, textBounds.Minimum.Y);
-                    });
-            });
         }
     }
 }

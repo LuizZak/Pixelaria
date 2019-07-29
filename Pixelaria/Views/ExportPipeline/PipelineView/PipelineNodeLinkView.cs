@@ -82,6 +82,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             AddChild(LinkLabel);
         }
 
+        public override string DebugHierarchyBodyDescription(string tabs)
+        {
+            return $"{tabs}Label = \"{LinkLabel.Text}\"";
+        }
+
         /// <summary>
         /// Updates the display for this link view based on the latest node link data.
         /// </summary>

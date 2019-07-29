@@ -263,6 +263,7 @@
     <Compile Include="Views\ExportPipeline\ExportPipelineUiFeature.cs" />
     <Compile Include="Views\ExportPipeline\GdiRendererStack.cs" />
     <Compile Include="Views\ExportPipeline\IExportPipelineControl.cs" />
+    <Compile Include="Views\ExportPipeline\InternalNodeViewRenderer.cs" />
     <Compile Include="Views\ExportPipeline\InternalRenderListener.cs" />
     <Compile Include="Views\ExportPipeline\IPipelineNodeBitmapGenerator.cs" />
     <Compile Include="Views\ExportPipeline\IRendererStack.cs" />

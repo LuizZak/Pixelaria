@@ -30,9 +30,18 @@ namespace PixUI.Visitor
     /// </summary>
     public class BaseViewVisitor<T> : IBaseViewVisitor<T>
     {
-        private readonly Action<T, BaseView> _onVisit;
+        private readonly Func<T, BaseView, VisitViewResult> _onVisit;
 
         public BaseViewVisitor(Action<T, BaseView> onVisit)
+        {
+            _onVisit = (arg1, view) =>
+            {
+                onVisit(arg1, view);
+                return VisitViewResult.VisitChildren;
+            };
+        }
+
+        public BaseViewVisitor(Func<T, BaseView, VisitViewResult> onVisit)
         {
             _onVisit = onVisit;
         }
@@ -42,9 +51,9 @@ namespace PixUI.Visitor
 
         }
 
-        public void VisitView(T state, BaseView view)
+        public VisitViewResult VisitView(T state, BaseView view)
         {
-            _onVisit(state, view);
+            return _onVisit(state, view);
         }
 
         public bool ShouldVisitView(T state, BaseView view)

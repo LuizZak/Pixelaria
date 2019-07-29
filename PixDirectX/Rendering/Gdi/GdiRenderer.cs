@@ -277,6 +277,13 @@ namespace PixDirectX.Rendering.Gdi
             _graphics.Transform = _transformStack.Pop();
         }
 
+        public void PushingTransform(Matrix2D matrix, Action execute)
+        {
+            PushTransform(matrix);
+            execute();
+            PopTransform();
+        }
+
         public void PushingTransform(Action execute)
         {
             PushTransform();

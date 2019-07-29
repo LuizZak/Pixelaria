@@ -21,10 +21,8 @@
 */
 
 using JetBrains.Annotations;
-using PixDirectX.Utils;
 using PixUI.Controls;
 using PixUI.Visitor;
-using SharpDX.Direct2D1;
 
 namespace PixUI.Rendering
 {
@@ -44,12 +42,14 @@ namespace PixUI.Rendering
             }
         }
 
-        public void VisitView([NotNull] ControlRenderingContext context, BaseView view)
+        public VisitViewResult VisitView([NotNull] ControlRenderingContext context, BaseView view)
         {
             if (view is SelfRenderingBaseView selfRendering && selfRendering.IsVisibleOnScreen())
             {
                 selfRendering.Render(context);
             }
+
+            return VisitViewResult.VisitChildren;
         }
 
         public bool ShouldVisitView(ControlRenderingContext state, BaseView view)
