@@ -107,7 +107,13 @@
     <Compile Include="Animation\IAnimation.cs" />
     <Compile Include="Controls\PropertyGrid\PropertyGridControl.cs" />
     <Compile Include="Controls\RedrawRegion.cs" />
+    <Compile Include="Controls\SearchBarControl.cs" />
     <Compile Include="IRegionInvalidateable.cs" />
+    <Compile Include="Properties\Resource1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
     <Compile Include="Rendering\DefaultLabelViewSizeProvider.cs" />
     <Compile Include="Rendering\ViewRenderingVisitor.cs" />
     <Compile Include="BaseView.cs" />
@@ -152,6 +158,12 @@
       <Project>{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}</Project>
       <Name>PixDirectX</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
