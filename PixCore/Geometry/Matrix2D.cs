@@ -171,37 +171,37 @@ namespace PixCore.Geometry
         }
 
         /// <summary>
-        /// Gets or sets the first row in the matrix; that is M11 and M12.
+        /// Gets the first row in the matrix; that is M11 and M12.
         /// </summary>
         public Vector Row1 => new Vector(M11, M12);
 
         /// <summary>
-        /// Gets or sets the second row in the matrix; that is M21 and M22.
+        /// Gets the second row in the matrix; that is M21 and M22.
         /// </summary>
         public Vector Row2 => new Vector(M21, M22);
 
         /// <summary>
-        /// Gets or sets the third row in the matrix; that is M31 and M32.
+        /// Gets the third row in the matrix; that is M31 and M32.
         /// </summary>
         public Vector Row3 => new Vector(M31, M32);
 
         /// <summary>
-        /// Gets or sets the first column in the matrix; that is M11, M21, and M31.
+        /// Gets the first column in the matrix; that is M11, M21, and M31.
         /// </summary>
         public float[] Column1 => new[] {M11, M21, M31};
 
         /// <summary>
-        /// Gets or sets the second column in the matrix; that is M12, M22, and M32.
+        /// Gets the second column in the matrix; that is M12, M22, and M32.
         /// </summary>
         public float[] Column2 => new[] {M12, M22, M32};
 
         /// <summary>
-        /// Gets or sets the translation of the matrix; that is M31 and M32.
+        /// Gets the translation of the matrix; that is M31 and M32.
         /// </summary>
         public Vector TranslationVector => new Vector(M31, M32);
 
         /// <summary>
-        /// Gets or sets the scale of the matrix; that is M11 and M22.
+        /// Gets the scale of the matrix; that is M11 and M22.
         /// </summary>
         public Vector ScaleVector => new Vector(M11, M22);
 

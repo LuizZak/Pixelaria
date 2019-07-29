@@ -24,8 +24,11 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using PixCore.Geometry;
 using PixDirectX.Rendering;
+using PixDirectX.Utils;
 using Pixelaria.DXSupport;
+using SharpDX.Direct2D1;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -37,6 +40,8 @@ namespace Pixelaria.Views.ExportPipeline
         private Direct2DRenderLoopManager _direct2DLoopManager;
         private readonly Direct2DRenderManager _renderManager;
         public IRenderLoopState RenderingState => _direct2DLoopManager.RenderingState;
+
+        public bool RenderRedrawRegions { get; set; }
 
         public Direct2DRendererStack()
         {
@@ -75,6 +80,19 @@ namespace Pixelaria.Views.ExportPipeline
 
                 var size = new Size(_direct2DLoopManager.D2DRenderState.D2DRenderTarget.PixelSize.Width, _direct2DLoopManager.D2DRenderState.D2DRenderTarget.PixelSize.Height);
                 var rects = clippingRegion.RedrawRegionRectangles(size);
+
+                if (RenderRedrawRegions)
+                {
+                    foreach (var rect in rects)
+                    {
+                        var renderState = (IDirect2DRenderingState) state;
+
+                        using (var brush = new SolidColorBrush(renderState.D2DRenderTarget, Color.Red.ToColor4()))
+                        {
+                            renderState.D2DRenderTarget.DrawRectangle(((AABB) rect).ToRawRectangleF(), brush);
+                        }
+                    }
+                }
 
                 var redrawRects =
                     rects.Select(rect =>

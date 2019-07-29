@@ -59,6 +59,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private readonly IRenderManager _pipelineRenderManager;
         [NotNull] 
         private readonly IInvalidatableControl _invalidateTarget;
+
+        private readonly IPipelineContainer _pipelineContainer;
         private readonly IImageResourceProvider _imageResourceProvider;
         private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
 
@@ -70,21 +72,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private ScrollViewControl _scrollViewControl;
 
         public delegate void PipelineNodeSelectedEventHandler(object sender, PipelineNodeSelectedEventArgs e);
+        public delegate void DeletePipelineNodeEventHandler(object sender, DeletePipelineNodeEventArgs e);
 
         public event PipelineNodeSelectedEventHandler PipelineNodeSelected;
+        public event DeletePipelineNodeEventHandler DeletePipelineNode;
 
         public ExportPipelineNodesPanelManager([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager)
-            : this(control.ControlContainer, renderManager,
-                control,
-                new PipelineNodeBitmapGenerator(control))
+            : this(control.ControlContainer, renderManager, control, control.PipelineContainer, new PipelineNodeBitmapGenerator(control))
         {
             
         }
 
-        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IRenderManager pipelineRenderManager, [NotNull] IInvalidatableControl invalidateTarget, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
+        public ExportPipelineNodesPanelManager([NotNull] IControlContainer container, [NotNull] IRenderManager pipelineRenderManager, [NotNull] IInvalidatableControl invalidateTarget, IPipelineContainer pipelineContainer, [NotNull] IPipelineNodeBitmapGenerator bitmapGenerator)
         {
             _pipelineRenderManager = pipelineRenderManager;
             _invalidateTarget = invalidateTarget;
+            _pipelineContainer = pipelineContainer;
             _imageResourceProvider = _pipelineRenderManager.ImageResources;
             _bitmapGenerator = bitmapGenerator;
 
@@ -153,8 +156,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                     var visible = s == "" ? buttonPairs : buttonPairs.Where(b => b.Item1.Text.ToLower().Contains(s.ToLower())).ToArray();
 
-                    var highlightAttribute = 
-                    new BackgroundColorAttribute(Color.CornflowerBlue.WithTransparency(0.6f), new Vector(2, 2));
+                    var highlightAttribute = new BackgroundColorAttribute(Color.CornflowerBlue.WithTransparency(0.6f), new Vector(2, 2));
 
                     foreach (var (button, spec) in visible)
                     {
@@ -206,12 +208,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 _buttonHandlers.Add(handler);
                 _disposeBag.Add(handler);
 
-                handler.MouseUp = mousePosition =>
+                handler.MouseUp = (mousePosition, action) =>
                 {
                     if (_container.Contains(mousePosition))
                         return;
 
-                    PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), mousePosition));
+                    switch (action)
+                    {
+                        case PipelineNodeDragAndDropAction.Create:
+                            PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), mousePosition));
+                            break;
+
+                        case PipelineNodeDragAndDropAction.Delete:
+                            
+                            break;
+                    }
                 };
             }
 
@@ -368,6 +379,23 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 ScreenPosition = screenPosition;
             }
         }
+
+        /// <summary>
+        /// Arguments for event fired when user drags an existing pipeline node to the pipeline node panels (delete action).
+        /// 
+        /// Receives the pipeline node for the event.
+        /// </summary>
+        public class DeletePipelineNodeEventArgs : EventArgs
+        {
+            public IPipelineNode Node { get; }
+            public Vector? ScreenPosition { get; }
+
+            public DeletePipelineNodeEventArgs(IPipelineNode node, Vector? screenPosition)
+            {
+                Node = node;
+                ScreenPosition = screenPosition;
+            }
+        }
     }
 
     /// <summary>
@@ -392,6 +420,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 }
 
                 return PipelineNodeDragAndDropAction.Create;
+            }
+
+            public Matrix2D TransformMatrixForDropPoint(PipelineNodeButtonDragAndDropHandler handler, Vector screenPoint)
+            {
+                return _nodesPanelManager._pipelineContainer.ContentsView.LocalTransform;
             }
         }
     }

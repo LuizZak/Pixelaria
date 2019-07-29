@@ -235,8 +235,7 @@ namespace PixDirectX.Rendering
                     _renderingState.D2DRenderTarget.BeginDraw();
 
                     var results = loop(RenderingState);
-                    var rects = results.RedrawRegions
-                        .Select(r => (RawRectangle) new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
+                    var rects = results.RedrawRegions.Select(r => (RawRectangle) new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
 
                     quitLoop = results.QuitRenderLoop;
 

@@ -722,7 +722,7 @@ namespace PixUI
         /// </summary>
         public virtual AABB BoundsForInvalidate()
         {
-            return Bounds.Inflated(StrokeWidth, StrokeWidth);
+            return Bounds.Inflated(StrokeWidth + 5, StrokeWidth + 5);
         }
 
         /// <summary>
@@ -730,7 +730,7 @@ namespace PixUI
         /// </summary>
         public virtual AABB BoundsForInvalidateFullBounds()
         {
-            return GetFullBounds().Inflated(StrokeWidth, StrokeWidth);
+            return GetFullBounds().Inflated(StrokeWidth + 5, StrokeWidth + 5);
         }
 
         /// <summary>

@@ -51,6 +51,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private interface IPipelineNodeButtonDragAndDropHandlerDelegate
         {
             PipelineNodeDragAndDropAction ActionForDropPoint(PipelineNodeButtonDragAndDropHandler handler, Vector screenPoint);
+            Matrix2D TransformMatrixForDropPoint(PipelineNodeButtonDragAndDropHandler handler, Vector screenPoint);
         }
 
         private sealed class PipelineNodeButtonDragAndDropHandler: IDisposable
@@ -69,7 +70,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             [NotNull] 
             private readonly IPipelineNodeButtonDragAndDropHandlerDelegate _delegate;
 
-            public Action<Vector> MouseUp { private get; set; }
+            public Action<Vector, PipelineNodeDragAndDropAction> MouseUp { private get; set; }
 
             public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
                 [NotNull] PipelineNodeSpec nodeSpec,
@@ -103,8 +104,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     return _delegate.ActionForDropPoint(this, screenPoint);
                 }
 
-                var renderListener =
-                    new PipelineNodeDragRenderListener(_nodeSpec, _pipelineRenderManager.ImageResources);
+                var renderListener = new PipelineNodeDragRenderListener(_nodeSpec, _pipelineRenderManager.ImageResources, Matrix2D.Identity);
 
                 _disposeBag.Add(renderListener);
 
@@ -141,12 +141,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                             InvalidateScreen(renderListener);
 
-                            switch (ActionForDropPoint(screenPoint))
-                            {
-                                case PipelineNodeDragAndDropAction.Create:
-                                    MouseUp(screenPoint - renderListener.NodeScreenArea.Size / 2);
-                                    break;
-                            }
+                            MouseUp(screenPoint - renderListener.NodeScreenArea.Size / 2, ActionForDropPoint(screenPoint));
 
                             _pipelineRenderManager.RemoveRenderListener(renderListener);
                         }
@@ -172,6 +167,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                             var screenPoint = button.ConvertTo(e.Location, null);
 
                             renderListener.MousePosition = screenPoint;
+                            renderListener.TransformMatrix = _delegate.TransformMatrixForDropPoint(this, screenPoint);
 
                             switch (ActionForDropPoint(screenPoint))
                             {
@@ -206,21 +202,30 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 public int RenderOrder { get; } = RenderOrdering.UserInterface + 10;
 
                 public bool Visible { get; set; }
-                
+
                 public Vector MousePosition
                 {
                     set => _nodeView.Location = Vector.Round(value - _nodeView.Size / 2);
                 }
 
+                public Matrix2D TransformMatrix { get; set; }
+
                 /// <summary>
                 /// The area the node occupies in screen-space
                 /// </summary>
-                public AABB NodeScreenArea => _nodeView.Bounds.TransformedBounds(_nodeView.GetAbsoluteTransform());
+                public AABB NodeScreenArea
+                {
+                    get
+                    {
+                        return PushingAbsoluteTransform(() => _nodeView.BoundsForInvalidateFullBounds().TransformedBounds(_nodeView.GetAbsoluteTransform()));
+                    }
+                }
 
                 private readonly PipelineNodeView _nodeView;
 
-                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] IImageResourceProvider imageProvider)
+                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] IImageResourceProvider imageProvider, Matrix2D transformMatrix)
                 {
+                    TransformMatrix = transformMatrix;
                     var node = nodeSpec.CreateNode();
                     _nodeView = PipelineNodeView.Create(node);
                     _nodeView.Icon = IconForPipelineNode(node, imageProvider);
@@ -246,10 +251,26 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                     parameters.Renderer.PushingTransform(() =>
                     {
-                        var renderer = new InternalNodeViewRenderer(_nodeView, parameters, true);
-
-                        renderer.RenderView(new IRenderingDecorator[0]);
+                        PushingAbsoluteTransform(() =>
+                        {
+                            var renderer = new InternalNodeViewRenderer(_nodeView, parameters, true);
+                            renderer.RenderView(new IRenderingDecorator[0]);
+                        });
                     });
+                }
+
+                private void PushingAbsoluteTransform([NotNull, InstantHandle] Action action)
+                {
+                    action();
+                }
+
+                private T PushingAbsoluteTransform<T>([NotNull, InstantHandle] Func<T> action)
+                {
+                    var result = default(T);
+
+                    PushingAbsoluteTransform(() => { result = action(); });
+
+                    return result;
                 }
             }
         }

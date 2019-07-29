@@ -187,7 +187,7 @@ namespace PixUI.Controls
                 if (Bounds.IsEmpty || Bounds.Validity == AABB.State.Invalid)
                     region.Clear();
                 else
-                    region.ApplyClip(Bounds, this);
+                    region.ApplyClip(BoundsForInvalidate(), this);
             }
 
             base.Invalidate(region, reference);
