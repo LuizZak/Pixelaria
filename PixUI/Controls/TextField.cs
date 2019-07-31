@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -386,6 +386,7 @@ namespace PixUI.Controls
             base.OnMouseUp(e);
 
             _mouseDown = false;
+            _selectingWordSpan = false;
         }
 
         public override void OnMouseLeave()
