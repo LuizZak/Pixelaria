@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,28 +20,27 @@
     base directory of this project.
 */
 
-using System;
-using System.Drawing;
+using JetBrains.Annotations;
+using PixDirectX.Rendering;
+using PixUI.Properties;
 
-namespace PixDirectX.Rendering
+namespace PixUI
 {
-    /// <summary>
-    /// Represents a manager bitmap image created by a renderer.
-    /// </summary>
-    public interface IManagedImageResource : IDisposable
+    public class DefaultResources
     {
         /// <summary>
-        /// Gets the width of this image, in pixels
+        /// Loads the default image resources into a given resource manager.
         /// </summary>
-        int Width { get; }
-        /// <summary>
-        /// Gets the height of this image, in pixels
-        /// </summary>
-        int Height { get; }
+        public static void LoadDefaultResources([NotNull] IRenderLoopState state, [NotNull] IImageResourceManager imageResourceManager)
+        {
+            Images.CancelButton = imageResourceManager.CreateManagedImageResource(state, Resources.cancel_button);
+            Images.CancelButtonDark = imageResourceManager.CreateManagedImageResource(state, Resources.cancel_button_dark);
+        }
 
-        /// <summary>
-        /// Gets the size of this image.
-        /// </summary>
-        Size Size { get; }
+        public static class Images
+        {
+            public static IManagedImageResource CancelButton;
+            public static IManagedImageResource CancelButtonDark;
+        }
     }
 }

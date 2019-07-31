@@ -105,6 +105,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             _rendererStack = new Direct2DRendererStack();
             var renderManager = _rendererStack.Initialize(exportPipelineControl);
+
+            DefaultResources.LoadDefaultResources(_rendererStack.RenderingState ?? throw new InvalidOperationException("No initial rendering state available"), renderManager.ImageResources);
+
             exportPipelineControl.InitializeRenderer(renderManager);
             exportPipelineControl.InvalidateAll();
 

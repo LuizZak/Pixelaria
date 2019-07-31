@@ -108,11 +108,12 @@
     <Compile Include="Controls\PropertyGrid\PropertyGridControl.cs" />
     <Compile Include="Controls\RedrawRegion.cs" />
     <Compile Include="Controls\SearchBarControl.cs" />
+    <Compile Include="DefaultResources.cs" />
     <Compile Include="IRegionInvalidateable.cs" />
-    <Compile Include="Properties\Resource1.Designer.cs">
+    <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Resource1.resx</DependentUpon>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rendering\DefaultLabelViewSizeProvider.cs" />
     <Compile Include="Rendering\ViewRenderingVisitor.cs" />
@@ -160,10 +161,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resource1.resx">
+    <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cancel_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cancel_button_dark.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

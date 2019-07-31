@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using Bitmap = System.Drawing.Bitmap;
@@ -144,6 +145,7 @@ namespace PixDirectX.Rendering
 
         public int Width => bitmap.PixelSize.Width;
         public int Height => bitmap.PixelSize.Height;
+        public Size Size => new Size(Width, Height);
 
         public DirectXBitmap(SharpDX.Direct2D1.Bitmap bitmap)
         {

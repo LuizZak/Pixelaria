@@ -21,6 +21,8 @@
 */
 
 using System;
+using System.Drawing;
+using JetBrains.Annotations;
 using PixCore.Geometry;
 
 namespace PixUI.Controls
@@ -29,6 +31,16 @@ namespace PixUI.Controls
     {
         private TextField _textField;
         private ButtonControl _cancelButton;
+
+        /// <summary>
+        /// An optional placeholder text which is printed when the search bar text field's contents are empty.
+        /// </summary>
+        [CanBeNull]
+        public string PlaceholderText
+        {
+            get => _textField.PlaceholderText;
+            set => _textField.PlaceholderText = value;
+        }
         
         /// <summary>
         /// Creates a new instance of <see cref="SearchBarControl"/>
@@ -50,12 +62,41 @@ namespace PixUI.Controls
         {
             _textField = TextField.Create(darkStyle);
             _cancelButton = ButtonControl.Create();
+            _cancelButton.ManagedImage = darkStyle ? DefaultResources.Images.CancelButton : DefaultResources.Images.CancelButtonDark;
+            _cancelButton.Text = "";
+            _cancelButton.ColorMode = ButtonControl.ButtonColorMode.TintImage;
+            _cancelButton.NormalColor = Color.Gray;
+            _cancelButton.HighlightColor = Color.DarkGray;
+            _cancelButton.SelectedColor = Color.Gray;
+            _cancelButton.BackColor = Color.Transparent;
+
+            AddChild(_textField);
+            AddChild(_cancelButton);
+
+            OnResize();
+            SetupReactiveBindings();
         }
 
         protected override void OnResize()
         {
             _textField.Size = Size;
             _cancelButton.SetFrame(AABB.FromRectangle(Width - 25, Height / 2 - 10, 20, 20));
+        }
+
+        private void SetupReactiveBindings()
+        {
+            RxSearchTextUpdated
+                .Subscribe(s =>
+                {
+                    _cancelButton.Visible = !string.IsNullOrEmpty(s);
+                });
+
+            _cancelButton.Rx.MouseClick
+                .Subscribe(_ =>
+                {
+                    _textField.Text = "";
+                    _textField.ResignFirstResponder();
+                });
         }
     }
 

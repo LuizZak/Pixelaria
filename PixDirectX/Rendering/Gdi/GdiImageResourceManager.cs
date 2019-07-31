@@ -104,6 +104,8 @@ namespace PixDirectX.Rendering.Gdi
             public int Width => bitmap.Width;
             public int Height => bitmap.Height;
 
+            public Size Size => new Size(Width, Height);
+
             public ManagedBitmap(Bitmap bitmap)
             {
                 this.bitmap = bitmap;

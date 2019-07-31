@@ -23,6 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
@@ -43,14 +44,17 @@ namespace PixUI.Controls
         private ButtonState _state = ButtonState.Normal;
 
         private ImageResource? _image;
+        private IManagedImageResource _managedImage;
         private InsetBounds _textInset;
         private InsetBounds _imageInset;
 
+        private Color _bitmapTintColor = Color.White;
         private Color _normalColor = Color.FromKnownColor(KnownColor.Control);
         private Color _highlightColor = Color.LightGray;
         private Color _selectedColor = Color.Gray;
 
         private bool _mouseDown;
+        private ButtonColorMode _colorMode;
 
         /// <summary>
         /// Gets or sets the default state color for this Button when it's not being
@@ -104,6 +108,7 @@ namespace PixUI.Controls
             {
                 _state = value;
                 UpdateColors();
+                Invalidate();
             }
         }
 
@@ -207,6 +212,8 @@ namespace PixUI.Controls
         /// Gets or sets an image resource to draw besides the text label.
         /// 
         /// If an image is set, it is rendered to the left of the button's text.
+        ///
+        /// This property is only used if <see cref="ManagedImage"/> is null.
         /// </summary>
         public ImageResource? Image
         {
@@ -215,6 +222,38 @@ namespace PixUI.Controls
             {
                 _image = value;
                 Layout();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the managed image resource to draw besides the text label.
+        ///
+        /// If an image is set, it is rendered to the left of the button's text.
+        ///
+        /// If this property is not null, it takes precedence over <see cref="Image"/>.
+        /// </summary>
+        [CanBeNull]
+        public IManagedImageResource ManagedImage
+        {
+            get => _managedImage;
+            set
+            {
+                _managedImage = value;
+                Layout();
+            }
+        }
+
+        /// <summary>
+        /// The coloring mode to use on this button.
+        /// </summary>
+        public ButtonColorMode ColorMode
+        {
+            get => _colorMode;
+            set
+            {
+                _colorMode = value;
+                UpdateColors();
+                Invalidate();
             }
         }
 
@@ -261,13 +300,20 @@ namespace PixUI.Controls
         public override void RenderForeground(ControlRenderingContext context)
         {
             // Render image, if available
-            if (!Image.HasValue)
-                return;
+            if (ManagedImage != null)
+            {
+                var managedImage = ManagedImage;
+                var bitmapBounds = BoundsForImage(managedImage);
 
-            var image = Image.Value;
-            var bitmapBounds = BoundsForImage(image);
+                context.Renderer.DrawBitmap(managedImage, (RectangleF)bitmapBounds, 1, ImageInterpolationMode.Linear, _bitmapTintColor);
+            }
+            else if (Image.HasValue)
+            {
+                var image = Image.Value;
+                var bitmapBounds = BoundsForImage(image);
 
-            context.Renderer.DrawBitmap(image, (RectangleF)bitmapBounds, 1, ImageInterpolationMode.Linear);
+                context.Renderer.DrawBitmap(image, (RectangleF) bitmapBounds, 1, ImageInterpolationMode.Linear, _bitmapTintColor);
+            }
         }
 
         private AABB BoundsForText()
@@ -287,7 +333,17 @@ namespace PixUI.Controls
 
         private AABB BoundsForImage(ImageResource image)
         {
-            var bitmapBounds = AABB.FromRectangle(Vector.Zero, image.Size);
+            return BoundsForImageSize(image.Size);
+        }
+
+        private AABB BoundsForImage([NotNull] IManagedImageResource image)
+        {
+            return BoundsForImageSize(image.Size);
+        }
+
+        private AABB BoundsForImageSize(Size size)
+        {
+            var bitmapBounds = AABB.FromRectangle(Vector.Zero, size);
             var bounds = Bounds.Inset(ImageInset);
 
             bitmapBounds = bitmapBounds.OffsetBy(bounds.Minimum.X, 0);
@@ -347,17 +403,37 @@ namespace PixUI.Controls
 
         private void UpdateColors()
         {
-            switch (_state)
+            if (ColorMode == ButtonColorMode.Default)
             {
-                case ButtonState.Normal:
-                    BackColor = NormalColor;
-                    break;
-                case ButtonState.Selected:
-                    BackColor = SelectedColor;
-                    break;
-                case ButtonState.Highlight:
-                    BackColor = HighlightColor;
-                    break;
+                _bitmapTintColor = Color.White;
+
+                switch (_state)
+                {
+                    case ButtonState.Normal:
+                        BackColor = NormalColor;
+                        break;
+                    case ButtonState.Selected:
+                        BackColor = SelectedColor;
+                        break;
+                    case ButtonState.Highlight:
+                        BackColor = HighlightColor;
+                        break;
+                }
+            }
+            else if (ColorMode == ButtonColorMode.TintImage)
+            {
+                switch (_state)
+                {
+                    case ButtonState.Normal:
+                        _bitmapTintColor = NormalColor;
+                        break;
+                    case ButtonState.Selected:
+                        _bitmapTintColor = SelectedColor;
+                        break;
+                    case ButtonState.Highlight:
+                        _bitmapTintColor = HighlightColor;
+                        break;
+                }
             }
         }
 
@@ -377,6 +453,24 @@ namespace PixUI.Controls
             Normal,
             Highlight,
             Selected
+        }
+
+        /// <summary>
+        /// Describes the image color mode for this button
+        /// </summary>
+        public enum ButtonColorMode
+        {
+            /// <summary>
+            /// The state color colors the background of the button, and leaves
+            /// the image color as the default.
+            /// </summary>
+            Default,
+            /// <summary>
+            /// The state color is used as a tint color for the button's image.
+            ///
+            /// The background color of the button remains the same configured <see cref="ControlView.BackColor"/>.
+            /// </summary>
+            TintImage
         }
     }
 }
