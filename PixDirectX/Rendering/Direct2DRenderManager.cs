@@ -33,7 +33,6 @@ using PixCore.Text.Attributes;
 using PixDirectX.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct2D1.Effects;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
@@ -41,7 +40,6 @@ using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
-using BitmapRenderTarget = SharpDX.Direct2D1.BitmapRenderTarget;
 using Brush = SharpDX.Direct2D1.Brush;
 using Factory = SharpDX.DirectWrite.Factory;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
@@ -875,15 +873,14 @@ namespace PixDirectX.Rendering
             }
             else
             {
-                var context = _state.D2DRenderTarget.QueryInterface<DeviceContext>();
-
+                using (var context = _state.D2DRenderTarget.QueryInterface<DeviceContext>())
                 using (var effect = new Effect(context, Effect.Tint))
                 {
                     effect.SetInput(0, bitmap, true);
-                    effect.SetValue(0, (RawColor4)tintColor.Value.ToColor4());
+                    effect.SetValue(0, (RawColor4) tintColor.Value.ToColor4());
                     effect.SetValue(1, true);
 
-                    context.DrawImage(effect, ((AABB)region).Minimum.ToRawVector2(), ToInterpolation(interpolationMode));
+                    context.DrawImage(effect, ((AABB) region).Minimum.ToRawVector2(), ToInterpolation(interpolationMode));
                 }
             }
         }
