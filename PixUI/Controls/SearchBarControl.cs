@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -61,6 +61,7 @@ namespace PixUI.Controls
         protected virtual void Initialize(bool darkStyle)
         {
             _textField = TextField.Create(darkStyle);
+            _textField.ContentInset = new InsetBounds(8, 8, 8, 30);
             _cancelButton = ButtonControl.Create();
             _cancelButton.ManagedImage = darkStyle ? DefaultResources.Images.CancelButton : DefaultResources.Images.CancelButtonDark;
             _cancelButton.Text = "";
