@@ -1,70 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9050A32D-6D90-49A7-A6F0-88ED6DD127B4}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PixPipelineGraph</RootNamespace>
-    <AssemblyName>PixPipelineGraph</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="InternalPipelineInput.cs" />
-    <Compile Include="InternalPipelineOutput.cs" />
-    <Compile Include="IPipelineConnection.cs" />
-    <Compile Include="IPipelineGraph.cs" />
-    <Compile Include="IPipelineInput.cs" />
-    <Compile Include="IPipelineNodeLink.cs" />
-    <Compile Include="IPipelineOutput.cs" />
-    <Compile Include="PipelineBuildStepCollection.cs" />
-    <Compile Include="PipelineConnection.cs" />
-    <Compile Include="PipelineConnectionComparer.cs" />
-    <Compile Include="PipelineGraph.cs" />
-    <Compile Include="PipelineInput.cs" />
-    <Compile Include="PipelineInputBuilder.cs" />
-    <Compile Include="PipelineMetadata.cs" />
-    <Compile Include="PipelineNode.cs" />
-    <Compile Include="PipelineNodeBuilder.cs" />
-    <Compile Include="PipelineNodeId.cs" />
-    <Compile Include="PipelineOutput.cs" />
-    <Compile Include="PipelineOutputBuilder.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="PixPipelineGraph.licenseheader" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

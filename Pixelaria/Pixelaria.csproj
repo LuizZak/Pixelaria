@@ -922,10 +922,6 @@
       <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
       <Name>PixCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PixPipelineGraph\PixPipelineGraph.csproj">
-      <Project>{9050a32d-6d90-49a7-a6f0-88ed6dd127b4}</Project>
-      <Name>PixPipelineGraph</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PixUI\PixUI.csproj">
       <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
       <Name>PixUI</Name>
