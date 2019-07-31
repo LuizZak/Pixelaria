@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -94,7 +94,7 @@ namespace PixUI.Controls
             _cancelButton.Rx.MouseClick
                 .Subscribe(_ =>
                 {
-                    _textField.Text = "";
+                    _textField.SetTextWithUndo("");
                     _textField.ResignFirstResponder();
                 });
         }

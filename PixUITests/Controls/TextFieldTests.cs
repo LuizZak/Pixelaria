@@ -118,7 +118,37 @@ namespace PixUITests.Controls
 
             Assert.IsFalse(raisedEnterKey);
         }
-        
+
+        [TestMethod]
+        public void TestSetTextWithUndo()
+        {
+            var sut = TextField.Create();
+            sut.OnKeyPress(new KeyPressEventArgs('a'));
+            sut.OnKeyPress(new KeyPressEventArgs('b'));
+            sut.OnKeyPress(new KeyPressEventArgs('c'));
+
+            sut.SetTextWithUndo("");
+
+            sut.OnKeyDown(new KeyEventArgs(Keys.Z | Keys.Control));
+
+            Assert.AreEqual("abc", sut.Text);
+        }
+
+        [TestMethod]
+        public void TestClearUndo()
+        {
+            var sut = TextField.Create();
+            sut.OnKeyPress(new KeyPressEventArgs('a'));
+            sut.OnKeyPress(new KeyPressEventArgs('b'));
+            sut.OnKeyPress(new KeyPressEventArgs('c'));
+
+            sut.ClearUndo();
+
+            sut.OnKeyDown(new KeyEventArgs(Keys.Z | Keys.Control));
+
+            Assert.AreEqual("abc", sut.Text);
+        }
+
         #region Snapshot rendering tests
 
         [TestMethod]

@@ -83,6 +83,20 @@ namespace PixCoreTests.Undo
         }
 
         [TestMethod]
+        public void TestClearFinishesGroupUndoTasks()
+        {
+            var testUndo = new TestUndoTask();
+            var sut = new UndoSystem();
+            sut.StartGroupUndo("");
+            sut.RegisterUndo(testUndo);
+
+            sut.Clear();
+            sut.FinishGroupUndo();
+
+            Assert.AreEqual(0, sut.Count);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(UndoSystemRecursivelyModifiedException))]
         public void TestRegisterUndoWhileUndoingWorkThrowsException()
         {

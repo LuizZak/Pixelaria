@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -222,7 +222,7 @@ namespace PixUI.Controls
             _placeholderLabel.TextFont = new Font(FontFamily.GenericSansSerif, 11);
 
             _placeholderLabel.BackColor = Color.Transparent;
-            _placeholderLabel.ForeColor = Style.PlaceholerTextColor;
+            _placeholderLabel.ForeColor = Style.PlaceholderTextColor;
             _placeholderLabel.StrokeColor = Color.Transparent;
             _placeholderLabel.VerticalTextAlignment = VerticalTextAlignment.Center;
 
@@ -306,7 +306,7 @@ namespace PixUI.Controls
             BackColor = style.BackgroundColor;
             
             _label.ForeColor = Style.TextColor;
-            _placeholderLabel.ForeColor = Style.PlaceholerTextColor;
+            _placeholderLabel.ForeColor = Style.PlaceholderTextColor;
             
             Invalidate();
         }
@@ -461,8 +461,10 @@ namespace PixUI.Controls
                         break;
                     case Keys.Y:
                         if (Editable)
+                        {
                             Redo();
-                        e.Handled = true;
+                            e.Handled = true;
+                        }
                         break;
                     case Keys.A:
                         SelectAll();
@@ -766,6 +768,26 @@ namespace PixUI.Controls
             _textEngine.SelectAll();
         }
 
+        /// <summary>
+        /// Clears all undo/redo history for this textfield.
+        /// </summary>
+        public void ClearUndo()
+        {
+            _textEngine.ClearUndo();
+        }
+
+        /// <summary>
+        /// Updates the text buffer to a specified string while recording an undo for the action.
+        ///
+        /// To the text engine, this is essentially the same as selecting all text and replacing
+        /// with the given string.
+        /// </summary>
+        public void SetTextWithUndo([NotNull] string empty)
+        {
+            _textEngine.SelectAll();
+            _textEngine.InsertText(empty);
+        }
+
         #region Copy/cut/paste + undo/redo
 
         private void Copy()
@@ -927,17 +949,17 @@ namespace PixUI.Controls
     public struct TextFieldVisualStyleParameters
     {
         public Color TextColor { get; set; }
-        public Color PlaceholerTextColor { get; set; }
+        public Color PlaceholderTextColor { get; set; }
         public Color BackgroundColor { get; set; }
         public Color StrokeColor { get; set; }
         public float StrokeWidth { get; set; }
         public Color CaretColor { get; set; }
         public Color SelectionColor { get; set; }
 
-        public TextFieldVisualStyleParameters(Color textColor, Color placeholerTextColor, Color backgroundColor, Color strokeColor, float strokeWidth, Color caretColor, Color selectionColor)
+        public TextFieldVisualStyleParameters(Color textColor, Color placeholderTextColor, Color backgroundColor, Color strokeColor, float strokeWidth, Color caretColor, Color selectionColor)
         {
             TextColor = textColor;
-            PlaceholerTextColor = placeholerTextColor;
+            PlaceholderTextColor = placeholderTextColor;
             StrokeColor = strokeColor;
             StrokeWidth = strokeWidth;
             BackgroundColor = backgroundColor;

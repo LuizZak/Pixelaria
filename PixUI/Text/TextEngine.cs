@@ -501,6 +501,14 @@ namespace PixUI.Text
         }
 
         /// <summary>
+        /// Clears all undo/redo history for this textfield.
+        /// </summary>
+        public void ClearUndo()
+        {
+            _undoSystem.Clear();
+        }
+
+        /// <summary>
         /// Returns a text range that covers an entire word segment at a given text position.
         /// 
         /// If the text under the position contains a word, the range from the beginning to the

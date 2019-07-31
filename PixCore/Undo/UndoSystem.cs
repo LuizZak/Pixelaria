@@ -360,6 +360,11 @@ namespace PixCore.Undo
         /// </summary>
         public void Clear()
         {
+            if (InGroupUndo)
+            {
+                FinishGroupUndo(_currentGroupUndoTask.DiscardOnOperation);
+            }
+
             foreach (var task in _undoTasks)
             {
                 task.Clear();

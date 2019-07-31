@@ -1389,6 +1389,18 @@ namespace PixUITests.Text
             Assert.AreEqual("test", buffer.Text);
         }
 
+        [TestMethod]
+        public void TestClearUndo()
+        {
+            var buffer = new TextBuffer("");
+            var sut = new TextEngine(buffer);
+            sut.InsertText("Abc");
+
+            sut.ClearUndo();
+
+            Assert.AreEqual("Abc", buffer.Text);
+        }
+
         #region Text Insert Undo Task
 
         [TestMethod]
