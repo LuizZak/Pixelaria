@@ -33,12 +33,15 @@ using PixCore.Text.Attributes;
 using PixDirectX.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
+using SharpDX.Direct2D1.Effects;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
+using SharpDX.Mathematics.Interop;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using BitmapRenderTarget = SharpDX.Direct2D1.BitmapRenderTarget;
 using Brush = SharpDX.Direct2D1.Brush;
 using Factory = SharpDX.DirectWrite.Factory;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
@@ -839,32 +842,53 @@ namespace PixDirectX.Rendering
 
         #region Bitmap
 
-        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = _imageResource.BitmapForResource(image);
             Contract.Assert(bitmap != null, $"No bitmap found for image resource {image}. Make sure the bitmap is pre-loaded before using it.");
 
-            _state.D2DRenderTarget.DrawBitmap(bitmap, new AABB(region).ToRawRectangleF(), opacity, ToBitmapInterpolation(interpolationMode));
+            DrawBitmap(bitmap, region, opacity, interpolationMode, tintColor);
         }
 
-        public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
-            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
-        public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = CastBitmapOrFail(image);
 
-            _state.D2DRenderTarget.DrawBitmap(bitmap.bitmap, opacity, ToBitmapInterpolation(interpolationMode));
+            DrawBitmap(bitmap.bitmap, region, opacity, interpolationMode, tintColor);
         }
 
-        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
-            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
-        private static BitmapInterpolationMode ToBitmapInterpolation(ImageInterpolationMode imageInterpolationMode)
+        private void DrawBitmap(SharpDX.Direct2D1.Bitmap bitmap, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
+        {
+            if (tintColor == null)
+            {
+                _state.D2DRenderTarget.DrawBitmap(bitmap, ((AABB)region).ToRawRectangleF(), opacity, ToBitmapInterpolation(interpolationMode));
+            }
+            else
+            {
+                var context = _state.D2DRenderTarget.QueryInterface<DeviceContext>();
+
+                using (var effect = new Effect(context, Effect.Tint))
+                {
+                    effect.SetInput(0, bitmap, true);
+                    effect.SetValue(0, (RawColor4)tintColor.Value.ToColor4());
+                    effect.SetValue(1, true);
+
+                    context.DrawImage(effect, ((AABB)region).Minimum.ToRawVector2(), ToInterpolation(interpolationMode));
+                }
+            }
+        }
+
+        private static BitmapInterpolationMode ToBitmapInterpolation(ImageInterpolationMode imageInterpolationMode, Color? tintColor = null)
         {
             switch (imageInterpolationMode)
             {
@@ -874,6 +898,18 @@ namespace PixDirectX.Rendering
                     return BitmapInterpolationMode.NearestNeighbor;
                 default:
                     return BitmapInterpolationMode.Linear;
+            }
+        }
+        private static InterpolationMode ToInterpolation(ImageInterpolationMode imageInterpolationMode, Color? tintColor = null)
+        {
+            switch (imageInterpolationMode)
+            {
+                case ImageInterpolationMode.Linear:
+                    return InterpolationMode.Linear;
+                case ImageInterpolationMode.NearestNeighbor:
+                    return InterpolationMode.NearestNeighbor;
+                default:
+                    return InterpolationMode.Linear;
             }
         }
 

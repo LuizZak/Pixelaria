@@ -130,7 +130,8 @@ namespace PixDirectX.Rendering
         /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
         /// <param name="opacity">Opacity to use when rendering the image.</param>
         /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
-        void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode);
+        /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
+        void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null);
 
         /// <summary>
         /// Renders an image resource.
@@ -139,7 +140,8 @@ namespace PixDirectX.Rendering
         /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
         /// <param name="opacity">Opacity to use when rendering the image.</param>
         /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
-        void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode);
+        /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
+        void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null);
 
         /// <summary>
         /// Renders an image resource.
@@ -148,7 +150,8 @@ namespace PixDirectX.Rendering
         /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
         /// <param name="opacity">Opacity to use when rendering the image.</param>
         /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
-        void DrawBitmap([NotNull] IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode);
+        /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
+        void DrawBitmap([NotNull] IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null);
 
         /// <summary>
         /// Renders an image resource.
@@ -157,7 +160,8 @@ namespace PixDirectX.Rendering
         /// <param name="region">The region to render the image to. The image is stretched to fill this region's size exactly.</param>
         /// <param name="opacity">Opacity to use when rendering the image.</param>
         /// <param name="interpolationMode">The interpolation mode to use when rendering the image.</param>
-        void DrawBitmap([NotNull] IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode);
+        /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
+        void DrawBitmap([NotNull] IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null);
 
         #endregion
 

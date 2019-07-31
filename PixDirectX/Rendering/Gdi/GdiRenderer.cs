@@ -183,7 +183,7 @@ namespace PixDirectX.Rendering.Gdi
 
         #region Bitmap
 
-        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = _imageResourceManager.BitmapForResource(image) ??
                          throw new InvalidOperationException($"No image found for resource ${image.ResourceName}");
@@ -207,12 +207,12 @@ namespace PixDirectX.Rendering.Gdi
             }
         }
 
-        public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
-            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
-        public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = CastBitmapOrFail(image);
 
@@ -235,9 +235,9 @@ namespace PixDirectX.Rendering.Gdi
             }
         }
 
-        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode)
+        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
-            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode);
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
         #endregion
