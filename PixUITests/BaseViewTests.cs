@@ -51,8 +51,8 @@ namespace PixUITests
             var matrix = grandchild.GetAbsoluteTransform();
 
             var actual =
-                Matrix2D.Rotation((float)Math.PI) * Matrix2D.Translation(0, 0) * Matrix2D.Scaling(0.5f, 0.5f) *
-                Matrix2D.Rotation(0) * Matrix2D.Translation(1, 1) * Matrix2D.Scaling(0.5f, 0.5f);
+                Matrix2D.Rotation((float)Math.PI) * Matrix2D.Scaling(0.5f, 0.5f) * Matrix2D.Translation(0, 0) *
+                Matrix2D.Rotation(0) * Matrix2D.Scaling(0.5f, 0.5f) * Matrix2D.Translation(1, 1);
 
             Assert.AreEqual(matrix, actual);
         }
