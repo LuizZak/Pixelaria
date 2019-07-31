@@ -189,7 +189,7 @@ namespace PixUI.Controls
         /// Gets or sets a value specifying whether this control is highlighted.
         /// 
         /// The highlighted state indicates a possible actionable input is available for this control,
-        /// ]like pressint Enter on the keyboard or clicking with a mouse button.
+        /// like pressing Enter on the keyboard or clicking with a mouse button.
         /// </summary>
         public bool Highlighted
         {
