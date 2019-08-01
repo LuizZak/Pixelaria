@@ -165,7 +165,7 @@
       <Name>PixCore</Name>
     </ProjectReference>
     <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
-      <Project>{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}</Project>
+      <Project>{626b3274-714a-4d8e-95fe-1196cd365fa9}</Project>
       <Name>PixDirectX</Name>
     </ProjectReference>
     <ProjectReference Include="..\Pixelaria\Pixelaria.csproj">

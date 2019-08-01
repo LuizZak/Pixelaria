@@ -31,7 +31,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj" />
-    <ProjectReference Include="..\PixDirectX\PixDirectX.csproj" />
     <ProjectReference Include="..\PixUI\PixUI.csproj" />
   </ItemGroup>
 
