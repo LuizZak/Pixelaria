@@ -81,6 +81,10 @@
     <None Include="PixDirectXTests.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PixCore\PixCore.csproj">
+      <Project>{c3ca2308-5c22-4f33-b36b-223e0c0363fb}</Project>
+      <Name>PixCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
       <Project>{c014734d-c99a-41a7-b2e1-33dcc66de2c9}</Project>
       <Name>PixDirectX</Name>
