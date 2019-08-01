@@ -177,7 +177,7 @@
       <Name>PixSnapshot</Name>
     </ProjectReference>
     <ProjectReference Include="..\PixUI\PixUI.csproj">
-      <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
+      <Project>{e35540db-b5fb-4826-a510-c9ae8e90dd56}</Project>
       <Name>PixUI</Name>
     </ProjectReference>
   </ItemGroup>

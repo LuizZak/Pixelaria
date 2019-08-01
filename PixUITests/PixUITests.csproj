@@ -118,13 +118,13 @@
       <Project>{eb5d6dea-6ae2-4545-a708-6f0f2b1f5c50}</Project>
       <Name>PixSnapshot</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PixUI\PixUI.csproj">
-      <Project>{c6ee4192-31bd-4c39-846e-01ddfe5f2497}</Project>
-      <Name>PixUI</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">
       <Project>{C014734D-C99A-41A7-B2E1-33DCC66DE2C9}</Project>
       <Name>PixDirectX</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PixUI\PixUI.csproj">
+      <Project>{e35540db-b5fb-4826-a510-c9ae8e90dd56}</Project>
+      <Name>PixUI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

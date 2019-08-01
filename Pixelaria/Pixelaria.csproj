@@ -27,7 +27,6 @@
     <PackageReference Include="System.Reactive.Windows.Forms" Version="4.1.5" />
     <PackageReference Include="System.Reactive.Windows.Threading" Version="4.1.5" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>
