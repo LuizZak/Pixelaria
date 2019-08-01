@@ -152,7 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj">
-      <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
+      <Project>{c3ca2308-5c22-4f33-b36b-223e0c0363fb}</Project>
       <Name>PixCore</Name>
     </ProjectReference>
     <ProjectReference Include="..\PixDirectX\PixDirectX.csproj">

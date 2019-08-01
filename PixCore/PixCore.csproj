@@ -1,155 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DB49EDE1-059E-4368-B421-8CFD5954CFEC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PixCore</RootNamespace>
-    <AssemblyName>PixCore</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <LangVersion>default</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="clipper_library, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Clipper.6.4.0\lib\net40\clipper_library.dll</HintPath>
-    </Reference>
-    <Reference Include="FastBitmapLib, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FastBitmapLib.1.1.2\lib\net452\FastBitmapLib.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
+    <PackageReference Include="Clipper" Version="6.4.0" />
+    <PackageReference Include="FastBitmapLib" Version="1.1.2" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Colors\AhslColor.cs" />
-    <Compile Include="Colors\AhslColors.cs" />
-    <Compile Include="Colors\ColorUtils.cs" />
-    <Compile Include="Controls\ColorControls\ColorPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorPicker.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorPicker.Designer.cs">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorPickerDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorPickerDialog.Designer.cs">
-      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorSlider.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorSlider.Designer.cs">
-      <DependentUpon>ColorSlider.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorSwatchControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\ColorControls\ColorSwatchControl.Designer.cs">
-      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Geometry\AABB.cs" />
-    <Compile Include="Geometry\Algorithms\RectangleDissection.cs" />
-    <Compile Include="Geometry\Algorithms\TotalRectanglesArea.cs" />
-    <Compile Include="Geometry\DrawingUtilities.cs" />
-    <Compile Include="Geometry\IRegion.cs" />
-    <Compile Include="Geometry\ISpatialReference.cs" />
-    <Compile Include="Geometry\Matrix2D.cs" />
-    <Compile Include="Geometry\PolyGeometry.cs" />
-    <Compile Include="Geometry\QuadTree.cs" />
-    <Compile Include="Geometry\Vector.cs" />
-    <Compile Include="Imaging\ImageUtilities.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Text\AttributedText.cs" />
-    <Compile Include="Text\Attributes\BackgroundColorAttribute.cs" />
-    <Compile Include="Text\Attributes\ForegroundColorAttribute.cs" />
-    <Compile Include="Text\Attributes\TextFontAttribute.cs" />
-    <Compile Include="Text\ITextAttributeConsumer.cs" />
-    <Compile Include="Text\TextRange.cs" />
-    <Compile Include="Text\TextSegmentConsumer.cs" />
-    <Compile Include="Undo\GroupUndoTask.cs" />
-    <Compile Include="Undo\UndoSystem.cs" />
-    <Compile Include="Unsafe\UnsafeNativeMethods.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Controls\ColorControls\ColorPicker.resx">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ColorControls\ColorPickerDialog.resx">
-      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ColorControls\ColorSlider.resx">
-      <DependentUpon>ColorSlider.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ColorControls\ColorSwatchControl.resx">
-      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-    <None Include="PixCore.licenseheader" />
-    <None Include="Resources\checkers_pattern.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\color_picker.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj">
-      <Project>{eb5d6dea-6ae2-4545-a708-6f0f2b1f5c50}</Project>
-      <Name>PixSnapshot</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>
-  </PropertyGroup>
+
+
 </Project>

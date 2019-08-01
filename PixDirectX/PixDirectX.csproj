@@ -106,16 +106,15 @@
     <Compile Include="Rendering\TextColorRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PixCore\PixCore.csproj">
-      <Project>{db49ede1-059e-4368-b421-8cfd5954cfec}</Project>
-      <Name>PixCore</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
     <None Include="PixDirectX.licenseheader" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PixCore\PixCore.csproj">
+      <Project>{c3ca2308-5c22-4f33-b36b-223e0c0363fb}</Project>
+      <Name>PixCore</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>
