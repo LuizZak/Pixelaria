@@ -326,6 +326,48 @@ namespace PixDirectX.Rendering.Gdi
             return new InternalLinearBrush(gradientStops, start, end);
         }
 
+        public IBrush CreateBitmapBrush(ImageResource image)
+        {
+            var bitmap = _imageResourceManager.BitmapForResource(image) ??
+                         throw new InvalidOperationException($"No image found for resource ${image.ResourceName}");
+
+            return new InternalBitmapBrush(bitmap);
+        }
+
+        public IBrush CreateBitmapBrush(IManagedImageResource image)
+        {
+            var bitmap = CastBitmapOrFail(image);
+            return new InternalBitmapBrush(bitmap.bitmap);
+        }
+
+        #endregion
+
+        #region Effects
+
+        /// <summary>
+        /// Draws a given effect on the renderer.
+        /// </summary>
+        public void DrawEffect(IRendererEffect effect, Vector point, ImageInterpolationMode interpolationMode, Color? tintColor = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates a new tile effect to be rendered on this renderer.
+        /// </summary>
+        public ITileEffect CreateTileEffect(IManagedImageResource image, RectangleF region)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates a new tile effect to be rendered on this renderer.
+        /// </summary>
+        public ITileEffect CreateTileEffect(ImageResource image, RectangleF region)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         private static InternalPathGeometry CastPathOrFail([NotNull] IPathGeometry path)
@@ -458,6 +500,28 @@ namespace PixDirectX.Rendering.Gdi
                     colorBlend.Positions = colorBlend.Positions.Concat(new[] { 1.0f }).ToArray();
                     colorBlend.Colors = colorBlend.Colors.Concat(new[] { greatestColor }).ToArray();
                 }
+            }
+        }
+
+        private class InternalBitmapBrush : InternalBrush
+        {
+            public Bitmap Bitmap { get; }
+
+            public InternalBitmapBrush(Bitmap bitmap)
+            {
+                Bitmap = bitmap;
+            }
+
+            public override void LoadBrush()
+            {
+                if (IsLoaded)
+                    return;
+
+                base.LoadBrush();
+                
+                var brush = new TextureBrush(Bitmap);
+                brush.WrapMode = WrapMode.Tile;
+                Brush = brush;
             }
         }
 

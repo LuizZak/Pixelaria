@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using PixCore.Geometry;
 
 namespace Pixelaria.Views.Controls
 {
@@ -80,7 +81,7 @@ namespace Pixelaria.Views.Controls
 
             pe.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-            var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
+            var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image.Size, ImageLayout);
 
             pe.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
@@ -100,72 +101,9 @@ namespace Pixelaria.Views.Controls
         // 
         // C# assembly implementation
         // 
-        internal static Rectangle CalculateBackgroundImageRectangle(Rectangle bounds, Image backgroundImage, ImageLayout imageLayout)
+        internal static RectangleF CalculateBackgroundImageRectangle(Rectangle bounds, Size imageSize, ImageLayout imageLayout)
         {
-            Rectangle rectangle = bounds;
-            if (backgroundImage != null)
-            {
-                switch (imageLayout)
-                {
-                    case ImageLayout.None:
-                        rectangle.Size = backgroundImage.Size;
-                        return rectangle;
-
-                    case ImageLayout.Tile:
-                        return rectangle;
-
-                    case ImageLayout.Center:
-                        rectangle.Size = backgroundImage.Size;
-                        Size size = bounds.Size;
-                        if (size.Width > rectangle.Width)
-                        {
-                            rectangle.X = (size.Width - rectangle.Width) / 2;
-                        }
-                        if (size.Height > rectangle.Height)
-                        {
-                            rectangle.Y = (size.Height - rectangle.Height) / 2;
-                        }
-                        return rectangle;
-
-                    case ImageLayout.Stretch:
-                        rectangle.Size = bounds.Size;
-                        return rectangle;
-
-                    case ImageLayout.Zoom:
-                        Size size2 = backgroundImage.Size;
-                        float num = bounds.Width / ((float)size2.Width);
-                        float num2 = bounds.Height / ((float)size2.Height);
-
-                        if (size2.Width <= bounds.Width && size2.Height <= bounds.Height)
-                        {
-                            return new Rectangle(bounds.Width / 2 - size2.Width / 2, bounds.Height / 2 - size2.Height / 2, size2.Width, size2.Height);
-                        }
-
-                        if (num >= num2)
-                        {
-                            rectangle.Height = bounds.Height;
-                            rectangle.Width = (int)((size2.Width * num2) + 0.5);
-                            
-                            if (bounds.X >= 0)
-                            {
-                                rectangle.X = (bounds.Width - rectangle.Width) / 2;
-                            }
-                        }
-                        else
-                        {
-                            rectangle.Width = bounds.Width;
-                            rectangle.Height = (int)((size2.Height * num) + 0.5);
-
-                            if (bounds.Y >= 0)
-                            {
-                                rectangle.Y = (bounds.Height - rectangle.Height) / 2;
-                            }
-                        }
-
-                        return rectangle;
-                }
-            }
-            return rectangle;
+            return Rectangle.Round(DrawingUtilities.RectangleFit(bounds, imageSize, imageLayout));
         }
     }
 }

@@ -519,7 +519,7 @@ namespace Pixelaria.Views.Controls
             if (Image == null)
                 return;
 
-            var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
+            var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image.Size, ImageLayout);
 
             if (ImageLayout == ImageLayout.Center)
             {
@@ -559,7 +559,7 @@ namespace Pixelaria.Views.Controls
                 
                 pevent.Graphics.Clear(BackColor);
 
-                var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
+                var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image.Size, ImageLayout);
 
                 // Transform the rectangle by the transform matrix
                 var transform = pevent.Graphics.Transform;

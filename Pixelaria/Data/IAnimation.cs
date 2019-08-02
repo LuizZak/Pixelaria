@@ -35,7 +35,7 @@ namespace Pixelaria.Data
         string Name { get; }
         
         /// <summary>
-        /// The playbar settings for this Animation
+        /// The play bar settings for this Animation
         /// </summary>
         AnimationPlaybackSettings PlaybackSettings { get; }
 
@@ -45,7 +45,7 @@ namespace Pixelaria.Data
         AnimationSheetExportSettings SheetExportSettings { get; }
         
         /// <summary>
-        /// Returns the matching frame at a givne index
+        /// Returns the matching frame at a given index
         /// </summary>
         IFrame GetFrameAtIndex(int i);
     }

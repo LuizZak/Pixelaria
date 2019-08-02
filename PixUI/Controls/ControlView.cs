@@ -447,7 +447,7 @@ namespace PixUI.Controls
         /// Avoid making any changes to <see cref="BaseView.Size"/> on this method as to not trigger an infinite
         /// recursion.
         /// 
-        /// Note: Always call base.Layout() when overriding this method.
+        /// Note: Always call <c>base.Layout()</c> when overriding this method.
         /// </summary>
         public virtual void Layout()
         {

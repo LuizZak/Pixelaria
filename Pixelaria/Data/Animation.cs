@@ -61,12 +61,12 @@ namespace Pixelaria.Data
         public int ID { get; set; }
         
         /// <summary>
-        /// Gets the number of frames of this Animaion
+        /// Gets the number of frames of this <see cref="Animation"/>
         /// </summary>
         public int FrameCount => Frames.Count;
 
         /// <summary>
-        /// The playbar settings for this Animation
+        /// The play bar settings for this Animation
         /// </summary>
         public AnimationPlaybackSettings PlaybackSettings { get; set; }
 

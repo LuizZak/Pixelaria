@@ -22,6 +22,7 @@
 
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using JetBrains.Annotations;
 
 namespace PixCore.Geometry
@@ -89,6 +90,78 @@ namespace PixCore.Geometry
         public static PointF Center(in this RectangleF rectangle)
         {
             return new PointF((rectangle.Left + rectangle.Right) / 2, (rectangle.Top + rectangle.Bottom) / 2);
+        }
+
+        // 
+        // C# assembly implementation
+        // 
+        public static RectangleF RectangleFit(RectangleF availableBounds, SizeF rectangleSize, ImageLayout imageLayout)
+        {
+            var rectangle = availableBounds;
+            if (!rectangleSize.IsEmpty)
+            {
+                switch (imageLayout)
+                {
+                    case ImageLayout.None:
+                        rectangle.Size = rectangleSize;
+                        return rectangle;
+
+                    case ImageLayout.Tile:
+                        rectangle.Size = rectangleSize;
+                        return rectangle;
+
+                    case ImageLayout.Center:
+                        rectangle.Size = rectangleSize;
+                        var size = availableBounds.Size;
+                        if (size.Width > rectangle.Width)
+                        {
+                            rectangle.X = (size.Width - rectangle.Width) / 2;
+                        }
+                        if (size.Height > rectangle.Height)
+                        {
+                            rectangle.Y = (size.Height - rectangle.Height) / 2;
+                        }
+                        return rectangle;
+
+                    case ImageLayout.Stretch:
+                        rectangle.Size = availableBounds.Size;
+                        return rectangle;
+
+                    case ImageLayout.Zoom:
+                        var size2 = rectangleSize;
+                        float num = availableBounds.Width / size2.Width;
+                        float num2 = availableBounds.Height / size2.Height;
+
+                        if (size2.Width <= availableBounds.Width && size2.Height <= availableBounds.Height)
+                        {
+                            return new RectangleF(availableBounds.Width / 2 - size2.Width / 2, availableBounds.Height / 2 - size2.Height / 2, size2.Width, size2.Height);
+                        }
+
+                        if (num >= num2)
+                        {
+                            rectangle.Height = availableBounds.Height;
+                            rectangle.Width = (int)((size2.Width * num2) + 0.5);
+
+                            if (availableBounds.X >= 0)
+                            {
+                                rectangle.X = (availableBounds.Width - rectangle.Width) / 2;
+                            }
+                        }
+                        else
+                        {
+                            rectangle.Width = availableBounds.Width;
+                            rectangle.Height = (int)((size2.Height * num) + 0.5);
+
+                            if (availableBounds.Y >= 0)
+                            {
+                                rectangle.Y = (availableBounds.Height - rectangle.Height) / 2;
+                            }
+                        }
+
+                        return rectangle;
+                }
+            }
+            return rectangle;
         }
     }
 }

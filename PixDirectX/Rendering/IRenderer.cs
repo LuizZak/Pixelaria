@@ -235,6 +235,39 @@ namespace PixDirectX.Rendering
         /// </summary>
         ILinearGradientBrush CreateLinearGradientBrush([NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end);
 
+        /// <summary>
+        /// Creates a bitmap brush from a given image.
+        ///
+        /// Bitmap brushes by default tile the image contents when drawn within bounds that exceed that of the original image's size.
+        /// </summary>
+        IBrush CreateBitmapBrush(ImageResource image);
+
+        /// <summary>
+        /// Creates a bitmap brush from a given image.
+        ///
+        /// Bitmap brushes by default tile the image contents when drawn within bounds that exceed that of the original image's size.
+        /// </summary>
+        IBrush CreateBitmapBrush([NotNull] IManagedImageResource image);
+
+        #endregion
+
+        #region Effects
+
+        /// <summary>
+        /// Draws a given effect on the renderer.
+        /// </summary>
+        void DrawEffect([NotNull] IRendererEffect effect, Vector point, ImageInterpolationMode interpolationMode, Color? tintColor = null);
+
+        /// <summary>
+        /// Creates a new tile effect to be rendered on this renderer.
+        /// </summary>
+        ITileEffect CreateTileEffect([NotNull] IManagedImageResource image, RectangleF region);
+
+        /// <summary>
+        /// Creates a new tile effect to be rendered on this renderer.
+        /// </summary>
+        ITileEffect CreateTileEffect(ImageResource image, RectangleF region);
+
         #endregion
     }
 

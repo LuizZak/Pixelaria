@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using FastBitmapLib;
 using JetBrains.Annotations;
@@ -44,7 +45,7 @@ namespace PixUITests.TestUtils
     /// Helper static class to perform bitmap-based rendering comparisons of <see cref="T:PixUI.Controls.SelfRenderingBaseView" /> instances
     /// (mostly <see cref="T:PixUI.Controls.ControlView" /> subclasses) to assert visual and style consistency.
     /// </summary>
-    public class BaseViewSnapshot : ISnapshotProvider<BaseView>
+    public class BaseViewSnapshot : ISnapshotProvider<BaseViewSnapshotTest>
     {
         /// <summary>
         /// Whether tests are currently under record mode- under record mode, results are recorded on disk to be later
@@ -60,14 +61,13 @@ namespace PixUITests.TestUtils
         /// The default tolerance to use when comparing resulting images.
         /// </summary>
         public static float Tolerance = 0.01f;
-
-        [CanBeNull]
-        public static Action<IImageResourceManager, IRenderLoopState> ImagesConfig;
         
-        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "", float? tolerance = null, bool? recordMode = null)
+        public static void Snapshot([NotNull] BaseView view, [NotNull] TestContext context, string suffix = "", float? tolerance = null, bool? recordMode = null, [CanBeNull] BaseViewSnapshotResources resources = null)
         {
-            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseView>(
-                view,
+            var test = new BaseViewSnapshotTest(view, resources);
+
+            BitmapSnapshotTesting.Snapshot<BaseViewSnapshot, BaseViewSnapshotTest>(
+                test,
                 new MsTestAdapter(typeof(BaseViewSnapshot)),
                 new MsTestContextAdapter(context),
                 recordMode ?? RecordMode,
@@ -75,14 +75,16 @@ namespace PixUITests.TestUtils
                 tolerance ?? Tolerance);
         }
         
-        public Bitmap GenerateBitmap(BaseView view)
+        public Bitmap GenerateBitmap(BaseViewSnapshotTest test)
         {
+            var view = test.BaseView;
+
             // Create a temporary Direct3D rendering context and render the view on it
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
             int width = (int) Math.Round(view.Width);
-            int height = (int)Math.Round(view.Height);
+            int height = (int) Math.Round(view.Height);
 
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
@@ -97,8 +99,7 @@ namespace PixUITests.TestUtils
 
                 renderLoop.Initialize();
 
-                ImagesConfig?.Invoke(renderer.ImageResources, renderLoop.RenderingState);
-                ImagesConfig = null; // Always erase after each snapshot to make sure we don't accidentally carry over resources across snapshot tests
+                test.Resources?.Register(renderLoop.D2DRenderState, renderer.ImageResources);
 
                 renderer.Initialize(renderLoop.D2DRenderState, new FullClipping());
 
@@ -169,6 +170,40 @@ namespace PixUITests.TestUtils
             public bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
             {
                 return true;
+            }
+        }
+    }
+
+    public class BaseViewSnapshotTest
+    {
+        public BaseView BaseView { get; }
+        [CanBeNull]
+        public BaseViewSnapshotResources Resources { get; }
+
+        public BaseViewSnapshotTest(BaseView baseView, [CanBeNull] BaseViewSnapshotResources resources)
+        {
+            BaseView = baseView;
+            Resources = resources;
+        }
+    }
+
+    public class BaseViewSnapshotResources
+    {
+        private readonly Dictionary<string, Bitmap> _resources = new Dictionary<string, Bitmap>();
+
+        public ImageResource CreateImageResource([NotNull] string name, [NotNull] Bitmap bitmap)
+        {
+            var resource = new ImageResource(name, bitmap.Width, bitmap.Height);
+            _resources[name] = bitmap;
+
+            return resource;
+        }
+
+        public void Register(IRenderLoopState state, IImageResourceManager manager)
+        {
+            foreach (var keyValuePair in _resources)
+            {
+                manager.AddImageResource(state, keyValuePair.Value, keyValuePair.Key);
             }
         }
     }
