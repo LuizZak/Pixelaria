@@ -1078,14 +1078,6 @@ namespace PixDirectX.Rendering
             throw new InvalidOperationException($"Expected a bitmap of type {typeof(DirectXBitmap)}");
         }
 
-        private static T CastOrFail<T>([NotNull] object value)
-        {
-            if (value is T cast)
-                return cast;
-
-            throw new InvalidOperationException($"Expected a value of type {typeof(T)}");
-        }
-
         private class InternalBrush : IBrush
         {
             internal bool IsLoaded { get; private set; }
