@@ -342,34 +342,6 @@ namespace PixDirectX.Rendering.Gdi
 
         #endregion
 
-        #region Effects
-
-        /// <summary>
-        /// Draws a given effect on the renderer.
-        /// </summary>
-        public void DrawEffect(IRendererEffect effect, Vector point, ImageInterpolationMode interpolationMode, Color? tintColor = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Creates a new tile effect to be rendered on this renderer.
-        /// </summary>
-        public ITileEffect CreateTileEffect(IManagedImageResource image, RectangleF region)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Creates a new tile effect to be rendered on this renderer.
-        /// </summary>
-        public ITileEffect CreateTileEffect(ImageResource image, RectangleF region)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
         private static InternalPathGeometry CastPathOrFail([NotNull] IPathGeometry path)
         {
             if (path is InternalPathGeometry internalPath)

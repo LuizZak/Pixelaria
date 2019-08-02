@@ -250,25 +250,6 @@ namespace PixDirectX.Rendering
         IBrush CreateBitmapBrush([NotNull] IManagedImageResource image);
 
         #endregion
-
-        #region Effects
-
-        /// <summary>
-        /// Draws a given effect on the renderer.
-        /// </summary>
-        void DrawEffect([NotNull] IRendererEffect effect, Vector point, ImageInterpolationMode interpolationMode, Color? tintColor = null);
-
-        /// <summary>
-        /// Creates a new tile effect to be rendered on this renderer.
-        /// </summary>
-        ITileEffect CreateTileEffect([NotNull] IManagedImageResource image, RectangleF region);
-
-        /// <summary>
-        /// Creates a new tile effect to be rendered on this renderer.
-        /// </summary>
-        ITileEffect CreateTileEffect(ImageResource image, RectangleF region);
-
-        #endregion
     }
 
     /// <summary>

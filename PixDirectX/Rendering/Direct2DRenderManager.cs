@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using JetBrains.Annotations;
@@ -34,7 +33,6 @@ using PixCore.Text.Attributes;
 using PixDirectX.Utils;
 using SharpDX;
 using SharpDX.Direct2D1;
-using SharpDX.Direct2D1.Effects;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
@@ -1056,51 +1054,6 @@ namespace PixDirectX.Rendering
 
         #endregion
 
-        #region Effects
-
-        /// <summary>
-        /// Draws a given effect on the renderer.
-        /// </summary>
-        public void DrawEffect(IRendererEffect effect, Vector point, ImageInterpolationMode interpolationMode, Color? tintColor = null)
-        {
-            var internalEffect = CastOrFail<IInternalEffect>(effect);
-
-            _state.DeviceContext.DrawImage(internalEffect.GetEffect(), point.ToRawVector2(), ToInterpolation(interpolationMode));
-        }
-
-        /// <summary>
-        /// Creates a new tile effect to be rendered on this renderer.
-        /// </summary>
-        public ITileEffect CreateTileEffect(IManagedImageResource image, RectangleF region)
-        {
-            var bitmap = CastBitmapOrFail(image);
-
-            var tile = new Tile(_state.DeviceContext);
-            tile.SetInput(0, bitmap.bitmap, true);
-            
-            var tileEffect = new InternalTileEffect(tile, region);
-
-            return tileEffect;
-        }
-
-        /// <summary>
-        /// Creates a new tile effect to be rendered on this renderer.
-        /// </summary>
-        public ITileEffect CreateTileEffect(ImageResource image, RectangleF region)
-        {
-            var bitmap = _imageResource.BitmapForResource(image);
-            Contract.Assert(bitmap != null, $"No bitmap found for image resource {image}. Make sure the bitmap is pre-loaded before using it.");
-
-            var tile = new Tile(_state.DeviceContext);
-            tile.SetInput(0, bitmap, true);
-
-            var tileEffect = new InternalTileEffect(tile, region);
-
-            return tileEffect;
-        }
-
-        #endregion
-
         private static InternalBrush CastBrushOrFail([NotNull] IBrush brush)
         {
             if (brush is InternalBrush internalBrush)
@@ -1344,45 +1297,6 @@ namespace PixDirectX.Rendering
             public void Dispose()
             {
                 PathGeometry.Dispose();
-            }
-        }
-
-        private interface IInternalEffect
-        {
-            Effect GetEffect();
-        }
-
-        private abstract class InternalEffect<T> : IRendererEffect, IInternalEffect where T: Effect
-        {
-            protected T Effect { get; }
-
-            protected InternalEffect(T effect)
-            {
-                Effect = effect;
-            }
-
-            ~InternalEffect()
-            {
-                Effect.Dispose();
-            }
-
-            public Effect GetEffect()
-            {
-                return Effect;
-            }
-        }
-
-        private class InternalTileEffect : InternalEffect<Tile>, ITileEffect
-        {
-            public RectangleF Rectangle
-            {
-                get => RectangleF.FromLTRB(Effect.Rectangle.X, Effect.Rectangle.Y, Effect.Rectangle.Z, Effect.Rectangle.W);
-                set => Effect.Rectangle = new RawVector4(value.Left, value.Top, value.Right, value.Bottom);
-            }
-
-            public InternalTileEffect(Tile effect, RectangleF region) : base(effect)
-            {
-                Effect.Rectangle = new RawVector4(region.Left, region.Top, region.Right, region.Bottom);
             }
         }
     }
