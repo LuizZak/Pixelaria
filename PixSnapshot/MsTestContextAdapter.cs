@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -89,10 +90,21 @@ namespace PixSnapshot
         {
             string path = _basePath ?? GetPath(null);
 
-            if(!path.EndsWith("bin\\Debug") && !path.EndsWith("bin\\Release"))
-                Assert.Fail($"Invalid/unrecognized test assembly path {path}: Path must end in either bin\\Debug or bin\\Release");
-            
-            path = Path.GetFullPath(Path.Combine(path, "..\\..\\Snapshot\\Files"));
+            if (path.EndsWith(@"bin\Debug") || path.EndsWith(@"bin\Release"))
+            {
+                return Path.GetFullPath(Path.Combine(path, @"..\..\Snapshot\Files"));
+            }
+
+            if (Regex.IsMatch(path, @"bin\\Debug\\net\d+") || Regex.IsMatch(path, @"bin\\Release\\net\d+"))
+            {
+                return Path.GetFullPath(Path.Combine(path, @"..\..\..\Snapshot\Files"));
+            }
+            if (path.EndsWith(@"bin\Debug") || path.EndsWith(@"bin\Release"))
+            {
+                return Path.GetFullPath(Path.Combine(path, @"..\..\Snapshot\Files"));
+            }
+
+            Assert.Fail($@"Invalid/unrecognized test assembly path {path}: Path must end in either bin\[Debug|Release] or bin\[Debug|Release]\[netxyz|netcore|netstandard]");
 
             return path;
         }
