@@ -10,23 +10,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixPipelineGraphTests", "Pi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixPipelineGraph", "PixPipelineGraph\PixPipelineGraph.csproj", "{B2D72E98-EADD-4FB4-A803-3893110227B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixCore", "PixCore\PixCore.csproj", "{C3CA2308-5C22-4F33-B36B-223E0C0363FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixCore", "PixCore\PixCore.csproj", "{C3CA2308-5C22-4F33-B36B-223E0C0363FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixCoreTests", "PixCoreTests\PixCoreTests.csproj", "{601FDEB7-595E-4CCC-A213-48BCADEC5B64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixCoreTests", "PixCoreTests\PixCoreTests.csproj", "{601FDEB7-595E-4CCC-A213-48BCADEC5B64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI", "PixUI\PixUI.csproj", "{E35540DB-B5FB-4826-A510-C9AE8E90DD56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI", "PixUI\PixUI.csproj", "{E35540DB-B5FB-4826-A510-C9AE8E90DD56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUITests", "PixUITests\PixUITests.csproj", "{8A6FC780-2792-4642-BCAE-7C2F7B278729}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUITests", "PixUITests\PixUITests.csproj", "{8A6FC780-2792-4642-BCAE-7C2F7B278729}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixDirectX", "PixDirectX\PixDirectX.csproj", "{626B3274-714A-4D8E-95FE-1196CD365FA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixDirectX", "PixDirectX\PixDirectX.csproj", "{626B3274-714A-4D8E-95FE-1196CD365FA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixDirectXTests", "PixDirectXTests\PixDirectXTests.csproj", "{8DCDF4EC-12AE-42F2-964D-420025C1CB46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixDirectXTests", "PixDirectXTests\PixDirectXTests.csproj", "{8DCDF4EC-12AE-42F2-964D-420025C1CB46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelariaTests", "PixelariaTests\PixelariaTests.csproj", "{58CCA0D6-9361-429C-9DA6-E79CC3AADAED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixelariaTests", "PixelariaTests\PixelariaTests.csproj", "{58CCA0D6-9361-429C-9DA6-E79CC3AADAED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixSnapshot", "PixSnapshot\PixSnapshot.csproj", "{C9709610-8FB1-4AF4-812E-FDE9E5D973FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixSnapshot", "PixSnapshot\PixSnapshot.csproj", "{C9709610-8FB1-4AF4-812E-FDE9E5D973FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixSnapshotTests", "PixSnapshotTests\PixSnapshotTests.csproj", "{3ECD3471-1315-4B06-BBA0-ACCDE6EE53CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixSnapshotTests", "PixSnapshotTests\PixSnapshotTests.csproj", "{3ECD3471-1315-4B06-BBA0-ACCDE6EE53CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blend2DCS", "Blend2DCS\Blend2DCS.csproj", "{A2864A08-9E8E-452A-908E-7ADCB9BB4003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blend2DCSTests", "Blend2DCSTests\Blend2DCSTests.csproj", "{A94BDCF1-2547-4E62-BF08-C500C52569B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -232,6 +236,38 @@ Global
 		{3ECD3471-1315-4B06-BBA0-ACCDE6EE53CC}.Release|x64.Build.0 = Release|Any CPU
 		{3ECD3471-1315-4B06-BBA0-ACCDE6EE53CC}.Release|x86.ActiveCfg = Release|Any CPU
 		{3ECD3471-1315-4B06-BBA0-ACCDE6EE53CC}.Release|x86.Build.0 = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|x64.Build.0 = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Debug|x86.Build.0 = Debug|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|x64.ActiveCfg = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|x64.Build.0 = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|x86.ActiveCfg = Release|Any CPU
+		{A2864A08-9E8E-452A-908E-7ADCB9BB4003}.Release|x86.Build.0 = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|x64.Build.0 = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Debug|x86.Build.0 = Debug|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|x64.ActiveCfg = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|x64.Build.0 = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|x86.ActiveCfg = Release|Any CPU
+		{A94BDCF1-2547-4E62-BF08-C500C52569B4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
