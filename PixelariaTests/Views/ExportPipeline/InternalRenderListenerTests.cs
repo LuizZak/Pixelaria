@@ -29,6 +29,7 @@ using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Inputs.Abstract;
 using Pixelaria.ExportPipeline.Outputs.Abstract;

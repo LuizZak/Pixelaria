@@ -24,7 +24,7 @@ using System;
 using JetBrains.Annotations;
 using PixRendering;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Implemented by classes to initialize and execute Direct2D rendering operations.

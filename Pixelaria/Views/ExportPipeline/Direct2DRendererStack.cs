@@ -26,6 +26,7 @@ using System.Linq;
 using System.Windows.Forms;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
 using PixRendering;

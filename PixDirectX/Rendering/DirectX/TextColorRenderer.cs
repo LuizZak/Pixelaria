@@ -24,7 +24,7 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// For rendering colored texts on a D2DRenderer

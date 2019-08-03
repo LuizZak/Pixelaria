@@ -26,6 +26,7 @@ using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;

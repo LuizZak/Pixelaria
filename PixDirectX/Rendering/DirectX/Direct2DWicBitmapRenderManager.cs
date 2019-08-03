@@ -39,7 +39,7 @@ using Factory2 = SharpDX.DXGI.Factory2;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Renderer that renders to a backing WIC Bitmap.

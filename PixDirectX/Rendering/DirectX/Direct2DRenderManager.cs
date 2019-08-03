@@ -48,7 +48,7 @@ using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <inheritdoc cref="IRenderManager" />
     /// <summary>

@@ -28,7 +28,7 @@ using PixRendering;
 using SharpDX.DirectWrite;
 using Font = System.Drawing.Font;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     public class D2DTextSizeProvider : ITextSizeProvider
     {

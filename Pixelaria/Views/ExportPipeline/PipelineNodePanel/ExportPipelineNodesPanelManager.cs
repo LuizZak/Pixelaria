@@ -32,6 +32,7 @@ using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;

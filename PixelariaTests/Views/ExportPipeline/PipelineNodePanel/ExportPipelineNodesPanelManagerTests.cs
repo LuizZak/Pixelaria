@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;

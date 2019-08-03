@@ -30,7 +30,7 @@ using PixRendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Helper class to work with clipping on Direct2D rendering contexts

@@ -45,7 +45,7 @@ using Factory2 = SharpDX.DXGI.Factory2;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using Resource = SharpDX.Direct3D11.Resource;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Simple helper class to initialize and run a Direct2D loop on top of a specific Windows Forms control
