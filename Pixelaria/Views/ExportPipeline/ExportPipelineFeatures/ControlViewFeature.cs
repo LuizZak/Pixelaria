@@ -55,9 +55,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
         private IMouseEventHandler _mouseDownTarget;
 
         /// <summary>
-        /// Last control the mouse was resting on top of on the last call to OnMouseMove.
+        /// Last control the mouse was resting on top of on the last call to <see cref="OnMouseMove"/>.
         /// 
-        /// Used to handle OnMouseEnter/OnMouseLeave on controls
+        /// Used to handle <see cref="ExportPipelineUiFeature.OnMouseEnter"/>/<see cref="OnMouseLeave"/> on controls
         /// </summary>
         [CanBeNull]
         private IMouseEventHandler _mouseHoverTarget;
