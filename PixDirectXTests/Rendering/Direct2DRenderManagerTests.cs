@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
+using PixRendering;
 
 namespace PixDirectXTests.Rendering
 {

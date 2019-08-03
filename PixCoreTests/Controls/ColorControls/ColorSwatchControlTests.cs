@@ -22,7 +22,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Controls.ColorControls;
-using Rhino.Mocks;
 
 namespace PixCoreTests.Controls.ColorControls
 {

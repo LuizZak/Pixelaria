@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
+using PixRendering;
 
 namespace PixDirectX.Rendering.Gdi
 {

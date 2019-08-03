@@ -27,6 +27,7 @@ using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
+using PixRendering;
 using PixSnapshot;
 using PixUI;
 using PixUI.Controls;

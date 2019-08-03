@@ -27,6 +27,7 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering;
+using PixRendering;
 using PixUI.Utils.Layouting;
 
 namespace PixUI.Controls

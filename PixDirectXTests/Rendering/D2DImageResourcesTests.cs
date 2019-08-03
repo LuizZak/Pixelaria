@@ -23,6 +23,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
+using PixRendering;
 using SharpDX.Direct2D1;
 using Bitmap = System.Drawing.Bitmap;
 using ImagingFactory = SharpDX.WIC.ImagingFactory;

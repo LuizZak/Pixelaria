@@ -36,6 +36,7 @@ using PixUI;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI.Controls;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures

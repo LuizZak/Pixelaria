@@ -27,6 +27,7 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI;
 using Color = System.Drawing.Color;
 using RectangleF = System.Drawing.RectangleF;

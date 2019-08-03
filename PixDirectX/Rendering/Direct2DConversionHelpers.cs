@@ -21,6 +21,7 @@
 */
 
 using System;
+using PixRendering;
 using SharpDX;
 using SharpDX.DirectWrite;
 using Color = System.Drawing.Color;

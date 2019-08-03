@@ -23,6 +23,7 @@
 using System;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixRendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 

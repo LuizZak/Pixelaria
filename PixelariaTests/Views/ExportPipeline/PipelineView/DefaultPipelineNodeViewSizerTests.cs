@@ -29,8 +29,8 @@ using PixDirectX.Rendering;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI.Controls;
-using PixUI.Rendering;
 
 namespace PixelariaTests.Views.ExportPipeline.PipelineView
 {

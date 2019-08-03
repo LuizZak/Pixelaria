@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
+using PixRendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;

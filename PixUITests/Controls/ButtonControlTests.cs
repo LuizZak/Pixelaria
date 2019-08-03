@@ -23,7 +23,7 @@
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
+using PixRendering;
 using PixUI.Controls;
 using PixUITests.TestUtils;
 

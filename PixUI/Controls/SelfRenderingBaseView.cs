@@ -25,7 +25,7 @@ using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
-using SharpDX.Direct2D1;
+using PixRendering;
 
 namespace PixUI.Controls
 {

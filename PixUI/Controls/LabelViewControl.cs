@@ -27,6 +27,7 @@ using JetBrains.Annotations;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Rendering;
+using PixRendering;
 using Font = System.Drawing.Font;
 
 namespace PixUI.Controls

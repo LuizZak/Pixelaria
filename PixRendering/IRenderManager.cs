@@ -29,7 +29,7 @@ using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Public interface for the Export Pipeline's renderer manager

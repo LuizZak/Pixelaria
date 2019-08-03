@@ -35,6 +35,7 @@ using PixUI;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI.Animation;
 using PixUI.Controls;
 using Color = System.Drawing.Color;

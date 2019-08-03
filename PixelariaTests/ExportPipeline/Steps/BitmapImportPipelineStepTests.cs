@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Drawing;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

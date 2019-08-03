@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,30 +20,26 @@
     base directory of this project.
 */
 
-using System.Drawing;
+using System;
 using JetBrains.Annotations;
-using PixCore.Text;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
-    /// Interface for objects that are capable of figuring out sizes of text strings
+    /// An interface for an object capable of performing a synchronous render loop.
     /// </summary>
-    public interface ITextSizeProvider
+    public interface IRenderLoopManager: IDisposable
     {
         /// <summary>
-        /// Calculates the text size for a given pair of string/font
+        /// Initializes this render loop manager.
         /// </summary>
-        SizeF CalculateTextSize([NotNull] string text, [NotNull] System.Drawing.Font font);
+        void Initialize();
 
         /// <summary>
-        /// Calculates the text size for a given pair of attributed string/font
+        /// Renders a single frame using a given closure as the actual content rendering delegate.
+        /// 
+        /// This method returns immediately after rendering the frame.
         /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] System.Drawing.Font font);
-
-        /// <summary>
-        /// Calculates the text size for a given pair of attributed string/font/font size
-        /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
+        void RenderSingleFrame([NotNull, InstantHandle] Action<IRenderLoopState> render);
     }
 }

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
+using PixRendering;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace PixDirectX.Rendering

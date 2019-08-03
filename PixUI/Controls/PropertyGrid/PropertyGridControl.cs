@@ -32,7 +32,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
+using PixRendering;
 using Color = System.Drawing.Color;
 
 namespace PixUI.Controls.PropertyGrid

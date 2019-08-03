@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Represents a manager bitmap image created by a renderer.

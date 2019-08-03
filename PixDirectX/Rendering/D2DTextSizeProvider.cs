@@ -24,6 +24,7 @@
 using System.Drawing;
 using PixCore.Text;
 using PixCore.Text.Attributes;
+using PixRendering;
 using SharpDX.DirectWrite;
 using Font = System.Drawing.Font;
 

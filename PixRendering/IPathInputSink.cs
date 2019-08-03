@@ -22,7 +22,7 @@
 
 using PixCore.Geometry;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Represents a sink that provides drawing operations that <see cref="IRenderer"/>

@@ -26,7 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
+using PixRendering;
 
 namespace PixUI
 {

@@ -22,6 +22,7 @@
 
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
+using PixRendering;
 
 namespace PixUITests.TestUtils
 {

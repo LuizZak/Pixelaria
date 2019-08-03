@@ -20,15 +20,15 @@
     base directory of this project.
 */
 
-using System.Windows.Forms;
+using System;
 
-namespace Pixelaria.Views.SettingsViews
+namespace PixRendering
 {
-    public partial class FrameViewSettingsView : Form
+    /// <summary>
+    /// Represents a path geometry created by an <see cref="IRenderer"/>.
+    /// </summary>
+    public interface IPathGeometry: IDisposable
     {
-        public FrameViewSettingsView()
-        {
-            InitializeComponent();
-        }
+
     }
 }

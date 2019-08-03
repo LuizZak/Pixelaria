@@ -22,7 +22,9 @@
 
 using JetBrains.Annotations;
 using PixCore.Text;
+using PixRendering;
 using SharpDX.DirectWrite;
+using HitTestMetrics = PixRendering.HitTestMetrics;
 
 namespace PixDirectX.Rendering
 {

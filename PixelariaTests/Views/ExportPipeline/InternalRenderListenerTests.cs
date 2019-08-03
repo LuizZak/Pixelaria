@@ -34,6 +34,7 @@ using Pixelaria.ExportPipeline.Inputs.Abstract;
 using Pixelaria.ExportPipeline.Outputs.Abstract;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixSnapshot;
 using PixUI;
 using PixUI.Visitor;

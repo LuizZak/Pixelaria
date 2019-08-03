@@ -26,6 +26,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Geometry.Algorithms;
+using PixRendering;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;

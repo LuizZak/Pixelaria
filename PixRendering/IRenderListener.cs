@@ -22,7 +22,7 @@
 
 using JetBrains.Annotations;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Describes an object that can participate in the main render sequence of an <see cref="IRenderManager"/>.

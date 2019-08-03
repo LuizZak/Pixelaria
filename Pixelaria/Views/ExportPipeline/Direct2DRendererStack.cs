@@ -28,6 +28,7 @@ using PixCore.Geometry;
 using PixDirectX.Rendering;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
+using PixRendering;
 using SharpDX.Direct2D1;
 
 namespace Pixelaria.Views.ExportPipeline

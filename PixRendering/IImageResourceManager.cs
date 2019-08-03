@@ -23,12 +23,12 @@
 using System.Drawing;
 using JetBrains.Annotations;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Interface for objects capable of creating, updating, providing and destroying Direct2D bitmap resources.
     /// </summary>
-    public interface IImageResourceManager: IImageResourceProvider
+    public interface IImageResourceManager : IImageResourceProvider
     {
         /// <summary>
         /// Creates a new image from a given <see cref="Bitmap"/> instance, assigns it with a given resource name, and

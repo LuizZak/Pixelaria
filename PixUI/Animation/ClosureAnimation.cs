@@ -21,7 +21,6 @@
 */
 
 using System;
-using PixCore.Geometry;
 
 namespace PixUI.Animation
 {

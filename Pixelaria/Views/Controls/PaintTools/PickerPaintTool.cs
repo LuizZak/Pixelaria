@@ -23,7 +23,6 @@
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
 namespace Pixelaria.Views.Controls.PaintTools
