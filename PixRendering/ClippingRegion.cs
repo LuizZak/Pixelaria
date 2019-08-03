@@ -26,12 +26,11 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Geometry.Algorithms;
-using PixRendering;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// A clipping region backed by a list of individual <see cref="RectangleF"/> instances.

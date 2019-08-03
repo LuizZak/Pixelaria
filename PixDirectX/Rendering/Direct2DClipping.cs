@@ -26,6 +26,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
+using PixRendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 
