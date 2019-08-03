@@ -34,9 +34,9 @@ namespace Blend2DCS.Internal
     internal static class UnsafePathCore
     {
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern UInt32 blPathInit(ref BLPathCore pathCore);
+        public static extern uint blPathInit(ref BLPathCore pathCore);
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern UInt32 blPathReset(ref BLPathCore pathCore);
+        public static extern uint blPathReset(ref BLPathCore pathCore);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern int blPathGetSize(ref BLPathCore pathCore);

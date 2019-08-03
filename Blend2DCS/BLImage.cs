@@ -20,33 +20,50 @@
     base directory of this project.
 */
 
+using System;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
 {
-    public class BLPath
+    public class BLImage
     {
-        internal BLPathCore Path;
+        internal BLImageCore Image;
 
-        /// <summary>
-        /// Returns path size (count of vertices used).
-        /// </summary>
-        public int Size => UnsafePathCore.blPathGetSize(ref Path);
-
-        /// <summary>
-        /// Returns path capacity (count of allocated vertices).
-        /// </summary>
-        public int Capacity => UnsafePathCore.blPathGetCapacity(ref Path);
-
-        public BLPath()
+        public BLImage()
         {
-            Path = new BLPathCore();
-            UnsafePathCore.blPathInit(ref Path);
+            Image = new BLImageCore();
+            UnsafeImageCore.blImageInit(ref Image);
         }
 
-        ~BLPath()
+        public BLImage(int width, int height, BLFormat format)
         {
-            UnsafePathCore.blPathReset(ref Path);
+            Image = new BLImageCore();
+            UnsafeImageCore.blImageInitAs(ref Image, width, height, (uint) format);
+        }
+
+        ~BLImage()
+        {
+            UnsafeImageCore.blImageReset(ref Image);
         }
     }
+
+    public enum BLFormat: uint
+    {
+        /// <summary>
+        /// None or invalid pixel format.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// 32-bit pre-multiplied ARGB pixel format (8-bit components).
+        /// </summary>
+        Prgb32 = 1,
+        /// <summary>
+        /// 32-bit (X)RGB pixel format (8-bit components, alpha ignored).
+        /// </summary>
+        Xrgb32 = 2,
+        /// <summary>
+        /// 8-bit alpha-only pixel format.
+        /// </summary>
+        A8 = 3
+    };
 }

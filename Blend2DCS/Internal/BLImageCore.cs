@@ -20,33 +20,26 @@
     base directory of this project.
 */
 
-using Blend2DCS.Internal;
+using System;
+using System.Runtime.InteropServices;
 
-namespace Blend2DCS
+namespace Blend2DCS.Internal
 {
-    public class BLPath
+    internal struct BLImageCore
     {
-        internal BLPathCore Path;
+        internal IntPtr Impl;
+    }
 
-        /// <summary>
-        /// Returns path size (count of vertices used).
-        /// </summary>
-        public int Size => UnsafePathCore.blPathGetSize(ref Path);
+    // ReSharper disable InconsistentNaming
+    internal static class UnsafeImageCore
+    {
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blImageInit(ref BLImageCore self);
 
-        /// <summary>
-        /// Returns path capacity (count of allocated vertices).
-        /// </summary>
-        public int Capacity => UnsafePathCore.blPathGetCapacity(ref Path);
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blImageInitAs(ref BLImageCore self, int w, int h, uint format);
 
-        public BLPath()
-        {
-            Path = new BLPathCore();
-            UnsafePathCore.blPathInit(ref Path);
-        }
-
-        ~BLPath()
-        {
-            UnsafePathCore.blPathReset(ref Path);
-        }
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blImageReset(ref BLImageCore self);
     }
 }
