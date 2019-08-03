@@ -31,6 +31,7 @@ using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixDirectX.Utils;
+using PixRendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -42,11 +43,12 @@ using Rectangle = System.Drawing.Rectangle;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Brush = SharpDX.Direct2D1.Brush;
 using Factory = SharpDX.DirectWrite.Factory;
+using HitTestMetrics = PixRendering.HitTestMetrics;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
 using TextRange = SharpDX.DirectWrite.TextRange;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <inheritdoc cref="IRenderManager" />
     /// <summary>

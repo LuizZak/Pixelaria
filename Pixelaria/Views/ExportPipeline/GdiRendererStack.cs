@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
 using PixDirectX.Rendering.Gdi;
+using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline
 {

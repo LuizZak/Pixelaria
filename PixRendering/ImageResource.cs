@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,15 +20,26 @@
     base directory of this project.
 */
 
-using System.Windows.Forms;
+using System.Drawing;
 
-namespace Pixelaria.Views.SettingsViews
+namespace PixRendering
 {
-    public partial class FrameViewSettingsView : Form
+    /// <summary>
+    /// Represents an image resource
+    /// </summary>
+    public readonly struct ImageResource
     {
-        public FrameViewSettingsView()
+        public string ResourceName { get; }
+        public int Width { get; }
+        public int Height { get; }
+
+        public Size Size => new Size(Width, Height);
+
+        public ImageResource(string resourceName, int width, int height)
         {
-            InitializeComponent();
+            ResourceName = resourceName;
+            Width = width;
+            Height = height;
         }
     }
 }

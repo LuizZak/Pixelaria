@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Specifies an ellipsis trimming to use when a text's contents overflow the layout box.

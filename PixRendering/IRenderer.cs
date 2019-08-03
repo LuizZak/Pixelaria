@@ -26,7 +26,7 @@ using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// An object that encapsulates rendering capabilities.

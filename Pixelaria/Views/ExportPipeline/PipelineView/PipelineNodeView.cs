@@ -28,11 +28,11 @@ using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixUI;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Steps;
+using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {

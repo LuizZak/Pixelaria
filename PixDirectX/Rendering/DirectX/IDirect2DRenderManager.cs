@@ -22,8 +22,9 @@
 
 using System;
 using JetBrains.Annotations;
+using PixRendering;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Implemented by classes to initialize and execute Direct2D rendering operations.
@@ -46,34 +47,5 @@ namespace PixDirectX.Rendering
         /// This method returns immediately after rendering the frame.
         /// </summary>
         void RenderSingleFrame([NotNull, InstantHandle] Action<IRenderLoopState> render);
-    }
-
-    /// <summary>
-    /// An interface for an object capable of performing a synchronous render loop.
-    /// </summary>
-    public interface IRenderLoopManager: IDisposable
-    {
-        /// <summary>
-        /// Initializes this render loop manager.
-        /// </summary>
-        void Initialize();
-
-        /// <summary>
-        /// Renders a single frame using a given closure as the actual content rendering delegate.
-        /// 
-        /// This method returns immediately after rendering the frame.
-        /// </summary>
-        void RenderSingleFrame([NotNull, InstantHandle] Action<IRenderLoopState> render);
-    }
-
-    /// <summary>
-    /// The state for a single render loop invocation.
-    /// </summary>
-    public interface IRenderLoopState
-    {
-        /// <summary>
-        /// Gets the time span since the last frame rendered
-        /// </summary>
-        TimeSpan FrameRenderDeltaTime { get; }
     }
 }

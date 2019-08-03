@@ -30,7 +30,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
+using PixRendering;
 using PixUI.Utils;
 
 namespace PixUI.Controls

@@ -26,7 +26,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
-using PixDirectX.Rendering;
+using PixRendering;
 using PixUI.Controls;
 using PixUITests.TestUtils;
 

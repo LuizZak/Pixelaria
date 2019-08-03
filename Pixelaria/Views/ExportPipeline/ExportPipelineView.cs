@@ -32,6 +32,7 @@ using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using PixUI;
 using PixUI.Controls;
 
@@ -45,6 +46,7 @@ using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI.Animation;
 using Font = System.Drawing.Font;
 using FontFamily = System.Drawing.FontFamily;

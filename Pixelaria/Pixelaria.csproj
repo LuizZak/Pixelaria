@@ -31,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixCore\PixCore.csproj" />
+    <ProjectReference Include="..\PixRendering\PixRendering.csproj" />
     <ProjectReference Include="..\PixUI\PixUI.csproj" />
   </ItemGroup>
   <ItemGroup>

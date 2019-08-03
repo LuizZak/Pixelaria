@@ -24,6 +24,7 @@
 using System;
 using System.Drawing;
 using PixCore.Text;
+using PixRendering;
 
 namespace PixDirectX.Rendering.Gdi
 {

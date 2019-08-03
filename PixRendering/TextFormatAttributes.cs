@@ -22,7 +22,7 @@
 
 using JetBrains.Annotations;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// Default struct for bundling text formatting attributes to feed to calls to <see cref="ITextMetricsProvider"/>

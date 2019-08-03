@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using PixCore.Geometry;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
     /// A brush for drawing with on an <see cref="IRenderer"/>.

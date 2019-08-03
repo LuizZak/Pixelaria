@@ -20,15 +20,30 @@
     base directory of this project.
 */
 
-using System;
+using System.Drawing;
+using JetBrains.Annotations;
+using PixCore.Text;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
-    /// Represents a path geometry created by an <see cref="IRenderer"/>.
+    /// Interface for objects that are capable of figuring out sizes of text strings
     /// </summary>
-    public interface IPathGeometry: IDisposable
+    public interface ITextSizeProvider
     {
+        /// <summary>
+        /// Calculates the text size for a given pair of string/font
+        /// </summary>
+        SizeF CalculateTextSize([NotNull] string text, [NotNull] System.Drawing.Font font);
 
+        /// <summary>
+        /// Calculates the text size for a given pair of attributed string/font
+        /// </summary>
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] System.Drawing.Font font);
+
+        /// <summary>
+        /// Calculates the text size for a given pair of attributed string/font/font size
+        /// </summary>
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
     }
 }

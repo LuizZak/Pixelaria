@@ -21,11 +21,12 @@
 */
 
 using System;
+using PixRendering;
 using SharpDX;
 using SharpDX.DirectWrite;
 using Color = System.Drawing.Color;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Small set of helper methods for conversions to Direct2D types

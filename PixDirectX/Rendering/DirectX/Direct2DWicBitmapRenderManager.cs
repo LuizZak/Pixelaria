@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
+using PixRendering;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
@@ -38,7 +39,7 @@ using Factory2 = SharpDX.DXGI.Factory2;
 using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
-namespace PixDirectX.Rendering
+namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// Renderer that renders to a backing WIC Bitmap.

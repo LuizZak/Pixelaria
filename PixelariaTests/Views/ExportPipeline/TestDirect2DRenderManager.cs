@@ -22,6 +22,8 @@
 
 using JetBrains.Annotations;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
+using PixRendering;
 
 namespace PixelariaTests.Views.ExportPipeline
 {

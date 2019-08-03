@@ -26,6 +26,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using JetBrains.Annotations;
 using PixCore.Text;
+using PixDirectX.Rendering.DirectX;
+using PixRendering;
 
 namespace PixDirectX.Rendering.Gdi
 {

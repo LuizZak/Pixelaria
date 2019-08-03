@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,26 +20,25 @@
     base directory of this project.
 */
 
-using System.Drawing;
+using JetBrains.Annotations;
+using PixCore.Geometry;
+using PixCore.Text;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
-    /// Represents an image resource
+    /// Provides an interface for objects to request metrics about positions of glyphs in a string.
     /// </summary>
-    public readonly struct ImageResource
+    public interface ITextMetricsProvider
     {
-        public string ResourceName { get; }
-        public int Width { get; }
-        public int Height { get; }
+        /// <summary>
+        /// Gets the bounding box for a single character at a given absolute string offset
+        /// </summary>
+        AABB LocationOfCharacter(int offset, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes);
 
-        public Size Size => new Size(Width, Height);
-
-        public ImageResource(string resourceName, int width, int height)
-        {
-            ResourceName = resourceName;
-            Width = width;
-            Height = height;
-        }
+        /// <summary>
+        /// Gets the bounding box for a set of characters at a given absolute string offset + length
+        /// </summary>
+        AABB[] LocationOfCharacters(int offset, int length, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes);
     }
 }

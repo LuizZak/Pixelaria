@@ -26,11 +26,12 @@ using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixDirectX.Rendering;
+using PixDirectX.Rendering.DirectX;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI.Controls;
-using PixUI.Rendering;
 
 namespace PixelariaTests.Views.ExportPipeline.PipelineView
 {

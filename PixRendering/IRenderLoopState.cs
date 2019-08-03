@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,25 +20,18 @@
     base directory of this project.
 */
 
-using JetBrains.Annotations;
-using PixCore.Geometry;
-using PixCore.Text;
+using System;
 
-namespace PixDirectX.Rendering
+namespace PixRendering
 {
     /// <summary>
-    /// Provides an interface for objects to request metrics about positions of glyphs in a string.
+    /// The state for a single render loop invocation.
     /// </summary>
-    public interface ITextMetricsProvider
+    public interface IRenderLoopState
     {
         /// <summary>
-        /// Gets the bounding box for a single character at a given absolute string offset
+        /// Gets the time span since the last frame rendered
         /// </summary>
-        AABB LocationOfCharacter(int offset, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes);
-
-        /// <summary>
-        /// Gets the bounding box for a set of characters at a given absolute string offset + length
-        /// </summary>
-        AABB[] LocationOfCharacters(int offset, int length, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes);
+        TimeSpan FrameRenderDeltaTime { get; }
     }
 }

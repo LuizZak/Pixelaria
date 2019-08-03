@@ -20,13 +20,6 @@
     base directory of this project.
 */
 
-using System.Drawing;
-using PixCore.Text;
-using PixCore.Text.Attributes;
-using PixDirectX.Rendering;
-using SharpDX.DirectWrite;
-using Font = System.Drawing.Font;
-
 namespace PixUI.Rendering
 {
     

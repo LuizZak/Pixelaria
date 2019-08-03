@@ -31,6 +31,7 @@ using PixCore.Text;
 using PixDirectX.Rendering;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixRendering;
 using PixUI;
 
 namespace Pixelaria.Views.ExportPipeline
