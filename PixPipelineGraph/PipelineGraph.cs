@@ -209,6 +209,12 @@ namespace PixPipelineGraph
         {
             return _connections.Where(c => c.Input.Id == input).ToArray();
         }
+
+        /// <inheritdoc />
+        public IPipelineMetadata MetadataForNode(PipelineNodeId nodeId)
+        {
+            return _nodes.FirstOrDefault(n => n.Id == nodeId)?.PipelineMetadata;
+        }
     }
 
     #region Subgraph Operations

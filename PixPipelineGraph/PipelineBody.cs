@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -21,28 +21,42 @@
 */
 
 using System;
-using System.Collections.Generic;
-using PixPipelineGraph;
+using JetBrains.Annotations;
 
-namespace Pixelaria.ExportPipeline.Steps.Abstract
+namespace PixPipelineGraph
 {
     /// <summary>
-    /// Base abstract pipeline step to start subclassing and specializing pipeline start steps
+    /// Represents the transformation body of a pipeline node.
     /// </summary>
-    public abstract class AbstractPipelineStart : IPipelineStart
+    public class PipelineBody
     {
-        public Guid Id { get; } = Guid.NewGuid();
-        public abstract string Name { get; }
-        
-        public abstract IReadOnlyList<IPipelineOutput> Output { get; }
+        /// <summary>
+        /// The input type of the body.
+        ///
+        /// If <c>null</c>, this body takes no parameters.
+        /// </summary>
+        [CanBeNull]
+        public Type InputType { get; set; }
 
         /// <summary>
-        /// Default implementation for <see cref="IPipelineStep.GetMetadata"/>
-        /// that returns an empty pipeline metadata object
+        /// The output type of the body.
+        ///
+        /// If <c>null</c>, this body produces no output and is a consumer only.
         /// </summary>
-        public virtual IPipelineMetadata GetMetadata()
+        [CanBeNull]
+        public Type OutputType { get; set; }
+
+        /// <summary>
+        /// The untyped delegate for this body.
+        /// </summary>
+        [NotNull]
+        public Func<object, object> Body { get; set; }
+
+        public PipelineBody(Type inputType, Type outputType, [NotNull] Func<object, object> body)
         {
-            return PipelineMetadata.Empty;
+            InputType = inputType;
+            OutputType = outputType;
+            Body = body;
         }
     }
 }

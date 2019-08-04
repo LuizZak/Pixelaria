@@ -30,15 +30,18 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixUI;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI.Animation;
 using PixUI.Controls;
 using Color = System.Drawing.Color;
+using IPipelineInput = Pixelaria.ExportPipeline.IPipelineInput;
+using IPipelineNodeLink = Pixelaria.ExportPipeline.IPipelineNodeLink;
+using IPipelineOutput = Pixelaria.ExportPipeline.IPipelineOutput;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = System.Drawing.RectangleF;
@@ -466,6 +469,8 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         private class InternalPipelineContainer : IPipelineContainer, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate
         {
+            private readonly PipelineGraph _pipelineGraph;
+
             private readonly RootControlView _root;
             private readonly List<object> _selection = new List<object>();
             private readonly List<PipelineNodeView> _nodeViews = new List<PipelineNodeView>();
@@ -492,6 +497,8 @@ namespace Pixelaria.Views.ExportPipeline
             
             public InternalPipelineContainer(IExportPipelineControl control)
             {
+                _pipelineGraph = new PipelineGraph();
+
                 _root = new RootControlView(this);
                 _sel = new InternalSelection(this);
 

@@ -27,6 +27,7 @@ using System.Reactive.Linq;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline.Inputs;
 using Pixelaria.ExportPipeline.Outputs;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
 {

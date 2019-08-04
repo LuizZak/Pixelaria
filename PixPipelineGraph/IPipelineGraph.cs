@@ -99,6 +99,14 @@ namespace PixPipelineGraph
         /// </summary>
         /// <exception cref="ArgumentException">If <see cref="input"/> consists of a reference an nonexistent node ID</exception>
         IReadOnlyList<IPipelineConnection> ConnectionsTowardsInput(PipelineInput input);
+
+        /// <summary>
+        /// Returns the pipeline metadata for a given node ID.
+        ///
+        /// May return null, in case the node is not present in this graph.
+        /// </summary>
+        [CanBeNull]
+        IPipelineMetadata MetadataForNode(PipelineNodeId nodeId);
     }
 
     public static class PipelineGraphExtensions

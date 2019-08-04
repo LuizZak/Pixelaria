@@ -37,6 +37,26 @@ namespace PixPipelineGraph
             
         }
 
+        public void SetTitle(string title)
+        {
+            _stepCollection.AddClosureBuilderStep(node => { node.Title = title; });
+        }
+
+        public void AddBody<TInput, TOutput>([NotNull] Func<TInput, TOutput> body)
+        {
+            AddBody(typeof(TInput), typeof(TOutput), input => body((TInput)input));
+        }
+
+        public void AddBody(Type inputType, Type outputType, [NotNull] Func<object, object> body)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                var pipelineBody = new PipelineBody(inputType, outputType, body);
+
+                node.Bodies.Add(pipelineBody);
+            });
+        }
+
         public IPipelineLazyValue<PipelineInput> CreateInput([NotNull] string name, Action<PipelineInputBuilder> closure = null)
         {
             var lazyInput = new PipelineLazyValue<PipelineInput>();

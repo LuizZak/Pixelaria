@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Data.Exports;
 using Pixelaria.Utils;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
 {

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Reactive.Disposables;
 using Pixelaria.ExportPipeline.Inputs.Abstract;
 using Pixelaria.Utils;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
 {

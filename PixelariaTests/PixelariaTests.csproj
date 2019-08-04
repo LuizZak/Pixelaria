@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pixelaria\Pixelaria.csproj" />
+    <ProjectReference Include="..\PixPipelineGraph\PixPipelineGraph.csproj" />
     <ProjectReference Include="..\PixSnapshot\PixSnapshot.csproj" />
   </ItemGroup>
   <ItemGroup>

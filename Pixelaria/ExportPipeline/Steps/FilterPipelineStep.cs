@@ -36,6 +36,7 @@ using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps.Abstract;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
 {

@@ -23,6 +23,7 @@
 using System.Drawing;
 using JetBrains.Annotations;
 using Pixelaria.ExportPipeline.Inputs.Abstract;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Inputs
 {

@@ -24,6 +24,7 @@ using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using JetBrains.Annotations;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Outputs
 {
