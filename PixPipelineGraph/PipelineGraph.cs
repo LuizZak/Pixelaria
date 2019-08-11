@@ -197,7 +197,7 @@ namespace PixPipelineGraph
         /// </summary>
         public bool CanConnect(PipelineInput input, PipelineOutput output)
         {
-            if (input.NodeId != output.NodeId)
+            if (input.NodeId == output.NodeId)
                 return false;
 
             var inputData = GetInput(input);

@@ -20,14 +20,8 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.ExportPipeline;
-using Pixelaria.ExportPipeline.Inputs.Abstract;
-using Pixelaria.ExportPipeline.Outputs.Abstract;
 using PixPipelineGraph;
 
 namespace PixelariaTests.ExportPipeline
@@ -43,8 +37,14 @@ namespace PixelariaTests.ExportPipeline
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
-            var node1 = graph.CreateNode(n => { lazyInput = n.CreateInput(""); });
-            var node2 = graph.CreateNode(n => { lazyOutput = n.CreateOutput(""); });
+            var node1 = graph.CreateNode(n =>
+            {
+                lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int)));
+            });
+            var node2 = graph.CreateNode(n =>
+            {
+                lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int)));
+            });
 
             var input = graph.GetInput(lazyInput.LazyValue);
             var output = graph.GetOutput(lazyOutput.LazyValue);
@@ -80,8 +80,14 @@ namespace PixelariaTests.ExportPipeline
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
-            var node1 = graph.CreateNode(n => { lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int))); });
-            var node2 = graph.CreateNode(n => { lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int))); });
+            var node1 = graph.CreateNode(n =>
+            {
+                lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int)));
+            });
+            var node2 = graph.CreateNode(n =>
+            {
+                lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int)));
+            });
 
             graph.Connect(node1, node2);
 
@@ -99,13 +105,19 @@ namespace PixelariaTests.ExportPipeline
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
-            var node1 = graph.CreateNode(n => { lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int))); });
+            var node1 = graph.CreateNode(n =>
+            {
+                lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int)));
+            });
             var node2 = graph.CreateNode(n =>
             {
                 n.CreateInput("", builder => builder.AddInputType(typeof(int)));
                 n.CreateOutput("", builder => builder.SetOutputType(typeof(int)));
             });
-            var node3 = graph.CreateNode(n => { lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int))); });
+            var node3 = graph.CreateNode(n =>
+            {
+                lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int)));
+            });
 
             graph.Connect(node1, node2);
             graph.Connect(node2, node3);
@@ -120,7 +132,7 @@ namespace PixelariaTests.ExportPipeline
         {
             public PipelineBody GetBody(PipelineBodyId id)
             {
-                return new PipelineBody(id, typeof(int), typeof(int), o => o);
+                return new PipelineBody(id, new []{ typeof(int) }, typeof(int), o => o);
             }
         }
     }

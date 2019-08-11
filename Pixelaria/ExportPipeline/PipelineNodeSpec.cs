@@ -21,53 +21,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-
 using JetBrains.Annotations;
-
-using Pixelaria.ExportPipeline.Steps;
-using Pixelaria.Filters;
-using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
-    /// <summary>
-    /// Default provider for <see cref="PipelineNodeSpec"/> that describe the available pipeline nodes
-    /// that can be created.
-    /// </summary>
-    public class DefaultPipelineNodeSpecsProvider: IPipelineGraphBodyProvider
-    {
-        /// <summary>
-        /// Gets a list of all instantiable pipeline nodes and their basic metadata as an array of <see cref="PipelineNodeSpec"/>
-        /// instances.
-        /// </summary>
-        public PipelineNodeSpec[] GetNodeSpecs()
-        {
-            var specs = new List<PipelineNodeSpec>
-            {
-                PipelineNodeSpec.Of<BitmapPreviewPipelineStep>("Image Inspection"),
-                PipelineNodeSpec.Of<SinkPipelineStep>("Pipeline Sink"),
-                PipelineNodeSpec.Of<AnimationJoinerStep>("Animations Joiner"),
-                PipelineNodeSpec.Of<SpriteSheetGenerationPipelineStep>("Sprite Sheet Generation"),
-                PipelineNodeSpec.Of<TransparencyFilterPipelineStep>("Transparency Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<OffsetFilter>>("Offset Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<HueFilter>>("Hue Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<SaturationFilter>>("Saturation Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<LightnessFilter>>("Lightness Filter"),
-                PipelineNodeSpec.Of<FilterPipelineStep<StrokeFilter>>("Stroke Filter"),
-                PipelineNodeSpec.Of<FileExportPipelineStep>("File Export"),
-                new PipelineNodeSpec("Bitmap Import", typeof(BitmapImportPipelineStep), () => new BitmapImportPipelineStep(new BitmapFileImportSource("")))
-            };
-
-            return specs.ToArray();
-        }
-
-        public PipelineBody GetBody(PipelineBodyId id)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
     /// <summary>
     /// Small object that encapsulates display and creation info for a pipeline node
     /// </summary>
@@ -84,7 +41,7 @@ namespace Pixelaria.ExportPipeline
         /// </summary>
         [NotNull]
         public Type NodeType { get; }
-        
+
         /// <summary>
         /// Function that must instantiate pipeline nodes when called.
         /// </summary>
@@ -103,7 +60,7 @@ namespace Pixelaria.ExportPipeline
         /// to fetch a parameter-less constructor for the node type.
         /// </summary>
         [NotNull]
-        public static PipelineNodeSpec Of<T>([NotNull] string name) where T: IPipelineNode, new()
+        public static PipelineNodeSpec Of<T>([NotNull] string name) where T : IPipelineNode, new()
         {
             return new PipelineNodeSpec(name, typeof(T), () => new T());
         }

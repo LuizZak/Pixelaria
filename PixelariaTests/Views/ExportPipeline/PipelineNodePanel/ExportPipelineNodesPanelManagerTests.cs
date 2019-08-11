@@ -70,9 +70,6 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
             _sut = new ExportPipelineNodesPanelManager(_container, renderManager, new TestInvalidateTarget(), _control.PipelineContainer, new PipelineNodeBitmapGenerator(_control));
             _sut.RegisterResizeEvent(_control);
 
-            var provider = new DefaultPipelineNodeSpecsProvider();
-            _sut.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
-
             BaseViewSnapshot.ImagesConfig = PipelineControlConfigurator.RegisterIcons;
         }
 

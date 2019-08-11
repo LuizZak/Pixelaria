@@ -31,26 +31,17 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixUI;
 using PixUI.Controls;
 
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
 using Pixelaria.Data.Persistence;
-using Pixelaria.ExportPipeline;
-using Pixelaria.ExportPipeline.Outputs;
-using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using PixPipelineGraph;
 using PixRendering;
 using PixUI.Animation;
-using Font = System.Drawing.Font;
-using FontFamily = System.Drawing.FontFamily;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -59,7 +50,6 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
 
         private ExportPipelineNodesPanelManager _panelManager;
-        private BitmapPreviewPipelineWindowManager _previewManager;
 
         private PropertiesPanel _propertiesPanel;
 
@@ -134,7 +124,6 @@ namespace Pixelaria.Views.ExportPipeline
             ConfigurePipelineControl(state);
             ConfigureNodesPanel(renderer);
             ConfigurePropertiesPanel();
-            ConfigurePreviewManager(renderer, _propertiesPanel);
         }
 
         private void ConfigurePipelineControl([NotNull] IRenderLoopState state)
@@ -148,11 +137,6 @@ namespace Pixelaria.Views.ExportPipeline
             _panelManager.RegisterResizeEvent(exportPipelineControl);
 
             _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
-
-            // Add nodes from the configured provider
-            var provider = exportPipelineControl.PipelineNodeSpecsProvider;
-            
-            _panelManager.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
         }
 
         private void ConfigurePropertiesPanel()
@@ -160,167 +144,11 @@ namespace Pixelaria.Views.ExportPipeline
             _propertiesPanel = new PropertiesPanel(exportPipelineControl);
         }
 
-        private void ConfigurePreviewManager([NotNull] IRenderManager renderer, [NotNull] PropertiesPanel propertiesPanel)
-        {
-            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl, renderer)
-            {
-                ScreenInsetBounds = new InsetBounds(5, 5, 5, propertiesPanel.PanelWidth + 5)
-            };
-
-            exportPipelineControl.AddFeature(manager);
-
-            _previewManager = manager;
-        }
-
         #endregion
         
         private void PanelManagerOnPipelineNodeSelected(object sender, [NotNull] ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e)
         {
             exportPipelineControl.PipelineContainer.ClearSelection();
-            AddPipelineNode(e.Node, e.ScreenPosition);
-        }
-
-        public void AddPipelineNode([NotNull] IPipelineNode node, Vector? screenPosition)
-        {
-            var container = exportPipelineControl.PipelineContainer;
-
-            // Rename bitmap preview steps w/ numbers so they are easily identifiable
-            if (node is BitmapPreviewPipelineStep bitmapPreview)
-            {
-                bool HasPreviewWithName(string name)
-                {
-                    return container.Nodes.OfType<BitmapPreviewPipelineStep>().Any(n => n.Name == name);
-                }
-
-                int count =
-                    container.Nodes.OfType<BitmapPreviewPipelineStep>().Count() + 1;
-                
-                // Ensure unique names
-                while (HasPreviewWithName($"Bitmap Preview #{count}"))
-                    count += 1;
-
-                bitmapPreview.Name = $"Bitmap Preview #{count}";
-            }
-
-            var view = PipelineNodeView.Create(node);
-            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, exportPipelineControl.ImageResources);
-
-            container.AddNodeView(view);
-            container.AutoSizeNode(view);
-            
-            // Automatically adjust view to be on center of view port, if no location was informed
-            if (screenPosition == null)
-            {
-                var center = exportPipelineControl.Bounds.Center();
-                var centerCont = container.ContentsView.ConvertFrom(center, null);
-
-                view.Location = centerCont - view.Size / 2;
-            }
-            else
-            {
-                view.Location = container.ContentsView.ConvertFrom(screenPosition.Value, null);
-            }
-        }
-
-        public void InitTest()
-        {
-            var anim = new Animation("Anim 1", 48, 48);
-
-            var animNodeView = PipelineNodeView.Create(new SingleAnimationPipelineStep(anim), node =>
-            {
-                node.Location = new Vector(0, 0);
-                node.Icon = exportPipelineControl.ImageResources.GetImageResource("anim_icon");
-            });
-            var animJoinerNodeView = PipelineNodeView.Create(new AnimationJoinerStep(), node =>
-            {
-                node.Location = new Vector(350, 30);
-            });
-            var sheetNodeView = PipelineNodeView.Create(new SpriteSheetGenerationPipelineStep(), node =>
-            {
-                node.Location = new Vector(450, 30);
-                node.Icon = exportPipelineControl.ImageResources.GetImageResource("sheet_new");
-            });
-            var fileExportView = PipelineNodeView.Create(new FileExportPipelineStep(), node =>
-            {
-                node.Location = new Vector(550, 30);
-                node.Icon = exportPipelineControl.ImageResources.GetImageResource("sheet_save_icon");
-            });
-            var traspFilter = PipelineNodeView.Create(new TransparencyFilterPipelineStep(), node =>
-            {
-                node.Location = new Vector(550, 30);
-                node.Icon = exportPipelineControl.ImageResources.GetImageResource("filter_transparency_icon");
-            });
-
-            exportPipelineControl.PipelineContainer.AddNodeView(animNodeView);
-            exportPipelineControl.PipelineContainer.AddNodeView(animJoinerNodeView);
-            exportPipelineControl.PipelineContainer.AddNodeView(sheetNodeView);
-            exportPipelineControl.PipelineContainer.AddNodeView(fileExportView);
-            exportPipelineControl.PipelineContainer.AddNodeView(traspFilter);
-
-            exportPipelineControl.PipelineContainer.AutoSizeNodes();
-
-            //TestThingsAndStuff();
-        }
-
-        void TestThingsAndStuff()
-        {
-            var bundle = new Bundle("abc");
-            var anim1 = new Animation("Anim 1", 48, 48);
-            var controller = new AnimationController(bundle, anim1);
-            
-            controller.CreateFrame();
-            controller.CreateFrame();
-            controller.CreateFrame();
-
-            var anim2 = new Animation("Anim 2", 64, 64);
-            controller = new AnimationController(bundle, anim2);
-
-            controller.CreateFrame();
-            controller.CreateFrame();
-            controller.CreateFrame();
-
-            var anim3 = new Animation("Anim 3", 80, 80);
-            controller = new AnimationController(bundle, anim3);
-
-            controller.CreateFrame();
-            controller.CreateFrame();
-            controller.CreateFrame();
-
-            var animSteps = new[]
-            {
-                new SingleAnimationPipelineStep(anim1),
-                new SingleAnimationPipelineStep(anim2),
-                new SingleAnimationPipelineStep(anim3)
-            };
-
-            var graph = exportPipelineControl.PipelineContainer.PipelineGraph;
-
-            var animJoinerStep = new AnimationJoinerStep();
-
-            var exportSettings = new AnimationSheetExportSettings
-            {
-                FavorRatioOverArea = true, AllowUnorderedFrames = true, ExportJson = false, ForceMinimumDimensions = false, ForcePowerOfTwoDimensions = false,
-                HighPrecisionAreaMatching = false, ReuseIdenticalFramesArea = false
-            };
-
-            var sheetSettingsOutput = new StaticPipelineOutput<AnimationSheetExportSettings>(exportSettings, "Sheet Export Settings", new PipelineOutput());
-
-            var sheetStep = new SpriteSheetGenerationPipelineStep();
-
-            var finalStep = new FileExportPipelineStep();
-
-            // Link stuff
-            foreach (var step in animSteps)
-            {
-                //step.ConnectTo(animJoinerStep);
-            }
-
-            //animJoinerStep.ConnectTo(sheetStep);
-            //sheetStep.SheetSettingsInput.Connect(sheetSettingsOutput);
-
-            //sheetStep.ConnectTo(finalStep);
-
-            finalStep.Begin();
         }
 
         private void tsb_sortSelected_Click(object sender, EventArgs e)
@@ -342,59 +170,6 @@ namespace Pixelaria.Views.ExportPipeline
 
             exportPipelineControl.PipelineContainer.ContentsView.Scale = Vector.Unit;
             exportPipelineControl.PipelineContainer.ContentsView.Location = Vector.Zero;
-
-            BundlePipelineLoader.Load(bundle, exportPipelineControl);
-        }
-    }
-
-    internal class BundlePipelineLoader
-    {
-        public static void Load([NotNull] Bundle bundle, [NotNull] ExportPipelineControl exportPipelineControl)
-        {
-            exportPipelineControl.PipelineContainer.RemoveAllViews();
-            
-            exportPipelineControl.SuspendLayout();
-
-            // Add export node from which all sheet steps will derive to
-            var exportStep = new FileExportPipelineStep();
-            exportPipelineControl.PipelineContainer.AddNodeView(PipelineNodeView.Create(exportStep, node =>
-                {
-                    node.Icon = exportPipelineControl.ImageResources.GetImageResource("sheet_save_icon");
-                }));
-
-            // Anim steps for animations w/ no owners
-            foreach (var animation in bundle.Animations.Where(anim => bundle.GetOwningAnimationSheet(anim) == null))
-            {
-                var node = new SingleAnimationPipelineStep(animation);
-                var step = PipelineNodeView.Create(node);
-                step.Icon = exportPipelineControl.ImageResources.GetImageResource("anim_icon");
-
-                exportPipelineControl.PipelineContainer.AddNodeView(step);
-            }
-                
-            foreach (var sheet in bundle.AnimationSheets)
-            {
-                var sheetStep = new SpriteSheetGenerationPipelineStep();
-
-                var animsStep = new AnimationsPipelineStep(sheet.Animations);
-                    
-                exportPipelineControl.PipelineContainer.AddNodeView(PipelineNodeView.Create(sheetStep, node =>
-                    {
-                        node.Icon = exportPipelineControl.ImageResources.GetImageResource("sheet_new");
-                    }));
-                exportPipelineControl.PipelineContainer.AddNodeView(PipelineNodeView.Create(animsStep, node =>
-                    {
-                        node.Icon = exportPipelineControl.ImageResources.GetImageResource("anim_icon");
-                    }));
-
-                exportPipelineControl.PipelineContainer.AddConnection(animsStep, sheetStep);
-                exportPipelineControl.PipelineContainer.AddConnection(sheetStep, exportStep);
-            }
-
-            exportPipelineControl.PipelineContainer.AutoSizeNodes();
-            exportPipelineControl.PipelineContainer.PerformAction(new SortSelectedViewsAction(exportPipelineControl.AnimationsManager, false));
-
-            exportPipelineControl.ResumeLayout();
         }
     }
 
@@ -596,247 +371,6 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     container.UpdateConnectionViewsFor(view);
                 }
-            }
-        }
-    }
-
-    /// <summary>
-    /// A 'picture-in-picture' style manager for bitmap preview pipeline steps.
-    /// </summary>
-    internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature, IRenderListener
-    {
-        [CanBeNull]
-        private IRenderLoopState _latestRenderState;
-
-        private readonly Font _font = new Font(FontFamily.GenericSansSerif, 12);
-
-        private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
-        private readonly Dictionary<BitmapPreviewPipelineStep, IManagedImageResource> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, IManagedImageResource>();
-        private readonly List<PreviewBounds> _previewBounds = new List<PreviewBounds>();
-        private readonly InsetBounds _titleInset = new InsetBounds(5, 5, 5, 5);
-        private InsetBounds _screenInsetBounds = new InsetBounds(5, 5, 5, 5);
-
-        public InsetBounds ScreenInsetBounds
-        {
-            get => _screenInsetBounds;
-            set
-            {
-                if (_screenInsetBounds == value)
-                    return;
-
-                _screenInsetBounds = value;
-                ReloadBoundsCache();
-            }
-        }
-
-        public int RenderOrder => RenderOrdering.UserInterface;
-
-        public BitmapPreviewPipelineWindowManager([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager) : base(control)
-        {
-            control.PipelineContainer.NodeAdded += PipelineContainerOnNodeAdded;
-            control.PipelineContainer.NodeRemoved += PipelineContainerOnNodeRemoved;
-            control.SizeChanged += ControlOnSizeChanged;
-
-            renderManager.AddRenderListener(this);
-        }
-
-        private void ControlOnSizeChanged(object sender, EventArgs e)
-        {
-            ReloadBoundsCache();
-        }
-
-        ~BitmapPreviewPipelineWindowManager()
-        {
-            foreach (var bitmap in _latestPreviews.Values)
-            {
-                bitmap?.Dispose();
-            }
-
-            _font.Dispose();
-        }
-        
-        private void PipelineContainerOnNodeAdded(object sender, [NotNull] PipelineNodeViewEventArgs e)
-        {
-            if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
-                return;
-
-            AddPreview(step, e.Control);
-        }
-
-        private void PipelineContainerOnNodeRemoved(object sender, [NotNull] PipelineNodeViewEventArgs e)
-        {
-            if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
-                return;
-
-            RemovePreview(step, e.Control);
-        }
-
-        private void OnBitmapStepOnRenamed(object sender, EventArgs args)
-        {
-            ReloadBoundsCache();
-            Control.InvalidateAll();
-        }
-
-        private void AddPreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
-        {
-            _previewSteps.Add(step);
-            _latestPreviews[step] = null;
-
-            ReloadBoundsCache();
-
-            step.OnReceive = bitmap =>
-            {
-                UpdatePreview(step, bitmap, control);
-            };
-
-            step.Renamed += OnBitmapStepOnRenamed;
-
-            control.InvalidateAll();
-        }
-
-        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
-        {
-            control.InvalidateAll();
-
-            step.Renamed -= OnBitmapStepOnRenamed;
-
-            _previewSteps.Remove(step);
-            _latestPreviews[step]?.Dispose();
-            _latestPreviews.Remove(step);
-
-            ReloadBoundsCache();
-        }
-
-        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, Bitmap bitmap, [NotNull] IExportPipelineControl control)
-        {
-            if (_latestRenderState == null)
-                return;
-
-            IManagedImageResource managedBitmap;
-
-            if (_latestPreviews.TryGetValue(step, out var old))
-            {
-                managedBitmap = old;
-                control.ImageResources.UpdateManagedImageResource(_latestRenderState, ref managedBitmap, bitmap);
-            }
-            else
-            {
-                managedBitmap = control.ImageResources.CreateManagedImageResource(_latestRenderState, bitmap);
-            }
-
-            _latestPreviews[step] = managedBitmap;
-            
-            ReloadBoundsCache();
-
-            control.InvalidateAll();
-        }
-
-        public void RecreateState(IRenderLoopState state)
-        {
-            _latestRenderState = state;
-        }
-
-        public void Render(IRenderListenerParameters parameters)
-        {
-            var state = parameters.State;
-
-            _latestRenderState = state;
-
-            for (int i = 0; i < _previewSteps.Count; i++)
-            {
-                var step = _previewSteps[i];
-
-                var bounds = BoundsForPreview(i);
-
-                _latestPreviews.TryGetValue(step, out var bitmap);
-
-                // Draw image, or opaque background
-                if (bitmap != null)
-                {
-                    parameters.Renderer.DrawBitmap(bitmap, bounds.ImageBounds, 1, ImageInterpolationMode.Linear);
-                }
-                else
-                {
-                    parameters.Renderer.SetFillColor(Color.DimGray);
-                    parameters.Renderer.FillArea(bounds.ImageBounds);
-                }
-
-                parameters.Renderer.SetStrokeColor(Color.Gray);
-                parameters.Renderer.StrokeArea(bounds.ImageBounds);
-
-                // Draw title
-                var format = new TextFormatAttributes(_font.FontFamily.Name, _font.Size)
-                {
-                    TextEllipsisTrimming = new TextEllipsisTrimming
-                    {
-                        Granularity = TextTrimmingGranularity.Character
-                    }
-                };
-
-                parameters.Renderer.SetFillColor(Color.Black);
-                parameters.Renderer.FillArea(bounds.TitleBounds);
-
-                parameters.TextRenderer.Draw(step.Name, format, bounds.TitleBounds.Inset(_titleInset), Color.White);
-            }
-        }
-
-        private void ReloadBoundsCache()
-        {
-            _previewBounds.Clear();
-            
-            float y = 0;
-
-            foreach (var step in _previewSteps)
-            {
-                string name = step.Name;
-
-                var nameSize = Control.TextSizeProvider.CalculateTextSize(name, _font);
-                nameSize.Width += _titleInset.Left + _titleInset.Right;
-                nameSize.Height += _titleInset.Top + _titleInset.Bottom;
-
-                _latestPreviews.TryGetValue(step, out var bitmap);
-
-                var size = new Vector(120, 90);
-                if (bitmap != null)
-                    size = new Vector(120 * ((float) bitmap.Width / bitmap.Height), 90);
-
-                var availableBounds = 
-                    AABB.FromRectangle(Vector.Zero, Control.Size)
-                        .Inset(ScreenInsetBounds);
-
-                var titleBounds = AABB.FromRectangle(availableBounds.Width - size.X,
-                    availableBounds.Height - y - size.Y - nameSize.Height, 
-                    size.X,
-                    nameSize.Height);
-
-                var bounds = AABB.FromRectangle(availableBounds.Width - size.X, 
-                    availableBounds.Height - y - size.Y,
-                    size.X,
-                    size.Y);
-
-                var previewBounds = new PreviewBounds(titleBounds, bounds);
-
-                y += previewBounds.TotalBounds.Height + 5;
-
-                _previewBounds.Add(previewBounds);
-            }
-        }
-
-        private PreviewBounds BoundsForPreview(int index)
-        {
-            return _previewBounds[index];
-        }
-
-        private struct PreviewBounds
-        {
-            public AABB TotalBounds => TitleBounds.Union(ImageBounds);
-            public AABB TitleBounds { get; }
-            public AABB ImageBounds { get; }
-
-            public PreviewBounds(AABB titleBounds, AABB imageBounds)
-            {
-                TitleBounds = titleBounds;
-                ImageBounds = imageBounds;
             }
         }
     }

@@ -31,12 +31,10 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
-using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
@@ -280,7 +278,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
             button.TextInset = new InsetBounds(5, 5, 5, 5);
             button.ImageInset = new InsetBounds(7, 0, 0, 0);
-            button.Image = IconForPipelineNodeType(spec.NodeType, _imageResourceProvider);
+            //button.Image = IconForPipelineNodeType(spec.NodeType, _imageResourceProvider);
             button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
 
             return button;
@@ -302,6 +300,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         {
             return SpecButtons.FirstOrDefault(b => b.Tag == spec);
         }
+
+#if false
 
         /// <summary>
         /// Gets an image resource from a given image resources provider that matches the given pipeline node.
@@ -370,6 +370,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
             return iconName != null ? resourcesProvider.GetImageResource(iconName) : null;
         }
+
+#endif
 
         /// <summary>
         /// Arguments for event fired when user selects a pipeline node from the pipeline node panels.
@@ -453,7 +455,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
             var view = PipelineNodeView.Create(node);
-            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.ImageResources);
+            //view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.ImageResources);
 
             container.AutoSizeNode(view);
 

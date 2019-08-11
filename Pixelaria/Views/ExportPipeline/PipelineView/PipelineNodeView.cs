@@ -31,7 +31,6 @@ using PixCore.Geometry;
 using PixUI;
 
 using Pixelaria.ExportPipeline;
-using Pixelaria.ExportPipeline.Steps;
 using PixRendering;
 using PixPipelineGraph;
 
@@ -252,9 +251,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public static Color DefaultColorForPipelineStep(IPipelineNode step)
         {
-            if (step is SpriteSheetGenerationPipelineStep)
-                return Color.Beige;
-
             return Color.White;
         }
 
@@ -263,9 +259,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public static Color DefaultStrokeColorForPipelineStep(IPipelineNode step)
         {
-            if (step is SpriteSheetGenerationPipelineStep)
-                return Color.Beige.Faded(Color.Black, 0.3f);
-
             return Color.White.Faded(Color.Black, 0.3f);
         }
     }

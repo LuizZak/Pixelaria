@@ -233,7 +233,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     TransformMatrix = transformMatrix;
                     var node = nodeSpec.CreateNode();
                     _nodeView = PipelineNodeView.Create(node);
-                    _nodeView.Icon = IconForPipelineNode(node, imageProvider);
+                    //_nodeView.Icon = IconForPipelineNode(node, imageProvider);
 
                     var nodeViewSizer = new DefaultPipelineNodeViewSizer();
                     nodeViewSizer.AutoSize(_nodeView, LabelView.defaultTextSizeProvider);

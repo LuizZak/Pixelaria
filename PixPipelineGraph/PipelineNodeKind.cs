@@ -27,14 +27,14 @@ namespace PixPipelineGraph
 {
     /// <inheritdoc cref="IEquatable{T}" />
     /// <summary>
-    /// Represents a unique identifier for a <see cref="T:PixPipelineGraph.PipelineNode" /> on a graph.
+    /// Represents a unique identifier for a kind of a <see cref="T:PixPipelineGraph.PipelineNode" /> on a graph.
     /// </summary>
     [DebuggerDisplay("{" + nameof(Id) + "}")]
-    public readonly struct PipelineNodeId : IEquatable<PipelineNodeId>
+    public readonly struct PipelineNodeKind : IEquatable<PipelineNodeKind>
     {
         public Guid Id { get; }
 
-        public PipelineNodeId(in Guid id)
+        public PipelineNodeKind(in Guid id)
         {
             Id = id;
         }
@@ -44,7 +44,7 @@ namespace PixPipelineGraph
             return $"{{{nameof(Id)}: ${Id}}}";
         }
 
-        public bool Equals(PipelineNodeId other)
+        public bool Equals(PipelineNodeKind other)
         {
             return Id == other.Id;
         }
@@ -59,12 +59,12 @@ namespace PixPipelineGraph
             return Id.GetHashCode();
         }
 
-        public static bool operator ==(in PipelineNodeId left, in PipelineNodeId right)
+        public static bool operator ==(in PipelineNodeKind left, in PipelineNodeKind right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(in PipelineNodeId left, in PipelineNodeId right)
+        public static bool operator !=(in PipelineNodeKind left, in PipelineNodeKind right)
         {
             return !left.Equals(right);
         }

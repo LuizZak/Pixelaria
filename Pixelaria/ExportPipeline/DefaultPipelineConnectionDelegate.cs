@@ -87,7 +87,7 @@ namespace Pixelaria.ExportPipeline
 
                 foreach (var connection in connections)
                 {
-                    if (!visited.Contains(connection.Start.NodeId))
+                    if (!visited.Contains(connection.End.NodeId))
                         queue.Enqueue(connection.End.NodeId);
                 }
             }

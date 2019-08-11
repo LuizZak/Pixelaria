@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the default specs provider for this export pipeline
         /// </summary>
-        public DefaultPipelineNodeSpecsProvider PipelineNodeSpecsProvider { get; } = new DefaultPipelineNodeSpecsProvider();
+        public IPipelineGraphBodyProvider PipelineGraphBodyProvider { get; } = new DefaultPipelineGraphBodyProvider();
 
         /// <summary>
         /// Gets a set of rectangles that represent the invalidated redraw regions of this pipeline control.
@@ -127,7 +127,7 @@ namespace Pixelaria.Views.ExportPipeline
             _fixedTimer.Tick += fixedTimer_Tick;
             _fixedTimer.Start();
 
-            _container = new InternalPipelineContainer(this, PipelineNodeSpecsProvider);
+            _container = new InternalPipelineContainer(this, PipelineGraphBodyProvider);
 
             _internalRenderer = new InternalRenderListener(_container, this);
 

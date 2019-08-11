@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -21,29 +21,15 @@
 */
 
 using System;
-using System.Collections.Generic;
 using PixPipelineGraph;
 
-namespace Pixelaria.ExportPipeline.Steps.Abstract
+namespace Pixelaria.ExportPipeline
 {
-    /// <summary>
-    /// Base abstract pipeline step to start subclassing and specializing pipeline steps
-    /// </summary>
-    public abstract class AbstractPipelineStep : IPipelineStep
+    class DefaultPipelineGraphBodyProvider : IPipelineGraphBodyProvider
     {
-        public PipelineNodeId Id { get; } = new PipelineNodeId(Guid.NewGuid());
-        public abstract string Name { get; }
-
-        public abstract IReadOnlyList<IPipelineInput> Input { get; }
-        public abstract IReadOnlyList<IPipelineOutput> Output { get; }
-
-        /// <summary>
-        /// Default implementation for <see cref="IPipelineStep.GetMetadata"/>
-        /// that returns an empty pipeline metadata object
-        /// </summary>
-        public virtual IPipelineMetadata GetMetadata()
+        public PipelineBody GetBody(PipelineBodyId id)
         {
-            return PipelineMetadata.Empty;
+            throw new NotImplementedException();
         }
     }
 }
