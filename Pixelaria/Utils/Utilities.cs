@@ -237,7 +237,7 @@ namespace Pixelaria.Utils
         /// 
         /// SampleCase          -> Sample Case
         /// PerformHTTPRequest  -> Perform HTTP Request
-        /// AnotherSample       -> Anoter Sample
+        /// AnotherSample       -> Another Sample
         /// 
         /// </summary>
         /// <param name="name"></param>

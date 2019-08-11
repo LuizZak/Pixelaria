@@ -26,6 +26,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Reflection;
 using JetBrains.Annotations;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {

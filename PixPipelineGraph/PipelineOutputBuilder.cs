@@ -28,7 +28,7 @@ namespace PixPipelineGraph
     /// <summary>
     /// Provides an interface to create pipeline outputs with.
     /// </summary>
-    public class PipelineOutputBuilder
+    public class PipelineOutputBuilder: IMetadataObjectBuilder
     {
         private readonly PipelineBuildStepCollection<InternalPipelineOutput> _stepCollection = new PipelineBuildStepCollection<InternalPipelineOutput>();
 
@@ -56,6 +56,17 @@ namespace PixPipelineGraph
             _stepCollection.AddClosureBuilderStep(output =>
             {
                 output.DataType = type;
+            });
+        }
+
+        /// <summary>
+        /// Adds an entry for a metadata value for the created output.
+        /// </summary>
+        public void AddMetadataEntry(string key, object value)
+        {
+            _stepCollection.AddClosureBuilderStep(output =>
+            {
+                output.Metadata.SetValue(key, value);
             });
         }
 

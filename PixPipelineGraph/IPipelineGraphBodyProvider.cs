@@ -40,13 +40,38 @@ namespace PixPipelineGraph
     /// <summary>
     /// Defines an identifier for a pipeline body ID.
     /// </summary>
-    public struct PipelineBodyId
+    public struct PipelineBodyId: IEquatable<PipelineBodyId>
     {
-        public Guid Id { get; }
+        public string Id { get; }
 
-        public PipelineBodyId(Guid id)
+        public PipelineBodyId(string id)
         {
             Id = id;
+        }
+
+        public bool Equals(PipelineBodyId other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PipelineBodyId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public static bool operator ==(PipelineBodyId left, PipelineBodyId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(PipelineBodyId left, PipelineBodyId right)
+        {
+            return !left.Equals(right);
         }
     }
 }

@@ -57,9 +57,12 @@ namespace PixPipelineGraph
         }
 
         [CanBeNull]
-        internal PipelineBody BodyForInputType(Type inputType)
+        internal PipelineBody BodyForInputType(Type[] inputTypes)
         {
-            return Bodies.FirstOrDefault(body => inputType.IsAssignableFrom(body.InputType));
+            return Bodies.FirstOrDefault(body =>
+            {
+                return body.InputTypes.Zip(inputTypes, (param, valueType) => (param, valueType)).All(types => types.valueType.IsAssignableFrom(types.param));
+            });
         }
     }
 }

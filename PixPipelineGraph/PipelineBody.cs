@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -36,12 +37,9 @@ namespace PixPipelineGraph
         public PipelineBodyId Id { get; }
 
         /// <summary>
-        /// The input type of the body.
-        ///
-        /// If <c>null</c>, this body takes no parameters.
+        /// The indexed input types of the body.
         /// </summary>
-        [CanBeNull]
-        public Type InputType { get; set; }
+        public Type[] InputTypes { get; set; }
 
         /// <summary>
         /// The output type of the body.
@@ -55,14 +53,80 @@ namespace PixPipelineGraph
         /// The untyped delegate for this body.
         /// </summary>
         [NotNull]
-        public Func<object, object> Body { get; set; }
+        public Func<IPipelineBodyInvocationContext, object> Body { get; set; }
 
-        public PipelineBody(PipelineBodyId id, Type inputType, Type outputType, [NotNull] Func<object, object> body)
+        public PipelineBody(PipelineBodyId id, Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, object> body)
         {
             Id = id;
-            InputType = inputType;
+            InputTypes = inputTypes;
             OutputType = outputType;
             Body = body;
         }
+    }
+
+    /// <summary>
+    /// Describes the invocation context of a pipeline body
+    /// </summary>
+    public interface IPipelineBodyInvocationContext
+    {
+        /// <summary>
+        /// Gets the number of inputs available to consume.
+        /// </summary>
+        int InputCount { get; }
+
+        /// <summary>
+        /// Returns <c>true</c> if there's any input available on a given input index.
+        ///
+        /// Input values still be <c>null</c>, in case <c>null</c> was the value itself provided
+        /// to the input.
+        /// </summary>
+        bool HasInputAtIndex(int index);
+
+        /// <summary>
+        /// Gets an object at a given input index on this invocation context.
+        ///
+        /// This value may be <c>null</c>, in case the input was itself provided null, or not connected to an output.
+        /// </summary>
+        [CanBeNull]
+        T GetIndexedInput<T>(int index);
+
+        /// <summary>
+        /// Helper method for fetching indexed inputs by matching type.
+        ///
+        /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
+        /// </summary>
+        bool GetIndexedInputs<T1>(out T1 t1);
+        /// <summary>
+        /// Helper method for fetching indexed inputs by matching type.
+        ///
+        /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
+        /// </summary>
+        bool GetIndexedInputs<T1, T2>(out T1 t1, out T2 t2);
+        /// <summary>
+        /// Helper method for fetching indexed inputs by matching type.
+        ///
+        /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
+        /// </summary>
+        bool GetIndexedInputs<T1, T2, T3>(out T1 t1, out T2 t2, out T3 t3);
+        /// <summary>
+        /// Helper method for fetching indexed inputs by matching type.
+        ///
+        /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
+        /// </summary>
+        bool GetIndexedInputs<T1, T2, T3, T4>(out T1 t1, out T2 t2, out T3 t3, out T4 t4);
+        /// <summary>
+        /// Helper method for fetching indexed inputs by matching type.
+        ///
+        /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
+        /// </summary>
+        bool GetIndexedInputs<T1, T2, T3, T4, T5>(out T1 t1, out T2 t2, out T3 t3, out T4 t4, out T5 t5);
+
+        /// <summary>
+        /// Returns <c>true</c> if all indexed inputs match the given expected types, using <see cref="Type.IsAssignableFrom"/>
+        /// as a test of compatibility.
+        ///
+        /// If the count of inputs mismatch, <c>false</c> is returned, instead.
+        /// </summary>
+        bool MatchesInputTypes([NotNull] IReadOnlyList<Type> inputTypes);
     }
 }

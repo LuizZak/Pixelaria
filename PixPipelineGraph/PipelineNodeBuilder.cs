@@ -28,7 +28,7 @@ namespace PixPipelineGraph
     /// <summary>
     /// Provides an interface to create pipeline nodes with.
     /// </summary>
-    public class PipelineNodeBuilder
+    public class PipelineNodeBuilder: IMetadataObjectBuilder
     {
         private readonly IPipelineGraphBodyProvider _bodyProvider;
         private readonly PipelineBuildStepCollection<PipelineNode> _stepCollection = new PipelineBuildStepCollection<PipelineNode>();
@@ -109,6 +109,17 @@ namespace PixPipelineGraph
             return lazyOutput;
         }
 
+        /// <summary>
+        /// Adds an entry for a metadata value for the created node.
+        /// </summary>
+        public void AddMetadataEntry(string key, object value)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                node.PipelineMetadata.SetValue(key, value);
+            });
+        }
+
         internal PipelineNode Build(PipelineNodeId id)
         {
             var node = new PipelineNode(id);
@@ -117,5 +128,13 @@ namespace PixPipelineGraph
 
             return node;
         }
+    }
+
+    public interface IMetadataObjectBuilder
+    {
+        /// <summary>
+        /// Adds an entry for a metadata value for the created node.
+        /// </summary>
+        void AddMetadataEntry(string key, object value);
     }
 }

@@ -22,12 +22,12 @@
 
 using System;
 
-namespace Pixelaria.ExportPipeline
+namespace PixPipelineGraph
 {
     /// <summary>
     /// Describes a property from a pipeline metadata object that can be directly edited by the user.
     /// </summary>
-    interface IEditableProperty
+    public interface IEditableProperty
     {
         /// <summary>
         /// Gets the display name of this property.

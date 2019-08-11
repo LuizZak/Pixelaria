@@ -28,7 +28,7 @@ namespace PixPipelineGraph
     /// <summary>
     /// Provides an interface to create pipeline inputs with.
     /// </summary>
-    public class PipelineInputBuilder
+    public class PipelineInputBuilder: IMetadataObjectBuilder
     {
         private readonly PipelineBuildStepCollection<InternalPipelineInput> _stepCollection = new PipelineBuildStepCollection<InternalPipelineInput>();
 
@@ -56,6 +56,17 @@ namespace PixPipelineGraph
             _stepCollection.AddClosureBuilderStep(input =>
             {
                 input.dataTypes.Add(type);
+            });
+        }
+
+        /// <summary>
+        /// Adds an entry for a metadata value for the created input.
+        /// </summary>
+        public void AddMetadataEntry(string key, object value)
+        {
+            _stepCollection.AddClosureBuilderStep(input =>
+            {
+                input.Metadata.SetValue(key, value);
             });
         }
 

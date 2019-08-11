@@ -31,6 +31,11 @@ namespace PixPipelineGraph
     public interface IPipelineMetadata
     {
         /// <summary>
+        /// Sets a given value on this pipeline metadata.
+        /// </summary>
+        void SetValue([NotNull] string key, [CanBeNull] object value);
+
+        /// <summary>
         /// Returns an object that matches a given key on this pipeline metadata.
         /// 
         /// Returns null, if key is not present.
@@ -74,7 +79,12 @@ namespace PixPipelineGraph
                 Flags.Add(flag);
             }
         }
-        
+
+        public void SetValue(string key, object value)
+        {
+            Metadata[key] = value;
+        }
+
         public object GetValue(string key)
         {
             return Metadata.TryGetValue(key, out object value) ? value : null;
@@ -120,5 +130,10 @@ namespace PixPipelineGraph
         /// editable metadata of a pipeline node.
         /// </summary>
         public static readonly string EditableProperties = "EditableProperties";
+
+        /// <summary>
+        /// Describes the name of the resource associated with the display icon for the object.
+        /// </summary>
+        public static readonly string IconName = "IconName";
     }
 }
