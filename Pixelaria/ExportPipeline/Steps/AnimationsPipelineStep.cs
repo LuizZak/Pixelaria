@@ -51,7 +51,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
             Animations = animations;
 
-            Output = new[] {new AnimationsOutput(this, output)};
+            Output = new[] {new AnimationsOutput(this, output, new PipelineOutput())};
 
             CreateStepBodyText();
         }

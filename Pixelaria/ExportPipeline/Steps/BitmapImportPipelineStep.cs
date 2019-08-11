@@ -27,6 +27,7 @@ using System.Reactive.Linq;
 
 using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps.Abstract;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
 {
@@ -60,7 +61,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     return Disposable.Empty;
                 }).Replay(1).RefCount();
             
-            Output = new[] {new PipelineBitmapOutput(this, source)};
+            Output = new[] {new PipelineBitmapOutput(this, source, new PipelineOutput())};
         }
     }
 

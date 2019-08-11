@@ -69,9 +69,17 @@ namespace PixPipelineGraphTests
 
         private static PipelineNodeBuilder CreatePipelineNodeBuilder()
         {
-            return new PipelineNodeBuilder();
+            return new PipelineNodeBuilder(new MockPipelineBodyProvider());
         }
 
         #endregion
+
+        private class MockPipelineBodyProvider : IPipelineGraphBodyProvider
+        {
+            public PipelineBody GetBody(PipelineBodyId id)
+            {
+                return new PipelineBody(id, typeof(int), typeof(int), o => o);
+            }
+        }
     }
 }

@@ -38,16 +38,19 @@ namespace Pixelaria.ExportPipeline.Outputs
         /// The value to feed to subscribers.
         /// </summary>
         public T Value { get; }
-        
+
+        public PipelineNodeId NodeId => Node.Id;
         public virtual string Name { get; }
         public IPipelineNode Node { get; } = null;
 
+        public PipelineOutput Id { get; }
         public Type DataType { get; } = typeof(T);
 
-        public StaticPipelineOutput(T value, [NotNull] string name)
+        public StaticPipelineOutput(T value, [NotNull] string name, PipelineOutput id)
         {
             Value = value;
             Name = name;
+            Id = id;
         }
 
         public IObservable<object> GetObservable()

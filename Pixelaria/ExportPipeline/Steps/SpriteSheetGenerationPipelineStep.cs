@@ -53,8 +53,8 @@ namespace Pixelaria.ExportPipeline.Steps
             // Create a stream that takes an animation and outputs a sprite sheet
             var exporter = new DefaultPngExporter();
 
-            AnimationsInput = new AnimationsInput(this);
-            SheetSettingsInput = new SheetSettingsInput(this)
+            AnimationsInput = new AnimationsInput(this, new PipelineInput());
+            SheetSettingsInput = new SheetSettingsInput(this, new PipelineInput())
             {
                 Name = "Settings"
             };
@@ -65,6 +65,7 @@ namespace Pixelaria.ExportPipeline.Steps
                 SheetSettingsInput
             };
             
+            /*
             var animConnections = AnimationsInput.AnyConnection();
             var settingsConnections = SheetSettingsInput.AnyConnection();
 
@@ -86,6 +87,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     Name = "Sheet"
                 }
             };
+            */
         }
 
         public override IPipelineMetadata GetMetadata()

@@ -32,7 +32,7 @@ namespace Pixelaria.ExportPipeline.Inputs
     /// </summary>
     public class SheetSettingsInput : AbstractSinglePipelineInput<AnimationSheetExportSettings>
     {
-        public SheetSettingsInput([NotNull] IPipelineNode step) : base(step)
+        public SheetSettingsInput([NotNull] IPipelineNode step, PipelineInput id) : base(step, id)
         {
             Name = "Sprite Sheet Settings";
         }

@@ -35,32 +35,19 @@ namespace Pixelaria.ExportPipeline.Inputs.Abstract
     /// <typeparam name="T">The type of objects this input will accept</typeparam>
     public abstract class AbstractSinglePipelineInput<T> : IPipelineInput
     {
-        private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
+        public PipelineNodeId NodeId => Node.Id;
 
         public string Name { get; set; } = "";
         public IPipelineNode Node { get; }
-        public Type[] DataTypes => new[] { typeof(T) };
-        public IPipelineOutput[] Connections => _connections.ToArray();
+        public PipelineInput Id { get; }
+        public IReadOnlyList<Type> DataTypes => new[] { typeof(T) };
         
-        protected AbstractSinglePipelineInput([NotNull] IPipelineNode step)
+        protected AbstractSinglePipelineInput([NotNull] IPipelineNode step, PipelineInput id)
         {
             Node = step;
+            Id = id;
         }
         
-        public IPipelineLinkConnection Connect(IPipelineOutput output)
-        {
-            if (_connections.Contains(output))
-                return null;
-
-            _connections.Add(output);
-            return new PipelineLinkConnection(this, output, c => { Disconnect(output); });
-        }
-
-        public void Disconnect(IPipelineOutput output)
-        {
-            _connections.Remove(output);
-        }
-
         public abstract IPipelineMetadata GetMetadata();
     }
 
@@ -70,7 +57,7 @@ namespace Pixelaria.ExportPipeline.Inputs.Abstract
     /// </summary>
     public sealed class GenericPipelineInput<T> : AbstractSinglePipelineInput<T>
     {
-        public GenericPipelineInput([NotNull] IPipelineNode step, [NotNull] string name) : base(step)
+        public GenericPipelineInput([NotNull] IPipelineNode step, [NotNull] string name, PipelineInput id) : base(step, id)
         {
             Name = name;
         }

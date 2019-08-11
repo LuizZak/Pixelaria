@@ -42,6 +42,40 @@ namespace PixPipelineGraph
         public IReadOnlyList<IPipelineConnection> PipelineConnections => _connections;
 
         /// <summary>
+        /// Gets or sets the pipeline graph body provider.
+        /// </summary>
+        [NotNull]
+        public IPipelineGraphBodyProvider BodyProvider { get; set; }
+
+        /// <summary>
+        /// A delegate that is invoked before making connections on this graph.
+        /// </summary>
+        [CanBeNull]
+        public IPipelineConnectionDelegate ConnectionDelegate { get; set; }
+
+        #region Events
+
+        /// <summary>
+        /// An event fired when a connection between an input and an output is made.
+        /// </summary>
+        public event ConnectionEventHandler ConnectionWasAdded;
+
+        /// <summary>
+        /// An event fired when a connection between an input and an output is about to be undone.
+        /// </summary>
+        public event ConnectionEventHandler ConnectionWillBeRemoved;
+
+        #endregion
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="PipelineGraph"/> with a given body provider.
+        /// </summary>
+        public PipelineGraph([NotNull] IPipelineGraphBodyProvider bodyProvider)
+        {
+            BodyProvider = bodyProvider;
+        }
+
+        /// <summary>
         /// Creates and returns a new empty node
         /// </summary>
         public PipelineNodeId CreateNode()
@@ -56,7 +90,7 @@ namespace PixPipelineGraph
         {
             var id = GenerateUniquePipelineNodeId();
 
-            var builder = new PipelineNodeBuilder();
+            var builder = new PipelineNodeBuilder(BodyProvider);
 
             constructor(builder);
 
@@ -105,7 +139,7 @@ namespace PixPipelineGraph
         [CanBeNull]
         public IPipelineConnection Connect(PipelineOutput output, PipelineInput input)
         {
-            if (input.PipelineNodeId == output.PipelineNodeId)
+            if (input.NodeId == output.NodeId)
                 return null;
 
             var existing = GetConnection(input, output);
@@ -119,7 +153,64 @@ namespace PixPipelineGraph
 
             _connections.Add(connection);
 
+            ConnectionWasAdded?.Invoke(this, new ConnectionEventArgs(connection));
+
             return connection;
+        }
+
+        /// <summary>
+        /// Creates a connection between two nodes with the first match of input/output found between the two.
+        ///
+        /// If no connection could be made, <c>null</c> is returned, instead.
+        /// </summary>
+        [CanBeNull]
+        public IPipelineConnection Connect(PipelineNodeId start, PipelineNodeId end)
+        {
+            // Detect cycles
+            if (AreDirectlyConnected(start, end))
+                return null;
+
+            // Find first matching output from this that matches an input from other
+            foreach (var output in OutputsForNode(start))
+            {
+                foreach (var input in InputsForNode(end))
+                {
+                    var connections = ConnectionsTowardsInput(input);
+
+                    if (connections.Any(c => c.Start == output))
+                        continue;
+
+                    if (!CanConnect(input, output)) continue;
+
+                    return Connect(output, input);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns whether a pipeline input can be connected to an output.
+        /// 
+        /// The method looks through the proper data types accepted by the input and the data type
+        /// of the output to make the decision.
+        /// </summary>
+        public bool CanConnect(PipelineInput input, PipelineOutput output)
+        {
+            if (input.NodeId != output.NodeId)
+                return false;
+
+            var inputData = GetInput(input);
+            var outputData = GetOutput(output);
+
+            if (inputData == null || outputData == null)
+                return false;
+
+            if (ConnectionDelegate != null && !ConnectionDelegate.CanConnect(inputData, outputData, this))
+                return false;
+
+            return
+                inputData.DataTypes.Any(type => type.IsAssignableFrom(outputData.DataType));
         }
 
         /// <summary>
@@ -164,6 +255,18 @@ namespace PixPipelineGraph
             return node.Outputs.Select(o => o.Id).ToList();
         }
 
+        [CanBeNull]
+        public IPipelineInput GetInput(PipelineInput input)
+        {
+            return InputWithId(input);
+        }
+
+        [CanBeNull]
+        public IPipelineOutput GetOutput(PipelineOutput output)
+        {
+            return OutputWithId(output);
+        }
+
         /// <inheritdoc />
         public bool AreConnected(PipelineNodeId node1, PipelineNodeId node2)
         {
@@ -178,6 +281,33 @@ namespace PixPipelineGraph
         public bool AreConnected(PipelineOutput output, PipelineInput input)
         {
             return _connections.Any(conn => conn.Input.Id == input && conn.Output.Id == output);
+        }
+
+        /// <inheritdoc />
+        public bool AreDirectlyConnected(PipelineNodeId node, PipelineNodeId target)
+        {
+            bool connected = false;
+            
+            // Try target -> node cycle first
+            this.TraverseInputs(node, n =>
+            {
+                if (n == target)
+                    connected = true;
+                return !connected;
+            });
+
+            if (connected)
+                return true;
+
+            // Now try again just to see if we're not connected from node -> target instead
+            this.TraverseInputs(target, n =>
+            {
+                if (n == node)
+                    connected = true;
+                return !connected;
+            });
+
+            return connected;
         }
 
         /// <inheritdoc />
@@ -236,6 +366,11 @@ namespace PixPipelineGraph
             {
                 nodesMap[node.Id] = CreateNode(n =>
                 {
+                    foreach (var body in node.Bodies)
+                    {
+                        n.AddBody(body);
+                    }
+
                     foreach (var input in node.Inputs)
                     {
                         n.CreateInput(input.Name, i =>
@@ -259,8 +394,8 @@ namespace PixPipelineGraph
 
             foreach (var connection in other._connections)
             {
-                var start = nodesMap[connection.Start.PipelineNodeId];
-                var end = nodesMap[connection.End.PipelineNodeId];
+                var start = nodesMap[connection.Start.NodeId];
+                var end = nodesMap[connection.End.NodeId];
 
                 int startIndex = connection.Start.Index;
                 int endIndex = connection.End.Index;
@@ -281,31 +416,33 @@ namespace PixPipelineGraph
     {
         private void RemoveConnection(PipelineConnection connection)
         {
+            ConnectionWillBeRemoved?.Invoke(this, new ConnectionEventArgs(connection));
+
             _connections.Remove(connection);
         }
 
         [CanBeNull]
         private InternalPipelineInput InputWithId(PipelineInput input)
         {
-            return NodeWithId(input.PipelineNodeId)?.Inputs[input.Index];
+            return NodeWithId(input.NodeId)?.Inputs[input.Index];
         }
 
         [CanBeNull]
         private InternalPipelineOutput OutputWithId(PipelineOutput input)
         {
-            return NodeWithId(input.PipelineNodeId)?.Outputs[input.Index];
+            return NodeWithId(input.NodeId)?.Outputs[input.Index];
         }
 
         [NotNull]
         private InternalPipelineInput InputWithIdOrException(PipelineInput input)
         {
-            return NodeWithIdOrException(input.PipelineNodeId).Inputs[input.Index];
+            return NodeWithIdOrException(input.NodeId).Inputs[input.Index];
         }
 
         [NotNull]
         private InternalPipelineOutput OutputWithIdOrException(PipelineOutput input)
         {
-            return NodeWithIdOrException(input.PipelineNodeId).Outputs[input.Index];
+            return NodeWithIdOrException(input.NodeId).Outputs[input.Index];
         }
 
         [NotNull]
@@ -330,4 +467,22 @@ namespace PixPipelineGraph
     }
 
     #endregion
+
+    /// <summary>
+    /// Delegate for connection events in a <see cref="PipelineGraph"/>.
+    /// </summary>
+    public delegate void ConnectionEventHandler([NotNull] object sender, [NotNull] ConnectionEventArgs args);
+
+    /// <summary>
+    /// Event args for a <see cref="ConnectionEventHandler"/> event.
+    /// </summary>
+    public class ConnectionEventArgs : EventArgs
+    {
+        public IPipelineConnection Connection { get; }
+        
+        public ConnectionEventArgs(IPipelineConnection connection)
+        {
+            Connection = connection;
+        }
+    }
 }

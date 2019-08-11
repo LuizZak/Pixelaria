@@ -32,7 +32,7 @@ namespace Pixelaria.ExportPipeline.Inputs
     /// </summary>
     public class AnimationInput : AbstractSinglePipelineInput<Animation>
     {
-        public AnimationInput([NotNull] IPipelineNode step) : base(step)
+        public AnimationInput([NotNull] IPipelineNode step, PipelineInput id) : base(step, id)
         {
             Name = "Animation";
         }

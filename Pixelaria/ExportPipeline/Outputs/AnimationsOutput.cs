@@ -33,7 +33,7 @@ namespace Pixelaria.ExportPipeline.Outputs
     /// </summary>
     public class AnimationsOutput : AbstractPipelineOutput<Animation[]>
     {
-        public AnimationsOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Animation[]> source) : base(step, source)
+        public AnimationsOutput([NotNull] IPipelineNode step, [NotNull] IObservable<Animation[]> source, PipelineOutput id) : base(step, source, id)
         {
             Name = "Animations";
         }

@@ -43,6 +43,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public AnimationJoinerStep()
         {
+            /*
             var animationInput = new AnimationInput(this);
             Input = new IPipelineInput[] {animationInput};
             
@@ -53,6 +54,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     .ToArray();
             
             Output = new IPipelineOutput[] { new AnimationsOutput(this, source) };
+            */
         }
 
         public override IPipelineMetadata GetMetadata()

@@ -47,7 +47,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
             Animation = animation;
             
-            Output = new[] { new PipelineOutput(this, output) };
+            Output = new[] { new PipelineOutput(this, output, new PixPipelineGraph.PipelineOutput()) };
         }
 
         public override IPipelineMetadata GetMetadata()
@@ -57,21 +57,16 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public class PipelineOutput : IPipelineOutput
         {
-            private readonly BehaviorSubject<Animation> _output;
-
+            public PipelineNodeId NodeId => Node.Id;
             public string Name { get; } = "Animation";
             public IPipelineNode Node { get; }
+            public PixPipelineGraph.PipelineOutput Id { get; }
             public Type DataType => typeof(Animation);
 
-            public PipelineOutput([NotNull] IPipelineNode step, BehaviorSubject<Animation> output)
+            public PipelineOutput([NotNull] IPipelineNode step, BehaviorSubject<Animation> output, PixPipelineGraph.PipelineOutput id)
             {
                 Node = step;
-                _output = output;
-            }
-
-            public IObservable<object> GetObservable()
-            {
-                return _output.Take(1);
+                Id = id;
             }
 
             public IPipelineMetadata GetMetadata()

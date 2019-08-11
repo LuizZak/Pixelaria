@@ -25,11 +25,11 @@ using System.Collections.Generic;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI.Controls;
 
@@ -296,7 +296,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
         private class MockPipelineStep: IPipelineStep
         {
-            public Guid Id { get; } = Guid.NewGuid();
+            public PipelineNodeId Id { get; } = new PipelineNodeId(Guid.NewGuid());
             public string Name { get; }
             public string BodyText { get; set; }
 
@@ -330,9 +330,11 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         {
             public IPipelineNode Node { get; }
 
+            public PipelineNodeId NodeId => Node.Id;
             public string Name { get; }
 
-            public Type[] DataTypes => new[] {typeof(object)};
+            public PipelineInput Id { get; }
+            public IReadOnlyList<Type> DataTypes => new[] {typeof(object)};
 
             public IPipelineOutput[] Connections => new IPipelineOutput[0];
 
@@ -346,23 +348,15 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             {
                 return PipelineMetadata.Empty;
             }
-
-            public IPipelineLinkConnection Connect(IPipelineOutput output)
-            {
-                return new PipelineLinkConnection(this, output, connection => { });
-            }
-
-            public void Disconnect(IPipelineOutput output)
-            {
-                
-            }
         }
 
         private class MockPipelineOutput : IPipelineOutput
         {
             public IPipelineNode Node { get; }
+            public PipelineNodeId NodeId => Node.Id;
             public string Name { get; }
 
+            public PipelineOutput Id { get; }
             public Type DataType => typeof(object);
 
             public MockPipelineOutput(IPipelineNode node, [NotNull] string name)
@@ -374,11 +368,6 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             public IPipelineMetadata GetMetadata()
             {
                 return PipelineMetadata.Empty;
-            }
-
-            public IObservable<object> GetObservable()
-            {
-                throw new NotImplementedException();
             }
         }
     }

@@ -45,7 +45,7 @@ namespace Pixelaria.ExportPipeline.Steps
         /// </summary>
         public event EventHandler Renamed;
 
-        public Guid Id { get; } = Guid.NewGuid();
+        public PipelineNodeId Id { get; } = new PipelineNodeId(Guid.NewGuid());
 
         public string Name
         {
@@ -71,6 +71,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public BitmapPreviewPipelineStep()
         {
+            /*
             var input = new PipelineBitmapInput(this);
 
             var obs = 
@@ -88,6 +89,7 @@ namespace Pixelaria.ExportPipeline.Steps
             {
                 output
             };
+            */
         }
 
         /// <summary>

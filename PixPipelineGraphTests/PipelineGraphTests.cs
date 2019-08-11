@@ -221,9 +221,17 @@ namespace PixPipelineGraphTests
 
         private static PipelineGraph CreatePipelineGraph()
         {
-            return new PipelineGraph();
+            return new PipelineGraph(new MockPipelineBodyProvider());
         }
 
         #endregion
+
+        private class MockPipelineBodyProvider : IPipelineGraphBodyProvider
+        {
+            public PipelineBody GetBody(PipelineBodyId id)
+            {
+                return new PipelineBody(id, typeof(int), typeof(int), o => o);
+            }
+        }
     }
 }

@@ -64,7 +64,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 foreach (var body in descriptor.Bodies)
                 {
-                    node.AddBody(body.InputType, body.OutputType, body.Body);
+                    node.AddBody(body);
                 }
             });
         }

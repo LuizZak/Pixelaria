@@ -31,6 +31,11 @@ namespace PixPipelineGraph
     public class PipelineBody
     {
         /// <summary>
+        /// Gets the ID for this pipeline body
+        /// </summary>
+        public PipelineBodyId Id { get; }
+
+        /// <summary>
         /// The input type of the body.
         ///
         /// If <c>null</c>, this body takes no parameters.
@@ -52,8 +57,9 @@ namespace PixPipelineGraph
         [NotNull]
         public Func<object, object> Body { get; set; }
 
-        public PipelineBody(Type inputType, Type outputType, [NotNull] Func<object, object> body)
+        public PipelineBody(PipelineBodyId id, Type inputType, Type outputType, [NotNull] Func<object, object> body)
         {
+            Id = id;
             InputType = inputType;
             OutputType = outputType;
             Body = body;

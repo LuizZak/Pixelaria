@@ -31,6 +31,7 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
+using PixPipelineGraph;
 using PixUI.Controls;
 using PixUI.Controls.PropertyGrid;
 

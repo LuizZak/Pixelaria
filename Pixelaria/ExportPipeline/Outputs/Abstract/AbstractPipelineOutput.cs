@@ -41,14 +41,18 @@ namespace Pixelaria.ExportPipeline.Outputs.Abstract
         [NotNull]
         public IObservable<T> Source;
 
+        public PipelineNodeId NodeId => Node.Id;
+
         public string Name { get; set; } = "";
         public IPipelineNode Node { get; }
+        public PipelineOutput Id { get; }
         public Type DataType => typeof(T);
 
-        protected AbstractPipelineOutput([NotNull] IPipelineNode step, [NotNull] IObservable<T> source)
+        protected AbstractPipelineOutput([NotNull] IPipelineNode step, [NotNull] IObservable<T> source, PipelineOutput id)
         {
             Node = step;
             Source = source;
+            Id = id;
         }
 
         public IObservable<object> GetObservable()
@@ -65,7 +69,7 @@ namespace Pixelaria.ExportPipeline.Outputs.Abstract
     /// </summary>
     public sealed class GenericPipelineOutput<T> : AbstractPipelineOutput<T>
     {
-        public GenericPipelineOutput([NotNull] IPipelineNode step, [NotNull] IObservable<T> source, [NotNull] string name) : base(step, source)
+        public GenericPipelineOutput([NotNull] IPipelineNode step, [NotNull] IObservable<T> source, [NotNull] string name, PipelineOutput id) : base(step, source, id)
         {
             Name = name;
         }

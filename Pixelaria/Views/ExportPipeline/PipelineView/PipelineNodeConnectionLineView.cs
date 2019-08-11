@@ -23,8 +23,7 @@
 using System;
 using System.Drawing;
 using PixCore.Geometry;
-using Pixelaria.ExportPipeline;
-
+using PixPipelineGraph;
 using PixUI;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
@@ -36,9 +35,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     {
         public PipelineNodeLinkView Start { get; private set; }
         public PipelineNodeLinkView End { get; private set; }
-        public IPipelineLinkConnection Connection { get; private set; }
+        public IPipelineConnection Connection { get; private set; }
 
-        public static PipelineNodeConnectionLineView Create(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineLinkConnection connection)
+        public static PipelineNodeConnectionLineView Create(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineConnection connection)
         {
             var instance = new PipelineNodeConnectionLineView();
 

@@ -34,7 +34,7 @@ namespace PixPipelineGraph
         /// Gets the node that owns this pipeline input
         /// </summary>
         internal PipelineNode Node { get; }
-        internal PipelineInput Id { get; }
+        public PipelineInput Id { get; }
 
         public IReadOnlyList<Type> DataTypes => dataTypes;
 

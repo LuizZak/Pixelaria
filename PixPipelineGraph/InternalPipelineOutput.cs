@@ -31,7 +31,7 @@ namespace PixPipelineGraph
         /// Gets the node that owns this pipeline output
         /// </summary>
         internal PipelineNode Node { get; }
-        internal PipelineOutput Id { get; }
+        public PipelineOutput Id { get; }
         public Type DataType { get; internal set; }
 
         public InternalPipelineOutput([NotNull] PipelineNode node, PipelineOutput id, [NotNull] string name, [NotNull] Type dataType)

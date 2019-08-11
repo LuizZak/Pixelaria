@@ -41,7 +41,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
         private readonly GenericPipelineInput<object> _input;
         
-        public Guid Id { get; } = Guid.NewGuid();
+        public PipelineNodeId Id { get; } = new PipelineNodeId(Guid.NewGuid());
 
         public string Name => "Sink";
 
@@ -49,7 +49,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public SinkPipelineStep()
         {
-            _input = new GenericPipelineInput<object>(this, "Input");
+            _input = new GenericPipelineInput<object>(this, "Input", new PipelineInput());
 
             Input = new[] {_input};
         }
@@ -61,10 +61,12 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public void Begin()
         {
+            /*
             _input
                 .AnyConnection()
                 .Subscribe()
                 .AddToDisposable(_disposeBag);
+            */
         }
         
         public IPipelineMetadata GetMetadata()

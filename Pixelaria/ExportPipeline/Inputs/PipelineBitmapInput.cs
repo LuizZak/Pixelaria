@@ -32,7 +32,7 @@ namespace Pixelaria.ExportPipeline.Inputs
     /// </summary>
     public class PipelineBitmapInput : AbstractSinglePipelineInput<Bitmap>
     {
-        public PipelineBitmapInput([NotNull] IPipelineNode step) : base(step)
+        public PipelineBitmapInput([NotNull] IPipelineNode step, PipelineInput id) : base(step, id)
         {
             Name = "Bitmap";
         }

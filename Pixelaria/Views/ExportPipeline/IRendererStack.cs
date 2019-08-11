@@ -23,7 +23,6 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using PixDirectX.Rendering;
 using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline

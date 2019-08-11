@@ -31,7 +31,7 @@ namespace Pixelaria.ExportPipeline.Steps.Abstract
     /// </summary>
     public abstract class AbstractPipelineStart : IPipelineStart
     {
-        public Guid Id { get; } = Guid.NewGuid();
+        public PipelineNodeId Id { get; } = new PipelineNodeId(Guid.NewGuid());
         public abstract string Name { get; }
         
         public abstract IReadOnlyList<IPipelineOutput> Output { get; }

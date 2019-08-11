@@ -26,13 +26,14 @@ namespace PixPipelineGraph
 {
     internal class PipelineConnection: IPipelineConnection
     {
+        internal PipelineMetadata Metadata = new PipelineMetadata();
         internal InternalPipelineOutput Output { get; }
         internal InternalPipelineInput Input { get; }
 
         public PipelineOutput Start => Output.Id;
         public PipelineInput End => Input.Id;
-
-
+        public bool Connected { get; set; }
+        
         internal PipelineConnection([NotNull] InternalPipelineOutput output, [NotNull] InternalPipelineInput input)
         {
             Input = input;
@@ -45,6 +46,11 @@ namespace PixPipelineGraph
             {
                 return (Start.GetHashCode() * 397) ^ End.GetHashCode();
             }
+        }
+
+        public IPipelineMetadata GetMetadata()
+        {
+            return Metadata;
         }
     }
 }

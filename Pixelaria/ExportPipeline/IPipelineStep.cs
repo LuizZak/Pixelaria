@@ -38,7 +38,7 @@ namespace Pixelaria.ExportPipeline
         /// 
         /// A pipeline node that is initializing itself must always set this value to <see cref="Guid.NewGuid()"/>.
         /// </summary>
-        Guid Id { get; }
+        PipelineNodeId Id { get; }
 
         /// <summary>
         /// The display name of this pipeline node
@@ -106,144 +106,10 @@ namespace Pixelaria.ExportPipeline
     }
 
     /// <summary>
-    /// Base interface for pipeline step input/outputs
-    /// </summary>
-    public interface IPipelineNodeLink
-    {
-        /// <summary>
-        /// The step of this link
-        /// </summary>
-        [CanBeNull]
-        IPipelineNode Node { get; }
-
-        /// <summary>
-        /// An identifying name for this link on its parent pipeline step
-        /// </summary>
-        [NotNull]
-        string Name { get; }
-
-        /// <summary>
-        /// Gets specific metadata for this pipeline connection
-        /// </summary>
-        [CanBeNull]
-        IPipelineMetadata GetMetadata();
-    }
-
-    /// <summary>
-    /// An input for a pipeline step
-    /// </summary>
-    public interface IPipelineInput : IPipelineNodeLink
-    {
-        /// <summary>
-        /// The types of data that can be consumed by this input
-        /// </summary>
-        [NotNull]
-        Type[] DataTypes { get; }
-
-        /// <summary>
-        /// Gets an array of all output connections that are connecting into this pipeline input.
-        /// </summary>
-        [NotNull]
-        IPipelineOutput[] Connections { get; }
-
-        /// <summary>
-        /// Called to include a pipeline output on this pipeline input
-        /// </summary>
-        /// <returns>An object that can be use as a reference for this connection. Can be null, in case a connection is already present.</returns>
-        [CanBeNull]
-        IPipelineLinkConnection Connect(IPipelineOutput output);
-
-        /// <summary>
-        /// Removes a given output from this input
-        /// </summary>
-        void Disconnect(IPipelineOutput output);
-    }
-
-    /// <summary>
-    /// An output for a pipeline step
-    /// </summary>
-    public interface IPipelineOutput : IPipelineNodeLink
-    {
-        /// <summary>
-        /// The type of data that is outputted by this pipeline connection
-        /// </summary>
-        [NotNull]
-        Type DataType { get; }
-
-        /// <summary>
-        /// Gets an observable connection that spits item from this pipeline output.
-        /// 
-        /// Subscribing for this output awaits until one item is produced, which is then
-        /// forwarded replicatively to all consumers.
-        /// </summary>
-        IObservable<object> GetObservable();
-    }
-
-    /// <summary>
     /// An interface for a pipeline output that sends down static data values on subscription.
     /// </summary>
     public interface IStaticPipelineOutput : IPipelineOutput
     {
         
-    }
-
-    /// <summary>
-    /// Describes a connection between a node's output and another node's input.
-    /// 
-    /// This is unique per connection of output to another input.
-    /// </summary>
-    public interface IPipelineLinkConnection
-    {
-        IPipelineInput Input { get; }
-        IPipelineOutput Output { get; }
-
-        /// <summary>
-        /// Gets a value specifying whether this connection is effective.
-        /// 
-        /// Calling <see cref="Disconnect"/> sets this value to false and permanently disables this connection instance.
-        /// </summary>
-        bool Connected { get; }
-
-        /// <summary>
-        /// Disconnects this connection across the two links
-        /// </summary>
-        void Disconnect();
-
-        /// <summary>
-        /// Gets specific metadata for this pipeline connection
-        /// </summary>
-        [CanBeNull]
-        IPipelineMetadata GetMetadata();
-    }
-
-    public class PipelineLinkConnection : IPipelineLinkConnection
-    {
-        private readonly Action<PipelineLinkConnection> _onDisconnect;
-
-        public IPipelineInput Input { get; }
-        public IPipelineOutput Output { get; }
-        public bool Connected { get; private set; } = true;
-
-        public PipelineLinkConnection(IPipelineInput input, IPipelineOutput output, Action<PipelineLinkConnection> onDisconnect)
-        {
-            _onDisconnect = onDisconnect;
-            Input = input;
-            Output = output;
-        }
-
-        public void Disconnect()
-        {
-            if (!Connected)
-                return;
-
-            _onDisconnect(this);
-            
-            Connected = false;
-        }
-
-        public IPipelineMetadata GetMetadata()
-        {
-            return PipelineMetadata.Empty;
-        }
     }
 }

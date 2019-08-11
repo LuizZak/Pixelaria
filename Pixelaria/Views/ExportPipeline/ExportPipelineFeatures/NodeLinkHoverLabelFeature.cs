@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -31,11 +32,10 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
-using PixDirectX.Rendering;
 using PixUI;
 
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI.Controls;
 
@@ -112,7 +112,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         private void DisplayLabelForLink([NotNull] PipelineNodeLinkView linkView)
         {
-            Type[] types;
+            IReadOnlyList<Type> types;
             if (linkView.NodeLink is IPipelineOutput output)
             {
                 types = new[] { output.DataType };
@@ -156,7 +156,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             labelText.Append("\n");
             labelText.Append(linkView.NodeLink.Name);
 
-            if (types.Length > 0)
+            if (types.Count > 0)
             {
                 labelText.Append(": ");
                 labelText.Append(typeListText);

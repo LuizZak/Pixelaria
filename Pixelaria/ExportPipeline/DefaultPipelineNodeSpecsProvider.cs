@@ -27,6 +27,7 @@ using JetBrains.Annotations;
 
 using Pixelaria.ExportPipeline.Steps;
 using Pixelaria.Filters;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
@@ -34,7 +35,7 @@ namespace Pixelaria.ExportPipeline
     /// Default provider for <see cref="PipelineNodeSpec"/> that describe the available pipeline nodes
     /// that can be created.
     /// </summary>
-    public class DefaultPipelineNodeSpecsProvider
+    public class DefaultPipelineNodeSpecsProvider: IPipelineGraphBodyProvider
     {
         /// <summary>
         /// Gets a list of all instantiable pipeline nodes and their basic metadata as an array of <see cref="PipelineNodeSpec"/>
@@ -59,6 +60,11 @@ namespace Pixelaria.ExportPipeline
             };
 
             return specs.ToArray();
+        }
+
+        public PipelineBody GetBody(PipelineBodyId id)
+        {
+            throw new NotImplementedException();
         }
     }
     

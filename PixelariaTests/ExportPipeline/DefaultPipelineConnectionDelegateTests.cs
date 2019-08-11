@@ -28,6 +28,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.ExportPipeline;
 using Pixelaria.ExportPipeline.Inputs.Abstract;
 using Pixelaria.ExportPipeline.Outputs.Abstract;
+using PixPipelineGraph;
 
 namespace PixelariaTests.ExportPipeline
 {
@@ -38,152 +39,88 @@ namespace PixelariaTests.ExportPipeline
         public void TestCanConnect()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var container = new TestContainer();
+            var graph = new PipelineGraph(new MockPipelineBodyProvider());
 
-            var node1 = new TestNode();
-            var node2 = new TestNode();
+            IPipelineLazyValue<PipelineInput> lazyInput = null;
+            IPipelineLazyValue<PipelineOutput> lazyOutput = null;
+            var node1 = graph.CreateNode(n => { lazyInput = n.CreateInput(""); });
+            var node2 = graph.CreateNode(n => { lazyOutput = n.CreateOutput(""); });
 
-            var input = new GenericPipelineInput<int>(node1, "");
-            var output = new GenericPipelineOutput<int>(node2, Observable.Empty<int>(), "");
+            var input = graph.GetInput(lazyInput.LazyValue);
+            var output = graph.GetOutput(lazyOutput.LazyValue);
 
-            Assert.IsTrue(sut.CanConnect(input, output, container));
+            Assert.IsTrue(sut.CanConnect(input, output, graph));
         }
 
         [TestMethod]
         public void TestCanConnectReturnsFalseForLinksOfSameNode()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var container = new TestContainer();
+            var graph = new PipelineGraph(new MockPipelineBodyProvider());
 
-            var node1 = new TestNode();
+            IPipelineLazyValue<PipelineInput> lazyInput = null;
+            IPipelineLazyValue<PipelineOutput> lazyOutput = null;
+            var node1 = graph.CreateNode(n =>
+            {
+                lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int)));
+                lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int)));
+            });
 
-            var input = new GenericPipelineInput<int>(node1, "");
-            var output = new GenericPipelineOutput<int>(node1, Observable.Empty<int>(), "");
+            var input = graph.GetInput(lazyInput.LazyValue);
+            var output = graph.GetOutput(lazyOutput.LazyValue);
 
-            Assert.IsFalse(sut.CanConnect(input, output, container));
+            Assert.IsFalse(sut.CanConnect(input, output, graph));
         }
 
         [TestMethod]
         public void TestCanConnectReturnsFalseForNodesAlreadyConnected()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var container = new TestContainer();
+            var graph = new PipelineGraph(new MockPipelineBodyProvider());
 
-            var node1 = new TestNode();
-            var node2 = new TestNode();
+            IPipelineLazyValue<PipelineInput> lazyInput = null;
+            IPipelineLazyValue<PipelineOutput> lazyOutput = null;
+            var node1 = graph.CreateNode(n => { lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int))); });
+            var node2 = graph.CreateNode(n => { lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int))); });
 
-            var input = new GenericPipelineInput<int>(node1, "");
-            var output = new GenericPipelineOutput<int>(node2, Observable.Empty<int>(), "");
+            graph.Connect(node1, node2);
 
-            container.ConnectionsList.Add(new TestConnection(input, output, true));
+            var input = graph.GetInput(lazyInput.LazyValue);
+            var output = graph.GetOutput(lazyOutput.LazyValue);
 
-            Assert.IsFalse(sut.CanConnect(input, output, container));
+            Assert.IsFalse(sut.CanConnect(input, output, graph));
         }
 
         [TestMethod]
         public void TestCanConnectReturnsFalseForNodesIndirectlyConnectedInACycle()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var container = new TestContainer();
+            var graph = new PipelineGraph(new MockPipelineBodyProvider());
 
-            var node1 = new TestNode();
-            var node2 = new TestNode();
-            var node3 = new TestNode();
+            IPipelineLazyValue<PipelineInput> lazyInput = null;
+            IPipelineLazyValue<PipelineOutput> lazyOutput = null;
+            var node1 = graph.CreateNode(n => { lazyInput = n.CreateInput("", builder => builder.AddInputType(typeof(int))); });
+            var node2 = graph.CreateNode(n =>
+            {
+                n.CreateInput("", builder => builder.AddInputType(typeof(int)));
+                n.CreateOutput("", builder => builder.SetOutputType(typeof(int)));
+            });
+            var node3 = graph.CreateNode(n => { lazyOutput = n.CreateOutput("", builder => builder.SetOutputType(typeof(int))); });
 
-            node1.AddInput(new GenericPipelineInput<int>(node1, ""));
-            node1.AddOutput(new GenericPipelineOutput<int>(node1, Observable.Empty<int>(), ""));
+            graph.Connect(node1, node2);
+            graph.Connect(node2, node3);
 
-            node2.AddInput(new GenericPipelineInput<int>(node2, ""));
-            node2.AddOutput(new GenericPipelineOutput<int>(node2, Observable.Empty<int>(), ""));
+            var input = graph.GetInput(lazyInput.LazyValue);
+            var output = graph.GetOutput(lazyOutput.LazyValue);
 
-            node3.AddInput(new GenericPipelineInput<int>(node3, ""));
-
-            // Make dummy connections
-            container.ConnectionsList.Add(new TestConnection(node1.Input[0], node2.Output[0], true));
-            container.ConnectionsList.Add(new TestConnection(node2.Input[0], node3.Output[0], true));
-            
-            Assert.IsFalse(sut.CanConnect(node3.Input[0], node1.Output[0], container));
+            Assert.IsFalse(sut.CanConnect(input, output, graph));
         }
 
-        private class TestContainer : IPipelineContainer
+        private class MockPipelineBodyProvider : IPipelineGraphBodyProvider
         {
-            public readonly List<IPipelineNode> NodesList = new List<IPipelineNode>();
-            public readonly List<IPipelineLinkConnection> ConnectionsList = new List<IPipelineLinkConnection>();
-
-            public IReadOnlyList<IPipelineNode> Nodes => NodesList;
-            public IReadOnlyList<IPipelineLinkConnection> Connections => ConnectionsList;
-
-            public bool AreConnected(IPipelineInput input, IPipelineOutput output)
+            public PipelineBody GetBody(PipelineBodyId id)
             {
-                return ConnectionsList.Any(c => c.Input == input && c.Output == output);
-            }
-
-            public IEnumerable<IPipelineLinkConnection> ConnectionsFor(IPipelineNodeLink link)
-            {
-                return ConnectionsList.Where(con => con.Input == link || con.Output == link);
-            }
-        }
-
-        private class TestNode : IPipelineStep
-        {
-            public Guid Id { get; } = Guid.NewGuid();
-            public string Name { get; } = "";
-
-            private readonly List<IPipelineInput> _inputList;
-            private readonly List<IPipelineOutput> _outputList;
-
-            public IReadOnlyList<IPipelineInput> Input => _inputList;
-            public IReadOnlyList<IPipelineOutput> Output => _outputList;
-
-            public TestNode()
-            {
-                _inputList = new List<IPipelineInput>
-                {
-                    new GenericPipelineInput<int>(this, "")
-                };
-                _outputList = new List<IPipelineOutput>
-                {
-                    new GenericPipelineOutput<int>(this, Observable.Empty<int>(), "")
-                };
-            }
-
-            public void AddInput(IPipelineInput input)
-            {
-                _inputList.Add(input);
-            }
-
-            public void AddOutput(IPipelineOutput output)
-            {
-                _outputList.Add(output);
-            }
-
-            public IPipelineMetadata GetMetadata()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class TestConnection : IPipelineLinkConnection
-        {
-            public IPipelineInput Input { get; }
-            public IPipelineOutput Output { get; }
-            public bool Connected { get; }
-
-            public TestConnection(IPipelineInput input, IPipelineOutput output, bool connected)
-            {
-                Input = input;
-                Output = output;
-                Connected = connected;
-            }
-
-            public void Disconnect()
-            {
-                throw new NotImplementedException();
-            }
-
-            public IPipelineMetadata GetMetadata()
-            {
-                throw new NotImplementedException();
+                return new PipelineBody(id, typeof(int), typeof(int), o => o);
             }
         }
     }

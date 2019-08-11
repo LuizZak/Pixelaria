@@ -32,6 +32,7 @@ using PixUI;
 
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -421,18 +422,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 connectView.AddRectangle(connectView.ConvertFrom(targetLinkView.Bounds, targetLinkView).Inflated(3, 3));
                 connectView.AddRectangle(connectView.ConvertFrom(targetLinkView.NodeView.GetTitleArea(), targetLinkView.NodeView).Inflated(3, 3));
 
-                if (targetLinkView.NodeLink.Node != null)
-                {
-                    labelView.Text = targetLinkView.NodeLink.Name;
+                labelView.Text = targetLinkView.NodeLink.Name;
 
-                    float xOffset = isEndToRight
-                        ? targetLinkView.Bounds.Width / 2 + 5
-                        : -targetLinkView.Bounds.Width / 2 - labelView.Bounds.Width - 5;
+                float xOffset = isEndToRight
+                    ? targetLinkView.Bounds.Width / 2 + 5
+                    : -targetLinkView.Bounds.Width / 2 - labelView.Bounds.Width - 5;
 
-                    labelView.Location =
-                        _container.ContentsView.ConvertFrom(targetLinkView.Bounds.Center, targetLinkView) +
-                        new Vector(xOffset, -labelView.Bounds.Height / 2);
-                }
+                labelView.Location =
+                    _container.ContentsView.ConvertFrom(targetLinkView.Bounds.Center, targetLinkView) +
+                    new Vector(xOffset, -labelView.Bounds.Height / 2);
             }
 
             /// <summary>

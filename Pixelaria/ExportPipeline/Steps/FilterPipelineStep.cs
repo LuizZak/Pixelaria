@@ -22,20 +22,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Reactive.Linq;
-using FastBitmapLib;
 using JetBrains.Annotations;
 
 using Pixelaria.Data.Exports;
-using Pixelaria.ExportPipeline.Inputs;
-using Pixelaria.ExportPipeline.Inputs.Abstract;
-using Pixelaria.ExportPipeline.Outputs;
 using Pixelaria.ExportPipeline.Steps.Abstract;
 using Pixelaria.Filters;
-using Pixelaria.Utils;
 using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
@@ -67,6 +60,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
             Filter = filter;
 
+            /*
             var bitmapInput = new PipelineBitmapInput(this);
 
             var inputs = new IPipelineInput[props.Length + 1];
@@ -126,6 +120,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     });
             
             Output = new IPipelineOutput[] {new PipelineBitmapOutput(this, source)};
+            */
         }
 
         public override IPipelineMetadata GetMetadata()
@@ -147,6 +142,7 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public TransparencyFilterPipelineStep()
         {
+            /*
             var alphaInput = new GenericPipelineInput<float>(this, "Alpha");
             var bitmapInput = new FilterBitmapInput(this);
 
@@ -176,6 +172,7 @@ namespace Pixelaria.ExportPipeline.Steps
                     });
 
             Output = new IPipelineOutput[] { new PipelineBitmapOutput(this, source) };
+            */
         }
 
         /// <summary>
@@ -183,66 +180,20 @@ namespace Pixelaria.ExportPipeline.Steps
         /// </summary>
         public class FilterBitmapInput : IPipelineInput
         {
-            private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
-
             public IPipelineNode Node { get; }
+            public PipelineNodeId NodeId => Node.Id;
             public string Name { get; }
 
-            public Type[] DataTypes { get; } = {typeof(Bitmap), typeof(BundleSheetExport)};
-            public IPipelineOutput[] Connections => _connections.ToArray();
+            public PipelineInput Id { get; }
+            public IReadOnlyList<Type> DataTypes { get; } = new [] {typeof(Bitmap), typeof(BundleSheetExport)};
 
-            public FilterBitmapInput([NotNull] IPipelineNode step)
+            public FilterBitmapInput([NotNull] IPipelineNode step, PipelineInput id)
             {
                 Node = step;
+                Id = id;
                 Name = "Image";
             }
             
-            /// <summary>
-            /// Returns a one-off observable that fetches the latest value of the Connections
-            /// field everytime it is subscribed to.
-            /// </summary>
-            public IObservable<IPipelineOutput> ConnectionsObservable
-            {
-                get
-                {
-                    return Observable.Create<IPipelineOutput>(obs => Connections.ToObservable().Subscribe(obs));
-                }
-            }
-
-            /// <summary>
-            /// Returns an observable sequence that is equal to the flatmap of <see cref="ConnectionsObservable"/>
-            /// filtered by types <see cref="Bitmap"/>.
-            /// </summary>
-            public IObservable<Bitmap> AnyConnectionBitmap()
-            {
-                return
-                    ConnectionsObservable
-                        .SelectMany(o => o.GetObservable())
-                        .Where(input => input is BundleSheetExport || input is Bitmap)
-                        .Select(input =>
-                        {
-                            if (input is BundleSheetExport sheet)
-                            {
-                                return (Bitmap)sheet.Sheet;
-                            }
-                            return (Bitmap) input;
-                        });
-            }
-
-            public IPipelineLinkConnection Connect(IPipelineOutput output)
-            {
-                if (_connections.Contains(output))
-                    return null;
-
-                _connections.Add(output);
-                return new PipelineLinkConnection(this, output, _ => { Disconnect(output); });
-            }
-
-            public void Disconnect(IPipelineOutput output)
-            {
-                _connections.Remove(output);
-            }
-
             public IPipelineMetadata GetMetadata()
             {
                 return PipelineMetadata.Empty;

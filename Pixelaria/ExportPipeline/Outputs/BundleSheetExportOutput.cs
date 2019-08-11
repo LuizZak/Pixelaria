@@ -33,8 +33,8 @@ namespace Pixelaria.ExportPipeline.Outputs
     /// </summary>
     public class BundleSheetExportOutput : AbstractPipelineOutput<BundleSheetExport>
     {
-        public BundleSheetExportOutput([NotNull] IPipelineNode step, [NotNull] IObservable<BundleSheetExport> source)
-            : base(step, source)
+        public BundleSheetExportOutput([NotNull] IPipelineNode step, [NotNull] IObservable<BundleSheetExport> source, PipelineOutput id)
+            : base(step, source, id)
         {
             Name = "Generated Sprite Sheet";
         }

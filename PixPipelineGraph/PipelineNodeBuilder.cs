@@ -30,11 +30,12 @@ namespace PixPipelineGraph
     /// </summary>
     public class PipelineNodeBuilder
     {
+        private readonly IPipelineGraphBodyProvider _bodyProvider;
         private readonly PipelineBuildStepCollection<PipelineNode> _stepCollection = new PipelineBuildStepCollection<PipelineNode>();
 
-        internal PipelineNodeBuilder()
+        internal PipelineNodeBuilder(IPipelineGraphBodyProvider bodyProvider)
         {
-            
+            _bodyProvider = bodyProvider;
         }
 
         public void SetTitle(string title)
@@ -42,18 +43,29 @@ namespace PixPipelineGraph
             _stepCollection.AddClosureBuilderStep(node => { node.Title = title; });
         }
 
-        public void AddBody<TInput, TOutput>([NotNull] Func<TInput, TOutput> body)
-        {
-            AddBody(typeof(TInput), typeof(TOutput), input => body((TInput)input));
-        }
-
-        public void AddBody(Type inputType, Type outputType, [NotNull] Func<object, object> body)
+        /// <summary>
+        /// Adds a body for a given body ID
+        /// </summary>
+        public void AddBody(PipelineBodyId bodyId)
         {
             _stepCollection.AddClosureBuilderStep(node =>
             {
-                var pipelineBody = new PipelineBody(inputType, outputType, body);
+                var body = _bodyProvider.GetBody(bodyId);
+                if(body == null)
+                    throw new ArgumentException($"No pipeline body node found for body ID {bodyId}", nameof(bodyId));
 
-                node.Bodies.Add(pipelineBody);
+                node.Bodies.Add(body);
+            });
+        }
+
+        /// <summary>
+        /// Adds a given pipeline body to the list of pipeline bodies accepted by the node.
+        /// </summary>
+        public void AddBody(PipelineBody body)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                node.Bodies.Add(body);
             });
         }
 

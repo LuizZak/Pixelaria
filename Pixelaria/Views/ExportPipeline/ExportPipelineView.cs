@@ -46,6 +46,7 @@ using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI.Animation;
 using Font = System.Drawing.Font;
@@ -148,9 +149,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             _panelManager.PipelineNodeSelected += PanelManagerOnPipelineNodeSelected;
 
-            // Add nodes from the default provider
-            var provider = new DefaultPipelineNodeSpecsProvider();
-
+            // Add nodes from the configured provider
+            var provider = exportPipelineControl.PipelineNodeSpecsProvider;
+            
             _panelManager.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
         }
 
@@ -292,6 +293,8 @@ namespace Pixelaria.Views.ExportPipeline
                 new SingleAnimationPipelineStep(anim3)
             };
 
+            var graph = exportPipelineControl.PipelineContainer.PipelineGraph;
+
             var animJoinerStep = new AnimationJoinerStep();
 
             var exportSettings = new AnimationSheetExportSettings
@@ -300,7 +303,7 @@ namespace Pixelaria.Views.ExportPipeline
                 HighPrecisionAreaMatching = false, ReuseIdenticalFramesArea = false
             };
 
-            var sheetSettingsOutput = new StaticPipelineOutput<AnimationSheetExportSettings>(exportSettings, "Sheet Export Settings");
+            var sheetSettingsOutput = new StaticPipelineOutput<AnimationSheetExportSettings>(exportSettings, "Sheet Export Settings", new PipelineOutput());
 
             var sheetStep = new SpriteSheetGenerationPipelineStep();
 
@@ -309,13 +312,13 @@ namespace Pixelaria.Views.ExportPipeline
             // Link stuff
             foreach (var step in animSteps)
             {
-                step.ConnectTo(animJoinerStep);
+                //step.ConnectTo(animJoinerStep);
             }
 
-            animJoinerStep.ConnectTo(sheetStep);
-            sheetStep.SheetSettingsInput.Connect(sheetSettingsOutput);
+            //animJoinerStep.ConnectTo(sheetStep);
+            //sheetStep.SheetSettingsInput.Connect(sheetSettingsOutput);
 
-            sheetStep.ConnectTo(finalStep);
+            //sheetStep.ConnectTo(finalStep);
 
             finalStep.Begin();
         }

@@ -28,9 +28,8 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
-using PixDirectX.Rendering;
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI;
 

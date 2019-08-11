@@ -25,11 +25,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Data.Exports;
-using Pixelaria.Utils;
 using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.Steps
@@ -42,7 +40,7 @@ namespace Pixelaria.ExportPipeline.Steps
     {
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
 
-        public Guid Id { get; } = Guid.NewGuid();
+        public PipelineNodeId Id { get; } = new PipelineNodeId(Guid.NewGuid());
 
         public string Name { get; } = "Export to File";
 
@@ -59,12 +57,13 @@ namespace Pixelaria.ExportPipeline.Steps
         {
             Input = new[]
             {
-                new FileExportPipelineInput(this)
+                new FileExportPipelineInput(this, new PipelineInput())
             };
         }
 
         public void Begin()
         {
+            /*
             Input[0]
                 .Connections
                 .ToObservable()
@@ -80,6 +79,7 @@ namespace Pixelaria.ExportPipeline.Steps
                 {
                     System.Diagnostics.Debug.WriteLine("Completed.");
                 }).AddToDisposable(_disposeBag);
+            */
         }
 
         public void Dispose()
@@ -101,32 +101,17 @@ namespace Pixelaria.ExportPipeline.Steps
 
         public sealed class FileExportPipelineInput : IPipelineInput
         {
-            private readonly List<IPipelineOutput> _connections = new List<IPipelineOutput>();
-
+            public PipelineNodeId NodeId => Node.Id;
             public string Name { get; } = "Generated Sprite Sheet";
             public IPipelineNode Node { get; }
 
-            public Type[] DataTypes { get; } = {typeof(BundleSheetExport)};
+            public PipelineInput Id { get; }
+            public IReadOnlyList<Type> DataTypes { get; } = new []{typeof(BundleSheetExport)};
 
-            public IPipelineOutput[] Connections => _connections.ToArray();
-
-            public FileExportPipelineInput([NotNull] IPipelineNode step)
+            public FileExportPipelineInput([NotNull] IPipelineNode step, PipelineInput id)
             {
                 Node = step;
-            }
-
-            public IPipelineLinkConnection Connect(IPipelineOutput output)
-            {
-                if (_connections.Contains(output))
-                    return null;
-
-                _connections.Add(output);
-                return new PipelineLinkConnection(this, output, _ => { Disconnect(output); });
-            }
-
-            public void Disconnect(IPipelineOutput output)
-            {
-                _connections.Remove(output);
+                Id = id;
             }
 
             public IPipelineMetadata GetMetadata()
