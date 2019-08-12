@@ -186,7 +186,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets an array of all nodes from this container
         /// </summary>
-        IPipelineNode[] Nodes { get; }
+        PipelineNodeId[] Nodes { get; }
 
         /// <summary>
         /// Called when a node has been added to this container
@@ -219,11 +219,6 @@ namespace Pixelaria.Views.ExportPipeline
         /// Selects a given pipeline node.
         /// </summary>
         void SelectNode([NotNull] IPipelineNode node);
-
-        /// <summary>
-        /// Selects a given pipeline link.
-        /// </summary>
-        void SelectLink([NotNull] IPipelineNodeLink link);
 
         /// <summary>
         /// Selects a given pipeline connection.
@@ -269,6 +264,12 @@ namespace Pixelaria.Views.ExportPipeline
         /// The connection is not made if input.CanConnect(output) returns false.
         /// </summary>
         void AddConnection([NotNull] IPipelineInput input, [NotNull] IPipelineOutput output);
+
+        /// <summary>
+        /// Adds a connection between the two given pipeline links.
+        /// The connection is not made if input.CanConnect(output) returns false.
+        /// </summary>
+        void AddConnection(PipelineInput input, PipelineOutput output);
 
         /// <summary>
         /// Removes a connection from the container's model
@@ -323,12 +324,6 @@ namespace Pixelaria.Views.ExportPipeline
         PipelineNodeView ViewForPipelineNode([NotNull] IPipelineNode node);
 
         /// <summary>
-        /// Retrieves the view that represents the given pipeline node within this container
-        /// </summary>
-        [CanBeNull]
-        PipelineNodeLinkView ViewForPipelineNodeLink([NotNull] IPipelineNodeLink node);
-
-        /// <summary>
         /// Retrieves the view that represents the given pipeline input within this container
         /// </summary>
         [CanBeNull]
@@ -352,7 +347,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// Only return direct connections between the nodes.
         /// </summary>
         [NotNull]
-        (PipelineNodeLinkView from, PipelineNodeLinkView to)[] ConnectedLinkViewsBetween(
+        (PipelineNodeOutputLinkView from, PipelineNodeInputLinkView to)[] ConnectedLinkViewsBetween(
             [NotNull] PipelineNodeView from, [NotNull] PipelineNodeView to);
 
         /// <summary>

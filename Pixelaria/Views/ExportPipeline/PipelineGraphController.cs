@@ -20,9 +20,6 @@
     base directory of this project.
 */
 
-
-using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using PixPipelineGraph;
 
@@ -39,70 +36,33 @@ namespace Pixelaria.Views.ExportPipeline
 
         public PipelineNodeId CreateNode(PipelineNodeDescriptor descriptor)
         {
-            return _pipelineGraph.CreateNode(node =>
+            return _pipelineGraph.CreateNode(node => { CreateNode(descriptor, node); });
+        }
+
+        private static void CreateNode([NotNull] PipelineNodeDescriptor descriptor, [NotNull] PipelineNodeBuilder node)
+        {
+            node.SetTitle(descriptor.Title);
+
+            foreach (var input in descriptor.Inputs)
             {
-                node.SetTitle(descriptor.Title);
-
-                foreach (var input in descriptor.Inputs)
+                node.CreateInput(input.Title, builder =>
                 {
-                    node.CreateInput(input.Title, builder =>
+                    foreach (var inputType in input.InputTypes)
                     {
-                        foreach (var inputType in input.InputTypes)
-                        {
-                            builder.AddInputType(inputType);
-                        }
-                    });
-                }
+                        builder.AddInputType(inputType);
+                    }
+                });
+            }
 
-                foreach (var output in descriptor.Outputs)
-                {
-                    node.CreateOutput(output.Title, builder =>
-                    {
-                        builder.SetOutputType(output.OutputType);
-                    });
-                }
+            foreach (var output in descriptor.Outputs)
+            {
+                node.CreateOutput(output.Title, builder => { builder.SetOutputType(output.OutputType); });
+            }
 
-                foreach (var body in descriptor.Bodies)
-                {
-                    node.AddBody(body);
-                }
-            });
-        }
-    }
-
-    public class PipelineNodeDescriptor
-    {
-        public string Title { get; set; }
-
-        public List<PipelineInputDescriptor> Inputs { get; } = new List<PipelineInputDescriptor>();
-        public List<PipelineOutputDescriptor> Outputs { get; } = new List<PipelineOutputDescriptor>();
-
-        public List<PipelineBody> Bodies { get; } = new List<PipelineBody>();
-    }
-
-    public class PipelineInputDescriptor
-    {
-        [NotNull]
-        public string Title { get; set; }
-
-        public List<Type> InputTypes { get; } = new List<Type>();
-
-        public PipelineInputDescriptor([NotNull] string title)
-        {
-            Title = title;
-        }
-    }
-
-    public class PipelineOutputDescriptor
-    {
-        [NotNull]
-        public string Title { get; set; }
-
-        public Type OutputType { get; set; }
-
-        public PipelineOutputDescriptor([NotNull] string title)
-        {
-            Title = title;
+            foreach (var body in descriptor.Bodies)
+            {
+                node.AddBody(body);
+            }
         }
     }
 }

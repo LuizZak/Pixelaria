@@ -35,10 +35,10 @@ using PixDirectX.Rendering.DirectX;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
 using Pixelaria.ExportPipeline;
-using Pixelaria.Filters;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI;
 using PixUI.Controls;
@@ -64,7 +64,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         private readonly IImageResourceProvider _imageResourceProvider;
         private readonly IPipelineNodeBitmapGenerator _bitmapGenerator;
 
-        private List<PipelineNodeSpec> LoadedSpecs { get; } = new List<PipelineNodeSpec>();
+        private List<PipelineNodeDescriptor> LoadedDescriptors { get; } = new List<PipelineNodeDescriptor>();
         private List<ButtonControl> SpecButtons { get; } = new List<ButtonControl>();
 
         private ControlView _container;
@@ -146,25 +146,25 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 .RxSearchTextUpdated
                 .Subscribe(s =>
                 {
-                    var buttonPairs = SpecButtons.Zip(LoadedSpecs, (control, spec) => (control, spec)).ToArray();
+                    var buttonPairs = SpecButtons.Zip(LoadedDescriptors, (control, spec) => (control, spec)).ToArray();
 
-                    foreach (var (button, spec) in buttonPairs)
+                    foreach (var (button, descriptor) in buttonPairs)
                     {
                         button.Visible = false;
-                        button.Text = spec.Name;
+                        button.Text = descriptor.Title;
                     }
 
                     var visible = s == "" ? buttonPairs : buttonPairs.Where(b => b.Item1.Text.ToLower().Contains(s.ToLower())).ToArray();
 
                     var highlightAttribute = new BackgroundColorAttribute(Color.CornflowerBlue.WithTransparency(0.6f), new Vector(2, 2));
 
-                    foreach (var (button, spec) in visible)
+                    foreach (var (button, descriptor) in visible)
                     {
                         button.Visible = true;
                         if (s == "")
                             continue;
 
-                        int index = spec.Name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase);
+                        int index = descriptor.Title.IndexOf(s, StringComparison.InvariantCultureIgnoreCase);
                         button.AttributedText.SetAttributes(new TextRange(index, s.Length), highlightAttribute);
                     }
                     
@@ -191,13 +191,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         /// <summary>
         /// Loads a list of pipeline nodes that can be created from the given array of pipeline node specs
         /// </summary>
-        public void LoadCreatablePipelineNodes([NotNull] PipelineNodeSpec[] nodeSpecs)
+        public void LoadCreatablePipelineNodes([NotNull] PipelineNodeDescriptor[] nodeDescriptors)
         {
-            LoadedSpecs.AddRange(nodeSpecs);
+            LoadedDescriptors.AddRange(nodeDescriptors);
 
-            foreach (var spec in nodeSpecs)
+            foreach (var spec in nodeDescriptors)
             {
-                var button = ButtonForPipelineSpec(spec);
+                var button = ButtonForNodeDescriptor(spec);
                 button.Tag = spec;
 
                 SpecButtons.Add(button);
@@ -216,11 +216,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                             if (mousePosition == null)
                             {
                                 var center = (Vector)_pipelineContainer.ScreenSize / 2;
-                                PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), center));
+                                PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec, center));
                             }
                             else if (!_container.Contains(mousePosition.Value))
                             {
-                                PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec.CreateNode(), mousePosition.Value));
+                                PipelineNodeSelected?.Invoke(this, new PipelineNodeSelectedEventArgs(spec, mousePosition.Value));
                             }
 
                             break;
@@ -259,13 +259,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             }
         }
 
-        private ButtonControl ButtonForPipelineSpec([NotNull] PipelineNodeSpec spec)
+        private ButtonControl ButtonForNodeDescriptor([NotNull] PipelineNodeDescriptor descriptor)
         {
             var buttonSize = GetButtonSize();
 
             var button = ButtonControl.Create();
             button.Size = buttonSize;
-            button.Text = spec.Name;
+            button.Text = descriptor.Title;
             button.BackColor = Color.Black.WithTransparency(0.3f);
             button.NormalColor = Color.Black.WithTransparency(0.3f);
             button.HighlightColor = Color.Black.WithTransparency(0.3f).BlendedOver(Color.White);
@@ -284,9 +284,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             return button;
         }
 
-        private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button, [NotNull] PipelineNodeSpec nodeSpec)
+        private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button, [NotNull] PipelineNodeDescriptor nodeDesc)
         {
-            return new PipelineNodeButtonDragAndDropHandler(button, nodeSpec, _invalidateTarget,
+            return new PipelineNodeButtonDragAndDropHandler(button, nodeDesc, _invalidateTarget,
                 _pipelineRenderManager, new PipelineNodeButtonDragAndDropHandlerDelegate(this));
         }
 
@@ -380,12 +380,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         /// </summary>
         public class PipelineNodeSelectedEventArgs : EventArgs
         {
-            public IPipelineNode Node { get; }
+            public PipelineNodeDescriptor NodeDescriptor { get; }
             public Vector? ScreenPosition { get; }
 
-            public PipelineNodeSelectedEventArgs(IPipelineNode node, Vector? screenPosition)
+            public PipelineNodeSelectedEventArgs(PipelineNodeDescriptor nodeDescriptor, Vector? screenPosition)
             {
-                Node = node;
+                NodeDescriptor = nodeDescriptor;
                 ScreenPosition = screenPosition;
             }
         }
@@ -397,10 +397,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         /// </summary>
         public class DeletePipelineNodeEventArgs : EventArgs
         {
-            public IPipelineNode Node { get; }
+            public PipelineNodeId Node { get; }
             public Vector? ScreenPosition { get; }
 
-            public DeletePipelineNodeEventArgs(IPipelineNode node, Vector? screenPosition)
+            public DeletePipelineNodeEventArgs(PipelineNodeId node, Vector? screenPosition)
             {
                 Node = node;
                 ScreenPosition = screenPosition;
@@ -448,13 +448,13 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             _exportPipelineControl = exportPipelineControl;
         }
 
-        public Bitmap BitmapForPipelineNode(IPipelineNode node)
+        public Bitmap BitmapForPipelineNode(PipelineNodeDescriptor node)
         {
             var container = _exportPipelineControl.PipelineContainer;
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
-            var view = PipelineNodeView.Create(node);
+            var view = PipelineNodeView.Create(node, null);
             //view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.ImageResources);
 
             container.AutoSizeNode(view);
@@ -494,27 +494,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     return wicBitmap;
                 }
             }
-        }
-
-        public Bitmap BitmapForPipelineNodeType<T>() where T : IPipelineNode, new()
-        {
-            var node = new T();
-
-            return BitmapForPipelineNode(node);
-        }
-
-        public Bitmap BitmapForPipelineNodeType(Type type)
-        {
-            if(!typeof(IPipelineNode).IsAssignableFrom(type))
-                throw new ArgumentException($"Type ${type} must be a subtype of ${nameof(IPipelineNode)}");
-
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-            if(constructor == null)
-                throw new ArgumentException($"Type ${type} must have an empty constructor");
-
-            var node = (IPipelineNode)constructor.Invoke(new object[0]);
-
-            return BitmapForPipelineNode(node);
         }
     }
 }

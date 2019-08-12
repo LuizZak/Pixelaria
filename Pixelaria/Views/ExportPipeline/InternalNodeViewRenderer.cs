@@ -29,7 +29,6 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using PixPipelineGraph;
 using PixRendering;
 using PixUI;
 
@@ -270,7 +269,7 @@ namespace Pixelaria.Views.ExportPipeline
                 // Decorate
                 foreach (var decorator in decorators)
                 {
-                    if (link.NodeLink is IPipelineInput)
+                    if (link is PipelineNodeInputLinkView)
                         decorator.DecoratePipelineStepInput(link.NodeView, link, ref linkState);
                     else
                         decorator.DecoratePipelineStepOutput(link.NodeView, link, ref linkState);

@@ -35,7 +35,6 @@ using PixCore.Text.Attributes;
 using PixUI;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using PixPipelineGraph;
 using PixRendering;
 using PixUI.Controls;
 
@@ -112,18 +111,18 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         private void DisplayLabelForLink([NotNull] PipelineNodeLinkView linkView)
         {
-            IReadOnlyList<Type> types;
-            if (linkView.NodeLink is IPipelineOutput output)
+            IReadOnlyList<Type> types = new Type[0];
+            if (linkView is PipelineNodeOutputLinkView outputLink && outputLink.OutputId.HasValue)
             {
-                types = new[] { output.DataType };
+                var output = Control.PipelineContainer.PipelineGraph.GetOutput(outputLink.OutputId.Value);
+                if (output != null)
+                    types = new[] {output.DataType};
             }
-            else if (linkView.NodeLink is IPipelineInput input)
+            else if (linkView is PipelineNodeInputLinkView inputLink && inputLink.InputId.HasValue)
             {
-                types = input.DataTypes;
-            }
-            else
-            {
-                types = new Type[0];
+                var input = Control.PipelineContainer.PipelineGraph.GetInput(inputLink.InputId.Value);
+                if (input != null)
+                    types = input.DataTypes;
             }
 
             var labelText = new AttributedText();
@@ -144,7 +143,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             }
 
             // Assign label text
-            bool isOutput = linkView.NodeLink is IPipelineOutput;
+            bool isOutput = linkView is PipelineNodeOutputLinkView;
 
             labelText.Append(isOutput ? "output:" : "input:",
                 new ITextAttribute[]
@@ -154,7 +153,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 });
 
             labelText.Append("\n");
-            labelText.Append(linkView.NodeLink.Name);
+            labelText.Append(linkView.Title);
 
             if (types.Count > 0)
             {

@@ -230,7 +230,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 foreach (var view in removed)
                 {
                     view.StrokeWidth = 1;
-                    view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(view.PipelineNode);
+                    view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(view.NodeDescriptor);
                 }
             }
             else if (e.Button == MouseButtons.None)

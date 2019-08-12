@@ -55,9 +55,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             var sut = new DefaultPipelineNodeViewSizer();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
 
             RunTest(nodeView, sut);
         }
@@ -68,9 +68,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             var sut = new DefaultPipelineNodeViewSizer();
 
             var gen = new PipelineStepGenerator("Long Pipeline Step name to test view stretching");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
 
             RunTest(nodeView, sut);
         }
@@ -81,9 +81,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             var sut = new DefaultPipelineNodeViewSizer();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -96,9 +96,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input 1");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -111,9 +111,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input with large name to test view stretching");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -126,9 +126,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddOutput("Output 1");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -141,9 +141,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddOutput("Output 1 with large name to test view stretching");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -157,9 +157,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input 1");
             gen.AddOutput("Output 1");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -173,9 +173,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input with very long name");
             gen.AddOutput("Output with very long name");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
             nodeView.Icon = new ImageResource("anim_icon", 16, 16);
 
             RunTest(nodeView, sut);
@@ -188,9 +188,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.SetBodyText("A description that is placed within the node's body");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
 
             RunTest(nodeView, sut);
         }
@@ -203,9 +203,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input");
             gen.SetBodyText("A description that is placed within the node's body");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
 
             RunTest(nodeView, sut);
         }
@@ -219,9 +219,9 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             gen.AddInput("Input");
             gen.AddOutput("Output");
             gen.SetBodyText("A description that is placed within the node's body");
-            var node = gen.GetMock();
+            var node = gen.GetDescriptor();
 
-            var nodeView = PipelineNodeView.Create(node);
+            var nodeView = PipelineNodeView.Create(node, null);
 
             RunTest(nodeView, sut);
         }
@@ -279,19 +279,38 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
         internal void AddInput([NotNull] string name)
         {
-            var input = new MockPipelineInput(_node, name);
+            var input = new MockPipelineInput(_node.Id, name);
             _node.InputLinks.Add(input);
         }
 
         internal void AddOutput([NotNull] string name)
         {
-            var output = new MockPipelineOutput(_node, name);
+            var output = new MockPipelineOutput(_node.Id, name);
             _node.OutputLinks.Add(output);
         }
 
         internal IPipelineStep GetMock()
         {
             return _node;
+        }
+
+        internal PipelineNodeDescriptor GetDescriptor()
+        {
+            var descriptor = new PipelineNodeDescriptor
+            {
+                Title = _node.Name,
+                BodyText = _node.BodyText
+            };
+            foreach (var input in _node.Input)
+            {
+                descriptor.Inputs.Add(new PipelineInputDescriptor(input.Name));
+            }
+            foreach (var output in _node.Output)
+            {
+                descriptor.Outputs.Add(new PipelineOutputDescriptor(output.Name));
+            }
+
+            return descriptor;
         }
 
         private class MockPipelineStep: IPipelineStep
@@ -328,19 +347,15 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
         private class MockPipelineInput : IPipelineInput
         {
-            public IPipelineNode Node { get; }
-
-            public PipelineNodeId NodeId => Node.Id;
+            public PipelineNodeId NodeId { get; }
             public string Name { get; }
 
             public PipelineInput Id { get; }
             public IReadOnlyList<Type> DataTypes => new[] {typeof(object)};
 
-            public IPipelineOutput[] Connections => new IPipelineOutput[0];
-
-            public MockPipelineInput(IPipelineNode node, [NotNull] string name)
+            public MockPipelineInput(PipelineNodeId nodeId, [NotNull] string name)
             {
-                Node = node;
+                NodeId = nodeId;
                 Name = name;
             }
 
@@ -352,16 +367,15 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
         private class MockPipelineOutput : IPipelineOutput
         {
-            public IPipelineNode Node { get; }
-            public PipelineNodeId NodeId => Node.Id;
+            public PipelineNodeId NodeId { get; }
             public string Name { get; }
 
             public PipelineOutput Id { get; }
             public Type DataType => typeof(object);
 
-            public MockPipelineOutput(IPipelineNode node, [NotNull] string name)
+            public MockPipelineOutput(PipelineNodeId nodeId, [NotNull] string name)
             {
-                Node = node;
+                NodeId = nodeId;
                 Name = name;
             }
 

@@ -204,7 +204,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         private static float WidthForLinkViewsIn([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider)
         {
             float width = 0;
-            foreach (var linkView in nodeView.InputViews.Concat(nodeView.OutputViews))
+            foreach (var linkView in nodeView.InputViews.Cast<PipelineNodeLinkView>().Concat(nodeView.OutputViews))
             {
                 linkView.LinkLabel.Size = sizeProvider.CalculateTextSize(linkView.LinkLabel.AttributedText, linkView.LinkLabel.TextFont);
 

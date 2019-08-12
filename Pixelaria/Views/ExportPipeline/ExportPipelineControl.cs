@@ -494,7 +494,7 @@ namespace Pixelaria.Views.ExportPipeline
             public BaseView UiContainerView { get; } = new BaseView();
 
             public PipelineNodeView[] NodeViews => _nodeViews.ToArray();
-            public IPipelineNode[] Nodes => _nodeViews.Select(n => n.PipelineNode).ToArray();
+            public PipelineNodeId[] Nodes => _nodeViews.Where(n => n.NodeId.HasValue).Select(n => n.NodeId.Value).ToArray();
             
             public InternalPipelineContainer([NotNull] IExportPipelineControl control, [NotNull] IPipelineGraphBodyProvider bodyProvider)
             {
@@ -590,10 +590,16 @@ namespace Pixelaria.Views.ExportPipeline
                 switch (view)
                 {
                     case PipelineNodeView nodeView:
-                        SelectNode(nodeView.PipelineNode);
+                        if (nodeView.NodeId != null)
+                            SelectNode(nodeView.NodeId.Value);
                         break;
-                    case PipelineNodeLinkView linkView:
-                        SelectLink(linkView.NodeLink);
+                    case PipelineNodeInputLinkView linkView:
+                        if (linkView.InputId != null)
+                            SelectLink(linkView.InputId.Value);
+                        break;
+                    case PipelineNodeOutputLinkView linkView:
+                        if (linkView.OutputId != null)
+                            SelectLink(linkView.OutputId.Value);
                         break;
                     case PipelineNodeConnectionLineView connectionView:
                         SelectConnection(connectionView.Connection);
@@ -633,14 +639,48 @@ namespace Pixelaria.Views.ExportPipeline
                 _sel.FireOnSelectionChangedEvent();
             }
 
-            public void SelectLink(IPipelineNodeLink link)
+            public void SelectNode(PipelineNodeId node)
+            {
+                if (_selection.Contains(node))
+                    return;
+
+                _selection.Add(node);
+
+                var view = ViewForPipelineNode(node);
+                if (view != null)
+                {
+                    view.StrokeWidth = 3;
+                    view.StrokeColor = Color.Orange;
+                }
+
+                _sel.FireOnSelectionChangedEvent();
+            }
+
+            public void SelectLink(PipelineInput link)
             {
                 if (_selection.Contains(link))
                     return;
 
                 _selection.Add(link);
-                
-                var view = ViewForPipelineNodeLink(link);
+
+                var view = ViewForPipelineInput(link);
+                if (view != null)
+                {
+                    view.StrokeWidth = 3;
+                    view.StrokeColor = Color.Orange;
+                }
+
+                _sel.FireOnSelectionChangedEvent();
+            }
+
+            public void SelectLink(PipelineOutput link)
+            {
+                if (_selection.Contains(link))
+                    return;
+
+                _selection.Add(link);
+
+                var view = ViewForPipelineOutput(link);
                 if (view != null)
                 {
                     view.StrokeWidth = 3;
@@ -673,16 +713,23 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     switch (o)
                     {
-                        case IPipelineNode node:
+                        case PipelineNodeId node:
                         {
                             var view = ViewForPipelineNode(node);
                             Deselect(view);
                             break;
                         }
-                        case IPipelineNodeLink link:
+                        case PipelineInput link:
                         {
                             // Invalidate view region
-                            var view = ViewForPipelineNodeLink(link);
+                            var view = ViewForPipelineInput(link);
+                            Deselect(view);
+                            break;
+                        }
+                        case PipelineOutput link:
+                        {
+                            // Invalidate view region
+                            var view = ViewForPipelineOutput(link);
                             Deselect(view);
                             break;
                         }
@@ -705,20 +752,30 @@ namespace Pixelaria.Views.ExportPipeline
                 switch (view)
                 {
                     case PipelineNodeView nodeView:
-                        if (!_selection.Contains(nodeView.PipelineNode))
+                        if (!_selection.Contains(nodeView.NodeId))
                             return;
 
-                        _selection.Remove(nodeView.PipelineNode);
+                        _selection.Remove(nodeView.NodeId);
                         view.StrokeWidth = 1;
-                        view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(nodeView.PipelineNode);
+                        view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(nodeView.NodeDescriptor);
                         _sel.FireOnSelectionChangedEvent();
                         break;
 
-                    case PipelineNodeLinkView linkView:
-                        if (!_selection.Contains(linkView.NodeLink))
+                    case PipelineNodeInputLinkView linkView:
+                        if (!_selection.Contains(linkView.InputId))
                             return;
 
-                        _selection.Remove(linkView.NodeLink);
+                        _selection.Remove(linkView.InputId);
+                        view.StrokeWidth = 1;
+                        view.StrokeColor = Color.Black;
+                        _sel.FireOnSelectionChangedEvent();
+                        break;
+
+                    case PipelineNodeOutputLinkView linkView:
+                        if (!_selection.Contains(linkView.OutputId))
+                            return;
+
+                        _selection.Remove(linkView.OutputId);
                         view.StrokeWidth = 1;
                         view.StrokeColor = Color.Black;
                         _sel.FireOnSelectionChangedEvent();
@@ -739,7 +796,7 @@ namespace Pixelaria.Views.ExportPipeline
             private void AddConnectionView([NotNull] PipelineNodeLinkView start, [NotNull] PipelineNodeLinkView end, [NotNull] IPipelineConnection connection)
             {
                 // Flip start/end to always match output/input
-                if (start.NodeLink is IPipelineInput && end.NodeLink is IPipelineOutput)
+                if (start is PipelineNodeInputLinkView && end is PipelineNodeOutputLinkView)
                 {
                     (start, end) = (end, start);
                 }
@@ -778,8 +835,8 @@ namespace Pixelaria.Views.ExportPipeline
                 var inpNode = input.NodeId;
                 var outNode = output.NodeId;
 
-                var inpView = ViewForPipelineNodeLink(input);
-                var outView = ViewForPipelineNodeLink(output);
+                var inpView = ViewForPipelineInput(input.Id);
+                var outView = ViewForPipelineOutput(output.Id);
 
                 Debug.Assert(inpView != null, "inpView != null");
                 Debug.Assert(outView != null, "outView != null");
@@ -792,6 +849,19 @@ namespace Pixelaria.Views.ExportPipeline
 
                 if (con != null)
                     AddConnectionView(inpView, outView, con);
+            }
+
+            /// <summary>
+            /// Adds a connection between the two given pipeline links.
+            /// The connection is not made if input.CanConnect(output) returns false.
+            /// </summary>
+            public void AddConnection(PipelineInput input, PipelineOutput output)
+            {
+                var pipelineInput = PipelineGraph.GetInput(input);
+                var pipelineOutput = PipelineGraph.GetOutput(output);
+
+                if (pipelineInput != null && pipelineOutput != null)
+                    AddConnection(pipelineInput, pipelineOutput);
             }
 
             public void RemoveConnection(IPipelineConnection connection)
@@ -904,7 +974,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
 
             /// <inheritdoc />
-            public (PipelineNodeLinkView from, PipelineNodeLinkView to)[] ConnectedLinkViewsBetween(PipelineNodeView from, PipelineNodeView to)
+            public (PipelineNodeOutputLinkView from, PipelineNodeInputLinkView to)[] ConnectedLinkViewsBetween(PipelineNodeView from, PipelineNodeView to)
             {
                 return (from linkFrom in @from.OutputViews
                     from linkTo in to.InputViews
@@ -915,20 +985,13 @@ namespace Pixelaria.Views.ExportPipeline
             /// <inheritdoc />
             public PipelineNodeView ViewForPipelineNode(IPipelineNode node)
             {
-                return _nodeViews.FirstOrDefault(stepView => stepView.PipelineNode == node);
+                return _nodeViews.FirstOrDefault(stepView => stepView.NodeId == node.Id);
             }
 
             /// <inheritdoc />
             public PipelineNodeView ViewForPipelineNode(PipelineNodeId nodeId)
             {
-                return _nodeViews.FirstOrDefault(stepView => stepView.PipelineNode.Id == nodeId);
-            }
-
-            /// <inheritdoc />
-            public PipelineNodeLinkView ViewForPipelineNodeLink(IPipelineNodeLink node)
-            {
-                return ViewForPipelineNode(node.NodeId)?.GetLinkViews()
-                    .FirstOrDefault(linkView => linkView.NodeLink == node);
+                return _nodeViews.FirstOrDefault(stepView => stepView.NodeId == nodeId);
             }
 
             /// <inheritdoc />
@@ -971,7 +1034,7 @@ namespace Pixelaria.Views.ExportPipeline
             }
 
             [CanBeNull]
-            private PipelineNodeLinkView PotentialLinkViewForLinking([NotNull] PipelineNodeLinkView linkView, Vector position)
+            private PipelineNodeLinkView PotentialLinkViewForLinking([NotNull] PipelineNodeLinkView sourceLinkView, Vector position)
             {
                 // Start searching through link views, then we look at node views under the mouse
                 // and look through their own outputs instead
@@ -984,49 +1047,52 @@ namespace Pixelaria.Views.ExportPipeline
                                 .OfType<PipelineNodeView>()
                                 .SelectMany(nodeView => nodeView.GetLinkViews())
                         )
-                        .Where(view => !Equals(view, linkView));
+                        .Where(view => !Equals(view, sourceLinkView));
 
-                foreach (var nodeLinkView in links)
+                foreach (var targetLinkView in links)
                 {
-                    var linkSource = linkView.NodeLink;
-                    var linkTarget = nodeLinkView.NodeLink;
-
                     // Avoid links that belong to the same pipeline step
-                    if (nodeLinkView.NodeView.GetLinkViews().Contains(linkView))
+                    if (targetLinkView.NodeView.GetLinkViews().Contains(sourceLinkView))
                         continue;
 
                     // Avoid links that are already connected
-                    if (AreConnected(linkView, nodeLinkView))
+                    if (AreConnected(sourceLinkView, targetLinkView))
                         continue;
 
-                    // Can't link inputs to other inputs and outputs to other outputs
-                    if (!(linkSource is IPipelineInput && linkTarget is IPipelineOutput) &&
-                        !(linkSource is IPipelineOutput && linkTarget is IPipelineInput))
-                        continue;
-                    
                     // Check type validity
-                    IPipelineInput input;
-                    IPipelineOutput output;
+                    PipelineInput? input;
+                    PipelineOutput? output;
 
-                    if (linkSource is IPipelineInput source && linkTarget is IPipelineOutput)
+                    if (sourceLinkView is PipelineNodeInputLinkView source1 && targetLinkView is PipelineNodeOutputLinkView target1)
                     {
-                        input = source;
-                        output = (IPipelineOutput)linkTarget;
+                        input = source1.InputId;
+                        output = target1.OutputId;
+                    }
+                    else if (sourceLinkView is PipelineNodeOutputLinkView target2 && targetLinkView is PipelineNodeInputLinkView source2)
+                    {
+                        input = source2.InputId;
+                        output = target2.OutputId;
                     }
                     else
                     {
-                        input = (IPipelineInput)linkTarget;
-                        output = (IPipelineOutput)linkSource;
-                    }
-                    
-                    // Verify connections won't result in a cycle in the node graphs
-                    var node = output.NodeId;
-
-                    if (PipelineGraph.AreDirectlyConnected(node, input.NodeId))
+                        // Can only link inputs to outputs and outputs to inputs
                         continue;
-                    
-                    if (PipelineGraph.CanConnect(input.Id, output.Id))
-                        return nodeLinkView;
+                    }
+
+                    if (input.HasValue && output.HasValue)
+                    {
+                        var pipelineInput = input.Value;
+                        var pipelineOutput = output.Value;
+
+                        // Verify connections won't result in a cycle in the node graphs
+                        var node = pipelineOutput.NodeId;
+
+                        if (PipelineGraph.AreDirectlyConnected(node, pipelineInput.NodeId))
+                            continue;
+
+                        if (PipelineGraph.CanConnect(pipelineInput, pipelineOutput))
+                            return targetLinkView;
+                    }
                 }
 
                 return null;
@@ -1092,8 +1158,11 @@ namespace Pixelaria.Views.ExportPipeline
                 public PipelineNodeLinkView[] NodeLinkViews()
                 {
                     return _container
-                        .Selection.OfType<IPipelineNodeLink>()
-                        .Select(link => _container.ViewForPipelineNodeLink(link))
+                        .Selection.OfType<PipelineInput>()
+                        .Select(link => _container.ViewForPipelineInput(link))
+                        .Concat(_container
+                            .Selection.OfType<PipelineOutput>()
+                            .Select(link => _container.ViewForPipelineOutput(link)))
                         .ToArray();
                 }
 
@@ -1115,10 +1184,12 @@ namespace Pixelaria.Views.ExportPipeline
                     switch (view)
                     {
                         case PipelineNodeView node:
-                            return _container.Selection.Contains(node.PipelineNode);
+                            return _container.Selection.Contains(node.NodeId);
 
-                        case PipelineNodeLinkView link:
-                            return _container.Selection.Contains(link.NodeLink);
+                        case PipelineNodeInputLinkView link:
+                            return _container.Selection.Contains(link.InputId);
+                        case PipelineNodeOutputLinkView link:
+                            return _container.Selection.Contains(link.OutputId);
 
                         case PipelineNodeConnectionLineView con:
                             return _container.Selection.Contains(con.Connection);

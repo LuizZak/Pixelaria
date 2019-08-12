@@ -22,6 +22,7 @@
 
 using System;
 using JetBrains.Annotations;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
@@ -37,32 +38,15 @@ namespace Pixelaria.ExportPipeline
         public string Name { get; }
 
         /// <summary>
-        /// Gets the node's reflection type
-        /// </summary>
-        [NotNull]
-        public Type NodeType { get; }
-
-        /// <summary>
         /// Function that must instantiate pipeline nodes when called.
         /// </summary>
         [NotNull]
-        public Func<IPipelineNode> CreateNode;
+        public Action<PipelineNodeBuilder> CreateNode;
 
-        public PipelineNodeSpec([NotNull] string name, [NotNull] Type nodeType, [NotNull] Func<IPipelineNode> createNode)
+        public PipelineNodeSpec([NotNull] string name, [NotNull] Action<PipelineNodeBuilder> createNode)
         {
             CreateNode = createNode;
-            NodeType = nodeType;
             Name = name;
-        }
-
-        /// <summary>
-        /// Helper for creating a pipeline node spec w/ a node creation function that uses reflection
-        /// to fetch a parameter-less constructor for the node type.
-        /// </summary>
-        [NotNull]
-        public static PipelineNodeSpec Of<T>([NotNull] string name) where T : IPipelineNode, new()
-        {
-            return new PipelineNodeSpec(name, typeof(T), () => new T());
         }
     }
 }

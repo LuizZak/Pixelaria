@@ -33,7 +33,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// A view for a link of a pipeline step view
     /// </summary>
-    internal sealed class PipelineNodeLinkView : BaseView
+    internal abstract class PipelineNodeLinkView : BaseView
     {
         /// <summary>
         /// A static pipeline output connected to this node link, if available.
@@ -45,15 +45,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public IStaticPipelineOutput FixedOutput { get; set; }
 
         /// <summary>
-        /// The connection this link references on its parent step view
-        /// </summary>
-        public IPipelineNodeLink NodeLink { get; }
-
-        /// <summary>
         /// Gets the parent step view for this link view
         /// </summary>
         // ReSharper disable once AnnotateCanBeNullTypeMember
         public PipelineNodeView NodeView => (PipelineNodeView)Parent;
+
+        /// <summary>
+        /// Gets the title for this node
+        /// </summary>
+        public string Title { get; }
 
         /// <summary>
         /// Gets a label displayed alongside this node link view on the parent
@@ -61,19 +61,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public LabelView LinkLabel { get; } = new LabelView();
 
-        public static PipelineNodeLinkView Create([NotNull] IPipelineNodeLink nodeLink)
+        protected PipelineNodeLinkView(string title)
         {
-            var view = new PipelineNodeLinkView(nodeLink);
-            view.Initialize();
-            return view;
+            Title = title;
         }
 
-        private PipelineNodeLinkView([NotNull] IPipelineNodeLink nodeLink)
-        {
-            NodeLink = nodeLink;
-        }
-
-        private void Initialize()
+        protected void Initialize()
         {
             LinkLabel.StrokeWidth = 0;
             LinkLabel.TextColor = Color.Black;
@@ -93,7 +86,57 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public void UpdateDisplay()
         {
-            LinkLabel.Text = NodeLink.Name;
+            LinkLabel.Text = Title;
+        }
+    }
+
+    /// <summary>
+    /// A view for an input link of a pipeline step view
+    /// </summary>
+    internal sealed class PipelineNodeInputLinkView : PipelineNodeLinkView
+    {
+        /// <summary>
+        /// Gets or sets the ID of this node input.
+        /// 
+        /// If <c>null</c>, indicates this view is not associated with a node.
+        /// </summary>
+        public PipelineInput? InputId { get; }
+
+        public static PipelineNodeInputLinkView Create([NotNull] PipelineInputDescriptor descriptor, PipelineInput? inputId)
+        {
+            var view = new PipelineNodeInputLinkView(descriptor, inputId);
+            view.Initialize();
+            return view;
+        }
+
+        private PipelineNodeInputLinkView([NotNull] PipelineInputDescriptor descriptor, PipelineInput? inputId) : base(descriptor.Title)
+        {
+            InputId = inputId;
+        }
+    }
+
+    /// <summary>
+    /// A view for an output link of a pipeline step view
+    /// </summary>
+    internal sealed class PipelineNodeOutputLinkView : PipelineNodeLinkView
+    {
+        /// <summary>
+        /// Gets or sets the ID of this node output.
+        /// 
+        /// If <c>null</c>, indicates this view is not associated with a node.
+        /// </summary>
+        public PipelineOutput? OutputId { get; }
+
+        public static PipelineNodeOutputLinkView Create([NotNull] PipelineOutputDescriptor descriptor, PipelineOutput? outputId)
+        {
+            var view = new PipelineNodeOutputLinkView(descriptor, outputId);
+            view.Initialize();
+            return view;
+        }
+
+        private PipelineNodeOutputLinkView([NotNull] PipelineOutputDescriptor descriptor, PipelineOutput? outputId) : base(descriptor.Title)
+        {
+            OutputId = outputId;
         }
     }
 }
