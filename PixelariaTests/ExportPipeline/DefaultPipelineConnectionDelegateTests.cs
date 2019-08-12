@@ -132,7 +132,7 @@ namespace PixelariaTests.ExportPipeline
         {
             public PipelineBody GetBody(PipelineBodyId id)
             {
-                return new PipelineBody(id, new []{ typeof(int) }, typeof(int), o => o);
+                return new PipelineBody(id, new []{ typeof(int) }, typeof(int), o => new PipelineBodyInvocationResponse(o));
             }
         }
     }

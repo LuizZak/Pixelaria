@@ -111,7 +111,7 @@ namespace Pixelaria.ExportPipeline.NodeBodies
                     newFilter.ApplyToBitmap(bitmap);
                 }
 
-                return null;
+                return new PipelineBodyInvocationResponse(null);
             });
         }
     }

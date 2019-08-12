@@ -53,9 +53,9 @@ namespace PixPipelineGraph
         /// The untyped delegate for this body.
         /// </summary>
         [NotNull]
-        public Func<IPipelineBodyInvocationContext, object> Body { get; set; }
+        public Func<IPipelineBodyInvocationContext, PipelineBodyInvocationResponse> Body { get; set; }
 
-        public PipelineBody(PipelineBodyId id, Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, object> body)
+        public PipelineBody(PipelineBodyId id, Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, PipelineBodyInvocationResponse> body)
         {
             Id = id;
             InputTypes = inputTypes;
