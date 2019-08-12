@@ -295,12 +295,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             return new Vector(_scrollViewControl.VisibleContentBounds.Width / 2 - 20, 40);
         }
 
-        [CanBeNull]
-        private ButtonControl ButtonForSpec(PipelineNodeSpec spec)
-        {
-            return SpecButtons.FirstOrDefault(b => b.Tag == spec);
-        }
-
 #if false
 
         /// <summary>
