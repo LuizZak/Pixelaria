@@ -211,7 +211,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         }
 
         [TestMethod]
-        public void TestAutoSizeNodeWithDescriptionAndInputÁndOutput()
+        public void TestAutoSizeNodeWithDescriptionAndInputAndOutput()
         {
             var sut = new DefaultPipelineNodeViewSizer();
 
