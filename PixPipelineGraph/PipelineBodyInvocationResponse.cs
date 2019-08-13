@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -95,8 +96,34 @@ namespace PixPipelineGraph
 
         public static PipelineBodyInvocationResponse Response<T>([NotNull] IObservable<T> output)
         {
-            var response = new PipelineBodyInvocationResponse(new AnyObservable(output), typeof(T));
+            var response = new PipelineBodyInvocationResponse(new AnyObservable(new object[]{ output }), typeof(T));
             return response;
+        }
+
+        /// <summary>
+        /// Combines all provided responses into a single condensed response.
+        ///
+        /// The resulting response will combine all output observables, as well as be marked with the exception
+        /// from the first exceptional response in the enumerable.
+        ///
+        /// The type of the responses should be the same, otherwise the resulting response type is undefined.
+        /// </summary>
+        public static PipelineBodyInvocationResponse Combine([NotNull] IEnumerable<PipelineBodyInvocationResponse> responses)
+        {
+            var type = typeof(object);
+            var result = new AnyObservable(new object[0]);
+            foreach (var response in responses)
+            {
+                type = response.Type;
+
+                if (response.Error != null)
+                    return new PipelineBodyInvocationResponse(response.Error);
+
+                if (response.Output != null)
+                    result = AnyObservable.Combine(result, response.Output);
+            }
+
+            return new PipelineBodyInvocationResponse(result, type);
         }
     }
 

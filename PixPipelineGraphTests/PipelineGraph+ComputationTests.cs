@@ -142,7 +142,7 @@ namespace PixPipelineGraphTests
 
             var response = graph.Compute(graph.OutputsForNode(adderNode)[0]);
 
-            AssertOutputEquals(response, new[] { 12 });
+            AssertOutputEquals(response, new[] { 12, 16 });
         }
 
         #region Instantiation

@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using JetBrains.Annotations;
 
 namespace PixPipelineGraph
 {
@@ -203,26 +205,40 @@ namespace PixPipelineGraph
 
     public class AnyObservable
     {
-        private readonly object _underlying;
+        private readonly object[] _underlying;
 
-        public AnyObservable(object underlying)
+        public AnyObservable(object[] underlying)
         {
             _underlying = underlying;
         }
 
         public IObservable<T> ToObservable<T>()
         {
-            if (_underlying is IObservable<T> observable)
+            var list = new List<IObservable<T>>();
+
+            foreach (var o in _underlying)
             {
-                return observable;
+                if (o is IObservable<T> observable)
+                {
+                    list.Add(observable);
+                }
+                else
+                {
+                    return new AnonymousObservable<T>(observer =>
+                    {
+                        observer.OnError(new TypeMismatchException($"Mismatched observable type IObservable<{typeof(T)}> (have observable of type {_underlying.GetType()})"));
+
+                        return Disposable.Empty;
+                    });
+                }
             }
 
-            return new AnonymousObservable<T>(observer =>
-            {
-                observer.OnError(new TypeMismatchException($"Mismatched observable type IObservable<{typeof(T)}> (have observable of type {_underlying.GetType()})"));
+            return list.Concat();
+        }
 
-                return Disposable.Empty;
-            });
+        public static AnyObservable Combine([NotNull] AnyObservable first, [NotNull] AnyObservable second)
+        {
+            return new AnyObservable(first._underlying.Concat(second._underlying).ToArray());
         }
 
         public class TypeMismatchException : Exception

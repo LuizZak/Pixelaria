@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using System.Linq;
+
 namespace PixPipelineGraph
 {
     public partial class PipelineGraph
@@ -56,13 +58,10 @@ namespace PixPipelineGraph
         private PipelineBodyInvocationResponse ResponsesForInput(PipelineInput input)
         {
             var connections = ConnectionsTowardsInput(input);
-            foreach (var connection in connections)
-            {
-                var results = Compute(connection.Start);
-                return results;
-            }
+            if (connections.Count == 0)
+                return PipelineBodyInvocationResponse.NotConnected;
 
-            return PipelineBodyInvocationResponse.NotConnected;
+            return PipelineBodyInvocationResponse.Combine(connections.Select(c => Compute(c.Start)));
         }
     }
 }
