@@ -20,10 +20,7 @@
     base directory of this project.
 */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
 
 namespace PixPipelineGraph
 {
@@ -37,7 +34,7 @@ namespace PixPipelineGraph
         internal List<InternalPipelineInput> Inputs = new List<InternalPipelineInput>();
         internal List<InternalPipelineOutput> Outputs = new List<InternalPipelineOutput>();
 
-        internal List<PipelineBody> Bodies = new List<PipelineBody>();
+        internal PipelineBody Body { get; set; }
 
         internal IPipelineMetadata PipelineMetadata { get; set; }
 
@@ -54,15 +51,6 @@ namespace PixPipelineGraph
         internal PipelineOutput NextAvailableOutputId()
         {
             return new PipelineOutput(Id, Outputs.Count);
-        }
-
-        [CanBeNull]
-        internal PipelineBody BodyForInputType(Type[] inputTypes)
-        {
-            return Bodies.FirstOrDefault(body =>
-            {
-                return body.InputTypes.Zip(inputTypes, (param, valueType) => (param, valueType)).All(types => types.valueType.IsAssignableFrom(types.param));
-            });
         }
     }
 }

@@ -38,8 +38,8 @@ namespace PixPipelineGraphTests
             // Act
             unitUnderTest.CreateInput("input", builder =>
             {
-                builder.AddInputType(typeof(string));
-                builder.AddInputType(typeof(int));
+                builder.SetInputType(typeof(string));
+                builder.SetInputType(typeof(int));
             });
 
             // Assert
@@ -73,13 +73,5 @@ namespace PixPipelineGraphTests
         }
 
         #endregion
-
-        private class MockPipelineBodyProvider : IPipelineGraphBodyProvider
-        {
-            public PipelineBody GetBody(PipelineBodyId id)
-            {
-                return new PipelineBody(id, new [] { typeof(int) }, typeof(int), o => new PipelineBodyInvocationResponse(o));
-            }
-        }
     }
 }

@@ -44,9 +44,9 @@ namespace PixPipelineGraph
         }
 
         /// <summary>
-        /// Adds a body for a given body ID
+        /// Sets a body for a given body ID
         /// </summary>
-        public void AddBody(PipelineBodyId bodyId)
+        public void SetBody(PipelineBodyId bodyId)
         {
             _stepCollection.AddClosureBuilderStep(node =>
             {
@@ -54,18 +54,18 @@ namespace PixPipelineGraph
                 if(body == null)
                     throw new ArgumentException($"No pipeline body node found for body ID {bodyId}", nameof(bodyId));
 
-                node.Bodies.Add(body);
+                node.Body = body;
             });
         }
 
         /// <summary>
-        /// Adds a given pipeline body to the list of pipeline bodies accepted by the node.
+        /// Sets a given pipeline body as the body accepted by the node.
         /// </summary>
-        public void AddBody(PipelineBody body)
+        public void SetBody(PipelineBody body)
         {
             _stepCollection.AddClosureBuilderStep(node =>
             {
-                node.Bodies.Add(body);
+                node.Body = body;
             });
         }
 

@@ -111,36 +111,21 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         private void DisplayLabelForLink([NotNull] PipelineNodeLinkView linkView)
         {
-            IReadOnlyList<Type> types = new Type[0];
+            Type type = null;
             if (linkView is PipelineNodeOutputLinkView outputLink && outputLink.OutputId.HasValue)
             {
                 var output = Control.PipelineContainer.PipelineGraph.GetOutput(outputLink.OutputId.Value);
                 if (output != null)
-                    types = new[] {output.DataType};
+                    type = output.DataType;
             }
             else if (linkView is PipelineNodeInputLinkView inputLink && inputLink.InputId.HasValue)
             {
                 var input = Control.PipelineContainer.PipelineGraph.GetInput(inputLink.InputId.Value);
                 if (input != null)
-                    types = input.DataTypes;
+                    type = input.DataType;
             }
 
             var labelText = new AttributedText();
-
-            // Construct accepted types string
-            var typeListText = new AttributedText();
-
-            foreach (var type in types)
-            {
-                var typeText = new AttributedText(NameForType(type), new ForegroundColorAttribute(ColorForType(type)));
-
-                if (typeListText.Length > 0)
-                {
-                    typeListText += ", ";
-                }
-
-                typeListText += typeText;
-            }
 
             // Assign label text
             bool isOutput = linkView is PipelineNodeOutputLinkView;
@@ -155,10 +140,13 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             labelText.Append("\n");
             labelText.Append(linkView.Title);
 
-            if (types.Count > 0)
+            if (type != null)
             {
+                // Construct accepted types string
+                var typeText = new AttributedText(NameForType(type), new ForegroundColorAttribute(ColorForType(type)));
+
                 labelText.Append(": ");
-                labelText.Append(typeListText);
+                labelText.Append(typeText);
             }
 
             // Append connection count, if available

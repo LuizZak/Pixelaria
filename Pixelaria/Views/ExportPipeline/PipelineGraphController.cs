@@ -49,7 +49,7 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     foreach (var inputType in input.InputTypes)
                     {
-                        builder.AddInputType(inputType);
+                        builder.SetInputType(inputType);
                     }
                 });
             }
@@ -61,7 +61,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             foreach (var body in descriptor.Bodies)
             {
-                node.AddBody(body);
+                node.SetBody(body);
             }
         }
     }

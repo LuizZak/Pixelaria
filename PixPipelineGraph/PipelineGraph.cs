@@ -209,8 +209,7 @@ namespace PixPipelineGraph
             if (ConnectionDelegate != null && !ConnectionDelegate.CanConnect(inputData, outputData, this))
                 return false;
 
-            return
-                inputData.DataTypes.Any(type => type.IsAssignableFrom(outputData.DataType));
+            return inputData.DataType.IsAssignableFrom(outputData.DataType);
         }
 
         /// <summary>
@@ -345,6 +344,17 @@ namespace PixPipelineGraph
         {
             return _nodes.FirstOrDefault(n => n.Id == nodeId)?.PipelineMetadata;
         }
+
+        /// <summary>
+        /// Returns the pipeline body for the given node.
+        ///
+        /// May be <c>null</c>, in case no node was found with a matching id.
+        /// </summary>
+        [CanBeNull]
+        public PipelineBody BodyForNode(PipelineNodeId nodeId)
+        {
+            return _nodes.FirstOrDefault(n => n.Id == nodeId)?.Body;
+        }
     }
 
     #region Subgraph Operations
@@ -366,19 +376,13 @@ namespace PixPipelineGraph
             {
                 nodesMap[node.Id] = CreateNode(n =>
                 {
-                    foreach (var body in node.Bodies)
-                    {
-                        n.AddBody(body);
-                    }
+                    n.SetBody(node.Body);
 
                     foreach (var input in node.Inputs)
                     {
                         n.CreateInput(input.Name, i =>
                         {
-                            foreach (var type in input.DataTypes)
-                            {
-                                i.AddInputType(type);
-                            }
+                            i.SetInputType(input.DataType);
                         });
                     }
 

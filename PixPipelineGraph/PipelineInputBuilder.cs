@@ -51,11 +51,11 @@ namespace PixPipelineGraph
         /// <summary>
         /// Adds a type to the list of types the pipeline input can consume
         /// </summary>
-        public void AddInputType(Type type)
+        public void SetInputType(Type type)
         {
             _stepCollection.AddClosureBuilderStep(input =>
             {
-                input.dataTypes.Add(type);
+                input.DataType = type;
             });
         }
 
@@ -72,7 +72,7 @@ namespace PixPipelineGraph
 
         internal InternalPipelineInput Build([NotNull] PipelineNode node, PipelineInput id, [NotNull] string name)
         {
-            var input = new InternalPipelineInput(node, id, name, new Type[0]);
+            var input = new InternalPipelineInput(node, id, name, typeof(object));
 
             _stepCollection.Apply(input);
 

@@ -31,11 +31,39 @@ namespace PixPipelineGraph
     public class PipelineBodyInvocationResponse
     {
         /// <summary>
+        /// A common response to invoke when a pipeline invocation was performed with an unknown node ID.
+        /// </summary>
+        public static PipelineBodyInvocationResponse UnknownNodeId(PipelineNodeId nodeId)
+        {
+            return new PipelineBodyInvocationResponse(new Exception($"Non-existing node ID {nodeId}"));
+        }
+
+        /// <summary>
+        /// A common response to invoke when a pipeline invocation was performed with an unknown input ID.
+        /// </summary>
+        public static PipelineBodyInvocationResponse UnknownInputId(PipelineInput inputId)
+        {
+            return new PipelineBodyInvocationResponse(new Exception($"Non-existing input ID {inputId}"));
+        }
+
+        /// <summary>
+        /// A common response to invoke when a pipeline invocation was performed in an output that has no input connections.
+        /// </summary>
+        public static PipelineBodyInvocationResponse NotConnected = new PipelineBodyInvocationResponse(new NotConnectedException());
+
+        /// <summary>
         /// Whether this response has an associated response object at <see cref="Output"/>.
         ///
         /// Is <c>false</c>, in case this response represents an exception response.
         /// </summary>
         public bool HasOutput { get; }
+
+        /// <summary>
+        /// Gets the type of this response.
+        ///
+        /// Is <see cref="Exception"/>, in case this is an exception response.
+        /// </summary>
+        public Type Type { get; }
 
         /// <summary>
         /// The response object for this invocation.
@@ -44,23 +72,39 @@ namespace PixPipelineGraph
         /// in case an user registered a <c>null</c> response object.
         /// </summary>
         [CanBeNull]
-        public object Output { get; }
+        public AnyObservable Output { get; }
 
         /// <summary>
         /// Gets an exception-like error that was raised by an invocation to the pipeline body.
         /// </summary>
         public Exception Error { get; }
 
-        public PipelineBodyInvocationResponse(object output)
+        private PipelineBodyInvocationResponse(AnyObservable output, Type type)
         {
             HasOutput = true;
             Output = output;
+            Type = type;
         }
 
         public PipelineBodyInvocationResponse(Exception error)
         {
             HasOutput = false;
             Error = error;
+            Type = typeof(Exception);
+        }
+
+        public static PipelineBodyInvocationResponse Response<T>([NotNull] IObservable<T> output)
+        {
+            var response = new PipelineBodyInvocationResponse(new AnyObservable(output), typeof(T));
+            return response;
+        }
+    }
+
+    public class NotConnectedException : Exception
+    {
+        public NotConnectedException() : base("Not Connected")
+        {
+            
         }
     }
 }

@@ -21,7 +21,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -38,9 +37,9 @@ namespace PixPipelineGraph
         PipelineInput Id { get; }
 
         /// <summary>
-        /// The types of data that can be consumed by this input
+        /// The type of data that can be consumed by this input.
         /// </summary>
         [NotNull]
-        IReadOnlyList<Type> DataTypes { get; }
+        Type DataType { get; }
     }
 }

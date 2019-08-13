@@ -225,13 +225,5 @@ namespace PixPipelineGraphTests
         }
 
         #endregion
-
-        private class MockPipelineBodyProvider : IPipelineGraphBodyProvider
-        {
-            public PipelineBody GetBody(PipelineBodyId id)
-            {
-                return new PipelineBody(id, new [] { typeof(int) }, typeof(int), o => new PipelineBodyInvocationResponse(o));
-            }
-        }
     }
 }

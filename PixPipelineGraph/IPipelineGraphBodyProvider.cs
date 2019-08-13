@@ -51,7 +51,7 @@ namespace PixPipelineGraph
 
         public bool Equals(PipelineBodyId other)
         {
-            throw new NotImplementedException();
+            return Id == other.Id;
         }
 
         public override bool Equals(object obj)

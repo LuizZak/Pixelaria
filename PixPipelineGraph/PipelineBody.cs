@@ -88,38 +88,38 @@ namespace PixPipelineGraph
         /// This value may be <c>null</c>, in case the input was itself provided null, or not connected to an output.
         /// </summary>
         [CanBeNull]
-        T GetIndexedInput<T>(int index);
+        IObservable<T> GetIndexedInput<T>(int index);
 
         /// <summary>
         /// Helper method for fetching indexed inputs by matching type.
         ///
         /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
         /// </summary>
-        bool GetIndexedInputs<T1>(out T1 t1);
+        bool GetIndexedInputs<T1>(out IObservable<T1> t1);
         /// <summary>
         /// Helper method for fetching indexed inputs by matching type.
         ///
         /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
         /// </summary>
-        bool GetIndexedInputs<T1, T2>(out T1 t1, out T2 t2);
+        bool GetIndexedInputs<T1, T2>(out IObservable<T1> t1, out IObservable<T2> t2);
         /// <summary>
         /// Helper method for fetching indexed inputs by matching type.
         ///
         /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
         /// </summary>
-        bool GetIndexedInputs<T1, T2, T3>(out T1 t1, out T2 t2, out T3 t3);
+        bool GetIndexedInputs<T1, T2, T3>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3);
         /// <summary>
         /// Helper method for fetching indexed inputs by matching type.
         ///
         /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
         /// </summary>
-        bool GetIndexedInputs<T1, T2, T3, T4>(out T1 t1, out T2 t2, out T3 t3, out T4 t4);
+        bool GetIndexedInputs<T1, T2, T3, T4>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4);
         /// <summary>
         /// Helper method for fetching indexed inputs by matching type.
         ///
         /// Returns <c>true</c> iff all input types match the provided generic signatures by type cast.
         /// </summary>
-        bool GetIndexedInputs<T1, T2, T3, T4, T5>(out T1 t1, out T2 t2, out T3 t3, out T4 t4, out T5 t5);
+        bool GetIndexedInputs<T1, T2, T3, T4, T5>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4, out IObservable<T5> t5);
 
         /// <summary>
         /// Returns <c>true</c> if all indexed inputs match the given expected types, using <see cref="Type.IsAssignableFrom"/>

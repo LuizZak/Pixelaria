@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 
 namespace PixPipelineGraph
 {
@@ -42,12 +44,12 @@ namespace PixPipelineGraph
             return _inputs.Any(i => i.Index == index);
         }
 
-        public T GetIndexedInput<T>(int index)
+        public IObservable<T> GetIndexedInput<T>(int index)
         {
-            return (T) _inputs.FirstOrDefault(i => i.Index == index).Value;
+            return _inputs.FirstOrDefault(i => i.Index == index).Observable?.ToObservable<T>();
         }
 
-        public bool GetIndexedInputs<T1>(out T1 t1)
+        public bool GetIndexedInputs<T1>(out IObservable<T1> t1)
         {
             t1 = default;
 
@@ -55,24 +57,25 @@ namespace PixPipelineGraph
             if (inputs.Count != 1 || inputs.Any(i => i == null))
                 return false;
 
-            if (inputs[0] is T1 t1Cast)
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast)
             {
                 t1 = t1Cast;
+                return true;
             }
 
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2>(out T1 t1, out T2 t2)
+        public bool GetIndexedInputs<T1, T2>(out IObservable<T1> t1, out IObservable<T2> t2)
         {
             t1 = default;
             t2 = default;
 
-            var inputs = OrderedInputs();
+            var inputs = OrderedInputValues();
             if (inputs.Count != 2 || inputs.Any(i => i == null))
                 return false;
 
-            if (inputs[0] is T1 t1Cast && inputs[1] is T2 t2Cast)
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast && inputs[1].ToObservable<T2>() is IObservable<T2> t2Cast)
             {
                 t1 = t1Cast;
                 t2 = t2Cast;
@@ -82,17 +85,17 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2, T3>(out T1 t1, out T2 t2, out T3 t3)
+        public bool GetIndexedInputs<T1, T2, T3>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3)
         {
             t1 = default;
             t2 = default;
             t3 = default;
 
-            var inputs = OrderedInputs();
+            var inputs = OrderedInputValues();
             if (inputs.Count != 3 || inputs.Any(i => i == null))
                 return false;
 
-            if (inputs[0] is T1 t1Cast && inputs[1] is T2 t2Cast && inputs[2] is T3 t3Cast)
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast && inputs[1].ToObservable<T2>() is IObservable<T2> t2Cast && inputs[2].ToObservable<T3>() is IObservable<T3> t3Cast)
             {
                 t1 = t1Cast;
                 t2 = t2Cast;
@@ -103,18 +106,18 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2, T3, T4>(out T1 t1, out T2 t2, out T3 t3, out T4 t4)
+        public bool GetIndexedInputs<T1, T2, T3, T4>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4)
         {
             t1 = default;
             t2 = default;
             t3 = default;
             t4 = default;
 
-            var inputs = OrderedInputs();
+            var inputs = OrderedInputValues();
             if (inputs.Count != 4 || inputs.Any(i => i == null))
                 return false;
 
-            if (inputs[0] is T1 t1Cast && inputs[1] is T2 t2Cast && inputs[2] is T3 t3Cast && inputs[3] is T4 t4Cast)
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast && inputs[1].ToObservable<T2>() is IObservable<T2> t2Cast && inputs[2].ToObservable<T3>() is IObservable<T3> t3Cast && inputs[3].ToObservable<T4>() is IObservable<T4> t4Cast)
             {
                 t1 = t1Cast;
                 t2 = t2Cast;
@@ -126,7 +129,7 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2, T3, T4, T5>(out T1 t1, out T2 t2, out T3 t3, out T4 t4, out T5 t5)
+        public bool GetIndexedInputs<T1, T2, T3, T4, T5>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4, out IObservable<T5> t5)
         {
             t1 = default;
             t2 = default;
@@ -134,11 +137,11 @@ namespace PixPipelineGraph
             t4 = default;
             t5 = default;
 
-            var inputs = OrderedInputs();
+            var inputs = OrderedInputValues();
             if (inputs.Count != 5 || inputs.Any(i => i == null))
                 return false;
 
-            if (inputs[0] is T1 t1Cast && inputs[1] is T2 t2Cast && inputs[2] is T3 t3Cast && inputs[3] is T4 t4Cast && inputs[4] is T5 t5Cast)
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast && inputs[1].ToObservable<T2>() is IObservable<T2> t2Cast && inputs[2].ToObservable<T3>() is IObservable<T3> t3Cast && inputs[3].ToObservable<T4>() is IObservable<T4> t4Cast && inputs[4].ToObservable<T5>() is IObservable<T5> t5Cast)
             {
                 t1 = t1Cast;
                 t2 = t2Cast;
@@ -151,7 +154,7 @@ namespace PixPipelineGraph
             return false;
         }
 
-        private IReadOnlyList<Input?> OrderedInputs()
+        private IEnumerable<Input?> OrderedInputs()
         {
             var maxIndex = _inputs.Max(i => i.Index);
             var result = new List<Input?>();
@@ -169,9 +172,9 @@ namespace PixPipelineGraph
             return result;
         }
 
-        private IReadOnlyList<object> OrderedInputValues()
+        private IReadOnlyList<AnyObservable> OrderedInputValues()
         {
-            return OrderedInputs().Select(v => v?.Value).ToArray();
+            return OrderedInputs().Select(v => v?.Observable).ToArray();
         }
 
         public bool MatchesInputTypes(IReadOnlyList<Type> inputTypes)
@@ -186,14 +189,47 @@ namespace PixPipelineGraph
         public struct Input
         {
             public Type Type { get; }
-            public object Value { get; }
+            public AnyObservable Observable { get; }
             public int Index { get; }
 
-            public Input(Type type, object value, int index)
+            public Input(Type type, AnyObservable observable, int index)
             {
                 Type = type;
-                Value = value;
+                Observable = observable;
                 Index = index;
+            }
+        }
+    }
+
+    public class AnyObservable
+    {
+        private readonly object _underlying;
+
+        public AnyObservable(object underlying)
+        {
+            _underlying = underlying;
+        }
+
+        public IObservable<T> ToObservable<T>()
+        {
+            if (_underlying is IObservable<T> observable)
+            {
+                return observable;
+            }
+
+            return new AnonymousObservable<T>(observer =>
+            {
+                observer.OnError(new TypeMismatchException($"Mismatched observable type IObservable<{typeof(T)}> (have observable of type {_underlying.GetType()})"));
+
+                return Disposable.Empty;
+            });
+        }
+
+        public class TypeMismatchException : Exception
+        {
+            public TypeMismatchException(string message) : base(message)
+            {
+
             }
         }
     }

@@ -53,7 +53,7 @@ namespace Pixelaria.ExportPipeline
             
             return
                 input.NodeId != output.NodeId &&
-                input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType));
+                input.DataType.IsAssignableFrom(output.DataType);
         }
 
         /// <summary>

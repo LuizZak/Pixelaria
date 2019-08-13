@@ -351,7 +351,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             public string Name { get; }
 
             public PipelineInput Id { get; }
-            public IReadOnlyList<Type> DataTypes => new[] {typeof(object)};
+            public Type DataType => typeof(object);
 
             public MockPipelineInput(PipelineNodeId nodeId, [NotNull] string name)
             {

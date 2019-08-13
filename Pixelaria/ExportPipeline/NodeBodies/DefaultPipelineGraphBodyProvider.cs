@@ -75,14 +75,14 @@ namespace Pixelaria.ExportPipeline.NodeBodies
             var newFilter = (IFilter)Activator.CreateInstance(typeof(T));
             var properties = newFilter.InspectableProperties();
 
-            builder.CreateInput("Bitmap", input => { input.AddInputType(typeof(Bitmap)); });
+            builder.CreateInput("Bitmap", input => { input.SetInputType(typeof(Bitmap)); });
 
             foreach (var propertyInfo in properties)
             {
                 string name = Utilities.DePascalCase(propertyInfo.Name);
                 builder.CreateInput(name, input =>
                 {
-                    input.AddInputType(propertyInfo.PropertyType);
+                    input.SetInputType(propertyInfo.PropertyType);
                 });
             }
 
@@ -106,9 +106,9 @@ namespace Pixelaria.ExportPipeline.NodeBodies
 
             return new PipelineBody(BodyId, inputList.ToArray(), typeof(Bitmap), context =>
             {
-                if (context.GetIndexedInputs(out Bitmap bitmap))
+                if (context.GetIndexedInputs(out IObservable<Bitmap> bitmap))
                 {
-                    newFilter.ApplyToBitmap(bitmap);
+                    //newFilter.ApplyToBitmap(bitmap);
                 }
 
                 return new PipelineBodyInvocationResponse(null);
