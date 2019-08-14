@@ -22,6 +22,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using JetBrains.Annotations;
 using PixPipelineGraph;
@@ -32,7 +34,7 @@ namespace PixPipelineGraphTests
     {
         public Dictionary<PipelineBodyId, PipelineBody> Bodies = new Dictionary<PipelineBodyId, PipelineBody>();
 
-        public PipelineBodyId Register(Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, PipelineBodyInvocationResponse> body)
+        public PipelineBodyId Register(Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, AnyObservable> body)
         {
             var bodyId = new PipelineBodyId(Guid.NewGuid().ToString());
 
@@ -54,11 +56,15 @@ namespace PixPipelineGraphTests
                     var subject = new ReplaySubject<T>();
                     subject.OnNext(body(context));
                     subject.OnCompleted();
-                    return PipelineBodyInvocationResponse.Response(subject);
+                    return new AnyObservable(subject);
                 }
                 catch (Exception e)
                 {
-                    return new PipelineBodyInvocationResponse(e);
+                    return new AnyObservable(new AnonymousObservable<T>(observer =>
+                    {
+                        observer.OnError(e);
+                        return Disposable.Empty;
+                    }));
                 }
             });
 
@@ -74,7 +80,7 @@ namespace PixPipelineGraphTests
                 return value;
             }
 
-            return new PipelineBody(id, new[] { typeof(int) }, typeof(int), o => PipelineBodyInvocationResponse.Response(new Subject<object>()));
+            return new PipelineBody(id, new[] { typeof(int) }, typeof(int), o => new AnyObservable(new Subject<object>()));
         }
     }
 }

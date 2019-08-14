@@ -51,7 +51,44 @@ namespace PixPipelineGraph
             return _inputs.FirstOrDefault(i => i.Index == index).Observable?.ToObservable<T>();
         }
 
-        public bool GetIndexedInputs<T1>(out IObservable<T1> t1)
+        #region Exception Get
+
+        public void GetIndexedInputs<T1>(out IObservable<T1> t1)
+        {
+            var inputs = OrderedInputValues();
+            if (inputs.Count != 1 || inputs.Any(i => i == null))
+                throw new NotConnectedException();
+
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast)
+            {
+                t1 = t1Cast;
+                return;
+            }
+
+            throw new AnyObservable.TypeMismatchException($"Expected input type {typeof(T1)}");
+        }
+
+        public void GetIndexedInputs<T1, T2>(out IObservable<T1> t1, out IObservable<T2> t2)
+        {
+            var inputs = OrderedInputValues();
+            if (inputs.Count != 2 || inputs.Any(i => i == null))
+                throw new NotConnectedException();
+
+            if (inputs[0].ToObservable<T1>() is IObservable<T1> t1Cast && inputs[1].ToObservable<T2>() is IObservable<T2> t2Cast)
+            {
+                t1 = t1Cast;
+                t2 = t2Cast;
+                return;
+            }
+
+            throw new AnyObservable.TypeMismatchException($"Expected input type {typeof(T1)}");
+        }
+
+        #endregion
+
+        #region Try Get
+
+        public bool TryGetIndexedInputs<T1>(out IObservable<T1> t1)
         {
             t1 = default;
 
@@ -68,7 +105,7 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2>(out IObservable<T1> t1, out IObservable<T2> t2)
+        public bool TryGetIndexedInputs<T1, T2>(out IObservable<T1> t1, out IObservable<T2> t2)
         {
             t1 = default;
             t2 = default;
@@ -87,7 +124,7 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2, T3>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3)
+        public bool TryGetIndexedInputs<T1, T2, T3>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3)
         {
             t1 = default;
             t2 = default;
@@ -108,7 +145,7 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2, T3, T4>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4)
+        public bool TryGetIndexedInputs<T1, T2, T3, T4>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4)
         {
             t1 = default;
             t2 = default;
@@ -131,7 +168,7 @@ namespace PixPipelineGraph
             return false;
         }
 
-        public bool GetIndexedInputs<T1, T2, T3, T4, T5>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4, out IObservable<T5> t5)
+        public bool TryGetIndexedInputs<T1, T2, T3, T4, T5>(out IObservable<T1> t1, out IObservable<T2> t2, out IObservable<T3> t3, out IObservable<T4> t4, out IObservable<T5> t5)
         {
             t1 = default;
             t2 = default;
@@ -155,6 +192,8 @@ namespace PixPipelineGraph
 
             return false;
         }
+
+        #endregion
 
         private IEnumerable<Input?> OrderedInputs()
         {
@@ -191,10 +230,11 @@ namespace PixPipelineGraph
         public struct Input
         {
             public Type Type { get; }
+            [CanBeNull]
             public AnyObservable Observable { get; }
             public int Index { get; }
 
-            public Input(Type type, AnyObservable observable, int index)
+            public Input(Type type, [CanBeNull] AnyObservable observable, int index)
             {
                 Type = type;
                 Observable = observable;
@@ -206,6 +246,10 @@ namespace PixPipelineGraph
     public class AnyObservable
     {
         private readonly object[] _underlying;
+        public AnyObservable(object underlying)
+        {
+            _underlying = new []{ underlying };
+        }
 
         public AnyObservable(object[] underlying)
         {

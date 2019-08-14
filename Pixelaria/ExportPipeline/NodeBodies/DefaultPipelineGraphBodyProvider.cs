@@ -106,12 +106,12 @@ namespace Pixelaria.ExportPipeline.NodeBodies
 
             return new PipelineBody(BodyId, inputList.ToArray(), typeof(Bitmap), context =>
             {
-                if (context.GetIndexedInputs(out IObservable<Bitmap> bitmap))
+                if (context.TryGetIndexedInputs(out IObservable<Bitmap> bitmap))
                 {
                     //newFilter.ApplyToBitmap(bitmap);
                 }
 
-                return new PipelineBodyInvocationResponse(null);
+                return PipelineBodyInvocationResponse.Exception<Bitmap>(null);
             });
         }
     }

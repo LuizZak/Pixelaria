@@ -20,7 +20,9 @@
     base directory of this project.
 */
 
+using System;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace PixPipelineGraph
 {
@@ -29,7 +31,7 @@ namespace PixPipelineGraph
         /// <summary>
         /// Returns the result of the computation when awaiting for a given pipeline output.
         /// </summary>
-        public PipelineBodyInvocationResponse Compute(PipelineOutput output)
+        public AnyObservable Compute(PipelineOutput output)
         {
             var inputs = InputsForNode(output.NodeId);
             var bodyInvocationContext = new PipelineBodyInvocationContext();
@@ -43,7 +45,7 @@ namespace PixPipelineGraph
 
                 var response = ResponsesForInput(input);
                 
-                var argInput = new PipelineBodyInvocationContext.Input(pipelineInput.DataType, response.Output, i);
+                var argInput = new PipelineBodyInvocationContext.Input(pipelineInput.DataType, response, i);
 
                 bodyInvocationContext.AddArgument(argInput);
             }
@@ -55,13 +57,14 @@ namespace PixPipelineGraph
             return body.Body.Invoke(bodyInvocationContext);
         }
 
-        private PipelineBodyInvocationResponse ResponsesForInput(PipelineInput input)
+        [CanBeNull]
+        private AnyObservable ResponsesForInput(PipelineInput input)
         {
             var connections = ConnectionsTowardsInput(input);
             if (connections.Count == 0)
-                return PipelineBodyInvocationResponse.NotConnected;
+                return null;
 
-            return PipelineBodyInvocationResponse.Combine(connections.Select(c => Compute(c.Start)));
+            return connections.Aggregate(new AnyObservable(new object[0]), (observable, connection) => AnyObservable.Combine(observable, Compute(connection.Start)));
         }
     }
 }

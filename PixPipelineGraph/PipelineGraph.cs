@@ -121,9 +121,9 @@ namespace PixPipelineGraph
                 builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new []{typeof(T1)}, typeof(T2),
                     context =>
                     {
-                        if (context.GetIndexedInputs(out IObservable<T1> t1))
+                        if (context.TryGetIndexedInputs(out IObservable<T1> t1))
                         {
-                            return PipelineBodyInvocationResponse.Response(t1.Select(lambda));
+                            return new AnyObservable(t1.Select(lambda));
                         }
 
                         return PipelineBodyInvocationResponse.MismatchedInputType(typeof(T1));
@@ -150,15 +150,19 @@ namespace PixPipelineGraph
                 builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new[] { typeof(T1), typeof(T2) }, typeof(T3),
                     context =>
                     {
-                        if (context.GetIndexedInputs(out IObservable<T1> t1, out IObservable<T2> t2))
+                        try
                         {
+                            context.GetIndexedInputs(out IObservable<T1> t1, out IObservable<T2> t2);
+
                             var cartesian = t1.SelectMany((arg1, _) => t2.Select(arg2 => (arg1, arg2)))
                                 .Select(tuple => lambda(tuple.arg1, tuple.arg2));
 
-                            return PipelineBodyInvocationResponse.Response(cartesian);
+                            return new AnyObservable(cartesian);
                         }
-
-                        return PipelineBodyInvocationResponse.MismatchedInputType(typeof(T1));
+                        catch (Exception e)
+                        {
+                            return PipelineBodyInvocationResponse.Exception<T3>(e);
+                        }
                     }));
             });
         }
@@ -187,11 +191,15 @@ namespace PixPipelineGraph
                                 return Disposable.Empty;
                             });
 
-                            return PipelineBodyInvocationResponse.Response(observable);
+                            return new AnyObservable(observable);
                         }
                         catch (Exception e)
                         {
-                            return new PipelineBodyInvocationResponse(e);
+                            return new AnyObservable(new AnonymousObservable<T>(observer =>
+                            {
+                                observer.OnError(e);
+                                return Disposable.Empty;
+                            }));
                         }
                     }));
             });

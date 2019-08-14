@@ -42,21 +42,21 @@ namespace PixPipelineGraphTests
 
             var multiplier = bodyProvider.Register(new[] {typeof(int)}, typeof(int), context =>
             {
-                if (context.GetIndexedInputs(out IObservable<int> input))
+                if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return PipelineBodyInvocationResponse.Response(input.Select(i => i * 2));
+                    return new AnyObservable(input.Select(i => i * 2));
                 }
-
-                return new PipelineBodyInvocationResponse(new InvalidOperationException("Expected integer input"));
+                
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var adder = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
             {
-                if (context.GetIndexedInputs(out IObservable<int> input))
+                if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return PipelineBodyInvocationResponse.Response(input.Select(i => i + 2));
+                    return new AnyObservable(input.Select(i => i + 2));
                 }
 
-                return new PipelineBodyInvocationResponse(new InvalidOperationException("Expected integer input"));
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var source = bodyProvider.Register(Type.EmptyTypes, context => 5);
 
@@ -94,21 +94,21 @@ namespace PixPipelineGraphTests
 
             var multiplier = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
             {
-                if (context.GetIndexedInputs(out IObservable<int> input))
+                if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return PipelineBodyInvocationResponse.Response(input.Select(i => i * 2));
+                    return new AnyObservable(input.Select(i => i * 2));
                 }
 
-                return new PipelineBodyInvocationResponse(new InvalidOperationException("Expected integer input"));
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var adder = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
             {
-                if (context.GetIndexedInputs(out IObservable<int> input))
+                if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return PipelineBodyInvocationResponse.Response(input.Select(i => i + 2));
+                    return new AnyObservable(input.Select(i => i + 2));
                 }
 
-                return new PipelineBodyInvocationResponse(new InvalidOperationException("Expected integer input"));
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var source1 = bodyProvider.Register(Type.EmptyTypes, context => 5);
             var source2 = bodyProvider.Register(Type.EmptyTypes, context => 7);
@@ -169,6 +169,32 @@ namespace PixPipelineGraphTests
             AssertOutputEquals(response, new[] { 3, 2, 4, 3 });
         }
 
+        [TestMethod]
+        public void TestNotConnectedException()
+        {
+            var bodyProvider = new MockPipelineBodyProvider();
+            var graph = CreatePipelineGraph(bodyProvider);
+            var adder = graph.CreateFromLambda("adder", (int v1, int v2) => v1 + v2);
+
+            var response = graph.Compute(graph.OutputsForNode(adder)[0]);
+
+            var output = response.ToObservable<int>();
+
+            try
+            {
+                var _ = output.ToEnumerable().ToList();
+                Assert.Fail($"Expected to fail with {nameof(NotConnectedException)}");
+            }
+            catch (NotConnectedException)
+            {
+                // Success!
+            }
+            catch (Exception e)
+            {
+                Assert.Fail($"Expected to fail with {nameof(NotConnectedException)}, but failed with {e}");
+            }
+        }
+
         #region Instantiation
 
         private static PipelineGraph CreatePipelineGraph([CanBeNull] MockPipelineBodyProvider bodyProvider = null)
@@ -180,26 +206,9 @@ namespace PixPipelineGraphTests
 
         #region Assertion
 
-        private void AssertOutputEquals<T>([NotNull] PipelineBodyInvocationResponse response, [NotNull] IReadOnlyList<T> values)
+        private void AssertOutputEquals<T>([NotNull] AnyObservable response, [NotNull] IReadOnlyList<T> values)
         {
-            if (response.Error != null)
-            {
-                Assert.Fail($"Response contains error: {response.Error}");
-                return;
-            }
-
-            if (!response.HasOutput)
-            {
-                Assert.Fail("No response object");
-                return;
-            }
-
-            var array = response.Output?.ToObservable<T>().ToEnumerable().ToArray();
-            if (array == null)
-            {
-                Assert.Fail("Null response object");
-                return;
-            }
+            var array = response.ToObservable<T>().ToEnumerable().ToArray();
 
             if (!values.SequenceEqual(array))
             {
