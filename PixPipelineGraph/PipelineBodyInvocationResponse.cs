@@ -38,7 +38,7 @@ namespace PixPipelineGraph
         /// </summary>
         public static AnyObservable UnknownNodeId(PipelineNodeId nodeId)
         {
-            return new AnyObservable(new AnonymousObservable<Unit>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
             {
                 observer.OnError(new Exception($"Non-existing node ID {nodeId}"));
                 return Disposable.Empty;
@@ -50,7 +50,7 @@ namespace PixPipelineGraph
         /// </summary>
         public static AnyObservable UnknownInputId(PipelineInput inputId)
         {
-            return new AnyObservable(new AnonymousObservable<Unit>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
             {
                 observer.OnError(new Exception($"Non-existing input ID {inputId}"));
                 return Disposable.Empty;
@@ -64,7 +64,7 @@ namespace PixPipelineGraph
         {
             get
             {
-                return new AnyObservable(new AnonymousObservable<Unit>(observer =>
+                return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
                 {
                     observer.OnError(new NotConnectedException());
                     return Disposable.Empty;
@@ -77,7 +77,7 @@ namespace PixPipelineGraph
         /// </summary>
         public static AnyObservable MismatchedInputType(Type expected)
         {
-            return new AnyObservable(new AnonymousObservable<Unit>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
             {
                 observer.OnError(new Exception($"Mismatched input types: Expected {expected}"));
                 return Disposable.Empty;
@@ -128,13 +128,13 @@ namespace PixPipelineGraph
 
         public static PipelineBodyInvocationResponse Response<T>([NotNull] IObservable<T> output)
         {
-            var response = new PipelineBodyInvocationResponse(new AnyObservable(new object[]{ output }), typeof(T));
+            var response = new PipelineBodyInvocationResponse(AnyObservable.FromObservable(output), typeof(T));
             return response;
         }
 
         public static AnyObservable Exception<T>(Exception e)
         {
-            return new AnyObservable(new AnonymousObservable<T>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
             {
                 observer.OnError(e);
                 return Disposable.Empty;
@@ -152,7 +152,7 @@ namespace PixPipelineGraph
         public static PipelineBodyInvocationResponse Combine([NotNull] IEnumerable<PipelineBodyInvocationResponse> responses)
         {
             var type = typeof(object);
-            var result = new AnyObservable(new object[0]);
+            var result = AnyObservable.FromObservables(new IObservable<Unit>[] {});
             foreach (var response in responses)
             {
                 type = response.Type;

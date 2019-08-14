@@ -44,7 +44,7 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new AnyObservable(input.Select(i => i * 2));
+                    return AnyObservable.FromObservable(input.Select(i => i * 2));
                 }
                 
                 return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
@@ -53,7 +53,7 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new AnyObservable(input.Select(i => i + 2));
+                    return AnyObservable.FromObservable(input.Select(i => i + 2));
                 }
 
                 return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
@@ -96,7 +96,7 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new AnyObservable(input.Select(i => i * 2));
+                    return AnyObservable.FromObservable(input.Select(i => i * 2));
                 }
 
                 return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
@@ -105,7 +105,7 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new AnyObservable(input.Select(i => i + 2));
+                    return AnyObservable.FromObservable(input.Select(i => i + 2));
                 }
 
                 return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));

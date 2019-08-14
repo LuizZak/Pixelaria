@@ -22,12 +22,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -123,7 +121,7 @@ namespace PixPipelineGraph
                     {
                         if (context.TryGetIndexedInputs(out IObservable<T1> t1))
                         {
-                            return new AnyObservable(t1.Select(lambda));
+                            return AnyObservable.FromObservable(t1.Select(lambda));
                         }
 
                         return PipelineBodyInvocationResponse.MismatchedInputType(typeof(T1));
@@ -157,7 +155,7 @@ namespace PixPipelineGraph
                             var cartesian = t1.SelectMany((arg1, _) => t2.Select(arg2 => (arg1, arg2)))
                                 .Select(tuple => lambda(tuple.arg1, tuple.arg2));
 
-                            return new AnyObservable(cartesian);
+                            return AnyObservable.FromObservable(cartesian);
                         }
                         catch (Exception e)
                         {
@@ -191,15 +189,11 @@ namespace PixPipelineGraph
                                 return Disposable.Empty;
                             });
 
-                            return new AnyObservable(observable);
+                            return AnyObservable.FromObservable(observable);
                         }
                         catch (Exception e)
                         {
-                            return new AnyObservable(new AnonymousObservable<T>(observer =>
-                            {
-                                observer.OnError(e);
-                                return Disposable.Empty;
-                            }));
+                            return PipelineBodyInvocationResponse.Exception<T>(e);
                         }
                     }));
             });

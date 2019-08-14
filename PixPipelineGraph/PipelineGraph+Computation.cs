@@ -22,6 +22,7 @@
 
 using System;
 using System.Linq;
+using System.Reactive;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -64,7 +65,7 @@ namespace PixPipelineGraph
             if (connections.Count == 0)
                 return null;
 
-            return connections.Aggregate(new AnyObservable(new object[0]), (observable, connection) => AnyObservable.Combine(observable, Compute(connection.Start)));
+            return connections.Aggregate(AnyObservable.FromObservables(new IObservable<Unit>[]{}), (observable, connection) => AnyObservable.Combine(observable, Compute(connection.Start)));
         }
     }
 }

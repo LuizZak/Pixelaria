@@ -56,11 +56,11 @@ namespace PixPipelineGraphTests
                     var subject = new ReplaySubject<T>();
                     subject.OnNext(body(context));
                     subject.OnCompleted();
-                    return new AnyObservable(subject);
+                    return AnyObservable.FromObservable(subject);
                 }
                 catch (Exception e)
                 {
-                    return new AnyObservable(new AnonymousObservable<T>(observer =>
+                    return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
                     {
                         observer.OnError(e);
                         return Disposable.Empty;
@@ -80,7 +80,7 @@ namespace PixPipelineGraphTests
                 return value;
             }
 
-            return new PipelineBody(id, new[] { typeof(int) }, typeof(int), o => new AnyObservable(new Subject<object>()));
+            return new PipelineBody(id, new[] { typeof(int) }, typeof(int), o => AnyObservable.FromObservable(new Subject<object>()));
         }
     }
 }

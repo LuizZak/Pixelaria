@@ -246,12 +246,13 @@ namespace PixPipelineGraph
     public class AnyObservable
     {
         private readonly object[] _underlying;
-        public AnyObservable(object underlying)
+
+        private AnyObservable(object underlying)
         {
             _underlying = new []{ underlying };
         }
 
-        public AnyObservable(object[] underlying)
+        private AnyObservable(object[] underlying)
         {
             _underlying = underlying;
         }
@@ -283,6 +284,16 @@ namespace PixPipelineGraph
         public static AnyObservable Combine([NotNull] AnyObservable first, [NotNull] AnyObservable second)
         {
             return new AnyObservable(first._underlying.Concat(second._underlying).ToArray());
+        }
+
+        public static AnyObservable FromObservable<T>(IObservable<T> observable)
+        {
+            return new AnyObservable(observable);
+        }
+
+        public static AnyObservable FromObservables<T>([NotNull] IReadOnlyList<IObservable<T>> observables)
+        {
+            return new AnyObservable(observables.Cast<object>().ToArray());
         }
 
         public class TypeMismatchException : Exception
