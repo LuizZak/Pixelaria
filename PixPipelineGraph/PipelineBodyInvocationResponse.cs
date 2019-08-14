@@ -53,6 +53,14 @@ namespace PixPipelineGraph
         public static PipelineBodyInvocationResponse NotConnected = new PipelineBodyInvocationResponse(new NotConnectedException());
 
         /// <summary>
+        /// A common response to invoke when a pipeline invocation was performed with unexpected input types.
+        /// </summary>
+        public static PipelineBodyInvocationResponse MismatchedInputType(Type expected)
+        {
+            return new PipelineBodyInvocationResponse(new Exception($"Mismatched input types: Expected {expected}"));
+        }
+
+        /// <summary>
         /// Whether this response has an associated response object at <see cref="Output"/>.
         ///
         /// Is <c>false</c>, in case this response represents an exception response.

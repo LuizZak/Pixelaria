@@ -22,7 +22,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -99,6 +104,97 @@ namespace PixPipelineGraph
             _nodes.Add(node);
 
             return id;
+        }
+
+        /// <summary>
+        /// Helper method for creating one-parameter-one-output pipeline nodes.
+        ///
+        /// All type handling is done automatically while creating the pipeline node.
+        /// </summary>
+        public PipelineNodeId CreateFromLambda<T1, T2>(string title, [NotNull] Func<T1, T2> lambda)
+        {
+            return CreateNode(builder =>
+            {
+                builder.SetTitle(title);
+                builder.CreateInput("v1", inputBuilder => inputBuilder.SetInputType(typeof(T1)));
+                builder.CreateOutput("o", outputBuilder => outputBuilder.SetOutputType(typeof(T2)));
+                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new []{typeof(T1)}, typeof(T2),
+                    context =>
+                    {
+                        if (context.GetIndexedInputs(out IObservable<T1> t1))
+                        {
+                            return PipelineBodyInvocationResponse.Response(t1.Select(lambda));
+                        }
+
+                        return PipelineBodyInvocationResponse.MismatchedInputType(typeof(T1));
+                    }));
+            });
+        }
+
+        /// <summary>
+        /// Helper method for creating two-parameter-one-output pipeline nodes.
+        ///
+        /// All type handling is done automatically while creating the pipeline node.
+        ///
+        /// The source observables are combined in a cartesian product, taking each available input combination and
+        /// producing an output that is mapped with the provided <see cref="lambda"/> function.
+        /// </summary>
+        public PipelineNodeId CreateFromLambda<T1, T2, T3>(string title, [NotNull] Func<T1, T2, T3> lambda)
+        {
+            return CreateNode(builder =>
+            {
+                builder.SetTitle(title);
+                builder.CreateInput("v1", inputBuilder => inputBuilder.SetInputType(typeof(T1)));
+                builder.CreateInput("v2", inputBuilder => inputBuilder.SetInputType(typeof(T2)));
+                builder.CreateOutput("o", outputBuilder => outputBuilder.SetOutputType(typeof(T3)));
+                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new[] { typeof(T1), typeof(T2) }, typeof(T3),
+                    context =>
+                    {
+                        if (context.GetIndexedInputs(out IObservable<T1> t1, out IObservable<T2> t2))
+                        {
+                            var cartesian = t1.SelectMany((arg1, _) => t2.Select(arg2 => (arg1, arg2)))
+                                .Select(tuple => lambda(tuple.arg1, tuple.arg2));
+
+                            return PipelineBodyInvocationResponse.Response(cartesian);
+                        }
+
+                        return PipelineBodyInvocationResponse.MismatchedInputType(typeof(T1));
+                    }));
+            });
+        }
+
+        /// <summary>
+        /// Helper method for creating zero-parameter-one-output pipeline nodes.
+        ///
+        /// All type handling is done automatically while creating the pipeline node.
+        /// </summary>
+        public PipelineNodeId CreateFromGenerator<T>(string title, [NotNull] Func<T> generator)
+        {
+            return CreateNode(builder =>
+            {
+                builder.SetTitle(title);
+                builder.CreateOutput("o", outputBuilder => outputBuilder.SetOutputType(typeof(T)));
+                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), Type.EmptyTypes, typeof(T),
+                    context =>
+                    {
+                        try
+                        {
+                            var observable = new AnonymousObservable<T>(observer =>
+                            {
+                                observer.OnNext(generator());
+                                observer.OnCompleted();
+
+                                return Disposable.Empty;
+                            });
+
+                            return PipelineBodyInvocationResponse.Response(observable);
+                        }
+                        catch (Exception e)
+                        {
+                            return new PipelineBodyInvocationResponse(e);
+                        }
+                    }));
+            });
         }
 
         /// <inheritdoc />
@@ -184,6 +280,34 @@ namespace PixPipelineGraph
 
                     return Connect(output, input);
                 }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Creates a connection between a node and another node's input with the first match of input/output found between the two.
+        ///
+        /// If no connection could be made, <c>null</c> is returned, instead.
+        /// </summary>
+        [CanBeNull]
+        public IPipelineConnection Connect(PipelineNodeId start, PipelineInput input)
+        {
+            // Detect cycles
+            if (AreDirectlyConnected(input.NodeId, start))
+                return null;
+
+            // Find first matching output from this that matches an input from other
+            foreach (var output in OutputsForNode(start))
+            {
+                var connections = ConnectionsTowardsInput(input);
+
+                if (connections.Any(c => c.Start == output))
+                    continue;
+
+                if (!CanConnect(input, output)) continue;
+
+                return Connect(output, input);
             }
 
             return null;
@@ -354,6 +478,17 @@ namespace PixPipelineGraph
         public PipelineBody BodyForNode(PipelineNodeId nodeId)
         {
             return _nodes.FirstOrDefault(n => n.Id == nodeId)?.Body;
+        }
+
+        /// <summary>
+        /// Returns the title of a node with a given ID.
+        ///
+        /// May be <c>null</c>, in case no node was found with a matching id.
+        /// </summary>
+        [CanBeNull]
+        public string TitleForNode(PipelineNodeId nodeId)
+        {
+            return _nodes.FirstOrDefault(n => n.Id == nodeId)?.Title;
         }
     }
 

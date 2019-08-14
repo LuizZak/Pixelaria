@@ -67,6 +67,25 @@ namespace PixPipelineGraphTests
         }
 
         [TestMethod]
+        public void TestConnectNodeToInput()
+        {
+            var sut = CreatePipelineGraph();
+            var node1 = sut.CreateNode(builder =>
+            {
+                builder.CreateOutput("output");
+            });
+            var node2 = sut.CreateNode(builder =>
+            {
+                builder.CreateInput("input");
+            });
+
+            sut.Connect(node1, sut.InputsForNode(node2)[0]);
+
+            Assert.IsTrue(sut.AreConnected(node1, node2));
+            Assert.AreEqual(sut.PipelineConnections.Count, 1);
+        }
+        
+        [TestMethod]
         public void TestAreConnected()
         {
             var sut = CreatePipelineGraph();
@@ -179,6 +198,24 @@ namespace PixPipelineGraphTests
             Assert.IsFalse(graph1.ContainsNode(sut.PipelineNodes[1]));
             Assert.IsFalse(sut.ContainsNode(graph1.PipelineNodes[0]));
             Assert.IsFalse(sut.ContainsNode(graph1.PipelineNodes[1]));
+        }
+
+        [TestMethod]
+        public void TestTitleForNode()
+        {
+            var sut = CreatePipelineGraph();
+            var node1 = sut.CreateNode(builder =>
+            {
+                builder.SetTitle("Title 1");
+            });
+            var node2 = sut.CreateNode(builder =>
+            {
+                builder.SetTitle("Title 2");
+            });
+
+            Assert.AreEqual("Title 1", sut.TitleForNode(node1));
+            Assert.AreEqual("Title 2", sut.TitleForNode(node2));
+            Assert.AreEqual(null, sut.TitleForNode(new PipelineNodeId(Guid.NewGuid())));
         }
 
         [TestMethod]

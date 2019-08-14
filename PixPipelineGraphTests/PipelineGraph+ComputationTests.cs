@@ -145,6 +145,30 @@ namespace PixPipelineGraphTests
             AssertOutputEquals(response, new[] { 12, 16 });
         }
 
+        [TestMethod]
+        public void TestComputationWithLambdaNodesCartesian()
+        {
+            var bodyProvider = new MockPipelineBodyProvider();
+            var graph = CreatePipelineGraph(bodyProvider);
+
+            var multiplier = graph.CreateFromLambda("multiplier", (int input) => input * 2);
+            var adder = graph.CreateFromLambda("adder", (int v1, int v2) => v1 + v2);
+            var divider = graph.CreateFromLambda("divider", (int input) => input / 2);
+            var source1 = graph.CreateFromGenerator("source1", () => 1);
+            var source2 = graph.CreateFromGenerator("source2", () => 2);
+
+            graph.Connect(source1, multiplier);
+            graph.Connect(source1, graph.InputsForNode(adder)[0]);
+            graph.Connect(source2, divider);
+            graph.Connect(source2, graph.InputsForNode(adder)[1]);
+            graph.Connect(multiplier, graph.InputsForNode(adder)[0]);
+            graph.Connect(divider, graph.InputsForNode(adder)[1]);
+
+            var response = graph.Compute(graph.OutputsForNode(adder)[0]);
+
+            AssertOutputEquals(response, new[] { 3, 2, 4, 3 });
+        }
+
         #region Instantiation
 
         private static PipelineGraph CreatePipelineGraph([CanBeNull] MockPipelineBodyProvider bodyProvider = null)
@@ -170,14 +194,14 @@ namespace PixPipelineGraphTests
                 return;
             }
 
-            var array = response.Output?.ToObservable<int>().ToEnumerable().ToArray();
+            var array = response.Output?.ToObservable<T>().ToEnumerable().ToArray();
             if (array == null)
             {
                 Assert.Fail("Null response object");
                 return;
             }
 
-            if (!values.SequenceEqual(array.Cast<T>()))
+            if (!values.SequenceEqual(array))
             {
                 string valuesString = string.Join(", ", values.Select(v => v.ToString()));
                 string arrayString = string.Join(", ", array.Select(v => v.ToString()));
