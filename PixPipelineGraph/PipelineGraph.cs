@@ -48,7 +48,7 @@ namespace PixPipelineGraph
         /// Gets or sets the pipeline graph body provider.
         /// </summary>
         [NotNull]
-        public IPipelineGraphBodyProvider BodyProvider { get; set; }
+        public IPipelineGraphNodeProvider NodeProvider { get; set; }
 
         /// <summary>
         /// A delegate that is invoked before making connections on this graph.
@@ -73,9 +73,9 @@ namespace PixPipelineGraph
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineGraph"/> with a given body provider.
         /// </summary>
-        public PipelineGraph([NotNull] IPipelineGraphBodyProvider bodyProvider)
+        public PipelineGraph([NotNull] IPipelineGraphNodeProvider nodeProvider)
         {
-            BodyProvider = bodyProvider;
+            NodeProvider = nodeProvider;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace PixPipelineGraph
         {
             var id = GenerateUniquePipelineNodeId();
 
-            var builder = new PipelineNodeBuilder(BodyProvider);
+            var builder = new PipelineNodeBuilder(NodeProvider);
 
             constructor(builder);
 

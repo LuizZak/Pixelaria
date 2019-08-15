@@ -30,12 +30,12 @@ namespace PixPipelineGraph
     /// </summary>
     public class PipelineNodeBuilder: IMetadataObjectBuilder
     {
-        private readonly IPipelineGraphBodyProvider _bodyProvider;
+        private readonly IPipelineGraphNodeProvider _nodeProvider;
         private readonly PipelineBuildStepCollection<PipelineNode> _stepCollection = new PipelineBuildStepCollection<PipelineNode>();
 
-        internal PipelineNodeBuilder(IPipelineGraphBodyProvider bodyProvider)
+        internal PipelineNodeBuilder(IPipelineGraphNodeProvider nodeProvider)
         {
-            _bodyProvider = bodyProvider;
+            _nodeProvider = nodeProvider;
         }
 
         public void SetTitle(string title)
@@ -50,7 +50,7 @@ namespace PixPipelineGraph
         {
             _stepCollection.AddClosureBuilderStep(node =>
             {
-                var body = _bodyProvider.GetBody(bodyId);
+                var body = _nodeProvider.GetBody(bodyId);
                 if(body == null)
                     throw new ArgumentException($"No pipeline body node found for body ID {bodyId}", nameof(bodyId));
 

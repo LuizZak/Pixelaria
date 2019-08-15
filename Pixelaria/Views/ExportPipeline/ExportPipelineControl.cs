@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets the default specs provider for this export pipeline
         /// </summary>
-        public IPipelineGraphBodyProvider PipelineGraphBodyProvider { get; } = new DefaultPipelineGraphBodyProvider();
+        public IPipelineGraphNodeProvider PipelineGraphNodeProvider { get; } = new DefaultPipelineGraphNodeProvider();
 
         /// <summary>
         /// Gets a set of rectangles that represent the invalidated redraw regions of this pipeline control.
@@ -127,7 +127,7 @@ namespace Pixelaria.Views.ExportPipeline
             _fixedTimer.Tick += fixedTimer_Tick;
             _fixedTimer.Start();
 
-            _container = new InternalPipelineContainer(this, PipelineGraphBodyProvider);
+            _container = new InternalPipelineContainer(this, PipelineGraphNodeProvider);
 
             _internalRenderer = new InternalRenderListener(_container, this);
 
@@ -496,9 +496,9 @@ namespace Pixelaria.Views.ExportPipeline
             public PipelineNodeView[] NodeViews => _nodeViews.ToArray();
             public PipelineNodeId[] Nodes => _nodeViews.Where(n => n.NodeId.HasValue).Select(n => n.NodeId.Value).ToArray();
             
-            public InternalPipelineContainer([NotNull] IExportPipelineControl control, [NotNull] IPipelineGraphBodyProvider bodyProvider)
+            public InternalPipelineContainer([NotNull] IExportPipelineControl control, [NotNull] IPipelineGraphNodeProvider nodeProvider)
             {
-                PipelineGraph = new PipelineGraph(bodyProvider);
+                PipelineGraph = new PipelineGraph(nodeProvider);
                 PipelineGraph.ConnectionWasAdded += PipelineGraphOnConnectionWasAdded;
                 PipelineGraph.ConnectionWillBeRemoved += PipelineGraphOnConnectionWillBeRemoved;
 

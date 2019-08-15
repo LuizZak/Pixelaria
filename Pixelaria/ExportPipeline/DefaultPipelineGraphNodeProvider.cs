@@ -25,11 +25,21 @@ using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
-    class DefaultPipelineGraphBodyProvider : IPipelineGraphBodyProvider
+    class DefaultPipelineGraphNodeProvider : IPipelineGraphNodeProvider
     {
         public PipelineBody GetBody(PipelineBodyId id)
         {
             throw new NotImplementedException();
+        }
+
+        public bool CanCreateNode(PipelineNodeKind kind)
+        {
+            return false;
+        }
+
+        public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+        {
+
         }
     }
 }

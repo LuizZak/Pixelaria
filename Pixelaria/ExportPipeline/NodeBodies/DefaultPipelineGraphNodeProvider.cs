@@ -31,13 +31,23 @@ using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline.NodeBodies
 {
-    class DefaultPipelineGraphBodyProvider: IPipelineGraphBodyProvider
+    class DefaultPipelineGraphNodeProvider: IPipelineGraphNodeProvider
     {
         List<BasePipelineNodeEntry> _entries = new List<BasePipelineNodeEntry>();
 
         public PipelineBody GetBody(PipelineBodyId id)
         {
             return _entries.FirstOrDefault(entry => entry.BodyId == id)?.Create();
+        }
+
+        public bool CanCreateNode(PipelineNodeKind kind)
+        {
+            return false;
+        }
+
+        public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+        {
+
         }
     }
 

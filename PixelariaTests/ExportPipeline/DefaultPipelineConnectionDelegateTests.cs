@@ -34,7 +34,7 @@ namespace PixelariaTests.ExportPipeline
         public void TestCanConnect()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var graph = new PipelineGraph(new MockPipelineBodyProvider());
+            var graph = new PipelineGraph(new MockPipelineNodeProvider());
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
@@ -57,7 +57,7 @@ namespace PixelariaTests.ExportPipeline
         public void TestCanConnectReturnsFalseForLinksOfSameNode()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var graph = new PipelineGraph(new MockPipelineBodyProvider());
+            var graph = new PipelineGraph(new MockPipelineNodeProvider());
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
@@ -77,7 +77,7 @@ namespace PixelariaTests.ExportPipeline
         public void TestCanConnectReturnsFalseForNodesAlreadyConnected()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var graph = new PipelineGraph(new MockPipelineBodyProvider());
+            var graph = new PipelineGraph(new MockPipelineNodeProvider());
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
@@ -102,7 +102,7 @@ namespace PixelariaTests.ExportPipeline
         public void TestCanConnectReturnsFalseForNodesIndirectlyConnectedInACycle()
         {
             var sut = new DefaultPipelineConnectionDelegate();
-            var graph = new PipelineGraph(new MockPipelineBodyProvider());
+            var graph = new PipelineGraph(new MockPipelineNodeProvider());
 
             IPipelineLazyValue<PipelineInput> lazyInput = null;
             IPipelineLazyValue<PipelineOutput> lazyOutput = null;
@@ -129,11 +129,21 @@ namespace PixelariaTests.ExportPipeline
             Assert.IsFalse(sut.CanConnect(input, output, graph));
         }
 
-        private class MockPipelineBodyProvider : IPipelineGraphBodyProvider
+        private class MockPipelineNodeProvider : IPipelineGraphNodeProvider
         {
             public PipelineBody GetBody(PipelineBodyId id)
             {
                 return new PipelineBody(id, new []{ typeof(int) }, new[] {typeof(int)}, o => new []{AnyObservable.FromObservable(new Subject<object>())});
+            }
+
+            public bool CanCreateNode(PipelineNodeKind kind)
+            {
+                return false;
+            }
+
+            public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+            {
+
             }
         }
     }

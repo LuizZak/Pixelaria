@@ -258,7 +258,7 @@ namespace PixPipelineGraphTests
 
         private static PipelineGraph CreatePipelineGraph()
         {
-            return new PipelineGraph(new MockPipelineBodyProvider());
+            return new PipelineGraph(new MockPipelineNodeProvider());
         }
 
         #endregion

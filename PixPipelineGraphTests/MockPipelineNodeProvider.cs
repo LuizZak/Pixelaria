@@ -30,7 +30,7 @@ using PixPipelineGraph;
 
 namespace PixPipelineGraphTests
 {
-    public class MockPipelineBodyProvider : IPipelineGraphBodyProvider
+    public class MockPipelineNodeProvider : IPipelineGraphNodeProvider
     {
         public Dictionary<PipelineBodyId, PipelineBody> Bodies = new Dictionary<PipelineBodyId, PipelineBody>();
 
@@ -92,6 +92,16 @@ namespace PixPipelineGraphTests
             }
 
             return new PipelineBody(id, new[] { typeof(int) }, new[] {typeof(int)}, o => new []{AnyObservable.FromObservable(new Subject<object>())});
+        }
+
+        public bool CanCreateNode(PipelineNodeKind kind)
+        {
+            return false;
+        }
+
+        public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+        {
+
         }
     }
 }

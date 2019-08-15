@@ -37,7 +37,7 @@ namespace PixPipelineGraphTests
         [TestMethod]
         public void TestComputationGraph()
         {
-            var bodyProvider = new MockPipelineBodyProvider();
+            var bodyProvider = new MockPipelineNodeProvider();
             var graph = CreatePipelineGraph(bodyProvider);
             var multiplier = bodyProvider.Register(new[] {typeof(int)}, new[] {typeof(int)}, context =>
             {
@@ -86,7 +86,7 @@ namespace PixPipelineGraphTests
         [TestMethod]
         public void TestComputationGraphInputWithMultipleOutputs()
         {
-            var bodyProvider = new MockPipelineBodyProvider();
+            var bodyProvider = new MockPipelineNodeProvider();
             var graph = CreatePipelineGraph(bodyProvider);
             var multiplier = bodyProvider.Register(new[] { typeof(int) }, new[] {typeof(int)}, context =>
             {
@@ -143,7 +143,7 @@ namespace PixPipelineGraphTests
         [TestMethod]
         public void TestComputationWithLambdaNodesCartesian()
         {
-            var bodyProvider = new MockPipelineBodyProvider();
+            var bodyProvider = new MockPipelineNodeProvider();
             var graph = CreatePipelineGraph(bodyProvider);
             var multiplier = graph.CreateFromLambda("multiplier", (int input) => input * 2);
             var adder = graph.CreateFromLambda("adder", (int v1, int v2) => v1 + v2);
@@ -165,7 +165,7 @@ namespace PixPipelineGraphTests
         [TestMethod]
         public void TestMultipleOutputs()
         {
-            var bodyProvider = new MockPipelineBodyProvider();
+            var bodyProvider = new MockPipelineNodeProvider();
             var graph = CreatePipelineGraph(bodyProvider);
             var dividerAndRem = graph.CreateNode(builder =>
             {
@@ -202,7 +202,7 @@ namespace PixPipelineGraphTests
         {
             bool[] didInvokeSource1 = {false};
             bool[] didInvokeSource2 = {false};
-            var bodyProvider = new MockPipelineBodyProvider();
+            var bodyProvider = new MockPipelineNodeProvider();
             var graph = CreatePipelineGraph(bodyProvider);
             var incrementer = graph.CreateNode(builder =>
             {
@@ -235,7 +235,7 @@ namespace PixPipelineGraphTests
         [TestMethod]
         public void TestNotConnectedException()
         {
-            var bodyProvider = new MockPipelineBodyProvider();
+            var bodyProvider = new MockPipelineNodeProvider();
             var graph = CreatePipelineGraph(bodyProvider);
             var adder = graph.CreateFromLambda("adder", (int v1, int v2) => v1 + v2);
 
@@ -260,9 +260,9 @@ namespace PixPipelineGraphTests
 
         #region Instantiation
 
-        private static PipelineGraph CreatePipelineGraph([CanBeNull] MockPipelineBodyProvider bodyProvider = null)
+        private static PipelineGraph CreatePipelineGraph([CanBeNull] MockPipelineNodeProvider nodeProvider = null)
         {
-            return new PipelineGraph(bodyProvider ?? new MockPipelineBodyProvider());
+            return new PipelineGraph(nodeProvider ?? new MockPipelineNodeProvider());
         }
 
         #endregion

@@ -28,13 +28,23 @@ namespace PixPipelineGraph
     /// <summary>
     /// Provider for pipeline bodies
     /// </summary>
-    public interface IPipelineGraphBodyProvider
+    public interface IPipelineGraphNodeProvider
     {
         /// <summary>
         /// Gets a pipeline body with a given ID.
         /// </summary>
         [CanBeNull]
         PipelineBody GetBody(PipelineBodyId id);
+
+        /// <summary>
+        /// Returns whether this node provider has the ability to create a node of a specified kind.
+        /// </summary>
+        bool CanCreateNode(PipelineNodeKind kind);
+
+        /// <summary>
+        /// Asks this node provider to create a specific node kind into a provided node builder.
+        /// </summary>
+        void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder);
     }
 
     /// <summary>
