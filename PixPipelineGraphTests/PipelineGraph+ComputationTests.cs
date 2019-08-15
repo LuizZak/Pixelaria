@@ -163,6 +163,37 @@ namespace PixPipelineGraphTests
         }
 
         [TestMethod]
+        public void TestMultipleOutputs()
+        {
+            var bodyProvider = new MockPipelineBodyProvider();
+            var graph = CreatePipelineGraph(bodyProvider);
+            var dividerAndRem = graph.CreateNode(builder =>
+            {
+                builder.SetTitle("Divider and remainder");
+                builder.CreateInput("dividend", typeof(int));
+                builder.CreateInput("divisor", typeof(int));
+                builder.CreateOutput("division", typeof(int));
+                builder.CreateOutput("remainder", typeof(int));
+                builder.SetBody(new PipelineBody(new PipelineBodyId(""), new []{typeof(int), typeof(int) }, typeof(int),
+                    context =>
+                    {
+                        context.GetIndexedInputs(out IObservable<int> dividend, out IObservable<int> divisor);
+                        return AnyObservable.FromObservable(dividend.SelectMany((dv, _) => { return divisor.Select(ds => (dv, ds)); }).Select(tuple => tuple.dv / tuple.ds));
+                    }));
+            });
+            var source1 = graph.CreateFromGenerator("five", () => 5);
+            var source2 = graph.CreateFromGenerator("two", () => 2);
+            graph.Connect(source1, dividerAndRem);
+            graph.Connect(source2, graph.InputsForNode(dividerAndRem)[1]);
+
+            var resultDivision = graph.Compute(graph.OutputsForNode(dividerAndRem)[0]);
+            var resultRemainder = graph.Compute(graph.OutputsForNode(dividerAndRem)[1]);
+
+            AssertOutputEquals(resultDivision, new []{2});
+            AssertOutputEquals(resultRemainder, new []{1});
+        }
+
+        [TestMethod]
         public void TestLazyInputExecution()
         {
             bool[] didInvokeSource1 = {false};
