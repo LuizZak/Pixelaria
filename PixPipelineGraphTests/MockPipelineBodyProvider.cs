@@ -45,6 +45,17 @@ namespace PixPipelineGraphTests
             return bodyId;
         }
 
+        public PipelineBodyId Register(Type[] inputTypes, Type[] outputTypes, [NotNull] Func<IPipelineBodyInvocationContext, AnyObservable> body)
+        {
+            var bodyId = new PipelineBodyId(Guid.NewGuid().ToString());
+
+            var pipelineBody = new PipelineBody(bodyId, inputTypes, outputTypes, body);
+
+            Bodies[bodyId] = pipelineBody;
+
+            return bodyId;
+        }
+
         public PipelineBodyId Register<T>(Type[] inputTypes, [NotNull] Func<IPipelineBodyInvocationContext, T> body)
         {
             var bodyId = new PipelineBodyId(Guid.NewGuid().ToString());

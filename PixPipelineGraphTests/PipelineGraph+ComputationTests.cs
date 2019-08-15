@@ -43,19 +43,19 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new[] {AnyObservable.FromObservable(input.Select(i => i * 2))};
+                    return AnyObservable.FromObservable(input.Select(i => i * 2));
                 }
                 
-                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var adder = bodyProvider.Register(new[] { typeof(int) }, new[] {typeof(int)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new[] {AnyObservable.FromObservable(input.Select(i => i + 2))};
+                    return AnyObservable.FromObservable(input.Select(i => i + 2));
                 }
 
-                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var source = bodyProvider.Register(Type.EmptyTypes, context => 5);
             var multiplierNode = graph.CreateNode(node =>
@@ -92,19 +92,19 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new[] {AnyObservable.FromObservable(input.Select(i => i * 2))};
+                    return AnyObservable.FromObservable(input.Select(i => i * 2));
                 }
 
-                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var adder = bodyProvider.Register(new[] { typeof(int) }, new[] {typeof(int)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return new[] {AnyObservable.FromObservable(input.Select(i => i + 2))};
+                    return AnyObservable.FromObservable(input.Select(i => i + 2));
                 }
 
-                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
+                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var source1 = bodyProvider.Register(Type.EmptyTypes, context => 5);
             var source2 = bodyProvider.Register(Type.EmptyTypes, context => 7);
@@ -210,13 +210,7 @@ namespace PixPipelineGraphTests
                 builder.CreateInput("unused", typeof(int));
                 builder.CreateOutput("result", typeof(int));
                 builder.SetBody(new PipelineBody(new PipelineBodyId(""), new[] { typeof(int), typeof(int) }, new[] {typeof(int)},
-                    context =>
-                    {
-                        return new[]
-                        {
-                            AnyObservable.FromObservable(context.GetIndexedInput<int>(0).Select(i => i + 1))
-                        };
-                    }));
+                    context => AnyObservable.FromObservable(context.GetIndexedInput<int>(0).Select(i => i + 1))));
             });
             var source = graph.CreateFromGenerator("source", () =>
             {

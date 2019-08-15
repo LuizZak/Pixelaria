@@ -62,6 +62,14 @@ namespace PixPipelineGraph
             OutputTypes = outputTypes;
             Body = body;
         }
+
+        public PipelineBody(PipelineBodyId id, Type[] inputTypes, Type[] outputTypes, [NotNull] Func<IPipelineBodyInvocationContext, AnyObservable> body)
+        {
+            Id = id;
+            InputTypes = inputTypes;
+            OutputTypes = outputTypes;
+            Body = context => new[] {body(context)};
+        }
     }
 
     /// <summary>
