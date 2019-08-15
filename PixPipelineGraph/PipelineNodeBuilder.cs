@@ -89,6 +89,11 @@ namespace PixPipelineGraph
             return lazyInput;
         }
 
+        public IPipelineLazyValue<PipelineInput> CreateInput([NotNull] string name, Type type)
+        {
+            return CreateInput(name, builder => { builder.SetInputType(type); });
+        }
+
         public IPipelineLazyValue<PipelineOutput> CreateOutput([NotNull] string name, Action<PipelineOutputBuilder> closure = null)
         {
             var lazyOutput = new PipelineLazyValue<PipelineOutput>();
@@ -107,6 +112,11 @@ namespace PixPipelineGraph
             });
 
             return lazyOutput;
+        }
+
+        public IPipelineLazyValue<PipelineOutput> CreateOutput([NotNull] string name, Type type)
+        {
+            return CreateOutput(name, builder => { builder.SetOutputType(type); });
         }
 
         /// <summary>

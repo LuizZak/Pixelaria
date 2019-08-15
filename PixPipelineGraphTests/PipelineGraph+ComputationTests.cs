@@ -39,7 +39,6 @@ namespace PixPipelineGraphTests
         {
             var bodyProvider = new MockPipelineBodyProvider();
             var graph = CreatePipelineGraph(bodyProvider);
-
             var multiplier = bodyProvider.Register(new[] {typeof(int)}, typeof(int), context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
@@ -59,7 +58,6 @@ namespace PixPipelineGraphTests
                 return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
             });
             var source = bodyProvider.Register(Type.EmptyTypes, context => 5);
-
             var multiplierNode = graph.CreateNode(node =>
             {
                 node.SetBody(multiplier);
@@ -77,7 +75,6 @@ namespace PixPipelineGraphTests
                 node.SetBody(source);
                 node.CreateOutput("value", builder => { builder.SetOutputType(typeof(int)); });
             });
-
             graph.Connect(sourceNode, multiplierNode);
             graph.Connect(multiplierNode, adderNode);
 
@@ -91,7 +88,6 @@ namespace PixPipelineGraphTests
         {
             var bodyProvider = new MockPipelineBodyProvider();
             var graph = CreatePipelineGraph(bodyProvider);
-
             var multiplier = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
@@ -112,7 +108,6 @@ namespace PixPipelineGraphTests
             });
             var source1 = bodyProvider.Register(Type.EmptyTypes, context => 5);
             var source2 = bodyProvider.Register(Type.EmptyTypes, context => 7);
-
             var multiplierNode = graph.CreateNode(node =>
             {
                 node.SetBody(multiplier);
@@ -150,13 +145,11 @@ namespace PixPipelineGraphTests
         {
             var bodyProvider = new MockPipelineBodyProvider();
             var graph = CreatePipelineGraph(bodyProvider);
-
             var multiplier = graph.CreateFromLambda("multiplier", (int input) => input * 2);
             var adder = graph.CreateFromLambda("adder", (int v1, int v2) => v1 + v2);
             var divider = graph.CreateFromLambda("divider", (int input) => input / 2);
             var source1 = graph.CreateFromGenerator("source1", () => 1);
             var source2 = graph.CreateFromGenerator("source2", () => 2);
-
             graph.Connect(source1, multiplier);
             graph.Connect(source1, graph.InputsForNode(adder)[0]);
             graph.Connect(source2, divider);
@@ -167,6 +160,44 @@ namespace PixPipelineGraphTests
             var response = graph.Compute(graph.OutputsForNode(adder)[0]);
 
             AssertOutputEquals(response, new[] { 3, 2, 4, 3 });
+        }
+
+        [TestMethod]
+        public void TestLazyInputExecution()
+        {
+            bool[] didInvokeSource1 = {false};
+            bool[] didInvokeSource2 = {false};
+            var bodyProvider = new MockPipelineBodyProvider();
+            var graph = CreatePipelineGraph(bodyProvider);
+            var incrementer = graph.CreateNode(builder =>
+            {
+                builder.CreateInput("value", typeof(int));
+                builder.CreateInput("unused", typeof(int));
+                builder.CreateOutput("result", typeof(int));
+                builder.SetBody(new PipelineBody(new PipelineBodyId(""), new[] { typeof(int), typeof(int) }, typeof(int),
+                    context =>
+                    {
+                        return AnyObservable.FromObservable(context.GetIndexedInput<int>(0).Select(i => i + 1));
+                    }));
+            });
+            var source = graph.CreateFromGenerator("source", () =>
+            {
+                didInvokeSource1[0] = true;
+                return 1;
+            });
+            var sourceUnused = graph.CreateFromGenerator("source (unused)", () =>
+            {
+                didInvokeSource2[0] = true;
+                return 1;
+            });
+            graph.Connect(source, graph.InputsForNode(incrementer)[0]);
+            graph.Connect(sourceUnused, graph.InputsForNode(incrementer)[1]);
+
+            var result = graph.Compute(graph.OutputsForNode(incrementer)[0]);
+
+            AssertOutputEquals(result, new [] {2});
+            Assert.IsTrue(didInvokeSource1[0]);
+            Assert.IsFalse(didInvokeSource2[0]);
         }
 
         [TestMethod]

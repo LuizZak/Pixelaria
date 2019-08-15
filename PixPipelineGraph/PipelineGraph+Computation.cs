@@ -34,21 +34,7 @@ namespace PixPipelineGraph
         public AnyObservable Compute(PipelineOutput output)
         {
             var inputs = InputsForNode(output.NodeId);
-            var bodyInvocationContext = new PipelineBodyInvocationContext();
-
-            for (int i = 0; i < inputs.Count; i++)
-            {
-                var input = inputs[i];
-                var pipelineInput = GetInput(input);
-                if (pipelineInput == null)
-                    return PipelineBodyInvocationResponse.UnknownInputId<Unit>(input);
-
-                var response = ResponsesForInput(input);
-                
-                var argInput = new PipelineBodyInvocationContext.Input(pipelineInput.DataType, response, i);
-
-                bodyInvocationContext.AddArgument(argInput);
-            }
+            var bodyInvocationContext = new PipelineBodyInvocationContext(inputs, this);
 
             var body = BodyForNode(output.NodeId);
             if (body == null)
@@ -58,7 +44,7 @@ namespace PixPipelineGraph
         }
 
         [CanBeNull]
-        private AnyObservable ResponsesForInput(PipelineInput input)
+        internal AnyObservable ResponsesForInput(PipelineInput input)
         {
             var connections = ConnectionsTowardsInput(input);
             if (connections.Count == 0)

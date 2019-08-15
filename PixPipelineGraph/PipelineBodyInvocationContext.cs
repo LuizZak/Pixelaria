@@ -32,30 +32,33 @@ namespace PixPipelineGraph
 {
     public class PipelineBodyInvocationContext: IPipelineBodyInvocationContext
     {
-        private readonly List<Input> _inputs = new List<Input>();
+        private readonly List<LazyInput> _lazyInputs = new List<LazyInput>();
 
-        public int InputCount => _inputs.Count;
+        public int InputCount => _lazyInputs.Count;
 
-        public void AddArgument(Input input)
+        public PipelineBodyInvocationContext([NotNull] IEnumerable<PipelineInput> inputs, [NotNull] PipelineGraph graph)
         {
-            _inputs.Add(input);
+            foreach (var input in inputs)
+            {
+                _lazyInputs.Add(new LazyInput(input, graph));
+            }
         }
-
+        
         public bool HasInputAtIndex(int index)
         {
-            return _inputs.Any(i => i.Index == index);
+            return _lazyInputs.Any(i => i.PipelineInput.Index == index);
         }
 
         public IObservable<T> GetIndexedInput<T>(int index)
         {
-            return _inputs.FirstOrDefault(i => i.Index == index).Observable?.ToObservable<T>();
+            return _lazyInputs.FirstOrDefault(i => i.PipelineInput.Index == index)?.Input.Observable?.ToObservable<T>();
         }
 
         #region Exception Get
 
         public void GetIndexedInputs<T1>(out IObservable<T1> t1)
         {
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(1);
             if (inputs.Count != 1 || inputs.Any(i => i == null))
                 throw new NotConnectedException();
 
@@ -70,7 +73,7 @@ namespace PixPipelineGraph
 
         public void GetIndexedInputs<T1, T2>(out IObservable<T1> t1, out IObservable<T2> t2)
         {
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(2);
             if (inputs.Count != 2 || inputs.Any(i => i == null))
                 throw new NotConnectedException();
 
@@ -92,7 +95,7 @@ namespace PixPipelineGraph
         {
             t1 = default;
 
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(1);
             if (inputs.Count != 1 || inputs.Any(i => i == null))
                 return false;
 
@@ -110,7 +113,7 @@ namespace PixPipelineGraph
             t1 = default;
             t2 = default;
 
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(2);
             if (inputs.Count != 2 || inputs.Any(i => i == null))
                 return false;
 
@@ -130,7 +133,7 @@ namespace PixPipelineGraph
             t2 = default;
             t3 = default;
 
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(3);
             if (inputs.Count != 3 || inputs.Any(i => i == null))
                 return false;
 
@@ -152,7 +155,7 @@ namespace PixPipelineGraph
             t3 = default;
             t4 = default;
 
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(4);
             if (inputs.Count != 4 || inputs.Any(i => i == null))
                 return false;
 
@@ -176,7 +179,7 @@ namespace PixPipelineGraph
             t4 = default;
             t5 = default;
 
-            var inputs = OrderedInputValues();
+            var inputs = OrderedInputValues(5);
             if (inputs.Count != 5 || inputs.Any(i => i == null))
                 return false;
 
@@ -195,32 +198,32 @@ namespace PixPipelineGraph
 
         #endregion
 
-        private IEnumerable<Input?> OrderedInputs()
+        private IEnumerable<LazyInput> OrderedInputs()
         {
-            var maxIndex = _inputs.Max(i => i.Index);
-            var result = new List<Input?>();
+            int maxIndex = _lazyInputs.Max(i => i.PipelineInput.Index);
+            var result = new List<LazyInput>();
 
             for (int i = 0; i <= maxIndex; i++)
             {
                 result.Add(null);
             }
 
-            foreach (var input in _inputs)
+            foreach (var input in _lazyInputs)
             {
-                result[input.Index] = input;
+                result[input.PipelineInput.Index] = input;
             }
 
             return result;
         }
 
-        private IReadOnlyList<AnyObservable> OrderedInputValues()
+        private IReadOnlyList<AnyObservable> OrderedInputValues(int maxCount)
         {
-            return OrderedInputs().Select(v => v?.Observable).ToArray();
+            return OrderedInputs().Take(maxCount).Select(v => v?.Input.Observable).ToArray();
         }
 
         public bool MatchesInputTypes(IReadOnlyList<Type> inputTypes)
         {
-            var orderedInputTypes = OrderedInputs().Select(i => i?.Type).ToArray();
+            var orderedInputTypes = OrderedInputs().Select(i => i?.Input.Type).ToArray();
             if (orderedInputTypes.Length != inputTypes.Count)
                 return false;
 
@@ -239,6 +242,48 @@ namespace PixPipelineGraph
                 Type = type;
                 Observable = observable;
                 Index = index;
+            }
+        }
+
+        private class LazyInput
+        {
+            private readonly PipelineGraph _graph;
+            private Input? _input;
+
+            public PipelineInput PipelineInput { get; }
+
+            public Input Input
+            {
+                get
+                {
+                    if(_input == null)
+                        _input = Instantiate();
+
+                    return _input.Value;
+                }
+            }
+
+            public LazyInput(PipelineInput pipelineInput, PipelineGraph graph)
+            {
+                PipelineInput = pipelineInput;
+                _graph = graph;
+            }
+
+            private Input Instantiate()
+            {
+                var pipelineInput = _graph.GetInput(PipelineInput);
+                Input argInput;
+                if (pipelineInput == null)
+                {
+                    argInput = new Input(typeof(object), PipelineBodyInvocationResponse.UnknownInputId<Unit>(PipelineInput), PipelineInput.Index);
+                }
+                else
+                {
+                    var response = _graph.ResponsesForInput(PipelineInput);
+                    argInput = new Input(pipelineInput.DataType, response, PipelineInput.Index);
+                }
+
+                return argInput;
             }
         }
     }
