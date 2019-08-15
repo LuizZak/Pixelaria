@@ -43,19 +43,19 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return AnyObservable.FromObservable(input.Select(i => i * 2));
+                    return new[] {AnyObservable.FromObservable(input.Select(i => i * 2))};
                 }
                 
-                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
+                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
             });
             var adder = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return AnyObservable.FromObservable(input.Select(i => i + 2));
+                    return new[] {AnyObservable.FromObservable(input.Select(i => i + 2))};
                 }
 
-                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
+                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
             });
             var source = bodyProvider.Register(Type.EmptyTypes, context => 5);
             var multiplierNode = graph.CreateNode(node =>
@@ -92,19 +92,19 @@ namespace PixPipelineGraphTests
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return AnyObservable.FromObservable(input.Select(i => i * 2));
+                    return new[] {AnyObservable.FromObservable(input.Select(i => i * 2))};
                 }
 
-                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
+                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
             });
             var adder = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
-                    return AnyObservable.FromObservable(input.Select(i => i + 2));
+                    return new[] {AnyObservable.FromObservable(input.Select(i => i + 2))};
                 }
 
-                return PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"));
+                return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
             });
             var source1 = bodyProvider.Register(Type.EmptyTypes, context => 5);
             var source2 = bodyProvider.Register(Type.EmptyTypes, context => 7);
@@ -178,7 +178,11 @@ namespace PixPipelineGraphTests
                     context =>
                     {
                         context.GetIndexedInputs(out IObservable<int> dividend, out IObservable<int> divisor);
-                        return AnyObservable.FromObservable(dividend.SelectMany((dv, _) => { return divisor.Select(ds => (dv, ds)); }).Select(tuple => tuple.dv / tuple.ds));
+                        return new[]
+                        {
+                            AnyObservable.FromObservable(dividend.SelectMany((dv, _) => { return divisor.Select(ds => (dv, ds)); }).Select(tuple => tuple.dv / tuple.ds)),
+                            AnyObservable.FromObservable(dividend.SelectMany((dv, _) => { return divisor.Select(ds => (dv, ds)); }).Select(tuple => tuple.dv % tuple.ds))
+                        };
                     }));
             });
             var source1 = graph.CreateFromGenerator("five", () => 5);
@@ -208,7 +212,10 @@ namespace PixPipelineGraphTests
                 builder.SetBody(new PipelineBody(new PipelineBodyId(""), new[] { typeof(int), typeof(int) }, typeof(int),
                     context =>
                     {
-                        return AnyObservable.FromObservable(context.GetIndexedInput<int>(0).Select(i => i + 1));
+                        return new[]
+                        {
+                            AnyObservable.FromObservable(context.GetIndexedInput<int>(0).Select(i => i + 1))
+                        };
                     }));
             });
             var source = graph.CreateFromGenerator("source", () =>

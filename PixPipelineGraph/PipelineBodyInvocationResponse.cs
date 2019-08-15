@@ -21,10 +21,8 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables;
-using JetBrains.Annotations;
 
 namespace PixPipelineGraph
 {
@@ -58,6 +56,19 @@ namespace PixPipelineGraph
         }
 
         /// <summary>
+        /// Creates aa response to use when a pipeline computation resulted in less output values being
+        /// produced than expected.
+        /// </summary>
+        public static AnyObservable MissingOutput<T>(PipelineOutput output)
+        {
+            return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
+            {
+                observer.OnError(new Exception($"Missing output for pipeline output {output}"));
+                return Disposable.Empty;
+            }));
+        }
+
+        /// <summary>
         /// A common response to invoke when a pipeline invocation was performed with unexpected input types.
         /// </summary>
         public static AnyObservable MismatchedInputType<T>(Type expected)
@@ -69,54 +80,6 @@ namespace PixPipelineGraph
             }));
         }
 
-        /// <summary>
-        /// Whether this response has an associated response object at <see cref="Output"/>.
-        ///
-        /// Is <c>false</c>, in case this response represents an exception response.
-        /// </summary>
-        public bool HasOutput { get; }
-
-        /// <summary>
-        /// Gets the type of this response.
-        ///
-        /// Is <see cref="Exception"/>, in case this is an exception response.
-        /// </summary>
-        public Type Type { get; }
-
-        /// <summary>
-        /// The response object for this invocation.
-        ///
-        /// May be <c>null</c> even if <see cref="HasOutput"/> is <c>true</c>,
-        /// in case an user registered a <c>null</c> response object.
-        /// </summary>
-        [CanBeNull]
-        public AnyObservable Output { get; }
-
-        /// <summary>
-        /// Gets an exception-like error that was raised by an invocation to the pipeline body.
-        /// </summary>
-        public Exception Error { get; }
-
-        private PipelineBodyInvocationResponse(AnyObservable output, Type type)
-        {
-            HasOutput = true;
-            Output = output;
-            Type = type;
-        }
-
-        public PipelineBodyInvocationResponse(Exception error)
-        {
-            HasOutput = false;
-            Error = error;
-            Type = typeof(Exception);
-        }
-
-        public static PipelineBodyInvocationResponse Response<T>([NotNull] IObservable<T> output)
-        {
-            var response = new PipelineBodyInvocationResponse(AnyObservable.FromObservable(output), typeof(T));
-            return response;
-        }
-
         public static AnyObservable Exception<T>(Exception e)
         {
             return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
@@ -124,32 +87,6 @@ namespace PixPipelineGraph
                 observer.OnError(e);
                 return Disposable.Empty;
             }));
-        }
-
-        /// <summary>
-        /// Combines all provided responses into a single condensed response.
-        ///
-        /// The resulting response will combine all output observables, as well as be marked with the exception
-        /// from the first exceptional response in the enumerable.
-        ///
-        /// The type of the responses should be the same, otherwise the resulting response type is undefined.
-        /// </summary>
-        public static PipelineBodyInvocationResponse Combine([NotNull] IEnumerable<PipelineBodyInvocationResponse> responses)
-        {
-            var type = typeof(object);
-            var result = AnyObservable.Empty;
-            foreach (var response in responses)
-            {
-                type = response.Type;
-
-                if (response.Error != null)
-                    return new PipelineBodyInvocationResponse(response.Error);
-
-                if (response.Output != null)
-                    result = AnyObservable.Combine(result, response.Output);
-            }
-
-            return new PipelineBodyInvocationResponse(result, type);
         }
     }
 

@@ -133,7 +133,7 @@ namespace PixelariaTests.ExportPipeline
         {
             public PipelineBody GetBody(PipelineBodyId id)
             {
-                return new PipelineBody(id, new []{ typeof(int) }, typeof(int), o => AnyObservable.FromObservable(new Subject<object>()));
+                return new PipelineBody(id, new []{ typeof(int) }, typeof(int), o => new []{AnyObservable.FromObservable(new Subject<object>())});
             }
         }
     }

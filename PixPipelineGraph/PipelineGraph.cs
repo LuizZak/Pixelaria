@@ -121,10 +121,13 @@ namespace PixPipelineGraph
                     {
                         if (context.TryGetIndexedInputs(out IObservable<T1> t1))
                         {
-                            return AnyObservable.FromObservable(t1.Select(lambda));
+                            return new[]
+                            {
+                                AnyObservable.FromObservable(t1.Select(lambda))
+                            };
                         }
 
-                        return PipelineBodyInvocationResponse.MismatchedInputType<T2>(typeof(T1));
+                        return new[] {PipelineBodyInvocationResponse.MismatchedInputType<T2>(typeof(T1))};
                     }));
             });
         }
@@ -155,11 +158,11 @@ namespace PixPipelineGraph
                             var cartesian = t1.SelectMany((arg1, _) => t2.Select(arg2 => (arg1, arg2)))
                                 .Select(tuple => lambda(tuple.arg1, tuple.arg2));
 
-                            return AnyObservable.FromObservable(cartesian);
+                            return new[] {AnyObservable.FromObservable(cartesian)};
                         }
                         catch (Exception e)
                         {
-                            return PipelineBodyInvocationResponse.Exception<T3>(e);
+                            return new[] {PipelineBodyInvocationResponse.Exception<T3>(e)};
                         }
                     }));
             });
@@ -189,11 +192,11 @@ namespace PixPipelineGraph
                                 return Disposable.Empty;
                             });
 
-                            return AnyObservable.FromObservable(observable);
+                            return new []{ AnyObservable.FromObservable(observable) };
                         }
                         catch (Exception e)
                         {
-                            return PipelineBodyInvocationResponse.Exception<T>(e);
+                            return new[] {PipelineBodyInvocationResponse.Exception<T>(e)};
                         }
                     }));
             });

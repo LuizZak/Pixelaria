@@ -40,7 +40,14 @@ namespace PixPipelineGraph
             if (body == null)
                 return PipelineBodyInvocationResponse.UnknownNodeId<Unit>(output.NodeId);
 
-            return body.Body.Invoke(bodyInvocationContext);
+            var result = body.Body.Invoke(bodyInvocationContext);
+
+            if (output.Index >= result.Count)
+            {
+                return PipelineBodyInvocationResponse.MissingOutput<Unit>(output);
+            }
+
+            return result[output.Index];
         }
 
         [CanBeNull]
