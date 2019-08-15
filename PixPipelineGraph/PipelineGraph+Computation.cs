@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System;
 using System.Linq;
 using System.Reactive;
 using JetBrains.Annotations;
@@ -42,7 +41,7 @@ namespace PixPipelineGraph
                 var input = inputs[i];
                 var pipelineInput = GetInput(input);
                 if (pipelineInput == null)
-                    return PipelineBodyInvocationResponse.UnknownInputId(input);
+                    return PipelineBodyInvocationResponse.UnknownInputId<Unit>(input);
 
                 var response = ResponsesForInput(input);
                 
@@ -53,7 +52,7 @@ namespace PixPipelineGraph
 
             var body = BodyForNode(output.NodeId);
             if (body == null)
-                return PipelineBodyInvocationResponse.UnknownNodeId(output.NodeId);
+                return PipelineBodyInvocationResponse.UnknownNodeId<Unit>(output.NodeId);
 
             return body.Body.Invoke(bodyInvocationContext);
         }
@@ -65,7 +64,7 @@ namespace PixPipelineGraph
             if (connections.Count == 0)
                 return null;
 
-            return connections.Aggregate(AnyObservable.FromObservables(new IObservable<Unit>[]{}), (observable, connection) => AnyObservable.Combine(observable, Compute(connection.Start)));
+            return connections.Aggregate(AnyObservable.Empty, (observable, connection) => AnyObservable.Combine(observable, Compute(connection.Start)));
         }
     }
 }

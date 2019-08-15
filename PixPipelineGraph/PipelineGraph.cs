@@ -124,7 +124,7 @@ namespace PixPipelineGraph
                             return AnyObservable.FromObservable(t1.Select(lambda));
                         }
 
-                        return PipelineBodyInvocationResponse.MismatchedInputType(typeof(T1));
+                        return PipelineBodyInvocationResponse.MismatchedInputType<T2>(typeof(T1));
                     }));
             });
         }

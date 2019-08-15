@@ -36,9 +36,9 @@ namespace PixPipelineGraph
         /// <summary>
         /// A common response to invoke when a pipeline invocation was performed with an unknown node ID.
         /// </summary>
-        public static AnyObservable UnknownNodeId(PipelineNodeId nodeId)
+        public static AnyObservable UnknownNodeId<T>(PipelineNodeId nodeId)
         {
-            return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
             {
                 observer.OnError(new Exception($"Non-existing node ID {nodeId}"));
                 return Disposable.Empty;
@@ -48,9 +48,9 @@ namespace PixPipelineGraph
         /// <summary>
         /// A common response to invoke when a pipeline invocation was performed with an unknown input ID.
         /// </summary>
-        public static AnyObservable UnknownInputId(PipelineInput inputId)
+        public static AnyObservable UnknownInputId<T>(PipelineInput inputId)
         {
-            return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
             {
                 observer.OnError(new Exception($"Non-existing input ID {inputId}"));
                 return Disposable.Empty;
@@ -58,26 +58,11 @@ namespace PixPipelineGraph
         }
 
         /// <summary>
-        /// A common response to invoke when a pipeline invocation was performed in an output that has no input connections.
-        /// </summary>
-        public static AnyObservable NotConnected
-        {
-            get
-            {
-                return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
-                {
-                    observer.OnError(new NotConnectedException());
-                    return Disposable.Empty;
-                }));
-            }
-        }
-
-        /// <summary>
         /// A common response to invoke when a pipeline invocation was performed with unexpected input types.
         /// </summary>
-        public static AnyObservable MismatchedInputType(Type expected)
+        public static AnyObservable MismatchedInputType<T>(Type expected)
         {
-            return AnyObservable.FromObservable(new AnonymousObservable<Unit>(observer =>
+            return AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
             {
                 observer.OnError(new Exception($"Mismatched input types: Expected {expected}"));
                 return Disposable.Empty;
@@ -152,7 +137,7 @@ namespace PixPipelineGraph
         public static PipelineBodyInvocationResponse Combine([NotNull] IEnumerable<PipelineBodyInvocationResponse> responses)
         {
             var type = typeof(object);
-            var result = AnyObservable.FromObservables(new IObservable<Unit>[] {});
+            var result = AnyObservable.Empty;
             foreach (var response in responses)
             {
                 type = response.Type;

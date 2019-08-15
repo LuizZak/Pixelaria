@@ -245,6 +245,8 @@ namespace PixPipelineGraph
 
     public class AnyObservable
     {
+        public static AnyObservable Empty = new AnyObservable(new object[0]);
+
         private readonly object[] _underlying;
 
         private AnyObservable(object underlying)
