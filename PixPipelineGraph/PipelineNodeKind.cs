@@ -32,9 +32,9 @@ namespace PixPipelineGraph
     [DebuggerDisplay("{" + nameof(Id) + "}")]
     public readonly struct PipelineNodeKind : IEquatable<PipelineNodeKind>
     {
-        public Guid Id { get; }
+        public string Id { get; }
 
-        public PipelineNodeKind(in Guid id)
+        public PipelineNodeKind(in string id)
         {
             Id = id;
         }
