@@ -116,7 +116,7 @@ namespace PixPipelineGraph
                 builder.SetTitle(title);
                 builder.CreateInput("v1", inputBuilder => inputBuilder.SetInputType(typeof(T1)));
                 builder.CreateOutput("o", outputBuilder => outputBuilder.SetOutputType(typeof(T2)));
-                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new []{typeof(T1)}, typeof(T2),
+                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new []{typeof(T1)}, new []{ typeof(T2) }, 
                     context =>
                     {
                         if (context.TryGetIndexedInputs(out IObservable<T1> t1))
@@ -148,7 +148,7 @@ namespace PixPipelineGraph
                 builder.CreateInput("v1", inputBuilder => inputBuilder.SetInputType(typeof(T1)));
                 builder.CreateInput("v2", inputBuilder => inputBuilder.SetInputType(typeof(T2)));
                 builder.CreateOutput("o", outputBuilder => outputBuilder.SetOutputType(typeof(T3)));
-                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new[] { typeof(T1), typeof(T2) }, typeof(T3),
+                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), new[] { typeof(T1), typeof(T2) }, new[] {typeof(T3)},
                     context =>
                     {
                         try
@@ -179,7 +179,7 @@ namespace PixPipelineGraph
             {
                 builder.SetTitle(title);
                 builder.CreateOutput("o", outputBuilder => outputBuilder.SetOutputType(typeof(T)));
-                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), Type.EmptyTypes, typeof(T),
+                builder.SetBody(new PipelineBody(new PipelineBodyId(Guid.NewGuid().ToString()), Type.EmptyTypes, new[] {typeof(T)},
                     context =>
                     {
                         try

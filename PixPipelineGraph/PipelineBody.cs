@@ -47,7 +47,7 @@ namespace PixPipelineGraph
         /// If <c>null</c>, this body produces no output and is a consumer only.
         /// </summary>
         [CanBeNull]
-        public Type OutputType { get; set; }
+        public Type[] OutputTypes { get; set; }
 
         /// <summary>
         /// The untyped delegate for this body.
@@ -55,11 +55,11 @@ namespace PixPipelineGraph
         [NotNull]
         public Func<IPipelineBodyInvocationContext, IReadOnlyList<AnyObservable>> Body { get; set; }
 
-        public PipelineBody(PipelineBodyId id, Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, IReadOnlyList<AnyObservable>> body)
+        public PipelineBody(PipelineBodyId id, Type[] inputTypes, Type[] outputTypes, [NotNull] Func<IPipelineBodyInvocationContext, IReadOnlyList<AnyObservable>> body)
         {
             Id = id;
             InputTypes = inputTypes;
-            OutputType = outputType;
+            OutputTypes = outputTypes;
             Body = body;
         }
     }

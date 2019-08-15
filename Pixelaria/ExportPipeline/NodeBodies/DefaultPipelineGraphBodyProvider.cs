@@ -104,7 +104,7 @@ namespace Pixelaria.ExportPipeline.NodeBodies
                 inputList.Add(info.PropertyType);
             }
 
-            return new PipelineBody(BodyId, inputList.ToArray(), typeof(Bitmap), context =>
+            return new PipelineBody(BodyId, inputList.ToArray(), new[] {typeof(Bitmap)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<Bitmap> bitmap))
                 {

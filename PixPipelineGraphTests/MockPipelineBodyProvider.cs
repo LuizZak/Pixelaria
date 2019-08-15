@@ -34,11 +34,11 @@ namespace PixPipelineGraphTests
     {
         public Dictionary<PipelineBodyId, PipelineBody> Bodies = new Dictionary<PipelineBodyId, PipelineBody>();
 
-        public PipelineBodyId Register(Type[] inputTypes, Type outputType, [NotNull] Func<IPipelineBodyInvocationContext, IReadOnlyList<AnyObservable>> body)
+        public PipelineBodyId Register(Type[] inputTypes, Type[] outputTypes, [NotNull] Func<IPipelineBodyInvocationContext, IReadOnlyList<AnyObservable>> body)
         {
             var bodyId = new PipelineBodyId(Guid.NewGuid().ToString());
 
-            var pipelineBody = new PipelineBody(bodyId, inputTypes, outputType, body);
+            var pipelineBody = new PipelineBody(bodyId, inputTypes, outputTypes, body);
 
             Bodies[bodyId] = pipelineBody;
 
@@ -49,7 +49,7 @@ namespace PixPipelineGraphTests
         {
             var bodyId = new PipelineBodyId(Guid.NewGuid().ToString());
 
-            var pipelineBody = new PipelineBody(bodyId, inputTypes, typeof(T), context =>
+            var pipelineBody = new PipelineBody(bodyId, inputTypes, new[] {typeof(T)}, context =>
             {
                 try
                 {
@@ -80,7 +80,7 @@ namespace PixPipelineGraphTests
                 return value;
             }
 
-            return new PipelineBody(id, new[] { typeof(int) }, typeof(int), o => new []{AnyObservable.FromObservable(new Subject<object>())});
+            return new PipelineBody(id, new[] { typeof(int) }, new[] {typeof(int)}, o => new []{AnyObservable.FromObservable(new Subject<object>())});
         }
     }
 }

@@ -39,7 +39,7 @@ namespace PixPipelineGraphTests
         {
             var bodyProvider = new MockPipelineBodyProvider();
             var graph = CreatePipelineGraph(bodyProvider);
-            var multiplier = bodyProvider.Register(new[] {typeof(int)}, typeof(int), context =>
+            var multiplier = bodyProvider.Register(new[] {typeof(int)}, new[] {typeof(int)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
@@ -48,7 +48,7 @@ namespace PixPipelineGraphTests
                 
                 return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
             });
-            var adder = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
+            var adder = bodyProvider.Register(new[] { typeof(int) }, new[] {typeof(int)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
@@ -88,7 +88,7 @@ namespace PixPipelineGraphTests
         {
             var bodyProvider = new MockPipelineBodyProvider();
             var graph = CreatePipelineGraph(bodyProvider);
-            var multiplier = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
+            var multiplier = bodyProvider.Register(new[] { typeof(int) }, new[] {typeof(int)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
@@ -97,7 +97,7 @@ namespace PixPipelineGraphTests
 
                 return new[] {PipelineBodyInvocationResponse.Exception<int>(new InvalidOperationException("Expected integer input"))};
             });
-            var adder = bodyProvider.Register(new[] { typeof(int) }, typeof(int), context =>
+            var adder = bodyProvider.Register(new[] { typeof(int) }, new[] {typeof(int)}, context =>
             {
                 if (context.TryGetIndexedInputs(out IObservable<int> input))
                 {
@@ -174,7 +174,7 @@ namespace PixPipelineGraphTests
                 builder.CreateInput("divisor", typeof(int));
                 builder.CreateOutput("division", typeof(int));
                 builder.CreateOutput("remainder", typeof(int));
-                builder.SetBody(new PipelineBody(new PipelineBodyId(""), new []{typeof(int), typeof(int) }, typeof(int),
+                builder.SetBody(new PipelineBody(new PipelineBodyId(""), new []{typeof(int), typeof(int) }, new[] {typeof(int)},
                     context =>
                     {
                         context.GetIndexedInputs(out IObservable<int> dividend, out IObservable<int> divisor);
@@ -209,7 +209,7 @@ namespace PixPipelineGraphTests
                 builder.CreateInput("value", typeof(int));
                 builder.CreateInput("unused", typeof(int));
                 builder.CreateOutput("result", typeof(int));
-                builder.SetBody(new PipelineBody(new PipelineBodyId(""), new[] { typeof(int), typeof(int) }, typeof(int),
+                builder.SetBody(new PipelineBody(new PipelineBodyId(""), new[] { typeof(int), typeof(int) }, new[] {typeof(int)},
                     context =>
                     {
                         return new[]
