@@ -105,6 +105,25 @@ namespace PixPipelineGraph
         }
 
         /// <summary>
+        /// Requests that a node with a specified kind be created on this graph.
+        ///
+        /// The node kind is created from the currently configured <see cref="NodeProvider"/>.
+        /// In case the provider cannot create a node kind (see <see cref="IPipelineGraphNodeProvider.CanCreateNode"/>),
+        /// no node is created and <c>null</c> is returned instead.
+        /// </summary>
+        [CanBeNull]
+        public PipelineNodeId? CreateNode(PipelineNodeKind kind)
+        {
+            if (!NodeProvider.CanCreateNode(kind))
+                return null;
+
+            return CreateNode(builder =>
+            {
+                NodeProvider.CreateNode(kind, builder);
+            });
+        }
+
+        /// <summary>
         /// Helper method for creating one-parameter-one-output pipeline nodes.
         ///
         /// All type handling is done automatically while creating the pipeline node.

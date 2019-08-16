@@ -35,6 +35,7 @@ namespace PixPipelineGraphTests
             var sut = CreatePipelineGraph();
 
             Assert.AreEqual(sut.PipelineNodes.Count, 0);
+            Assert.AreEqual(sut.PipelineConnections.Count, 0);
         }
 
         [TestMethod]
@@ -45,6 +46,40 @@ namespace PixPipelineGraphTests
             sut.CreateNode();
 
             Assert.AreEqual(sut.PipelineNodes.Count, 1);
+        }
+
+        [TestMethod]
+        public void TestCreateNodeFromKind()
+        {
+            var mockProvider = new MockPipelineNodeProvider();
+            var sut = CreatePipelineGraph(mockProvider);
+            var nodeKind1 = new PipelineNodeKind("node1");
+            var nodeKind2 = new PipelineNodeKind("node2");
+            mockProvider.NodeCreators[nodeKind1] = builder =>
+            {
+                builder.SetTitle("node1");
+            };
+            mockProvider.NodeCreators[nodeKind2] = builder =>
+            {
+                builder.SetTitle("node2");
+            };
+
+            var node1 = sut.CreateNode(nodeKind1);
+            var node2 = sut.CreateNode(nodeKind2);
+
+            Assert.AreEqual(sut.TitleForNode(node1.Value), "node1");
+            Assert.AreEqual(sut.TitleForNode(node2.Value), "node2");
+        }
+
+        [TestMethod]
+        public void TestCreateNodeFromKindReturnsNullOnUnknownNodeKind()
+        {
+            var sut = CreatePipelineGraph();
+            var nodeKind = new PipelineNodeKind("node");
+
+            var node = sut.CreateNode(nodeKind);
+
+            Assert.IsNull(node);
         }
 
         [TestMethod]
@@ -218,6 +253,8 @@ namespace PixPipelineGraphTests
             Assert.AreEqual(null, sut.TitleForNode(new PipelineNodeId(Guid.NewGuid())));
         }
 
+        #region Exception Tests
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void TestOutputsForNodeRaisesExceptionOnInvalidNodeId()
@@ -254,11 +291,13 @@ namespace PixPipelineGraphTests
             graph2.Connect(graph1.OutputsForNode(graph1.PipelineNodes[0])[0], graph1.InputsForNode(graph1.PipelineNodes[1])[0]);
         }
 
+        #endregion
+
         #region Instantiation
 
-        private static PipelineGraph CreatePipelineGraph()
+        private static PipelineGraph CreatePipelineGraph(IPipelineGraphNodeProvider nodeProvider = null)
         {
-            return new PipelineGraph(new MockPipelineNodeProvider());
+            return new PipelineGraph(nodeProvider ?? new MockPipelineNodeProvider());
         }
 
         #endregion

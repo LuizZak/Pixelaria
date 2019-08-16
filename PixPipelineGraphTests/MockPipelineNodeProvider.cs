@@ -32,6 +32,7 @@ namespace PixPipelineGraphTests
 {
     public class MockPipelineNodeProvider : IPipelineGraphNodeProvider
     {
+        public Dictionary<PipelineNodeKind, Action<PipelineNodeBuilder>> NodeCreators = new Dictionary<PipelineNodeKind, Action<PipelineNodeBuilder>>();
         public Dictionary<PipelineBodyId, PipelineBody> Bodies = new Dictionary<PipelineBodyId, PipelineBody>();
 
         public PipelineBodyId Register(Type[] inputTypes, Type[] outputTypes, [NotNull] Func<IPipelineBodyInvocationContext, IReadOnlyList<AnyObservable>> body)
@@ -96,12 +97,15 @@ namespace PixPipelineGraphTests
 
         public bool CanCreateNode(PipelineNodeKind kind)
         {
-            return false;
+            return NodeCreators.ContainsKey(kind);
         }
 
         public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
         {
-
+            if (NodeCreators.TryGetValue(nodeKind, out var action))
+            {
+                action(builder);
+            }
         }
     }
 }
