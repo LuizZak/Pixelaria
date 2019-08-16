@@ -272,7 +272,8 @@ namespace PixPipelineGraphTests
             var node1 = new PipelineNodeId();
             var node2 = new PipelineNodeId();
             var node3 = new PipelineNodeId();
-            IPipelineConnection connection = null;
+            IPipelineConnection connection1 = null;
+            IPipelineConnection connection2 = null;
 
             var result = sut.RecordingChanges(() =>
             {
@@ -288,16 +289,19 @@ namespace PixPipelineGraphTests
                 {
                     builder.CreateInput("input");
                 });
-                sut.RemoveNode(node3);
 
-                connection = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
+                connection1 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
+                connection2 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node3)[0]);
+                sut.RemoveNode(node3);
             });
 
             Assert.IsTrue(result.NodesCreated.Contains(node1));
             Assert.IsTrue(result.NodesCreated.Contains(node2));
             Assert.IsTrue(result.NodesCreated.Contains(node3));
             Assert.IsTrue(result.NodesRemoved.Contains(node3));
-            Assert.IsTrue(result.ConnectionsCreated.Contains(connection));
+            Assert.IsTrue(result.ConnectionsCreated.Contains(connection1));
+            Assert.IsTrue(result.ConnectionsCreated.Contains(connection2));
+            Assert.IsTrue(result.ConnectionsRemoved.Contains(connection2));
         }
 
         #region Events
