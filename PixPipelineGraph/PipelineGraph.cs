@@ -35,6 +35,9 @@ namespace PixPipelineGraph
     /// </summary>
     public partial class PipelineGraph : IPipelineGraph
     {
+        [CanBeNull]
+        private PipelineGraphChanges _changes;
+
         private readonly List<PipelineNode> _nodes = new List<PipelineNode>();
         private readonly List<PipelineConnection> _connections = new List<PipelineConnection>();
 
@@ -68,6 +71,16 @@ namespace PixPipelineGraph
         /// </summary>
         public event ConnectionEventHandler ConnectionWillBeRemoved;
 
+        /// <summary>
+        /// An event fired when one or more nodes are created on this graph.
+        /// </summary>
+        public event PipelineNodeEventHandler NodesWhereAdded;
+
+        /// <summary>
+        /// An event fired when one or more nodes are about to be removed from this graph.
+        /// </summary>
+        public event PipelineNodeEventHandler NodesWillBeRemoved;
+
         #endregion
 
         /// <summary>
@@ -76,14 +89,6 @@ namespace PixPipelineGraph
         public PipelineGraph([NotNull] IPipelineGraphNodeProvider nodeProvider)
         {
             NodeProvider = nodeProvider;
-        }
-
-        /// <summary>
-        /// Creates and returns a new empty node
-        /// </summary>
-        public PipelineNodeId CreateNode()
-        {
-            return CreateNode(_ => { });
         }
 
         /// <summary>
@@ -101,7 +106,17 @@ namespace PixPipelineGraph
 
             _nodes.Add(node);
 
+            ReportNodeWasCreated(node.Id);
+
             return id;
+        }
+
+        /// <summary>
+        /// Creates and returns a new empty node
+        /// </summary>
+        public PipelineNodeId CreateNode()
+        {
+            return CreateNode(_ => { });
         }
 
         /// <summary>
@@ -234,6 +249,10 @@ namespace PixPipelineGraph
         public bool RemoveNode(PipelineNodeId nodeId)
         {
             var node = NodeWithId(nodeId);
+            if (node == null)
+                return false;
+
+            ReportNodeWillBeRemoved(nodeId);
 
             var outConnections = ConnectionsFromNode(nodeId);
             var inConnections = ConnectionsTowardsNode(nodeId);
@@ -270,7 +289,7 @@ namespace PixPipelineGraph
 
             _connections.Add(connection);
 
-            ConnectionWasAdded?.Invoke(this, new ConnectionEventArgs(connection));
+            ReportConnectionWasCreated(connection);
 
             return connection;
         }
@@ -511,6 +530,39 @@ namespace PixPipelineGraph
         {
             return _nodes.FirstOrDefault(n => n.Id == nodeId)?.Title;
         }
+
+        /// <summary>
+        /// Executes a given closure while recording all nodes and connections that are created/removed on the way.
+        ///
+        /// At the end, this method returns a comprehensive list of changes made while the closure was being executed.
+        /// </summary>
+        public PipelineGraphChanges RecordingChanges([NotNull, InstantHandle] Action changes)
+        {
+            if (_changes == null)
+            {
+                _changes = new PipelineGraphChanges();
+            }
+            else
+            {
+                _changes.PushStack();
+            }
+
+            changes();
+
+            PipelineGraphChanges result;
+
+            if (_changes.StackDepth == 1)
+            {
+                result = _changes;
+                _changes = null;
+            }
+            else
+            {
+                result = _changes.PopStack();
+            }
+
+            return result;
+        }
     }
 
     #region Subgraph Operations
@@ -576,7 +628,7 @@ namespace PixPipelineGraph
     {
         private void RemoveConnection(PipelineConnection connection)
         {
-            ConnectionWillBeRemoved?.Invoke(this, new ConnectionEventArgs(connection));
+            ReportConnectionWillBeRemoved(connection);
 
             _connections.Remove(connection);
         }
@@ -623,6 +675,34 @@ namespace PixPipelineGraph
             return _connections.FirstOrDefault(conn => conn.Input.Id == input && conn.Output.Id == output);
         }
 
+        private void ReportNodeWasCreated(PipelineNodeId nodeId)
+        {
+            _changes?.RecordNodeCreated(nodeId);
+
+            NodesWhereAdded?.Invoke(this, new PipelineNodeEventArgs(new[] { nodeId }));
+        }
+
+        private void ReportNodeWillBeRemoved(PipelineNodeId nodeId)
+        {
+            _changes?.RecordNodeRemoved(nodeId);
+
+            NodesWillBeRemoved?.Invoke(this, new PipelineNodeEventArgs(new[] { nodeId }));
+        }
+
+        private void ReportConnectionWasCreated(IPipelineConnection connection)
+        {
+            _changes?.RecordConnectionCreated(connection);
+
+            ConnectionWasAdded?.Invoke(this, new ConnectionEventArgs(connection));
+        }
+
+        private void ReportConnectionWillBeRemoved(IPipelineConnection connection)
+        {
+            _changes?.RecordConnectionRemoved(connection);
+
+            ConnectionWillBeRemoved?.Invoke(this, new ConnectionEventArgs(connection));
+        }
+
         private static PipelineNodeId GenerateUniquePipelineNodeId() => new PipelineNodeId(Guid.NewGuid());
     }
 
@@ -634,7 +714,12 @@ namespace PixPipelineGraph
     public delegate void ConnectionEventHandler([NotNull] object sender, [NotNull] ConnectionEventArgs args);
 
     /// <summary>
-    /// Event args for a <see cref="ConnectionEventHandler"/> event.
+    /// Delegate for node-related events in a <see cref="PipelineGraph"/>.
+    /// </summary>
+    public delegate void PipelineNodeEventHandler([NotNull] object sender, [NotNull] PipelineNodeEventArgs args);
+
+    /// <summary>
+    /// Event args for <see cref="ConnectionEventHandler"/> events.
     /// </summary>
     public class ConnectionEventArgs : EventArgs
     {
@@ -643,6 +728,19 @@ namespace PixPipelineGraph
         public ConnectionEventArgs(IPipelineConnection connection)
         {
             Connection = connection;
+        }
+    }
+
+    /// <summary>
+    /// Event args for <see cref="PipelineNodeEventHandler"/> events.
+    /// </summary>
+    public class PipelineNodeEventArgs: EventArgs
+    {
+        public IReadOnlyList<PipelineNodeId> NodeIds { get; }
+
+        public PipelineNodeEventArgs(IReadOnlyList<PipelineNodeId> nodeIds)
+        {
+            NodeIds = nodeIds;
         }
     }
 }

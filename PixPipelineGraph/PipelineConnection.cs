@@ -52,5 +52,33 @@ namespace PixPipelineGraph
         {
             return Metadata;
         }
+
+        public bool Equals(IPipelineConnection other)
+        {
+            return other != null && Start.Equals(other.Start) && End.Equals(other.End);
+        }
+
+        protected bool Equals([NotNull] PipelineConnection other)
+        {
+            return Output.Equals(other.Output) && Input.Equals(other.Input);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PipelineConnection) obj);
+        }
+
+        public static bool operator ==(PipelineConnection left, PipelineConnection right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PipelineConnection left, PipelineConnection right)
+        {
+            return !Equals(left, right);
+        }
     }
 }
