@@ -272,7 +272,6 @@ namespace PixPipelineGraphTests
             var node2 = new PipelineNodeId();
             PipelineNodeId node3;
             IPipelineConnection connection1 = null;
-            IPipelineConnection connection2 = null;
             node1 = sut.CreateNode(builder =>
             {
                 builder.CreateOutput("output");
@@ -281,7 +280,7 @@ namespace PixPipelineGraphTests
             {
                 builder.CreateInput("input");
             });
-            connection2 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node3)[0]);
+            var connection2 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node3)[0]);
 
             var result = sut.RecordingChanges(() =>
             {
