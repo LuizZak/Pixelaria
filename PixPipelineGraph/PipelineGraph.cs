@@ -553,6 +553,7 @@ namespace PixPipelineGraph
 
             if (_changes.StackDepth == 1)
             {
+                _changes.FlattenEvents();
                 result = _changes;
                 _changes = null;
             }

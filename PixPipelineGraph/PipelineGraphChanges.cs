@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -53,6 +54,8 @@ namespace PixPipelineGraph
             TopmostItem.NodesRemoved.AddRange(stackItem.NodesRemoved);
             TopmostItem.ConnectionsCreated.AddRange(stackItem.ConnectionsCreated);
             TopmostItem.ConnectionsRemoved.AddRange(stackItem.ConnectionsRemoved);
+
+            FlattenEvents();
         }
 
         internal void RecordNodeCreated(PipelineNodeId nodeId)
@@ -93,6 +96,25 @@ namespace PixPipelineGraph
             TopmostItem.ConnectionsRemoved.AddRange(topmost.ConnectionsRemoved);
 
             return new PipelineGraphChanges(topmost);
+        }
+
+        internal void FlattenEvents()
+        {
+            // Remove event intersections (i.e. node/connection was added then removed during the same event)
+            var intersectNodes = TopmostItem.NodesCreated.Intersect(TopmostItem.NodesRemoved).ToArray();
+            var intersectConnections = TopmostItem.ConnectionsCreated.Intersect(TopmostItem.ConnectionsRemoved).ToArray();
+
+            foreach (var id in intersectNodes)
+            {
+                TopmostItem.NodesCreated.Remove(id);
+                TopmostItem.NodesRemoved.Remove(id);
+            }
+
+            foreach (var id in intersectConnections)
+            {
+                TopmostItem.ConnectionsCreated.Remove(id);
+                TopmostItem.ConnectionsRemoved.Remove(id);
+            }
         }
         
         private class StackItem

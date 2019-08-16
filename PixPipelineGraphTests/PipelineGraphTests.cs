@@ -268,40 +268,67 @@ namespace PixPipelineGraphTests
         public void TestRecordingChanges()
         {
             var sut = CreatePipelineGraph();
-
-            var node1 = new PipelineNodeId();
+            PipelineNodeId node1;
             var node2 = new PipelineNodeId();
-            var node3 = new PipelineNodeId();
+            PipelineNodeId node3;
             IPipelineConnection connection1 = null;
             IPipelineConnection connection2 = null;
+            node1 = sut.CreateNode(builder =>
+            {
+                builder.CreateOutput("output");
+            });
+            node3 = sut.CreateNode(builder =>
+            {
+                builder.CreateInput("input");
+            });
+            connection2 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node3)[0]);
 
             var result = sut.RecordingChanges(() =>
             {
-                node1 = sut.CreateNode(builder =>
-                {
-                    builder.CreateOutput("output");
-                });
                 node2 = sut.CreateNode(builder =>
                 {
                     builder.CreateInput("input");
                 }); 
+
+                connection1 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
+                sut.RemoveNode(node3);
+            });
+
+            Assert.IsTrue(result.NodesCreated.Contains(node2));
+            Assert.IsTrue(result.NodesRemoved.Contains(node3));
+            Assert.IsTrue(result.ConnectionsCreated.Contains(connection1));
+            Assert.IsTrue(result.ConnectionsRemoved.Contains(connection2));
+        }
+
+        [TestMethod]
+        public void TestRecordingChangesFlattensRedundantEvents()
+        {
+            // We should not see the same node/connection being featured in both
+            // Created/Removed events at the same time.
+            var sut = CreatePipelineGraph();
+
+            var node3 = new PipelineNodeId();
+            IPipelineConnection connection2 = null;
+
+            var result = sut.RecordingChanges(() =>
+            {
+                var node1 = sut.CreateNode(builder =>
+                {
+                    builder.CreateOutput("output");
+                });
                 node3 = sut.CreateNode(builder =>
                 {
                     builder.CreateInput("input");
                 });
 
-                connection1 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
                 connection2 = sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node3)[0]);
                 sut.RemoveNode(node3);
             });
 
-            Assert.IsTrue(result.NodesCreated.Contains(node1));
-            Assert.IsTrue(result.NodesCreated.Contains(node2));
-            Assert.IsTrue(result.NodesCreated.Contains(node3));
-            Assert.IsTrue(result.NodesRemoved.Contains(node3));
-            Assert.IsTrue(result.ConnectionsCreated.Contains(connection1));
-            Assert.IsTrue(result.ConnectionsCreated.Contains(connection2));
-            Assert.IsTrue(result.ConnectionsRemoved.Contains(connection2));
+            Assert.IsFalse(result.NodesCreated.Contains(node3));
+            Assert.IsFalse(result.NodesRemoved.Contains(node3));
+            Assert.IsFalse(result.ConnectionsCreated.Contains(connection2));
+            Assert.IsFalse(result.ConnectionsRemoved.Contains(connection2));
         }
 
         #region Events
