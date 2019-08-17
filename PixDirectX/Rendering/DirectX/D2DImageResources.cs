@@ -34,7 +34,7 @@ namespace PixDirectX.Rendering.DirectX
     /// <summary>
     /// Helper class for dealing with Direct2D image resource loading
     /// </summary>
-    public sealed class ImageResources : IDisposable, IImageResourceManager
+    public sealed class D2DImageResources : IDisposable, IImageResourceManager
     {
         private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
 

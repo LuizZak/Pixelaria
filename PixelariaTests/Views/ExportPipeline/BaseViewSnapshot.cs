@@ -109,7 +109,7 @@ namespace PixelariaTests.Views.ExportPipeline
                     var visitor = new ViewRenderingVisitor();
 
                     var context = new ControlRenderingContext(
-                        new WrappedDirect2DRenderer(renderLoop.D2DRenderState, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
+                        new Direct2DRenderer(renderLoop.D2DRenderState, (D2DImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 

@@ -27,7 +27,6 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using PixSnapshot;
@@ -110,7 +109,7 @@ namespace PixUITests.TestUtils
                     var visitor = new ViewRenderingVisitor();
 
                     var context = new ControlRenderingContext(
-                        new WrappedDirect2DRenderer((IDirect2DRenderingState)state, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
+                        new Direct2DRenderer((IDirect2DRenderingState)state, (D2DImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 

@@ -54,4 +54,7 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ExportPipeline\Steps\" />
+  </ItemGroup>
 </Project>

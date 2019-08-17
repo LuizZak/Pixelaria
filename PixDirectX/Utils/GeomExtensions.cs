@@ -24,12 +24,13 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using SharpDX;
 using SharpDX.Mathematics.Interop;
+using SkiaSharp;
 using Matrix = System.Drawing.Drawing2D.Matrix;
 
 namespace PixDirectX.Utils
 {
     /// <summary>
-    /// Useful conversion methods from PixCore to SharpDX and GDI+ geometry types
+    /// Useful conversion methods from PixCore to SharpDX, GDI+, and Skia geometry types
     /// </summary>
     public static class GeomExtensions
     {
@@ -53,6 +54,27 @@ namespace PixDirectX.Utils
 
         #endregion
 
+        #region Vector / SKPoint
+
+        /// <summary>
+        /// Converts a <see cref="SKPoint"/> to an equivalent <see cref="Vector"/> value.
+        /// </summary>
+        public static unsafe Vector ToVector(this SKPoint vec)
+        {
+            return *(Vector*)&vec;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Vector"/> to an equivalent <see cref="SKPoint"/> value.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public static unsafe SKPoint ToSKPoint(this Vector vec)
+        {
+            return *(SKPoint*)&vec;
+        }
+
+        #endregion
+
         #region AABB / RawRectangleF
 
         /// <summary>
@@ -71,7 +93,29 @@ namespace PixDirectX.Utils
         {
             return new RawRectangleF(rec.Left, rec.Top, rec.Right, rec.Bottom);
         }
-        
+
+        #endregion
+
+        #region AABB / SKRect
+
+        /// <summary>
+        /// Converts a <see cref="SKRect"/> to an equivalent <see cref="AABB"/> value.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public static AABB ToAABB(this SKRect rec)
+        {
+            return new AABB(rec.Left, rec.Top, rec.Bottom, rec.Right);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="AABB"/> to an equivalent <see cref="SKRect"/> value.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public static SKRect ToSKRect(this AABB rec)
+        {
+            return new SKRect(rec.Left, rec.Top, rec.Right, rec.Bottom);
+        }
+
         #endregion
 
         #region Matrix2D / RawMatrix3x2 / Matrix3x2
@@ -118,6 +162,36 @@ namespace PixDirectX.Utils
         public static unsafe Matrix2D ToMatrix2D([NotNull] this Matrix matrix)
         {
             return new Matrix2D(matrix.Elements);
+        }
+
+        #endregion
+
+
+        #region Matrix2D / SKMatrix
+
+        /// <summary>
+        /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="SKMatrix"/> value.
+        /// </summary>
+        public static SKMatrix ToSKMatrix(this Matrix2D matrix)
+        {
+            var m = new SKMatrix
+            {
+                TransX = matrix.TranslationVector.X,
+                TransY = matrix.TranslationVector.Y,
+                ScaleX = matrix.ScaleVector.X,
+                ScaleY = matrix.ScaleVector.Y,
+                SkewX = matrix.M12,
+                SkewY = matrix.M21
+            };
+            return m;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="SKMatrix"/> to an equivalent <see cref="Matrix2D"/> value.
+        /// </summary>
+        public static unsafe Matrix2D ToMatrix2D(this SKMatrix matrix)
+        {
+            return new Matrix2D(matrix.Values);
         }
 
         #endregion

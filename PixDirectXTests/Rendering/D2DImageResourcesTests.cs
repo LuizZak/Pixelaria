@@ -45,7 +45,7 @@ namespace PixDirectXTests.Rendering
         public void TestAddImageResource()
         {
             var bitmap = new Bitmap(4, 4);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
 
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
 
@@ -56,7 +56,7 @@ namespace PixDirectXTests.Rendering
         public void TestAddImageResourceReturn()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
 
             var resource = sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
 
@@ -70,7 +70,7 @@ namespace PixDirectXTests.Rendering
         public void TestAddImageResourceDuplicatedResourceNameException()
         {
             var bitmap = new Bitmap(4, 4);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
 
             // Bang!
@@ -81,7 +81,7 @@ namespace PixDirectXTests.Rendering
         public void TestGetImageResource()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
 
             var resource = sut.GetImageResource("test");
@@ -95,7 +95,7 @@ namespace PixDirectXTests.Rendering
         [TestMethod]
         public void TestGetImageResourceWithNonExistantImage()
         {
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
 
             var resource = sut.GetImageResource("test");
 
@@ -106,7 +106,7 @@ namespace PixDirectXTests.Rendering
         public void TestRemoveAllImageResources()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test 2");
 
@@ -120,7 +120,7 @@ namespace PixDirectXTests.Rendering
         public void TestRemoveImageResource()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test 2");
 
@@ -134,7 +134,7 @@ namespace PixDirectXTests.Rendering
         public void TestBitmapForResourceImageResource()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             var resource = sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
             
             Assert.IsNotNull(sut.BitmapForResource(resource));
@@ -145,7 +145,7 @@ namespace PixDirectXTests.Rendering
         public void TestBitmapForResourceString()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
             
             Assert.IsNotNull(sut.BitmapForResource("test 1"));
@@ -156,7 +156,7 @@ namespace PixDirectXTests.Rendering
         public void TestDispose()
         {
             var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
+            var sut = new D2DImageResources();
             sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
             var d2DBitmap = sut.BitmapForResource("test 1");
 
