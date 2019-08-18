@@ -44,16 +44,16 @@ namespace PixDirectX.Rendering.Skia
 
         public HitTestMetrics HitTestPoint(float x, float y, out bool isTrailingHit, out bool isInside)
         {
-            using (var paint = PaintForLayout())
-            {
-                var path = paint.GetTextPath(Text.String, 0, 0);
-                
-            }
+            isTrailingHit = false;
+            isInside = false;
+            return new HitTestMetrics(-1);
         }
 
         public HitTestMetrics HitTestTextPosition(int textPosition, bool isTrailingHit, out float x, out float y)
         {
-            throw new NotImplementedException();
+            x = 0;
+            y = 0;
+            return new HitTestMetrics(-1);
         }
 
         SKPaint PaintForLayout()
