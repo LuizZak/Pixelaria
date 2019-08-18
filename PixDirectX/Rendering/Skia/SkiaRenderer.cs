@@ -527,7 +527,7 @@ namespace PixDirectX.Rendering.Skia
 
                 base.LoadBrush();
 
-                var colors = GradientStops.OrderBy(stop => stop.Position).Select(stop => ColorExtensions.ToSKColor(stop.Color)).ToArray();
+                var colors = GradientStops.OrderBy(stop => stop.Position).Select(stop => stop.Color.ToSKColor()).ToArray();
                 var positions = GradientStops.OrderBy(stop => stop.Position).Select(stop => stop.Position).ToArray();
                 var shader = SKShader.CreateLinearGradient(Start.ToSKPoint(), End.ToSKPoint(), colors, positions, SKShaderTileMode.Clamp);
 

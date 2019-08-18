@@ -105,7 +105,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (DesignMode)
                 return;
 
-            _rendererStack = new Direct2DRendererStack();
+            _rendererStack = new SkiaRendererStack(exportPipelineControl);
             var renderManager = _rendererStack.Initialize(exportPipelineControl);
 
             DefaultResources.LoadDefaultResources(_rendererStack.RenderingState ?? throw new InvalidOperationException("No initial rendering state available"), renderManager.ImageResources);

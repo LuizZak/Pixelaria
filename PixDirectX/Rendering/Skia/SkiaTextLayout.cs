@@ -20,10 +20,8 @@
     base directory of this project.
 */
 
-using System;
 using PixCore.Text;
 using PixRendering;
-using SkiaSharp;
 
 namespace PixDirectX.Rendering.Skia
 {
@@ -39,7 +37,7 @@ namespace PixDirectX.Rendering.Skia
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
 
         public HitTestMetrics HitTestPoint(float x, float y, out bool isTrailingHit, out bool isInside)
@@ -54,15 +52,6 @@ namespace PixDirectX.Rendering.Skia
             x = 0;
             y = 0;
             return new HitTestMetrics(-1);
-        }
-
-        SKPaint PaintForLayout()
-        {
-            return new SKPaint
-            {
-                TextSize = Attributes.TextFormatAttributes.FontSize,
-                Typeface = SKTypeface.FromFamilyName(Attributes.TextFormatAttributes.Font)
-            };
         }
     }
 }
