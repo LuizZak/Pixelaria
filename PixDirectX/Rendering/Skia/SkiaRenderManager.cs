@@ -78,7 +78,7 @@ namespace PixDirectX.Rendering.Skia
             
             foreach (var rectangle in clipping.RedrawRegionRectangles(state.Size))
             {
-                Canvas.ClipRect(rectangle.ToSKRect());
+                //Canvas.ClipRect(rectangle.ToSKRect());
             }
 
             Canvas.Clear(BackColor.ToSKColor());

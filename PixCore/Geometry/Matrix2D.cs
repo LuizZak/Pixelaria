@@ -196,6 +196,12 @@ namespace PixCore.Geometry
         public float[] Column2 => new[] {M12, M22, M32};
 
         /// <summary>
+        /// Gets the values for this matrix as an array consisting of <c>{ M11, M21, M31, M12, M22, M32 }</c>,
+        /// in this order.
+        /// </summary>
+        public float[] Values => new[] {M11, M21, M31, M12, M22, M32};
+
+        /// <summary>
         /// Gets the translation of the matrix; that is M31 and M32.
         /// </summary>
         public Vector TranslationVector => new Vector(M31, M32);
@@ -204,6 +210,11 @@ namespace PixCore.Geometry
         /// Gets the scale of the matrix; that is M11 and M22.
         /// </summary>
         public Vector ScaleVector => new Vector(M11, M22);
+
+        /// <summary>
+        /// Gets the skew of the matrix; that is M12 and M21.
+        /// </summary>
+        public Vector SkewVector => new Vector(M12, M21);
 
         /// <summary>
         /// Gets a value indicating whether this instance is an identity matrix.

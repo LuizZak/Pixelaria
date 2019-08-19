@@ -56,7 +56,7 @@ namespace PixDirectX.Rendering.Skia
             using (var paint = new SKPaint())
             {
                 ConfigurePaint(paint, textFormatAttributes);
-                _canvas.DrawText(text.String, area.Left, area.Right, paint);
+                _canvas.DrawText(text.String, area.Left, area.Top, paint);
             }
         }
 
@@ -65,7 +65,7 @@ namespace PixDirectX.Rendering.Skia
             using (var paint = new SKPaint())
             {
                 ConfigurePaint(paint, textFormatAttributes);
-                _canvas.DrawText(text, area.Left, area.Right, paint);
+                _canvas.DrawText(text, area.Left, area.Top, paint);
             }
         }
 

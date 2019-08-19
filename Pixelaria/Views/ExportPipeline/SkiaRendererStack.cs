@@ -24,13 +24,15 @@ using PixRendering;
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Threading;
 using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using PixDirectX.Rendering.Skia;
 using SkiaSharp;
+using SkiaSharp.Views.Desktop;
+using Bitmap = System.Drawing.Bitmap;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -84,7 +86,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             _bitmap = new Bitmap(width, height, PixelFormat.Format32bppPArgb);
 
-            _imageInfo = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+            _imageInfo = new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
             _surface = SKSurface.Create(_imageInfo, width * 4);
             
             _renderState = RenderStateFromCanvas(_surface.Canvas, TimeSpan.Zero);
@@ -115,9 +117,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             using (var fastBitmap = _bitmap.FastLock())
             {
-                _surface.ReadPixels(_imageInfo, fastBitmap.Scan0, _imageInfo.Width, 0, 0);
+                _surface.ReadPixels(_imageInfo, fastBitmap.Scan0, _imageInfo.Width * 4, 0, 0);
             }
-
+            
             graphics.DrawImage(_bitmap, Point.Empty);
         }
 

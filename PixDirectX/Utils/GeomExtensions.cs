@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using SharpDX;
@@ -159,7 +160,7 @@ namespace PixDirectX.Utils
         /// <summary>
         /// Converts a <see cref="Matrix"/> to an equivalent <see cref="Matrix2D"/> value.
         /// </summary>
-        public static unsafe Matrix2D ToMatrix2D([NotNull] this Matrix matrix)
+        public static Matrix2D ToMatrix2D([NotNull] this Matrix matrix)
         {
             return new Matrix2D(matrix.Elements);
         }
@@ -172,6 +173,7 @@ namespace PixDirectX.Utils
         /// <summary>
         /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="SKMatrix"/> value.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public static SKMatrix ToSKMatrix(this Matrix2D matrix)
         {
             var m = new SKMatrix
@@ -180,9 +182,11 @@ namespace PixDirectX.Utils
                 TransY = matrix.TranslationVector.Y,
                 ScaleX = matrix.ScaleVector.X,
                 ScaleY = matrix.ScaleVector.Y,
-                SkewX = matrix.M12,
-                SkewY = matrix.M21
+                SkewX = matrix.SkewVector.X,
+                SkewY = matrix.SkewVector.Y,
+                Persp2 = 1
             };
+            
             return m;
         }
 
@@ -191,7 +195,7 @@ namespace PixDirectX.Utils
         /// </summary>
         public static unsafe Matrix2D ToMatrix2D(this SKMatrix matrix)
         {
-            return new Matrix2D(matrix.Values);
+            return new Matrix2D(matrix.ScaleX, matrix.SkewX, matrix.SkewY, matrix.ScaleY, matrix.TransX, matrix.TransY);
         }
 
         #endregion

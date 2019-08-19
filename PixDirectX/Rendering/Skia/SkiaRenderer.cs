@@ -304,6 +304,7 @@ namespace PixDirectX.Rendering.Skia
         public void PushClippingArea(AABB area)
         {
             _canvas.Save();
+            _canvas.ClipRect(area.ToSKRect());
         }
 
         /// <summary>
@@ -332,7 +333,7 @@ namespace PixDirectX.Rendering.Skia
         public void PushTransform(Matrix2D matrix)
         {
             _transformStack.Push(_canvas.TotalMatrix);
-            _canvas.SetMatrix(matrix.ToSKMatrix());
+            _canvas.SetMatrix((matrix * _canvas.TotalMatrix.ToMatrix2D()).ToSKMatrix());
         }
 
         /// <summary>
@@ -349,7 +350,7 @@ namespace PixDirectX.Rendering.Skia
         public void PushingTransform(Matrix2D matrix, Action execute)
         {
             var topmost = _canvas.TotalMatrix;
-            _canvas.SetMatrix(matrix.ToSKMatrix());
+            _canvas.SetMatrix((matrix * _canvas.TotalMatrix.ToMatrix2D()).ToSKMatrix());
             execute();
             _canvas.SetMatrix(topmost);
         }
