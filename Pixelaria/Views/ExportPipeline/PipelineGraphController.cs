@@ -45,13 +45,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             foreach (var input in descriptor.Inputs)
             {
-                node.CreateInput(input.Title, builder =>
-                {
-                    foreach (var inputType in input.InputTypes)
-                    {
-                        builder.SetInputType(inputType);
-                    }
-                });
+                node.CreateInput(input.Title, builder => { builder.SetInputType(input.InputType); });
             }
 
             foreach (var output in descriptor.Outputs)

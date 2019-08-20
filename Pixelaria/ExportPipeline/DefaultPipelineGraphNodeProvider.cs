@@ -21,15 +21,58 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using Pixelaria.Views.ExportPipeline;
 using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
     class DefaultPipelineGraphNodeProvider : IPipelineGraphNodeProvider
     {
+        private readonly List<PipelineNodeDescriptor> _nodeDescriptors = new List<PipelineNodeDescriptor>();
+
+        public IReadOnlyList<PipelineNodeDescriptor> NodeDescriptors => _nodeDescriptors;
+
+        public DefaultPipelineGraphNodeProvider()
+        {
+            CreateDefaultNodes();
+        }
+
+        private void CreateDefaultNodes()
+        {
+            _nodeDescriptors.Add(new PipelineNodeDescriptor
+            {
+                Title = "Animation Joiner",
+                Inputs = {new PipelineInputDescriptor("animations")},
+                Outputs = {new PipelineOutputDescriptor("animations")}
+            });
+            _nodeDescriptors.Add(new PipelineNodeDescriptor
+            {
+                Title = "Bitmap Import",
+                Outputs = {new PipelineOutputDescriptor("bitmap") {OutputType = typeof(Bitmap)}}
+            });
+            _nodeDescriptors.Add(new PipelineNodeDescriptor
+            {
+                Title = "Bitmap Preview",
+                Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } },
+                Outputs = { new PipelineOutputDescriptor("bitmap") { OutputType = typeof(Bitmap) } }
+            });
+            _nodeDescriptors.Add(new PipelineNodeDescriptor
+            {
+                Title = "File Export",
+                Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } }
+            });
+            _nodeDescriptors.Add(new PipelineNodeDescriptor
+            {
+                Title = "",
+                Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } }
+            });
+        }
+
         public PipelineBody GetBody(PipelineBodyId id)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public bool CanCreateNode(PipelineNodeKind kind)

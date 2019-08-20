@@ -45,7 +45,7 @@ namespace Pixelaria.Views.ExportPipeline
         [NotNull]
         public string Title { get; set; }
 
-        public List<Type> InputTypes { get; } = new List<Type>();
+        public Type InputType { get; set; }
 
         public PipelineInputDescriptor([NotNull] string title)
         {
