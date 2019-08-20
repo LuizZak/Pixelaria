@@ -904,7 +904,7 @@ namespace Pixelaria.Views.ModelViews
         private void UpdateFilterPresetList()
         {
             // Populate filter presets and last filter presets
-            PopulateMenuItem(tsm_filterPresets, FilterStore.Instance.FilterPrests, _presetClickEventHandler, (f, index) => f.Name);
+            PopulateMenuItem(tsm_filterPresets, FilterStore.Instance.FilterPresets, _presetClickEventHandler, (f, index) => f.Name);
 
             PopulateMenuItem(tsm_lastUsedFilterPresets, FiltersController.Instance.Presets, tsm_lastUsedPresetItem_Click, (f, index) => index);
         }

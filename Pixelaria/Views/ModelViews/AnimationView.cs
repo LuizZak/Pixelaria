@@ -521,7 +521,7 @@ namespace Pixelaria.Views.ModelViews
             tsm_filterPresets.DropDownItems.Clear();
 
             // Fetch the list of filters
-            var presets = FilterStore.Instance.FilterPrests;
+            var presets = FilterStore.Instance.FilterPresets;
 
             if (presets.Length == 0)
             {

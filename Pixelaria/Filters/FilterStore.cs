@@ -60,7 +60,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// Gets the list of filter presets of the program
         /// </summary>
-        public FilterPreset[] FilterPrests => _filterPresets.ToArray();
+        public FilterPreset[] FilterPresets => _filterPresets.ToArray();
 
         /// <summary>
         /// Gets the singleton instance of the FilterStore for the program
@@ -117,7 +117,7 @@ namespace Pixelaria.Filters
         /// <param name="filterControlType">The type to use when creating an instance of the filter's control</param>
         public void RegisterFilter(string filterName, Image filterIcon, Type filterType, Type filterControlType)
         {
-            FilterItem item = new FilterItem { FilterName = filterName, FilterIcon = filterIcon, FilterType = filterType, FilterControlType = filterControlType };
+            var item = new FilterItem { FilterName = filterName, FilterIcon = filterIcon, FilterType = filterType, FilterControlType = filterControlType };
             _filterItems.Add(item);
         }
 
@@ -131,7 +131,7 @@ namespace Pixelaria.Filters
         {
             IFilter filter = null;
 
-            foreach (FilterItem item in _filterItems)
+            foreach (var item in _filterItems)
             {
                 if (item.FilterName == filterName)
                 {
@@ -203,7 +203,7 @@ namespace Pixelaria.Filters
         /// <param name="name">The name of the FilterPreset to remove</param>
         public void RemoveFilterPresetByName(string name)
         {
-            foreach (FilterPreset preset in _filterPresets)
+            foreach (var preset in _filterPresets)
             {
                 if (preset.Name == name)
                 {
@@ -236,7 +236,7 @@ namespace Pixelaria.Filters
         public Image GetIconForFilter(string name)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (FilterItem item in _filterItems)
+            foreach (var item in _filterItems)
             {
                 if (item.FilterName == name)
                     return item.FilterIcon;
@@ -267,7 +267,7 @@ namespace Pixelaria.Filters
         /// <returns>An array of all the filter icons of the program</returns>
         private Image[] GetFilterIconList()
         {
-            Image[] filterIcons = new Image[_filterItems.Count];
+            var filterIcons = new Image[_filterItems.Count];
 
             for (int i = 0; i < _filterItems.Count; i++)
             {
@@ -284,15 +284,16 @@ namespace Pixelaria.Filters
         {
             string savePath = Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\filterpresets.bin";
 
-            using (FileStream stream = new FileStream(savePath, FileMode.Create))
+            using (var stream = new FileStream(savePath, FileMode.Create))
             {
-                BinaryWriter writer = new BinaryWriter(stream);
-
-                writer.Write(_filterPresets.Count);
-
-                foreach (FilterPreset preset in _filterPresets)
+                using (var writer = new BinaryWriter(stream))
                 {
-                    preset.SaveToStream(stream);
+                    writer.Write(_filterPresets.Count);
+
+                    foreach (var preset in _filterPresets)
+                    {
+                        preset.SaveToStream(stream);
+                    }
                 }
             }
         }
@@ -306,19 +307,20 @@ namespace Pixelaria.Filters
 
             string savePath = Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\filterpresets.bin";
 
-            using (FileStream stream = new FileStream(savePath, FileMode.OpenOrCreate))
+            using (var stream = new FileStream(savePath, FileMode.OpenOrCreate))
             {
                 // No filters saved
                 if (stream.Length == 0)
                     return;
 
-                BinaryReader reader = new BinaryReader(stream);
-
-                int count = reader.ReadInt32();
-
-                for (int i = 0; i < count; i++)
+                using (var reader = new BinaryReader(stream))
                 {
-                    _filterPresets.Add(FilterPreset.FromStream(stream));
+                    int count = reader.ReadInt32();
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        _filterPresets.Add(FilterPreset.FromStream(stream));
+                    }
                 }
             }
         }
@@ -364,7 +366,7 @@ namespace Pixelaria.Filters
         /// <summary>
         /// The internal array of filter objects that compose this filter preset
         /// </summary>
-        IFilter[] _filters;
+        private IFilter[] _filters;
 
         /// <summary>
         /// Gets or sets the display name for this FilterPreset
@@ -415,7 +417,7 @@ namespace Pixelaria.Filters
         /// Returns whether this filter preset matches the given filter preset.
         /// Filter preset comparision is made by filters, the preset name and filter order is ignored
         /// </summary>
-        /// <param name="other">Anoher filter preset to compare</param>
+        /// <param name="other">Another filter preset to compare</param>
         /// <returns>true if all filters match the filters on the given preset; false otherwise</returns>
         public bool Equals([NotNull] FilterPreset other)
         {
@@ -431,16 +433,17 @@ namespace Pixelaria.Filters
         /// <param name="stream">A stream to save this filter preset to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            var writer = new BinaryWriter(stream);
-
-            writer.Write(Name);
-
-            writer.Write(_filters.Length);
-
-            foreach (var filter in _filters)
+            using (var writer = new BinaryWriter(stream))
             {
-                writer.Write(filter.Name);
-                filter.SaveToStream(stream);
+                writer.Write(Name);
+
+                writer.Write(_filters.Length);
+
+                foreach (var filter in _filters)
+                {
+                    writer.Write(filter.Name);
+                    filter.SaveToStream(stream);
+                }
             }
         }
 

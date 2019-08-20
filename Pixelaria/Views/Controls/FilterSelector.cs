@@ -439,7 +439,7 @@ namespace Pixelaria.Views.Controls
         {
             cb_filterPresets.Items.Clear();
 
-            foreach (FilterPreset preset in FilterStore.Instance.FilterPrests)
+            foreach (FilterPreset preset in FilterStore.Instance.FilterPresets)
             {
                 cb_filterPresets.Items.Add(preset.Name);
             }
