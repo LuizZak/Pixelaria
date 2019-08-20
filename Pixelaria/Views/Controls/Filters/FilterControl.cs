@@ -29,7 +29,7 @@ using Pixelaria.Filters;
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Base class for user controls that implement a visualization for twaking of filter parameters
+    /// Base class for user controls that implement a visualization for tweaking of filter parameters
     /// </summary>
     internal class FilterControl : UserControl
     {
