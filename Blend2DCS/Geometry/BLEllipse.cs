@@ -21,38 +21,57 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Blend2DCS.Geometry
 {
-    public struct BLSizeI: IEquatable<BLSizeI>
+    /// <summary>
+    /// Ellipse specified as [cx, cy, rx, ry] using <see cref="double"/> as a storage type.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    public struct BLEllipse: IEquatable<BLEllipse>
     {
-        public int Width;
-        public int Height;
+        public double X;
+        public double Y;
+        public double RadiusX;
+        public double RadiusY;
 
-        public bool Equals(BLSizeI other)
+        public BLEllipse(double x, double y, double radiusX, double radiusY)
         {
-            return Width == other.Width && Height == other.Height;
+            X = x;
+            Y = y;
+            RadiusX = radiusX;
+            RadiusY = radiusY;
+        }
+
+        public bool Equals(BLEllipse other)
+        {
+            return X.Equals(other.X) && Y.Equals(other.Y) && RadiusX.Equals(other.RadiusX) && RadiusY.Equals(other.RadiusY);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is BLSizeI other && Equals(other);
+            return obj is BLEllipse other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Width * 397) ^ Height;
+                var hashCode = X.GetHashCode();
+                hashCode = (hashCode * 397) ^ Y.GetHashCode();
+                hashCode = (hashCode * 397) ^ RadiusX.GetHashCode();
+                hashCode = (hashCode * 397) ^ RadiusY.GetHashCode();
+                return hashCode;
             }
         }
 
-        public static bool operator ==(BLSizeI left, BLSizeI right)
+        public static bool operator ==(BLEllipse left, BLEllipse right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(BLSizeI left, BLSizeI right)
+        public static bool operator !=(BLEllipse left, BLEllipse right)
         {
             return !left.Equals(right);
         }

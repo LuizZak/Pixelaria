@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -24,82 +24,50 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Blend2DCS;
 using JetBrains.Annotations;
 using PixRendering;
-using Bitmap = System.Drawing.Bitmap;
 
-namespace PixDirectX.Rendering.DirectX
+namespace PixDirectX.Rendering.Blend2D
 {
-    /// <inheritdoc cref="IImageResourceManager" />
-    /// <summary>
-    /// Helper class for dealing with Direct2D image resource loading
-    /// </summary>
-    public sealed class ImageResources : IDisposable, IImageResourceManager
+    public class Blend2DImageResources: IDisposable, IImageResourceManager
     {
-        private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
+        private readonly Dictionary<string, BLImage> _bitmapResources = new Dictionary<string, BLImage>();
 
         public void Dispose()
         {
-            foreach (var value in _bitmapResources.Values)
-            {
-                value.Dispose();
-            }
-
             _bitmapResources.Clear();
         }
 
         public ImageResource AddImageResource(IRenderLoopState renderLoopState, Bitmap bitmap, string resourceName)
         {
-            var state = (IDirect2DRenderingState) renderLoopState;
-
             var res = new ImageResource(resourceName, bitmap.Width, bitmap.Height);
 
             if (_bitmapResources.ContainsKey(resourceName))
                 throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
 
-            _bitmapResources[resourceName] = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
-
-            return res;
-        }
-
-        public ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] SharpDX.WIC.Bitmap bitmap, [NotNull] string resourceName)
-        {
-            var res = new ImageResource(resourceName, bitmap.Size.Width, bitmap.Size.Height);
-
-            if (_bitmapResources.ContainsKey(resourceName))
-                throw new ArgumentException($@"An image resource named '{resourceName}' already exists.", nameof(resourceName));
-
-            _bitmapResources[resourceName] = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            _bitmapResources[resourceName] = CreateBLImage(bitmap);
 
             return res;
         }
 
         public IManagedImageResource CreateManagedImageResource(IRenderLoopState renderLoopState, Bitmap bitmap)
         {
-            var state = (IDirect2DRenderingState)renderLoopState;
+            var blImage = CreateBLImage(bitmap);
 
-            var dxBitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
-
-            return new DirectXBitmap(dxBitmap);
+            return new Blend2DBitmap(blImage);
         }
 
         public void UpdateManagedImageResource(IRenderLoopState renderLoopState, ref IManagedImageResource managedImage, Bitmap bitmap)
         {
-            var state = (IDirect2DRenderingState)renderLoopState;
-            if(!(managedImage is DirectXBitmap dxBitmap))
-                throw new ArgumentException($"Expected bitmap to be of type ${typeof(DirectXBitmap)}");
+            if (!(managedImage is Blend2DBitmap dxBitmap))
+                throw new ArgumentException($"Expected bitmap to be of type ${typeof(Blend2DBitmap)}");
 
-            dxBitmap.Bitmap.Dispose();
-            dxBitmap.Bitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            dxBitmap.Bitmap = CreateBLImage(bitmap);
         }
 
         public void RemoveAllImageResources()
         {
-            foreach (var value in _bitmapResources.Values)
-            {
-                value.Dispose();
-            }
-
             _bitmapResources.Clear();
         }
 
@@ -114,7 +82,7 @@ namespace PixDirectX.Rendering.DirectX
         public IReadOnlyList<ImageResource> AllImageResources()
         {
             return _bitmapResources.Select(pair =>
-                    new ImageResource(pair.Key, pair.Value.PixelSize.Width, pair.Value.PixelSize.Height)
+                    new ImageResource(pair.Key, pair.Value.Size.Width, pair.Value.Size.Height)
                 ).ToArray();
         }
 
@@ -122,40 +90,45 @@ namespace PixDirectX.Rendering.DirectX
         {
             var res = BitmapForResource(resourceName);
             if (res != null)
-                return new ImageResource(resourceName, res.PixelSize.Width, res.PixelSize.Height);
+                return new ImageResource(resourceName, res.Size.Width, res.Size.Height);
 
             return null;
         }
-        
+
         [CanBeNull]
-        public SharpDX.Direct2D1.Bitmap BitmapForResource(ImageResource resource)
+        public BLImage BitmapForResource(ImageResource resource)
         {
             return BitmapForResource(resource.ResourceName);
         }
 
         [CanBeNull]
-        public SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string name)
+        public BLImage BitmapForResource([NotNull] string name)
         {
             return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
         }
+
+        private static BLImage CreateBLImage(Bitmap bitmap)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public class DirectXBitmap : IManagedImageResource
+    public class Blend2DBitmap : IManagedImageResource
     {
-        internal SharpDX.Direct2D1.Bitmap Bitmap;
+        internal BLImage Bitmap;
 
-        public int Width => Bitmap.PixelSize.Width;
-        public int Height => Bitmap.PixelSize.Height;
+        public int Width => Bitmap.Size.Width;
+        public int Height => Bitmap.Size.Height;
         public Size Size => new Size(Width, Height);
 
-        public DirectXBitmap(SharpDX.Direct2D1.Bitmap bitmap)
+        public Blend2DBitmap(BLImage bitmap)
         {
-            Bitmap = bitmap;
+            this.Bitmap = bitmap;
         }
 
         public void Dispose()
         {
-            Bitmap.Dispose();
+            
         }
     }
 }

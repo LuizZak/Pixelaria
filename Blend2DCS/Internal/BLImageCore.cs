@@ -22,12 +22,71 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Blend2DCS.Geometry;
 
 namespace Blend2DCS.Internal
 {
     internal struct BLImageCore
     {
         internal IntPtr Impl;
+
+        internal BLImageImpl GetImplementation()
+        {
+            return Impl == IntPtr.Zero ? new BLImageImpl() : Marshal.PtrToStructure<BLImageImpl>(Impl);
+        }
+    }
+
+    /// <summary>
+    /// Image [C Interface - Impl].
+    /// </summary>
+    internal struct BLImageImpl
+    {
+        /// <summary>
+        /// Pixel data.
+        /// </summary>
+        public IntPtr PixelData;
+        /// <summary>
+        /// Image stride.
+        /// </summary>
+        public int Stride;
+        /// <summary>
+        /// Non-null if the image has a writer.
+        /// </summary>
+        public IntPtr Writer;
+
+        /// <summary>
+        /// Reference count.
+        /// </summary>
+        public int RefCount;
+        /// <summary>
+        /// Impl type.
+        /// </summary>
+        public byte ImplType;
+        /// <summary>
+        /// Impl traits.
+        /// </summary>
+        public byte ImplTraits;
+        /// <summary>
+        /// Memory pool data.
+        /// </summary>
+        public ushort MemPoolData;
+
+        /// <summary>
+        /// Image format.
+        /// </summary>
+        public byte Format;
+        /// <summary>
+        /// Image flags.
+        /// </summary>
+        public byte Flags;
+        /// <summary>
+        /// Image depth (in bits).
+        /// </summary>
+        public ushort Depth;
+        /// <summary>
+        /// Image size.
+        /// </summary>
+        public BLSizeI Size;
     }
 
     // ReSharper disable InconsistentNaming
@@ -43,6 +102,6 @@ namespace Blend2DCS.Internal
         public static extern uint blImageReset(ref BLImageCore self);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageGetData(ref BLImageCore self, ref BLImageData);
+        public static extern uint blImageGetData(ref BLImageCore self, ref BLImageData imageData);
     }
 }

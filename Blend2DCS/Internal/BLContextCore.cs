@@ -51,7 +51,11 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLMatrix matrix);
+
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLPoint point);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextStrokePathD(ref BLContextCore context, ref BLPathCore path);
     }
 }

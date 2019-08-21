@@ -21,38 +21,54 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Blend2DCS.Geometry
 {
-    public struct BLSizeI: IEquatable<BLSizeI>
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    public struct BLRect: IEquatable<BLRect>
     {
-        public int Width;
-        public int Height;
+        public double X;
+        public double Y;
+        public double Width;
+        public double Height;
 
-        public bool Equals(BLSizeI other)
+        public BLRect(double x, double y, double width, double height)
         {
-            return Width == other.Width && Height == other.Height;
+            X = x;
+            Y = y;
+            Width = width;
+            Height = height;
+        }
+
+        public bool Equals(BLRect other)
+        {
+            return X.Equals(other.X) && Y.Equals(other.Y) && Width.Equals(other.Width) && Height.Equals(other.Height);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is BLSizeI other && Equals(other);
+            return obj is BLRect other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Width * 397) ^ Height;
+                int hashCode = X.GetHashCode();
+                hashCode = (hashCode * 397) ^ Y.GetHashCode();
+                hashCode = (hashCode * 397) ^ Width.GetHashCode();
+                hashCode = (hashCode * 397) ^ Height.GetHashCode();
+                return hashCode;
             }
         }
 
-        public static bool operator ==(BLSizeI left, BLSizeI right)
+        public static bool operator ==(BLRect left, BLRect right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(BLSizeI left, BLSizeI right)
+        public static bool operator !=(BLRect left, BLRect right)
         {
             return !left.Equals(right);
         }

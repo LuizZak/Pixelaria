@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
@@ -47,6 +48,25 @@ namespace Blend2DCS
         ~BLPath()
         {
             UnsafePathCore.blPathReset(ref Path);
+        }
+
+        public void MoveTo(double x, double y)
+        {
+            UnsafePathCore.blPathMoveTo(ref Path, x, y);
+        }
+        public void LineTo(double x, double y)
+        {
+            UnsafePathCore.blPathLineTo(ref Path, x, y);
+        }
+
+        public void CubicTo(double x1, double y1, double x2, double y2, double x3, double y3)
+        {
+            UnsafePathCore.blPathCubicTo(ref Path, x1, y1, x2, y2, x3, y3);
+        }
+
+        public void AddRectangle(BLRect rectangle, BLGeometryDirection direction = BLGeometryDirection.Cw)
+        {
+            UnsafePathCore.blPathAddRectD(ref Path, ref rectangle, direction);
         }
     }
 }

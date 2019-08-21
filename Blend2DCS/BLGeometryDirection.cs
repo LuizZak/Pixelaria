@@ -20,41 +20,24 @@
     base directory of this project.
 */
 
-using System;
-
-namespace Blend2DCS.Geometry
+namespace Blend2DCS
 {
-    public struct BLSizeI: IEquatable<BLSizeI>
+    /// <summary>
+    /// Direction of a geometry used by geometric primitives and paths.
+    /// </summary>
+    public enum BLGeometryDirection : uint
     {
-        public int Width;
-        public int Height;
-
-        public bool Equals(BLSizeI other)
-        {
-            return Width == other.Width && Height == other.Height;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is BLSizeI other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Width * 397) ^ Height;
-            }
-        }
-
-        public static bool operator ==(BLSizeI left, BLSizeI right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(BLSizeI left, BLSizeI right)
-        {
-            return !left.Equals(right);
-        }
+        /// <summary>
+        /// No direction specified.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Clockwise direction.
+        /// </summary>
+        Cw = 1,
+        /// <summary>
+        /// Counter-clockwise direction.
+        /// </summary>
+        Ccw = 2
     }
 }

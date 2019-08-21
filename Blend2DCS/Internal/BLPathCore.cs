@@ -22,6 +22,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Blend2DCS.Geometry;
 
 namespace Blend2DCS.Internal
 {
@@ -43,5 +44,17 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern int blPathGetCapacity(ref BLPathCore pathCore);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern int blPathMoveTo(ref BLPathCore pathCore, double x, double y);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern int blPathLineTo(ref BLPathCore pathCore, double x, double y);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern int blPathCubicTo(ref BLPathCore pathCore, double x1, double y1, double x2, double y2, double x3, double y3);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern int blPathAddRectD(ref BLPathCore pathCore, ref BLRect rect, BLGeometryDirection geometryDirection);
     }
 }

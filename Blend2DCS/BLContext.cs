@@ -63,6 +63,11 @@ namespace Blend2DCS
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Reset, IntPtr.Zero);
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Transform, ref matrix);
         }
+
+        public void StrokePath(BLPath path)
+        {
+            UnsafeContextCore.blContextStrokePathD(ref Context, ref path.Path);
+        }
     }
 
     /// <summary>

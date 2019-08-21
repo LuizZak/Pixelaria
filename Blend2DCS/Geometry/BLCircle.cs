@@ -21,38 +21,54 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Blend2DCS.Geometry
 {
-    public struct BLSizeI: IEquatable<BLSizeI>
+    /// <summary>
+    /// Circle specified as [cx, cy, r] using <see cref="double"/> as a storage type.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    struct BLCircle: IEquatable<BLCircle>
     {
-        public int Width;
-        public int Height;
+        public double X;
+        public double Y;
+        public double Radius;
 
-        public bool Equals(BLSizeI other)
+        public BLCircle(double x, double y, double radius)
         {
-            return Width == other.Width && Height == other.Height;
+            X = x;
+            Y = y;
+            Radius = radius;
+        }
+
+        public bool Equals(BLCircle other)
+        {
+            return X.Equals(other.X) && Y.Equals(other.Y) && Radius.Equals(other.Radius);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is BLSizeI other && Equals(other);
+            return obj is BLCircle other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Width * 397) ^ Height;
+                var hashCode = X.GetHashCode();
+                hashCode = (hashCode * 397) ^ Y.GetHashCode();
+                hashCode = (hashCode * 397) ^ Radius.GetHashCode();
+                return hashCode;
             }
         }
 
-        public static bool operator ==(BLSizeI left, BLSizeI right)
+        public static bool operator ==(BLCircle left, BLCircle right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(BLSizeI left, BLSizeI right)
+        public static bool operator !=(BLCircle left, BLCircle right)
         {
             return !left.Equals(right);
         }

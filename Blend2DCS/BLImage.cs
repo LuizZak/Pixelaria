@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using System.Drawing;
+using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
@@ -27,6 +29,8 @@ namespace Blend2DCS
     public class BLImage
     {
         internal BLImageCore Image;
+
+        public BLSizeI Size => Image.GetImplementation().Size;
 
         public BLImage()
         {

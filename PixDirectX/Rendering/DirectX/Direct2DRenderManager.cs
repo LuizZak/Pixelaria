@@ -859,7 +859,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             var bitmap = CastBitmapOrFail(image);
 
-            DrawBitmap(bitmap.bitmap, region, opacity, interpolationMode, tintColor);
+            DrawBitmap(bitmap.Bitmap, region, opacity, interpolationMode, tintColor);
         }
 
         public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
@@ -1051,7 +1051,7 @@ namespace PixDirectX.Rendering.DirectX
         public IBrush CreateBitmapBrush(IManagedImageResource image)
         {
             var bitmap = CastBitmapOrFail(image);
-            return new InternalBitmapBrush(bitmap.bitmap);
+            return new InternalBitmapBrush(bitmap.Bitmap);
         }
 
         #endregion

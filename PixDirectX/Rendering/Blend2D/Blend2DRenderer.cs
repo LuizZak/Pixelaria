@@ -23,24 +23,48 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Blend2DCS;
+using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixDirectX.Rendering.DirectX;
+using PixDirectX.Utils;
 using PixRendering;
+using SharpDX.Direct2D1;
 
 namespace PixDirectX.Rendering.Blend2D
 {
     public class Blend2DRenderer: IRenderer
     {
+        private InternalBrush _strokeBrush;
+        private InternalBrush _fillBrush;
+
+        private readonly Blend2DImageResources _imageResources;
         private readonly BLContext _context;
 
         /// <summary>
         /// Gets or sets the topmost active transformation matrix.
         /// </summary>
-        public Matrix2D Transform { get; set; }
+        public Matrix2D Transform 
+        {
+            get => _context.UserMatrix.ToMatrix2D();
+            set => _context.SetMatrix(value.ToBLMatrix());
+        }
 
-        public Blend2DRenderer(BLContext context)
+        public Blend2DRenderer(BLContext context, Blend2DImageResources imageResources)
         {
             _context = context;
+            _imageResources = imageResources;
+        }
+
+        private void SetBrushForStroke()
+        {
+            _strokeBrush.LoadBrush(_context);
+        }
+
+        private void SetBrushForFill()
+        {
+            _fillBrush.LoadBrush(_context);
         }
 
         #region Stroke
@@ -50,7 +74,13 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokeLine(Vector start, Vector end, float strokeWidth = 1)
         {
+            var path = new BLPath();
+            path.MoveTo(start.X, start.Y);
+            path.LineTo(end.X, end.Y);
 
+            SetBrushForStroke();
+
+            _context.StrokePath(path);
         }
 
         /// <summary>
@@ -369,5 +399,168 @@ namespace PixDirectX.Rendering.Blend2D
         }
 
         #endregion
+
+        private static InternalBrush CastBrushOrFail([NotNull] IBrush brush)
+        {
+            if (brush is InternalBrush internalBrush)
+                return internalBrush;
+
+            throw new InvalidOperationException($"Expected a brush of type {typeof(InternalBrush)}");
+        }
+
+        private static InternalPathGeometry CastPathOrFail([NotNull] IPathGeometry path)
+        {
+            if (path is InternalPathGeometry internalPath)
+                return internalPath;
+
+            throw new InvalidOperationException($"Expected a path geometry of type {typeof(InternalPathGeometry)}");
+        }
+
+        private static Blend2DBitmap CastBitmapOrFail([NotNull] IManagedImageResource bitmap)
+        {
+            if (bitmap is Blend2DBitmap blBitmap)
+                return blBitmap;
+
+            throw new InvalidOperationException($"Expected a bitmap of type {typeof(Blend2DBitmap)}");
+        }
+
+        private class InternalBrush : IBrush
+        {
+            internal bool IsLoaded { get; private set; }
+
+            public virtual void LoadBrush(BLContext context)
+            {
+                IsLoaded = true;
+            }
+
+            public virtual void UnloadBrush()
+            {
+                if (!IsLoaded)
+                    return;
+
+                IsLoaded = false;
+            }
+        }
+
+        private class InternalSolidBrush : InternalBrush, ISolidBrush
+        {
+            public Color Color { get; }
+
+            public InternalSolidBrush(Color color)
+            {
+                Color = color;
+            }
+
+            public override void LoadBrush(BLContext context)
+            {
+                if (IsLoaded)
+                    return;
+
+                base.LoadBrush(context);
+            }
+        }
+
+        private class InternalLinearBrush : InternalBrush, ILinearGradientBrush
+        {
+            public IReadOnlyList<PixGradientStop> GradientStops { get; }
+            public Vector Start { get; }
+            public Vector End { get; }
+
+            public InternalLinearBrush([NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
+            {
+                GradientStops = gradientStops;
+                Start = start;
+                End = end;
+            }
+
+            public override void LoadBrush(BLContext context)
+            {
+                if (IsLoaded)
+                    return;
+
+                base.LoadBrush(context);
+            }
+
+            public override void UnloadBrush()
+            {
+                if (!IsLoaded)
+                    return;
+
+                base.UnloadBrush();
+            }
+        }
+
+        private class InternalBitmapBrush : InternalBrush
+        {
+            public BLImage Bitmap { get; }
+
+            public InternalBitmapBrush(BLImage bitmap)
+            {
+                Bitmap = bitmap;
+            }
+
+            public override void LoadBrush(BLContext context)
+            {
+                if (IsLoaded)
+                    return;
+
+                base.LoadBrush(context);
+            }
+        }
+
+        private class InternalPathSink : IPathInputSink
+        {
+            private readonly BLPath _path;
+
+            public InternalPathSink(BLPath path)
+            {
+                _path = path;
+            }
+
+            public void BeginFigure(Vector location, bool filled)
+            {
+                _path.MoveTo(location.X, location.Y);
+            }
+
+            public void MoveTo(Vector point)
+            {
+                _path.MoveTo(point.X, point.Y);
+            }
+
+            public void LineTo(Vector point)
+            {
+                _path.LineTo(point.X, point.Y);
+            }
+
+            public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
+            {
+                _path.CubicTo(anchor1.X, anchor1.Y, anchor2.X, anchor2.Y, endPoint.X, endPoint.Y);
+            }
+
+            public void AddRectangle(AABB rectangle)
+            {
+                _path.AddRectangle(rectangle.ToBLRect());
+            }
+
+            public void EndFigure(bool closePath)
+            {
+                
+            }
+        }
+
+        private class InternalPathGeometry : IPathGeometry
+        {
+            public PathGeometry PathGeometry { get; }
+
+            public InternalPathGeometry(PathGeometry pathGeometry)
+            {
+                PathGeometry = pathGeometry;
+            }
+
+            public void Dispose()
+            {
+                PathGeometry.Dispose();
+            }
+        }
     }
 }
