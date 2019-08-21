@@ -20,7 +20,9 @@
     base directory of this project.
 */
 
+using System;
 using System.Runtime.InteropServices;
+using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
@@ -28,6 +30,16 @@ namespace Blend2DCS
     public class BLContext
     {
         internal BLContextCore Context;
+
+        public BLMatrix UserMatrix
+        {
+            get
+            {
+                var matrix = new BLMatrix();
+                UnsafeContextCore.blContextGetUserMatrix(ref Context, ref matrix);
+                return matrix;
+            }
+        }
 
         public BLContext()
         {
@@ -44,6 +56,12 @@ namespace Blend2DCS
         ~BLContext()
         {
             UnsafeContextCore.blContextReset(ref Context);
+        }
+
+        public void SetMatrix(BLMatrix matrix)
+        {
+            UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Reset, IntPtr.Zero);
+            UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Transform, ref matrix);
         }
     }
 

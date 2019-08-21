@@ -21,28 +21,19 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
+using Blend2DCS.Geometry;
 
-namespace Blend2DCS.Internal
+namespace Blend2DCS
 {
-    internal struct BLImageCore
+    /// <summary>
+    /// Data that describes a raster image. Used by <see cref="BLImage"/>.
+    /// </summary>
+    public struct BLImageData
     {
-        internal IntPtr Impl;
-    }
-
-    // ReSharper disable InconsistentNaming
-    internal static class UnsafeImageCore
-    {
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageInit(ref BLImageCore self);
-
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageInitAs(ref BLImageCore self, int w, int h, uint format);
-
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageReset(ref BLImageCore self);
-
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageGetData(ref BLImageCore self, ref BLImageData);
+        public IntPtr PixelData;
+        public int Stride;
+        public BLSizeI Size;
+        public BLFormat Format;
+        public BLFormatFlags Flags;
     }
 }

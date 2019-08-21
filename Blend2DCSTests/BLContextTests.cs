@@ -20,29 +20,40 @@
     base directory of this project.
 */
 
-using System;
-using System.Runtime.InteropServices;
+using Blend2DCS;
+using Blend2DCS.Geometry;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Blend2DCS.Internal
+namespace Blend2DCSTests
 {
-    internal struct BLImageCore
+    [TestClass]
+    public class BLContextTests
     {
-        internal IntPtr Impl;
-    }
+        [TestMethod]
+        public void TestUserMatrix()
+        {
+            var sut = CreateContext();
 
-    // ReSharper disable InconsistentNaming
-    internal static class UnsafeImageCore
-    {
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageInit(ref BLImageCore self);
+            var matrix = sut.UserMatrix;
 
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageInitAs(ref BLImageCore self, int w, int h, uint format);
+            Assert.AreEqual(new BLMatrix(1, 0, 0, 1, 0, 0), matrix);
+        }
 
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageReset(ref BLImageCore self);
+        [TestMethod]
+        public void TestSetMatrix()
+        {
+            var matrix = new BLMatrix(3, 5, 5, 3, 10, 100);
+            var sut = CreateContext();
 
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageGetData(ref BLImageCore self, ref BLImageData);
+            sut.SetMatrix(matrix);
+
+            Assert.AreEqual(matrix, sut.UserMatrix);
+        }
+
+        private static BLContext CreateContext()
+        {
+            var image = new BLImage(32, 32, BLFormat.Prgb32);
+            return new BLContext(image);
+        }
     }
 }

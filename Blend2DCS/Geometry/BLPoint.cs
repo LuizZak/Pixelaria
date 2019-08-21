@@ -34,6 +34,12 @@ namespace Blend2DCS.Geometry
         public double X;
         public double Y;
 
+        public BLPoint(double x, double y)
+        {
+            X = x;
+            Y = y;
+        }
+
         public bool Equals(BLPoint other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y);

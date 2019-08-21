@@ -17,6 +17,7 @@
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Blend2DCS\Blend2DCS.csproj" />
     <ProjectReference Include="..\PixCore\PixCore.csproj" />
     <ProjectReference Include="..\PixRendering\PixRendering.csproj" />
   </ItemGroup>

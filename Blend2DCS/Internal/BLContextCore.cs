@@ -22,6 +22,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Blend2DCS.Geometry;
 
 namespace Blend2DCS.Internal
 {
@@ -41,5 +42,16 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextReset(ref BLContextCore context);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextGetUserMatrix(ref BLContextCore context, ref BLMatrix matrix);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, IntPtr opData);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLMatrix matrix);
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLPoint point);
     }
 }

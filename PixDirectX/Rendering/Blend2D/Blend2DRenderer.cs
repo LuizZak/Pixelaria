@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Blend2DCS;
 using PixCore.Geometry;
 using PixRendering;
 
@@ -30,10 +31,17 @@ namespace PixDirectX.Rendering.Blend2D
 {
     public class Blend2DRenderer: IRenderer
     {
+        private readonly BLContext _context;
+
         /// <summary>
         /// Gets or sets the topmost active transformation matrix.
         /// </summary>
         public Matrix2D Transform { get; set; }
+
+        public Blend2DRenderer(BLContext context)
+        {
+            _context = context;
+        }
 
         #region Stroke
 
