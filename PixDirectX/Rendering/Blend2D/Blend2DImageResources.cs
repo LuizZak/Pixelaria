@@ -24,7 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Blend2DCS;
+using FastBitmapLib;
 using JetBrains.Annotations;
 using PixRendering;
 
@@ -107,9 +109,17 @@ namespace PixDirectX.Rendering.Blend2D
             return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
         }
 
-        private static BLImage CreateBLImage(Bitmap bitmap)
+        private static BLImage CreateBLImage([NotNull] Bitmap bitmap)
         {
-            throw new NotImplementedException();
+            var image = new BLImage(bitmap.Width, bitmap.Height, BLFormat.Prgb32);
+            var imageData = image.GetData();
+
+            using (var fastBitmap = bitmap.FastLock())
+            {
+                Marshal.Copy(fastBitmap.DataArray, 0, imageData.PixelData, fastBitmap.Width * fastBitmap.Height);
+            }
+
+            return image;
         }
     }
 

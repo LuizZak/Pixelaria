@@ -62,12 +62,12 @@ namespace PixDirectX.Rendering.Blend2D
         private void SetBrushForStroke(float strokeWidth)
         {
             _context.SetStrokeWidth(strokeWidth);
-            _strokeBrush.LoadBrush(_context);
+            _strokeBrush.LoadBrush(_context, BrushKind.Stroke);
         }
 
         private void SetBrushForFill()
         {
-            _fillBrush.LoadBrush(_context);
+            _fillBrush.LoadBrush(_context, BrushKind.Fill);
         }
 
         #region Stroke
@@ -366,7 +366,7 @@ namespace PixDirectX.Rendering.Blend2D
             if (_transformStack.Count == 0)
                 return null;
 
-            return _transformStack.Aggregate(_transformStack.Peek(), (aabb, aabb1) => aabb1 * aabb);
+            return _transformStack.Aggregate(Matrix2D.Identity, (aabb, aabb1) => aabb * aabb1);
         }
 
         private void ApplyTransformStack()
@@ -444,6 +444,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void SetStrokeBrush(IBrush brush)
         {
+            _strokeBrush?.UnloadBrush();
             _strokeBrush = CastBrushOrFail(brush);
         }
 
@@ -460,7 +461,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void SetFillBrush(IBrush brush)
         {
+            _fillBrush?.UnloadBrush();
             _fillBrush = CastBrushOrFail(brush);
+            SetBrushForFill();
         }
 
         /// <summary>
@@ -522,7 +525,7 @@ namespace PixDirectX.Rendering.Blend2D
         {
             internal bool IsLoaded { get; private set; }
 
-            public virtual void LoadBrush(BLContext context)
+            public virtual void LoadBrush(BLContext context, BrushKind kind)
             {
                 IsLoaded = true;
             }
@@ -545,14 +548,24 @@ namespace PixDirectX.Rendering.Blend2D
                 Color = color;
             }
 
-            public override void LoadBrush(BLContext context)
+            public override void LoadBrush(BLContext context, BrushKind kind)
             {
                 if (IsLoaded)
                     return;
 
-                base.LoadBrush(context);
+                base.LoadBrush(context, kind);
 
-                context.SetStrokeStyle(unchecked((uint) Color.ToArgb()));
+                switch (kind)
+                {
+                    case BrushKind.Stroke:
+                        context.SetStrokeStyle(unchecked((uint)Color.ToArgb()));
+                        break;
+                    case BrushKind.Fill:
+                        context.SetFillStyle(unchecked((uint)Color.ToArgb()));
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
+                }
             }
         }
 
@@ -569,12 +582,12 @@ namespace PixDirectX.Rendering.Blend2D
                 End = end;
             }
 
-            public override void LoadBrush(BLContext context)
+            public override void LoadBrush(BLContext context, BrushKind kind)
             {
                 if (IsLoaded)
                     return;
 
-                base.LoadBrush(context);
+                base.LoadBrush(context, kind);
 
                 var gradient = BLGradient.Linear(Start.ToBLPoint(), End.ToBLPoint());
                 
@@ -583,7 +596,17 @@ namespace PixDirectX.Rendering.Blend2D
                     gradient.AddStop(stop.Position, unchecked((uint)stop.Color.ToArgb()));
                 }
 
-                context.SetStrokeStyle(gradient);
+                switch (kind)
+                {
+                    case BrushKind.Stroke:
+                        context.SetStrokeStyle(gradient);
+                        break;
+                    case BrushKind.Fill:
+                        context.SetFillStyle(gradient);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
+                }
             }
 
             public override void UnloadBrush()
@@ -604,12 +627,12 @@ namespace PixDirectX.Rendering.Blend2D
                 Bitmap = bitmap;
             }
 
-            public override void LoadBrush(BLContext context)
+            public override void LoadBrush(BLContext context, BrushKind kind)
             {
                 if (IsLoaded)
                     return;
 
-                base.LoadBrush(context);
+                base.LoadBrush(context, kind);
             }
         }
 
@@ -664,8 +687,14 @@ namespace PixDirectX.Rendering.Blend2D
 
             public void Dispose()
             {
-                
+                Path.Dispose();
             }
+        }
+
+        private enum BrushKind
+        {
+            Stroke,
+            Fill
         }
     }
 }

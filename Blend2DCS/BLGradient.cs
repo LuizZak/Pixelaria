@@ -20,12 +20,13 @@
     base directory of this project.
 */
 
+using System;
 using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
 {
-    public class BLGradient
+    public class BLGradient : IDisposable
     {
         internal BLGradientCore Gradient;
 
@@ -39,7 +40,18 @@ namespace Blend2DCS
 
         ~BLGradient()
         {
+            ReleaseUnmanagedResources();
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
             UnsafeGradientCore.blGradientReset(ref Gradient);
+        }
+
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
         }
 
         void SetType(BLGradientType type)
@@ -68,6 +80,7 @@ namespace Blend2DCS
 
             return gradient;
         }
+
     }
 
     /// <summary>

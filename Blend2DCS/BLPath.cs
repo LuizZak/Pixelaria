@@ -20,12 +20,13 @@
     base directory of this project.
 */
 
+using System;
 using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
 {
-    public class BLPath
+    public class BLPath : IDisposable
     {
         internal BLPathCore Path;
 
@@ -47,7 +48,18 @@ namespace Blend2DCS
 
         ~BLPath()
         {
+            ReleaseUnmanagedResources();
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
             UnsafePathCore.blPathReset(ref Path);
+        }
+
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
         }
 
         public void MoveTo(double x, double y)

@@ -27,7 +27,7 @@ using Blend2DCS.Internal;
 
 namespace Blend2DCS
 {
-    public class BLContext
+    public class BLContext : IDisposable
     {
         internal BLContextCore Context;
 
@@ -55,13 +55,29 @@ namespace Blend2DCS
 
         ~BLContext()
         {
+            ReleaseUnmanagedResources();
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
             UnsafeContextCore.blContextReset(ref Context);
+        }
+
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
         }
 
         public void SetMatrix(BLMatrix matrix)
         {
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Reset, IntPtr.Zero);
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Transform, ref matrix);
+        }
+
+        public void Flush()
+        {
+            UnsafeContextCore.blContextFlush(ref Context, 0);
         }
 
         #region Stroke
@@ -160,6 +176,7 @@ namespace Blend2DCS
         }
 
         #endregion
+
     }
 
     /// <summary>

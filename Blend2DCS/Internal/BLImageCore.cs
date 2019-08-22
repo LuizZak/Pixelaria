@@ -96,7 +96,9 @@ namespace Blend2DCS.Internal
         public static extern uint blImageInit(ref BLImageCore self);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blImageInitAs(ref BLImageCore self, int w, int h, uint format);
+        public static extern uint blImageInitAs(ref BLImageCore self, int w, int h, BLFormat format);
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blImageInitAs(ref BLImageCore self, int w, int h, BLFormat format, IntPtr pixelData, int stride, IntPtr destroyFunc, IntPtr destroyData);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blImageReset(ref BLImageCore self);

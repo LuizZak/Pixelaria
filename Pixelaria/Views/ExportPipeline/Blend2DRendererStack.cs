@@ -23,37 +23,51 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using Blend2DCS;
+using Blend2DCS.Geometry;
+using FastBitmapLib;
 using JetBrains.Annotations;
+using PixDirectX.Rendering.Blend2D;
 using PixDirectX.Rendering.Gdi;
 using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline
 {
-    /// <summary>
-    /// A GDI+-based renderer stack.
-    /// </summary>
-    public class GdiRendererStack : IRendererStack
+    public class Blend2DRendererStack : IRendererStack
     {
+        private Bitmap _bitmap;
         private bool _isControlDisposed;
         private readonly ClippingRegion _clippingRegion = new ClippingRegion();
         private readonly Control _control;
-        private readonly GdiRenderManager _renderManager;
+        private readonly Blend2DRenderManager _renderManager;
         private readonly Stopwatch _frameDeltaTimer = new Stopwatch();
-        private readonly GdiImageResourceManager _imageResource = new GdiImageResourceManager();
+        private readonly Blend2DImageResources _imageResource = new Blend2DImageResources();
         private Action<IRenderLoopState, ClippingRegion> _renderAction;
-        private GdiRenderLoopState _renderState;
+        private Blend2DRenderLoopState _renderState;
         public IRenderLoopState RenderingState => _renderState;
 
 
-        public GdiRendererStack([NotNull] Control control)
+        public Blend2DRendererStack([NotNull] Control control)
         {
             _control = control;
-            _renderManager = new GdiRenderManager(_imageResource);
+            _renderManager = new Blend2DRenderManager(_imageResource);
 
             control.Disposed += ControlOnDisposed;
             control.Paint += ControlOnPaint;
+            control.Resize += ControlOnResize;
+
+            _bitmap = new Bitmap(control.Width, control.Height, PixelFormat.Format32bppPArgb);
+        }
+
+        private void ControlOnResize(object sender, EventArgs e)
+        {
+            _bitmap.Dispose();
+            _bitmap = new Bitmap(_control.Width, _control.Height, PixelFormat.Format32bppPArgb);
         }
 
         private void ControlOnDisposed(object sender, EventArgs e)
@@ -69,8 +83,12 @@ namespace Pixelaria.Views.ExportPipeline
         public IRenderManager Initialize([NotNull] Control control)
         {
             var graphics = control.CreateGraphics();
-            _renderState = RenderStateFromGraphics(graphics, TimeSpan.Zero);
-            _renderManager.Initialize(_renderState);
+
+            WithRenderStateFromGraphics(graphics, state =>
+            {
+                _renderState = state;
+                _renderManager.Initialize(_renderState);
+            });
 
             return _renderManager;
         }
@@ -82,11 +100,41 @@ namespace Pixelaria.Views.ExportPipeline
 
             var graphics = e.Graphics;
 
-            _renderState = RenderStateFromGraphics(graphics, _renderState.FrameRenderDeltaTime);
-
-            if (!_clippingRegion.IsEmpty())
+            //_renderState = RenderStateFromGraphics(graphics, _renderState.FrameRenderDeltaTime);
+            using (var fastBitmap = _bitmap.FastLock())
+            using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride))
+            using (var context = new BLContext(image))
             {
-                _renderManager.Render(_renderState, _clippingRegion);
+                _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
+
+                if (!_clippingRegion.IsEmpty())
+                {
+                    _renderManager.Render(_renderState, _clippingRegion);
+                }
+                
+                context.Flush();
+                var imageData = image.GetData();
+                FastBitmap.memcpy(fastBitmap.Scan0, imageData.PixelData, (ulong)(fastBitmap.Stride * fastBitmap.Height * FastBitmap.BytesPerPixel));
+            }
+
+            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+            graphics.DrawImage(_bitmap, Point.Empty);
+        }
+
+        private void WithRenderStateFromGraphics([NotNull] Graphics graphics, [NotNull] Action<Blend2DRenderLoopState> execute)
+        {
+            //_renderState = RenderStateFromGraphics(graphics, _renderState.FrameRenderDeltaTime);
+            using (var fastBitmap = _bitmap.FastLock())
+            {
+                var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride);
+                var context = new BLContext(image);
+
+                _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
+
+                execute(_renderState);
+
+                context.Flush();
             }
         }
 
@@ -114,11 +162,6 @@ namespace Pixelaria.Views.ExportPipeline
 
                 Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
             }
-        }
-
-        private GdiRenderLoopState RenderStateFromGraphics(Graphics graphics, TimeSpan deltaTime)
-        {
-            return new GdiRenderLoopState(graphics, _control.Size, deltaTime);
         }
     }
 }

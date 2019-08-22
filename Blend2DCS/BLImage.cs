@@ -20,13 +20,13 @@
     base directory of this project.
 */
 
-using System.Drawing;
+using System;
 using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
 {
-    public class BLImage
+    public class BLImage : IDisposable
     {
         internal BLImageCore Image;
 
@@ -41,12 +41,29 @@ namespace Blend2DCS
         public BLImage(int width, int height, BLFormat format)
         {
             Image = new BLImageCore();
-            UnsafeImageCore.blImageInitAs(ref Image, width, height, (uint) format);
+            UnsafeImageCore.blImageInitAs(ref Image, width, height, format);
+        }
+
+        public BLImage(int width, int height, BLFormat format, IntPtr pixelData, int stride)
+        {
+            Image = new BLImageCore();
+            UnsafeImageCore.blImageInitAs(ref Image, width, height, format, pixelData, stride, IntPtr.Zero, IntPtr.Zero);
         }
 
         ~BLImage()
         {
+            ReleaseUnmanagedResources();
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
             UnsafeImageCore.blImageReset(ref Image);
+        }
+
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
         }
 
         public BLImageData GetData()
@@ -91,7 +108,7 @@ namespace Blend2DCS
         /// </summary>
         Alpha = 0x00000002u,
         /// <summary>
-        /// A combination of `BL_FORMAT_FLAG_RGB | BL_FORMAT_FLAG_ALPHA`.
+        /// A combination of <see cref="Rgb"/> | <see cref="Alpha"/>.
         /// </summary>
         Rgba = 0x00000003u,
         /// <summary>
@@ -99,7 +116,7 @@ namespace Blend2DCS
         /// </summary>
         Lum = 0x00000004u,
         /// <summary>
-        /// A combination of `BL_FORMAT_FLAG_LUM | BL_FORMAT_FLAG_ALPHA`.
+        /// A combination of `<see cref="Lum"/> | <see cref="Alpha"/>`.
         /// </summary>
         Luma = 0x00000006u,
         /// <summary>
