@@ -29,7 +29,7 @@ namespace Blend2DCS.Geometry
     /// Circle specified as [cx, cy, r] using <see cref="double"/> as a storage type.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    struct BLCircle: IEquatable<BLCircle>
+    public struct BLCircle: IEquatable<BLCircle>
     {
         public double X;
         public double Y;

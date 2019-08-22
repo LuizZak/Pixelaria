@@ -64,9 +64,34 @@ namespace Blend2DCS
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Transform, ref matrix);
         }
 
+        public void SetStrokeWidth(double strokeWidth)
+        {
+            UnsafeContextCore.blContextSetStrokeWidth(ref Context, strokeWidth);
+        }
+
         public void StrokePath(BLPath path)
         {
             UnsafeContextCore.blContextStrokePathD(ref Context, ref path.Path);
+        }
+
+        public void StrokeCircle(BLCircle circle)
+        {
+            UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.Circle, ref circle);
+        }
+
+        public void StrokeEllipse(BLEllipse ellipse)
+        {
+            UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.Circle, ref ellipse);
+        }
+
+        public void StrokeRectangle(BLRect rect)
+        {
+            UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.RectD, ref rect);
+        }
+
+        public void StrokeRoundRectangle(BLRoundRect rect)
+        {
+            UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.RoundRect, ref rect);
         }
     }
 

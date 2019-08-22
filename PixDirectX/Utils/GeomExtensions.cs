@@ -54,6 +54,26 @@ namespace PixDirectX.Utils
 
         #endregion
 
+        #region Vector / BLPoint
+
+        /// <summary>
+        /// Converts a <see cref="BLPoint"/> to an equivalent <see cref="Vector"/> value.
+        /// </summary>
+        public static Vector ToVector(this BLPoint vec)
+        {
+            return new Vector((float) vec.X, (float) vec.Y);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Vector"/> to an equivalent <see cref="BLPoint"/> value.
+        /// </summary>
+        public static BLPoint ToBLPoint(this Vector vec)
+        {
+            return new BLPoint(vec.X, vec.Y);
+        }
+
+        #endregion
+
         #region AABB / RawRectangleF
 
         /// <summary>

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Blend2DCS;
+using Blend2DCS.Geometry;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Rendering.DirectX;
@@ -57,8 +58,9 @@ namespace PixDirectX.Rendering.Blend2D
             _imageResources = imageResources;
         }
 
-        private void SetBrushForStroke()
+        private void SetBrushForStroke(float strokeWidth)
         {
+            _context.SetStrokeWidth(strokeWidth);
             _strokeBrush.LoadBrush(_context);
         }
 
@@ -78,8 +80,7 @@ namespace PixDirectX.Rendering.Blend2D
             path.MoveTo(start.X, start.Y);
             path.LineTo(end.X, end.Y);
 
-            SetBrushForStroke();
-
+            SetBrushForStroke(strokeWidth);
             _context.StrokePath(path);
         }
 
@@ -88,7 +89,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokeCircle(Vector center, float radius, float strokeWidth = 1)
         {
-
+            SetBrushForStroke(strokeWidth);
+            _context.StrokeCircle(new BLCircle(center.X, center.Y, radius));
         }
 
         /// <summary>
@@ -96,14 +98,17 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokeEllipse(AABB ellipseArea, float strokeWidth = 1)
         {
-
+            SetBrushForStroke(strokeWidth);
+            _context.StrokeEllipse(new BLEllipse(ellipseArea.Left, ellipseArea.Top, ellipseArea.Width / 2, ellipseArea.Height / 2));
         }
+
         /// <summary>
         /// Strokes the outline of a rectangle with the current stroke brush.
         /// </summary>
         public void StrokeRectangle(RectangleF rectangle, float strokeWidth = 1)
         {
-
+            SetBrushForStroke(strokeWidth);
+            _context.StrokeRectangle(new BLRect(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height));
         }
 
         /// <summary>
@@ -111,7 +116,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokeArea(AABB area, float strokeWidth = 1)
         {
-
+            SetBrushForStroke(strokeWidth);
+            _context.StrokeRectangle(area.ToBLRect());
         }
 
         /// <summary>
@@ -119,7 +125,10 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokeRoundedArea(AABB area, float radiusX, float radiusY, float strokeWidth = 1)
         {
-            
+            SetBrushForStroke(strokeWidth);
+
+            var rect = new BLRoundRect(area.Left, area.Top, area.Width, area.Height, radiusX, radiusY);
+            _context.StrokeRoundRectangle(rect);
         }
 
         /// <summary>
@@ -127,7 +136,20 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokeGeometry(PolyGeometry geometry, float strokeWidth = 1)
         {
+            SetBrushForStroke(strokeWidth);
 
+            foreach (var polygon in geometry.Polygons())
+            {
+                var path = new BLPath();
+                path.MoveTo(polygon[0].X, polygon[0].Y);
+                foreach (var vector in polygon.Skip(1))
+                {
+                    path.LineTo(vector.X, vector.Y);
+                }
+                path.LineTo(polygon[0].X, polygon[0].Y);
+
+                _context.StrokePath(path);
+            }
         }
 
         /// <summary>
@@ -135,7 +157,11 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void StrokePath(IPathGeometry path, float strokeWidth = 1)
         {
+            SetBrushForStroke(strokeWidth);
 
+            var internalPath = CastPathOrFail(path);
+
+            _context.StrokePath(internalPath.Path);
         }
 
         #endregion
@@ -550,16 +576,16 @@ namespace PixDirectX.Rendering.Blend2D
 
         private class InternalPathGeometry : IPathGeometry
         {
-            public PathGeometry PathGeometry { get; }
+            public BLPath Path { get; }
 
-            public InternalPathGeometry(PathGeometry pathGeometry)
+            public InternalPathGeometry(BLPath path)
             {
-                PathGeometry = pathGeometry;
+                Path = path;
             }
 
             public void Dispose()
             {
-                PathGeometry.Dispose();
+                
             }
         }
     }
