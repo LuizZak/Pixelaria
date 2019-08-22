@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
@@ -28,7 +29,9 @@ namespace Blend2DCS
     {
         internal BLGradientCore Gradient;
 
-        public BLGradient()
+        public BLGradientType Type => UnsafeGradientCore.blGradientGetType(ref Gradient);
+
+        internal BLGradient()
         {
             Gradient = new BLGradientCore();
             UnsafeGradientCore.blGradientInit(ref Gradient);
@@ -37,6 +40,33 @@ namespace Blend2DCS
         ~BLGradient()
         {
             UnsafeGradientCore.blGradientReset(ref Gradient);
+        }
+
+        void SetType(BLGradientType type)
+        {
+            UnsafeGradientCore.blGradientSetType(ref Gradient, type);
+        }
+
+        public void SetValue(BLGradientValue index, double value)
+        {
+            UnsafeGradientCore.blGradientSetValue(ref Gradient, index, value);
+        }
+
+        public void AddStop(double offset, uint argb32)
+        {
+            UnsafeGradientCore.blGradientAddStopRgba32(ref Gradient, offset, argb32);
+        }
+
+        public static BLGradient Linear(BLPoint start, BLPoint end)
+        {
+            var gradient = new BLGradient();
+
+            gradient.SetValue(BLGradientValue.CommonX0, start.X);
+            gradient.SetValue(BLGradientValue.CommonY0, start.Y);
+            gradient.SetValue(BLGradientValue.CommonX1, end.X);
+            gradient.SetValue(BLGradientValue.CommonY1, end.Y);
+
+            return gradient;
         }
     }
 
@@ -113,5 +143,36 @@ namespace Blend2DCS
         /// Reflect X and repeat Y.
         /// </summary>
         ReflectXRepeatY = 8,
+    }
+
+    /// <summary>
+    /// Gradient data index.
+    /// </summary>
+    public enum BLGradientValue : uint
+    {
+        /// <summary>
+        /// x0 - start 'x' for Linear/Radial and center 'x' for Conical.
+        /// </summary>
+        CommonX0 = 0,
+        /// <summary>
+        /// y0 - start 'y' for Linear/Radial and center 'y' for Conical.
+        /// </summary>
+        CommonY0 = 1,
+        /// <summary>
+        /// x1 - end 'x' for Linear/Radial.
+        /// </summary>
+        CommonX1 = 2,
+        /// <summary>
+        /// y1 - end 'y' for Linear/Radial.
+        /// </summary>
+        CommonY1 = 3,
+        /// <summary>
+        /// Radial gradient r0 radius.
+        /// </summary>
+        RadialR0 = 4,
+        /// <summary>
+        /// Conical gradient angle.
+        /// </summary>
+        ConicalAngle = 2
     }
 }

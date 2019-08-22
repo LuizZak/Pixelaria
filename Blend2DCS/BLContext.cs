@@ -64,9 +64,21 @@ namespace Blend2DCS
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Transform, ref matrix);
         }
 
+        #region Stroke
+
         public void SetStrokeWidth(double strokeWidth)
         {
             UnsafeContextCore.blContextSetStrokeWidth(ref Context, strokeWidth);
+        }
+
+        public void SetStrokeStyle(uint color)
+        {
+            UnsafeContextCore.blContextSetStrokeStyleRgba32(ref Context, color);
+        }
+
+        public void SetStrokeStyle(BLGradient gradient)
+        {
+            UnsafeContextCore.blContextSetStrokeStyle(ref Context, ref gradient.Gradient);
         }
 
         public void StrokePath(BLPath path)
@@ -93,6 +105,61 @@ namespace Blend2DCS
         {
             UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.RoundRect, ref rect);
         }
+
+        #endregion
+
+        #region Fill
+
+        public void SetFillStyle(uint color)
+        {
+            UnsafeContextCore.blContextSetFillStyleRgba32(ref Context, color);
+        }
+
+        public void SetFillStyle(BLGradient gradient)
+        {
+            UnsafeContextCore.blContextSetFillStyle(ref Context, ref gradient.Gradient);
+        }
+
+        public void FillPath(BLPath path)
+        {
+            UnsafeContextCore.blContextFillPathD(ref Context, ref path.Path);
+        }
+
+        public void FillCircle(BLCircle circle)
+        {
+            UnsafeContextCore.blContextFillGeometry(ref Context, BLGeometryType.Circle, ref circle);
+        }
+
+        public void FillEllipse(BLEllipse ellipse)
+        {
+            UnsafeContextCore.blContextFillGeometry(ref Context, BLGeometryType.Circle, ref ellipse);
+        }
+
+        public void FillRectangle(BLRect rect)
+        {
+            UnsafeContextCore.blContextFillGeometry(ref Context, BLGeometryType.RectD, ref rect);
+        }
+
+        public void FillRoundRectangle(BLRoundRect rect)
+        {
+            UnsafeContextCore.blContextFillGeometry(ref Context, BLGeometryType.RoundRect, ref rect);
+        }
+
+        #endregion
+
+        #region Clipping
+
+        public void ClipToRect(BLRect rect)
+        {
+            UnsafeContextCore.blContextClipToRectD(ref Context, ref rect);
+        }
+
+        public void RestoreClipping()
+        {
+            UnsafeContextCore.blContextRestoreClipping(ref Context);
+        }
+
+        #endregion
     }
 
     /// <summary>

@@ -38,5 +38,20 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blGradientReset(ref BLGradientCore context);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blGradientSetType(ref BLGradientCore context, BLGradientType type);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern BLGradientType blGradientGetType(ref BLGradientCore context);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern double blGradientGetValue(ref BLGradientCore context, BLGradientValue index);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blGradientSetValue(ref BLGradientCore context, BLGradientValue index, double value);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blGradientAddStopRgba32(ref BLGradientCore context, double offset, uint argb32);
     }
 }

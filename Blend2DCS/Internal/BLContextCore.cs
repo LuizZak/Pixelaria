@@ -56,7 +56,19 @@ namespace Blend2DCS.Internal
         public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLPoint point);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSetFillStyleRgba32(ref BLContextCore context, uint color);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSetFillStyle(ref BLContextCore context, ref BLGradientCore gradient);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextSetStrokeWidth(ref BLContextCore context, double width);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSetStrokeStyleRgba32(ref BLContextCore context, uint color);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSetStrokeStyle(ref BLContextCore context, ref BLGradientCore gradient);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextStrokePathD(ref BLContextCore context, ref BLPathCore path);
@@ -75,5 +87,29 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextStrokeGeometry(ref BLContextCore context, BLGeometryType type, ref BLRoundRect ellipse);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillPathD(ref BLContextCore context, ref BLPathCore path);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillGeometry(ref BLContextCore context, BLGeometryType type, ref BLCircle circle);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillGeometry(ref BLContextCore context, BLGeometryType type, ref BLRect rect);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillGeometry(ref BLContextCore context, BLGeometryType type, ref BLTriangle triangle);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillGeometry(ref BLContextCore context, BLGeometryType type, ref BLEllipse ellipse);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillGeometry(ref BLContextCore context, BLGeometryType type, ref BLRoundRect ellipse);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextClipToRectD(ref BLContextCore context, ref BLRect rect);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextRestoreClipping(ref BLContextCore context);
     }
 }

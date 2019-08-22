@@ -28,15 +28,16 @@ using Blend2DCS;
 using Blend2DCS.Geometry;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering.DirectX;
 using PixDirectX.Utils;
 using PixRendering;
-using SharpDX.Direct2D1;
 
 namespace PixDirectX.Rendering.Blend2D
 {
     public class Blend2DRenderer: IRenderer
     {
+        private readonly Stack<AABB> _clipStack = new Stack<AABB>();
+        private readonly Stack<Matrix2D> _transformStack = new Stack<Matrix2D>();
+
         private InternalBrush _strokeBrush;
         private InternalBrush _fillBrush;
 
@@ -173,7 +174,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillCircle(Vector center, float radius)
         {
-
+            _context.FillCircle(new BLCircle(center.X, center.Y, radius));
         }
 
         /// <summary>
@@ -181,7 +182,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillEllipse(AABB ellipseArea)
         {
-
+            _context.FillEllipse(new BLEllipse(ellipseArea.Left, ellipseArea.Top, ellipseArea.Width / 2, ellipseArea.Height / 2));
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillRectangle(RectangleF rectangle)
         {
-
+            _context.FillRectangle(new BLRect(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height));
         }
 
         /// <summary>
@@ -197,7 +198,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillArea(AABB area)
         {
-
+            _context.FillRectangle(area.ToBLRect());
         }
 
         /// <summary>
@@ -205,7 +206,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillRoundedArea(AABB area, float radiusX, float radiusY)
         {
-
+            var rect = new BLRoundRect(area.Left, area.Top, area.Width, area.Height, radiusX, radiusY);
+            _context.FillRoundRectangle(rect);
         }
 
         /// <summary>
@@ -213,7 +215,18 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillGeometry(PolyGeometry geometry)
         {
+            foreach (var polygon in geometry.Polygons())
+            {
+                var path = new BLPath();
+                path.MoveTo(polygon[0].X, polygon[0].Y);
+                foreach (var vector in polygon.Skip(1))
+                {
+                    path.LineTo(vector.X, vector.Y);
+                }
+                path.LineTo(polygon[0].X, polygon[0].Y);
 
+                _context.FillPath(path);
+            }
         }
 
         /// <summary>
@@ -221,7 +234,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillPath(IPathGeometry path)
         {
+            var internalPath = CastPathOrFail(path);
 
+            _context.FillPath(internalPath.Path);
         }
 
         #endregion
@@ -237,7 +252,11 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public IPathGeometry CreatePath(Action<IPathInputSink> execute)
         {
-            throw new NotImplementedException();
+            var path = new BLPath();
+            var pathSink = new InternalPathSink(path);
+            execute(pathSink);
+
+            return new InternalPathGeometry(path);
         }
 
         #endregion
@@ -300,12 +319,33 @@ namespace PixDirectX.Rendering.Blend2D
 
         #region Clipping
 
+        private AABB? ComputeClipStack()
+        {
+            if (_clipStack.Count == 0)
+                return null;
+
+            return _clipStack.Aggregate(_clipStack.Peek(), (aabb, aabb1) => aabb.Intersect(aabb1));
+        }
+
+        private void ApplyClipStack()
+        {
+            _context.RestoreClipping();
+
+            var clip = ComputeClipStack();
+
+            if (clip != null)
+            {
+                _context.ClipToRect(clip.Value.ToBLRect());
+            }
+        }
+
         /// <summary>
         /// Pushes a clipping area where all further drawing operations will be constrained into.
         /// </summary>
         public void PushClippingArea(AABB area)
         {
-
+            _clipStack.Push(area);
+            ApplyClipStack();
         }
 
         /// <summary>
@@ -313,19 +353,40 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PopClippingArea()
         {
-
+            _clipStack.Pop();
+            ApplyClipStack();
         }
 
         #endregion
 
         #region Transformation
 
+        private Matrix2D? ComputeTransformStack()
+        {
+            if (_transformStack.Count == 0)
+                return null;
+
+            return _transformStack.Aggregate(_transformStack.Peek(), (aabb, aabb1) => aabb1 * aabb);
+        }
+
+        private void ApplyTransformStack()
+        {
+            _context.SetMatrix(BLMatrix.Identity());
+
+            var matrix = ComputeTransformStack();
+
+            if (matrix != null)
+            {
+                _context.SetMatrix(matrix.Value.ToBLMatrix());
+            }
+        }
+
         /// <summary>
         /// Pushes an Identity 2D transformation matrix on top of the currently active transform matrix.
         /// </summary>
         public void PushTransform()
         {
-
+            PushTransform(Matrix2D.Identity);
         }
 
         /// <summary>
@@ -333,7 +394,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PushTransform(Matrix2D matrix)
         {
-
+            _transformStack.Push(matrix);
+            ApplyTransformStack();
         }
 
         /// <summary>
@@ -341,7 +403,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PopTransform()
         {
-
+            _transformStack.Pop();
+            ApplyTransformStack();
         }
 
         /// <summary>
@@ -349,7 +412,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PushingTransform(Matrix2D matrix, Action execute)
         {
-
+            PushTransform(matrix);
+            execute();
+            PopTransform();
         }
 
         /// <summary>
@@ -357,7 +422,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PushingTransform(Action execute)
         {
-
+            PushTransform();
+            execute();
+            PopTransform();
         }
 
         #endregion
@@ -369,7 +436,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void SetStrokeColor(Color color)
         {
-
+            SetStrokeBrush(new InternalSolidBrush(color));
         }
 
         /// <summary>
@@ -377,7 +444,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void SetStrokeBrush(IBrush brush)
         {
-
+            _strokeBrush = CastBrushOrFail(brush);
         }
 
         /// <summary>
@@ -385,7 +452,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void SetFillColor(Color color)
         {
-
+            SetFillBrush(new InternalSolidBrush(color));
         }
 
         /// <summary>
@@ -393,7 +460,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void SetFillBrush(IBrush brush)
         {
-
+            _fillBrush = CastBrushOrFail(brush);
         }
 
         /// <summary>
@@ -401,7 +468,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public ILinearGradientBrush CreateLinearGradientBrush(IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
         {
-            throw new NotImplementedException();
+            var brush = new InternalLinearBrush(gradientStops, start, end);
+            return brush;
         }
 
         /// <summary>
@@ -483,6 +551,8 @@ namespace PixDirectX.Rendering.Blend2D
                     return;
 
                 base.LoadBrush(context);
+
+                context.SetStrokeStyle(unchecked((uint) Color.ToArgb()));
             }
         }
 
@@ -505,6 +575,15 @@ namespace PixDirectX.Rendering.Blend2D
                     return;
 
                 base.LoadBrush(context);
+
+                var gradient = BLGradient.Linear(Start.ToBLPoint(), End.ToBLPoint());
+                
+                foreach (var stop in GradientStops)
+                {
+                    gradient.AddStop(stop.Position, unchecked((uint)stop.Color.ToArgb()));
+                }
+
+                context.SetStrokeStyle(gradient);
             }
 
             public override void UnloadBrush()

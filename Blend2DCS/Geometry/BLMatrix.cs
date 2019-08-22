@@ -50,6 +50,11 @@ namespace Blend2DCS.Geometry
         {
             return $"{{ {M00}, {M01}, {M10}, {M11}, {M20}, {M21} }}";
         }
+
+        public static BLMatrix Identity()
+        {
+            return new BLMatrix(1, 0, 0, 1, 0, 0);
+        }
     }
 
     /// 2D matrix operation.
