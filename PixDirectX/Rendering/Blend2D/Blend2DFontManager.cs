@@ -20,39 +20,28 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using PixRendering;
 
-namespace PixDirectX.Rendering.Gdi
+namespace PixDirectX.Rendering.Blend2D
 {
-    public class GdiFontManager : IFontManager
+    class Blend2DFontManager : IFontManager
     {
         public IReadOnlyList<IFontFamily> GetFontFamilies()
         {
-            return FontFamily.Families.Select(family => new GdiFontFamily(family)).ToArray();
+            return new IFontFamily[0];
         }
 
         public IFont DefaultFont(float size)
         {
-            return new GdiFont(new Font(FontFamily.GenericSansSerif, size));
+            throw new NotImplementedException();
         }
     }
-
-    public class GdiFontFamily : IFontFamily
-    {
-        public string FamilyName => FontFamily.Name;
-
-        public FontFamily FontFamily { get; }
-
-        public GdiFontFamily(FontFamily fontFamily)
-        {
-            FontFamily = fontFamily;
-        }
-    }
-
-    public class GdiFont : IFont
+    public class Blend2DFont : IFont
     {
         public Font Font { get; }
 

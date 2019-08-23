@@ -28,6 +28,8 @@ using Blend2DCS;
 using Blend2DCS.Geometry;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixCore.Text;
+using PixDirectX.Rendering.Gdi;
 using PixDirectX.Utils;
 using PixRendering;
 
@@ -493,6 +495,35 @@ namespace PixDirectX.Rendering.Blend2D
         public IBrush CreateBitmapBrush(IManagedImageResource image)
         {
             throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Font and Text
+
+        public IFontManager GetFontManager()
+        {
+            return new GdiFontManager();
+        }
+
+        public void DrawText(string text, IFont font, AABB area)
+        {
+            var castFont = font as GdiFont ?? throw new ArgumentException($"Expected font of type {typeof(GdiFont)}");
+
+            //_graphics.DrawString(text, castFont.Font, BrushForFill(), (RectangleF)area);
+            
+        }
+
+        public void DrawAttributedText(IAttributedText text, TextFormatAttributes attributes, AABB area)
+        {
+            /*
+            var textRenderer = new GdiTextRenderer(_graphics, Color.Black)
+            {
+                Brush = BrushForFill()
+            };
+
+            textRenderer.Draw(text, attributes, area, Color.Black);
+            */
         }
 
         #endregion
