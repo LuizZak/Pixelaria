@@ -844,7 +844,7 @@ namespace PixUI.Controls
 
             _label.WithTextLayout(layout =>
             {
-                layout.HitTestTextPosition(offset, false, out var x, out var y);
+                layout.HitTestTextPosition(offset, false, out float x, out float y);
                 position = new Vector(x, y);
             });
 

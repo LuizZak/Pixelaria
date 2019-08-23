@@ -28,6 +28,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixCore.Text;
 using PixDirectX.Utils;
 using PixRendering;
 
@@ -339,6 +340,32 @@ namespace PixDirectX.Rendering.Gdi
         {
             var bitmap = CastBitmapOrFail(image);
             return new InternalBitmapBrush(bitmap.bitmap);
+        }
+
+        #endregion
+
+        #region Font and Text
+
+        public IFontManager GetFontManager()
+        {
+            return new GdiFontManager();
+        }
+
+        public void DrawText(string text, IFont font, AABB area)
+        {
+            var castFont = font as GdiFont ?? throw new ArgumentException($"Expected font of type {typeof(GdiFont)}");
+
+            _graphics.DrawString(text, castFont.Font, BrushForFill(), (RectangleF) area);
+        }
+
+        public void DrawAttributedText(IAttributedText text, TextFormatAttributes attributes, AABB area)
+        {
+            var textRenderer = new GdiTextRenderer(_graphics, Color.Black)
+            {
+                Brush = BrushForFill()
+            };
+
+            textRenderer.Draw(text, attributes, area, Color.Black);
         }
 
         #endregion

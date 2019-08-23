@@ -22,11 +22,8 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Text;
-using PixCore.Text.Attributes;
-using PixDirectX.Rendering;
 using PixRendering;
 using Font = System.Drawing.Font;
 
@@ -175,30 +172,8 @@ namespace PixUI.Controls
 
             Debug.Assert(_textLayout != null, "_textLayout != null");
 
-            // TODO: Export text rendering to a separate reusable component
-            context.TextLayoutRenderer.WithPreparedTextLayout(ForeColor, AttributedText, ref _textLayout, TextLayoutAttributes(), (layout, renderer) =>
-            {
-                // Render background segments
-                var backSegments =
-                    AttributedText.GetTextSegments()
-                        .Where(seg => seg.HasAttribute<BackgroundColorAttribute>());
-
-                foreach (var segment in backSegments)
-                {
-                    var attr = segment.GetAttribute<BackgroundColorAttribute>();
-
-                    context.Renderer.SetFillColor(attr.BackColor);
-
-                    var bounds = context.TextMetricsProvider.LocationOfCharacters(segment.TextRange.Start, segment.TextRange.Length, AttributedText, TextLayoutAttributes());
-
-                    foreach (var aabb in bounds)
-                    {
-                        context.Renderer.FillArea(aabb.Inflated(attr.Inflation));
-                    }
-                }
-
-                renderer.Draw(layout, Bounds.Minimum.X, Bounds.Minimum.Y);
-            });
+            context.Renderer.SetFillColor(ForeColor);
+            context.Renderer.DrawAttributedText(AttributedText, TextFormatAttributes(), Bounds);
         }
 
         public void WithTextLayout([NotNull, InstantHandle] Action<ITextLayout> perform)
@@ -217,6 +192,16 @@ namespace PixUI.Controls
             {
                 AvailableWidth = Width,
                 AvailableHeight = Height
+            };
+        }
+
+        public TextFormatAttributes TextFormatAttributes()
+        {
+            return new TextFormatAttributes(TextFont.Name, TextFont.Size)
+            {
+                HorizontalTextAlignment = HorizontalTextAlignment,
+                VerticalTextAlignment = VerticalTextAlignment,
+                WordWrap = TextWordWrap
             };
         }
 

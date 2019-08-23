@@ -32,7 +32,7 @@ namespace PixDirectX.Rendering.DirectX
     public class TextColorRenderer : TextRendererBase
     {
         private RenderTarget _renderTarget;
-        public SolidColorBrush DefaultBrush { get; set; }
+        public Brush DefaultBrush { get; set; }
 
         public TextColorRenderer()
         {
@@ -40,7 +40,7 @@ namespace PixDirectX.Rendering.DirectX
             CppObject.ToCallbackPtr<TextColorRenderer>(this);
         }
 
-        public void AssignResources(RenderTarget renderTarget, SolidColorBrush defaultBrush)
+        public void AssignResources(RenderTarget renderTarget, Brush defaultBrush)
         {
             _renderTarget = renderTarget;
             DefaultBrush = defaultBrush;
