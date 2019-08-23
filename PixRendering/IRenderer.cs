@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixCore.Text;
 
 namespace PixRendering
 {
@@ -248,6 +249,25 @@ namespace PixRendering
         /// Bitmap brushes by default tile the image contents when drawn within bounds that exceed that of the original image's size.
         /// </summary>
         IBrush CreateBitmapBrush([NotNull] IManagedImageResource image);
+
+        #endregion
+
+        #region Text and Font
+
+        /// <summary>
+        /// Gets the font manager for this renderer.
+        /// </summary>
+        IFontManager GetFontManager();
+
+        /// <summary>
+        /// Draws a text string on a given area with a given font.
+        /// </summary>
+        void DrawText(string text, [NotNull] IFont font, AABB area);
+
+        /// <summary>
+        /// Draws an attributed text on a given area with a given font.
+        /// </summary>
+        void DrawAttributedText([NotNull] IAttributedText text, TextFormatAttributes attributes, AABB area);
 
         #endregion
     }
