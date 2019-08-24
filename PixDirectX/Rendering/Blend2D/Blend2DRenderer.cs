@@ -275,7 +275,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
         public void DrawBitmap(ImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
+            AdjustInterpolationMode(interpolationMode);
 
+            DrawBitmap(image, (AABB)region, opacity, interpolationMode, tintColor);
         }
 
         /// <summary>
@@ -288,7 +290,12 @@ namespace PixDirectX.Rendering.Blend2D
         /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
         public void DrawBitmap(ImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
+            AdjustInterpolationMode(interpolationMode);
 
+            var bitmap = _imageResources.BitmapForResource(image) ??
+                         throw new InvalidOperationException($"No image found for resource ${image.ResourceName}");
+
+            _context.BlitImage(bitmap, new BLRectI(0, 0, bitmap.Width, bitmap.Height), region.ToBLRect());
         }
 
         /// <summary>
@@ -301,7 +308,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
         public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
+            AdjustInterpolationMode(interpolationMode);
 
+            DrawBitmap(image, (AABB)region, opacity, interpolationMode, tintColor);
         }
 
         /// <summary>
@@ -314,7 +323,26 @@ namespace PixDirectX.Rendering.Blend2D
         /// <param name="tintColor">A color to use as a tinting color for the bitmap. If null, no color tinting is performed.</param>
         public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
+            AdjustInterpolationMode(interpolationMode);
 
+            var bitmap = CastBitmapOrFail(image);
+
+            _context.BlitImage(bitmap.Bitmap, new BLRectI(0, 0, bitmap.Width, bitmap.Height), region.ToBLRect());
+        }
+
+        private void AdjustInterpolationMode(ImageInterpolationMode interpolationMode)
+        {
+            switch (interpolationMode)
+            {
+                case ImageInterpolationMode.NearestNeighbor:
+                    _context.SetPatternQuality(BLPatternQuality.Nearest);
+                    break;
+                case ImageInterpolationMode.Linear:
+                    _context.SetPatternQuality(BLPatternQuality.Bilinear);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(interpolationMode), interpolationMode, null);
+            }
         }
 
         #endregion
@@ -503,27 +531,21 @@ namespace PixDirectX.Rendering.Blend2D
 
         public IFontManager GetFontManager()
         {
-            return new GdiFontManager();
+            return new Blend2DFontManager();
         }
 
         public void DrawText(string text, IFont font, AABB area)
         {
-            var castFont = font as GdiFont ?? throw new ArgumentException($"Expected font of type {typeof(GdiFont)}");
+            var castFont = font as Blend2DFont ?? throw new ArgumentException($"Expected font of type {typeof(Blend2DFont)}");
 
-            //_graphics.DrawString(text, castFont.Font, BrushForFill(), (RectangleF)area);
-            
+            _context.FillText(area.Minimum.ToBLPoint(), castFont.Font, text);
         }
 
         public void DrawAttributedText(IAttributedText text, TextFormatAttributes attributes, AABB area)
         {
-            /*
-            var textRenderer = new GdiTextRenderer(_graphics, Color.Black)
-            {
-                Brush = BrushForFill()
-            };
+            var font = (Blend2DFont)GetFontManager().DefaultFont(attributes.FontSize);
 
-            textRenderer.Draw(text, attributes, area, Color.Black);
-            */
+            _context.FillText(area.Minimum.ToBLPoint(), font.Font, text.String);
         }
 
         #endregion

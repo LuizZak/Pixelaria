@@ -25,15 +25,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Blend2DCS;
-using Blend2DCS.Geometry;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using PixDirectX.Rendering.Blend2D;
-using PixDirectX.Rendering.Gdi;
 using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -66,6 +63,9 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ControlOnResize(object sender, EventArgs e)
         {
+            if (_control.Width == 0 || _control.Height == 0)
+                return;
+
             _bitmap.Dispose();
             _bitmap = new Bitmap(_control.Width, _control.Height, PixelFormat.Format32bppPArgb);
         }
@@ -100,7 +100,6 @@ namespace Pixelaria.Views.ExportPipeline
 
             var graphics = e.Graphics;
 
-            //_renderState = RenderStateFromGraphics(graphics, _renderState.FrameRenderDeltaTime);
             using (var fastBitmap = _bitmap.FastLock())
             using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride))
             using (var context = new BLContext(image))
@@ -111,7 +110,9 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     _renderManager.Render(_renderState, _clippingRegion);
                 }
-                
+
+                _clippingRegion.Clear();
+
                 context.Flush();
                 var imageData = image.GetData();
                 FastBitmap.memcpy(fastBitmap.Scan0, imageData.PixelData, (ulong)(fastBitmap.Stride * fastBitmap.Height * FastBitmap.BytesPerPixel));

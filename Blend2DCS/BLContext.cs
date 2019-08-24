@@ -80,6 +80,21 @@ namespace Blend2DCS
             UnsafeContextCore.blContextFlush(ref Context, 0);
         }
 
+        public void SetPatternQuality(BLPatternQuality quality)
+        {
+            UnsafeContextCore.blContextSetHint(ref Context, BLContextHint.PatternQuality, (uint) quality);
+        }
+
+        public void SetGradientQuality(BLGradientQuality quality)
+        {
+            UnsafeContextCore.blContextSetHint(ref Context, BLContextHint.GradientQuality, (uint)quality);
+        }
+
+        public void SetRenderingQuality(BLRenderingQuality quality)
+        {
+            UnsafeContextCore.blContextSetHint(ref Context, BLContextHint.RenderingQuality, (uint)quality);
+        }
+
         #region Stroke
 
         public void SetStrokeWidth(double strokeWidth)
@@ -177,6 +192,28 @@ namespace Blend2DCS
 
         #endregion
 
+        #region Text
+
+        public void FillText(BLPoint pt, BLFont font, string text)
+        {
+            UnsafeContextCore.blContextFillTextD(ref Context, ref pt, ref font.Font, text, text.Length, BLTextEncoding.UTF16);
+        }
+
+        #endregion
+
+        #region Image
+
+        public void BlitImage(BLImage image, BLRectI imageArea, BLPoint point)
+        {
+            UnsafeContextCore.blContextBlitImageD(ref Context, ref point, ref image.Image, ref imageArea);
+        }
+
+        public void BlitImage(BLImage image, BLRectI imageArea, BLRect area)
+        {
+            UnsafeContextCore.blContextBlitScaledImageD(ref Context, ref area, ref image.Image, ref imageArea);
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -266,5 +303,61 @@ namespace Blend2DCS
         /// Override CPU features when creating isolated context.
         /// </summary>
         OverrideCpuFeatures = 0x00000040u
+    }
+
+    /// <summary>
+    /// Rendering context hint.
+    /// </summary>
+    public enum BLContextHint : uint
+    {
+        /// <summary>
+        /// Rendering quality.
+        /// </summary>
+        RenderingQuality = 0,
+        /// <summary>
+        /// Gradient quality.
+        /// </summary>
+        GradientQuality = 1,
+        /// <summary>
+        /// Pattern quality.
+        /// </summary>
+        PatternQuality = 2
+    }
+
+    /// <summary>
+    /// Gradient rendering quality.
+    /// </summary>
+    public enum BLGradientQuality : uint
+    {
+        /// <summary>
+        /// Nearest neighbor.
+        /// </summary>
+        Nearest = 0
+    }
+
+    /// <summary>
+    /// Pattern quality.
+    /// </summary>
+    public enum BLPatternQuality : uint
+    {
+        /// <summary>
+        /// Nearest neighbor.
+        /// </summary>
+        Nearest = 0,
+        /// <summary>
+        /// Bilinear.
+        /// </summary>
+        Bilinear = 1
+    }
+
+    /// <summary>
+    /// Rendering quality.
+    /// </summary>
+    public enum BLRenderingQuality : uint
+    {
+        /// <summary>
+        /// Render using anti-aliasing.
+        /// </summary>
+        Antialias = 0
     }
 }

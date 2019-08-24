@@ -116,6 +116,30 @@ namespace PixDirectX.Utils
 
         #endregion
 
+        #region AABB / BLRectI
+
+        /// <summary>
+        /// Converts a <see cref="BLRectI"/> to an equivalent <see cref="AABB"/> value.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public static AABB ToAABB(this BLRectI rec)
+        {
+            return AABB.FromRectangle(rec.X, rec.Y, rec.Width, rec.Height);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="AABB"/> to an equivalent <see cref="BLRectI"/> value.
+        ///
+        /// The floating-point components of the rectangle area are rounded down during the
+        /// conversion.
+        /// </summary>
+        public static BLRectI ToBLRectI(this AABB rec)
+        {
+            return new BLRectI((int)rec.Left, (int)rec.Top, (int)rec.Width, (int)rec.Height);
+        }
+
+        #endregion
+
         #region Matrix2D / RawMatrix3x2 / Matrix3x2
 
         /// <summary>

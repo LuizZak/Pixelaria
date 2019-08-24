@@ -22,15 +22,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Blend2DCS;
+using JetBrains.Annotations;
 using PixRendering;
 
 namespace PixDirectX.Rendering.Blend2D
 {
     class Blend2DFontManager : IFontManager
     {
+        private static Dictionary<string, List<FontInformation>> _fontNameToFiles;
+
         public IReadOnlyList<IFontFamily> GetFontFamilies()
         {
             return new IFontFamily[0];
@@ -38,22 +42,97 @@ namespace PixDirectX.Rendering.Blend2D
 
         public IFont DefaultFont(float size)
         {
-            throw new NotImplementedException();
+            var sansSerif = GetFilesForFont("Sans Serif");
+            var fontFace = new BLFontFace(sansSerif[0].FileName, 0);
+
+            return new Blend2DFont(new BLFont(fontFace, size), sansSerif[0].FontName, sansSerif[0].FamilyName, size);
+        }
+
+        /// <summary>
+        /// This is a brute force way of finding the files that represent a particular
+        /// font family.
+        /// The first call may be quite slow.
+        /// Only finds font files that are installed in the standard directory.
+        /// Will not discover font files installed after the first call.
+        /// </summary>
+        /// <returns>enumeration of file paths (possibly none) that contain data
+        /// for the specified font name</returns>
+        private static IReadOnlyList<FontInformation> GetFilesForFont([NotNull] string fontName)
+        {
+            if (_fontNameToFiles == null)
+            {
+                _fontNameToFiles = new Dictionary<string, List<FontInformation>>();
+                foreach (string fontFile in Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.Fonts)))
+                {
+                    if (!fontFile.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var fc = new PrivateFontCollection();
+                    try
+                    {
+                        fc.AddFontFile(fontFile);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        continue; // not sure how this can happen but I've seen it.
+                    }
+
+                    string name = fc.Families[0].Name;
+                    // If you care about bold, italic, etc, you can filter here.
+                    if (!_fontNameToFiles.TryGetValue(name, out var files))
+                    {
+                        files = new List<FontInformation>();
+                        _fontNameToFiles[name] = files;
+                    }
+
+                    var fontInformation = new FontInformation(fontFile, name, name);
+
+                    files.Add(fontInformation);
+                }
+            }
+
+            var list = new List<FontInformation>();
+            foreach (var keyValuePair in _fontNameToFiles.Where(keyValuePair => keyValuePair.Key.ToLower().Contains(fontName.ToLower())))
+            {
+                list.AddRange(keyValuePair.Value);
+            }
+
+            return list;
+        }
+
+        private struct FontInformation
+        {
+            public string FileName { get; }
+
+            public string FontName { get; }
+
+            public string FamilyName { get; }
+
+            public FontInformation(string fileName, string fontName, string familyName)
+            {
+                FileName = fileName;
+                FontName = fontName;
+                FamilyName = familyName;
+            }
         }
     }
+
     public class Blend2DFont : IFont
     {
-        public Font Font { get; }
+        public BLFont Font { get; }
 
-        public string FamilyName => Font.FontFamily.Name;
+        public string FamilyName { get; }
 
-        public float FontSize => Font.Size;
+        public float FontSize { get; }
 
-        public string Name => Font.Name;
+        public string Name { get; }
 
-        public GdiFont(Font font)
+        public Blend2DFont(BLFont font, string fontName, string fontFamily, float fontSize)
         {
             Font = font;
+            FamilyName = fontFamily;
+            Name = fontName;
+            FontSize = fontSize;
         }
 
         public void Dispose()

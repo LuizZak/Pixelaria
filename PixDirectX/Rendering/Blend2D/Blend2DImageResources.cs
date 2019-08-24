@@ -114,7 +114,7 @@ namespace PixDirectX.Rendering.Blend2D
             var image = new BLImage(bitmap.Width, bitmap.Height, BLFormat.Prgb32);
             var imageData = image.GetData();
 
-            using (var fastBitmap = bitmap.FastLock())
+            using (var fastBitmap = bitmap.FastLock(FastBitmapLockFormat.Format32bppPArgb))
             {
                 Marshal.Copy(fastBitmap.DataArray, 0, imageData.PixelData, fastBitmap.Width * fastBitmap.Height);
             }

@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Blend2DCS.Geometry
@@ -28,6 +29,7 @@ namespace Blend2DCS.Geometry
     /// <summary>
     /// Point specified as [x, y] using <see cref="double"/> as a storage type.
     /// </summary>
+    [DebuggerDisplay("[{X}, {Y}]")]
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     public struct BLPoint: IEquatable<BLPoint>
     {

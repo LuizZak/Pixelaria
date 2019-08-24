@@ -56,4 +56,27 @@ namespace Blend2DCS
             ReleaseUnmanagedResources();
         }
     }
+
+    /// <summary>
+    /// Text encoding.
+    /// </summary>
+    public enum BLTextEncoding : uint
+    {
+        /// <summary>
+        /// UTF-8 encoding.
+        /// </summary>
+        UTF8 = 0,
+        /// <summary>
+        /// UTF-16 encoding (native endian).
+        /// </summary>
+        UTF16 = 1,
+        /// <summary>
+        /// UTF-32 encoding (native endian).
+        /// </summary>
+        UTF32 = 2,
+        /// <summary>
+        /// LATIN1 encoding (one byte per character).
+        /// </summary>
+        Latin1 = 3,
+    };
 }

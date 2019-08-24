@@ -37,7 +37,7 @@ namespace Blend2DCS.Internal
         public static extern uint blFontFaceInit(ref BLFontFaceCore context);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blFontLoaderCreateFromFile(ref BLFontFaceCore context, string fileName, BLFileReadFlags readFlags);
+        public static extern uint blFontLoaderCreateFromFile(ref BLFontFaceCore context, [MarshalAs(UnmanagedType.LPWStr)] string fileName, BLFileReadFlags readFlags);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blFontLoaderCreateFromData(ref BLFontFaceCore context, IntPtr data, int size, IntPtr destroyFunc, IntPtr destroyData);

@@ -32,6 +32,10 @@ namespace Blend2DCS
 
         public BLSizeI Size => Image.GetImplementation().Size;
 
+        public int Width => Size.Width;
+
+        public int Height => Size.Height;
+
         public BLImage()
         {
             Image = new BLImageCore();

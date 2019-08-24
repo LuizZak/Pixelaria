@@ -39,6 +39,7 @@ namespace Blend2DCS.Internal
     /// <summary>
     /// Image [C Interface - Impl].
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     internal struct BLImageImpl
     {
         /// <summary>
@@ -48,7 +49,7 @@ namespace Blend2DCS.Internal
         /// <summary>
         /// Image stride.
         /// </summary>
-        public int Stride;
+        public IntPtr Stride;
         /// <summary>
         /// Non-null if the image has a writer.
         /// </summary>
@@ -57,7 +58,7 @@ namespace Blend2DCS.Internal
         /// <summary>
         /// Reference count.
         /// </summary>
-        public int RefCount;
+        public IntPtr RefCount;
         /// <summary>
         /// Impl type.
         /// </summary>

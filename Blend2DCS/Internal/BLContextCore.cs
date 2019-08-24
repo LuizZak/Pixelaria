@@ -44,6 +44,9 @@ namespace Blend2DCS.Internal
         public static extern uint blContextReset(ref BLContextCore context);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFlush(ref BLContextCore context, uint flags);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextGetUserMatrix(ref BLContextCore context, ref BLMatrix matrix);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
@@ -56,7 +59,7 @@ namespace Blend2DCS.Internal
         public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLPoint point);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blContextFlush(ref BLContextCore context, uint flags);
+        public static extern uint blContextSetHint(ref BLContextCore self, BLContextHint hintType, uint value);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextSetFillStyleRgba32(ref BLContextCore context, uint color);
@@ -114,5 +117,14 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextRestoreClipping(ref BLContextCore context);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextFillTextD(ref BLContextCore context, ref BLPoint pt, ref BLFontCore font, [MarshalAs(UnmanagedType.LPWStr)] string text, int size, BLTextEncoding textEncoding);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextBlitImageD(ref BLContextCore self, ref BLPoint rect, ref BLImageCore img, ref BLRectI imgArea);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextBlitScaledImageD(ref BLContextCore self, ref BLRect rect, ref BLImageCore img, ref BLRectI imgArea);
     }
 }
