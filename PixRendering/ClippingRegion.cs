@@ -47,6 +47,8 @@ namespace PixRendering
 
         public ClippingRegion([NotNull] IEnumerable<RectangleF> rects, bool areDissected)
         {
+            _rectangles = new List<RectangleF>();
+
             _needsDissect = areDissected;
             _rectangles.AddRange(rects);
         }

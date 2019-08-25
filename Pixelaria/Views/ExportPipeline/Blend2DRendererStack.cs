@@ -82,9 +82,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         public IRenderManager Initialize([NotNull] Control control)
         {
-            var graphics = control.CreateGraphics();
-
-            WithRenderStateFromGraphics(graphics, state =>
+            WithRenderState(state =>
             {
                 _renderState = state;
                 _renderManager.Initialize(_renderState);
@@ -100,22 +98,15 @@ namespace Pixelaria.Views.ExportPipeline
 
             var graphics = e.Graphics;
 
-            using (var fastBitmap = _bitmap.FastLock())
-            using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride))
+            using (var fastBitmap = _bitmap.FastLock(FastBitmapLockFormat.Format32bppPArgb))
+            using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride * 4))
             using (var context = new BLContext(image))
             {
                 _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
 
-                if (!_clippingRegion.IsEmpty())
-                {
-                    _renderManager.Render(_renderState, _clippingRegion);
-                }
-
-                _clippingRegion.Clear();
+                _renderManager.Render(_renderState, new ClippingRegion(new[] { (RectangleF)e.ClipRectangle }, true));
 
                 context.Flush();
-                var imageData = image.GetData();
-                FastBitmap.memcpy(fastBitmap.Scan0, imageData.PixelData, (ulong)(fastBitmap.Stride * fastBitmap.Height * FastBitmap.BytesPerPixel));
             }
 
             graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -123,20 +114,16 @@ namespace Pixelaria.Views.ExportPipeline
             graphics.DrawImage(_bitmap, Point.Empty);
         }
 
-        private void WithRenderStateFromGraphics([NotNull] Graphics graphics, [NotNull] Action<Blend2DRenderLoopState> execute)
+        private void WithRenderState([NotNull] Action<Blend2DRenderLoopState> execute)
         {
-            //_renderState = RenderStateFromGraphics(graphics, _renderState.FrameRenderDeltaTime);
-            using (var fastBitmap = _bitmap.FastLock())
-            {
-                var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride);
-                var context = new BLContext(image);
+            var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32);
+            var context = new BLContext(image);
 
-                _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
+            _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
 
-                execute(_renderState);
+            execute(_renderState);
 
-                context.Flush();
-            }
+            context.Flush();
         }
 
         public void ConfigureRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
@@ -159,6 +146,7 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         _control.Invalidate(new Region(rectangle));
                     }
+                    _clippingRegion.Clear();
                 }
 
                 Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));

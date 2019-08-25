@@ -51,7 +51,7 @@ namespace Blend2DCS
         public BLImage(int width, int height, BLFormat format, IntPtr pixelData, int stride)
         {
             Image = new BLImageCore();
-            UnsafeImageCore.blImageInitAs(ref Image, width, height, format, pixelData, stride, IntPtr.Zero, IntPtr.Zero);
+            UnsafeImageCore.blImageInitAsFromData(ref Image, width, height, (uint) format, pixelData, (IntPtr) stride, IntPtr.Zero, IntPtr.Zero);
         }
 
         ~BLImage()

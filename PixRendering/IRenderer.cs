@@ -262,7 +262,7 @@ namespace PixRendering
         /// <summary>
         /// Draws a text string on a given area with a given font.
         /// </summary>
-        void DrawText(string text, [NotNull] IFont font, AABB area);
+        void DrawText([NotNull] string text, [NotNull] IFont font, AABB area);
 
         /// <summary>
         /// Draws an attributed text on a given area with a given font.

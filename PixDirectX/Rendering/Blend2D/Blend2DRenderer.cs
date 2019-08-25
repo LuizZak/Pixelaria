@@ -29,7 +29,6 @@ using Blend2DCS.Geometry;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
-using PixDirectX.Rendering.Gdi;
 using PixDirectX.Utils;
 using PixRendering;
 
