@@ -194,9 +194,11 @@ namespace Blend2DCS
         #endregion
 
         #region Text
-
+        
         public void FillText(BLPoint pt, [NotNull] BLFont font, [NotNull] string text)
         {
+            pt.Y += font.GetMetrics().Ascent;
+
             NativeStringHelper.WithNullTerminatedUtf8String(text, (ptr, size) =>
             {
                 UnsafeContextCore.blContextFillTextD(ref Context, ref pt, ref font.Font, ptr, size, BLTextEncoding.UTF8);

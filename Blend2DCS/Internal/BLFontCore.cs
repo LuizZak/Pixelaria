@@ -41,5 +41,11 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blFontCreateFromFace(ref BLFontCore context, ref BLFontFaceCore fontFace, float size);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blFontGetMetrics(ref BLFontCore self, ref BLFontMetrics metricsOut);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blFontGetDesignMetrics(ref BLFontCore self, ref BLFontDesignMetrics metricsOut);
     }
 }
