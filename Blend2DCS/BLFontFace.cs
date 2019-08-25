@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Text;
 using Blend2DCS.Internal;
 
 namespace Blend2DCS
@@ -41,7 +42,11 @@ namespace Blend2DCS
         public BLFontFace(string fileName, BLFileReadFlags flags)
         {
             Exceptions.ThrowOnError(UnsafeFontFaceCore.blFontFaceInit(ref FontFace));
-            Exceptions.ThrowOnError(UnsafeFontFaceCore.blFontLoaderCreateFromFile(ref FontFace, fileName, flags));
+
+            NativeStringHelper.WithNullTerminatedUtf8String(fileName, (ptr, _) =>
+            {
+                Exceptions.ThrowOnError(UnsafeFontFaceCore.blFontFaceCreateFromFile(ref FontFace, ptr, flags));
+            });
         }
 
         ~BLFontFace()

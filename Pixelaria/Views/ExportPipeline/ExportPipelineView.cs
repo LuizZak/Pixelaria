@@ -112,6 +112,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             exportPipelineControl.InitializeRenderer(renderManager);
             exportPipelineControl.InvalidateAll();
+            exportPipelineControl.BackColor = Color.Black;
 
             ConfigureForm(renderManager, _rendererStack.RenderingState ?? throw new InvalidOperationException("No initial rendering state available"));
 

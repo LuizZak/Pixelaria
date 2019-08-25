@@ -44,7 +44,7 @@ namespace PixDirectX.Rendering.Blend2D
         private IRenderLoopState _lastRenderingState;
         public BLContext Context { get; set; }
 
-        public Color BackColor { get; set; }
+        public Color BackColor { get; set; } = Color.Black;
 
         public IImageResourceManager ImageResources => _imageResources;
 

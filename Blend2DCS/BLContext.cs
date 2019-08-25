@@ -24,6 +24,7 @@ using System;
 using System.Runtime.InteropServices;
 using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
+using JetBrains.Annotations;
 
 namespace Blend2DCS
 {
@@ -194,11 +195,12 @@ namespace Blend2DCS
 
         #region Text
 
-        public void FillText(BLPoint pt, BLFont font, string text)
+        public void FillText(BLPoint pt, [NotNull] BLFont font, [NotNull] string text)
         {
-            var ptr = Marshal.StringToHGlobalUni(text);
-            UnsafeContextCore.blContextFillTextD(ref Context, ref pt, ref font.Font, ptr, text.Length, BLTextEncoding.UTF16);
-            Marshal.FreeHGlobal(ptr);
+            NativeStringHelper.WithNullTerminatedUtf8String(text, (ptr, size) =>
+            {
+                UnsafeContextCore.blContextFillTextD(ref Context, ref pt, ref font.Font, ptr, size, BLTextEncoding.UTF8);
+            });
         }
 
         #endregion

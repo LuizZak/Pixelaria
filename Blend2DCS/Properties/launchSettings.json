@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Blend2DCS": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -22,6 +22,7 @@
 
 using System;
 using Blend2DCS.Internal;
+using JetBrains.Annotations;
 
 namespace Blend2DCS
 {
@@ -34,10 +35,10 @@ namespace Blend2DCS
             UnsafeFontCore.blFontInit(ref Font);
         }
 
-        public BLFont(BLFontFace face, float size)
+        public BLFont([NotNull] BLFontFace face, float size)
         {
-            UnsafeFontCore.blFontInit(ref Font);
-            UnsafeFontCore.blFontCreateFromFace(ref Font, ref face.FontFace, size);
+            Exceptions.ThrowOnError(UnsafeFontCore.blFontInit(ref Font));
+            Exceptions.ThrowOnError(UnsafeFontCore.blFontCreateFromFace(ref Font, ref face.FontFace, size));
         }
 
         private void ReleaseUnmanagedResources()

@@ -119,9 +119,6 @@ namespace Blend2DCS.Internal
         public static extern uint blContextRestoreClipping(ref BLContextCore context);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blContextFillTextD(ref BLContextCore context, ref BLPoint pt, ref BLFontCore font, [MarshalAs(UnmanagedType.LPWStr)] string text, int size, BLTextEncoding textEncoding);
-
-        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextFillTextD(ref BLContextCore context, ref BLPoint pt, ref BLFontCore font, IntPtr text, int size, BLTextEncoding textEncoding);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
