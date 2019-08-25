@@ -20,8 +20,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Internal\" />
-  </ItemGroup>
-
 </Project>

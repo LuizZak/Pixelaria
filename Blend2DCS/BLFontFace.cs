@@ -40,8 +40,8 @@ namespace Blend2DCS
 
         public BLFontFace(string fileName, BLFileReadFlags flags)
         {
-            UnsafeFontFaceCore.blFontFaceInit(ref FontFace);
-            UnsafeFontFaceCore.blFontLoaderCreateFromFile(ref FontFace, fileName, flags);
+            Exceptions.ThrowOnError(UnsafeFontFaceCore.blFontFaceInit(ref FontFace));
+            Exceptions.ThrowOnError(UnsafeFontFaceCore.blFontLoaderCreateFromFile(ref FontFace, fileName, flags));
         }
 
         ~BLFontFace()

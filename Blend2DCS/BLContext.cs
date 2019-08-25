@@ -196,7 +196,9 @@ namespace Blend2DCS
 
         public void FillText(BLPoint pt, BLFont font, string text)
         {
-            UnsafeContextCore.blContextFillTextD(ref Context, ref pt, ref font.Font, text, text.Length, BLTextEncoding.UTF16);
+            var ptr = Marshal.StringToHGlobalUni(text);
+            UnsafeContextCore.blContextFillTextD(ref Context, ref pt, ref font.Font, ptr, text.Length, BLTextEncoding.UTF16);
+            Marshal.FreeHGlobal(ptr);
         }
 
         #endregion
