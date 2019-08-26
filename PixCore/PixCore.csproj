@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Clipper" Version="6.4.0" />
-    <PackageReference Include="FastBitmapLib" Version="1.2.0" />
+    <PackageReference Include="FastBitmapLib" Version="1.3.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
   </ItemGroup>
   <ItemGroup>
