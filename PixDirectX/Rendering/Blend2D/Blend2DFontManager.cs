@@ -33,7 +33,9 @@ namespace PixDirectX.Rendering.Blend2D
 {
     class Blend2DFontManager : IFontManager
     {
-        private static Dictionary<string, List<FontInformation>> _fontNameToFiles;
+        private IReadOnlyList<FontInformation> _sansSerifFontFiles;
+        private BLFontFace _defaultFontFace;
+        private Dictionary<string, List<FontInformation>> _fontNameToFiles;
 
         public IReadOnlyList<IFontFamily> GetFontFamilies()
         {
@@ -42,10 +44,17 @@ namespace PixDirectX.Rendering.Blend2D
 
         public IFont DefaultFont(float size)
         {
-            var sansSerif = GetFilesForFont("Sans Serif");
-            var fontFace = new BLFontFace(sansSerif[0].FileName, 0);
+            if (_sansSerifFontFiles == null)
+            {
+                _sansSerifFontFiles = GetFilesForFont("Sans Serif");
+            }
 
-            return new Blend2DFont(new BLFont(fontFace, size), sansSerif[0].FontName, sansSerif[0].FamilyName, size);
+            if (_defaultFontFace == null)
+            {
+                _defaultFontFace = new BLFontFace(_sansSerifFontFiles[0].FileName, 0);
+            }
+
+            return new Blend2DFont(new BLFont(_defaultFontFace, size), _sansSerifFontFiles[0].FontName, _sansSerifFontFiles[0].FamilyName, size);
         }
 
         /// <summary>
@@ -57,7 +66,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         /// <returns>enumeration of file paths (possibly none) that contain data
         /// for the specified font name</returns>
-        private static IReadOnlyList<FontInformation> GetFilesForFont([NotNull] string fontName)
+        private IReadOnlyList<FontInformation> GetFilesForFont([NotNull] string fontName)
         {
             if (_fontNameToFiles == null)
             {

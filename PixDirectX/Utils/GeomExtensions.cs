@@ -191,17 +191,17 @@ namespace PixDirectX.Utils
         #region Matrix2D / BLMatrix
 
         /// <summary>
-        /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="BLMatrix"/> value.
+        /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="BLMatrix2D"/> value.
         /// </summary>
-        public static unsafe BLMatrix ToBLMatrix(this Matrix2D matrix)
+        public static BLMatrix2D ToBLMatrix2D(this Matrix2D matrix)
         {
-            return new BLMatrix(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
+            return new BLMatrix2D(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
         }
 
         /// <summary>
-        /// Converts a <see cref="BLMatrix"/> to an equivalent <see cref="Matrix2D"/> value.
+        /// Converts a <see cref="BLMatrix2D"/> to an equivalent <see cref="Matrix2D"/> value.
         /// </summary>
-        public static Matrix2D ToMatrix2D(this BLMatrix matrix)
+        public static Matrix2D ToMatrix2D(this BLMatrix2D matrix)
         {
             return new Matrix2D((float) matrix.M00, (float) matrix.M01, (float) matrix.M10, (float) matrix.M11, (float) matrix.M20, (float) matrix.M21);
         }

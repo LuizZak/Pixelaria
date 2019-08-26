@@ -32,11 +32,11 @@ namespace Blend2DCS
     {
         internal BLContextCore Context;
 
-        public BLMatrix UserMatrix
+        public BLMatrix2D UserMatrix
         {
             get
             {
-                var matrix = new BLMatrix();
+                var matrix = new BLMatrix2D();
                 UnsafeContextCore.blContextGetUserMatrix(ref Context, ref matrix);
                 return matrix;
             }
@@ -70,7 +70,7 @@ namespace Blend2DCS
             GC.SuppressFinalize(this);
         }
 
-        public void SetMatrix(BLMatrix matrix)
+        public void SetMatrix(BLMatrix2D matrix)
         {
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Reset, IntPtr.Zero);
             UnsafeContextCore.blContextMatrixOp(ref Context, (uint) BLMatrix2DOp.Transform, ref matrix);
@@ -113,6 +113,11 @@ namespace Blend2DCS
             UnsafeContextCore.blContextSetStrokeStyle(ref Context, ref gradient.Gradient);
         }
 
+        public void SetStrokeStyle([NotNull] BLPattern pattern)
+        {
+            UnsafeContextCore.blContextSetStrokeStyle(ref Context, ref pattern.Pattern);
+        }
+
         public void StrokePath([NotNull] BLPath path)
         {
             UnsafeContextCore.blContextStrokePathD(ref Context, ref path.Path);
@@ -150,6 +155,11 @@ namespace Blend2DCS
         public void SetFillStyle([NotNull] BLGradient gradient)
         {
             UnsafeContextCore.blContextSetFillStyle(ref Context, ref gradient.Gradient);
+        }
+
+        public void SetFillStyle([NotNull] BLPattern pattern)
+        {
+            UnsafeContextCore.blContextSetFillStyle(ref Context, ref pattern.Pattern);
         }
 
         public void FillPath([NotNull] BLPath path)

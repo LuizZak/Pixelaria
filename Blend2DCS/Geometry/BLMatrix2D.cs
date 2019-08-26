@@ -27,7 +27,7 @@ namespace Blend2DCS.Geometry
 {
     [DebuggerDisplay("[{M00}, {M01}, {M10}, {M11}, {M20}, {M21}]")]
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    public struct BLMatrix
+    public struct BLMatrix2D
     {
         public double M00;
         public double M01;
@@ -36,7 +36,7 @@ namespace Blend2DCS.Geometry
         public double M20;
         public double M21;
 
-        public BLMatrix(double m00, double m01, double m10, double m11, double m20, double m21)
+        public BLMatrix2D(double m00, double m01, double m10, double m11, double m20, double m21)
         {
             M00 = m00;
             M01 = m01;
@@ -51,9 +51,9 @@ namespace Blend2DCS.Geometry
             return $"{{ {M00}, {M01}, {M10}, {M11}, {M20}, {M21} }}";
         }
 
-        public static BLMatrix Identity()
+        public static BLMatrix2D Identity()
         {
-            return new BLMatrix(1, 0, 0, 1, 0, 0);
+            return new BLMatrix2D(1, 0, 0, 1, 0, 0);
         }
     }
 

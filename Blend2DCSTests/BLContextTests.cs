@@ -36,13 +36,13 @@ namespace Blend2DCSTests
 
             var matrix = sut.UserMatrix;
 
-            Assert.AreEqual(new BLMatrix(1, 0, 0, 1, 0, 0), matrix);
+            Assert.AreEqual(new BLMatrix2D(1, 0, 0, 1, 0, 0), matrix);
         }
 
         [TestMethod]
         public void TestSetMatrix()
         {
-            var matrix = new BLMatrix(3, 5, 5, 3, 10, 100);
+            var matrix = new BLMatrix2D(3, 5, 5, 3, 10, 100);
             var sut = CreateContext();
 
             sut.SetMatrix(matrix);

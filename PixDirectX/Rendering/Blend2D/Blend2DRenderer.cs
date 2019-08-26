@@ -44,6 +44,7 @@ namespace PixDirectX.Rendering.Blend2D
 
         private readonly Blend2DImageResources _imageResources;
         private readonly BLContext _context;
+        private readonly Blend2DFontManager _fontManager = new Blend2DFontManager();
 
         /// <summary>
         /// Gets or sets the topmost active transformation matrix.
@@ -51,7 +52,7 @@ namespace PixDirectX.Rendering.Blend2D
         public Matrix2D Transform 
         {
             get => _context.UserMatrix.ToMatrix2D();
-            set => _context.SetMatrix(value.ToBLMatrix());
+            set => _context.SetMatrix(value.ToBLMatrix2D());
         }
 
         public Blend2DRenderer(BLContext context, Blend2DImageResources imageResources)
@@ -400,13 +401,13 @@ namespace PixDirectX.Rendering.Blend2D
 
         private void ApplyTransformStack()
         {
-            _context.SetMatrix(BLMatrix.Identity());
+            _context.SetMatrix(BLMatrix2D.Identity());
 
             var matrix = ComputeTransformStack();
 
             if (matrix != null)
             {
-                _context.SetMatrix(matrix.Value.ToBLMatrix());
+                _context.SetMatrix(matrix.Value.ToBLMatrix2D());
             }
         }
 
@@ -511,7 +512,10 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public IBrush CreateBitmapBrush(ImageResource image)
         {
-            throw new NotImplementedException();
+            var bitmap = _imageResources.BitmapForResource(image) ??
+                         throw new InvalidOperationException($"No image found for resource ${image.ResourceName}");
+
+            return new InternalBitmapBrush(bitmap);
         }
 
         /// <summary>
@@ -521,7 +525,8 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public IBrush CreateBitmapBrush(IManagedImageResource image)
         {
-            throw new NotImplementedException();
+            var bitmap = CastBitmapOrFail(image);
+            return new InternalBitmapBrush(bitmap.Bitmap);
         }
 
         #endregion
@@ -530,7 +535,7 @@ namespace PixDirectX.Rendering.Blend2D
 
         public IFontManager GetFontManager()
         {
-            return new Blend2DFontManager();
+            return _fontManager;
         }
 
         public void DrawText(string text, IFont font, AABB area)
@@ -685,6 +690,18 @@ namespace PixDirectX.Rendering.Blend2D
                     return;
 
                 base.LoadBrush(context, kind);
+
+                switch (kind)
+                {
+                    case BrushKind.Stroke:
+                        context.SetStrokeStyle(new BLPattern(Bitmap));
+                        break;
+                    case BrushKind.Fill:
+                        context.SetFillStyle(new BLPattern(Bitmap));
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
+                }
             }
         }
 

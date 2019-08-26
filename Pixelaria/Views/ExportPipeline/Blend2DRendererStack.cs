@@ -30,7 +30,9 @@ using System.Windows.Forms;
 using Blend2DCS;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixDirectX.Rendering.Blend2D;
+using PixDirectX.Utils;
 using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -105,6 +107,9 @@ namespace Pixelaria.Views.ExportPipeline
                 _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
 
                 _renderManager.Render(_renderState, new ClippingRegion(new[] { (RectangleF)e.ClipRectangle }, true));
+
+                context.SetStrokeStyle(unchecked((uint)Color.Red.ToArgb()));
+                context.StrokeRectangle(((AABB) (RectangleF) e.ClipRectangle).Inset(new InsetBounds(1)).ToBLRect());
 
                 context.Flush();
             }

@@ -47,13 +47,13 @@ namespace Blend2DCS.Internal
         public static extern uint blContextFlush(ref BLContextCore context, uint flags);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blContextGetUserMatrix(ref BLContextCore context, ref BLMatrix matrix);
+        public static extern uint blContextGetUserMatrix(ref BLContextCore context, ref BLMatrix2D matrix);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, IntPtr opData);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
-        public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLMatrix matrix);
+        public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLMatrix2D matrix);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextMatrixOp(ref BLContextCore context, uint opType, ref BLPoint point);
@@ -68,6 +68,9 @@ namespace Blend2DCS.Internal
         public static extern uint blContextSetFillStyle(ref BLContextCore context, ref BLGradientCore gradient);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSetFillStyle(ref BLContextCore context, ref BLPatternCore gradient);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextSetStrokeWidth(ref BLContextCore context, double width);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
@@ -75,6 +78,9 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextSetStrokeStyle(ref BLContextCore context, ref BLGradientCore gradient);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSetStrokeStyle(ref BLContextCore context, ref BLPatternCore gradient);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextStrokePathD(ref BLContextCore context, ref BLPathCore path);
