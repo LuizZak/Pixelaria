@@ -99,7 +99,7 @@ namespace Pixelaria.Views.ExportPipeline
             var graphics = e.Graphics;
 
             using (var fastBitmap = _bitmap.FastLock(FastBitmapLockFormat.Format32bppPArgb))
-            using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.Stride * 4))
+            using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.StrideInBytes))
             using (var context = new BLContext(image))
             {
                 _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
@@ -116,14 +116,16 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void WithRenderState([NotNull] Action<Blend2DRenderLoopState> execute)
         {
-            var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32);
-            var context = new BLContext(image);
+            using (var fastBitmap = _bitmap.FastLock(FastBitmapLockFormat.Format32bppPArgb))
+            using (var image = new BLImage(_bitmap.Width, _bitmap.Height, BLFormat.Prgb32, fastBitmap.Scan0, fastBitmap.StrideInBytes))
+            using (var context = new BLContext(image))
+            {
+                _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
 
-            _renderState = new Blend2DRenderLoopState(context, _control.Size, _renderState.FrameRenderDeltaTime);
+                execute(_renderState);
 
-            execute(_renderState);
-
-            context.Flush();
+                context.Flush();
+            }
         }
 
         public void ConfigureRenderLoop(Action<IRenderLoopState, ClippingRegion> execute)
