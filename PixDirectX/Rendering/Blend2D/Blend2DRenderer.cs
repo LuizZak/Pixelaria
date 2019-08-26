@@ -101,7 +101,7 @@ namespace PixDirectX.Rendering.Blend2D
         public void StrokeEllipse(AABB ellipseArea, float strokeWidth = 1)
         {
             SetBrushForStroke(strokeWidth);
-            _context.StrokeEllipse(new BLEllipse(ellipseArea.Left, ellipseArea.Top, ellipseArea.Width / 2, ellipseArea.Height / 2));
+            _context.StrokeEllipse(new BLEllipse(ellipseArea.Left + ellipseArea.Width / 2, ellipseArea.Top + ellipseArea.Height / 2, ellipseArea.Width / 2, ellipseArea.Height / 2));
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void FillEllipse(AABB ellipseArea)
         {
-            _context.FillEllipse(new BLEllipse(ellipseArea.Left, ellipseArea.Top, ellipseArea.Width / 2, ellipseArea.Height / 2));
+            _context.FillEllipse(new BLEllipse(ellipseArea.Left + ellipseArea.Width / 2, ellipseArea.Top + ellipseArea.Height / 2, ellipseArea.Width / 2, ellipseArea.Height / 2));
         }
 
         /// <summary>

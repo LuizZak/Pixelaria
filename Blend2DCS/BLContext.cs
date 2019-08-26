@@ -108,12 +108,12 @@ namespace Blend2DCS
             UnsafeContextCore.blContextSetStrokeStyleRgba32(ref Context, color);
         }
 
-        public void SetStrokeStyle(BLGradient gradient)
+        public void SetStrokeStyle([NotNull] BLGradient gradient)
         {
             UnsafeContextCore.blContextSetStrokeStyle(ref Context, ref gradient.Gradient);
         }
 
-        public void StrokePath(BLPath path)
+        public void StrokePath([NotNull] BLPath path)
         {
             UnsafeContextCore.blContextStrokePathD(ref Context, ref path.Path);
         }
@@ -125,7 +125,7 @@ namespace Blend2DCS
 
         public void StrokeEllipse(BLEllipse ellipse)
         {
-            UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.Circle, ref ellipse);
+            UnsafeContextCore.blContextStrokeGeometry(ref Context, BLGeometryType.Ellipse, ref ellipse);
         }
 
         public void StrokeRectangle(BLRect rect)
@@ -147,12 +147,12 @@ namespace Blend2DCS
             UnsafeContextCore.blContextSetFillStyleRgba32(ref Context, color);
         }
 
-        public void SetFillStyle(BLGradient gradient)
+        public void SetFillStyle([NotNull] BLGradient gradient)
         {
             UnsafeContextCore.blContextSetFillStyle(ref Context, ref gradient.Gradient);
         }
 
-        public void FillPath(BLPath path)
+        public void FillPath([NotNull] BLPath path)
         {
             UnsafeContextCore.blContextFillPathD(ref Context, ref path.Path);
         }
@@ -164,7 +164,7 @@ namespace Blend2DCS
 
         public void FillEllipse(BLEllipse ellipse)
         {
-            UnsafeContextCore.blContextFillGeometry(ref Context, BLGeometryType.Circle, ref ellipse);
+            UnsafeContextCore.blContextFillGeometry(ref Context, BLGeometryType.Ellipse, ref ellipse);
         }
 
         public void FillRectangle(BLRect rect)
