@@ -108,9 +108,6 @@ namespace Pixelaria.Views.ExportPipeline
 
                 _renderManager.Render(_renderState, new ClippingRegion(new[] { (RectangleF)e.ClipRectangle }, true));
 
-                context.SetStrokeStyle(unchecked((uint)Color.Red.ToArgb()));
-                context.StrokeRectangle(((AABB) (RectangleF) e.ClipRectangle).Inset(new InsetBounds(1)).ToBLRect());
-
                 context.Flush();
             }
 
