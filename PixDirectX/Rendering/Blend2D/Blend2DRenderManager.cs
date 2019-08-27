@@ -92,11 +92,11 @@ namespace PixDirectX.Rendering.Blend2D
 
             foreach (var rect in redrawRegion)
             {
-                Context.ClipToRect(((AABB)rect).ToBLRect());
+                Context.ClipToRect(((AABB) rect).ToBLRect());
             }
 
             // Clear background
-            Context.SetFillStyle(unchecked((uint)BackColor.ToArgb()));
+            Context.SetFillStyle(unchecked((uint) BackColor.ToArgb()));
             Context.FillRectangle(new BLRect(0, 0, state.Size.Width, state.Size.Height));
 
             InvokeRenderListeners(renderLoopState);

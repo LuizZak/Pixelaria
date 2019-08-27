@@ -349,23 +349,13 @@ namespace PixDirectX.Rendering.Blend2D
 
         #region Clipping
 
-        private AABB? ComputeClipStack()
-        {
-            if (_clipStack.Count == 0)
-                return null;
-
-            return _clipStack.Aggregate(_clipStack.Peek(), (aabb, aabb1) => aabb.Intersect(aabb1));
-        }
-
         private void ApplyClipStack()
         {
             _context.RestoreClipping();
 
-            var clip = ComputeClipStack();
-
-            if (clip != null)
+            foreach (var aabb in _clipStack)
             {
-                _context.ClipToRect(clip.Value.ToBLRect());
+                _context.ClipToRect(aabb.ToBLRect());
             }
         }
 

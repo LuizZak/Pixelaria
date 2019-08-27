@@ -48,7 +48,7 @@ namespace Blend2DCS
             UnsafeContextCore.blContextInit(ref Context);
         }
 
-        public BLContext(BLImage image, BLContextCreateInfo createInfo = null)
+        public BLContext([NotNull] BLImage image, BLContextCreateInfo createInfo = null)
         {
             Context = new BLContextCore();
             UnsafeContextCore.blContextInitAs(ref Context, ref image.Image, createInfo);
