@@ -26,7 +26,6 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using PixSnapshot;
@@ -109,7 +108,7 @@ namespace PixelariaTests.Views.ExportPipeline
                     var visitor = new ViewRenderingVisitor();
 
                     var context = new ControlRenderingContext(
-                        new WrappedDirect2DRenderer(renderLoop.D2DRenderState, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
+                        new WrappedDirect2DRenderer(renderLoop.D2DRenderState, (ImageResources)renderer.ImageResources), renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
                     var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
 

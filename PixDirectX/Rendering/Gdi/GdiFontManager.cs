@@ -36,7 +36,8 @@ namespace PixDirectX.Rendering.Gdi
 
         public IFont DefaultFont(float size)
         {
-            return new GdiFont(new Font(FontFamily.GenericSansSerif, size));
+            var font = new Font(FontFamily.GenericSansSerif, size);
+            return new GdiFont(font);
         }
     }
 

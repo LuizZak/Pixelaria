@@ -24,7 +24,6 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixRendering;
 
 namespace PixUI.Controls
@@ -205,8 +204,6 @@ namespace PixUI.Controls
         /// </summary>
         public IRenderer Renderer { get; }
 
-        public IRenderLoopState State { get; }
-
         /// <summary>
         /// Gets the image resources provider to use when fetching image resources
         /// </summary>
@@ -228,12 +225,11 @@ namespace PixUI.Controls
         [NotNull]
         public ITextLayoutRenderer TextLayoutRenderer { get; }
 
-        public ControlRenderingContext(IRenderer renderer, IRenderLoopState state,
-            IClippingRegion clippingRegion, ITextMetricsProvider textMetricsProvider,
-            IImageResourceProvider imageResources, [NotNull] ITextLayoutRenderer textLayoutRenderer)
+        public ControlRenderingContext(IRenderer renderer, IClippingRegion clippingRegion, 
+            ITextMetricsProvider textMetricsProvider, IImageResourceProvider imageResources, 
+            [NotNull] ITextLayoutRenderer textLayoutRenderer)
         {
             Renderer = renderer;
-            State = state;
             ClippingRegion = clippingRegion;
             TextMetricsProvider = textMetricsProvider;
             ImageResources = imageResources;
@@ -243,7 +239,6 @@ namespace PixUI.Controls
         public ControlRenderingContext([NotNull] IRenderListenerParameters parameters)
         {
             Renderer = parameters.Renderer;
-            State = parameters.State;
             ClippingRegion = parameters.ClippingRegion;
             TextMetricsProvider = parameters.TextMetricsProvider;
             ImageResources = parameters.ImageResources;

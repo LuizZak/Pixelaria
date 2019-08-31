@@ -30,9 +30,7 @@ using System.Windows.Forms;
 using Blend2DCS;
 using FastBitmapLib;
 using JetBrains.Annotations;
-using PixCore.Geometry;
 using PixDirectX.Rendering.Blend2D;
-using PixDirectX.Utils;
 using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline
