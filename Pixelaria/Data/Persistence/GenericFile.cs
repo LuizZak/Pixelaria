@@ -224,6 +224,8 @@ namespace Pixelaria.Data.Persistence
                 closeStream = true;
             }
 
+            stream.Seek(0, SeekOrigin.Begin);
+
             LoadHeader();
 
             // If the file header is not valid, return
