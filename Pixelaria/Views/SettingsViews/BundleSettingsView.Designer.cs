@@ -151,6 +151,7 @@ namespace Pixelaria.Views.SettingsViews
             // panel2
             // 
             this.panel2.Controls.Add(this.cb_exportMethod);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(125, 3);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1027, 44);
@@ -158,10 +159,12 @@ namespace Pixelaria.Views.SettingsViews
             // 
             // cb_exportMethod
             // 
+            this.cb_exportMethod.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cb_exportMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cb_exportMethod.Location = new System.Drawing.Point(3, 9);
+            this.cb_exportMethod.Location = new System.Drawing.Point(1, 9);
             this.cb_exportMethod.Name = "cb_exportMethod";
-            this.cb_exportMethod.Size = new System.Drawing.Size(1021, 28);
+            this.cb_exportMethod.Size = new System.Drawing.Size(1023, 28);
             this.cb_exportMethod.TabIndex = 0;
             // 
             // lbl_name
@@ -220,10 +223,10 @@ namespace Pixelaria.Views.SettingsViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_exportPath.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.txt_exportPath.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-            this.txt_exportPath.Location = new System.Drawing.Point(4, 9);
+            this.txt_exportPath.Location = new System.Drawing.Point(1, 9);
             this.txt_exportPath.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txt_exportPath.Name = "txt_exportPath";
-            this.txt_exportPath.Size = new System.Drawing.Size(897, 26);
+            this.txt_exportPath.Size = new System.Drawing.Size(900, 26);
             this.txt_exportPath.TabIndex = 14;
             this.txt_exportPath.TextChanged += new System.EventHandler(this.txt_exportPath_TextChanged);
             // 
