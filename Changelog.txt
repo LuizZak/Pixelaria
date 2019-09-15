@@ -1,4 +1,4 @@
-﻿             *   *   *   *   *
+             *   *   *   *   *
                               
              *   Pixelaria   *
                               
@@ -20,6 +20,9 @@ Caption:
 
 -- Current Release
 
++ Adding Unity exporter.
++ Adding support for selecting which exporter to use under a Bundle's configuration screen.
+  . Currently supports existing Pixelaria export as well as the new Unity exporter.
 * Fixed crash when opening some ill-formatted .pxl files.
 
 * Now file format for descriptors of exported animations is .json instead of .xml.
@@ -64,6 +67,7 @@ Caption:
   + Now right-clicking frames in the preview panel while 'Show individual frame bounds' option is selected displays a context menu to display frames and navigate to the corresponding animations with the frame selected on the interface when selecting.
   * Fixed changes to 'Favor ratio over area' checkbox not marking the window with changes pending state.
   * Added better zoom control interface, similar to the one on the FrameView (except limited to 100 instead of 160).
+  * Fixed crash when updating the animation sheet view's sheet title textbox while creating a new animation sheet.
 
 
 -- 1.17.7b
