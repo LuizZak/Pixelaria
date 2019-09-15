@@ -23,10 +23,11 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
-
+using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 
 namespace Pixelaria.Views.SettingsViews
@@ -54,14 +55,28 @@ namespace Pixelaria.Views.SettingsViews
         public BundleSettingsView(Controller controller, [NotNull] Bundle bundle)
         {
             InitializeComponent();
+            PopulateExportMethods();
 
             _controller = controller;
             _bundle = bundle;
 
             txt_bundleName.Text = bundle.Name;
             txt_exportPath.Text = bundle.ExportPath;
+            var exporter = ExporterController.Instance.Exporters.FirstOrDefault(e => e.SerializationName == bundle.ExporterSerializedName) ?? ExporterController.Instance.DefaultExporter;
+            cb_exportMethod.SelectedIndex = cb_exportMethod.FindString(exporter.DisplayName);
 
             ValidateFields();
+        }
+
+        private void PopulateExportMethods()
+        {
+            cb_exportMethod.BeginUpdate();
+            cb_exportMethod.Items.Clear();
+            foreach (var exporter in ExporterController.Instance.Exporters)
+            {
+                cb_exportMethod.Items.Add(exporter.DisplayName);
+            }
+            cb_exportMethod.EndUpdate();
         }
 
         /// <summary>
@@ -138,6 +153,8 @@ namespace Pixelaria.Views.SettingsViews
         {
             _bundle.Name = txt_bundleName.Text;
             _bundle.ExportPath = txt_exportPath.Text;
+            var exporter = ExporterController.Instance.Exporters[cb_exportMethod.SelectedIndex];
+            _bundle.ExporterSerializedName = exporter.SerializationName;
 
             _controller.MarkUnsavedChanges(true);
         }
@@ -147,7 +164,7 @@ namespace Pixelaria.Views.SettingsViews
         // 
         private void btn_browse_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            var fbd = new FolderBrowserDialog();
 
             if (fbd.ShowDialog(this) == DialogResult.OK)
             {

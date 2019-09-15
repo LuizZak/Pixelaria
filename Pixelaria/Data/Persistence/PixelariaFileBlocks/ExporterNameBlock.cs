@@ -20,39 +20,45 @@
     base directory of this project.
 */
 
-using JetBrains.Annotations;
+using System.IO;
 
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
-    // TODO: Fill in this class once the project tree feature is done
-
     /// <summary>
-    /// Contains information about the project tree to be displayed on the main interface
+    /// Contains information about the selected exporter from a Pixelaria file
     /// </summary>
-    public class ProjectTreeBlock : FileBlock
+    public class ExporterNameBlock : FileBlock
     {
         /// <summary>
-        /// Gets or sets the current project tree inside this ProjectTreeBlock
+        /// Gets or sets the serialized exporter name
         /// </summary>
-        public ProjectTree Tree { get; set; }
+        public string ExporterSerializedName { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the ProjectTreeBlock class
+        /// Initializes a new instance of the <see cref="ExporterNameBlock"/> class
         /// </summary>
-        public ProjectTreeBlock()
+        public ExporterNameBlock()
         {
-            blockID = BLOCKID_PROJECTTREE;
+            blockID = BLOCKID_EXPORTER_NAME;
         }
 
-        /// <summary>
-        /// Prepares the contents of this block to be saved based on the contents of the given Bundle
-        /// </summary>
-        /// <param name="bundle">The bundle to prepare this block from</param>
         public override void PrepareFromBundle(Bundle bundle)
         {
             base.PrepareFromBundle(bundle);
 
-            Tree = bundle.BundleProjectTree;
+            ExporterSerializedName = bundle.ExporterSerializedName;
+        }
+
+        protected override void SaveContentToStream(Stream stream)
+        {
+            var writer = new BinaryWriter(stream);
+            writer.Write(ExporterSerializedName);
+        }
+
+        protected override void LoadContentFromStream(Stream stream)
+        {
+            var reader = new BinaryReader(stream);
+            ExporterSerializedName = reader.ReadString();
         }
     }
 }

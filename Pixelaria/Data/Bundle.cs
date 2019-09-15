@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.Controllers.DataControllers;
+using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data.Factories;
 using Pixelaria.Utils;
 
@@ -40,12 +41,12 @@ namespace Pixelaria.Data
         /// <summary>
         /// List of animations on this Bundle
         /// </summary>
-        List<Animation> _animations;
+        private List<Animation> _animations;
 
         /// <summary>
         /// List of animation sheets on this bundle
         /// </summary>
-        List<AnimationSheet> _animationSheets;
+        private List<AnimationSheet> _animationSheets;
 
         /// <summary>
         /// Gets the array of animations on this bundle
@@ -74,6 +75,11 @@ namespace Pixelaria.Data
         public string SaveFile { get; set; }
 
         /// <summary>
+        /// Gets or sets the exporter name configured for this bundle.
+        /// </summary>
+        public string ExporterSerializedName { get; set; }
+
+        /// <summary>
         /// Gets the a project tree that represents the tree visualization for the project contents
         /// </summary>
         public ProjectTree BundleProjectTree { get; }
@@ -87,6 +93,7 @@ namespace Pixelaria.Data
             Name = name;
             SaveFile = "";
             ExportPath = "";
+            ExporterSerializedName = ExporterController.Instance.DefaultExporter.SerializationName;
 
             _animations = new List<Animation>();
             _animationSheets = new List<AnimationSheet>();
@@ -129,6 +136,7 @@ namespace Pixelaria.Data
             Name = "";
             ExportPath = "";
             SaveFile = "";
+            ExporterSerializedName = ExporterController.Instance.DefaultExporter.SerializationName;
 
             // Animation clearing
             foreach (var anim in _animations)
@@ -152,7 +160,7 @@ namespace Pixelaria.Data
         {
             // TODO: Maybe create a BundleController and lift this Clone() code there?
 
-            var newBundle = new Bundle(Name) { ExportPath = ExportPath, SaveFile = SaveFile };
+            var newBundle = new Bundle(Name) { ExportPath = ExportPath, SaveFile = SaveFile, ExporterSerializedName = ExporterSerializedName };
 
             // Copy animations over
             foreach (var animation in _animations)
@@ -434,7 +442,7 @@ namespace Pixelaria.Data
                 }
             }
 
-            // Decouple all animatins from the sheet
+            // Decouple all animations from the sheet
             sheet.ClearAnimationList();
 
             _animationSheets.Remove(sheet);
@@ -473,7 +481,7 @@ namespace Pixelaria.Data
             AddAnimationSheet(dup);
 
             // Duplicate the animations
-            foreach (Animation anim in sheet.Animations)
+            foreach (var anim in sheet.Animations)
             {
                 DuplicateAnimation(anim, dup, false);
             }
@@ -635,10 +643,14 @@ namespace Pixelaria.Data
 
             var other = (Bundle)obj;
 
-            if (Name != other.Name || ExportPath != other.ExportPath || SaveFile != other.SaveFile ||
-                _animations == null || other._animations == null || _animationSheets == null ||
-                other._animationSheets == null || _animations.Count != other._animations.Count ||
-                _animationSheets.Count != other._animationSheets.Count)
+            if (Name != other.Name 
+                || ExportPath != other.ExportPath 
+                || SaveFile != other.SaveFile 
+                || ExporterSerializedName != other.ExporterSerializedName 
+                || _animations == null || other._animations == null 
+                || _animationSheets == null || other._animationSheets == null 
+                || _animations.Count != other._animations.Count
+                || _animationSheets.Count != other._animationSheets.Count)
                 return false;
 
             // Test equality of animation sheets
@@ -668,7 +680,7 @@ namespace Pixelaria.Data
         // Override object.GetHashCode
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ ExportPath.GetHashCode() ^ SaveFile.GetHashCode();
+            return Name.GetHashCode() ^ ExportPath.GetHashCode() ^ SaveFile.GetHashCode() ^ ExporterSerializedName.GetHashCode();
         }
 
         /// <summary>

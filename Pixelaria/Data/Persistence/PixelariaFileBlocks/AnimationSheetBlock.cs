@@ -42,7 +42,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream([NotNull] Stream stream)
+        protected override void SaveContentToStream(Stream stream)
         {
             var writer = new BinaryWriter(stream);
 

@@ -115,7 +115,7 @@ namespace Pixelaria.Data.Persistence
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected virtual void SaveContentToStream(Stream stream)
+        protected virtual void SaveContentToStream([NotNull] Stream stream)
         {
             if (_blockContent == null || _blockContent.Length == 0)
                 return;

@@ -88,6 +88,7 @@ namespace Pixelaria.Views.ModelViews
         /// <summary>
         /// Gets the current AnimationSheet being edited
         /// </summary>
+        [CanBeNull]
         public AnimationSheet CurrentSheet { get; }
 
         /// <summary>
@@ -271,6 +272,9 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void UpdateCountLabels()
         {
+            if (CurrentSheet == null)
+                return;
+
             lbl_animCount.Text = CurrentSheet.AnimationCount + "";
             lbl_frameCount.Text = CurrentSheet.GetFrameCount() + "";
         }
@@ -311,7 +315,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public override void ApplyChanges()
         {
-            if(!ValidateFields())
+            if(CurrentSheet == null || !ValidateFields())
                 return;
 
             CurrentSheet.Name = txt_sheetName.Text;
@@ -384,8 +388,7 @@ namespace Pixelaria.Views.ModelViews
         {
             // Erase current bundle sheet export, in case the animation closed was previously from this view
             // This is a work-around 
-            var animView = sender as AnimationView;
-            if (animView != null && _controller.GetOwningAnimationSheet(animView.CurrentAnimation)?.ID == CurrentSheet.ID && _generatedWhileUnsaved)
+            if (sender is AnimationView animView && _controller.GetOwningAnimationSheet(animView.CurrentAnimation)?.ID == CurrentSheet?.ID && _generatedWhileUnsaved)
             {
                 _sheetPreviewTool.SheetExport = null;
                 _bundleSheetExport = null;
@@ -408,6 +411,9 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private bool HasUnsavedAnimations()
         {
+            if (CurrentSheet == null)
+                return false;
+
             return CurrentSheet.Animations.Any(_controller.InterfaceStateProvider.HasUnsavedChangesForAnimation);
         }
 
@@ -416,6 +422,9 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void GeneratePreview()
         {
+            if (CurrentSheet == null)
+                return;
+
             _generatedWhileUnsaved = HasUnsavedAnimations();
 
             RepopulateExportSettings();
@@ -582,7 +591,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void DisplayFrameContextMenu([NotNull] SheetPreviewFrameBoundsClickEventArgs e)
         {
-            var index = e.SheetBoundsIndex;
+            int index = e.SheetBoundsIndex;
             var frameBoundsMap = _bundleSheetExport.Atlas.GetFrameBoundsMap();
 
             // Pull all frames found

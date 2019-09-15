@@ -1091,11 +1091,13 @@ namespace Pixelaria.Controllers
         ////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Gets or generates a new bundle exporter that is fit to be used during new fresh export operations
+        /// Gets or generates a new bundle exporter that is fit to be used during new fresh export operations.
+        ///
+        /// The exporter is based on the current bundle's <see cref="Bundle.ExporterSerializedName"/> attribute.
         /// </summary>
         public IBundleExporter GetBundleExporter()
         {
-            return new DefaultPngExporter(GetSheetExporter());
+            return ExporterController.Instance.CreateExporterForSerializedName(CurrentBundle.ExporterSerializedName);
         }
 
         /// <summary>

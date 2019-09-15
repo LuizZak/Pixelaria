@@ -120,6 +120,11 @@ namespace Pixelaria.Data.Persistence
             var headerBlock = (PixelariaFileHeader)fileHeader;
 
             var locBundle = new Bundle(headerBlock.BundleName) {ExportPath = headerBlock.BundleExportPath};
+            var exporterNameBlock = Blocks.OfType<ExporterNameBlock>().FirstOrDefault();
+            if (exporterNameBlock != null)
+            {
+                locBundle.ExporterSerializedName = exporterNameBlock.ExporterSerializedName;
+            }
             
             var legacyAnimBlocks = Blocks.OfType<AnimationBlock>().ToArray();
             var animBlocks = Blocks.OfType<AnimationHeaderBlock>().ToArray();
@@ -200,7 +205,7 @@ namespace Pixelaria.Data.Persistence
                         sheet.ID = -1; // Let bundle figure out a new proper unique ID
                     }
 
-                    foreach (var animId in animIds)
+                    foreach (int animId in animIds)
                     {
                         var anim = locBundle.GetAnimationByID(animId);
 
@@ -219,9 +224,10 @@ namespace Pixelaria.Data.Persistence
         /// <para>Adds the default block definitions to this PixelariaFile.</para>
         /// <para>The default blocks added are:</para>
         /// <list type="bullet">
-        /// <item><description>AnimationBlock</description></item>
-        /// <item><description>AnimationSheetBlock</description></item>
-        /// <item><description>ProjectTreeBlock</description></item>
+        /// <item><description><see cref="AnimationHeaderBlock"/>, one for each animation</description></item>
+        /// <item><description><see cref="AnimationSheetBlock"/></description></item>
+        /// <item><description><see cref="ProjectTreeBlock"/></description></item>
+        /// <item><description><see cref="ExporterNameBlock"/></description></item>
         /// </list>
         /// </summary>
         public void AddDefaultBlocks()
@@ -240,6 +246,10 @@ namespace Pixelaria.Data.Persistence
             if (GetBlocksByType(typeof(ProjectTreeBlock)).Length == 0)
             {
                 AddBlock(new ProjectTreeBlock());
+            }
+            if (GetBlocksByType(typeof(ExporterNameBlock)).Length == 0)
+            {
+                AddBlock(new ExporterNameBlock());
             }
         }
 

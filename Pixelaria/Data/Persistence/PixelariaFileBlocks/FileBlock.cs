@@ -48,7 +48,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Prepares the contents of this block to be saved based on the contents of the given Bundle
         /// </summary>
         /// <param name="bundle">The bundle to prepare this block from</param>
-        public virtual void PrepareFromBundle(Bundle bundle)
+        public virtual void PrepareFromBundle([NotNull] Bundle bundle)
         {
             readyBundle = bundle;
         }
@@ -115,6 +115,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 // Animation Header block
                 case BLOCKID_ANIMATION_HEADER:
                     return new AnimationHeaderBlock();
+                // Exporter name
+                case BLOCKID_EXPORTER_NAME:
+                    return new ExporterNameBlock();
                 default:
                     return new FileBlock();
             }
@@ -132,5 +135,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public const short BLOCKID_FRAME = 0x0004;
         /// <summary>Represents an Animation Header block</summary>
         public const short BLOCKID_ANIMATION_HEADER = 0x0005;
+        /// <summary>Represents an Exporter Name block</summary>
+        public const short BLOCKID_EXPORTER_NAME = 0x0006;
     }
 }

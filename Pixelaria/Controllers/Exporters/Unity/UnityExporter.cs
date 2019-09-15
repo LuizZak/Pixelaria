@@ -66,7 +66,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
                 // Calculate total progress
                 int total = (int)Math.Floor(stageProgresses.Sum() / stageProgresses.Length * 100);
-                progressHandler(new SheetGenerationBundleExportProgressEventArgs(sheet, BundleExportStage.TextureAtlasGeneration, total, total / 2, "Generating sheets"));
+                progressHandler(new SheetGenerationBundleExportProgressEventArgs(sheet, BundleExportStage.TextureAtlasGeneration, total, total, "Generating sheets"));
             });
 
             for (int i = 0; i < bundle.AnimationSheets.Count; i++)
@@ -121,6 +121,9 @@ namespace Pixelaria.Controllers.Exporters.Unity
                 }
 
                 bundleSheet.Dispose();
+
+                _sheetProgress[animationSheet.ID] = 1;
+                progressAction(animationSheet);
             }
         }
 
