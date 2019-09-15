@@ -716,7 +716,7 @@ namespace Pixelaria.Controllers
                 }
             }
 
-            var progressForm = new BundleExportProgressView(CurrentBundle, GetExporter());
+            var progressForm = new BundleExportProgressView(CurrentBundle, GetBundleExporter());
 
             progressForm.ShowDialog(_mainForm);
         }
@@ -866,7 +866,7 @@ namespace Pixelaria.Controllers
 
             if (saveName == "") return;
 
-            var exportView = new SheetExportProgressView(sheet, saveName, GetExporter());
+            var exportView = new SheetExportProgressView(sheet, saveName, GetSheetExporter());
 
             exportView.ShowDialog(_mainForm);
         }
@@ -1086,16 +1086,24 @@ namespace Pixelaria.Controllers
         ////////// Misc Methods
         //////////
         /////
-        ///// Miscelaneous methods not strictly related to bundles or interface
+        ///// Miscellaneous methods not strictly related to bundles or interface
         /////
         ////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Gets or generates a new exporter that is fit to be used during new fresh export operations
+        /// Gets or generates a new bundle exporter that is fit to be used during new fresh export operations
         /// </summary>
-        public IBundleExporter GetExporter()
+        public IBundleExporter GetBundleExporter()
         {
-            return new DefaultPngExporter();
+            return new DefaultPngExporter(GetSheetExporter());
+        }
+
+        /// <summary>
+        /// Gets or generates a new sheet exporter that is fit to be used during new fresh export operations
+        /// </summary>
+        public ISheetExporter GetSheetExporter()
+        {
+            return new DefaultSheetExporter();
         }
 
         /// <summary>
@@ -1118,7 +1126,7 @@ namespace Pixelaria.Controllers
         /// <returns>An Image that represents the exported image for the animation sheet</returns>
         public Task<BundleSheetExport> GenerateExportForAnimationSheet(AnimationSheet sheet)
         {
-            return GetExporter().ExportBundleSheet(sheet);
+            return GetSheetExporter().ExportBundleSheet(sheet);
         }
 
         /// <summary>
@@ -1132,7 +1140,7 @@ namespace Pixelaria.Controllers
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public Task<BundleSheetExport> GenerateBundleSheet(AnimationExportSettings exportSettings, CancellationToken cancellationToken, BundleExportProgressEventHandler callback, params IAnimation[] anims)
         {
-            return GetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""), cancellationToken, callback);
+            return GetSheetExporter().ExportBundleSheet(new BasicAnimationProvider(anims, exportSettings, ""), cancellationToken, callback);
         }
 
         /// <summary>
@@ -1145,7 +1153,7 @@ namespace Pixelaria.Controllers
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
         public Task<BundleSheetExport> GenerateBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken, BundleExportProgressEventHandler callback)
         {
-            return GetExporter().ExportBundleSheet(provider, cancellationToken, callback);
+            return GetSheetExporter().ExportBundleSheet(provider, cancellationToken, callback);
         }
 
         /// <summary>
@@ -1154,7 +1162,7 @@ namespace Pixelaria.Controllers
         /// <param name="animation">The animation to save a sprite strip out of</param>
         public void ShowSaveAnimationStrip([NotNull] AnimationController animation)
         {
-            using (var stripImage = GetExporter().GenerateSpriteStrip(animation))
+            using (var stripImage = GetSheetExporter().GenerateSpriteStrip(animation))
             {
                 ShowSaveImage(stripImage, animation.GetAnimationView().Name);
             }
@@ -1186,7 +1194,7 @@ namespace Pixelaria.Controllers
                     if (view == null)
                         continue;
 
-                    var index = anims.FindIndex(cont => cont.MatchesController(view.ViewAnimation));
+                    int index = anims.FindIndex(cont => cont.MatchesController(view.ViewAnimation));
                     if (index != -1)
                     {
                         anims[index] = view.ViewAnimation;

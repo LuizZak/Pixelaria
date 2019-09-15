@@ -99,7 +99,7 @@ namespace Pixelaria.Data.Exports
         /// <summary>
         /// Inserts the frames of a given animation into this texture atlas
         /// </summary>
-        /// <param name="animation">The animatio to insert the frames to</param>
+        /// <param name="animation">The animation to insert the frames to</param>
         public void InsertFramesFromAnimation([NotNull] Animation animation)
         {
             foreach (var frame in animation.Frames)

@@ -39,7 +39,7 @@ using PixelariaTests.PixelariaTests.Generators;
 namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
 {
     /// <summary>
-    /// Tests the DefaultPngExporter, BundleSheetExport, and TextureAtlas functionalities and related components
+    /// Tests the <see cref="DefaultSheetExporter"/>, <see cref="DefaultPngExporter"/>, <see cref="Pixelaria.Data.Exports.BundleSheetExport"/>, and <see cref="Pixelaria.Data.Exports.TextureAtlas"/> functionalities and related components
     /// </summary>
     [TestClass]
     public class SheetExportTests
@@ -103,12 +103,12 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
             string jsonPath = exportPath + ".json";
 
             // Export and save to disk
-            var exporter = new DefaultPngExporter();
+            var exporter = new DefaultSheetExporter();
 
             exporter.ExportBundleSheet(OriginalSheet).Result
                 .SaveToDisk(_tempExportPath + Path.DirectorySeparatorChar + OriginalSheet.Name);
 
-            // Export sheet temporarely
+            // Export sheet temporarily
             for (int i = 0; i < OriginalSheet.Animations.Length; i++)
             {
                 var animation = OriginalSheet.Animations[i];
@@ -145,7 +145,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <param name="sheetPath">The common path name of the .png and .json bundle, with a .json extension</param>
         public static object ImportSheetFile(string sheetPath)
         {
-            var jsonPath = Path.ChangeExtension(sheetPath, "json");
+            string jsonPath = Path.ChangeExtension(sheetPath, "json");
 
             Debug.Assert(jsonPath != null, "jsonPath != null");
             string json = File.ReadAllText(jsonPath);
@@ -179,7 +179,7 @@ namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
         /// <param name="json">The .json sheet description</param>
         public static AnimationSheet ImportAnimationSheet(Bitmap texture, [NotNull] JObject json)
         {
-            // Impors a JSON formatted as follows:
+            // Imports a JSON formatted as follows:
             /*
             {
                 "sprite_image": "<name>.png",

@@ -46,20 +46,20 @@ namespace Pixelaria.Data.Exports
         public Image Sheet { get; private set; }
 
         /// <summary>
-        /// Gets the number of frames on this BundleSheetExport
+        /// Gets the number of frames on this <see cref="BundleSheetExport"/>
         /// </summary>
         public int FrameCount => FrameRects.Length;
 
         /// <summary>
-        /// Gets the number of reused frames on this BundleSheetExport
+        /// Gets the number of reused frames on this <see cref="BundleSheetExport"/>
         /// </summary>
         public int ReusedFrameCount { get; private set; }
 
         /// <summary>
-        /// Gets the FrameRect for the frame at the given index on this BundleSheetExport
+        /// Gets the <see cref="FrameRect"/> for the frame at the given index on this <see cref="BundleSheetExport"/>
         /// </summary>
         /// <param name="i">An index</param>
-        /// <returns>The FrameRect stored at that index</returns>
+        /// <returns>The <see cref="FrameRect"/> stored at that index</returns>
         public FrameRect this[int i] => FrameRects[i];
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Pixelaria.Data.Exports
         public TextureAtlas Atlas { get; private set; }
 
         /// <summary>
-        /// Gets the array of FrameRect objects inside this BundleSheetExport
+        /// Gets the array of <see cref="FrameRect"/> objects inside this <see cref="BundleSheetExport"/>
         /// </summary>
         public FrameRect[] FrameRects { get; private set; }
 
@@ -83,12 +83,12 @@ namespace Pixelaria.Data.Exports
         public AnimationExportSettings ExportSettings { get; private set; }
 
         /// <summary>
-        /// The list of animations in this BundleSheet
+        /// The list of animations in this <see cref="BundleSheetExport"/>
         /// </summary>
         public Animation[] Animations { get; private set; }
 
         /// <summary>
-        /// Default constructor for the BundleSheetExport class
+        /// Default constructor for the <see cref="BundleSheetExport"/> class
         /// </summary>
         private BundleSheetExport()
         {
@@ -117,10 +117,10 @@ namespace Pixelaria.Data.Exports
             Atlas.Dispose();
             Sheet.Dispose();
         }
-        
+
         /// <summary>
-        /// Saves the contents of this BundleSheetExport to disk, using the given path
-        /// as a base path, and savind the .png and .json as that base path
+        /// Saves the contents of this <see cref="BundleSheetExport"/> to disk, using the given path
+        /// as a base path, and saving the .png and .json as that base path
         /// </summary>
         /// <param name="basePath">The base path to export the animations as</param>
         public void SaveToDisk([NotNull] string basePath)
@@ -129,7 +129,7 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Saves the contents of this BundleSheetExport to the disk
+        /// Saves the contents of this <see cref="BundleSheetExport"/> to the disk
         /// </summary>
         /// <param name="sheetPath">The path to the sprite sheet to save</param>
         /// <param name="jsonPath">The path to the JSON file containing the data for the animations</param>
@@ -217,10 +217,10 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Returns whether or not the given frame is inside this BundleSheetExport
+        /// Returns whether or not the given frame is inside this <see cref="BundleSheetExport"/>
         /// </summary>
         /// <param name="frame">The frame to search for</param>
-        /// <returns>True whether the given frame is inside this BundleSheetExport, false otherwise</returns>
+        /// <returns>True whether the given frame is inside this <see cref="BundleSheetExport"/>, false otherwise</returns>
         public bool ContainsFrame(IFrame frame)
         {
             // Returns true if any of the sequence's frames returns true to an expression
@@ -228,11 +228,11 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Returns the FrameRect object that represents the given Frame. If no FrameRect represents the given frame,
+        /// Returns the FrameRect object that represents the given Frame. If no <see cref="FrameRect"/> represents the given frame,
         /// null is returned.
         /// </summary>
-        /// <param name="frame">The Frame to get the corresponding FrameRect</param>
-        /// <returns>The FrameRect object that represents the given Frame. If no FrameRect represents the given frame, null is returned.</returns>
+        /// <param name="frame">The Frame to get the corresponding <see cref="FrameRect"/></param>
+        /// <returns>The <see cref="FrameRect"/> object that represents the given Frame. If no <see cref="FrameRect"/> represents the given frame, null is returned.</returns>
         [CanBeNull]
         public FrameRect GetFrameRectForFrame(IFrame frame)
         {
@@ -240,10 +240,46 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Creates a new BundleSheetExport from a TextureAtlas
+        /// Returns a list of all unique frame regions in the sheet area, and the respective <see cref="FrameRect"/> instances that share the regions.
         /// </summary>
-        /// <param name="atlas">The TextureAtlas to import</param>
-        /// <returns>A new BundleSheetExport created from the given TextureAtlas</returns>
+        /// <returns>A list of <see cref="FramesEntry"/> which describe collective <see cref="FrameRect"/> instances that share the same region in the sprite sheet image.</returns>
+        public IReadOnlyList<FramesEntry> GetUniqueFrameRegions()
+        {
+            var map = new Dictionary<Rectangle, List<FrameRect>>();
+
+            foreach (var frameRect in FrameRects)
+            {
+                if (map.TryGetValue(frameRect.SheetArea, out var list))
+                {
+                    list.Add(frameRect);
+                }
+                else
+                {
+                    map[frameRect.SheetArea] = new List<FrameRect> {frameRect};
+                }
+            }
+
+            return map.Select(keyValuePair => new FramesEntry(keyValuePair.Key, keyValuePair.Value)).ToList();
+        }
+
+        private int HashCodeForRectangle(Rectangle rect)
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 3 + rect.X;
+                hash = hash * 3 + rect.Y;
+                hash = hash * 3 + rect.Width;
+                hash = hash * 3 + rect.Height;
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="BundleSheetExport"/> from a <see cref="TextureAtlas"/>
+        /// </summary>
+        /// <param name="atlas">The <see cref="TextureAtlas"/> to import</param>
+        /// <returns>A new <see cref="BundleSheetExport"/> created from the given TextureAtlas</returns>
         public static BundleSheetExport FromAtlas([NotNull] TextureAtlas atlas)
         {
             //
@@ -273,39 +309,24 @@ namespace Pixelaria.Data.Exports
         }
 
         /// <summary>
-        /// Describes a frame on this BundleSheetExport
+        /// Describes a frame on this <see cref="BundleSheetExport"/>
         /// </summary>
         public class FrameRect
         {
             /// <summary>
-            /// The Frame represented by this FrameRect
-            /// </summary>
-            private readonly IFrame _frame;
-
-            /// <summary>
-            /// Represents the area the frame occupies inside the sheet
-            /// </summary>
-            private readonly Rectangle _sheetArea;
-
-            /// <summary>
-            /// Represents the area of the frame that is used on the sheet
-            /// </summary>
-            private readonly Rectangle _frameArea;
-
-            /// <summary>
             /// Gets the Frame represented by this FrameRect
             /// </summary>
-            public IFrame Frame => _frame;
+            public IFrame Frame { get; }
 
             /// <summary>
             /// Gets the area the frame occupies inside the sheet
             /// </summary>
-            public Rectangle SheetArea => _sheetArea;
+            public Rectangle SheetArea { get; }
 
             /// <summary>
             /// Gets the area of the frame that is used on the sheet
             /// </summary>
-            public Rectangle FrameArea => _frameArea;
+            public Rectangle FrameArea { get; }
 
             /// <summary>
             /// Creates a new FrameRect using the given parameters
@@ -313,22 +334,44 @@ namespace Pixelaria.Data.Exports
             /// <param name="frame">The frame to represent on this FrameRect</param>
             /// <param name="sheetArea">The area the frame occupies inside the sheet</param>
             /// <param name="frameArea">The area of the frame that is used on the sheet</param>
-            public FrameRect(IFrame frame, Rectangle sheetArea, Rectangle frameArea)
+            public FrameRect([NotNull] IFrame frame, Rectangle sheetArea, Rectangle frameArea)
             {
-                _frame = frame;
-                _sheetArea = sheetArea;
-                _frameArea = frameArea;
-
                 // Clip the area to the frame size
-                if (_sheetArea.Width > _frame.Width)
-                    _sheetArea.Width = _frame.Width;
-                if (_sheetArea.Height > _frame.Height)
-                    _sheetArea.Height = _frame.Height;
+                if (sheetArea.Width > frame.Width)
+                    sheetArea.Width = frame.Width;
+                if (sheetArea.Height > frame.Height)
+                    sheetArea.Height = frame.Height;
 
-                if (_frameArea.Width > _frame.Width)
-                    _frameArea.Width = _frame.Width;
-                if (_frameArea.Height > _frame.Height)
-                    _frameArea.Height = _frame.Height;
+                if (frameArea.Width > frame.Width)
+                    frameArea.Width = frame.Width;
+                if (frameArea.Height > frame.Height)
+                    frameArea.Height = frame.Height;
+
+                Frame = frame;
+                SheetArea = sheetArea;
+                FrameArea = frameArea;
+            }
+        }
+
+        /// <summary>
+        /// Represents a unique sheet region that one or more frames share
+        /// </summary>
+        public struct FramesEntry
+        {
+            /// <summary>
+            /// The shared sheet area
+            /// </summary>
+            public Rectangle SheetArea { get; }
+
+            /// <summary>
+            /// A list of frames that share this region
+            /// </summary>
+            public IReadOnlyList<FrameRect> FrameRects { get; }
+
+            public FramesEntry(Rectangle sheetArea, IReadOnlyList<FrameRect> frameRects)
+            {
+                FrameRects = frameRects;
+                SheetArea = sheetArea;
             }
         }
     }

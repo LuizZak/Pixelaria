@@ -36,8 +36,10 @@ namespace PixelariaTests.PixelariaTests.Generators
         /// inner objects generated with the same seed will be guaranteed to be considered equal by the respective equality unit tests
         /// </summary>
         /// <param name="seed">An integer to utilize as a seed for the random number generator used to fill in the bundle</param>
+        /// <param name="animationSheetCount">Count of animation sheets to generate</param>
+        /// <param name="animationsPerSheet">Count of animations per animation sheet</param>
         /// <returns>A Bundle filled with randomized objects</returns>
-        public static Bundle GenerateTestBundle(int seed)
+        public static Bundle GenerateTestBundle(int seed, int animationSheetCount = 5, int animationsPerSheet = 5)
         {
             var r = new Random(seed);
 
@@ -45,9 +47,9 @@ namespace PixelariaTests.PixelariaTests.Generators
 
             var layersCount = 0;
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < animationSheetCount; i++)
             {
-                bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("Sheet" + i, 5, r.Next(10, 128), r.Next(10, 128), r.Next(2, 5), r.Next()));
+                bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("Sheet" + i, animationsPerSheet, r.Next(10, 128), r.Next(10, 128), r.Next(2, 5), r.Next()));
 
                 // Create some dummy layers
                 foreach (var animation in bundle.Animations)
@@ -68,16 +70,22 @@ namespace PixelariaTests.PixelariaTests.Generators
                 // Add some repeated frames to a few animations
                 if (i % 2 == 0)
                 {
-                    var controller1 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[0]);
-                    var controller2 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[1]);
+                    if (bundle.AnimationSheets[i].AnimationCount > 0)
+                    {
+                        var controller1 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[0]);
 
-                    controller1.CreateFrame();
-                    controller1.CreateFrame();
-                    controller1.CreateFrame();
+                        controller1.CreateFrame();
+                        controller1.CreateFrame();
+                        controller1.CreateFrame();
+                    }
 
-                    controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
-                    controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
-                    controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
+                    if (bundle.AnimationSheets[i].AnimationCount > 1)
+                    {
+                        var controller2 = new AnimationController(bundle, bundle.AnimationSheets[i].Animations[1]);
+                        controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
+                        controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
+                        controller2.GetFrameController(controller2.CreateFrame()).RandomizeBitmap(1);
+                    }
                 }
             }
 

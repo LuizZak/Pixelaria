@@ -154,6 +154,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="YamlDotNet, Version=6.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.6.1.2\lib\net45\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms\FrameOperations\FrameOperation.cs" />
@@ -170,6 +173,8 @@
     <Compile Include="Controllers\DataControllers\IAnimationSheetId.cs" />
     <Compile Include="Controllers\DataControllers\IFrameId.cs" />
     <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
+    <Compile Include="Controllers\Exporters\DefaultSheetExporter.cs" />
+    <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
