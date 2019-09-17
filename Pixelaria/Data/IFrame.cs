@@ -42,7 +42,7 @@ namespace Pixelaria.Data
         int Height { get; }
 
         /// <summary>
-        /// Gets the size of this animation's frames
+        /// Gets the size of this frame
         /// </summary>
         Size Size { get; }
 

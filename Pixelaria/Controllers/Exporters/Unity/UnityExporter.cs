@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
+using Pixelaria.Utils;
 using YamlDotNet.RepresentationModel;
 
 namespace Pixelaria.Controllers.Exporters.Unity
@@ -69,62 +70,73 @@ namespace Pixelaria.Controllers.Exporters.Unity
                 progressHandler(new SheetGenerationBundleExportProgressEventArgs(sheet, BundleExportStage.TextureAtlasGeneration, total, total, "Generating sheets"));
             });
 
+            var generationList = new List<Task>();
+
             for (int i = 0; i < bundle.AnimationSheets.Count; i++)
             {
                 var animationSheet = bundle.AnimationSheets[i];
-
-                progressAction(animationSheet);
-
-                var bundleSheet = await _sheetExporter.ExportBundleSheet(animationSheet, cancellationToken, args =>
+                int j = i;
+                generationList.Add(new Task(async () =>
                 {
-                    stageProgresses[i] = (float)args.StageProgress / 100;
-                    _sheetProgress[animationSheet.ID] = args.TotalProgress / 100.0f;
                     progressAction(animationSheet);
-                });
 
-                var pngMeta = GeneratePngMeta(bundleSheet, animationSheet.Name);
-
-                using (var pngMetaFile = File.CreateText(Path.Combine(savePath, animationSheet.Name + ".png.meta")))
-                {
-                    pngMetaFile.Write(pngMeta.SerializeYaml());
-                    pngMetaFile.Flush();
-                }
-
-                bundleSheet.Sheet.Save(Path.Combine(savePath, animationSheet.Name + ".png"), ImageFormat.Png);
-
-                foreach (var unityAnimationFile in GenerateAnimations(pngMeta, bundleSheet))
-                {
-                    // Animations with 0 FPS don't make sense in Unity; skip them, for now
-                    if (unityAnimationFile.Animation.PlaybackSettings.FPS <= 0)
-                        continue;
-
-                    using (var animFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".anim")))
+                    var bundleSheet = await _sheetExporter.ExportBundleSheet(animationSheet, cancellationToken, args =>
                     {
-                        await animFile.WriteAsync(unityAnimationFile.SerializeYaml());
-                        await animFile.FlushAsync();
-                    }
-                    using (var animMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".anim.meta")))
-                    {
-                        await animMetaFile.WriteAsync(unityAnimationFile.SerializeMetaYaml());
-                        await animMetaFile.FlushAsync();
-                    }
-                    using (var animControllerFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller")))
-                    {
-                        await animControllerFile.WriteAsync(unityAnimationFile.SerializeAnimationControllerYaml());
-                        await animControllerFile.FlushAsync();
-                    }
-                    using (var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta")))
-                    {
-                        await animControllerMetaFile.WriteAsync(unityAnimationFile.SerializeAnimationControllerMetaYaml());
-                        await animControllerMetaFile.FlushAsync();
-                    }
-                }
+                        stageProgresses[j] = (float)args.StageProgress / 100;
+                        _sheetProgress[animationSheet.ID] = args.TotalProgress / 100.0f;
+                        progressAction(animationSheet);
+                    });
 
-                bundleSheet.Dispose();
+                    var pngMeta = GeneratePngMeta(bundleSheet, animationSheet.Name);
 
-                _sheetProgress[animationSheet.ID] = 1;
-                progressAction(animationSheet);
+                    using (var pngMetaFile = File.CreateText(Path.Combine(savePath, animationSheet.Name + ".png.meta")))
+                    {
+                        pngMetaFile.Write(pngMeta.SerializeYaml());
+                        pngMetaFile.Flush();
+                    }
+
+                    bundleSheet.Sheet.Save(Path.Combine(savePath, animationSheet.Name + ".png"), ImageFormat.Png);
+
+                    foreach (var unityAnimationFile in GenerateAnimations(pngMeta, bundleSheet))
+                    {
+                        // Animations with 0 FPS don't make sense in Unity; skip them, for now
+                        if (unityAnimationFile.Animation.PlaybackSettings.FPS <= 0)
+                            continue;
+
+                        using (var animFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".anim")))
+                        {
+                            await animFile.WriteAsync(unityAnimationFile.SerializeYaml());
+                            await animFile.FlushAsync();
+                        }
+                        using (var animMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".anim.meta")))
+                        {
+                            await animMetaFile.WriteAsync(unityAnimationFile.SerializeMetaYaml());
+                            await animMetaFile.FlushAsync();
+                        }
+                        using (var animControllerFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller")))
+                        {
+                            await animControllerFile.WriteAsync(unityAnimationFile.SerializeAnimationControllerYaml());
+                            await animControllerFile.FlushAsync();
+                        }
+                        using (var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta")))
+                        {
+                            await animControllerMetaFile.WriteAsync(unityAnimationFile.SerializeAnimationControllerMetaYaml());
+                            await animControllerMetaFile.FlushAsync();
+                        }
+                    }
+
+                    bundleSheet.Dispose();
+
+                    _sheetProgress[animationSheet.ID] = 1;
+                    progressAction(animationSheet);
+                }));
             }
+
+            var concurrent = new Task(() => { AsyncHelpers.StartAndWaitAllThrottled(generationList, 7, cancellationToken); });
+
+            concurrent.Start();
+
+            await concurrent;
         }
 
         public float ProgressForAnimationSheet(AnimationSheet sheet)

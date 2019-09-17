@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Pixelaria.Controllers.Exporters.Pixelaria;
 using Pixelaria.Controllers.Exporters.Unity;
 
 namespace Pixelaria.Controllers.Exporters
@@ -38,7 +39,7 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         public static ExporterController Instance = new ExporterController();
 
-        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", "pixelaria", () => new DefaultPngExporter(new DefaultSheetExporter()));
+        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", "pixelaria", () => new PixelariaExporter(new DefaultSheetExporter()));
         private readonly List<KnownExporterEntry> _exporterList = new List<KnownExporterEntry>();
 
         public IKnownExporterEntry DefaultExporter => _defaultExporter;

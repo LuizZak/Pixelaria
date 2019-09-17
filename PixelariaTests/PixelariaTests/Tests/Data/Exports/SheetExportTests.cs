@@ -33,13 +33,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.Exporters;
+using Pixelaria.Controllers.Exporters.Pixelaria;
 using Pixelaria.Data;
 using PixelariaTests.PixelariaTests.Generators;
 
 namespace PixelariaTests.PixelariaTests.Tests.Data.Exports
 {
     /// <summary>
-    /// Tests the <see cref="DefaultSheetExporter"/>, <see cref="DefaultPngExporter"/>, <see cref="Pixelaria.Data.Exports.BundleSheetExport"/>, and <see cref="Pixelaria.Data.Exports.TextureAtlas"/> functionalities and related components
+    /// Tests the <see cref="DefaultSheetExporter"/>, <see cref="PixelariaExporter"/>, <see cref="Pixelaria.Data.Exports.BundleSheetExport"/>, and <see cref="Pixelaria.Data.Exports.TextureAtlas"/> functionalities and related components
     /// </summary>
     [TestClass]
     public class SheetExportTests

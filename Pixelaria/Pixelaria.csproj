@@ -184,6 +184,7 @@
     <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
     <Compile Include="Controllers\Exporters\DefaultSheetExporter.cs" />
     <Compile Include="Controllers\Exporters\ExporterController.cs" />
+    <Compile Include="Utils\AsyncHelpers.cs" />
     <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
@@ -256,7 +257,7 @@
     <Compile Include="Controllers\Validators\DefaultValidator.cs" />
     <Compile Include="Controllers\Validators\IAnimationSheetValidator.cs" />
     <Compile Include="Controllers\Validators\IAnimationValidator.cs" />
-    <Compile Include="Controllers\Exporters\DefaultPngExporter.cs" />
+    <Compile Include="Controllers\Exporters\Pixelaria\PixelariaExporter.cs" />
     <Compile Include="Controllers\Exporters\IBundleExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
