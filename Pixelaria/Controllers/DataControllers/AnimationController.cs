@@ -527,7 +527,7 @@ namespace Pixelaria.Controllers.DataControllers
         /// </summary>
         public void ReplaceFrameImage([NotNull] IFrameId frameId, [NotNull] Bitmap frameImage, FrameSizeMatchingSettings sizeMatching)
         {
-            var index = GetFrameIndex(frameId);
+            int index = GetFrameIndex(frameId);
 
             var newFrame = new Frame(null, frameImage.Width, frameImage.Height);
             newFrame.SetFrameBitmap(frameImage);
@@ -547,7 +547,7 @@ namespace Pixelaria.Controllers.DataControllers
                 throw new ObjectDisposedException(nameof(AnimationController));
 
             var index = GetFrameIndex(frame);
-            if(index == -1)
+            if (index == -1)
                 throw new ArgumentException($@"No frame with id ${frame} found", nameof(frame));
 
             RemoveFrameIndex(index);
@@ -607,7 +607,7 @@ namespace Pixelaria.Controllers.DataControllers
                 throw new ObjectDisposedException(nameof(AnimationController));
 
             var f = GetFrameByFrameId(frame);
-            if(f == null)
+            if (f == null)
                 throw new ArgumentException($@"Cannot find frame with ID {frame}", nameof(frame));
 
             return new FrameController((Frame)f);
@@ -618,7 +618,7 @@ namespace Pixelaria.Controllers.DataControllers
         {
             var frameId = (FrameId)frame;
 
-            // If frameid instance has a reference, check by-reference first
+            // If frameId instance has a reference, check by-reference first
             if (frameId.OriginalFrame != null && _animation.ContainsFrame(frameId.OriginalFrame))
                 return frameId.OriginalFrame;
 

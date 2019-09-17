@@ -43,7 +43,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancellation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animation sheet passed ready to be saved to disk</returns>
-        public async Task<BundleSheetExport> ExportBundleSheet([NotNull] AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             //
             // 1. Generate texture atlas
@@ -64,7 +64,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancellation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        public async Task<BundleSheetExport> ExportBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<BundleSheetExport> ExportBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             var atlas = await GenerateAtlasFromAnimations(provider, "", cancellationToken, progressHandler);
             if (cancellationToken.IsCancellationRequested)
@@ -80,7 +80,7 @@ namespace Pixelaria.Controllers.Exporters
         /// <param name="cancellationToken">A cancellation token that is passed to the exporters and can be used to cancel the export process mid-way</param>
         /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
         /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
-        public async Task<TextureAtlas> GenerateAtlasFromAnimationSheet([NotNull] AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
+        public async Task<TextureAtlas> GenerateAtlasFromAnimationSheet(AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
             return await GenerateAtlasFromAnimations(sheet, sheet.Name, cancellationToken, args =>
             {
