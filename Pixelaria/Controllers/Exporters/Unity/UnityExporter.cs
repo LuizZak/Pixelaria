@@ -76,16 +76,18 @@ namespace Pixelaria.Controllers.Exporters.Unity
             {
                 var animationSheet = bundle.AnimationSheets[i];
                 int j = i;
-                generationList.Add(new Task(async () =>
+                generationList.Add(new Task(() =>
                 {
                     progressAction(animationSheet);
 
-                    var bundleSheet = await _sheetExporter.ExportBundleSheet(animationSheet, cancellationToken, args =>
+                    var bundleSheetTask = _sheetExporter.ExportBundleSheet(animationSheet, cancellationToken, args =>
                     {
                         stageProgresses[j] = (float)args.StageProgress / 100;
                         _sheetProgress[animationSheet.ID] = args.TotalProgress / 100.0f;
                         progressAction(animationSheet);
                     });
+                    bundleSheetTask.Wait(cancellationToken);
+                    var bundleSheet = bundleSheetTask.Result;
 
                     var pngMeta = GeneratePngMeta(bundleSheet, animationSheet.Name);
 
@@ -105,23 +107,23 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
                         using (var animFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".anim")))
                         {
-                            await animFile.WriteAsync(unityAnimationFile.SerializeYaml());
-                            await animFile.FlushAsync();
+                            animFile.Write(unityAnimationFile.SerializeYaml());
+                            animFile.Flush();
                         }
                         using (var animMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".anim.meta")))
                         {
-                            await animMetaFile.WriteAsync(unityAnimationFile.SerializeMetaYaml());
-                            await animMetaFile.FlushAsync();
+                            animMetaFile.Write(unityAnimationFile.SerializeMetaYaml());
+                            animMetaFile.Flush();
                         }
                         using (var animControllerFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller")))
                         {
-                            await animControllerFile.WriteAsync(unityAnimationFile.SerializeAnimationControllerYaml());
-                            await animControllerFile.FlushAsync();
+                            animControllerFile.Write(unityAnimationFile.SerializeAnimationControllerYaml());
+                            animControllerFile.Flush();
                         }
                         using (var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta")))
                         {
-                            await animControllerMetaFile.WriteAsync(unityAnimationFile.SerializeAnimationControllerMetaYaml());
-                            await animControllerMetaFile.FlushAsync();
+                            animControllerMetaFile.Write(unityAnimationFile.SerializeAnimationControllerMetaYaml());
+                            animControllerMetaFile.Flush();
                         }
                     }
 
