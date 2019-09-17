@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -41,6 +42,9 @@ namespace Pixelaria.Controllers.Exporters.Unity
     /// </summary>
     public class UnityExporter : IBundleExporter
     {
+        public const string SerializedName = "unityv1";
+
+        private Settings _settings;
         private readonly ISheetExporter _sheetExporter;
 
         /// <summary>
@@ -50,6 +54,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
         public UnityExporter(ISheetExporter sheetExporter)
         {
+            _settings = new Settings();
             _sheetExporter = sheetExporter;
         }
 
@@ -146,7 +151,17 @@ namespace Pixelaria.Controllers.Exporters.Unity
             return _sheetProgress.TryGetValue(sheet.ID, out float p) ? p : 0;
         }
 
-        internal UnityPngMeta GeneratePngMeta([NotNull] BundleSheetExport sheet, [NotNull] string sheetName)
+        public void SetSettings(IBundleExporterSettings settings)
+        {
+            _settings = (Settings)settings;
+        }
+
+        public IBundleExporterSettings GetDefaultSettings()
+        {
+            return new Settings();
+        }
+
+        private static UnityPngMeta GeneratePngMeta([NotNull] BundleSheetExport sheet, [NotNull] string sheetName)
         {
             int metaSeed = sheetName.GetHashCode();
 
@@ -180,7 +195,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
             return meta;
         }
 
-        internal List<UnityAnimationFile> GenerateAnimations([NotNull] UnityPngMeta meta, [NotNull] BundleSheetExport sheet)
+        private static IEnumerable<UnityAnimationFile> GenerateAnimations([NotNull] UnityPngMeta meta, [NotNull] BundleSheetExport sheet)
         {
             var anims = new List<UnityAnimationFile>();
 
@@ -193,11 +208,40 @@ namespace Pixelaria.Controllers.Exporters.Unity
             return anims;
         }
 
-        internal UnityAnimationFile GenerateAnimationFile([NotNull] UnityPngMeta meta, [NotNull] Animation animation)
+        private static UnityAnimationFile GenerateAnimationFile([NotNull] UnityPngMeta meta, [NotNull] Animation animation)
         {
             var anim = new UnityAnimationFile(meta, animation);
 
             return anim;
+        }
+
+        public class Settings : IBundleExporterSettings
+        {
+            [Browsable(false)]
+            public string ExporterSerializedName => SerializedName;
+
+            [Category("Behavior")]
+            [DisplayName("Generate Animation Controllers")]
+            [Description("Whether to generate .controller/.controller.meta files to accompany each .anim file generated during export. Defaults to true.")]
+            public bool GenerateAnimationControllers { get; set; } = true;
+
+            public IBundleExporterSettings Clone()
+            {
+                return new Settings
+                {
+                    GenerateAnimationControllers = GenerateAnimationControllers
+                };
+            }
+
+            public void Save(Stream stream)
+            {
+
+            }
+
+            public void Load(Stream stream)
+            {
+
+            }
         }
     }
 

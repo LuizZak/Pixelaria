@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ModelViews
             const bool alert = false;
 
             // Animation name
-            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
+            string validation = _controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
             if (validation != "")
             {
                 txt_animationName.BackColor = Color.LightPink;

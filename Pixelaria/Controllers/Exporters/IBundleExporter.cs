@@ -20,58 +20,16 @@
     base directory of this project.
 */
 
-using System.Drawing;
+using System.ComponentModel;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Data;
 using Pixelaria.Data.Exports;
 
 namespace Pixelaria.Controllers.Exporters
 {
-    /// <summary>
-    /// Defines the behavior that must be implemented by individual animation sheet exporters in the program
-    /// </summary>
-    public interface ISheetExporter
-    {
-        /// <summary>
-        /// Exports the given animation sheet into a BundleSheetExport and returns the created sheet
-        /// </summary>
-        /// <param name="sheet">The sheet to export</param>
-        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>A BundleSheetExport representing the animation sheet passed ready to be saved to disk</returns>
-        Task<BundleSheetExport> ExportBundleSheet([NotNull] AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
-
-        /// <summary>
-        /// Exports the given animations into a BundleSheetExport and returns the created sheet
-        /// </summary>
-        /// <param name="provider">The provider for animations and their respective export settings</param>
-        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>A BundleSheetExport representing the animations passed ready to be saved to disk</returns>
-        Task<BundleSheetExport> ExportBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
-
-        /// <summary>
-        /// Generates a TextureAtlas from the given AnimationSheet object
-        /// </summary>
-        /// <param name="sheet">The AnimationSheet to generate the TextureAtlas of</param>
-        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
-        /// <param name="progressHandler">Optional event handler for reporting the export progress</param>
-        /// <returns>A TextureAtlas generated from the given AnimationSheet</returns>
-        Task<TextureAtlas> GenerateAtlasFromAnimationSheet([NotNull] AnimationSheet sheet, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null);
-
-        /// <summary>
-        /// Generates an image that represents the sequential sprite strip from the specified animation.
-        /// If the animation contains no frames, an empty 1x1 image is returned
-        /// </summary>
-        /// <param name="animation">The animation to generate the sprite strip image from</param>
-        /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
-        Image GenerateSpriteStrip([NotNull] AnimationController animation);
-
-    }
-
     /// <summary>
     /// Defines the behavior that must be implemented by bundle exporters in the program
     /// </summary>
@@ -91,5 +49,45 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         /// <param name="sheet">The animation sheet to get the progress of</param>
         float ProgressForAnimationSheet([NotNull] AnimationSheet sheet);
+
+        /// <summary>
+        /// Sets the settings of this exporter.
+        ///
+        /// It must be an instance 
+        /// </summary>
+        void SetSettings(IBundleExporterSettings settings);
+
+        /// <summary>
+        /// Generates a default settings object for this bundle exporter.
+        /// </summary>
+        [NotNull]
+        IBundleExporterSettings GetDefaultSettings();
+    }
+
+    /// <summary>
+    /// Interface for configuring settings of an <see cref="IBundleExporter"/>.
+    /// </summary>
+    public interface IBundleExporterSettings
+    {
+        /// <summary>
+        /// Gets the serialized name of the exporter that this settings object belongs to.
+        /// </summary>
+        [Browsable(false)]
+        string ExporterSerializedName { get; }
+
+        /// <summary>
+        /// Creates an exact copy of this bundle export settings object.
+        /// </summary>
+        IBundleExporterSettings Clone();
+
+        /// <summary>
+        /// Saves the configurations of this exporter settings to a given stream
+        /// </summary>
+        void Save(Stream stream);
+
+        /// <summary>
+        /// Loads the configurations of this exporter from a given stream
+        /// </summary>
+        void Load(Stream stream);
     }
 }

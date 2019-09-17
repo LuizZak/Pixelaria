@@ -460,6 +460,16 @@ namespace Pixelaria.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap error_22 {
+            get {
+                object obj = ResourceManager.GetObject("error_22", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
         internal static string Error_AlertTile {
@@ -842,6 +852,16 @@ namespace Pixelaria.Properties {
         internal static System.Drawing.Bitmap grid_icon {
             get {
                 object obj = ResourceManager.GetObject("grid_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap important_22 {
+            get {
+                object obj = ResourceManager.GetObject("important_22", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

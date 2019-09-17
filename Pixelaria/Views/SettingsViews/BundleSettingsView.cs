@@ -40,12 +40,12 @@ namespace Pixelaria.Views.SettingsViews
         /// <summary>
         /// The controller that owns this form
         /// </summary>
-        readonly Controller _controller;
+        private readonly Controller _controller;
 
         /// <summary>
         /// The bundle being edited
         /// </summary>
-        readonly Bundle _bundle;
+        private readonly Bundle _bundle;
 
         /// <summary>
         /// Creates a new instance of the BundleSettingsView, and starts editing the given bundle
@@ -130,6 +130,12 @@ namespace Pixelaria.Views.SettingsViews
             btn_ok.Enabled = valid;
         }
 
+        private IKnownExporterEntry SelectedExporter()
+        {
+            var exporter = ExporterController.Instance.Exporters[cb_exportMethod.SelectedIndex];
+            return exporter;
+        }
+
         // 
         // Bundle Name textbox change
         // 
@@ -153,8 +159,7 @@ namespace Pixelaria.Views.SettingsViews
         {
             _bundle.Name = txt_bundleName.Text;
             _bundle.ExportPath = txt_exportPath.Text;
-            var exporter = ExporterController.Instance.Exporters[cb_exportMethod.SelectedIndex];
-            _bundle.ExporterSerializedName = exporter.SerializationName;
+            _bundle.ExporterSerializedName = SelectedExporter().SerializationName;
 
             _controller.MarkUnsavedChanges(true);
         }
@@ -170,6 +175,14 @@ namespace Pixelaria.Views.SettingsViews
             {
                 txt_exportPath.Text = fbd.SelectedPath;
             }
+        }
+
+        //
+        // Configure Exporter button
+        //
+        private void btn_configureExporter_Click(object sender, EventArgs e)
+        {
+            _controller.ShowExporterSettings(SelectedExporter().SerializationName);
         }
     }
 }

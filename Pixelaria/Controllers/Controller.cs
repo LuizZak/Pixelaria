@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -48,7 +49,7 @@ using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
-
+using Pixelaria.Views.SettingsViews;
 using Settings = Pixelaria.Utils.Settings;
 
 namespace Pixelaria.Controllers
@@ -872,6 +873,28 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
+        /// Shows a settings screen for a given exporter type.
+        ///
+        /// Returns whether the settings object was modified while the view was displayed.
+        /// </summary>
+        public bool ShowExporterSettings([NotNull] string exporterSerializedName)
+        {
+            Debug.Assert(ExporterController.Instance.HasExporter(exporterSerializedName));
+
+            var settings = GetSettingsForExporterOrDefault(exporterSerializedName);
+
+            var view = new ExporterSettingsView(settings);
+            if (view.ShowDialog(_mainForm) == DialogResult.OK)
+            {
+                SaveExporterSettings(settings);
+                MarkUnsavedChanges(true);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Shows a dialog to save an image to disk, and returns the selected path.
         /// Returns string.Empty if the user has canceled
         /// </summary>
@@ -1109,6 +1132,34 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
+        /// Gets the settings configuration from the current bundle that matches the given exporter serialized name.
+        ///
+        /// If the current bundle has no settings configured for the requested exporter, a default settings object is created
+        /// and returned, instead.
+        /// </summary>
+        /// <param name="exporterSerializedName">An exporter serialized name</param>
+        public IBundleExporterSettings GetSettingsForExporterOrDefault([NotNull] string exporterSerializedName)
+        {
+            if (CurrentBundle.ExporterSettingsMap.TryGetValue(exporterSerializedName, out var settings))
+            {
+                return settings;
+            }
+
+            var newSettings = ExporterController.Instance.CreateExporterForSerializedName(exporterSerializedName).GetDefaultSettings();
+            CurrentBundle.ExporterSettingsMap[exporterSerializedName] = newSettings;
+
+            return newSettings;
+        }
+
+        /// <summary>
+        /// Saves a given exporter settings object to the currently loaded bundle.
+        /// </summary>
+        public void SaveExporterSettings([NotNull] IBundleExporterSettings settings)
+        {
+            CurrentBundle.ExporterSettingsMap[settings.ExporterSerializedName] = settings;
+        }
+
+        /// <summary>
         /// Gets a dynamic animation provider for a given combination of animation sheet and export settings
         /// The provider is able to pull unsaved changes from animations within that sheet from the interface and when queried, the array of animations
         /// will then return always the most up-to-date data from the views.
@@ -1316,25 +1367,5 @@ namespace Pixelaria.Controllers
         {
             AnimationSheet = animationSheet;
         }
-    }
-
-    /// <summary>
-    /// Interface for objects that can provide information about 
-    /// </summary>
-    public interface IInterfaceStateProvider
-    {
-        /// <summary>
-        /// Returns whether, to the knowledge of this interface state provider, the given animation
-        /// is currently opened in a view with pending changes to save
-        /// </summary>
-        /// <returns>A value specifying whether the animation has unsaved changes in any view this interface state provider is able to reach</returns>
-        bool HasUnsavedChangesForAnimation(Animation animation);
-
-        /// <summary>
-        /// Returns whether, to the knowledge of this interface state provider, the given animation sheet
-        /// is currently opened in a view with pending changes to save
-        /// </summary>
-        /// <returns>A value specifying whether the animation sheet has unsaved changes in any view this interface state provider is able to reach</returns>
-        bool HasUnsavedChangesForAnimationSheet(AnimationSheet sheet);
     }
 }

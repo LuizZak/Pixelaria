@@ -39,7 +39,7 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         public static ExporterController Instance = new ExporterController();
 
-        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", "pixelaria", () => new PixelariaExporter(new DefaultSheetExporter()));
+        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", PixelariaExporter.SerializedName, () => new PixelariaExporter(new DefaultSheetExporter()));
         private readonly List<KnownExporterEntry> _exporterList = new List<KnownExporterEntry>();
 
         public IKnownExporterEntry DefaultExporter => _defaultExporter;
@@ -53,7 +53,15 @@ namespace Pixelaria.Controllers.Exporters
         private void PopulateKnownExporters()
         {
             _exporterList.Add(_defaultExporter);
-            _exporterList.Add(new KnownExporterEntry("Unity", "unityv1", () => new UnityExporter(new DefaultSheetExporter())));
+            _exporterList.Add(new KnownExporterEntry("Unity", UnityExporter.SerializedName, () => new UnityExporter(new DefaultSheetExporter())));
+        }
+
+        /// <summary>
+        /// Returns whether an exporter exists with a given serialized name.
+        /// </summary>
+        public bool HasExporter(string serializedName)
+        {
+            return _exporterList.Any(e => e.SerializationName == serializedName);
         }
 
         /// <summary>
@@ -66,6 +74,31 @@ namespace Pixelaria.Controllers.Exporters
             var exporterEntry = ExporterEntryForSerializedName(serializedName) ?? _defaultExporter;
 
             return exporterEntry.Generator();
+        }
+
+        /// <summary>
+        /// Returns the recorded display name for an exporter with a given serialized name.
+        ///
+        /// Returns null, if no exporter with the given serialized name is known.
+        /// </summary>
+        [CanBeNull]
+        public string DisplayNameForExporter(string serializedName)
+        {
+            return Exporters.FirstOrDefault(e => e.SerializationName == serializedName)?.DisplayName;
+        }
+
+        /// <summary>
+        /// Returns a newly-created, default exporter settings for a given serialized name.
+        ///
+        /// Returns null, if no exporter with the given serialized name is known.
+        /// </summary>
+        [CanBeNull]
+        public IBundleExporterSettings CreateExporterSettingsForSerializedName(string serializedName)
+        {
+            if (!HasExporter(serializedName))
+                return null;
+
+            return CreateExporterForSerializedName(serializedName).GetDefaultSettings();
         }
 
         [CanBeNull]
