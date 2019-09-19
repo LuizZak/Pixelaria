@@ -39,7 +39,7 @@ namespace Pixelaria.Controllers.Exporters
         /// </summary>
         public static ExporterController Instance = new ExporterController();
 
-        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", PixelariaExporter.SerializedName, () => new PixelariaExporter(new DefaultSheetExporter()));
+        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", PixelariaExporter.SerializedName, false, () => new PixelariaExporter(new DefaultSheetExporter()));
         private readonly List<KnownExporterEntry> _exporterList = new List<KnownExporterEntry>();
 
         public IKnownExporterEntry DefaultExporter => _defaultExporter;
@@ -53,7 +53,7 @@ namespace Pixelaria.Controllers.Exporters
         private void PopulateKnownExporters()
         {
             _exporterList.Add(_defaultExporter);
-            _exporterList.Add(new KnownExporterEntry("Unity", UnityExporter.SerializedName, () => new UnityExporter(new DefaultSheetExporter())));
+            _exporterList.Add(new KnownExporterEntry("Unity", UnityExporter.SerializedName, true, () => new UnityExporter(new DefaultSheetExporter())));
         }
 
         /// <summary>
@@ -109,16 +109,18 @@ namespace Pixelaria.Controllers.Exporters
         {
             public string DisplayName { get; }
             public string SerializationName { get; }
+            public bool HasSettings { get; }
 
             /// <summary>
             /// Gets the generator which is used to create new instances of this exporter kind
             /// </summary>
             public Func<IBundleExporter> Generator { get; }
 
-            public KnownExporterEntry(string displayName, string serializationName, Func<IBundleExporter> generator)
+            public KnownExporterEntry(string displayName, string serializationName, bool hasSettings, Func<IBundleExporter> generator)
             {
                 DisplayName = displayName;
                 SerializationName = serializationName;
+                HasSettings = hasSettings;
                 Generator = generator;
             }
         }
@@ -138,5 +140,10 @@ namespace Pixelaria.Controllers.Exporters
         /// Gets the serialization name for this exporter
         /// </summary>
         string SerializationName { get; }
+
+        /// <summary>
+        /// Gets whether this exporter has customizable settings
+        /// </summary>
+        bool HasSettings { get; }
     }
 }

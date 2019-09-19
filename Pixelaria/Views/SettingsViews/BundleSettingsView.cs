@@ -64,6 +64,7 @@ namespace Pixelaria.Views.SettingsViews
             txt_exportPath.Text = bundle.ExportPath;
             var exporter = ExporterController.Instance.Exporters.FirstOrDefault(e => e.SerializationName == bundle.ExporterSerializedName) ?? ExporterController.Instance.DefaultExporter;
             cb_exportMethod.SelectedIndex = cb_exportMethod.FindString(exporter.DisplayName);
+            btn_configureExporter.Enabled = SelectedExporter().HasSettings;
 
             ValidateFields();
         }
@@ -183,6 +184,14 @@ namespace Pixelaria.Views.SettingsViews
         private void btn_configureExporter_Click(object sender, EventArgs e)
         {
             _controller.ShowExporterSettings(SelectedExporter().SerializationName);
+        }
+
+        //
+        // Export Method selection changed
+        //
+        private void cb_exportMethod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btn_configureExporter.Enabled = SelectedExporter().HasSettings;
         }
     }
 }

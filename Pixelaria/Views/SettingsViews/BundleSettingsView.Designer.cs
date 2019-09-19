@@ -87,7 +87,7 @@ namespace Pixelaria.Views.SettingsViews
             this.btn_ok.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btn_ok.Enabled = false;
             this.btn_ok.Image = global::Pixelaria.Properties.Resources.action_check;
-            this.btn_ok.Location = new System.Drawing.Point(631, 125);
+            this.btn_ok.Location = new System.Drawing.Point(631, 139);
             this.btn_ok.Name = "btn_ok";
             this.btn_ok.Size = new System.Drawing.Size(75, 29);
             this.btn_ok.TabIndex = 10;
@@ -102,7 +102,7 @@ namespace Pixelaria.Views.SettingsViews
             this.btn_cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_cancel.Image = global::Pixelaria.Properties.Resources.action_delete;
-            this.btn_cancel.Location = new System.Drawing.Point(712, 125);
+            this.btn_cancel.Location = new System.Drawing.Point(712, 139);
             this.btn_cancel.Name = "btn_cancel";
             this.btn_cancel.Size = new System.Drawing.Size(75, 29);
             this.btn_cancel.TabIndex = 9;
@@ -119,7 +119,7 @@ namespace Pixelaria.Views.SettingsViews
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(775, 108);
+            this.groupBox1.Size = new System.Drawing.Size(775, 122);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Bundle Information";
@@ -143,7 +143,7 @@ namespace Pixelaria.Views.SettingsViews
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(769, 89);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(769, 103);
             this.tableLayoutPanel1.TabIndex = 16;
             // 
             // panel2
@@ -180,6 +180,7 @@ namespace Pixelaria.Views.SettingsViews
             this.cb_exportMethod.Name = "cb_exportMethod";
             this.cb_exportMethod.Size = new System.Drawing.Size(599, 21);
             this.cb_exportMethod.TabIndex = 0;
+            this.cb_exportMethod.SelectedIndexChanged += new System.EventHandler(this.cb_exportMethod_SelectedIndexChanged);
             // 
             // lbl_name
             // 
@@ -249,7 +250,7 @@ namespace Pixelaria.Views.SettingsViews
             this.lbl_exportPath.AutoSize = true;
             this.lbl_exportPath.Location = new System.Drawing.Point(3, 59);
             this.lbl_exportPath.Name = "lbl_exportPath";
-            this.lbl_exportPath.Size = new System.Drawing.Size(75, 33);
+            this.lbl_exportPath.Size = new System.Drawing.Size(75, 44);
             this.lbl_exportPath.TabIndex = 13;
             this.lbl_exportPath.Text = "Export Path:";
             this.lbl_exportPath.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -274,7 +275,7 @@ namespace Pixelaria.Views.SettingsViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_alertPanel.Controls.Add(this.pictureBox2);
             this.pnl_alertPanel.Controls.Add(this.lbl_alertLabel);
-            this.pnl_alertPanel.Location = new System.Drawing.Point(12, 125);
+            this.pnl_alertPanel.Location = new System.Drawing.Point(12, 139);
             this.pnl_alertPanel.Name = "pnl_alertPanel";
             this.pnl_alertPanel.Size = new System.Drawing.Size(613, 29);
             this.pnl_alertPanel.TabIndex = 18;
@@ -303,7 +304,7 @@ namespace Pixelaria.Views.SettingsViews
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnl_errorPanel.Controls.Add(this.pictureBox1);
             this.pnl_errorPanel.Controls.Add(this.lbl_error);
-            this.pnl_errorPanel.Location = new System.Drawing.Point(12, 125);
+            this.pnl_errorPanel.Location = new System.Drawing.Point(12, 139);
             this.pnl_errorPanel.Name = "pnl_errorPanel";
             this.pnl_errorPanel.Size = new System.Drawing.Size(613, 29);
             this.pnl_errorPanel.TabIndex = 17;
