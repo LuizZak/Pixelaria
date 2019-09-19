@@ -70,7 +70,7 @@ namespace PixelariaTests.Controllers.Exporters.Unity
         }
 
         [TestMethod]
-        public void TestExportBundleWithGeneratAnimationControllersFalse()
+        public void TestExportBundleWithGenerateAnimationControllersFalse()
         {
             var expectedFiles = new[]
             {
