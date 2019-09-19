@@ -89,7 +89,6 @@ namespace Pixelaria.Data.Persistence
         {
             this.filePath = filePath;
             this.bundle = bundle;
-            
         }
 
         /// <summary>
@@ -129,6 +128,7 @@ namespace Pixelaria.Data.Persistence
             var legacyAnimBlocks = Blocks.OfType<AnimationBlock>().ToArray();
             var animBlocks = Blocks.OfType<AnimationHeaderBlock>().ToArray();
             var sheetBlocks = Blocks.OfType<AnimationSheetBlock>().ToArray();
+            var exporterSettingsBlocks = Blocks.OfType<ExporterSettingsBlock>().ToArray();
 
             // For frames, we group them by animation ID to make things easier when adding them to the respective animations
             var frameBlocks =
@@ -149,7 +149,7 @@ namespace Pixelaria.Data.Persistence
                 var anim = animBlock.Animation;
 
                 // Get frames matching the animation's ID
-                if (frameBlocks.TryGetValue(anim.ID, out FrameBlock[] frames))
+                if (frameBlocks.TryGetValue(anim.ID, out var frames))
                 {
                     foreach (var block in frames)
                     {
@@ -217,6 +217,11 @@ namespace Pixelaria.Data.Persistence
                 }
             }
 
+            foreach (var settingsBlock in exporterSettingsBlocks)
+            {
+                locBundle.ExporterSettingsMap[settingsBlock.SerializedExporterName] = settingsBlock.Settings;
+            }
+
             return locBundle;
         }
 
@@ -232,12 +237,7 @@ namespace Pixelaria.Data.Persistence
         /// </summary>
         public void AddDefaultBlocks()
         {
-            Debug.Assert(bundle != null, "bundle != null");
-
-            foreach (var animation in bundle.Animations)
-            {
-                AddBlock(new AnimationHeaderBlock(animation));
-            }
+            AddBlocksFromBundle();
 
             if (GetBlocksByType(typeof(AnimationSheetBlock)).Length == 0)
             {
@@ -250,6 +250,31 @@ namespace Pixelaria.Data.Persistence
             if (GetBlocksByType(typeof(ExporterNameBlock)).Length == 0)
             {
                 AddBlock(new ExporterNameBlock());
+            }
+        }
+
+        /// <summary>
+        /// <para>Adds blocks for the currently assigned bundle.</para>
+        /// <para>The blocks added include:</para>
+        /// <list type="bullet">
+        /// <item><description><see cref="AnimationHeaderBlock"/>, one for each animation</description></item>
+        /// <item><description><see cref="ExporterSettingsBlock"/>, one for each exporter configured</description></item>
+        /// </list>
+        /// </summary>
+        public void AddBlocksFromBundle()
+        {
+            var locBundle = this.bundle;
+
+            Debug.Assert(locBundle != null, "bundle != null");
+
+            foreach (var animation in locBundle.Animations)
+            {
+                AddBlock(new AnimationHeaderBlock(animation));
+            }
+
+            foreach (var keyValuePair in locBundle.ExporterSettingsMap)
+            {
+                AddBlock(new ExporterSettingsBlock(keyValuePair.Key));
             }
         }
 
@@ -287,7 +312,7 @@ namespace Pixelaria.Data.Persistence
             // Re-load default blocks
             AddDefaultBlocks();
 
-            // No for-loop because the block list may be modified during preparation
+            // Note: No for-loop because the block list may be modified during preparation
             // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < blockList.Count; i++)
             {

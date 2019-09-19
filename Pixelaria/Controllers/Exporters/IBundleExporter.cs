@@ -73,21 +73,23 @@ namespace Pixelaria.Controllers.Exporters
         /// Gets the serialized name of the exporter that this settings object belongs to.
         /// </summary>
         [Browsable(false)]
+        [NotNull]
         string ExporterSerializedName { get; }
 
         /// <summary>
         /// Creates an exact copy of this bundle export settings object.
         /// </summary>
+        [NotNull]
         IBundleExporterSettings Clone();
 
         /// <summary>
         /// Saves the configurations of this exporter settings to a given stream
         /// </summary>
-        void Save(Stream stream);
+        void Save([NotNull] Stream stream);
 
         /// <summary>
         /// Loads the configurations of this exporter from a given stream
         /// </summary>
-        void Load(Stream stream);
+        void Load([NotNull] Stream stream);
     }
 }

@@ -218,6 +218,8 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
 
         public class Settings : IBundleExporterSettings
         {
+            private const short Version = 0;
+
             [Browsable(false)]
             public string ExporterSerializedName => SerializedName;
             
@@ -228,12 +230,14 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
 
             public void Save(Stream stream)
             {
-
+                var writer = new BinaryWriter(stream);
+                writer.Write(Version);
             }
 
             public void Load(Stream stream)
             {
-
+                var reader = new BinaryReader(stream);
+                reader.ReadInt16(); // Version
             }
         }
     }

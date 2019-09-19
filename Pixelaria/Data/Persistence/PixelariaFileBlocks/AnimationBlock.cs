@@ -53,7 +53,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream([NotNull] Stream stream)
+        protected override void SaveContentToStream(Stream stream)
         {
             var writer = new BinaryWriter(stream);
 
@@ -74,7 +74,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// Prepares the contents of this animation to be saved based on the contents of the given Bundle
         /// </summary>
         /// <param name="bundle">The bundle to prepare this block from</param>
-        public override void PrepareFromBundle([NotNull] Bundle bundle)
+        public override void PrepareFromBundle(Bundle bundle)
         {
             base.PrepareFromBundle(bundle);
 

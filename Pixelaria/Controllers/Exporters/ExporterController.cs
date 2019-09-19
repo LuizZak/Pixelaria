@@ -32,7 +32,7 @@ namespace Pixelaria.Controllers.Exporters
     /// <summary>
     /// Controller that deals with management and creation of known <see cref="IBundleExporter"/> kinds.
     /// </summary>
-    public class ExporterController
+    public class ExporterController : IExporterController
     {
         /// <summary>
         /// Gets the singleton instance for this <see cref="ExporterController"/> class.
@@ -81,7 +81,6 @@ namespace Pixelaria.Controllers.Exporters
         ///
         /// Returns null, if no exporter with the given serialized name is known.
         /// </summary>
-        [CanBeNull]
         public string DisplayNameForExporter(string serializedName)
         {
             return Exporters.FirstOrDefault(e => e.SerializationName == serializedName)?.DisplayName;
@@ -92,7 +91,6 @@ namespace Pixelaria.Controllers.Exporters
         ///
         /// Returns null, if no exporter with the given serialized name is known.
         /// </summary>
-        [CanBeNull]
         public IBundleExporterSettings CreateExporterSettingsForSerializedName(string serializedName)
         {
             if (!HasExporter(serializedName))

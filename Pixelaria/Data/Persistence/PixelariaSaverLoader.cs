@@ -263,7 +263,7 @@ namespace Pixelaria.Data.Persistence
         /// version number when reading properties
         /// </summary>
         /// <param name="stream">The stream to load the export settings from</param>
-        /// <param name="version">The version that the stream was writter on</param>
+        /// <param name="version">The version that the stream was writer on</param>
         /// <returns>The AnimationExportSettings object loaded</returns>
         private static AnimationExportSettings LoadExportSettingsFromStream([NotNull] Stream stream, int version)
         {

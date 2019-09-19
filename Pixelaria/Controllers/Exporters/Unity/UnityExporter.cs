@@ -217,6 +217,8 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
         public class Settings : IBundleExporterSettings
         {
+            private const short Version = 0;
+
             [Browsable(false)]
             public string ExporterSerializedName => SerializedName;
 
@@ -235,12 +237,16 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
             public void Save(Stream stream)
             {
-
+                var writer = new BinaryWriter(stream);
+                writer.Write(Version);
+                writer.Write(GenerateAnimationControllers);
             }
 
             public void Load(Stream stream)
             {
-
+                var reader = new BinaryReader(stream);
+                reader.ReadInt16(); // Version
+                GenerateAnimationControllers = reader.ReadBoolean();
             }
         }
     }

@@ -69,28 +69,33 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="PixelariaTests\Generators\AnimationGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\AnimationSheetGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\BundleGenerator.cs" />
-    <Compile Include="PixelariaTests\Generators\FrameGenerator.cs" />
-    <Compile Include="PixelariaTests\Tests\Algorithms\Packers\DefaultTexturePackerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Controllers\Exporters\Unity\UnityExporterTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\FrameBoundsMapTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\AnimationSheetTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\AnimationControllerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\BundleTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\SheetExportTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Exports\TextureAtlasTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\FrameTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\FileBlocksTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceHelperTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Data\Persistence\PersistenceTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Filters\FilterPresetTests.cs" />
-    <Compile Include="PixelariaTests\Tests\PaintOperations\PencilPaintOperationTests.cs" />
-    <Compile Include="PixelariaTests\Tests\PaintOperations\PixelHistoryTrackerTests.cs" />
-    <Compile Include="PixelariaTests\Tests\PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\ImageUtilitiesTests.cs" />
-    <Compile Include="PixelariaTests\Tests\Utils\UtilsTests.cs" />
+    <Compile Include="Controllers\Exporters\Pixelaria\PixelariaExporterTests.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationBlockTests.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationHeaderBlockTests.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlockTests.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileTests.cs" />
+    <Compile Include="TestGenerators\AnimationGenerator.cs" />
+    <Compile Include="TestGenerators\AnimationSheetGenerator.cs" />
+    <Compile Include="TestGenerators\BundleGenerator.cs" />
+    <Compile Include="TestGenerators\FrameGenerator.cs" />
+    <Compile Include="Algorithms\Packers\DefaultTexturePackerTests.cs" />
+    <Compile Include="Controllers\Exporters\Unity\UnityExporterTests.cs" />
+    <Compile Include="Data\Exports\FrameBoundsMapTests.cs" />
+    <Compile Include="Data\AnimationSheetTests.cs" />
+    <Compile Include="Data\AnimationControllerTests.cs" />
+    <Compile Include="Data\BundleTests.cs" />
+    <Compile Include="Data\Exports\SheetExportTests.cs" />
+    <Compile Include="Data\Exports\TextureAtlasTests.cs" />
+    <Compile Include="Data\FrameTests.cs" />
+    <Compile Include="Data\Persistence\FileBlocksTests.cs" />
+    <Compile Include="Data\Persistence\PersistenceHelperTests.cs" />
+    <Compile Include="Data\Persistence\PersistenceTests.cs" />
+    <Compile Include="Filters\FilterPresetTests.cs" />
+    <Compile Include="PaintOperations\PencilPaintOperationTests.cs" />
+    <Compile Include="PaintOperations\PixelHistoryTrackerTests.cs" />
+    <Compile Include="PaintOperations\PlottingPaintUndoGeneratorTests.cs" />
+    <Compile Include="Utils\ImageUtilitiesTests.cs" />
+    <Compile Include="Utils\UtilsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

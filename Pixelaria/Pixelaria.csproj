@@ -184,8 +184,10 @@
     <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
     <Compile Include="Controllers\Exporters\DefaultSheetExporter.cs" />
     <Compile Include="Controllers\Exporters\ExporterController.cs" />
+    <Compile Include="Controllers\Exporters\IExporterController.cs" />
     <Compile Include="Controllers\Exporters\ISheetExporter.cs" />
     <Compile Include="Controllers\IInterfaceStateProvider.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
     <Compile Include="Utils\AsyncHelpers.cs" />
     <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />
