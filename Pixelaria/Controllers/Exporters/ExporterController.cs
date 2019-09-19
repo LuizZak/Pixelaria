@@ -96,7 +96,7 @@ namespace Pixelaria.Controllers.Exporters
             if (!HasExporter(serializedName))
                 return null;
 
-            return CreateExporterForSerializedName(serializedName).GetDefaultSettings();
+            return CreateExporterForSerializedName(serializedName).GenerateDefaultSettings();
         }
 
         [CanBeNull]

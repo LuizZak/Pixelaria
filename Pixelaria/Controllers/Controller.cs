@@ -1116,11 +1116,18 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets or generates a new bundle exporter that is fit to be used during new fresh export operations.
         ///
-        /// The exporter is based on the current bundle's <see cref="Bundle.ExporterSerializedName"/> attribute.
+        /// The exporter is based on the current bundle's <see cref="Bundle.ExporterSerializedName"/> attribute,
+        /// and will be configured with matching configurations available in <see cref="Bundle.ExporterSettingsMap"/>.
         /// </summary>
         public IBundleExporter GetBundleExporter()
         {
-            return ExporterController.Instance.CreateExporterForSerializedName(CurrentBundle.ExporterSerializedName);
+            var exporter = ExporterController.Instance.CreateExporterForSerializedName(CurrentBundle.ExporterSerializedName);
+            if (CurrentBundle.ExporterSettingsMap.TryGetValue(CurrentBundle.ExporterSerializedName, out var settings))
+            {
+                exporter.SetSettings(settings);
+            }
+
+            return exporter;
         }
 
         /// <summary>
@@ -1145,7 +1152,7 @@ namespace Pixelaria.Controllers
                 return settings;
             }
 
-            var newSettings = ExporterController.Instance.CreateExporterForSerializedName(exporterSerializedName).GetDefaultSettings();
+            var newSettings = ExporterController.Instance.CreateExporterForSerializedName(exporterSerializedName).GenerateDefaultSettings();
             CurrentBundle.ExporterSettingsMap[exporterSerializedName] = newSettings;
 
             return newSettings;

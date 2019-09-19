@@ -70,6 +70,29 @@ namespace PixelariaTests.Controllers.Exporters.Unity
         }
 
         [TestMethod]
+        public void TestExportBundleWithGeneratAnimationControllersFalse()
+        {
+            var expectedFiles = new[]
+            {
+                "Sheet0.png",
+                "Sheet0.png.meta",
+                "Sheet0Animation0.anim",
+                "Sheet0Animation0.anim.meta"
+            };
+            var sut = CreateUnityExporter();
+            sut.SetSettings(new UnityExporter.Settings {GenerateAnimationControllers = false});
+            var bundle = BundleGenerator.GenerateTestBundle(0, 1, 1);
+            bundle.ExportPath = GetTemporaryDirectoryPath();
+
+            sut.ExportBundleConcurrent(bundle).Wait();
+
+            var files = Directory.GetFiles(bundle.ExportPath).Select(Path.GetFileName).ToArray();
+
+            Assert.IsTrue(new HashSet<string>(files).SetEquals(expectedFiles),
+                $"Expected list of files [{string.Join(", ", expectedFiles)}], but received [{string.Join(", ", files)}]");
+        }
+
+        [TestMethod]
         public void TestExportBundleSkipsAnimationFilesForAnimationsWithZeroFps()
         {
             var expectedFiles = new[]

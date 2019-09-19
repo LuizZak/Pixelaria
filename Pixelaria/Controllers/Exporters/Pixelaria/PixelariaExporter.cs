@@ -194,7 +194,7 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
             _settings = (Settings) settings;
         }
 
-        public IBundleExporterSettings GetDefaultSettings()
+        public IBundleExporterSettings GenerateDefaultSettings()
         {
             return new Settings();
         }

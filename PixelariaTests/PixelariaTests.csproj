@@ -69,6 +69,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Controllers\ControllerTests.cs" />
     <Compile Include="Controllers\Exporters\Pixelaria\PixelariaExporterTests.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationBlockTests.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationHeaderBlockTests.cs" />

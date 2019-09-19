@@ -61,7 +61,7 @@ namespace Pixelaria.Controllers.Exporters
         /// Generates a default settings object for this bundle exporter.
         /// </summary>
         [NotNull]
-        IBundleExporterSettings GetDefaultSettings();
+        IBundleExporterSettings GenerateDefaultSettings();
     }
 
     /// <summary>
