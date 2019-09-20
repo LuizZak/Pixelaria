@@ -160,8 +160,8 @@ namespace Pixelaria.Views.SettingsViews
         {
             _bundle.Name = txt_bundleName.Text;
             _bundle.ExportPath = txt_exportPath.Text;
-            _bundle.ExporterSerializedName = SelectedExporter().SerializationName;
 
+            _controller.SetExporter(SelectedExporter());
             _controller.MarkUnsavedChanges(true);
         }
 

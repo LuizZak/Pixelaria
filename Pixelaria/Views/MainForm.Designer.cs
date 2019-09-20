@@ -52,7 +52,7 @@ namespace Pixelaria.Views
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Bundle");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Bundle");
             this.ts_mainStrip = new System.Windows.Forms.ToolStrip();
             this.tsb_new = new System.Windows.Forms.ToolStripButton();
             this.tsb_open = new System.Windows.Forms.ToolStripButton();
@@ -62,7 +62,11 @@ namespace Pixelaria.Views
             this.tsb_importAnimation = new System.Windows.Forms.ToolStripButton();
             this.tsb_createAnimationSheet = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.tscb_exporter = new System.Windows.Forms.ToolStripComboBox();
+            this.tsb_exporterSettings = new System.Windows.Forms.ToolStripButton();
             this.tsb_exportButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsb_bundleSettings = new System.Windows.Forms.ToolStripButton();
             this.cms_bundleNodeRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_createNewAnimation = new System.Windows.Forms.ToolStripMenuItem();
@@ -126,7 +130,11 @@ namespace Pixelaria.Views
             this.tsb_importAnimation,
             this.tsb_createAnimationSheet,
             this.toolStripSeparator2,
+            this.toolStripLabel1,
+            this.tscb_exporter,
+            this.tsb_exporterSettings,
             this.tsb_exportButton,
+            this.toolStripSeparator3,
             this.tsb_bundleSettings});
             this.ts_mainStrip.Location = new System.Drawing.Point(0, 0);
             this.ts_mainStrip.Name = "ts_mainStrip";
@@ -204,6 +212,29 @@ namespace Pixelaria.Views
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(54, 22);
+            this.toolStripLabel1.Text = "Exporter:";
+            // 
+            // tscb_exporter
+            // 
+            this.tscb_exporter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.tscb_exporter.Name = "tscb_exporter";
+            this.tscb_exporter.Size = new System.Drawing.Size(121, 25);
+            this.tscb_exporter.ToolTipText = "Selected Exporter";
+            // 
+            // tsb_exporterSettings
+            // 
+            this.tsb_exporterSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsb_exporterSettings.Image = global::Pixelaria.Properties.Resources.edit_properties;
+            this.tsb_exporterSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_exporterSettings.Name = "tsb_exporterSettings";
+            this.tsb_exporterSettings.Size = new System.Drawing.Size(23, 22);
+            this.tsb_exporterSettings.Text = "toolStripButton1";
+            this.tsb_exporterSettings.ToolTipText = "Exporter Settings";
+            // 
             // tsb_exportButton
             // 
             this.tsb_exportButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -213,6 +244,11 @@ namespace Pixelaria.Views
             this.tsb_exportButton.Size = new System.Drawing.Size(23, 22);
             this.tsb_exportButton.Text = "Export Bundle";
             this.tsb_exportButton.Click += new System.EventHandler(this.tsb_exportButton_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
             // 
             // tsb_bundleSettings
             // 
@@ -560,10 +596,10 @@ namespace Pixelaria.Views
             this.tv_bundleAnimations.LoadedProjectTree = null;
             this.tv_bundleAnimations.Location = new System.Drawing.Point(0, 25);
             this.tv_bundleAnimations.Name = "tv_bundleAnimations";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "Bundle";
+            treeNode1.Name = "Node0";
+            treeNode1.Text = "Bundle";
             this.tv_bundleAnimations.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
+            treeNode1});
             this.tv_bundleAnimations.SelectedImageIndex = 0;
             this.tv_bundleAnimations.Size = new System.Drawing.Size(275, 692);
             this.tv_bundleAnimations.TabIndex = 2;
@@ -655,5 +691,9 @@ namespace Pixelaria.Views
         private System.Windows.Forms.MenuItem menuItem3;
         private System.Windows.Forms.ImageList il_treeView;
         private System.Windows.Forms.ToolStripMenuItem cmb_saveAnimationStrip;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripComboBox tscb_exporter;
+        private System.Windows.Forms.ToolStripButton tsb_exporterSettings;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }

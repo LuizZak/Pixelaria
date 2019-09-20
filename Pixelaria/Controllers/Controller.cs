@@ -1131,6 +1131,15 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
+        /// Sets the exporter for the currently active bundle.
+        /// </summary>
+        public void SetExporter([NotNull] IKnownExporterEntry exporter)
+        {
+            CurrentBundle.ExporterSerializedName = exporter.SerializationName;
+            _reactive.RxExporterChanged.OnNext(exporter);
+        }
+
+        /// <summary>
         /// Gets or generates a new sheet exporter that is fit to be used during new fresh export operations
         /// </summary>
         public ISheetExporter GetSheetExporter()
@@ -1184,7 +1193,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The animation sheet to generate the export of</param>
         /// <returns>An Image that represents the exported image for the animation sheet</returns>
-        public Task<BundleSheetExport> GenerateExportForAnimationSheet(AnimationSheet sheet)
+        public Task<BundleSheetExport> GenerateExportForAnimationSheet([NotNull] AnimationSheet sheet)
         {
             return GetSheetExporter().ExportBundleSheet(sheet);
         }
@@ -1194,7 +1203,7 @@ namespace Pixelaria.Controllers
         /// for export progress callback
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
@@ -1208,10 +1217,10 @@ namespace Pixelaria.Controllers
         /// for export progress callback
         /// </summary>
         /// <param name="provider">The provider for the animations to be generated</param>
-        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public Task<BundleSheetExport> GenerateBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken, BundleExportProgressEventHandler callback)
+        public Task<BundleSheetExport> GenerateBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken, BundleExportProgressEventHandler callback)
         {
             return GetSheetExporter().ExportBundleSheet(provider, cancellationToken, callback);
         }
@@ -1293,6 +1302,11 @@ namespace Pixelaria.Controllers
             /// Only changes that where persisted (i.e. they are not unsaved changes to a form) are performed.
             /// </summary>
             IObservable<AnimationSheet> AnimationSheetUpdate { get; }
+
+            /// <summary>
+            /// Updates whenever the selected exporter for the current bundle changes
+            /// </summary>
+            IObservable<IKnownExporterEntry> ExporterChanged { get; }
         }
 
         /// <summary>
@@ -1302,9 +1316,11 @@ namespace Pixelaria.Controllers
         {
             public readonly Subject<Animation> RxOnAnimationUpdate = new Subject<Animation>();
             public readonly Subject<AnimationSheet> RxOnAnimationSheetUpdate = new Subject<AnimationSheet>();
+            public readonly Subject<IKnownExporterEntry> RxExporterChanged = new Subject<IKnownExporterEntry>();
 
             public IObservable<Animation> AnimationUpdate => RxOnAnimationUpdate;
             public IObservable<AnimationSheet> AnimationSheetUpdate => RxOnAnimationSheetUpdate;
+            public IObservable<IKnownExporterEntry> ExporterChanged => RxExporterChanged;
         }
     }
 
