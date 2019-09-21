@@ -97,7 +97,7 @@ namespace Pixelaria.Data.Persistence
             if (!disposing)
                 return;
 
-            foreach (T block in blockList)
+            foreach (var block in blockList)
             {
                 block.Dispose();
             }

@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -48,7 +49,7 @@ using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
-
+using Pixelaria.Views.SettingsViews;
 using Settings = Pixelaria.Utils.Settings;
 
 namespace Pixelaria.Controllers
@@ -872,6 +873,28 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
+        /// Shows a settings screen for a given exporter type.
+        ///
+        /// Returns whether the settings object was modified while the view was displayed.
+        /// </summary>
+        public bool ShowExporterSettings([NotNull] string exporterSerializedName)
+        {
+            Debug.Assert(ExporterController.Instance.HasExporter(exporterSerializedName));
+
+            var settings = GetSettingsForExporterOrDefault(exporterSerializedName);
+
+            var view = new ExporterSettingsView(settings);
+            if (view.ShowDialog(_mainForm) == DialogResult.OK)
+            {
+                SaveExporterSettings(settings);
+                MarkUnsavedChanges(true);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Shows a dialog to save an image to disk, and returns the selected path.
         /// Returns string.Empty if the user has canceled
         /// </summary>
@@ -1093,11 +1116,27 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Gets or generates a new bundle exporter that is fit to be used during new fresh export operations.
         ///
-        /// The exporter is based on the current bundle's <see cref="Bundle.ExporterSerializedName"/> attribute.
+        /// The exporter is based on the current bundle's <see cref="Bundle.ExporterSerializedName"/> attribute,
+        /// and will be configured with matching configurations available in <see cref="Bundle.ExporterSettingsMap"/>.
         /// </summary>
         public IBundleExporter GetBundleExporter()
         {
-            return ExporterController.Instance.CreateExporterForSerializedName(CurrentBundle.ExporterSerializedName);
+            var exporter = ExporterController.Instance.CreateExporterForSerializedName(CurrentBundle.ExporterSerializedName);
+            if (CurrentBundle.ExporterSettingsMap.TryGetValue(CurrentBundle.ExporterSerializedName, out var settings))
+            {
+                exporter.SetSettings(settings);
+            }
+
+            return exporter;
+        }
+
+        /// <summary>
+        /// Sets the exporter for the currently active bundle.
+        /// </summary>
+        public void SetExporter([NotNull] IKnownExporterEntry exporter)
+        {
+            CurrentBundle.ExporterSerializedName = exporter.SerializationName;
+            _reactive.RxExporterChanged.OnNext(exporter);
         }
 
         /// <summary>
@@ -1106,6 +1145,34 @@ namespace Pixelaria.Controllers
         public ISheetExporter GetSheetExporter()
         {
             return new DefaultSheetExporter();
+        }
+
+        /// <summary>
+        /// Gets the settings configuration from the current bundle that matches the given exporter serialized name.
+        ///
+        /// If the current bundle has no settings configured for the requested exporter, a default settings object is created
+        /// and returned, instead.
+        /// </summary>
+        /// <param name="exporterSerializedName">An exporter serialized name</param>
+        public IBundleExporterSettings GetSettingsForExporterOrDefault([NotNull] string exporterSerializedName)
+        {
+            if (CurrentBundle.ExporterSettingsMap.TryGetValue(exporterSerializedName, out var settings))
+            {
+                return settings;
+            }
+
+            var newSettings = ExporterController.Instance.CreateExporterForSerializedName(exporterSerializedName).GenerateDefaultSettings();
+            CurrentBundle.ExporterSettingsMap[exporterSerializedName] = newSettings;
+
+            return newSettings;
+        }
+
+        /// <summary>
+        /// Saves a given exporter settings object to the currently loaded bundle.
+        /// </summary>
+        public void SaveExporterSettings([NotNull] IBundleExporterSettings settings)
+        {
+            CurrentBundle.ExporterSettingsMap[settings.ExporterSerializedName] = settings;
         }
 
         /// <summary>
@@ -1126,7 +1193,7 @@ namespace Pixelaria.Controllers
         /// </summary>
         /// <param name="sheet">The animation sheet to generate the export of</param>
         /// <returns>An Image that represents the exported image for the animation sheet</returns>
-        public Task<BundleSheetExport> GenerateExportForAnimationSheet(AnimationSheet sheet)
+        public Task<BundleSheetExport> GenerateExportForAnimationSheet([NotNull] AnimationSheet sheet)
         {
             return GetSheetExporter().ExportBundleSheet(sheet);
         }
@@ -1136,7 +1203,7 @@ namespace Pixelaria.Controllers
         /// for export progress callback
         /// </summary>
         /// <param name="exportSettings">The export settings for the sheet</param>
-        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <param name="anims">The list of animations to export</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
@@ -1150,10 +1217,10 @@ namespace Pixelaria.Controllers
         /// for export progress callback
         /// </summary>
         /// <param name="provider">The provider for the animations to be generated</param>
-        /// <param name="cancellationToken">A cancelation token that can be used to cancel the process mid-way</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the process mid-way</param>
         /// <param name="callback">The callback delegate to be used during the generation process</param>
         /// <returns>A BundleSheetExport object that contains information about the export of the sheet</returns>
-        public Task<BundleSheetExport> GenerateBundleSheet(IAnimationProvider provider, CancellationToken cancellationToken, BundleExportProgressEventHandler callback)
+        public Task<BundleSheetExport> GenerateBundleSheet([NotNull] IAnimationProvider provider, CancellationToken cancellationToken, BundleExportProgressEventHandler callback)
         {
             return GetSheetExporter().ExportBundleSheet(provider, cancellationToken, callback);
         }
@@ -1235,6 +1302,11 @@ namespace Pixelaria.Controllers
             /// Only changes that where persisted (i.e. they are not unsaved changes to a form) are performed.
             /// </summary>
             IObservable<AnimationSheet> AnimationSheetUpdate { get; }
+
+            /// <summary>
+            /// Updates whenever the selected exporter for the current bundle changes
+            /// </summary>
+            IObservable<IKnownExporterEntry> ExporterChanged { get; }
         }
 
         /// <summary>
@@ -1244,9 +1316,11 @@ namespace Pixelaria.Controllers
         {
             public readonly Subject<Animation> RxOnAnimationUpdate = new Subject<Animation>();
             public readonly Subject<AnimationSheet> RxOnAnimationSheetUpdate = new Subject<AnimationSheet>();
+            public readonly Subject<IKnownExporterEntry> RxExporterChanged = new Subject<IKnownExporterEntry>();
 
             public IObservable<Animation> AnimationUpdate => RxOnAnimationUpdate;
             public IObservable<AnimationSheet> AnimationSheetUpdate => RxOnAnimationSheetUpdate;
+            public IObservable<IKnownExporterEntry> ExporterChanged => RxExporterChanged;
         }
     }
 
@@ -1316,25 +1390,5 @@ namespace Pixelaria.Controllers
         {
             AnimationSheet = animationSheet;
         }
-    }
-
-    /// <summary>
-    /// Interface for objects that can provide information about 
-    /// </summary>
-    public interface IInterfaceStateProvider
-    {
-        /// <summary>
-        /// Returns whether, to the knowledge of this interface state provider, the given animation
-        /// is currently opened in a view with pending changes to save
-        /// </summary>
-        /// <returns>A value specifying whether the animation has unsaved changes in any view this interface state provider is able to reach</returns>
-        bool HasUnsavedChangesForAnimation(Animation animation);
-
-        /// <summary>
-        /// Returns whether, to the knowledge of this interface state provider, the given animation sheet
-        /// is currently opened in a view with pending changes to save
-        /// </summary>
-        /// <returns>A value specifying whether the animation sheet has unsaved changes in any view this interface state provider is able to reach</returns>
-        bool HasUnsavedChangesForAnimationSheet(AnimationSheet sheet);
     }
 }

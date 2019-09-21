@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -40,6 +41,9 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
     /// </summary>
     public class PixelariaExporter : IBundleExporter
     {
+        public const string SerializedName = "pixelaria";
+
+        private Settings _settings;
         private readonly ISheetExporter _sheetExporter;
 
         /// <summary>
@@ -49,6 +53,7 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
 
         public PixelariaExporter(ISheetExporter sheetExporter)
         {
+            _settings = new Settings();
             _sheetExporter = sheetExporter;
         }
 
@@ -184,6 +189,16 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
             return _sheetProgress.TryGetValue(sheet.ID, out float p) ? p : 0;
         }
 
+        public void SetSettings(IBundleExporterSettings settings)
+        {
+            _settings = (Settings) settings;
+        }
+
+        public IBundleExporterSettings GenerateDefaultSettings()
+        {
+            return new Settings();
+        }
+
         /// <summary>
         /// Bundles an exported BundleSheet and a path into one structure
         /// </summary>
@@ -198,6 +213,31 @@ namespace Pixelaria.Controllers.Exporters.Pixelaria
                 BundleSheet = bundleSheet;
                 ExportPath = exportPath;
                 SheetName = sheetName;
+            }
+        }
+
+        public class Settings : IBundleExporterSettings
+        {
+            private const short Version = 0;
+
+            [Browsable(false)]
+            public string ExporterSerializedName => SerializedName;
+            
+            public IBundleExporterSettings Clone()
+            {
+                return new Settings();
+            }
+
+            public void Save(Stream stream)
+            {
+                var writer = new BinaryWriter(stream);
+                writer.Write(Version);
+            }
+
+            public void Load(Stream stream)
+            {
+                var reader = new BinaryReader(stream);
+                reader.ReadInt16(); // Version
             }
         }
     }

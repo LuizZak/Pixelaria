@@ -32,14 +32,14 @@ namespace Pixelaria.Controllers.Exporters
     /// <summary>
     /// Controller that deals with management and creation of known <see cref="IBundleExporter"/> kinds.
     /// </summary>
-    public class ExporterController
+    public class ExporterController : IExporterController
     {
         /// <summary>
         /// Gets the singleton instance for this <see cref="ExporterController"/> class.
         /// </summary>
         public static ExporterController Instance = new ExporterController();
 
-        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", "pixelaria", () => new PixelariaExporter(new DefaultSheetExporter()));
+        private readonly KnownExporterEntry _defaultExporter = new KnownExporterEntry("Pixelaria", PixelariaExporter.SerializedName, false, () => new PixelariaExporter(new DefaultSheetExporter()));
         private readonly List<KnownExporterEntry> _exporterList = new List<KnownExporterEntry>();
 
         public IKnownExporterEntry DefaultExporter => _defaultExporter;
@@ -53,7 +53,15 @@ namespace Pixelaria.Controllers.Exporters
         private void PopulateKnownExporters()
         {
             _exporterList.Add(_defaultExporter);
-            _exporterList.Add(new KnownExporterEntry("Unity", "unityv1", () => new UnityExporter(new DefaultSheetExporter())));
+            _exporterList.Add(new KnownExporterEntry("Unity", UnityExporter.SerializedName, true, () => new UnityExporter(new DefaultSheetExporter())));
+        }
+
+        /// <summary>
+        /// Returns whether an exporter exists with a given serialized name.
+        /// </summary>
+        public bool HasExporter(string serializedName)
+        {
+            return _exporterList.Any(e => e.SerializationName == serializedName);
         }
 
         /// <summary>
@@ -68,6 +76,29 @@ namespace Pixelaria.Controllers.Exporters
             return exporterEntry.Generator();
         }
 
+        /// <summary>
+        /// Returns the recorded display name for an exporter with a given serialized name.
+        ///
+        /// Returns null, if no exporter with the given serialized name is known.
+        /// </summary>
+        public string DisplayNameForExporter(string serializedName)
+        {
+            return Exporters.FirstOrDefault(e => e.SerializationName == serializedName)?.DisplayName;
+        }
+
+        /// <summary>
+        /// Returns a newly-created, default exporter settings for a given serialized name.
+        ///
+        /// Returns null, if no exporter with the given serialized name is known.
+        /// </summary>
+        public IBundleExporterSettings CreateExporterSettingsForSerializedName(string serializedName)
+        {
+            if (!HasExporter(serializedName))
+                return null;
+
+            return CreateExporterForSerializedName(serializedName).GenerateDefaultSettings();
+        }
+
         [CanBeNull]
         private KnownExporterEntry ExporterEntryForSerializedName(string serializedName)
         {
@@ -78,16 +109,18 @@ namespace Pixelaria.Controllers.Exporters
         {
             public string DisplayName { get; }
             public string SerializationName { get; }
+            public bool HasSettings { get; }
 
             /// <summary>
             /// Gets the generator which is used to create new instances of this exporter kind
             /// </summary>
             public Func<IBundleExporter> Generator { get; }
 
-            public KnownExporterEntry(string displayName, string serializationName, Func<IBundleExporter> generator)
+            public KnownExporterEntry(string displayName, string serializationName, bool hasSettings, Func<IBundleExporter> generator)
             {
                 DisplayName = displayName;
                 SerializationName = serializationName;
+                HasSettings = hasSettings;
                 Generator = generator;
             }
         }
@@ -107,5 +140,10 @@ namespace Pixelaria.Controllers.Exporters
         /// Gets the serialization name for this exporter
         /// </summary>
         string SerializationName { get; }
+
+        /// <summary>
+        /// Gets whether this exporter has customizable settings
+        /// </summary>
+        bool HasSettings { get; }
     }
 }

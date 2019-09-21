@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -41,6 +42,9 @@ namespace Pixelaria.Controllers.Exporters.Unity
     /// </summary>
     public class UnityExporter : IBundleExporter
     {
+        public const string SerializedName = "unityv1";
+
+        private Settings _settings;
         private readonly ISheetExporter _sheetExporter;
 
         /// <summary>
@@ -50,11 +54,31 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
         public UnityExporter(ISheetExporter sheetExporter)
         {
+            _settings = new Settings();
             _sheetExporter = sheetExporter;
+        }
+
+        public void SetSettings(IBundleExporterSettings settings)
+        {
+            _settings = (Settings) settings;
+        }
+
+        /// <summary>
+        /// Gets the currently loaded settings object.
+        /// </summary>
+        public Settings GetSettings()
+        {
+            return _settings;
+        }
+
+        public IBundleExporterSettings GenerateDefaultSettings()
+        {
+            return new Settings();
         }
 
         public async Task ExportBundleConcurrent(Bundle bundle, CancellationToken cancellationToken = new CancellationToken(), BundleExportProgressEventHandler progressHandler = null)
         {
+            var settings = _settings;
             string savePath = bundle.ExportPath;
 
             // Start with initial values for the progress export of every sheet
@@ -115,15 +139,19 @@ namespace Pixelaria.Controllers.Exporters.Unity
                             animMetaFile.Write(unityAnimationFile.SerializeMetaYaml());
                             animMetaFile.Flush();
                         }
-                        using (var animControllerFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller")))
+
+                        if (settings.GenerateAnimationControllers)
                         {
-                            animControllerFile.Write(unityAnimationFile.SerializeAnimationControllerYaml());
-                            animControllerFile.Flush();
-                        }
-                        using (var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta")))
-                        {
-                            animControllerMetaFile.Write(unityAnimationFile.SerializeAnimationControllerMetaYaml());
-                            animControllerMetaFile.Flush();
+                            using (var animControllerFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller")))
+                            {
+                                animControllerFile.Write(unityAnimationFile.SerializeAnimationControllerYaml());
+                                animControllerFile.Flush();
+                            }
+                            using (var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta")))
+                            {
+                                animControllerMetaFile.Write(unityAnimationFile.SerializeAnimationControllerMetaYaml());
+                                animControllerMetaFile.Flush();
+                            }
                         }
                     }
 
@@ -146,7 +174,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
             return _sheetProgress.TryGetValue(sheet.ID, out float p) ? p : 0;
         }
 
-        internal UnityPngMeta GeneratePngMeta([NotNull] BundleSheetExport sheet, [NotNull] string sheetName)
+        private static UnityPngMeta GeneratePngMeta([NotNull] BundleSheetExport sheet, [NotNull] string sheetName)
         {
             int metaSeed = sheetName.GetHashCode();
 
@@ -180,7 +208,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
             return meta;
         }
 
-        internal List<UnityAnimationFile> GenerateAnimations([NotNull] UnityPngMeta meta, [NotNull] BundleSheetExport sheet)
+        private static IEnumerable<UnityAnimationFile> GenerateAnimations([NotNull] UnityPngMeta meta, [NotNull] BundleSheetExport sheet)
         {
             var anims = new List<UnityAnimationFile>();
 
@@ -193,11 +221,46 @@ namespace Pixelaria.Controllers.Exporters.Unity
             return anims;
         }
 
-        internal UnityAnimationFile GenerateAnimationFile([NotNull] UnityPngMeta meta, [NotNull] Animation animation)
+        private static UnityAnimationFile GenerateAnimationFile([NotNull] UnityPngMeta meta, [NotNull] Animation animation)
         {
             var anim = new UnityAnimationFile(meta, animation);
 
             return anim;
+        }
+
+        public class Settings : IBundleExporterSettings
+        {
+            private const short Version = 0;
+
+            [Browsable(false)]
+            public string ExporterSerializedName => SerializedName;
+
+            [Category("Behavior")]
+            [DisplayName("Generate Animation Controllers")]
+            [Description("Whether to generate .controller/.controller.meta files to accompany each .anim file generated during export. Defaults to true.")]
+            public bool GenerateAnimationControllers { get; set; } = true;
+
+            public IBundleExporterSettings Clone()
+            {
+                return new Settings
+                {
+                    GenerateAnimationControllers = GenerateAnimationControllers
+                };
+            }
+
+            public void Save(Stream stream)
+            {
+                var writer = new BinaryWriter(stream);
+                writer.Write(Version);
+                writer.Write(GenerateAnimationControllers);
+            }
+
+            public void Load(Stream stream)
+            {
+                var reader = new BinaryReader(stream);
+                reader.ReadInt16(); // Version
+                GenerateAnimationControllers = reader.ReadBoolean();
+            }
         }
     }
 

@@ -80,6 +80,11 @@ namespace Pixelaria.Data
         public string ExporterSerializedName { get; set; }
 
         /// <summary>
+        /// A dictionary for mapping exporter settings.
+        /// </summary>
+        public Dictionary<string, IBundleExporterSettings> ExporterSettingsMap { get; } = new Dictionary<string, IBundleExporterSettings>();
+
+        /// <summary>
         /// Gets the a project tree that represents the tree visualization for the project contents
         /// </summary>
         public ProjectTree BundleProjectTree { get; }

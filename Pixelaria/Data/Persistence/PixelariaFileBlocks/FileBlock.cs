@@ -26,7 +26,7 @@ using JetBrains.Annotations;
 namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 {
     /// <summary>
-    /// Base class for Pixelaria .plx file format blocks
+    /// Base class for Pixelaria .pxl file format blocks
     /// </summary>
     public class FileBlock : GenericFileBlock
     {
@@ -41,6 +41,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
 
         /// <summary>
         /// Gets whether this file block should be removed when the pixelaria file is being prepared to be saved.
+        ///
+        /// Used to ensure blocks that are created during <see cref="PixelariaFile.PrepareBlocksWithBundle"/> are
+        /// not duplicated when saving a file multiple times in sequence.
         /// </summary>
         public bool RemoveOnPrepare => removeOnPrepare;
 
@@ -118,6 +121,9 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
                 // Exporter name
                 case BLOCKID_EXPORTER_NAME:
                     return new ExporterNameBlock();
+                // Exporter settings
+                case BLOCKID_EXPORTER_SETTINGS:
+                    return new ExporterSettingsBlock();
                 default:
                     return new FileBlock();
             }
@@ -137,5 +143,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         public const short BLOCKID_ANIMATION_HEADER = 0x0005;
         /// <summary>Represents an Exporter Name block</summary>
         public const short BLOCKID_EXPORTER_NAME = 0x0006;
+        /// <summary>Represents an Exporter Settings block</summary>
+        public const short BLOCKID_EXPORTER_SETTINGS = 0x0007;
     }
 }

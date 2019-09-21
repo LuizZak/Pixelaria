@@ -32,6 +32,7 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.DataControllers;
+using Pixelaria.Controllers.Exporters;
 using Pixelaria.Data;
 using Pixelaria.Properties;
 using Pixelaria.Views.ModelViews;
@@ -46,6 +47,7 @@ namespace Pixelaria.Views
     public partial class MainForm : Form
     {
         private readonly Reactive _reactive = new Reactive();
+        private readonly ExporterSelectionController _exporterSelectionController;
 
         /// <summary>
         /// Gets the public-facing reactive bindings object
@@ -88,7 +90,7 @@ namespace Pixelaria.Views
         /// Creates a new instance of the MainForm class
         /// </summary>
         /// <param name="args">Command line arguments</param>
-        public MainForm([NotNull] string[] args)
+        public MainForm([NotNull] IReadOnlyList<string> args)
         {
             InitializeComponent();
 
@@ -96,7 +98,7 @@ namespace Pixelaria.Views
             foreach (var control in Controls.OfType<MdiClient>())
             {
                 var method = control.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
-                method.Invoke(control, new object[] { ControlStyles.OptimizedDoubleBuffer, true });
+                method?.Invoke(control, new object[] { ControlStyles.OptimizedDoubleBuffer, true });
             }
 
             Menu = mm_menu;
@@ -115,10 +117,12 @@ namespace Pixelaria.Views
 
             Controller = new Controller(this);
 
-            if (args.Length > 0 && File.Exists(args[0]))
+            if (args.Count > 0 && File.Exists(args[0]))
             {
                 Controller.LoadBundleFromFile(args[0]);
             }
+
+            _exporterSelectionController = new ExporterSelectionController(tscb_exporter, tsb_exporterSettings, Controller);
         }
 
         /// <summary>
@@ -384,7 +388,7 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Updates this form's reprensentation of the given Animation
+        /// Updates this form's representation of the given Animation
         /// </summary>
         /// <param name="animation">The Animation to update the representation of</param>
         public void UpdateAnimation([NotNull] Animation animation)
@@ -546,7 +550,7 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Updates this form's reprensentation of the given AnimationSheet
+        /// Updates this form's representation of the given AnimationSheet
         /// </summary>
         /// <param name="sheet">The AnimationSheet to update the representation of</param>
         public void UpdateAnimationSheet([NotNull] AnimationSheet sheet)
@@ -558,7 +562,7 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Opens a view for the given animation (or brings a view already binded to this animation to the front)
+        /// Opens a view for the given animation (or brings a view already bound to this animation to the front)
         /// </summary>
         /// <param name="sheet">The Animation to open the AnimationView for</param>
         /// <returns>The created AnimationView</returns>
@@ -608,7 +612,7 @@ namespace Pixelaria.Views
         [CanBeNull]
         public AnimationSheetView GetOpenedViewForAnimationSheet(AnimationSheet sheet)
         {
-            return MdiChildren.OfType<AnimationSheetView>().FirstOrDefault(view => view.CurrentSheet.ID == sheet.ID);
+            return MdiChildren.OfType<AnimationSheetView>().FirstOrDefault(view => view.CurrentSheet?.ID == sheet.ID);
         }
 
         /// <summary>
@@ -890,7 +894,7 @@ namespace Pixelaria.Views
         }
 
         // 
-        // TreeView Node Click ecent handler
+        // TreeView Node Click event handler
         // 
         private void TreeViewNodeClickHandler(object sender, [NotNull] TreeNodeMouseClickEventArgs e)
         {
@@ -1475,6 +1479,63 @@ namespace Pixelaria.Views
             /// Called whenever a new Form has been shown/removed on the main form
             /// </summary>
             IObservable<Form[]> MdiChildrenChanged { get; }
+        }
+
+        /// <summary>
+        /// Controls the exporter combo box/settings controls from the main form
+        /// </summary>
+        private class ExporterSelectionController
+        {
+            private ToolStripComboBox ComboBox { get; }
+            private ToolStripButton SettingsButton { get; }
+            private Controller Controller { get; }
+
+            public ExporterSelectionController(ToolStripComboBox comboBox, ToolStripButton settingsButton, Controller controller)
+            {
+                ComboBox = comboBox;
+                SettingsButton = settingsButton;
+                Controller = controller;
+
+                PopulateExportMethods();
+                ConfigureEvents();
+
+                var exporter = ExporterController.Instance.Exporters.FirstOrDefault(e => e.SerializationName == Controller.CurrentBundle.ExporterSerializedName) ?? ExporterController.Instance.DefaultExporter;
+                OnExporterChanged(exporter);
+            }
+
+            private void PopulateExportMethods()
+            {
+                ComboBox.BeginUpdate();
+                ComboBox.Items.Clear();
+                foreach (var exporter in ExporterController.Instance.Exporters)
+                {
+                    ComboBox.Items.Add(exporter.DisplayName);
+                }
+                ComboBox.EndUpdate();
+            }
+
+            private void ConfigureEvents()
+            {
+                Controller.Rx.ExporterChanged.Subscribe(OnExporterChanged);
+                ComboBox.SelectedIndexChanged += ComboBoxOnSelectedIndexChanged;
+                SettingsButton.Click += SettingsButtonOnClick;
+            }
+
+            private void SettingsButtonOnClick(object sender, EventArgs e)
+            {
+                Controller.ShowExporterSettings(Controller.CurrentBundle.ExporterSerializedName);
+            }
+
+            private void ComboBoxOnSelectedIndexChanged(object sender, EventArgs e)
+            {
+                Controller.SetExporter(ExporterController.Instance.Exporters[ComboBox.SelectedIndex]);
+            }
+
+            private void OnExporterChanged([NotNull] IKnownExporterEntry obj)
+            {
+                ComboBox.SelectedIndex = ComboBox.FindString(obj.DisplayName);
+                SettingsButton.Enabled = obj.HasSettings;
+            }
         }
     }
 

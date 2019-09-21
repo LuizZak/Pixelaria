@@ -184,6 +184,10 @@
     <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
     <Compile Include="Controllers\Exporters\DefaultSheetExporter.cs" />
     <Compile Include="Controllers\Exporters\ExporterController.cs" />
+    <Compile Include="Controllers\Exporters\IExporterController.cs" />
+    <Compile Include="Controllers\Exporters\ISheetExporter.cs" />
+    <Compile Include="Controllers\IInterfaceStateProvider.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
     <Compile Include="Utils\AsyncHelpers.cs" />
     <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />
@@ -227,6 +231,12 @@
     <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ValidationPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ValidationPanel.Designer.cs">
+      <DependentUpon>ValidationPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ModelViews\AnimationView.OnionSkinFrameProvider.cs">
       <SubType>Form</SubType>
@@ -531,6 +541,12 @@
     <Compile Include="Views\SettingsViews\BundleSettingsView.Designer.cs">
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\SettingsViews\ExporterSettingsView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\SettingsViews\ExporterSettingsView.Designer.cs">
+      <DependentUpon>ExporterSettingsView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingsViews\FrameViewSettingsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -598,6 +614,9 @@
     <EmbeddedResource Include="Views\Controls\TinyColorSlider.resx">
       <DependentUpon>TinyColorSlider.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ValidationPanel.resx">
+      <DependentUpon>ValidationPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -653,6 +672,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\SettingsViews\BundleSettingsView.resx">
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SettingsViews\ExporterSettingsView.resx">
+      <DependentUpon>ExporterSettingsView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\SettingsViews\FrameViewSettingsView.resx">
       <DependentUpon>FrameViewSettingsView.cs</DependentUpon>
@@ -758,6 +780,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\error_22x22.png" />
+    <None Include="Resources\emblem-important.png" />
     <None Include="Resources\frame_flip_vertical.png" />
     <None Include="Resources\frame_flip_horizontal.png" />
     <None Include="Resources\dialog-warning.png" />

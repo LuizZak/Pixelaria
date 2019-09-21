@@ -21,8 +21,10 @@ Caption:
 -- Current Release
 
 + Adding Unity exporter.
-+ Adding support for selecting which exporter to use under a Bundle's configuration screen.
++ Adding support for selecting which exporter to use inside the Bundle's configuration screen.
   . Currently supports existing Pixelaria export as well as the new Unity exporter.
+  . You can configure settings for exporters, which will be persisted within .pxl files.
+
 * Fixed crash when opening some ill-formatted .pxl files.
 
 * Now file format for descriptors of exported animations is .json instead of .xml.
