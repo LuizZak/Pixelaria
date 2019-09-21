@@ -320,16 +320,24 @@ namespace PixUI.Controls
         private AABB BoundsForText()
         {
             var bounds = Bounds.Inset(TextInset);
+            var imageBounds = BoundsForImage();
 
-            if (!Image.HasValue)
+            if (imageBounds.Validity != AABB.State.Valid)
                 return bounds;
 
-            var image = Image.Value;
-            var imgBounds = BoundsForImage(image);
-
-            bounds = bounds.Inset(new InsetBounds(imgBounds.Right, 0, 0, 0));
+            bounds = bounds.Inset(new InsetBounds(imageBounds.Right, 0, 0, 0));
 
             return bounds;
+        }
+
+        private AABB BoundsForImage()
+        {
+            if (ManagedImage != null)
+                return BoundsForImage(ManagedImage);
+            if (Image.HasValue)
+                return BoundsForImage(Image.Value);
+
+            return AABB.Invalid;
         }
 
         private AABB BoundsForImage(ImageResource image)

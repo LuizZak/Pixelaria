@@ -20,7 +20,9 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.Windows.Threading;
+using FastBitmapLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixRendering;
@@ -77,6 +79,44 @@ namespace PixUITests.Controls
             button.VerticalTextAlignment = VerticalTextAlignment.Center;
 
             BaseViewSnapshot.Snapshot(button, TestContext);
+        }
+
+        [TestMethod]
+        public void TestButtonImageResource()
+        {
+            var bitmap = new Bitmap(16, 16);
+            FastBitmap.ClearBitmap(bitmap, Color.Red);
+            var resources = new BaseViewSnapshotResources();
+            var resource = resources.CreateImageResource("image", bitmap);
+            var button = ButtonControl.Create();
+            button.Text = "Button 1";
+            button.TextInset = new InsetBounds(15, 4, 4, 15);
+            button.ImageInset = new InsetBounds(6, 0, 0, 0);
+            button.Size = new Vector(90, 30);
+            button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            button.VerticalTextAlignment = VerticalTextAlignment.Center;
+            button.Image = resource;
+
+            BaseViewSnapshot.Snapshot(button, TestContext, resources: resources);
+        }
+
+        [TestMethod]
+        public void TestButtonManagedImage()
+        {
+            var bitmap = new Bitmap(16, 16);
+            FastBitmap.ClearBitmap(bitmap, Color.Red);
+            var button = ButtonControl.Create();
+            button.Text = "Button 1";
+            button.TextInset = new InsetBounds(15, 4, 4, 15);
+            button.ImageInset = new InsetBounds(6, 0, 0, 0);
+            button.Size = new Vector(90, 30);
+            button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
+            button.VerticalTextAlignment = VerticalTextAlignment.Center;
+
+            BaseViewSnapshot.SnapshotTest(button, TestContext, imageResources =>
+            {
+                button.ManagedImage = imageResources.CreateManagedImageResource(bitmap);
+            });
         }
 
         public TestContext TestContext { get; set; }
