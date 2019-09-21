@@ -93,7 +93,7 @@ namespace PixDirectX.Rendering.DirectX
 
         public Direct2DRenderManager()
         {
-            _imageResources = new ImageResources();
+            _imageResources = new ImageResources(this);
             _textMetrics = new TextMetrics(this);
             _textSizeProvider = new D2DTextSizeProvider(this);
         }

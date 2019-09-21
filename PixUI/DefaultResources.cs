@@ -21,7 +21,6 @@
 */
 
 using JetBrains.Annotations;
-using PixDirectX.Rendering;
 using PixRendering;
 using PixUI.Properties;
 
@@ -32,10 +31,10 @@ namespace PixUI
         /// <summary>
         /// Loads the default image resources into a given resource manager.
         /// </summary>
-        public static void LoadDefaultResources([NotNull] IRenderLoopState state, [NotNull] IImageResourceManager imageResourceManager)
+        public static void LoadDefaultResources([NotNull] IImageResourceManager imageResourceManager)
         {
-            Images.CancelButton = imageResourceManager.CreateManagedImageResource(state, Resources.cancel_button);
-            Images.CancelButtonDark = imageResourceManager.CreateManagedImageResource(state, Resources.cancel_button_dark);
+            Images.CancelButton = imageResourceManager.CreateManagedImageResource(Resources.cancel_button);
+            Images.CancelButtonDark = imageResourceManager.CreateManagedImageResource(Resources.cancel_button_dark);
         }
 
         public static class Images

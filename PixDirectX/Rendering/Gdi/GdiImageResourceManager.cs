@@ -53,13 +53,13 @@ namespace PixDirectX.Rendering.Gdi
             return res;
         }
 
-        public IManagedImageResource CreateManagedImageResource(IRenderLoopState state, Bitmap bitmap)
+        public IManagedImageResource CreateManagedImageResource(Bitmap bitmap)
         {
             var managed = new ManagedBitmap(new Bitmap(bitmap, bitmap.Width, bitmap.Height));
             return managed;
         }
 
-        public void UpdateManagedImageResource(IRenderLoopState state, ref IManagedImageResource managedImage, Bitmap bitmap)
+        public void UpdateManagedImageResource(ref IManagedImageResource managedImage, Bitmap bitmap)
         {
             if (!(managedImage is ManagedBitmap managedBitmap))
                 throw new ArgumentException($"Expected bitmap to be of type ${typeof(ManagedBitmap)}");

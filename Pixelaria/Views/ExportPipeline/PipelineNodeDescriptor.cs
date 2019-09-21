@@ -30,6 +30,7 @@ namespace Pixelaria.Views.ExportPipeline
 {
     public class PipelineNodeDescriptor
     {
+        [CanBeNull]
         public Bitmap Icon { get; set; }
         public string Title { get; set; }
         public string BodyText { get; set; }

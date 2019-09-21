@@ -36,7 +36,13 @@ namespace PixDirectX.Rendering.DirectX
     /// </summary>
     public sealed class ImageResources : IDisposable, IImageResourceManager
     {
+        private readonly IDirect2DRenderingStateProvider _renderStateProvider;
         private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
+
+        public ImageResources(IDirect2DRenderingStateProvider renderStateProvider)
+        {
+            _renderStateProvider = renderStateProvider;
+        }
 
         public void Dispose()
         {
@@ -74,18 +80,18 @@ namespace PixDirectX.Rendering.DirectX
             return res;
         }
 
-        public IManagedImageResource CreateManagedImageResource(IRenderLoopState renderLoopState, Bitmap bitmap)
+        public IManagedImageResource CreateManagedImageResource(Bitmap bitmap)
         {
-            var state = (IDirect2DRenderingState)renderLoopState;
+            var state = _renderStateProvider.GetLatestValidRenderingState();
 
             var dxBitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
 
             return new DirectXBitmap(dxBitmap);
         }
 
-        public void UpdateManagedImageResource(IRenderLoopState renderLoopState, ref IManagedImageResource managedImage, Bitmap bitmap)
+        public void UpdateManagedImageResource(ref IManagedImageResource managedImage, Bitmap bitmap)
         {
-            var state = (IDirect2DRenderingState)renderLoopState;
+            var state = _renderStateProvider.GetLatestValidRenderingState();
             if(!(managedImage is DirectXBitmap dxBitmap))
                 throw new ArgumentException($"Expected bitmap to be of type ${typeof(DirectXBitmap)}");
 

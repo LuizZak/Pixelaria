@@ -34,6 +34,7 @@ using PixCore.Text.Attributes;
 using PixDirectX.Rendering.DirectX;
 using PixDirectX.Utils;
 using Pixelaria.DXSupport;
+using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
@@ -137,6 +138,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             AdjustSize();
 
             SetupReactiveSearch();
+            var nodeProvider = new DefaultPipelineGraphNodeProvider();
+            LoadCreatablePipelineNodes(nodeProvider.NodeDescriptors);
         }
 
         private void SetupReactiveSearch()
@@ -190,7 +193,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
         /// <summary>
         /// Loads a list of pipeline nodes that can be created from the given array of pipeline node specs
         /// </summary>
-        public void LoadCreatablePipelineNodes([NotNull] PipelineNodeDescriptor[] nodeDescriptors)
+        public void LoadCreatablePipelineNodes([NotNull] IReadOnlyList<PipelineNodeDescriptor> nodeDescriptors)
         {
             LoadedDescriptors.AddRange(nodeDescriptors);
 
@@ -277,7 +280,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
             button.TextInset = new InsetBounds(5, 5, 5, 5);
             button.ImageInset = new InsetBounds(7, 0, 0, 0);
-            //button.Image = IconForPipelineNodeType(spec.NodeType, _imageResourceProvider);
+            if (descriptor.Icon != null)
+                button.ManagedImage = _pipelineRenderManager.ImageResources.CreateManagedImageResource(descriptor.Icon);
             button.TextFont = new Font(FontFamily.GenericSansSerif.Name, 12);
 
             return button;
