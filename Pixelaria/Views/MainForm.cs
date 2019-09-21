@@ -388,7 +388,7 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Updates this form's reprensentation of the given Animation
+        /// Updates this form's representation of the given Animation
         /// </summary>
         /// <param name="animation">The Animation to update the representation of</param>
         public void UpdateAnimation([NotNull] Animation animation)
@@ -550,7 +550,7 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Updates this form's reprensentation of the given AnimationSheet
+        /// Updates this form's representation of the given AnimationSheet
         /// </summary>
         /// <param name="sheet">The AnimationSheet to update the representation of</param>
         public void UpdateAnimationSheet([NotNull] AnimationSheet sheet)
@@ -562,7 +562,7 @@ namespace Pixelaria.Views
         }
 
         /// <summary>
-        /// Opens a view for the given animation (or brings a view already binded to this animation to the front)
+        /// Opens a view for the given animation (or brings a view already bound to this animation to the front)
         /// </summary>
         /// <param name="sheet">The Animation to open the AnimationView for</param>
         /// <returns>The created AnimationView</returns>
@@ -612,7 +612,7 @@ namespace Pixelaria.Views
         [CanBeNull]
         public AnimationSheetView GetOpenedViewForAnimationSheet(AnimationSheet sheet)
         {
-            return MdiChildren.OfType<AnimationSheetView>().FirstOrDefault(view => view.CurrentSheet.ID == sheet.ID);
+            return MdiChildren.OfType<AnimationSheetView>().FirstOrDefault(view => view.CurrentSheet?.ID == sheet.ID);
         }
 
         /// <summary>
@@ -894,7 +894,7 @@ namespace Pixelaria.Views
         }
 
         // 
-        // TreeView Node Click ecent handler
+        // TreeView Node Click event handler
         // 
         private void TreeViewNodeClickHandler(object sender, [NotNull] TreeNodeMouseClickEventArgs e)
         {
