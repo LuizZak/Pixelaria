@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -552,11 +552,15 @@ namespace Pixelaria.Views.ModelViews
         /// Changes the paint operation with the given one
         /// </summary>
         /// <param name="paintTool">The new paint operation to replace the current one</param>
-        private void ChangePaintOperation(IPaintTool paintTool)
+        private void ChangePaintOperation(IPaintingPictureBoxTool paintTool)
         {
             if (iepb_frame.CurrentPaintTool is AbstractPaintTool basePaintTool)
             {
                 basePaintTool.ColorPicked -= OnColorPicked;
+            }
+            if (iepb_frame.CurrentPaintTool is SelectionPaintTool selectionTool)
+            {
+                selectionTool.FinishOperation(true);
             }
 
             iepb_frame.CurrentPaintTool = paintTool;
