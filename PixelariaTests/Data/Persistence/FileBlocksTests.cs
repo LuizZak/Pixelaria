@@ -40,7 +40,7 @@ namespace PixelariaTests.Data.Persistence
         [TestMethod]
         public void TestFileBlockIds()
         {
-            var fileBlock = new FileBlock();
+            using var fileBlock = new FileBlock();
             var animBlock = new AnimationBlock();
             var animHeaderBlock = new AnimationHeaderBlock();
             var sheetBlock = new AnimationSheetBlock();
